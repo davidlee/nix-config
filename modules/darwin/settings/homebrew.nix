@@ -7,7 +7,7 @@
       brewfile = true;
       # lockfiles = true;
     };
-    casks = [ 
+    casks = [
       # "raycast"
       # "firefox"
       # "spotify"
@@ -18,14 +18,12 @@
       # "intellij-idea"
       # "font-sf-mono-nerd-font"
       "obs"
-      # "aerospace"
       "aerospace"
       # "telegram"
       # "ncdu"
     ];
     taps = [
       "nikitabobko/aerospace"
-      # "nikitabobko/tap/aerospace"
       # "homebrew/core"
       # "homebrew/cask"
       # "homebrew/cask-fonts"
