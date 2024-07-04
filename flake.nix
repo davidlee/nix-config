@@ -1,78 +1,73 @@
 {
-  description = "Example Darwin system flake";
+  description = "Nix for MacOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-24.05-darwin";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
-    darwin.url = "github:LnL7/nix-darwin";
-    darwin.inputs.nixpkgs.follows = "nixpkgs";
+    darwin = {
+      url = "github:lnl7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    home-manager.url = "github:nix-community/home-manager/master";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      # url = "github:nix-community/home-manager/release-24.05";
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    gitu.url = "github:altsem/gitu";
+    # gitu.url = "github:altsem/gitu";
   };
 
-  outputs = inputs@{ self, darwin, home-manager, nixpkgs, gitu }:
-  let
-    configuration = { pkgs, ... }: {
-      # List packages installed in system profile. To search by name, run:
-      # $ nix-env -qaP | grep wget
-      environment.systemPackages =
-        [ 
-        # pkgs.vim
-        ];
+  outputs = inputs @ {
+    self,
+    darwin,
+    home-manager,
+    nixpkgs,
+    ...
+    # gitu
+  }: let
+    username = "davidlee";
+    useremail = "admin@davlee.com";
+    hostname = "fusillade";
+    system   = "aarch64-darwin";
 
-      # Auto upgrade nix package and the daemon service.
-      services.nix-daemon.enable = true;
-      nix.package = pkgs.nix;
-
-      # Necessary for using flakes on this system.
-      nix.settings.experimental-features = "nix-command flakes";
-
-      # Create /etc/zshrc that loads the nix-darwin environment.
-      programs.zsh.enable = true;  # default shell on catalina
-      # programs.fish.enable = true;
-
-      # Set Git commit hash for darwin-version.
-      system.configurationRevision = self.rev or self.dirtyRev or null;
-
-      # Used for backwards compatibility, please read the changelog before changing.
-      # $ darwin-rebuild changelog
-      system.stateVersion = 4;
-
-      # The platform the configuration will be used on.
-      nixpkgs.hostPlatform = "aarch64-darwin";
-    };
-  in
-  {
-    # Build darwin flake using:
-    # $ darwin-rebuild build --flake .#fusillade
-    darwinConfigurations."fusillade" = darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-
-      pkgs = import nixpkgs { 
-        system = "aarch64-darwin";
-        config.allowUnfree = true; 
+    specialArgs =
+      inputs
+      // {
+        inherit username useremail hostname;
       };
-      
-      modules = [ 
-        ./modules/darwin
-        configuration 
-        home-manager.darwinModules.home-manager
-         {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.davidlee.imports = [ 
-              ./modules/home-manager 
-            ];
-          };
-        }
-      ];
-    };
+ in {
+    darwinConfigurations."${hostname}" = darwin.lib.darwinSystem {
+      pkgs = import nixpkgs {
+        system = "aarch64-darwin";
+        config.allowUnfree = true;
+      };
 
-    # Expose the package set, including overlays, for convenience.
+
+      inherit system specialArgs;
+      modules = [
+        ./modules/nix-core.nix
+        ./modules/system.nix
+        ./modules/apps.nix
+        ./modules/host-users.nix
+       # home manager
+       home-manager.darwinModules.home-manager
+       {
+         home-manager.useGlobalPkgs = true;
+         home-manager.useUserPackages = true;
+         home-manager.extraSpecialArgs = specialArgs;
+         home-manager.users.${username} = import ./home;
+         # home-manager.users.davidlee = import ./home;
+         # FIXME
+         home-manager.backupFileExtension = "nixed";
+       }
+
+      ]; # modules
+    };
     darwinPackages = self.darwinConfigurations."fusillade".pkgs;
+
+    # nix code formatter
+    formatter.${system} = nixpkgs.legacyPackages.${system}.alejandra;
   };
 }
