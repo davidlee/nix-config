@@ -108,7 +108,11 @@
       zoxide
       zsh
       zstd
+      stow
+
+      python312Packages.pywatchman
 ];
+
 
   programs = {
     neovim = {

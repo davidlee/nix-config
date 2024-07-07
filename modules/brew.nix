@@ -31,6 +31,7 @@
       "google-chrome"
       "obs"
       "aerospace"
+      "iina"
     ];
     taps = [
       "nikitabobko/aerospace"

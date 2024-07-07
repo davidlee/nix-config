@@ -7,3 +7,4 @@ task :build do
 end
 
 task :default => :build
+task :install => :switch

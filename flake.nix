@@ -58,9 +58,8 @@
          home-manager.useUserPackages = true;
          home-manager.extraSpecialArgs = specialArgs;
          home-manager.users.${username} = import ./home;
-         # home-manager.users.davidlee = import ./home;
          # FIXME
-         home-manager.backupFileExtension = "nixed";
+         # home-manager.backupFileExtension = "nixed";
        }
 
       ]; # modules
