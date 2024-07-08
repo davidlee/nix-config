@@ -27,6 +27,7 @@
       "jordanbaird-ice"
       "intellij-idea"
       "google-chrome"
+      "hammerspoon"
       # "raycast"
       # "spotify"
       # "slack"

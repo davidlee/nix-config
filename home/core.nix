@@ -3,6 +3,8 @@
 {
   home.packages = with pkgs; [
 
+      skhd
+      yabai
       antidote # this shit even connected?
       aria2
       aspell
@@ -129,6 +131,23 @@
     };
 
     fzf = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+
+    zoxide = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+
+    zk.enable = true;
+
+    zellij = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+
+    yazi = {
       enable = true;
       enableZshIntegration = true;
     };
