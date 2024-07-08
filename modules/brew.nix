@@ -16,30 +16,27 @@
       Xcode = 497799835;
     };
      brews = [
-      
+       # "jordanbaird-ice"
     ];
     casks = [
-      "raycast"
       "firefox"
-      "spotify"
-      "slack"
-      "discord"
-      "visual-studio-code"
       "zoom"
-      # "brave-browser"
-      "intellij-idea"
-      "google-chrome"
       "obs"
       "aerospace"
       "iina"
+      "jordanbaird-ice"
+      "intellij-idea"
+      "google-chrome"
+      # "raycast"
+      # "spotify"
+      # "slack"
+      # "discord"
+      # "visual-studio-code"
     ];
     taps = [
       "nikitabobko/aerospace"
-      "homebrew/cask-fonts"
       "homebrew/services"
-      "homebrew/cask-versions"
     ];
-    # brews = [ ];
 
     extraConfig = ''
     '';

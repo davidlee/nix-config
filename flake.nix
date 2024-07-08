@@ -48,6 +48,7 @@
         ./modules/system.nix
         ./modules/apps.nix
         ./modules/host-users.nix
+        ./modules/brew.nix
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
