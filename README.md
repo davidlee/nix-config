@@ -1,8 +1,9 @@
 # usage
 
-darwin-rebuild switch --flake '.#fusillade'
+`rake` - build
+`rake install` or `rake switch` - apply changes
 
 # todo
 - [ ] figure out how to sync home-manager without darwin for passwordless updates
-- [ ] add dotfiles, maybe
-- [ ] replace antidote with native nix
+- [ ] kitty
+
