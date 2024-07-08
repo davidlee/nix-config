@@ -1,6 +1,7 @@
 # usage
 
 `rake` - build
+
 `rake install` or `rake switch` - apply changes
 
 # todo
