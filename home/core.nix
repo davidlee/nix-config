@@ -17,7 +17,7 @@
       curl
       d2
       delta
-      delta
+      difftastic
       direnv
       docutils
       emacs
@@ -115,6 +115,8 @@
 
 
   programs = {
+    helix.defaultEditor = true;
+
     neovim = {
       enable = true;
       vimAlias = true;
@@ -126,24 +128,77 @@
       enableNushellIntegration = true;
     };
 
-    # A modern replacement for ‘ls’
-    # useful in bash/zsh prompt, not in nushell.
-    # exa = {
-    #   enable = true;
-    #   enableAliases = true;
-    #   git = true;
-    #   icons = true;
-    # };
-
-
     fzf = {
       enable = true;
       enableZshIntegration = true;
     };
+
     eza.enable = true;
     git.enable = true;
-    zsh.antidote.enable = true;
+
     zsh.dotDir = ".config/zsh";
+
+    # zsh.enableFzfCompletion = true; 
+    zsh.syntaxHighlighting.enable = true;
+    zsh.antidote.enable = true;
+    zsh.antidote.plugins = [
+      "https://github.com/peterhurford/up.zsh"
+      "rummik/zsh-tailf"
+      "mattmc3/zman"
+      "agkozak/zsh-z"
+      "ohmyzsh/ohmyzsh path:lib/clipboard.zsh"
+      "ohmyzsh/ohmyzsh path:plugins/copybuffer"
+      "ohmyzsh/ohmyzsh path:plugins/copyfile"
+      "ohmyzsh/ohmyzsh path:plugins/copypath"
+      "ohmyzsh/ohmyzsh path:plugins/colorize"
+      "ohmyzsh/ohmyzsh path:plugins/extract"
+      "ohmyzsh/ohmyzsh path:plugins/magic-enter"
+      "ohmyzsh/ohmyzsh path:plugins/wd"
+      "belak/zsh-utils path:history"
+      "belak/zsh-utils path:utility"
+      "belak/zsh-utils path:editor"
+      "zdharma-continuum/fast-syntax-highlighting kind:defer"
+      "zsh-users/zsh-completions path:src kind:fpath"
+      "Aloxaf/fzf-tab"
+      "belak/zsh-utils path:completion"
+    ];
+
+    # .zshenv
+    zsh.envExtra = ''
+      export DIFFPROG='delta'
+      export MANPAGER='nvim +Man!'
+      
+      export GITHUB_OAUTH_TOKEN=op://Private/y46igzo35i67alyfkbeu7yew6a/token
+
+      export ZMK_CONFIG="/Users/davidlee/dev/keeb-zmk-config/config"
+
+      # taskwarrior - set primary
+      if [[ `hostname` = fusillade ]]; then 
+        export TASKRC_RECURRENCE=on
+      else
+        export TASKRC_RECURRENCE=off
+      fi
+    '';
+    
+    # .zshrc
+    zsh.initExtra = ''
+    setopt extended_glob
+    setopt glob_dots
+    setopt no_complete_aliases
+
+    autoload zmv
+
+    ## yazi
+    function yy() {
+    	local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
+    	yazi "$@" --cwd-file="$tmp"
+    	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    		cd -- "$cwd"
+    	fi
+    	rm -f -- "$tmp"
+    }
+
+    '';
 
     # skim provides a single executable: sk.
     # Basically anywhere you would want to use grep, try sk instead.

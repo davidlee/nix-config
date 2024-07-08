@@ -15,8 +15,6 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # gitu.url = "github:altsem/gitu";
   };
 
   outputs = inputs @ {
@@ -44,23 +42,19 @@
         config.allowUnfree = true;
       };
 
-
       inherit system specialArgs;
       modules = [
         ./modules/nix-core.nix
         ./modules/system.nix
         ./modules/apps.nix
         ./modules/host-users.nix
-       # home manager
-       home-manager.darwinModules.home-manager
-       {
-         home-manager.useGlobalPkgs = true;
-         home-manager.useUserPackages = true;
-         home-manager.extraSpecialArgs = specialArgs;
-         home-manager.users.${username} = import ./home;
-         # FIXME
-         # home-manager.backupFileExtension = "nixed";
-       }
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = specialArgs;
+          home-manager.users.${username} = import ./home;
+        }
 
       ]; # modules
     };

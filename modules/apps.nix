@@ -2,7 +2,7 @@
 
   environment.systemPackages = with pkgs; [
     git
-    # zsh
+    zsh
   ];
 
   # environment.variables.EDITOR = "hx";
