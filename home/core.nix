@@ -111,6 +111,7 @@
       zsh
       zstd
       stow
+      wezterm
 
       python312Packages.pywatchman
 ];
@@ -142,8 +143,54 @@
 
     zk.enable = true;
 
-    zellij = {
+    kitty = {
       enable = true;
+      font.name = "Monolisa";
+      settings = {
+        allow_remote_control = true;
+        listen_on                    = "unix:/tmp/kittyoverlord";
+        clipboard_control            = "write-clipboard write-primary read-clipboard read-primary";
+        cursor_blink_interval        = "0.25";
+        dim_opacity                  = "0.75";
+        visual_bell_duration         = "0.1";
+        cursor_shape                 = "beam";
+        font_family                  = "Monolisa";
+        macos_custom_beam_cursor     = true;
+        macos_option_as_alt          = true;
+        macos_traditional_fullscreen = true;
+        resize_in_steps              = true;
+        tab_bar_style                = "powerline";
+        window_border_width          = "1px";
+      };
+
+      extraConfig = ''
+      action_alias new_tab launch --type=tab --cwd=current
+
+      map kitty_mod+space new_tab_with_cwd
+      map kitty_mod+e     new_tab_with_cwd hx
+
+      map kitty_mod+.     move_tab_forward
+      map kitty_mod+,     move_tab_backward
+
+      map kitty_mod+]     next_window
+      map kitty_mod+[     previous_window
+
+      map kitty_mod+escape kitty_shell window
+
+      map kitty_mod+t layout tall
+      map kitty_mod+s layout stack
+
+      # map kitty_mod+z debug_config
+      # map kitty_mod+f toggle_fullscreen
+
+      map kitty_mod+w swap_with_window
+      map kitty_mod+z focus_visible_window
+      '';
+    };
+    
+
+    zellij = {
+      # enable = true;
       enableZshIntegration = true;
     };
 
@@ -154,6 +201,15 @@
 
     eza.enable = true;
     git.enable = true;
+
+    skim = {
+      enable = true;
+      enableBashIntegration = true;
+    };
+
+    #
+    # ZSH
+    # 
 
     zsh.dotDir = ".config/zsh";
 
@@ -219,11 +275,5 @@
 
     '';
 
-    # skim provides a single executable: sk.
-    # Basically anywhere you would want to use grep, try sk instead.
-    skim = {
-      enable = true;
-      enableBashIntegration = true;
-    };
   };
 }

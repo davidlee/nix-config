@@ -18,7 +18,7 @@
         AppleShowAllExtensions = true;
 
         # Automatically hide and show the menu bar
-        _HIHideMenuBar = true;
+        # _HIHideMenuBar = true;
       };
 
       dock = {
