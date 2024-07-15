@@ -3,9 +3,8 @@
 {
   home.packages = with pkgs; [
 
-      skhd
-      yabai
-      antidote # this shit even connected?
+      lazygit
+      antidote 
       aria2
       aspell
       autoconf
@@ -83,11 +82,12 @@
       ruby
       rustup
       shortcat
-      sketchybar
+      skhd
       socat
       sqlite
       starship
       stdenv
+      stow
       syncthing
       taskwarrior
       tldr
@@ -99,9 +99,11 @@
       unzip
       vit
       watchman
+      wezterm
       wget
       which
       xz
+      yabai
       yazi
       yq-go
       zellij
@@ -110,8 +112,6 @@
       zoxide
       zsh
       zstd
-      stow
-      wezterm
 
       python312Packages.pywatchman
 ];
@@ -139,6 +139,10 @@
     zoxide = {
       enable = true;
       enableZshIntegration = true;
+      options = [ 
+        "--cmd cd" 
+        "--hook pwd" 
+      ];
     };
 
     zk.enable = true;
@@ -148,7 +152,7 @@
       font.name = "Monolisa";
       settings = {
         allow_remote_control = true;
-        listen_on                    = "unix:/tmp/kittyoverlord";
+        listen_on                    = "unix:/private/tmp/kitty";
         clipboard_control            = "write-clipboard write-primary read-clipboard read-primary";
         cursor_blink_interval        = "0.25";
         dim_opacity                  = "0.75";
@@ -180,11 +184,9 @@
       map kitty_mod+t layout tall
       map kitty_mod+s layout stack
 
-      # map kitty_mod+z debug_config
-      # map kitty_mod+f toggle_fullscreen
-
       map kitty_mod+w swap_with_window
       map kitty_mod+z focus_visible_window
+      
       '';
     };
     
