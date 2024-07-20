@@ -17,6 +17,7 @@
     };
      brews = [
        # "jordanbaird-ice"
+      "dnote"
     ];
     casks = [
       "firefox"
@@ -25,7 +26,6 @@
       "aerospace"
       "iina"
       "jordanbaird-ice"
-      "intellij-idea"
       "google-chrome"
       "hammerspoon"
       "1password-cli"
@@ -40,6 +40,7 @@
     taps = [
       "nikitabobko/aerospace"
       "homebrew/services"
+      "dnote/dnote"
     ];
 
     extraConfig = ''

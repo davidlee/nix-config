@@ -3,7 +3,6 @@
 {
   home.packages = with pkgs; [
 
-      lazygit
       antidote 
       aria2
       aspell
@@ -12,6 +11,8 @@
       broot
       bun
       caddy
+      chez
+      chicken
       clangStdenv
       corepack_latest
       coreutils
@@ -21,7 +22,7 @@
       difftastic
       direnv
       docutils
-      emacs
+      emacs-nox
       exercism
       eza
       fd
@@ -30,6 +31,7 @@
       fzf
       gawk
       gh
+      ghc
       git
       gitu
       glib
@@ -37,6 +39,7 @@
       gnused
       gnutar
       graphviz
+      guile
       helix
       hello
       hexyl
@@ -48,12 +51,14 @@
       kakoune
       kakoune
       kitty
+      lazygit
       less
       lf
       libclang
       libiconv
       lld
       lsd
+      lunarvim
       markdown-oxide
       marksman
       ncdu
@@ -62,6 +67,7 @@
       nil
       ninja
       nix-direnv
+      nix-search-cli
       nmap
       nnn
       nodejs_latest
@@ -72,9 +78,14 @@
       pixman
       pnpm
       pstree
-      python3
-      python3
+      cmake
+      # python3
+      # virtualenv
+      # python3.12
+      python312
+      python312Packages.pywatchman
       qmk
+      racket
       racket
       ranger
       rbenv
@@ -107,13 +118,13 @@
       yazi
       yq-go
       zellij
+      zig
       zip
       zk
       zoxide
       zsh
       zstd
 
-      python312Packages.pywatchman
 ];
 
 
@@ -165,6 +176,7 @@
         resize_in_steps              = true;
         tab_bar_style                = "powerline";
         window_border_width          = "1px";
+        enabled_layouts              = "*";
       };
 
       extraConfig = ''
@@ -181,8 +193,8 @@
 
       map kitty_mod+escape kitty_shell window
 
-      map kitty_mod+t layout tall
-      map kitty_mod+s layout stack
+      map kitty_mod+t goto_layout tall
+      map kitty_mod+s goto_layout stack
 
       map kitty_mod+w swap_with_window
       map kitty_mod+z focus_visible_window
