@@ -8,3 +8,5 @@ end
 
 task :default => :build
 task :install => :switch
+task :s => :switch
+task :i => :switch

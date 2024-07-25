@@ -3,6 +3,9 @@
 {
   home.packages = with pkgs; [
 
+      darwin.trash
+      sad
+      semgrep
       antidote 
       aria2
       aspell
@@ -21,6 +24,7 @@
       delta
       difftastic
       direnv
+      nix-direnv
       docutils
       emacs-nox
       exercism
@@ -66,7 +70,6 @@
       nethack
       nil
       ninja
-      nix-direnv
       nix-search-cli
       nmap
       nnn
@@ -215,6 +218,9 @@
 
     eza.enable = true;
     git.enable = true;
+
+    direnv.enable = true;
+    direnv.nix-direnv.enable = true;
 
     skim = {
       enable = true;
