@@ -18,6 +18,7 @@
      brews = [
        # "jordanbaird-ice"
       "dnote"
+      "cmdg"
     ];
     casks = [
       "firefox"
@@ -41,6 +42,7 @@
       "nikitabobko/aerospace"
       "homebrew/services"
       "dnote/dnote"
+      "cutzenfriend/homebrew-cmdg"
     ];
 
     extraConfig = ''

@@ -26,7 +26,7 @@
       direnv
       nix-direnv
       docutils
-      emacs-nox
+      emacs-macport
       exercism
       eza
       fd
@@ -62,6 +62,7 @@
       libiconv
       lld
       lsd
+      lynx
       lunarvim
       markdown-oxide
       marksman
@@ -266,6 +267,7 @@
       export GITHUB_OAUTH_TOKEN=op://Private/y46igzo35i67alyfkbeu7yew6a/token
 
       export ZMK_CONFIG="/Users/davidlee/dev/keeb-zmk-config/config"
+      export ZMK_EXTRA_MODULES="/Users/davidlee/dev/zmk-helpers"
 
       # taskwarrior - set primary
       if [[ `hostname` = fusillade ]]; then 
