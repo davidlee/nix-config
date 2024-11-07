@@ -90,7 +90,7 @@
       python312Packages.pywatchman
       qmk
       racket
-      racket
+      raylib
       ranger
       rbenv
       ripgrep
