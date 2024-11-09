@@ -19,6 +19,7 @@
        # "jordanbaird-ice"
       "dnote"
       "cmdg"
+      "llvm@18"
     ];
     casks = [
       "firefox"
