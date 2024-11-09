@@ -61,6 +61,7 @@
       libclang
       libiconv
       lld
+      llvm
       lsd
       lynx
       lunarvim
