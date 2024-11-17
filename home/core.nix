@@ -1,5 +1,7 @@
 { pkgs, ... }:
 
+
+
 {
   home.packages = with pkgs; [
 
@@ -36,6 +38,7 @@
       gawk
       gh
       ghc
+      glfw
       git
       gitu
       glib
@@ -49,9 +52,11 @@
       hexyl
       htop
       httpie
+      ictree
       jankyborders
       jq
       jq
+      just
       kakoune
       kakoune
       kitty
@@ -72,11 +77,27 @@
       nil
       ninja
       nix-search-cli
+      nix-index
       nmap
       nnn
       nodejs_latest
       nushell
       overmind
+      
+      libGL
+      SDL
+      SDL2
+      SDL2_mixer
+      vulkan-headers
+      vulkan-loader
+      vulkan-tools
+      gnumake
+      # valgrind
+      libyaml
+      odin
+      lldb
+
+      ols
       p7zip
       pipx
       pixman
@@ -123,6 +144,7 @@
       yq-go
       zellij
       zig
+      zls
       zip
       zk
       zoxide
@@ -295,6 +317,12 @@
     	rm -f -- "$tmp"
     }
 
+    # wr '**/*.zig' 'zig run test'
+    # watch a directory and do something when files change.
+    # 
+    function wr() {
+      watchman-make -r $1 -p $2
+    }
     '';
 
   };

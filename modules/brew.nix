@@ -32,6 +32,7 @@
       "hammerspoon"
       "1password-cli"
       "beeper"
+      "grain-lang/tap/grain"
       # "1password"
       # "raycast"
       # "spotify"
