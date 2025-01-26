@@ -28,6 +28,7 @@
       direnv
       nix-direnv
       docutils
+      deno
       emacs-macport
       exercism
       eza
@@ -35,6 +36,7 @@
       file
       fontconfig
       fzf
+      fswatch
       gawk
       gh
       ghc
@@ -83,7 +85,7 @@
       nodejs_latest
       nushell
       overmind
-      
+      redo-apenwarr      
       libGL
       SDL
       SDL2
@@ -109,6 +111,7 @@
       # python3.12
       python312
       python312Packages.pywatchman
+      python312Packages.pip
       qmk
       racket
       raylib
@@ -291,6 +294,10 @@
       export ZMK_CONFIG="/Users/davidlee/dev/keeb-zmk-config/config"
       export ZMK_EXTRA_MODULES="/Users/davidlee/dev/zmk-helpers"
 
+      export ZVM_INSTALL="$HOME/.zvm/self"
+      export PATH="$PATH:$HOME/.zvm/bin"
+      export PATH="$PATH:$ZVM_INSTALL/"
+
       # taskwarrior - set primary
       if [[ `hostname` = fusillade ]]; then 
         export TASKRC_RECURRENCE=on
@@ -307,22 +314,9 @@
 
     autoload zmv
 
-    ## yazi
-    function yy() {
-    	local tmp="$(mktemp -t "yazi-cwd.XXXXX")"
-    	yazi "$@" --cwd-file="$tmp"
-    	if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-    		cd -- "$cwd"
-    	fi
-    	rm -f -- "$tmp"
-    }
 
-    # wr '**/*.zig' 'zig run test'
-    # watch a directory and do something when files change.
-    # 
-    function wr() {
-      watchman-make -r $1 -p $2
-    }
+    . ~/.config/zsh/aliases
+
     '';
 
   };
