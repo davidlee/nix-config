@@ -226,7 +226,7 @@
     hyprsunset
     hyprnotify
     hyprcursor
-    hyprlandPlugins.hyprscroller
+    # hyprlandPlugins.hyprscroller
     hyprpolkitagent
     hyprland-activewindow
     wl-clipboard
