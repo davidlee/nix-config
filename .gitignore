@@ -1,6 +1,8 @@
 # avoid recursion!
 .cfg
 .config/home-manager/result
-result
 .cache
+result
+**/.DS_Store
+
 

@@ -1,6 +1,42 @@
-[alias]
-	co = checkout
-	st = status
 [user]
 	email = dav@davlee.com
 	name = David Lee
+[init]
+  defaultBranch = main
+[filter "lfs"]
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+  clean = git-lfs clean -- %f
+[alias]
+  co = checkout
+  br = branch
+  ci = commit
+  st = status -b
+  ci = commit -v
+  a = add .
+  l = log
+  d = diff
+  di = diff
+  gl = config --global -l
+  last = log -1 HEAD --stat
+  ll = log --oneline
+  hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+[core]
+  editor = hx
+  excludesFile = ~/.gitignore_global
+  pager = delta
+[color]
+  ui = true
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true
+[merge]
+  conflictstyle = diff3
+  tool = nvimdiff2
+[diff]
+  colorMoved = default
+[diff "lockb"]
+  textconv = bun
+  binary = true
