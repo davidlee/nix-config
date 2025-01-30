@@ -1,0 +1,6 @@
+[alias]
+	co = checkout
+	st = status
+[user]
+	email = dav@davlee.com
+	name = David Lee

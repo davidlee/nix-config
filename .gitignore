@@ -1,0 +1,6 @@
+# avoid recursion!
+.cfg
+.config/home-manager/result
+result
+.cache
+
