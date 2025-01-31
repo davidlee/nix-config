@@ -33,6 +33,8 @@
         "$mod, K, killactive"
         "$mod, E, exec, $fileManager"
         "$mod, V, togglefloating"
+        "$mod, G, exec, ghostty"
+
         # "$mod, D, scroller:toggleoverview"
         # "$mod, J, scroller:jump"
         

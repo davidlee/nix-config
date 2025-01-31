@@ -6,6 +6,7 @@
   environment.systemPackages = with pkgs; [
     # inputs.nix-inspect.packages.${pkgs.system}.default
     nix-inspect
+    zed-editor
 
     _1password-cli
     _1password-gui
