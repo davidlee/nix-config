@@ -22,7 +22,7 @@
     # zellij
     # ncdu
     hyprland
-    hyprlandPlugins.hyprscroller
+    # hyprlandPlugins.hyprscroller
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
     # # overrides. You can do that directly here, just don't forget the
@@ -147,7 +147,7 @@
  
     kitty = {
       enable = true;
-      font.name = "MonoLisa";
+      # font.name = "MonoLisa";
       settings = {
         allow_remote_control         = true;
         listen_on                    = "tcp:localhost:0";
@@ -168,10 +168,12 @@
 
       extraConfig = ''
 
-      font_family      family="MonoLisa Nerd Font Mono" style=Regular features='+dlig +liga +subs +sups' 
+      # font_family      family="MonoLisa Nerd Font Mono" style=Regular features=
       bold_font        auto 
       italic_font      auto
       bold_italic_font auto
+
+      window_margin_width 10
 
       action_alias new_tab launch --type=tab --cwd=current
 
@@ -208,7 +210,7 @@
       shellAliases = {
         ll = "ls -l";
         nrs = "sudo nixos-rebuild switch";
-        hms = "home-manager switch";
+        hs = "home-manager switch";
       };
       history.size = 10000;
     
@@ -216,16 +218,31 @@
       '';
 
       initExtra = ''
+      bindkey -e
+
       setopt extended_glob
       setopt glob_dots
       setopt no_complete_aliases
 
       autoload zmv
 
+      # Fix Alt-BSPC
+      # overkill: https://mikebian.co/fixing-word-navigation-in-zsh/
+      # 
+      #autoload -U select-word-style
+      #select-word-style
+      
+      WORDCHARS='*?_-.[]~=&;!#$%^(){}<>/ '$'\n'
+      autoload -Uz select-word-style
+      select-word-style normal
+      zstyle ':zle:*' word-style unspecified
+      
+
       # manage dotfiles with bare repo
       # this way we can have autocomplete too
-      gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
-      
+      # 
+      gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
+
       '';
     };
 
@@ -256,11 +273,11 @@
         "$mod, M, exit"
         "$mod, N, fullscreen"
         "$mod, R, exec, $menu"
-        "$mod, C, killactive"
+        "$mod, K, killactive"
         "$mod, E, exec, $fileManager"
         "$mod, V, togglefloating"
-        "$mod, D, scroller:toggleoverview"
-        "$mod, J, scroller:jump"
+        # "$mod, D, scroller:toggleoverview"
+        # "$mod, J, scroller:jump"
         
         "$mod, left, movefocus, l" 
         "$mod, right, movefocus, r" 
@@ -271,11 +288,11 @@
         "$mod CTRL, right, movewindow, r" 
         "$mod CTRL, up, movewindow, u" 
         "$mod CTRL, down, movewindow , d" 
-        "$mod CTRL, home, scroller:movewindow, begin" 
-        "$mod CTRL, end, scroller:movewindow , end" 
+        #"$mod CTRL, home, scroller:movewindow, begin" 
+        #"$mod CTRL, end, scroller:movewindow , end" 
 
-        "$mod, bracketleft, scroller:setmode, row" 
-        "$mod, bracketright, scroller:setmode, col" 
+        #"$mod, bracketleft, scroller:setmode, row" 
+        #"$mod, bracketright, scroller:setmode, col" 
 
         "$mod, S, togglespecialworkspace, magic" 
         "$mod SHIFT, S, movetoworkspace, special:magic" 
@@ -364,7 +381,7 @@
           allow_tearing = true
 
           layout = dwindle
-          layout = scroller
+          # layout = scroller
       }
       decoration {
           rounding = 10

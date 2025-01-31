@@ -7,17 +7,17 @@
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    nix-index-database.url = "github:nix-community/nix-index-database";
-    nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-    nixvim.url = "github:nix-community/nixvim";
-    nix-inspect.url = "github:bluskript/nix-inspect";
-    rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
-    stylix.url = "github:danth/stylix";
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nix-index-database.url = "github:nix-community/nix-index-database";
+    # nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    # nixvim.url = "github:nix-community/nixvim";
+    # nix-inspect.url = "github:bluskript/nix-inspect";
+    # rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
+    # stylix.url = "github:danth/stylix";
+    # nvf = {
+    #   url = "github:notashelf/nvf";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
   outputs = { self, nixpkgs, home-manager, nvf, ... }@inputs:
@@ -61,25 +61,22 @@
             ./hosts/${host}/config.nix
             # inputs.stylix.nixosModules.styli
 
-            #
-            # home-manager.nixosModules.home-manager
-            # {
-            #   # Apply the overlays to the NixOS system
-            #   # nixpkgs.overlays = overlays;
-            #   home-manager.extraSpecialArgs = {
-            #     inherit username;
-            #     inherit inputs;
-            #     inherit host;
-            #     inherit systems;
-            #   };
+            home-manager.nixosModules.home-manager
+            {
+              # Apply the overlays to the NixOS system
+              # nixpkgs.overlays = overlays;
+              home-manager.extraSpecialArgs = {
+                inherit username;
+                inherit inputs;
+                inherit host;
+                inherit systems;
+              };
 
-            #   home-manager.useGlobalPkgs = true;
-            #   home-manager.useUserPackages = true;
-            #   home-manager.backupFileExtension = "backup";
-
-            #   # FIXME re-enable once system flake is working and home manager config migrated
-            #   ## home-manager.users.${username} = import ./hosts/${host}/home.nix;
-            # }
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+              home-manager.users.${username} = import ./hosts/${host}/home.nix;
+            }
 
           ];
         };
