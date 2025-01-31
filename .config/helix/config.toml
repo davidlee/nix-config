@@ -1,0 +1,101 @@
+
+# theme = 'monokai_pro_octagon'
+theme = 'gruvbox'
+
+[editor]
+shell = ['zsh', '-c']
+scroll-lines = 1
+completion-trigger-len = 1
+true-color = true
+color-modes = true 
+auto-save = true
+idle-timeout = 50
+rulers = [120]
+bufferline = 'multiple'
+cursorline = true
+
+[editor.cursor-shape]
+insert='bar'
+select='underline'
+
+[editor.statusline]
+left = ['mode', 'spinner', 'file-name', 'read-only-indicator', 'file-modification-indicator']
+center = ['version-control','spacer', 'position-percentage', 'file-type', 'file-encoding']
+right = ['diagnostics', 'workspace-diagnostics', 'selections','primary-selection-length', 'register', 'position']
+
+[editor.whitespace.render]
+tab = 'all'
+nbsp = 'all'
+
+[editor.gutters.line-numbers]
+min-width = 2
+
+[editor.indent-guides]
+render = true 
+
+[editor.lsp]
+display-messages = true
+
+[editor.soft-wrap]
+enable = true
+max-wrap = 30
+max-indent-retain = 60
+
+[editor.file-picker]
+hidden = false # don't show hidden files
+
+##########################################################
+##
+## Keybindings 
+##
+##########################################################
+# https://docs.helix-editor.com/keymap.html
+
+##################
+### NORMAL #######
+[keys.normal]
+
+V = ["goto_first_nonwhitespace", "extend_to_line_end"]
+D = ["ensure_selections_forward", "extend_to_line_end"]
+H = "goto_first_nonwhitespace"
+
+"+" = "format_selections"
+C-t = 'completion'
+C-space = "signature_help"
+# C-h = 'insert_newline'
+
+# move line down / up
+C-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
+C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
+
+# next / prev paragraph
+"A-j" = ["move_next_word_end", "select_mode", "insert_at_line_start", "move_line_down", "goto_next_paragraph", "normal_mode", "goto_prev_paragraph", "goto_next_paragraph", "trim_selections"]
+"A-k" = ["move_next_word_start", "select_mode", "insert_at_line_end", "move_line_up", "goto_prev_paragraph", "normal_mode", "goto_next_paragraph", "goto_prev_paragraph", "trim_selections"]
+# "A-j" = ["move_prev_word_end", "goto_next_paragraph", "collapse_selection", "move_visual_line_down", "insert_at_line_end", "normal_mode", "insert_at_line_start", "normal_mode", "goto_next_paragraph", "trim_selections"]
+# "A-k" = ["move_next_word_start", "goto_prev_paragraph", "move_visual_line_up", "goto_prev_paragraph", "trim_selections"]
+
+# Buffers
+"C-[" = ":buffer-next"
+"C-]" = ":buffer-previous"
+"A-w" = ":buffer-close"
+
+##################
+### INSERT #######
+[keys.insert]
+
+################## 
+### SELECT #######
+[keys.select]
+V = "extend_to_line_end"
+x = "extend_line"
+# ";" = ["collapse_selection", "normal_mode"] # save hitting esc
+
+##################
+### MINOR MODES ##
+[keys.normal.space.u]
+n = ":set-option line-number absolute"
+r = ":set-option line-number relative"
+
+[keys.normal.space]
+q = ":quit"
+
