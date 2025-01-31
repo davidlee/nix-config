@@ -13,6 +13,7 @@
   br = branch
   ci = commit
   st = status -b
+  s = status --untracked-files=no
   ci = commit -v
   a = add .
   l = log

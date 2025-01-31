@@ -1,6 +1,7 @@
 .direnv
 .env
 .envrc
+result
 
 .idea
 .vscode
