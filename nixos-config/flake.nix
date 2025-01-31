@@ -25,11 +25,11 @@
       inherit (self) outputs;
 
       systems = [
-        # "aarch64-linux"
-        # "i686-linux"
+        "aarch64-linux"
+        "i686-linux"
         "x86_64-linux"
         "aarch64-darwin"
-        # "x86_64-darwin"
+        "x86_64-darwin"
       ];
 
       host = "nixos";
@@ -41,7 +41,7 @@
 
       # Or 'nixpkgs-fmt'
       formatter =
-        forAllSystems (system: nixpkgs.legacyPackages.${system}.${username});
+        forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
       # Your custom packages and modifications, exported as overlays
       overlays = import ./overlays { inherit inputs; };
@@ -58,28 +58,29 @@
             inherit outputs;
           };
           modules = [
-            # ./hardware-configuration.nix
-            # ./configuration.nix
             ./hosts/${host}/config.nix
-            # inputs.stylix.nixosModules.stylix
-            home-manager.nixosModules.home-manager
-            {
-              # Apply the overlays to the NixOS system
-              # nixpkgs.overlays = overlays;
-              home-manager.extraSpecialArgs = {
-                inherit username;
-                inherit inputs;
-                inherit host;
-                inherit systems;
-              };
+            # inputs.stylix.nixosModules.styli
 
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "backup";
+            #
+            # home-manager.nixosModules.home-manager
+            # {
+            #   # Apply the overlays to the NixOS system
+            #   # nixpkgs.overlays = overlays;
+            #   home-manager.extraSpecialArgs = {
+            #     inherit username;
+            #     inherit inputs;
+            #     inherit host;
+            #     inherit systems;
+            #   };
 
-              # FIXME re-enable once system flake is working and home manager config migrated
-              ## home-manager.users.${username} = import ./hosts/${host}/home.nix;
-            }
+            #   home-manager.useGlobalPkgs = true;
+            #   home-manager.useUserPackages = true;
+            #   home-manager.backupFileExtension = "backup";
+
+            #   # FIXME re-enable once system flake is working and home manager config migrated
+            #   ## home-manager.users.${username} = import ./hosts/${host}/home.nix;
+            # }
+
           ];
         };
       };
