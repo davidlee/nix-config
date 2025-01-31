@@ -6,27 +6,29 @@
   inputs,
   ...
 }: let
-  inherit (import ../../hosts/magic/variables.nix) gitUsername;
+  inherit (import ../../hosts/nixos/variables.nix) gitUsername;
 in {
   options = {users.enable = lib.mkEnableOption "Enables users module";};
 
   config = lib.mkIf config.users.enable {
+    # TODO investigate; this may not be required if hashedPassword is set?
+    users.mutableUsers = true; 
+
      users.users = {
        "${username}" = {
          homeMode = "755";
          isNormalUser = true;
-         # description = "${gitUsername}";
          description = "David Lee";
-         # hashedPassword = "$6$hLxz1nh01PVcUQ6e$4o6tYrRxbRQQFRN3NSUMkPuwdRpOhNdp1s07TAYr2shcbdQUkYurHyk8Xp8FvjVPwr60N4NSPDmwUr6Nd5FD9.";
+         hashedPassword = "$y$j9T$M1O771cWWQrbfPt1rH6Q91$BdWZzN5nF6AHnnPt.WVV5N6WTnuho7xJFT8OW14PrJA";
          # extraGroups = ["networkmanager" "wheel" "libvirtd" "scanner" "lp" "root" "jr"];
-         extraGroups = [ "networkmanager" "wheel" ];
+         extraGroups = [ "networkmanager" "wheel" "root" "dev" ];
          home = "/home/david/";
          shell = pkgs.zsh;
          # ignoreShellProgramCheck = true;
-         # packages = with pkgs; [tealdeer zoxide mcfly tokei inputs.home-manager.packages.${pkgs.system}.default];
-         # packages = with pkgs; [
-         #   #  thunderbird
-         # ];
+         packages = with pkgs; [
+           inputs.home-manager.packages.${pkgs.system}.default
+           pkgs.hello
+         ];
        };
      };
 
