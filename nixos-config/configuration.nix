@@ -234,6 +234,9 @@
     clipse
     copyq
     clipman
+    nodejs_23
+    pnpm
+    bun
     xdg-desktop-portal-hyprland
     discord
     slack
@@ -275,6 +278,15 @@
     ictree
     jq
     just
+    lua
+    fzf-zsh
+    fzy
+    vimPlugins.fzf-lua
+    luajitPackages.fzf-lua
+    luajit
+    lua54Packages.luarocks-nix 
+    lua-language-server
+    luarocks-packages-updater
     kakoune
     marksman
     nethack
@@ -329,6 +341,8 @@
     cmake
     meson
     cpio
+    nerd-font-patcher
+    viu
   ];
 
 
@@ -336,8 +350,20 @@
     # nerd-fonts
     proggyfonts
     noto-fonts
+    nerd-fonts.hack
+    nerd-fonts.tinos
+    nerd-fonts.agave
+    nerd-fonts.profont
+    nerd-fonts.iosevka
+    nerd-fonts.hasklug
+    nerd-fonts.zed-mono
+    victor-mono
+    jetbrains-mono
+    monaspace
+    geist-font
   ];
 
+  fonts.fontDir.enable = true;
   fonts.enableDefaultPackages = true;
 
   # users.defaultUserShell = pkgs.zsh;

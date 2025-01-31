@@ -147,17 +147,16 @@
  
     kitty = {
       enable = true;
-      font.name = "Monolisa";
+      font.name = "MonoLisa";
       settings = {
-        allow_remote_control = true;
-        # listen_on                    = "unix:/private/tmp/kitty";
-        listen_on = "tcp:localhost:0";
+        allow_remote_control         = true;
+        listen_on                    = "tcp:localhost:0";
         clipboard_control            = "write-clipboard write-primary read-clipboard read-primary";
         cursor_blink_interval        = "0.25";
         dim_opacity                  = "0.75";
         visual_bell_duration         = "0.1";
         cursor_shape                 = "beam";
-        font_family                  = "Monolisa";
+        # font_family                  = "Monolisa";
         macos_custom_beam_cursor     = true;
         macos_option_as_alt          = true;
         macos_traditional_fullscreen = true;
@@ -168,6 +167,12 @@
       };
 
       extraConfig = ''
+
+      font_family      family="MonoLisa Nerd Font Mono" style=Regular features='+dlig +liga +subs +sups' 
+      bold_font        auto 
+      italic_font      auto
+      bold_italic_font auto
+
       action_alias new_tab launch --type=tab --cwd=current
 
       map kitty_mod+space new_tab_with_cwd
@@ -235,13 +240,17 @@
   wayland.windowManager.hyprland = {
     enable = true;
     # withUWSM = true;
-    plugins = [ pkgs.hyprlandPlugins.hyprscroller ];
+
+    ## ERRORS
+    # plugins = [ pkgs.hyprlandPlugins.hyprscroller ];
+
     settings = {
       "$mod" = "SUPER";
       "$terminal" = "kitty";
       "$menu" = "wofi --show drun";
       "$fileManager" = "dolphin";
       
+      # is it really worth keeping these in nix format?
       bind = [
         "$mod, Q, exec, $terminal"
         "$mod, M, exit"
@@ -252,7 +261,6 @@
         "$mod, V, togglefloating"
         "$mod, D, scroller:toggleoverview"
         "$mod, J, scroller:jump"
-
         
         "$mod, left, movefocus, l" 
         "$mod, right, movefocus, r" 
@@ -274,7 +282,6 @@
         
         "$mod, mouse_down, workspace, e+1"
         "$mod, mouse_up, workspace, e-1"
-
       ];
       
       bindm = [
