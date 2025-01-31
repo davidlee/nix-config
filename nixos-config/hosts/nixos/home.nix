@@ -3,7 +3,7 @@
   # Home Manager Settings
   home = {
     username = "${username}";
-    homeDirectory = "/home/${username}";
+    homeDirectory = "/home/${username}/";
     stateVersion = "24.11";
   };
 

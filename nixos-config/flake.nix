@@ -14,10 +14,10 @@
     # nix-inspect.url = "github:bluskript/nix-inspect";
     # rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
     # stylix.url = "github:danth/stylix";
-    # nvf = {
-    #   url = "github:notashelf/nvf";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    nvf = {
+      url = "github:notashelf/nvf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, nvf, ... }@inputs:
