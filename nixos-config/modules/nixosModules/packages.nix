@@ -6,8 +6,22 @@
   environment.systemPackages = with pkgs; [
     # inputs.nix-inspect.packages.${pkgs.system}.default
     nix-inspect
+    nix-tree
+    # nix-linter
+    nix-du
+    nix-melt
+    nix-top
+    nix-diff
+    nix-bisect
+    nix-btm
+    sd-switch
     zed-editor
     cachix
+    typescript
+    typescript-language-server
+    vscode
+
+
 
     _1password-cli
     _1password-gui

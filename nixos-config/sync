@@ -1,0 +1,10 @@
+#!/usr/bin/env -S zsh -x
+
+cd ~/nixos-config
+
+git --work-tree=/home/david --git-dir=/home/david/.cfg add \
+  ~/.gitconfig ~/.gitignore_global ~/nixos-config ~/.config/helix/config.toml 
+git --work-tree=/home/david --git-dir=/home/david/.cfg commit -v
+git --work-tree=/home/david --git-dir=/home/david/.cfg push
+
+nixos-rebuild switch --show-trace --print-build-logs 

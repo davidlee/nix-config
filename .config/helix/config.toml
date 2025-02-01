@@ -43,6 +43,7 @@ max-indent-retain = 60
 
 [editor.file-picker]
 hidden = false # don't show hidden files
+follow-symlinks = false # don't show everything in result/
 
 ##########################################################
 ##
