@@ -7,4 +7,4 @@ git --work-tree=/home/david --git-dir=/home/david/.cfg add \
 git --work-tree=/home/david --git-dir=/home/david/.cfg commit -v
 git --work-tree=/home/david --git-dir=/home/david/.cfg push
 
-nixos-rebuild switch --show-trace --print-build-logs 
+nixos-rebuild build --show-trace --print-build-logs && sudo nixos-rebuild switch
