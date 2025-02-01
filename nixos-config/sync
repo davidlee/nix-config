@@ -1,4 +1,4 @@
-#!/usr/bin/env -S zsh -x
+#!/usr/bin/env -S zsh 
 
 cd ~/nixos-config
 

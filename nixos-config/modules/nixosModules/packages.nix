@@ -20,9 +20,6 @@
     typescript
     typescript-language-server
     vscode
-
-
-
     _1password-cli
     _1password-gui
     _7zz
@@ -107,26 +104,26 @@
     # htop
     htop
     httpie
-    hypr
-    hyprcursor
-    hyprdim
-    hypre
-    hyprkeys
-    hyprland
-    hyprland-activewindow
+    # hypr
+    # hyprcursor
+    # hyprdim
+    # hypre
+    # hyprkeys
+    # hyprland
+    # hyprland-activewindow
     # hyprlandPlugins.hyprscroller
-    hyprlang
-    hyprlock
-    hyprls
-    hyprnome
-    hyprnotify
-    hyprpaper
-    hyprpolkitagent
-    hyprshot
-    hyprsome
-    hyprspace
-    hyprsunset
-    hyprutils
+    # hyprlang
+    # hyprlock
+    # hyprls
+    # hyprnome
+    # hyprnotify
+    # hyprpaper
+    # hyprpolkitagent
+    # hyprshot
+    # hyprsome
+    # hyprspace
+    # hyprsunset
+    # hyprutils
     i3status
     ictree
     imv

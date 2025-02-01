@@ -51,6 +51,7 @@
       dedicatedServer.openFirewall = true;
       localNetworkGameTransfers.openFirewall = true; 
     };
+
     thunar = {
       enable = true;
       plugins = with pkgs.xfce; [thunar-archive-plugin thunar-volman];

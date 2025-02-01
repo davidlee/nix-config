@@ -9,30 +9,28 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-
-    # hyprland = {
-    #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1&ref={version}";
-    #   version = "0.47.1";
-    # };
-    # hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
-
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland?submodules=1";
     hy3 = {
       url = "github:outfoxxed/hy3"; 
       inputs.hyprland.follows = "hyprland";
     };
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland"; # Prevents version mismatch.
+      inputs.hyprland.follows = "hyprland"; 
     };
     
     # nix-index-database.url = "github:nix-community/nix-index-database";
     # nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
+    # 
     # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     # nixvim.url = "github:nix-community/nixvim";
+    # 
     # nix-inspect.url = "github:bluskript/nix-inspect";
+    # 
     # rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
+     
     # stylix.url = "github:danth/stylix";
+
     # nvf = {
     #   url = "github:notashelf/nvf";
     #   inputs.nixpkgs.follows = "nixpkgs";
