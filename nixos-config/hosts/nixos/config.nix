@@ -7,7 +7,9 @@ in {
     ../../modules/nixosModules/default.nix
     ../../modules/nvidia-drivers.nix
   ];
+  # implicit config.*
   users.enable = true;
+  drivers.nvidia.enable = true;
   
   nix.settings = {
     auto-optimise-store = true;
