@@ -1,4 +1,4 @@
-{ config, pkgs, username, ... }: {
+{ config, pkgs, username, hyprland, hy3, ... }: {
 
   # Home Manager Settings
   home = {
@@ -13,7 +13,16 @@
     ../../modules/homeManagerModules/programs.nix
     ../../modules/homeManagerModules/hyprland.nix
   ];
-  
+
+  # modules = [
+  #   hyprland.homeManagerModules.default
+  #   {
+  #     wayland.windowManager.hyprland = {
+  #       enable = true;
+  #       plugins = [ hy3.packages.x86_64-linux ];
+  #     };
+  #   }
+  # ];  
 
   home.file = {
     # ...

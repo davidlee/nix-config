@@ -1,12 +1,25 @@
-
 {
   description = "Top level flake for nixOS configuration";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
-    home-manager.url = "github:nix-community/home-manager/master";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    # nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
+    home-manager = { 
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+
+    # hyprland = {
+    #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1&ref={version}";
+    #   version = "0.47.1";
+    # };
+    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    hy3 = {
+      url = "github:outfoxxed/hy3"; 
+      inputs.hyprland.follows = "hyprland";
+    };
+    
     # nix-index-database.url = "github:nix-community/nix-index-database";
     # nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
@@ -14,13 +27,13 @@
     # nix-inspect.url = "github:bluskript/nix-inspect";
     # rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
     # stylix.url = "github:danth/stylix";
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nvf = {
+    #   url = "github:notashelf/nvf";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
   };
 
-  outputs = { self, nixpkgs, home-manager, nvf, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, hyprland, hy3, ... }@inputs:
     let
       inherit (self) outputs;
 
@@ -57,8 +70,10 @@
             inherit host;
             inherit outputs;
           };
+
           modules = [
             ./hosts/${host}/config.nix
+
             # inputs.stylix.nixosModules.styli
 
             home-manager.nixosModules.home-manager
@@ -77,7 +92,6 @@
               home-manager.backupFileExtension = "backup";
               home-manager.users.${username} = import ./hosts/${host}/home.nix;
             }
-
           ];
         };
       };
