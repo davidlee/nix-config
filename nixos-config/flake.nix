@@ -14,10 +14,16 @@
     #   url = "git+https://github.com/hyprwm/Hyprland?submodules=1&ref={version}";
     #   version = "0.47.1";
     # };
-    hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+    # hyprland.url = "git+https://github.com/hyprwm/Hyprland?submodules=1";
+
+    hyprland.url = "github:hyprwm/Hyprland";
     hy3 = {
       url = "github:outfoxxed/hy3"; 
       inputs.hyprland.follows = "hyprland";
+    };
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland"; # Prevents version mismatch.
     };
     
     # nix-index-database.url = "github:nix-community/nix-index-database";
@@ -85,6 +91,7 @@
                 inherit inputs;
                 inherit host;
                 inherit systems;
+                inherit hy3;
               };
 
               home-manager.useGlobalPkgs = true;

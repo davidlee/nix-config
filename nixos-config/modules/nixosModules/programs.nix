@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, inputs, ...}: {
   programs = {
     # thunderbird.enable = true;
     firefox.enable = true;
@@ -38,6 +38,8 @@
     hyprland = { 
       enable = true; 
       withUWSM = true;
+      package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;  
     };
 
     zsh.enable = true;

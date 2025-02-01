@@ -1,6 +1,7 @@
 {
   config,
   pkgs,
+  hy3,
   ...
 }: {
 
@@ -49,10 +50,14 @@
   
   wayland.windowManager.hyprland = {
     enable = true;
-    # withUWSM = true;
+    #withUWSM = true;
+    xwayland.enable = true;
 
     ## ERRORS
     # plugins = [ pkgs.hyprlandPlugins.hyprscroller ];
+    plugins = [
+      # hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
+    ];
 
     settings = {
       "$mod" = "SUPER";
