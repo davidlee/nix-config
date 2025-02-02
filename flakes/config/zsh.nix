@@ -97,10 +97,10 @@
       vdir = "vdir --color=auto";
       dir = "dir --color=auto";
       cat = "bat --style snip --style changes --style header";
-      l = "eza -lh --icons=auto"; # long list
-      ls = "eza --icons=auto --group-directories-first --icons"; # short list
-      ll = "eza -lh --icons --grid --group-directories-first --icons";
-      la = "eza -lah --icons --grid --group-directories-first --icons";
+      l = "eza -lh --icons=auto"; # long
+      ls = "eza --icons=auto --group-directories-first --icons"; # short
+      ll = "eza -lh --icons=auto --grid --group-directories-first";
+      la = "eza -lah --icons=auto --grid --group-directories-first";
       ld = "eza -lhD --icons=auto";
       lt = "eza --icons=auto --tree"; # list folder as tree
       jctl = "journalctl -p 3 -xb";
