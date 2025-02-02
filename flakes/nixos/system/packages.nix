@@ -8,12 +8,15 @@
     nix-inspect
     nix-tree
     neofetch
+    blender
     dwl
     river
     zathura
     spatial-shell
     hdparm
     smartmontools
+    flameshot
+    nemo
     # nix-linter
     nix-du
     nix-melt
