@@ -35,6 +35,10 @@
     
     dconf.enable = true;
     
+    sway = {
+      enable = true;
+    };
+
     hyprland = { 
       enable = true; 
       withUWSM = true;

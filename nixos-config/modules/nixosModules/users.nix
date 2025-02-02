@@ -14,23 +14,22 @@ in {
     # TODO investigate; this may not be required if hashedPassword is set?
     users.mutableUsers = true; 
 
-     users.users = {
-       "${username}" = {
-         homeMode = "755";
-         isNormalUser = true;
-         description = "David Lee";
-         hashedPassword = "$y$j9T$M1O771cWWQrbfPt1rH6Q91$BdWZzN5nF6AHnnPt.WVV5N6WTnuho7xJFT8OW14PrJA";
-         # extraGroups = ["networkmanager" "wheel" "libvirtd" "scanner" "lp" "root" "jr"];
-         extraGroups = [ "networkmanager" "wheel" "root" "dev" ];
-         home = "/home/david/";
-         shell = pkgs.zsh;
-         # ignoreShellProgramCheck = true;
-         packages = with pkgs; [
-           inputs.home-manager.packages.${pkgs.system}.default
-           pkgs.hello
-         ];
-       };
-     };
+    users.users = {
+      "${username}" = {
+        homeMode = "755";
+        isNormalUser = true;
+        description = "David Lee";
+        hashedPassword = "$y$j9T$M1O771cWWQrbfPt1rH6Q91$BdWZzN5nF6AHnnPt.WVV5N6WTnuho7xJFT8OW14PrJA";
+        extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" ];
+        home = "/home/david/";
+        shell = pkgs.zsh;
+        # ignoreShellProgramCheck = true;
+        packages = with pkgs; [
+          inputs.home-manager.packages.${pkgs.system}.default
+          pkgs.hello
+        ];
+      };
+    };
 
     environment = {
       variables = {
@@ -39,7 +38,7 @@ in {
         EDITOR = "nvim";
         VISUAL = "nvim";
       };
-      pathsToLink = [ "/share/zsh" ]; # for autocompletions ... I think?
+      pathsToLink = [ "/share/zsh" ]; # for autocompletion
     };
 
     # i18n / l10n

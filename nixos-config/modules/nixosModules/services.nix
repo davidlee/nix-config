@@ -21,6 +21,7 @@ in {
     };
     
     printing.enable = true;
+    gnome.gnome-keyring.enable = true;
 
     # emacs.enable = true; # for emacsclient
 

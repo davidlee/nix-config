@@ -10,6 +10,26 @@
     package = pkgs.phinger-cursors;
     size = 32;
     gtk.enable = true;
+    x11 = {
+      enable = true;
+      defaultCursor = "phinger-cursors-light";
+    };
+  };
+
+  wayland.windowManager.sway = {
+    enable = true;
+    config = {
+      modifier = "Mod4";
+      terminal = "ghostty";
+      gaps = {
+        smartGaps = true;
+        smartBorders = "on";
+        outer = 5;
+      };
+    };
+    # swaynag.enable = false;
+    extraOptions = [ "--unsupported-gpu" ];
+    
   };
 
   wayland.windowManager.hyprland = {

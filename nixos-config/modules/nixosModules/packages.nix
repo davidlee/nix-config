@@ -7,6 +7,11 @@
     # inputs.nix-inspect.packages.${pkgs.system}.default
     nix-inspect
     nix-tree
+    neofetch
+    dwl
+    river
+    zathura
+    spatial-shell
     # nix-linter
     nix-du
     nix-melt
@@ -243,9 +248,13 @@
     swayidle
     swaylock
     syncthing
+    swayr
+
+    # sway
     tasksh
     taskwarrior3
     tldr
+    tealdeer
     tmux
     tpnote
     # tradingview
