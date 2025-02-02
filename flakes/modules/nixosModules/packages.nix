@@ -12,6 +12,8 @@
     river
     zathura
     spatial-shell
+    hdparm
+    smartmontools
     # nix-linter
     nix-du
     nix-melt

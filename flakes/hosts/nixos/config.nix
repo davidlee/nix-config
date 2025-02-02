@@ -3,7 +3,7 @@ let
   inherit (import ./variables.nix) keyboardLayout;
 in {
   imports = [
-    ./hardware-generated.nix
+    ./hardware-configuration.nix
     ../../modules/nixosModules/default.nix
     ../../modules/nvidia-drivers.nix
   ];
@@ -18,6 +18,8 @@ in {
     substituters = [ "https://hyprland.cachix.org" ];
     trusted-public-keys = ["hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="];
   };
+
+  fileSystems."/".options = [ "noatime" "nodiratime" "discard" ]; # enable SSD trim & improve perf
 
   nixpkgs = {
     # You can add overlays here
