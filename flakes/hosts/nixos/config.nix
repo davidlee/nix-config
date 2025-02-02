@@ -4,8 +4,8 @@ let
 in {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/nixosModules/default.nix
-    ../../modules/nvidia-drivers.nix
+    ../../nixos/system/default.nix
+    ../../nixos/system/nvidia-drivers.nix
   ];
   # implicit config.*
   users.enable = true;

@@ -5,6 +5,7 @@
   ...
 }: {
 
+  # TODO mave this somewhere
   home.pointerCursor = {
     name = "phinger-cursors-light";
     package = pkgs.phinger-cursors;
@@ -47,7 +48,7 @@
       "$mod" = "SUPER";
       "$terminal" = "kitty";
       "$menu" = "wofi --show drun";
-      "$fileManager" = "dolphin";
+      "$fileManager" = "nemo";
       
       # is it really worth keeping these in nix format?
       bind = [
@@ -192,6 +193,7 @@
       }
 
       exec-once = clipse -listen # run listener on startup
+      exec-once = swaybg -i ~/Downloads/dock.png
 
       windowrulev2 = float,class:(clipse) # ensure you have a floating window class set if you want this behavior
       windowrulev2 = size 622 652,class:(clipse) # set the size of the window as necessary

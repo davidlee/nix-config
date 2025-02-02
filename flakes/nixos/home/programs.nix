@@ -6,8 +6,8 @@
 }: {
 
   imports = [
-    ../../config/zsh.nix
-    ../../config/kitty.nix
+    ./zsh.nix
+    ./kitty.nix
   ];
 
   programs = {

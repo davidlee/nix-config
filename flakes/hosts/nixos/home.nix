@@ -8,11 +8,12 @@
   };
 
   imports = [
-    # ../../config/ *
-    ../../modules/homeManagerModules/packages.nix
-    ../../modules/homeManagerModules/programs.nix
-    ../../modules/homeManagerModules/hyprland.nix
+    ../../nixos/home/packages.nix
+    ../../nixos/home/programs.nix
+    ../../nixos/home/hyprland.nix
   ];
+
+  services.swayidle.enable = true;
 
   # modules = [
   #   hyprland.homeManagerModules.default
