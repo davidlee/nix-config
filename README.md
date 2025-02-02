@@ -1,7 +1,6 @@
 # Dotfiles & NixOS system config
 
-see [.cfg/REAME.md] for stuff not nixed (managed using a bare git repo)
-
+See [this guide](https://www.atlassian.com/git/tutorials/dotfiles) to grok how non-nixed dotfiles are managed.
 
 Installation:
 
