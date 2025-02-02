@@ -66,6 +66,11 @@
     initExtraFirst = '';
       bindkey -e
       autoload zmv
+
+      path+=~/.local/bin
+      path+=$PWD/bin
+
+      typeset -U path
     '';
     initExtraBeforeCompInit = ''
     '';
