@@ -2,8 +2,7 @@
 
 cd ~/nixos-config
 
-git --work-tree=/home/david --git-dir=/home/david/.cfg add \
-  ~/.gitconfig ~/.gitignore_global ~/nixos-config ~/.config/helix/config.toml ~/.config/river
+git --work-tree=/home/david --git-dir=/home/david/.cfg add -u
 git --work-tree=/home/david --git-dir=/home/david/.cfg commit -v
 git --work-tree=/home/david --git-dir=/home/david/.cfg push
 
