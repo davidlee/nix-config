@@ -47,7 +47,8 @@
     settings = {
       "$mod" = "SUPER";
       "$terminal" = "kitty";
-      "$menu" = "wofi --show drun";
+      #"$menu" = "wofi --show drun";
+      "$menu" = "walker";
       "$fileManager" = "nemo";
       
       # is it really worth keeping these in nix format?
@@ -194,6 +195,9 @@
 
       exec-once = clipse -listen # run listener on startup
       exec-once = swaybg -i ~/Downloads/dock.png
+      exec-once = copyq --start-server
+      exec-once = walker --gapplication-service
+
 
       windowrulev2 = float,class:(clipse) # ensure you have a floating window class set if you want this behavior
       windowrulev2 = size 622 652,class:(clipse) # set the size of the window as necessary

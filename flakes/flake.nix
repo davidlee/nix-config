@@ -1,6 +1,24 @@
 {
   description = "Top level flake for nixOS configuration";
 
+
+  nixConfig = {
+    auto-optimise-store = true;
+    experimental-features = [ "nix-command" "flakes" ];
+
+    extra-substituters = [
+      "https://hyprland.cachix.org"
+      "https://walker.cachix.org"
+      "https://walker-git.cachix.org"
+    ];
+    
+    extra-trusted-public-keys = [
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
+      "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
+    ];
+  };
+  
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     # nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
@@ -10,14 +28,18 @@
     };
 
     hyprland.url = "github:hyprwm/Hyprland?submodules=1";
+
     hy3 = {
       url = "github:outfoxxed/hy3"; 
       inputs.hyprland.follows = "hyprland";
     };
+
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland"; 
     };
+
+    walker.url = "github:abenz1267/walker";
     
     # nix-index-database.url = "github:nix-community/nix-index-database";
     # nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
@@ -37,7 +59,7 @@
     # };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland, hy3, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
       inherit (self) outputs;
 
@@ -77,6 +99,9 @@
 
           modules = [
             ./hosts/${host}/config.nix
+            {
+              nix.settings.trusted-users = [ "root" "david" "@wheel" ];
+            }
 
             # inputs.stylix.nixosModules.styli
 

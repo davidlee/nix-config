@@ -11,6 +11,11 @@
   ];
 
   programs = {
+
+    walker = {
+      enable = true;
+      runAsService = true;
+    };
   
     direnv = {
       enable = true;
