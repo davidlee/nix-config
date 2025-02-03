@@ -8,6 +8,15 @@
     # inputs.hyprland-qtutils.packages."${pkgs.system}".default
     # pkgs.fzf
     # pkgs.glow # markdown previewer in terminal
+    gperf
+    dtc
+    ccache
+    python313Packages.pip
+    virtualenv
+    dfu-util
+    qemu
+    # python-pip python-setuptools python-wheel
+    # tk-9_0
     kitty
     hyprland
     hypr

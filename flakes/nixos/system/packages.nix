@@ -114,6 +114,7 @@
     mpv
     # ncdu
     ncdu
+    xplr
     #neovide
     # nh
     # nil

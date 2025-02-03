@@ -1,4 +1,4 @@
-{ config, pkgs, username, hyprland, hy3, ... }: {
+{ config, pkgs, username, inputs, ... }: {
 
   # Home Manager Settings
   home = {
@@ -8,10 +8,12 @@
   };
 
   imports = [
+    inputs.walker.homeManagerModules.default
     ../../nixos/home/packages.nix
     ../../nixos/home/programs.nix
     ../../nixos/home/hyprland.nix
-  ];
+    
+   ];
 
   services.swayidle.enable = true;
 
