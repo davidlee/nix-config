@@ -89,7 +89,6 @@
                 inherit inputs;
                 inherit host;
                 inherit systems;
-                inherit hy3;
               };
 
               home-manager.useGlobalPkgs = true;
