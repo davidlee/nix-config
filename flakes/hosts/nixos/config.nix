@@ -7,15 +7,16 @@ in {
     ../../nixos/system/default.nix
     ../../nixos/system/nvidia-drivers.nix
   ];
-  # implicit config.*
+
+  nix.settings.trusted-users = [ "root" "david" "@wheel" ];
+
   users.enable = true;
   drivers.nvidia.enable = true;
-  # swayr.enable = true;
   
-  fileSystems."/".options = [ "noatime" "nodiratime" "discard" ]; # enable SSD trim & improve perf
+  # enable SSD trim & improve perf
+  fileSystems."/".options = [ "noatime" "nodiratime" "discard" ]; 
 
   nixpkgs = {
-    # You can add overlays here
     overlays = [
       # Add overlays your own flake exports (from overlays and pkgs dir):
       # outputs.overlays.additions
@@ -34,8 +35,4 @@ in {
   networking.hostName = host;
   networking.timeServers = options.networking.timeServers.default ++ [ "pool.ntp.org" ];
   networking.firewall.allowedTCPPorts = [ 22 80 ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # networking.firewall.enable = false;
-
-  # console.keyMap = "${keyboardLayout}";
 }

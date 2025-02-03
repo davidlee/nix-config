@@ -153,6 +153,9 @@
     swayidle
     swaylock
     syncthing
+    steamcmd
+    steam-tui
+    gamescope
     swayr
     tasksh
     taskwarrior3

@@ -17,15 +17,16 @@
 
   services.swayidle.enable = true;
 
-  # modules = [
-  #   hyprland.homeManagerModules.default
+  # inputs.modules = [
+  #   inputs.hyprland.homeManagerModules.default
   #   {
   #     wayland.windowManager.hyprland = {
   #       enable = true;
-  #       plugins = [ hy3.packages.x86_64-linux ];
+  #       plugins = [ inputs.hy3.packages.x86_64-linux ];
   #     };
   #   }
-  # ];  
+  # ];
+   
 
   home.file = {
     # ...

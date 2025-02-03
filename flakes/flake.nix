@@ -21,7 +21,7 @@
   
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    # nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-24.11";
+    
     home-manager = { 
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -41,22 +41,6 @@
 
     walker.url = "github:abenz1267/walker";
     
-    # nix-index-database.url = "github:nix-community/nix-index-database";
-    # nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
-    # 
-    # neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-    # nixvim.url = "github:nix-community/nixvim";
-    # 
-    # nix-inspect.url = "github:bluskript/nix-inspect";
-    # 
-    # rose-pine-hyprcursor.url = "github:ndom91/rose-pine-hyprcursor";
-     
-    # stylix.url = "github:danth/stylix";
-
-    # nvf = {
-    #   url = "github:notashelf/nvf";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -100,15 +84,17 @@
           modules = [
             ./hosts/${host}/config.nix
             {
-              nix.settings.trusted-users = [ "root" "david" "@wheel" ];
             }
 
             # inputs.stylix.nixosModules.styli
 
             home-manager.nixosModules.home-manager
             {
+ 
               # Apply the overlays to the NixOS system
               # nixpkgs.overlays = overlays;
+
+              # pass extra args to home.nix
               home-manager.extraSpecialArgs = {
                 inherit username;
                 inherit inputs;

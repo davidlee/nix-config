@@ -2,6 +2,7 @@
   config,
   pkgs,
   hy3,
+  inputs,
   ...
 }: {
 
@@ -30,7 +31,6 @@
     };
     # swaynag.enable = false;
     extraOptions = [ "--unsupported-gpu" ];
-    
   };
 
   wayland.windowManager.hyprland = {
@@ -42,6 +42,7 @@
     plugins = [
       # hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
       # pkgs.hyprlandPlugins.hyprscroller
+      # inputs.hy3.packages.x86_64-linux.hy3
     ];
 
     settings = {
@@ -57,6 +58,7 @@
         "$mod, M, exit"
         "$mod, N, fullscreen"
         "$mod, R, exec, $menu"
+        "$mod, space, exec, $menu"
         "$mod, K, killactive"
         "$mod, E, exec, $fileManager"
         "$mod, V, togglefloating"
