@@ -7,6 +7,7 @@
     # inputs.nix-inspect.packages.${pkgs.system}.default
     # inputs.hyprland.packages.${pkgs.system}.default
     smem
+    btrfs-progs
     hdparm
     smartmontools
     usbutils # lsusb

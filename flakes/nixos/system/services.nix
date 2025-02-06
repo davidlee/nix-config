@@ -6,7 +6,16 @@
 in {
   services = {
 
-    openssh.enable = true;
+    openssh = {
+      enable = true;
+      settings = {
+        PasswordAuthentication = false;
+        X11Forwarding = false;
+        PermitRootLogin = "prohibit-password";
+        UseDns = true;
+      };
+    };
+
     xserver = {
       # videoDrivers = [ "nvidia"]; # see nvidia-drivers.nix
       # enable = true; 

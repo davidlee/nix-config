@@ -8,9 +8,13 @@
     # inputs.hyprland-qtutils.packages."${pkgs.system}".default
     # pkgs.fzf
     # pkgs.glow # markdown previewer in terminal
+    waypipe
+    nix-index
+    stress-ng
     gperf
     dtc
     ccache
+    devcontainer
     python313Packages.pip
     virtualenv
     dfu-util
@@ -41,12 +45,15 @@
     hyprutils
     kando
     superfile
+    flatpak
     gh-dash
     lazydocker
     docker
     # posting
     trippy
     # bagels
+    dwlb
+    somebar
     oha
     cloudlens
     harlequin
