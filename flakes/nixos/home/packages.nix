@@ -9,7 +9,18 @@
     # pkgs.fzf
     # pkgs.glow # markdown previewer in terminal
     waypipe
+    sway-contrib.grimshot
+    swaymux
+    showmethekey
+    wev
+    kanshi
+    wmenu
+    wldash
+    swayimg
+    swaybg
+    imv
     nix-index
+    gammastep
     stress-ng
     gperf
     dtc
