@@ -1,8 +1,9 @@
 {
   config,
   pkgs,
-  hy3,
-  inputs,
+  # hy3,
+  # inputs,
+  lib,
   ...
 }: {
 
@@ -26,7 +27,23 @@
       gaps = {
         smartGaps = true;
         smartBorders = "on";
-        outer = 5;
+        outer = 15;
+        inner = 5;
+      };
+      bars = [{
+        command = "waybar";
+      }];
+      # keybindings = [];
+      keybindings = let
+        modifier = config.wayland.windowManager.sway.config.modifier;
+      in lib.mkOptionDefault {
+        "${modifier}+n" = "scratchpad show";
+        "${modifier}+Shift+n" = "move scratchpad";
+        "${modifier}+t" = "layout tabbed";
+        
+        # "${modifier}+Return" = "exec ${pkgs.foot}/bin/foot";
+        # "${modifier}+Shift+q" = "kill";
+        # "${modifier}+d" = "exec ${pkgs.dmenu}/bin/dmenu_path | ${pkgs.dmenu}/bin/dmenu | ${pkgs.findutils}/bin/xargs swaymsg exec --";
       };
     };
     # swaynag.enable = false;

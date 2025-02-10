@@ -84,7 +84,8 @@
       cfg() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
     '';
     shellAliases = {
-      scr = "grim -g $(slurp)";
+      # scr = "grim -g $(slurp)";
+      scr = "grimshot save area";
       v = "nvim";
       ngc = "nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
       opts = "man home-configuration.nix";
