@@ -2,9 +2,11 @@
   pkgs,
   ...
 }: let
-  inherit (import ../../hosts/magic/variables.nix) _host;
+  # inherit (import ../../hosts/magic/variables.nix) _host;
 in {
   services = {
+
+    kmonad.enable = true;
 
     openssh = {
       enable = true;
@@ -16,23 +18,9 @@ in {
       };
     };
 
-    xserver = {
-      # videoDrivers = [ "nvidia"]; # see nvidia-drivers.nix
-      # enable = true; 
-      # displayManager.gdm = {
-      #   enable = true;
-      #   wayland = true;
-      # };
-      xkb = {
-        layout = "us";
-        variant = "";
-      };
-    };
-    
     printing.enable = true;
-    gnome.gnome-keyring.enable = true;
 
-    # emacs.enable = true; # for emacsclient
+    gnome.gnome-keyring.enable = true;
 
     pipewire = {
       enable = true;
@@ -46,5 +34,6 @@ in {
       package = pkgs.plocate;
       interval = "hourly";
     };
+
   };
 }

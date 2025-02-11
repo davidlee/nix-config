@@ -8,6 +8,19 @@
     # inputs.hyprland-qtutils.packages."${pkgs.system}".default
     # pkgs.fzf
     # pkgs.glow # markdown previewer in terminal
+    tty-clock
+    clock-rs
+    
+    unixtools.nettools
+    unixtools.xxd
+    inetutils
+    quodlibet
+    tauon
+    beets
+    cmus
+    fooyin
+    
+    code-cursor
     waypipe
     sway-contrib.grimshot
     swaymux
@@ -54,6 +67,11 @@
     hyprspace
     hyprsunset
     hyprutils
+    imv
+    rootbar
+    shotman
+    sirula
+
     kando
     superfile
     flatpak
@@ -168,6 +186,15 @@
     # stow
     # stylua
     swaybg
+    # sway-unwrapped
+    swww
+    wbg
+    wev
+    wldash
+    wlroots
+    wob
+    wtype
+    xdg-desktop-portal-wlr
     swayidle
     swaylock
     syncthing

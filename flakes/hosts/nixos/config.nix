@@ -8,10 +8,12 @@ in {
     ../../nixos/system/nvidia-drivers.nix
   ];
 
-  nix.settings.trusted-users = [ "root" "david" "@wheel" ];
+  nix.settings = {
+    trusted-users = [ "root" "david" "@wheel" ];
+    experimental-features = [ "nix-command" "flakes" ];
+  };
 
   users.enable = true;
-  drivers.nvidia.enable = true;
   
   # enable SSD trim & improve perf
   fileSystems."/".options = [ "noatime" "nodiratime" "discard" ]; 

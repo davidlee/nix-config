@@ -1,8 +1,8 @@
 {
   config,
   pkgs,
-  # hy3,
-  # inputs,
+  hy3,
+  inputs,
   lib,
   ...
 }: {
@@ -24,10 +24,8 @@
     enable = true;
     xwayland.enable = true;
 
-    ## ERRORS
-    # plugins = [ pkgs.hyprlandPlugins.hyprscroller ];
     plugins = [
-      # hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
+      # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
       # pkgs.hyprlandPlugins.hyprscroller
       # inputs.hy3.packages.x86_64-linux.hy3
     ];
@@ -50,8 +48,11 @@
         "$mod, E, exec, $fileManager"
         "$mod, V, togglefloating"
         "$mod, G, exec, ghostty"
+        "$mod, T, layoutmsg, swapwithmaster master"
+        "$mod, W, layoutmsg, cyclenext"
+        "$mod, M, layoutmsg, focusmaster"
 
-        # "$mod, D, scroller:toggleoverview"
+        # "$mod, D, scroller:toggleovEerview"
         # "$mod, J, scroller:jump"
         
         "$mod, left, movefocus, l" 
@@ -155,7 +156,8 @@
           # Please see https://wiki.hyprland.org/Configuring/Tearing/ before you turn this on
           allow_tearing = true
 
-          layout = dwindle
+          layout = master
+          # layout = dwindle
           # layout = scroller
       }
       decoration {
@@ -187,6 +189,7 @@
       exec-once = copyq --start-server
       exec-once = walker --gapplication-service
 
+      windowrulev2 = noanim,class:() # ensure you have a floating window class set if you want this behavior
 
       windowrulev2 = float,class:(clipse) # ensure you have a floating window class set if you want this behavior
       windowrulev2 = size 622 652,class:(clipse) # set the size of the window as necessary
