@@ -11,7 +11,6 @@
     inputs.walker.homeManagerModules.default
     ../../nixos/home/packages.nix
     ../../nixos/home/programs.nix
-    ../../nixos/home/hyprland.nix
     
    ];
 

@@ -39,6 +39,8 @@
       export MCFLY_INTERFACE_VIEW=BOTTOM
       export TERM=xterm-256color
 
+      export ELECTRON_OZONE_PLATFORM_HINT=wayland
+
       export EDITOR=nvim
       export VISUAL=nvim
     '';
