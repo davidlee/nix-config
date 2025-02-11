@@ -19,36 +19,6 @@
     };
   };
 
-  wayland.windowManager.sway = {
-    enable = true;
-    config = {
-      modifier = "Mod4";
-      terminal = "ghostty";
-      gaps = {
-        smartGaps = true;
-        smartBorders = "on";
-        outer = 15;
-        inner = 5;
-      };
-      bars = [{
-        command = "waybar";
-      }];
-      # keybindings = [];
-      keybindings = let
-        modifier = config.wayland.windowManager.sway.config.modifier;
-      in lib.mkOptionDefault {
-        "${modifier}+n" = "scratchpad show";
-        "${modifier}+Shift+n" = "move scratchpad";
-        "${modifier}+t" = "layout tabbed";
-        
-        # "${modifier}+Return" = "exec ${pkgs.foot}/bin/foot";
-        # "${modifier}+Shift+q" = "kill";
-        # "${modifier}+d" = "exec ${pkgs.dmenu}/bin/dmenu_path | ${pkgs.dmenu}/bin/dmenu | ${pkgs.findutils}/bin/xargs swaymsg exec --";
-      };
-    };
-    # swaynag.enable = false;
-    extraOptions = [ "--unsupported-gpu" ];
-  };
 
   wayland.windowManager.hyprland = {
     enable = true;
