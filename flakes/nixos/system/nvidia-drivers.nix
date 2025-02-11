@@ -1,27 +1,41 @@
 {
   lib,
   config,
+  pkgs,
   ...
 }:
 with lib; let
-  cfg = config.drivers.nvidia;
+
+  nverStable = config.boot.kernelPackages.nvidiaPackages.stable.version;
+  nverBeta = config.boot.kernelPackages.nvidiaPackages.beta.version;
+  nvidiaPackage =
+    if (lib.versionOlder nverBeta nverStable)
+    then config.boot.kernelPackages.nvidiaPackages.stable
+    else config.boot.kernelPackages.nvidiaPackages.beta;
+
+  extraEnv = { WLR_NO_HARDWARE_CURSORS = "1"; };
 in {
-  options.drivers.nvidia = {
-    enable = mkEnableOption "Enable Nvidia Drivers";
+  hardware.graphics.enable = true;
+  
+  hardware.nvidia = {
+    modesetting.enable = true;
+    powerManagement.enable = false;
+    powerManagement.finegrained = false;
+    open = false;
+    nvidiaSettings = true;
+    package = nvidiaPackage;
   };
 
-  config = mkIf cfg.enable {
-    hardware.graphics.enable = true;
-    services.xserver.videoDrivers = ["nvidia"];
-    hardware.nvidia = {
-      modesetting.enable = true;
-      powerManagement.enable = false;
-      powerManagement.finegrained = false;
-      open = false;
-      nvidiaSettings = true;
-      # package = config.boot.kernelPackages.nvidiaPackages.stable;
-      package = config.boot.kernelPackages.nvidiaPackages.beta;
-      # package = config.boot.kernelPackages.nvidiaPackages.production;
-    };
+  environment.variables = extraEnv;
+  environment.sessionVariables = extraEnv;
+  environment.systemPackages = with pkgs; [
+    glxinfo
+    vulkan-tools
+    glmark2
+  ];
+
+  services.xserver = {
+    videoDrivers = [ "nvidia" ];
+    displayManager.gdm.wayland = true;
   };
 }

@@ -10,12 +10,16 @@
       "https://hyprland.cachix.org"
       "https://walker.cachix.org"
       "https://walker-git.cachix.org"
+      "https://cache.nixos.org"
+      "https://nixpkgs-wayland.cachix.org"
     ];
     
     extra-trusted-public-keys = [
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
       "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
     ];
   };
   
@@ -26,6 +30,13 @@
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixpkgs-wayland = {
+      url = "github:nix-community/nixpkgs-wayland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    walker.url = "github:abenz1267/walker";
 
     hyprland.url = "github:hyprwm/Hyprland?submodules=1";
 
@@ -38,9 +49,6 @@
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland"; 
     };
-
-    walker.url = "github:abenz1267/walker";
-    
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
@@ -67,7 +75,11 @@
         forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
       # Your custom packages and modifications, exported as overlays
-      overlays = import ./overlays { inherit inputs; };
+      
+      overlays =  import ./overlays { inherit inputs; };
+      nixpkgs.overlays = [
+        inputs.nixpkgs-wayland.overlay
+      ];
 
       # NixOS configuration entrypoint
       # Available through 'nixos-rebuild --flake .#hostname'
@@ -79,6 +91,7 @@
             inherit username;
             inherit host;
             inherit outputs;
+            # inherit hy3;
           };
 
           modules = [
@@ -100,6 +113,7 @@
                 inherit inputs;
                 inherit host;
                 inherit systems;
+                # inherit hy3;
               };
 
               home-manager.useGlobalPkgs = true;

@@ -12,12 +12,12 @@
     enable = true;
     config = {
       modifier = "Mod4";
-      terminal = "ghostty";
+      terminal = "kitty";
       gaps = {
         smartGaps = true;
         smartBorders = "on";
         outer = 15;
-        inner = 5;
+        inner = 15;
       };
 
       bars = [{
@@ -32,6 +32,11 @@
         "${modifier}+n" = "scratchpad show";
         "${modifier}+Shift+n" = "move scratchpad";
         "${modifier}+t" = "layout tabbed";
+        "${modifier}+space" = "exec fuzzel";
+        
+        # replace floating window binds we stomped with launcher binds on space
+        "${modifier}+l" = "focus mode_toggle";
+        "${modifier}+Shift+l" = "floating toggle";
       };
     };
     # swaynag.enable = false;
