@@ -9,8 +9,8 @@
 
   imports = [
     inputs.walker.homeManagerModules.default
-    ../../nixos/home/packages.nix
-    ../../nixos/home/programs.nix
+    ../../home/packages.nix
+    ../../home/programs.nix
     
    ];
 

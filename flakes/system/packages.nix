@@ -102,7 +102,7 @@
     libnotify
     # libvirt
     # linuxKernel.packages.linux_zen.cpupower
-    lldb
+    # lldb
     llvm
     # lm_sensors
     # lolcat

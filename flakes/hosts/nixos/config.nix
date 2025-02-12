@@ -4,8 +4,8 @@ let
 in {
   imports = [
     ./hardware-configuration.nix
-    ../../nixos/system/default.nix
-    ../../nixos/system/nvidia-drivers.nix
+    ../../system/default.nix
+    ../../system/nvidia-drivers.nix
   ];
 
   nix.settings = {
