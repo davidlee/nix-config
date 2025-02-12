@@ -1,7 +1,6 @@
 {
   description = "Top level flake for nixOS configuration";
 
-
   nixConfig = {
     auto-optimise-store = true;
     experimental-features = [ "nix-command" "flakes" ];
@@ -25,96 +24,106 @@
   };
   
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    
+    # nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs.url          = "github:nixos/nixpkgs/nixos-unstable";
+
     home-manager = { 
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    helix.url = "github:helix-editor/helix/master";
+
+    walker.url = "github:abenz1267/walker";
 
     nixpkgs-wayland = {
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    walker.url = "github:abenz1267/walker";
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     hyprland.url = "github:hyprwm/Hyprland?submodules=1";
 
-    hy3 = {
-      url = "github:outfoxxed/hy3"; 
-      inputs.hyprland.follows = "hyprland";
-    };
+    # hy3 = {
+    #   url = "github:outfoxxed/hy3"; 
+    #   inputs.hyprland.follows = "hyprland";
+    # };
 
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland"; 
-    };
+    # hyprland-plugins = {
+    #   url = "github:hyprwm/hyprland-plugins";
+    #   inputs.hyprland.follows = "hyprland"; 
+    # };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = inputs@{
+    self,
+    nixpkgs,
+    nixpkgs-stable,
+    home-manager,
+    ...
+  }:
+  
     let
       inherit (self) outputs;
 
       systems = [
-        "aarch64-linux"
-        "i686-linux"
         "x86_64-linux"
         "aarch64-darwin"
-        "x86_64-darwin"
+        # "aarch64-linux"
+        # "i686-linux"
+        # "x86_64-darwin"
       ];
 
       host = "nixos";
       username = "david";
+
       forAllSystems = nixpkgs.lib.genAttrs systems;
     in {
-      packages =
-        forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
+      packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
 
-      # Or 'nixpkgs-fmt'
-      formatter =
-        forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
-      # Your custom packages and modifications, exported as overlays
-      
       overlays =  import ./overlays { inherit inputs; };
-      nixpkgs.overlays = [
-        inputs.nixpkgs-wayland.overlay
-      ];
 
-      # NixOS configuration entrypoint
-      # Available through 'nixos-rebuild --flake .#hostname'
+      nixosModules = import ./nixos;
+      userModules = import ./home;
+
+      # nixpkgs.overlays = [
+      #   inputs.nixpkgs-wayland.overlay
+      # ];
+
       nixosConfigurations = {
         "${host}" = nixpkgs.lib.nixosSystem {
+
           specialArgs = {
             inherit systems;
             inherit inputs;
             inherit username;
             inherit host;
             inherit outputs;
-            # inherit hy3;
+            
+            pkgs-stable = import nixpkgs-stable {
+              config.allowUnfree = true;
+            };
           };
 
           modules = [
             ./hosts/${host}/config.nix
-            {
-            }
-
-            # inputs.stylix.nixosModules.styli
 
             home-manager.nixosModules.home-manager
             {
  
-              # Apply the overlays to the NixOS system
-              # nixpkgs.overlays = overlays;
-
               # pass extra args to home.nix
               home-manager.extraSpecialArgs = {
                 inherit username;
                 inherit inputs;
                 inherit host;
                 inherit systems;
-                # inherit hy3;
               };
 
               home-manager.useGlobalPkgs = true;
@@ -125,5 +134,17 @@
           ];
         };
       };
+
+      # standalone home-manager
+      # homeConfigurations = {
+      #   "${host}" = nixpkgs.lib.nixosSystem {
+      #     pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      #     extraSpecialArgs = { inherit inputs outputs; };
+      #     modules = [
+      #       ./hosts/${host}/home.nix
+      #     ];
+      #   };
+      # };
+
     };
 }

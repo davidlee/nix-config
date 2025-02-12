@@ -85,7 +85,7 @@
     somebar
     oha
     cloudlens
-    harlequin
+    # harlequin
     neofetch
     blender
     dwl
@@ -107,8 +107,9 @@
     aspell
     beeper
     bibata-cursors
-    bitwarden-cli
-    bitwarden-desktop
+    # bitwarden-cli
+    # bitwarden-desktop
+    jujutsu
     caddy
     clipman
     clipse

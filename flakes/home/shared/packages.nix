@@ -182,5 +182,7 @@
     zsh
     zstd
 
+    nixd
+
   ];
 }
