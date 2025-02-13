@@ -11,7 +11,7 @@ in {
   nix.settings = {
     trusted-users = [ "root" "david" "@wheel" ];
     experimental-features = [ "nix-command" "flakes" ];
-    download-buffer-size = 500000000;
+    # download-buffer-size = 500000000;
     auto-optimise-store = true;
   };
 

@@ -10,11 +10,11 @@
   imports = [
     inputs.walker.homeManagerModules.default
     ../../home/packages.nix
-    ../../home/programs.nix
-    
+    ../../home/programs.nix    
    ];
 
   services.swayidle.enable = true;
+  services.copyq.enable = true;
 
   # inputs.modules = [
   #   inputs.hyprland.homeManagerModules.default

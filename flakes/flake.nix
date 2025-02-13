@@ -4,7 +4,7 @@
   nixConfig = {
     auto-optimise-store = true;
     experimental-features = [ "nix-command" "flakes" ];
-    download-buffer-size = 500000000;
+    # download-buffer-size = 500000000;
 
     extra-substituters = [
       "https://hyprland.cachix.org"
@@ -47,22 +47,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland.url = "github:hyprwm/Hyprland?submodules=1";
+    # hyprland.url = "github:hyprwm/Hyprland?submodules=1";
+    hyprland.url = "github:hyprwm/Hyprland";
 
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # hy3 = {
-    #   url = "github:outfoxxed/hy3"; 
-    #   inputs.hyprland.follows = "hyprland";
-    # };
+    hy3 = {
+      url = "github:outfoxxed/hy3"; 
+      inputs.hyprland.follows = "hyprland";
+    };
 
-    # hyprland-plugins = {
-    #   url = "github:hyprwm/hyprland-plugins";
-    #   inputs.hyprland.follows = "hyprland"; 
-    # };
+    hyprland-plugins = {
+      url = "github:hyprwm/hyprland-plugins";
+      inputs.hyprland.follows = "hyprland"; 
+    };
     
   };
 
