@@ -11,9 +11,13 @@
     xwayland.enable = true;
 
     plugins = [
+      # inputs.hy3.packages.x86_64-linux.hyprexpo
+      pkgs.hyprlandPlugins.hyprexpo
+      
+
+
       # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
-      inputs.hy3.packages.x86_64-linux.hy3
-      # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hyprexpo
+      # inputs.hy3.packages.x86_64-linux.hy3
       # pkgs.hyprlandPlugins.hyprscroller
       # inputs.hy3.packages.x86_64-linux.hy3
     ];
@@ -42,6 +46,7 @@
         "$mod, M, layoutmsg, focusmaster"
         # "$mod, X, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
         "$mod, X, exec, copyq show"
+        "$mod, grave, hyprexpo:expo, toggle"
 
         # "$mod, D, scroller:toggleovEerview"
         # "$mod, J, scroller:jump"
