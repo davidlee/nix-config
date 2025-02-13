@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  hy3,
   inputs,
   lib,
   ...
@@ -13,6 +12,8 @@
 
     plugins = [
       # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
+      inputs.hy3.packages.x86_64-linux.hy3
+      # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hyprexpo
       # pkgs.hyprlandPlugins.hyprscroller
       # inputs.hy3.packages.x86_64-linux.hy3
     ];
@@ -125,8 +126,8 @@
 
       # https://wiki.hyprland.org/Configuring/Variables/#misc
       misc {
-          force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
-          disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
+          force_default_wallpaper = 0 # Set to 0 or 1 to disable the anime mascot wallpapers
+          disable_hyprland_logo = true # If true disables the random hyprland logo / anime girl background. :(
       }
 
       # https://wiki.hyprland.org/Configuring/Variables/#general
@@ -189,10 +190,11 @@
       # exec-once = clipse -listen # run listener on startup
       # 
       # exec-once = copyq --start-server
+      # 
+      # exec-once = waybar
       
       exec-once = swaybg -i ~/Downloads/dock.png
       exec-once = walker --gapplication-service
-      exec-once = waybar
 
       windowrulev2 = noanim,class:() # ensure you have a floating window class set if you want this behavior
 
