@@ -7,19 +7,6 @@
   ...
 }: {
 
-  # TODO mave this somewhere
-  home.pointerCursor = {
-    name = "phinger-cursors-light";
-    package = pkgs.phinger-cursors;
-    size = 32;
-    gtk.enable = true;
-    x11 = {
-      enable = true;
-      defaultCursor = "phinger-cursors-light";
-    };
-  };
-
-
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -39,18 +26,21 @@
       
       # is it really worth keeping these in nix format?
       bind = [
+        "$mod SHIFT, Q, exit"
+
         "$mod, Q, exec, $terminal"
-        "$mod, M, exit"
         "$mod, N, fullscreen"
         "$mod, R, exec, $menu"
         "$mod, space, exec, $menu"
         "$mod, K, killactive"
         "$mod, E, exec, $fileManager"
         "$mod, V, togglefloating"
-        "$mod, G, exec, ghostty"
+        "$mod, G, exec, $terminal"
         "$mod, T, layoutmsg, swapwithmaster master"
         "$mod, W, layoutmsg, cyclenext"
         "$mod, M, layoutmsg, focusmaster"
+        # "$mod, X, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
+        "$mod, X, exec, copyq show"
 
         # "$mod, D, scroller:toggleovEerview"
         # "$mod, J, scroller:jump"
@@ -160,6 +150,11 @@
           # layout = dwindle
           # layout = scroller
       }
+
+      animations {
+        enabled = 0
+      }
+
       decoration {
           rounding = 10
 
@@ -184,19 +179,25 @@
           }
       }
 
-      exec-once = clipse -listen # run listener on startup
+
+      # clipboard: copyq is started as a service
+      # 
+      # 
+      # exec-once = wl-paste --type text --watch cliphist store 
+      # exec-once = wl-paste --type image --watch cliphist store
+      #
+      # exec-once = clipse -listen # run listener on startup
+      # 
+      # exec-once = copyq --start-server
+      
       exec-once = swaybg -i ~/Downloads/dock.png
-      exec-once = copyq --start-server
       exec-once = walker --gapplication-service
+      exec-once = waybar
 
       windowrulev2 = noanim,class:() # ensure you have a floating window class set if you want this behavior
 
       windowrulev2 = float,class:(clipse) # ensure you have a floating window class set if you want this behavior
       windowrulev2 = size 622 652,class:(clipse) # set the size of the window as necessary
-
-      bind = SUPER, V, exec,  <terminal name> --class clipse -e 'clipse' 
-
-      # Example: bind = SUPER, V, exec, alacritty --class clipse -e 'clipse'
     '';
   };
 }

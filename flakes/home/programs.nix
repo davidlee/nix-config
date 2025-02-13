@@ -8,8 +8,7 @@
   imports = [
     ./zsh.nix
     ./kitty.nix
-    ./hyprland.nix
-    ./sway.nix
+    ./wayland.nix
   ];
 
   programs = {
@@ -77,10 +76,13 @@
        
     waybar =  {
       enable = true;
+      systemd.enable = true; 
     };
 
-
-    firefox.enable = true;
+    firefox = {
+      enable = true;
+      enableGnomeExtensions = true;
+    };
 
     starship = {
       enable = true;
