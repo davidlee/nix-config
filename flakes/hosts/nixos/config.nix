@@ -12,6 +12,13 @@ in {
     trusted-users = [ "root" "david" "@wheel" ];
     experimental-features = [ "nix-command" "flakes" ];
     download-buffer-size = 500000000;
+    auto-optimise-store = true;
+  };
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 1w";
   };
 
   users.enable = true;

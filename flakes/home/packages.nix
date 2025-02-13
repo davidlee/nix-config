@@ -1,16 +1,19 @@
-{
+{ 
   pkgs,
-  host,
-  username,
+  inputs,
+  # nixpkgs-stable,
+  # host,
+  # username,
   ...
 }: {
+
+  # home.packages = with inputs.nixpkgs-stable; [
+  #   harlequin
+  # ];
+  
   home.packages = with pkgs; [
-    # inputs.hyprland-qtutils.packages."${pkgs.system}".default
-    # pkgs.fzf
-    # pkgs.glow # markdown previewer in terminal
     tty-clock
     clock-rs
-    
     unixtools.nettools
     unixtools.xxd
     inetutils
@@ -19,7 +22,13 @@
     beets
     cmus
     fooyin
-    
+    nh
+    nixd
+    kmonad
+    gdm
+
+
+   
     code-cursor
     waypipe
     sway-contrib.grimshot
