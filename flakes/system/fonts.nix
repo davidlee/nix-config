@@ -12,10 +12,15 @@
     packages = with pkgs; [
       noto-fonts-emoji
       noto-fonts-cjk-sans
+      noto-fonts-emoji
+      liberation_ttf
       font-awesome
+      ubuntu_font_family
       symbola
       material-icons
+      mplus-outline-fonts.githubRelease
       fira-code
+      fira-code-symbols
       proggyfonts
       noto-fonts
       nerd-fonts.hack
@@ -28,14 +33,11 @@
       victor-mono
       jetbrains-mono
       monaspace
+      dina-font
       geist-font
     ];
   };
   fonts.fontDir.enable = true;
   fonts.enableDefaultPackages = true;
 
-  # options = {users.enable = lib.mkEnableOption "Enables users module";};
-
-  # config = lib.mkIf config.users.enable {
-  
 }

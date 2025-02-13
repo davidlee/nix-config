@@ -11,6 +11,7 @@
     hdparm
     smartmontools
     usbutils # lsusb
+    greetd.greetd
     btop
     nix-inspect
     nix-tree
@@ -29,6 +30,7 @@
     pydf
     dig
     pinfo
+    greetd.tuigreet
     # nix-linter
     nix-du
     nix-melt

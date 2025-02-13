@@ -49,6 +49,11 @@
 
     hyprland.url = "github:hyprwm/Hyprland?submodules=1";
 
+    lix-module = {
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # hy3 = {
     #   url = "github:outfoxxed/hy3"; 
     #   inputs.hyprland.follows = "hyprland";
@@ -58,12 +63,14 @@
     #   url = "github:hyprwm/hyprland-plugins";
     #   inputs.hyprland.follows = "hyprland"; 
     # };
+    
   };
 
   outputs = inputs@{
     self,
     nixpkgs,
     nixpkgs-stable,
+    lix-module,
     home-manager,
     ...
   }:
@@ -93,9 +100,15 @@
       nixosModules = import ./nixos;
       userModules = import ./home;
 
-      # nixpkgs.overlays = [
-      #   inputs.nixpkgs-wayland.overlay
-      # ];
+      nixpkgs.overlays = [
+        inputs.nixpkgs-wayland.overlay
+
+        # pin packages to nixpkgs-stable
+        (self: super: {
+          # harlequin = nixpkgs-stable.harlequin;
+          # lldb = nixpkgs-stable.lldb;
+        })
+      ];
 
       nixosConfigurations = {
         "${host}" = nixpkgs.lib.nixosSystem {
@@ -114,11 +127,11 @@
 
           modules = [
             ./hosts/${host}/config.nix
+            lix-module.nixosModules.default
 
             home-manager.nixosModules.home-manager
             {
  
-              # pass extra args to home.nix
               home-manager.extraSpecialArgs = {
                 inherit username;
                 inherit inputs;
