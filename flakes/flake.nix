@@ -48,7 +48,7 @@
     };
 
     # hyprland.url = "github:hyprwm/Hyprland?submodules=1";
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.url = "github:hyprwm/Hyprland?ref=v0.47.2";
 
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
@@ -56,7 +56,7 @@
     };
 
     hy3 = {
-      url = "github:outfoxxed/hy3"; 
+      url = "github:outfoxxed/hy3?rev=hl0.47.0-1"; 
       inputs.hyprland.follows = "hyprland";
     };
 
