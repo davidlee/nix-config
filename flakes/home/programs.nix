@@ -81,7 +81,7 @@
 
     firefox = {
       enable = true;
-      enableGnomeExtensions = true;
+      # enableGnomeExtensions = true;
     };
 
     starship = {

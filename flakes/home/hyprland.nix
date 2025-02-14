@@ -152,7 +152,7 @@
       # https://wiki.hyprland.org/Configuring/Variables/#misc
       misc {
           force_default_wallpaper = 0 # Set to 0 or 1 to disable the anime mascot wallpapers
-          disable_hyprland_logo = true # If true disables the random hyprland logo / anime girl background. :(
+          disable_hyprland_logo = true 
       }
 
       # https://wiki.hyprland.org/Configuring/Variables/#general
@@ -225,7 +225,7 @@
       # 
       # exec-once = waybar
       
-      exec-once = swaybg -i ~/Downloads/dock.png
+      exec-once = swaybg -i ~/Downloads/girl.jpg
       exec-once = walker --gapplication-service
 
       windowrulev2 = noanim,class:() # ensure you have a floating window class set if you want this behavior

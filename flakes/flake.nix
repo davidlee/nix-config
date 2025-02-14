@@ -74,91 +74,101 @@
     lix-module,
     home-manager,
     ...
-  }:
-  
-    let
-      inherit (self) outputs;
+}:
+  let
+    inherit (self) outputs;
 
-      systems = [
-        "x86_64-linux"
-        "aarch64-darwin"
-        # "aarch64-linux"
-        # "i686-linux"
-        # "x86_64-darwin"
-      ];
+    systems = [
+      "x86_64-linux"
+      "aarch64-darwin"
+      # "aarch64-linux"
+      # "i686-linux"
+      # "x86_64-darwin"
+    ];
 
-      host = "nixos";
-      username = "david";
+    host = "nixos";
+    username = "david";
 
-      forAllSystems = nixpkgs.lib.genAttrs systems;
-    in {
-      packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
+    forAllSystems = nixpkgs.lib.genAttrs systems;
+  in {
+    packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
 
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
+    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
-      overlays =  import ./overlays { inherit inputs; };
+    overlays =  import ./overlays { inherit inputs; };
 
-      nixosModules = import ./nixos;
-      userModules = import ./home;
+    nixosModules = import ./nixos;
+    userModules = import ./home;
 
-      nixpkgs.overlays = [
-        inputs.nixpkgs-wayland.overlay
+    nixpkgs.overlays = [
+      inputs.nixpkgs-wayland.overlay
+      
+      # DWL
+      (final: prev: {
+        # dwl = prev.dwl.overrideAttrs { patches = [ ./dwl-patches/config.patch ]; };
+      }) 
 
-        # pin packages to nixpkgs-stable
-        (self: super: {
-          # harlequin = nixpkgs-stable.harlequin;
-          # lldb = nixpkgs-stable.lldb;
-        })
-      ];
+      # pin packages to nixpkgs-stable
+      (self: super: {
+        # lldb = nixpkgs-stable.lldb;
+      })
+    ];
 
-      nixosConfigurations = {
-        "${host}" = nixpkgs.lib.nixosSystem {
+    nixosConfigurations = {
+      "${host}" = nixpkgs.lib.nixosSystem {
 
-          specialArgs = {
-            inherit systems;
-            inherit inputs;
-            inherit username;
-            inherit host;
-            inherit outputs;
-            
-            pkgs-stable = import nixpkgs-stable {
-              config.allowUnfree = true;
-            };
+        specialArgs = {
+          inherit systems;
+          inherit inputs;
+          inherit username;
+          inherit host;
+          inherit outputs;
+          
+          pkgs-stable = import nixpkgs-stable {
+            config.allowUnfree = true;
           };
-
-          modules = [
-            ./hosts/${host}/config.nix
-            lix-module.nixosModules.default
-
-            home-manager.nixosModules.home-manager
-            {
- 
-              home-manager.extraSpecialArgs = {
-                inherit username;
-                inherit inputs;
-                inherit host;
-                inherit systems;
-              };
-
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.backupFileExtension = "backup";
-              home-manager.users.${username} = import ./hosts/${host}/home.nix;
-            }
-          ];
         };
+
+        modules = [
+          ./hosts/${host}/config.nix
+          lix-module.nixosModules.default
+
+          home-manager.nixosModules.home-manager
+          {
+
+            home-manager.extraSpecialArgs = {
+              inherit username;
+              inherit inputs;
+              inherit host;
+              inherit systems;
+            };
+
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.${username} = import ./hosts/${host}/home.nix;
+          }
+        ];
       };
-
-      # standalone home-manager
-      # homeConfigurations = {
-      #   "${host}" = nixpkgs.lib.nixosSystem {
-      #     pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      #     extraSpecialArgs = { inherit inputs outputs; };
-      #     modules = [
-      #       ./hosts/${host}/home.nix
-      #     ];
-      #   };
-      # };
-
     };
+
+    # standalone home-manager
+    homeConfigurations = {
+      "${host}" = nixpkgs.lib.nixosSystem {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        extraSpecialArgs = {
+          inherit inputs outputs;
+          inherit host username;
+          inherit systems;
+        };
+        useGlobalPkgs = true;
+        usUserPackages = true;
+        backupFileExtension = "backup";
+
+        modules = [
+          ./hosts/${host}/home.nix
+        ];
+      };
+    };
+  };
 }
