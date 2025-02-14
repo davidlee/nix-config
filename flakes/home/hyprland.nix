@@ -13,58 +13,79 @@
     plugins = [
       # inputs.hy3.packages.x86_64-linux.hyprexpo
       pkgs.hyprlandPlugins.hyprexpo
+      inputs.hy3.packages.x86_64-linux.hy3
       
-
-
       # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
-      # inputs.hy3.packages.x86_64-linux.hy3
       # pkgs.hyprlandPlugins.hyprscroller
       # inputs.hy3.packages.x86_64-linux.hy3
     ];
 
     settings = {
+      debug.disable_logs = false; 
+
       "$mod" = "SUPER";
       "$terminal" = "kitty";
-      #"$menu" = "wofi --show drun";
       "$menu" = "walker";
+      "$browser" = "firefox";
       "$fileManager" = "nemo";
       
-      # is it really worth keeping these in nix format?
       bind = [
         "$mod SHIFT, Q, exit"
 
-        "$mod, Q, exec, $terminal"
-        "$mod, N, fullscreen"
-        "$mod, R, exec, $menu"
         "$mod, space, exec, $menu"
-        "$mod, K, killactive"
-        "$mod, E, exec, $fileManager"
-        "$mod, V, togglefloating"
-        "$mod, G, exec, $terminal"
-        "$mod, T, layoutmsg, swapwithmaster master"
-        "$mod, W, layoutmsg, cyclenext"
-        "$mod, M, layoutmsg, focusmaster"
-        # "$mod, X, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
-        "$mod, X, exec, copyq show"
+        "$mod, X, exec, copyq show" # TODO make floating
         "$mod, grave, hyprexpo:expo, toggle"
 
-        # "$mod, D, scroller:toggleovEerview"
-        # "$mod, J, scroller:jump"
+        "$mod, G, exec, $terminal"
+        "$mod, B, exec, $browser"
+        "$mod, J, exec, $fileManager"
+
+        "$mod, K, killactive"
+        "$mod, P, fullscreen"
+        "$mod, F, togglefloating"
+
+        "$mod, V, hy3:makegroup, v, ephemeral"
+        "$mod, H, hy3:makegroup, h, ephemeral"
+        "$mod, T, hy3:makegroup, tab, ephemeral"
         
-        "$mod, left, movefocus, l" 
-        "$mod, right, movefocus, r" 
-        "$mod, up, movefocus, u" 
-        "$mod, down, movefocus, d" 
+        "$mod SHIFT, V, hy3:changegroup, v"
+        "$mod SHIFT, H, hy3:changegroup, h"
+        "$mod SHIFT, T, hy3:changegroup, toggletab"
+        "$mod, O, hy3:changegroup, opposite"
+        
+        "$mod, left,  hy3:movefocus, l" 
+        "$mod, right, hy3:movefocus, r" 
+        "$mod, up,    hy3:movefocus, u" 
+        "$mod, down,  hy3:movefocus, d" 
 
-        "$mod CTRL, left, movewindow, l" 
-        "$mod CTRL, right, movewindow, r" 
-        "$mod CTRL, up, movewindow, u" 
-        "$mod CTRL, down, movewindow , d" 
-        #"$mod CTRL, home, scroller:movewindow, begin" 
-        #"$mod CTRL, end, scroller:movewindow , end" 
+        "$mod SHIFT, left,  hy3:movewindow, l" 
+        "$mod SHIFT, right, hy3:movewindow, r" 
+        "$mod SHIFT, up,    hy3:movewindow, u" 
+        "$mod SHIFT, down,  hy3:movewindow, d" 
 
-        #"$mod, bracketleft, scroller:setmode, row" 
-        #"$mod, bracketright, scroller:setmode, col" 
+        # "$mod CTRL, left,  hy3:movewindow, l" 
+        # "$mod CTRL, right, hy3:movewindow, r" 
+        # "$mod CTRL, up,    hy3:movewindow, u" 
+        # "$mod CTRL, down,  hy3:movewindow ,d" 
+
+        "ALT, tab, hy3:focustab, r, wrap"
+        "ALT SHIFT, tab, hy3:focustab, l, wrap"
+
+        "$mod, home,      hy3:changefocus, top" 
+        "$mod, pagedown,  hy3:changefocus, lower" 
+        "$mod, pageup,    hy3:changefocus, raise" 
+        "$mod, end,       hy3:changefocus, bottom" 
+        "$mod, end,       hy3:changefocus, bottom" 
+        "$mod, backslash, hy3:changefocus, tab" 
+
+        "$mod, question, hy3:debugnodes"
+        
+        # "$mod ALT, left,  hy3:focustab, l" 
+        # "$mod ALT, right, hy3:focustab, r" 
+        # "$mod ALT, up,    hy3:focustab, u" 
+        # "$mod ALT, down,  hy3:focustab ,d" 
+        
+        "$mod, tab, hy3:togglefocuslayer"
 
         "$mod, S, togglespecialworkspace, magic" 
         "$mod SHIFT, S, movetoworkspace, special:magic" 
@@ -116,7 +137,6 @@
 
       # no anim for fullscreen
       windowrulev2 = noanim, class:.*,fullscreen:1
-
       
       # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
       dwindle {
@@ -152,9 +172,16 @@
           # Please see https://wiki.hyprland.org/Configuring/Tearing/ before you turn this on
           allow_tearing = true
 
-          layout = master
+          layout = hy3
+          # layout = master
           # layout = dwindle
           # layout = scroller
+      }
+
+      plugin {
+        hy3 {
+          
+        }
       }
 
       animations {
