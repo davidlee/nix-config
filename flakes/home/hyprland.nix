@@ -30,9 +30,11 @@
       "$fileManager" = "nemo";
       
       bind = [
+        "$mod,tab, workspace, previous"
         "$mod SHIFT, Q, exit"
 
         "$mod, space, exec, $menu"
+        "$mod, D, exec, fuzzel"
         "$mod, X, exec, copyq show" # TODO make floating
         "$mod, grave, hyprexpo:expo, toggle"
 
@@ -225,7 +227,7 @@
       # 
       # exec-once = waybar
       
-      exec-once = swaybg -i ~/Downloads/girl.jpg
+      exec-once = swaybg -i ~/Pictures/wallpapers/desktop.jpg
       exec-once = walker --gapplication-service
 
       windowrulev2 = noanim,class:() # ensure you have a floating window class set if you want this behavior

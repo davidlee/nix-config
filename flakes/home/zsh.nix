@@ -45,7 +45,7 @@
       export ELECTRON_OZONE_PLATFORM_HINT=x11 
 
       export EDITOR=nvim
-      export VISUAL=nvim
+      export VISUAL=hx
     '';
 
     profileExtra = ''
@@ -80,13 +80,47 @@
     initExtraBeforeCompInit = ''
     '';
     initExtra = ''
+    # shouldn't these be done by nix? TODO test removal
+    # 
       eval "$(zoxide init zsh)"
       eval "$(mcfly init zsh)"
       eval "$(direnv hook zsh)"
 
+    # TODO manage this stuff where it doesn't need a `nixos-rebuild switch` to take effect
       # manage dotfiles with bare repo
       gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
       cfg() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
+
+
+      # manage text files
+      export ORG_DIR=~/org
+      
+      wk() {
+        date +"$ORG_DIR/%Y/wk/%Ywk%U.md"
+      }
+
+      day() {
+        date +"$ORG_DIR/%Y/dd/%F.md"
+      }
+
+      mo() {
+        date +"$ORG_DIR/%Y/mo/%m.md"
+      }
+      
+      ewk() {
+        $VISUAL $(wk) -w $ORG_DIR
+      }
+
+      eday() {
+        $VISUAL $(day) -w $ORG_DIR
+      }
+
+      emo() {
+        $VISUAL $(mo) -w $ORG_DIR
+
+      }
+      
+
     '';
     shellAliases = {
       # scr = "grim -g $(slurp)";
