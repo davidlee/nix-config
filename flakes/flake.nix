@@ -78,7 +78,7 @@
     nixpkgs-stable,
     lix-module,
     home-manager,
-    # nixos-cosmic,
+    nixos-cosmic,
     ...
 }:
   let
@@ -138,7 +138,7 @@
         modules = [
           ./hosts/${host}/config.nix
           lix-module.nixosModules.default
-          # nixos-cosmic.nixosModules.default
+          nixos-cosmic.nixosModules.default
 
           home-manager.nixosModules.home-manager
           {
