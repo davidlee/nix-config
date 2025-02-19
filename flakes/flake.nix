@@ -12,6 +12,7 @@
       "https://walker-git.cachix.org"
       "https://cache.nixos.org"
       "https://nixpkgs-wayland.cachix.org"
+      # "https://cosmic.cachix.org"
     ];
     
     extra-trusted-public-keys = [
@@ -20,13 +21,18 @@
       "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
       "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
+      
+      
     ];
   };
   
   inputs = {
-    # nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-24.11";
+
     nixpkgs.url          = "github:nixos/nixpkgs/nixos-unstable";
+    # nixpkgs.follows = "nixos-cosmic/nixpkgs";
+
+    # nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
 
     home-manager = { 
       url = "github:nix-community/home-manager/master";
@@ -73,6 +79,7 @@
     nixpkgs-stable,
     lix-module,
     home-manager,
+    # nixos-cosmic,
     ...
 }:
   let
@@ -103,15 +110,15 @@
     nixpkgs.overlays = [
       inputs.nixpkgs-wayland.overlay
       
-      # DWL
-      (final: prev: {
-        # dwl = prev.dwl.overrideAttrs { patches = [ ./dwl-patches/config.patch ]; };
-      }) 
+      # # DWL
+      # (final: prev: {
+      #   # dwl = prev.dwl.overrideAttrs { patches = [ ./dwl-patches/config.patch ]; };
+      # }) 
 
-      # pin packages to nixpkgs-stable
-      (self: super: {
-        # lldb = nixpkgs-stable.lldb;
-      })
+      # # pin packages to nixpkgs-stable
+      # (final: prev: {
+      #   # lldb = nixpkgs-stable.lldb;
+      # })
     ];
 
     nixosConfigurations = {
@@ -132,6 +139,7 @@
         modules = [
           ./hosts/${host}/config.nix
           lix-module.nixosModules.default
+          # nixos-cosmic.nixosModules.default
 
           home-manager.nixosModules.home-manager
           {
