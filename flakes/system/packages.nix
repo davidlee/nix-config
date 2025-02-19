@@ -39,6 +39,8 @@
     nix-bisect
     nix-btm
     cachix
+    directx-headers
+    directx-shader-compiler
     _7zz
     alsa-utils
     # amdvlk
