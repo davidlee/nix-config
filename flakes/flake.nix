@@ -30,9 +30,9 @@
     nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-24.11";
 
     nixpkgs.url          = "github:nixos/nixpkgs/nixos-unstable";
-    # nixpkgs.follows = "nixos-cosmic/nixpkgs";
+    nixpkgs.follows = "nixos-cosmic/nixpkgs";
 
-    # nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
+    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
 
     home-manager = { 
       url = "github:nix-community/home-manager/master";
@@ -53,7 +53,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # hyprland.url = "github:hyprwm/Hyprland?submodules=1";
     hyprland.url = "github:hyprwm/Hyprland?ref=v0.47.2";
 
     lix-module = {
