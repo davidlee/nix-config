@@ -29,6 +29,11 @@
       fsType = "ext4";
     };
 
+  fileSystems."/mnt/sda2" =
+    { device = "/dev/disk/by-label/931G";
+      fsType = "ext4";
+    };
+    
   swapDevices =
     [ { device = "/dev/disk/by-uuid/e2bcc748-bbd3-46d9-8ec2-2729c0aa9c0f"; }
     ];
