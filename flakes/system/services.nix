@@ -3,9 +3,7 @@
   pkgs,
   ...
 }: let
-  # inherit (import ../../hosts/magic/variables.nix) _host;
   tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
-  hyprland-session = "${inputs.hyprland}/share/wayland-sessions";
 in {
 
   systemd.services.greetd.serviceConfig = {
@@ -21,7 +19,7 @@ in {
 
   services = {
     xserver = {
-      # enable = true;
+      enable = true;
       displayManager = {
         gdm = {
           enable = true;
@@ -35,11 +33,18 @@ in {
       };
     };
 
+    gnome = {
+      gnome-settings-daemon.enable = true;
+      gnome-keyring.enable = true;
+      gnome-browser-connector.enable = true;
+      gnome-online-accounts.enable = true;
+    };
+
     greetd = {
-      enable = true;
+      enable = false; # let gdm run
       settings = {
         default_session = {
-          command = "${tuigreet} --time --remember --remember-session --sessions ${hyprland-session}";
+          command = "${tuigreet} --time --remember --remember-session";
         };
       };
     };
@@ -58,7 +63,6 @@ in {
 
     printing.enable = true;
 
-    gnome.gnome-keyring.enable = true;
 
     pipewire = {
       enable = true;

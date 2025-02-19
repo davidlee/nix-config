@@ -84,7 +84,7 @@
       # enableGnomeExtensions = true;
     };
 
-    gnome-terminal.enable = true;
+    # gnome-terminal.enable = true;
 
     starship = {
       enable = true;
