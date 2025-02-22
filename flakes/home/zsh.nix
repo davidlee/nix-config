@@ -23,7 +23,7 @@
 
     antidote = {
       enable = true; 
-      plugins = ["git" "sudo"];
+      # plugins = ["git" "sudo"];
     };
     history.size = 10000;
 

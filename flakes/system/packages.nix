@@ -4,171 +4,120 @@
   ...
 }: {
   environment.systemPackages = with pkgs; [
-    # inputs.nix-inspect.packages.${pkgs.system}.default
-    # inputs.hyprland.packages.${pkgs.system}.default
-    smem
-    btrfs-progs
-    hdparm
-    smartmontools
-    usbutils # lsusb
-    greetd.greetd
-    btop
-    nix-inspect
-    nix-tree
-    sysstat
-    tcpdump
-    iptraf-ng
-    iotop
-    iftop
-    nethogs
-    nmon
-    vnstat
-    htop
-    atop
-    strace
-    gtop
-    pydf
-    dig
-    pinfo
-    greetd.tuigreet
-    # nix-linter
-    nix-du
-    nix-melt
-    nix-top
-    nix-diff
-    nix-bisect
-    nix-btm
-    cachix
-    directx-headers
-    directx-shader-compiler
     _7zz
     alsa-utils
-    # amdvlk
     appimage-run
+    atop
     autoconf
-    # bash-language-server
-    # bat
     bat
     binutils
     bison
     bottom
     broot
     btop
+    btop
+    btrfs-progs
+    cachix
     cachix
     clang
     cmake
-    # cmatrix
-    # cowsay
     cpio
     dconf
-    # dconf2nix
-    # dconf-editor
+    dig
+    directx-headers
+    directx-shader-compiler
     direnv
-    # duf
+    # dwl
+    # dwlb
     duf
-    # efibootmgr
     emacs
-    # eza
     eza
     fd
     ffmpeg
     file
-    # file-roller
     findutils
     # fwupd
     fzf-zsh
     fzy
     gawk
     # gcc
-    # gccgo14
     gh
-    # gimp
-    # git
     git
     gitu
     glfw
     gnumake
     gnused
-    # gomuks
-    # greetd.tuigreet
-    # htop
+    greetd.greetd
+    greetd.tuigreet
+    gtop
+    hdparm
+    htop
     htop
     i3status
     ictree
-    # inxi
-    # jq
+    iftop
+    iotop
+    iptraf-ng
     just
     keepassxc
     killall
-    # lazygit
     libGL
     libnotify
-    # libvirt
-    # linuxKernel.packages.linux_zen.cpupower
-    # lldb
     llvm
-    # lm_sensors
-    # lolcat
     lsd
     lshw
-    # lxqt.lxqt-policykit
     mesa
     meson
     mods
     mpv
-    # ncdu
     ncdu
-    xplr
-    #neovide
-    # nh
-    # nil
+    nethogs
     ninja
+    nix-bisect
+    nix-btm
+    nix-diff
+    nix-du
+    nix-inspect
+    nix-melt
+    nix-top
+    nix-tree
     nmap
+    nmon
     nnn
-    # nodejs_22
-    # nodePackages.prettier
-    # nvtopPackages.amd
-    # olm
     ols
     openssl
     pciutils
-    # pfetch-rs
     phinger-cursors
+    pinfo
     pipewire
     pipx
     pkg-config
     plocate
-    # pokemon-colorscripts-mac
     polkit
-    # prettierd
-    # profile-sync-daemon
     pstree
+    pydf
     python312
     python312Packages.pywatchman
-    # ripgrep
     ripgrep
-    # rose-pine-cursor
     ruby
-    # ruff
-    # rustc
     rustup
-
-    # sway
+    smartmontools
+    smem
+    strace
+    sysstat
+    tcpdump
     tmux
-    # tradingview
-    # tree
     tree
-    # unipicker
     unrar
     unzip
-    # v4l-utils
+    usbutils # lsusb
     valgrind
-    # vim
+    vnstat
     wget
     which
+    xplr
     zls
     zsh
     zstd
-
   ];
 }

@@ -1,4 +1,3 @@
-
 {
   config,
   pkgs,
@@ -19,6 +18,20 @@
    
   # packages which are more about providing a foundational
   # window system, WMs, etc, than e.g. standalone GUI apps
+  
+
+    # nixpkgs.overlays = [
+    #   inputs.nixpkgs-wayland.overlay
+      
+    #   (final: prev: {
+    #     dwl = prev.dwl.override { conf = ./overlays/patches/dwl/config.h; };
+    #   })
+
+    #   # # pin packages to nixpkgs-stable
+    #   # (final: prev: {
+    #   #   # lldb = nixpkgs-stable.lldb;
+    #   # })
+    # ];
 
   home.packages = with pkgs; [
 
@@ -74,13 +87,14 @@
     copyq
     dmenu
     dolphin
+    dwl
     dwlb
     flameshot
     fuzzel
     gamehub
     gdm
     grim
-    
+    imv
     imv
     imv
     kanshi
@@ -116,11 +130,9 @@
     wlroots
     wmenu
     wofi
-    dwl
-    imv
-    xfce.thunar
     xdg-desktop-portal-gtk
     xdg-desktop-portal-wlr
+    xfce.thunar
     xwayland
     zathura
   ];
