@@ -13,7 +13,7 @@
     ../../home/programs.nix    
    ];
 
-  services.swayidle.enable = true;
+  # services.swayidle.enable = true;
   services.copyq.enable = true;
 
   # inputs.modules = [

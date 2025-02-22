@@ -20,9 +20,9 @@
         inner = 15;
       };
 
-      bars = [{
-        command = "waybar";
-      }];
+      # bars = [{
+      #   command = "waybar";
+      # }];
 
       # TODO maybe we want to use lib.attrsets.mergeAttrsList like in https://lafreniere.xyz/docs/nix-home-manager-sway.html
       keybindings =

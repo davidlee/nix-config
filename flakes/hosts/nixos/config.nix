@@ -1,4 +1,4 @@
-{ pkgs, host, options, hy3, config, outputs, ...}:
+{ pkgs, hostname, options, hy3, config, outputs, ...}:
 let
   inherit (import ./variables.nix) keyboardLayout;
 in {
@@ -11,7 +11,6 @@ in {
   nix.settings = {
     trusted-users = [ "root" "david" "@wheel" ];
     experimental-features = [ "nix-command" "flakes" ];
-    # download-buffer-size = 500000000;
     auto-optimise-store = true;
   };
 

@@ -57,6 +57,7 @@
     cachix
     clang
     cmake
+    dwl
     # cmatrix
     # cowsay
     cpio
