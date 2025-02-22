@@ -12,7 +12,7 @@
       "https://walker-git.cachix.org"
       "https://cache.nixos.org"
       "https://nixpkgs-wayland.cachix.org"
-      # "https://cosmic.cachix.org"
+      "https://cosmic.cachix.org"
     ];
     
     extra-trusted-public-keys = [
@@ -20,9 +20,7 @@
       "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
       "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
-      
-      
+      "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA=" 
     ];
   };
   
@@ -64,7 +62,16 @@
       url = "github:outfoxxed/hy3?rev=hl0.47.0-1"; 
       inputs.hyprland.follows = "hyprland";
     };
-
+    
+    # nur = {
+    #     url = "github:nix-community/NUR";
+    #     inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    # zen-browser = {
+    #   url = "github:youwen5/zen-browser-flake";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+        
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland"; 
@@ -74,6 +81,7 @@
       url = "github:lnl7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
   };
 
   outputs = {
@@ -86,6 +94,7 @@
     darwin,
     ...
 } @ inputs:
+
   let
     inherit (self) outputs;
 
@@ -99,6 +108,9 @@
     useremail = "admin@davlee.com";
 
     forAllSystems = nixpkgs.lib.genAttrs systems;
+
+    lib = nixpkgs.lib;
+    
   in {
     packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
 
@@ -108,7 +120,7 @@
 
     nixosModules = import ./nixos;
     userModules = import ./home;
-
+ 
     nixpkgs.overlays = [
       inputs.nixpkgs-wayland.overlay
       
@@ -142,7 +154,6 @@
           ./hosts/${hostname}/config.nix
           lix-module.nixosModules.default
           nixos-cosmic.nixosModules.default
-
           home-manager.nixosModules.home-manager
           {
 

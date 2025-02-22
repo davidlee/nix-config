@@ -33,6 +33,18 @@ in {
       };
     };
 
+    desktopManager = {
+      cosmic = {
+        enable = true;
+      };
+    };
+    
+    displayManager = {
+      cosmic-greeter = {
+        enable = true;
+      };
+    };
+
     gnome = {
       gnome-settings-daemon.enable = true;
       gnome-keyring.enable = true;
@@ -40,14 +52,14 @@ in {
       gnome-online-accounts.enable = true;
     };
 
-    greetd = {
-      enable = true;
-      settings = {
-        default_session = {
-          command = "${tuigreet} --time --remember --remember-session";
-        };
-      };
-    };
+    # greetd = {
+    #   # enable = true;
+    #   settings = {
+    #     default_session = {
+    #       command = "${tuigreet} --time --remember --remember-session";
+    #     };
+    #   };
+    # };
       
     kmonad.enable = true;
 

@@ -57,7 +57,6 @@
     cachix
     clang
     cmake
-    dwl
     # cmatrix
     # cowsay
     cpio
@@ -80,7 +79,7 @@
     fzf-zsh
     fzy
     gawk
-    gcc
+    # gcc
     # gccgo14
     gh
     # gimp
@@ -96,7 +95,6 @@
     htop
     i3status
     ictree
-    imv
     # inxi
     # jq
     just
@@ -168,8 +166,6 @@
     # vim
     wget
     which
-    xdg-desktop-portal-hyprland
-    xfce.thunar
     zls
     zsh
     zstd
