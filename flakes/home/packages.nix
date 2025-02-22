@@ -4,6 +4,10 @@
   ...
 }: {
 
+  imports = [
+    ./packages_shared.nix
+  ];
+
   # home.packages = with inputs.nixpkgs-stable; [
   #   harlequin
   # ];
@@ -11,13 +15,7 @@
   
   home.packages = with pkgs; [
     _1password-cli
-    aria2
-    aspell
-    caddy
     ccache
-    clock-rs
-    d2
-    delta
     devcontainer
     dfu-util
     difftastic
@@ -25,97 +23,38 @@
     dmidecode
     docker
     dtc
-    exercism
     flatpak
     gammastep
-    gh-dash
-    glances
-    glow
     go
-    gperf
-    graphviz
-    helix
-    hexyl
-    httpie
     inetutils
-    jq
-    jujutsu
-    kakoune
-    lazydocker
-    lazygit
-    libffi
-    local-ai
     lua
     lua54Packages.luarocks-nix 
     lua-language-server
     luarocks-packages-updater
     lutris
-    markdownlint-cli
-    markdownlint-cli2
-    marksman
-    neofetch
     nerd-font-patcher
-    nethack
-    nh
-    nh
-    nil
-    nixd
     nixd
     nix-diff
     nix-index
     nix-search-cli
-    nodejs_23
+    nodejs_latest
     nwg-look
     p7zip
-    pastel
-    pnpm
-    python313Packages.pip
     qemu
-    qmk
     qmk-udev-rules
-    ranger
-    rathole
-    raylib
     sd-switch
-    semgrep
-    shellcheck
-    shfmt
-    slurp
-    sn0int
-    sqlite
     steamcmd
     steam-tui
-    stress-ng
     swayr
     swww
-    syncthing
-    tasksh
-    taskwarrior3
-    tealdeer
-    tealdeer
-    tpnote
-    tree-sitter
-    tty-clock
-    typescript
-    typescript-language-server
-    unar
     unixtools.nettools
     unixtools.xxd
     vimPlugins.fzf-lua
     virtualenv
-    vit
-    watchman
     wbg
-    wezterm
     wireplumber
     wob
     wtype
-    xh
-    xz
-    yazi
-    yq-go
-    zellij
-    zig
-    zk
+    # zig
   ];
 }

@@ -1,78 +1,61 @@
-{
+{ 
   pkgs,
+  inputs,
   ...
 }: {
+
   home.packages = with pkgs; [
     _1password-cli
-    _1password-gui
-    alacritty
-    antidote 
+    antidote
     aria2
     aspell
-    autoconf
-    bat
-    beeper
-    bitwarden-cli
-    bitwarden-desktop
     broot
     bun
     caddy
-    chez
-    chicken
     clangStdenv
     clock-rs
-    cmake
     corepack_latest
     coreutils
     curl
     d2
-    darwin.trash
     delta
-    devcontainer
     difftastic
     direnv
-    discord
-    docker
     docutils
-    emacs-macport
     exercism
     eza
     fd
     file
     fontconfig
-    fzf
     gawk
     gh
-    ghc
-    ghostty
-    git
+    gh-dash
+    git 
     gitu
-    glfw
+    glances
     glib
     glow
     gnumake
     gnused
     gnutar
-    go
+    gperf
     graphviz
-    guile
     helix
-    hello
     hexyl
     htop
     httpie
     ictree
-    imv
     inetutils
-    jankyborders
     jq
+    jujutsu
     just
     kakoune
-    kitty
+    lazydocker
     lazygit
     less
     lf
     libclang
+    libffi
     libGL
     libiconv
     libyaml
@@ -80,109 +63,78 @@
     lldb
     local-ai
     lsd
-    lua-language-server
-    lunarvim
     lynx
-    markdownlint-cli
-    markdownlint-cli2
     markdown-oxide
     marksman
-    ncdu
-    nerdfonts
+    markdownlint-cli
+    markdownlint-cli2
+    neofetch
+    # nerdfonts
     nethack
     nh
     nil
     ninja
     nix-direnv
-    nix-index
     nix-search-cli
     nmap
     nnn
     nodejs_23
-    nodejs_latest
     nushell
-    obsidian
-    odin
-    ols
     overmind
     p7zip
+    pastel
     pipx
-    pixman
     pnpm
-    pstree
-    # python3
-    # python3.12
     python312
     python312Packages.pywatchman
     python313Packages.pip
     qemu
     qmk
-    racket
     ranger
+    rathole
     raylib
-    rbenv
-    ripgrep
-    ruby
-    rustup
     sad
-    SDL
-    SDL2
-    SDL2_mixer
     semgrep
-    shortcat
-    signal-desktop
-    skhd
-    slack
+    shellcheck
+    shfmt
+    # shortcat
+    # skhd
     slurp
     sn0int
-    socat
-    spotify
     sqlite
-    starship
-    stdenv
-    stow
     stress-ng
     syncthing
     tasksh
-    taskwarrior
     taskwarrior3
     tealdeer
-    tldr
-    tmux
     tpnote
-    tree
     tree-sitter
+    tty-clock
     typescript
     typescript-language-server
     unar
     unixtools.nettools
     unixtools.xxd
     unzip
+    vimPlugins.fzf-lua
     virtualenv
     vit
-    vscode
     vulkan-headers
     vulkan-loader
     vulkan-tools
     watchman
     wezterm
-    wget
-    which
+    xh
     xz
-    yabai
     yazi
     yq-go
-    zed-editor
     zellij
     zig
-    zip
     zk
     zls
     zoxide
     zsh
     zstd
-
-    nixd
 
   ];
 }
