@@ -41,27 +41,27 @@
 
     walker.url = "github:abenz1267/walker";
 
-    nixpkgs-wayland = {
-      url = "github:nix-community/nixpkgs-wayland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nixpkgs-wayland = {
+    #   url = "github:nix-community/nixpkgs-wayland";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
-    nixvim = {
-      url = "github:nix-community/nixvim";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # nixvim = {
+    #   url = "github:nix-community/nixvim";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
-    hyprland.url = "github:hyprwm/Hyprland?ref=v0.47.2";
+    # hyprland.url = "github:hyprwm/Hyprland?ref=v0.47.2";
 
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hy3 = {
-      url = "github:outfoxxed/hy3?rev=hl0.47.0-1"; 
-      inputs.hyprland.follows = "hyprland";
-    };
+    # hy3 = {
+    #   url = "github:outfoxxed/hy3?rev=hl0.47.0-1"; 
+    #   inputs.hyprland.follows = "hyprland";
+    # };
     
     # nur = {
     #     url = "github:nix-community/NUR";
@@ -72,10 +72,10 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
         
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland"; 
-    };
+    # hyprland-plugins = {
+    #   url = "github:hyprwm/hyprland-plugins";
+    #   inputs.hyprland.follows = "hyprland"; 
+    # };
     
     darwin = {
       url = "github:lnl7/nix-darwin";
@@ -113,27 +113,11 @@
     
   in {
     packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
-
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
-
-    overlays =  import ./overlays { inherit inputs; };
 
     nixosModules = import ./nixos;
     userModules = import ./home;
  
-    nixpkgs.overlays = [
-      inputs.nixpkgs-wayland.overlay
-      
-      (final: prev: {
-        dwl = prev.dwl.override { conf = ./overlays/patches/dwl/config.h; };
-      })
-
-      # # pin packages to nixpkgs-stable
-      # (final: prev: {
-      #   # lldb = nixpkgs-stable.lldb;
-      # })
-    ];
-
     nixosConfigurations = {
       "${hostname}" = nixpkgs.lib.nixosSystem {
 
