@@ -1,0 +1,43 @@
+{ 
+  pkgs,
+  inputs,
+  ...
+}: {
+  home.packages = with pkgs; [
+    _1password-gui
+    alacritty
+    beeper
+    beets
+    blender
+    cloudlens
+    cmus
+    code-cursor
+    foot
+    fooyin
+    gamescope
+    ghostty
+    kando
+    kitty
+    mako
+    manix
+    mcfly
+    obsidian
+    oha
+    quodlibet
+    rofi-wayland
+    signal-desktop
+    slack
+    somebar
+    spotify
+    superfile
+    tauon
+    tokei
+    trippy
+    ungoogled-chromium
+    virt-viewer 
+    viu
+    vivaldi
+    vscode
+    zed-editor
+  ];
+}

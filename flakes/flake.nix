@@ -128,11 +128,6 @@
         dwl = prev.dwl.override { conf = ./overlays/patches/dwl/config.h; };
       })
 
-      # # DWL
-      # (final: prev: {
-      #   dwl = prev.dwl-unwrapped.overrideAttrs { patches = [ ./overlays/dwl/patches/config.patch ]; };
-      # }) 
-
       # # pin packages to nixpkgs-stable
       # (final: prev: {
       #   # lldb = nixpkgs-stable.lldb;
