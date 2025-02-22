@@ -4,7 +4,8 @@
   username,
   ...
 }: {
-  # environment.pathsToLink = [ "/share/zsh" ];
+
+  # evironment.pathsToLink = [ "/share/zsh" ];
 
   programs.zsh = {
     enable = true;
@@ -20,13 +21,9 @@
     };
     dotDir = ".config/zsh";
 
-    # oh-my-zsh = {
-    #   enable = true;
-    #   plugins = ["git" "sudo"];
-    # };
     antidote = {
       enable = true; 
-      # plugins = ["git" "sudo"];
+      plugins = ["git" "sudo"];
     };
     history.size = 10000;
 

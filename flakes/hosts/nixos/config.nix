@@ -1,7 +1,7 @@
-{ pkgs, hostname, options, hy3, config, outputs, ...}:
-let
-  inherit (import ./variables.nix) keyboardLayout;
-in {
+{ pkgs, config, options, lib, ...}:
+
+with lib;
+{
   imports = [
     ./hardware-configuration.nix
     ../../system/default.nix
@@ -12,6 +12,8 @@ in {
     trusted-users = [ "root" "david" "@wheel" ];
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
+    substituters = [ "https://cosmic.cachix.org/" ];
+    trusted-public-keys = [ "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=" ];
   };
 
   nix.gc = {
@@ -21,6 +23,9 @@ in {
   };
 
   users.enable = true;
+
+  # useHyprland = mkEnableOption "use hyprland?";
+  # useSway     = mkEnableOption "use sway?";
   
   # enable SSD trim & improve perf
   fileSystems."/".options = [ "noatime" "nodiratime" "discard" ]; 

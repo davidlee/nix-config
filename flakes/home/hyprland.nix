@@ -6,18 +6,48 @@
   ...
 }: {
 
+  home.packages = with pkgs; [
+    hypr
+    hyprcursor
+    hyprdim
+    hypre
+    hyprkeys
+    hyprland
+    hyprland
+    hyprland-activewindow
+    hyprlang
+    hyprlock
+    hyprls
+    hyprnome
+    hyprnotify
+    hyprpaper
+    hyprpolkitagent
+    hyprshot
+    hyprsome
+    hyprspace
+    hyprsunset
+    hyprutils
+
+    xdg-desktop-portal-hyprland
+  ];
+
+
+  # programs = {
+  #   hyprland = { 
+  #     enable = true; 
+  #     withUWSM = true;
+  #     package = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+  #     portalPackage = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;  
+  #   };
+  # };
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
 
     plugins = [
-      # inputs.hy3.packages.x86_64-linux.hyprexpo
       pkgs.hyprlandPlugins.hyprexpo
       inputs.hy3.packages.x86_64-linux.hy3
-      
-      # inputs.hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
-      # pkgs.hyprlandPlugins.hyprscroller
-      # inputs.hy3.packages.x86_64-linux.hy3
     ];
 
     settings = {

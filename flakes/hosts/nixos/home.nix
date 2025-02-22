@@ -11,6 +11,7 @@
     inputs.walker.homeManagerModules.default
     ../../home/packages.nix
     ../../home/programs.nix    
+    ../../home/apps.nix
    ];
 
   # services.swayidle.enable = true;

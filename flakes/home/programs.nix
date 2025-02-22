@@ -12,12 +12,6 @@
   ];
 
   programs = {
-
-    walker = {
-      enable = true;
-      runAsService = true;
-    };
-  
     direnv = {
       enable = true;
       enableZshIntegration = true; 
@@ -68,18 +62,11 @@
       enableZshIntegration = true;
     };
 
-
     skim = {
       enable = true;
       enableBashIntegration = true;
     };
-       
-    waybar =  {
-      enable = true;
-      systemd.enable = true; 
-    };
-
-    firefox = {
+           firefox = {
       enable = true;
       # enableGnomeExtensions = true;
     };
@@ -120,5 +107,4 @@
   
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
-
 }
