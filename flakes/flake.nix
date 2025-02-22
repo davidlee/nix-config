@@ -70,30 +70,33 @@
       inputs.hyprland.follows = "hyprland"; 
     };
     
+    darwin = {
+      url = "github:lnl7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = inputs@{
+  outputs = {
     self,
     nixpkgs,
     nixpkgs-stable,
     lix-module,
     home-manager,
     nixos-cosmic,
+    darwin,
     ...
-}:
+} @ inputs:
   let
     inherit (self) outputs;
 
     systems = [
       "x86_64-linux"
       "aarch64-darwin"
-      # "aarch64-linux"
-      # "i686-linux"
-      # "x86_64-darwin"
     ];
 
-    host = "nixos";
+    hostname = "nixos";
     username = "david";
+    useremail = "admin@davlee.com";
 
     forAllSystems = nixpkgs.lib.genAttrs systems;
   in {
@@ -109,9 +112,13 @@
     nixpkgs.overlays = [
       inputs.nixpkgs-wayland.overlay
       
+      (final: prev: {
+        dwl = prev.dwl.override { conf = ./overlays/patches/dwl/config.h; };
+      })
+
       # # DWL
       # (final: prev: {
-      #   # dwl = prev.dwl.overrideAttrs { patches = [ ./dwl-patches/config.patch ]; };
+      #   dwl = prev.dwl-unwrapped.overrideAttrs { patches = [ ./overlays/dwl/patches/config.patch ]; };
       # }) 
 
       # # pin packages to nixpkgs-stable
@@ -121,14 +128,10 @@
     ];
 
     nixosConfigurations = {
-      "${host}" = nixpkgs.lib.nixosSystem {
+      "${hostname}" = nixpkgs.lib.nixosSystem {
 
         specialArgs = {
-          inherit systems;
-          inherit inputs;
-          inherit username;
-          inherit host;
-          inherit outputs;
+          inherit systems inputs username useremail hostname outputs;
           
           pkgs-stable = import nixpkgs-stable {
             config.allowUnfree = true;
@@ -136,7 +139,7 @@
         };
 
         modules = [
-          ./hosts/${host}/config.nix
+          ./hosts/${hostname}/config.nix
           lix-module.nixosModules.default
           nixos-cosmic.nixosModules.default
 
@@ -144,16 +147,13 @@
           {
 
             home-manager.extraSpecialArgs = {
-              inherit username;
-              inherit inputs;
-              inherit host;
-              inherit systems;
+              inherit systems inputs username useremail hostname outputs;
             };
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
-            home-manager.users.${username} = import ./hosts/${host}/home.nix;
+            home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
           }
         ];
       };
@@ -161,19 +161,17 @@
 
     # standalone home-manager
     homeConfigurations = {
-      "${host}" = nixpkgs.lib.nixosSystem {
+      "${hostname}" = nixpkgs.lib.nixosSystem {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         extraSpecialArgs = {
-          inherit inputs outputs;
-          inherit host username;
-          inherit systems;
+          inherit systems inputs username useremail hostname outputs;
         };
         useGlobalPkgs = true;
-        usUserPackages = true;
+        useUserPackages = true;
         backupFileExtension = "backup";
 
         modules = [
-          ./hosts/${host}/home.nix
+          ./hosts/${hostname}/home.nix
         ];
       };
     };

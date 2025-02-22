@@ -1,9 +1,6 @@
 { 
   pkgs,
   inputs,
-  # nixpkgs-stable,
-  # host,
-  # username,
   ...
 }: {
 
@@ -34,6 +31,7 @@
     tuba
     signal-desktop
     limo    
+    libffi
 
     # gnome-shell
     # gnome-logs
@@ -82,6 +80,8 @@
     # gnome-nettool
     
 
+    qmk
+    qmk-udev-rules
 
    
     code-cursor
@@ -104,6 +104,7 @@
     ccache
     devcontainer
     python313Packages.pip
+
     virtualenv
     dfu-util
     qemu
@@ -152,7 +153,7 @@
     # harlequin
     neofetch
     blender
-    dwl
+    # dwl
     river
     zathura
     spatial-shell
@@ -230,7 +231,7 @@
     p7zip
     pastel
     pnpm
-    qmk
+    # qmk
     ranger
     rathole
     raylib

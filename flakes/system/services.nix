@@ -22,7 +22,7 @@ in {
       enable = true;
       displayManager = {
         gdm = {
-          enable = true;
+          # enable = true;
           wayland = true;
         };
       };
@@ -41,7 +41,7 @@ in {
     };
 
     greetd = {
-      enable = false; # let gdm run
+      enable = true;
       settings = {
         default_session = {
           command = "${tuigreet} --time --remember --remember-session";

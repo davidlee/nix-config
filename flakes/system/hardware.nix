@@ -9,5 +9,6 @@
     #   enable = false;
     #   enableGraphical = false;
     # };
+    keyboard.qmk.enable = true;
   };
 }
