@@ -5,28 +5,43 @@
 }: {
 
   home.packages = with pkgs; [
+
     _1password-cli
     antidote
     aria2
     aspell
+    atop
+    # autoconf
+    bat
+    # binutils
+    bison
+    bottom
     broot
-    bun
+    btop
+    # bun
     caddy
-    clangStdenv
+    # clang
+    # clangStdenv
     clock-rs
+    # cmake
     corepack_latest
     coreutils
     curl
     d2
     delta
     difftastic
+    dig
     direnv
     docutils
+    duf
+    emacs
     exercism
     eza
     fd
     file
     fontconfig
+    fzf-zsh
+    fzy
     gawk
     gh
     gh-dash
@@ -40,6 +55,7 @@
     gnutar
     gperf
     graphviz
+    gtop
     helix
     hexyl
     htop
@@ -64,10 +80,11 @@
     local-ai
     lsd
     lynx
-    markdown-oxide
-    marksman
     markdownlint-cli
     markdownlint-cli2
+    markdown-oxide
+    marksman
+    ncdu
     neofetch
     # nerdfonts
     nethack
@@ -83,6 +100,7 @@
     overmind
     p7zip
     pastel
+    phinger-cursors
     pipx
     pnpm
     python312
