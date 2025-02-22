@@ -7,52 +7,23 @@
     _7zz
     alsa-utils
     appimage-run
-    atop
-    autoconf
-    bat
-    binutils
-    bison
-    bottom
-    broot
-    btop
-    btop
     btrfs-progs
     cachix
-    cachix
-    clang
-    cmake
     cpio
     dconf
-    dig
     directx-headers
     directx-shader-compiler
-    direnv
     # dwl
     # dwlb
-    duf
-    emacs
-    eza
-    fd
     ffmpeg
     file
     findutils
-    # fwupd
-    fzf-zsh
-    fzy
-    gawk
+    fd
     # gcc
-    gh
-    git
-    gitu
     glfw
-    gnumake
-    gnused
     greetd.greetd
     greetd.tuigreet
-    gtop
     hdparm
-    htop
-    htop
     i3status
     ictree
     iftop
@@ -70,7 +41,6 @@
     meson
     mods
     mpv
-    ncdu
     nethogs
     ninja
     nix-bisect
@@ -87,7 +57,6 @@
     ols
     openssl
     pciutils
-    phinger-cursors
     pinfo
     pipewire
     pipx
