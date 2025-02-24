@@ -1,5 +1,8 @@
-{...}: {
+{inputs, ...}: {
   imports = [
+    inputs.lix-module.nixosModules.default
+    inputs.nixos-cosmic.nixosModules.default
+
     ../../system/mine.nix
     ../../system/default.nix
     ../../system/nvidia-drivers.nix
