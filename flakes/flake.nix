@@ -1,5 +1,5 @@
 {
-  description = "Top level flake for nixOS configuration";
+  description = "machine songs";
 
   inputs = {
     nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-24.11";
@@ -29,35 +29,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
         
-    helix.url = "github:helix-editor/helix/master";
     walker.url = "github:abenz1267/walker";
-
-    # nixpkgs-wayland = {
-    #   url = "github:nix-community/nixpkgs-wayland";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
-    # nixvim = {
-    #   url = "github:nix-community/nixvim";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
-    # hyprland.url = "github:hyprwm/Hyprland?ref=v0.47.2";
-
-    # hy3 = {
-    #   url = "github:outfoxxed/hy3?rev=hl0.47.0-1"; 
-    #   inputs.hyprland.follows = "hyprland";
-    # };
-    
-    # nur = {
-    #     url = "github:nix-community/NUR";
-    #     inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
-    # hyprland-plugins = {
-    #   url = "github:hyprwm/hyprland-plugins";
-    #   inputs.hyprland.follows = "hyprland"; 
-    # };
   };
 
   outputs = {
