@@ -1,49 +1,29 @@
-{ config, pkgs, username, inputs, ... }: {
-
-  # Home Manager Settings
-  home = {
-    username = "${username}";
-    # homeDirectory = "/home/${username}";
-    stateVersion = "24.11";
-  };
+{ username, inputs, ... }: {
 
   imports = [
     inputs.walker.homeManagerModules.default
+
     ../../home/packages.nix
     ../../home/programs.nix    
     ../../home/apps.nix
    ];
+  
+  home = {
+    username = "${username}";
+    stateVersion = "24.11";
+    sessionVariables = {
+      EDITOR = "hx";
+      DIFFPROG = "delta";
+      MANPAGER = "nvim +Man!";
+
+      XCURSOR_SIZE = 24;
+      NIXOS_OZONE_WL = 1;
+    };
+  };
 
   # services.swayidle.enable = true;
   services.copyq.enable = true;
-
-  # inputs.modules = [
-  #   inputs.hyprland.homeManagerModules.default
-  #   {
-  #     wayland.windowManager.hyprland = {
-  #       enable = true;
-  #       plugins = [ inputs.hy3.packages.x86_64-linux ];
-  #     };
-  #   }
-  # ];
-   
-
-  home.file = {
-    # ...
-  };
   
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
-
-  home.sessionVariables = {
-    EDITOR = "hx";
-    DIFFPROG = "delta";
-    MANPAGER = "nvim +Man!";
-    ZMK_CONFIG = "";
-    GITHUB_OAUTH_TOKEN = "";
-
-    XCURSOR_SIZE = 24;
-    NIXOS_OZONE_WL = 1;
-  };
-
 }

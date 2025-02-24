@@ -2,12 +2,13 @@
   description = "machine songs";
 
   inputs = {
-    nixpkgs-stable.url   = "github:nixos/nixpkgs/nixos-24.11";
-
-    nixpkgs.url          = "github:nixos/nixpkgs/nixos-unstable";
-    nixpkgs.follows = "nixos-cosmic/nixpkgs";
-
+    # note - this sets the pace for everything else
     nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
+
+    nixpkgs = {
+      url = "github:nixos/nixpkgs/nixos-unstable";
+      follows = "nixos-cosmic/nixpkgs";
+    };
 
     home-manager = { 
       url = "github:nix-community/home-manager/master";
@@ -29,80 +30,40 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
         
-    walker.url = "github:abenz1267/walker";
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    # nixpkgs-stable,
-    lix-module,
-    home-manager,
-    nixos-cosmic,
-    darwin,
-    ...
-} @ inputs:
+  outputs = inputs@{ self, nixpkgs, ... }:
+    let
+      inherit (self) outputs;
+      hostname = "nixos";
+      username = "david";
+    in
+  {
 
-  let
-    inherit (self) outputs;
-
-    systems = [
-      "x86_64-linux"
-      "aarch64-darwin"
-    ];
-
-    hostname = "nixos";
-    username = "david";
-    useremail = "admin@davlee.com";
-
-    forAllSystems = nixpkgs.lib.genAttrs systems;
-  in {
-    packages = forAllSystems (system: import ./pkgs nixpkgs.legacyPackages.${system});
-    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
-
-    nixosModules = import ./nixos;
-    userModules = import ./home;
- 
     nixosConfigurations = {
       "${hostname}" = nixpkgs.lib.nixosSystem {
 
         specialArgs = {
-          inherit systems inputs username useremail hostname outputs;
+          inherit inputs outputs username hostname;
         };
 
         modules = [
           ./hosts/${hostname}/config.nix
-          lix-module.nixosModules.default
-          nixos-cosmic.nixosModules.default
-          home-manager.nixosModules.home-manager
+
+          inputs.home-manager.nixosModules.home-manager
           {
 
-            home-manager.extraSpecialArgs = {
-              inherit systems inputs username useremail hostname outputs;
-            };
+            home-manager.extraSpecialArgs = { inherit inputs outputs username hostname; };
 
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
             home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
           }
-        ];
-      };
-    };
-
-    # standalone home-manager
-    homeConfigurations = {
-      "${hostname}" = nixpkgs.lib.nixosSystem {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = {
-          inherit systems inputs username useremail hostname outputs;
-        };
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        backupFileExtension = "backup";
-
-        modules = [
-          ./hosts/${hostname}/home.nix
         ];
       };
     };
