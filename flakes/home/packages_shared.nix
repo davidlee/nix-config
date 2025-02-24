@@ -6,6 +6,12 @@
 
   home.packages = with pkgs; [
 
+    # go
+    lua
+    lua54Packages.luarocks-nix 
+    lua-language-server
+    luarocks-packages-updater
+    # virtualenv
     _1password-cli
     antidote
     aria2
@@ -135,7 +141,7 @@
     unixtools.xxd
     unzip
     vimPlugins.fzf-lua
-    virtualenv
+    # virtualenv
     vit
     vulkan-headers
     vulkan-loader
