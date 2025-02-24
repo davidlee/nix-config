@@ -45,6 +45,10 @@ in {
       };
     };
 
+    espanso = {
+      enable = true;
+    };
+    
     gnome = {
       gnome-settings-daemon.enable = true;
       gnome-keyring.enable = true;
@@ -74,7 +78,6 @@ in {
     };
 
     printing.enable = true;
-
 
     pipewire = {
       enable = true;

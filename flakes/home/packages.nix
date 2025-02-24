@@ -23,21 +23,17 @@
     dmidecode
     docker
     dtc
+    espanso-wayland
     flatpak
     gammastep
-    go
     inetutils
-    lua
-    lua54Packages.luarocks-nix 
-    lua-language-server
-    luarocks-packages-updater
+    nodejs_latest
     lutris
     nerd-font-patcher
     nixd
     nix-diff
     nix-index
     nix-search-cli
-    nodejs_latest
     nwg-look
     p7zip
     qemu
@@ -50,11 +46,9 @@
     unixtools.nettools
     unixtools.xxd
     vimPlugins.fzf-lua
-    virtualenv
     wbg
     wireplumber
     wob
     wtype
-    # zig
   ];
 }
