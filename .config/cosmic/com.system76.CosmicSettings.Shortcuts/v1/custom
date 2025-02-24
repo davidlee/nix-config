@@ -5,34 +5,15 @@
             Ctrl,
             Alt,
         ],
-        key: "k",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Shift,
-        ],
         key: "l",
     ): Disable,
     (
         modifiers: [
             Super,
-        ],
-        key: "k",
-    ): ToggleSticky,
-    (
-        modifiers: [
-            Super,
             Shift,
         ],
-        key: "Escape",
+        key: "k",
     ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "v",
-    ): Orientation(Vertical),
     (
         modifiers: [
             Super,
@@ -43,8 +24,15 @@
         modifiers: [
             Super,
         ],
-        key: "h",
-    ): ToggleOrientation,
+        key: "d",
+    ): System(Launcher),
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "q",
+    ): System(LogOut),
     (
         modifiers: [
             Super,
@@ -52,6 +40,32 @@
         ],
         key: "s",
     ): System(Screenshot),
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Alt,
+        ],
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "f",
+    ): Maximize,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "o",
+    ): Orientation(Horizontal),
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "v",
+    ): Orientation(Vertical),
     (
         modifiers: [
             Super,
@@ -68,9 +82,11 @@
     (
         modifiers: [
             Super,
+            Ctrl,
+            Alt,
         ],
-        key: "l",
-    ): System(LockScreen),
+        key: "k",
+    ): Disable,
     (
         modifiers: [
             Super,
@@ -82,55 +98,20 @@
         modifiers: [
             Super,
         ],
-        key: "Escape",
-    ): Disable,
+        key: "k",
+    ): ToggleSticky,
     (
         modifiers: [
             Super,
-            Shift,
-        ],
-        key: "q",
-    ): System(LogOut),
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "d",
-    ): System(Launcher),
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "o",
-    ): Orientation(Horizontal),
-    (
-        modifiers: [
-            Super,
-            Shift,
-        ],
-        key: "j",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Alt,
         ],
         key: "l",
-    ): Disable,
+    ): System(LockScreen),
     (
         modifiers: [
             Super,
+            Shift,
         ],
-        key: "f",
-    ): Maximize,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Alt,
-        ],
-        key: "j",
+        key: "l",
     ): Disable,
     (
         modifiers: [
@@ -143,6 +124,25 @@
             Super,
             Shift,
         ],
-        key: "k",
+        key: "j",
     ): Disable,
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "Escape",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "Escape",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "h",
+    ): ToggleOrientation,
 }
