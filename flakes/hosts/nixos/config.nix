@@ -1,6 +1,5 @@
 {...}: {
   imports = [
-    ../../system/nix.nix
     ../../system/mine.nix
     ../../system/default.nix
     ../../system/nvidia-drivers.nix
