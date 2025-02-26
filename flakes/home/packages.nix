@@ -13,23 +13,19 @@
   # ];
   
   
+  # gui stuff should go in wayland.nix
   home.packages = with pkgs; [
     _1password-cli
     ccache
     devcontainer
     dfu-util
     difftastic
-    discord
     dmidecode
     docker
     dtc
-    espanso-wayland
     flatpak
-    gammastep
     inetutils
     nodejs_latest
-    lutris
-    nerd-font-patcher
     nixd
     nix-diff
     nix-index
@@ -41,11 +37,9 @@
     sd-switch
     steamcmd
     steam-tui
-    swayr
     swww
     unixtools.nettools
     unixtools.xxd
-    vimPlugins.fzf-lua
     wbg
     wireplumber
     wob
