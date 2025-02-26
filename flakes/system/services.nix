@@ -101,5 +101,9 @@ in {
       interval = "hourly";
     };
 
+    # proxmox-ve = {
+    #   enable = true; 
+    #   ipAddress = "";
+    # }
   };
 }
