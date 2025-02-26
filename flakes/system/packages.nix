@@ -74,6 +74,7 @@
     smem
     strace
     sysstat
+    sysprof
     tcpdump
     tmux
     tree

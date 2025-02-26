@@ -6,6 +6,21 @@
   tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
 in {
 
+ # nixpkgs.overlays = [
+ #    # GNOME 46: triple-buffering-v4-46
+ #    (final: prev: {
+ #      mutter = prev.mutter.overrideAttrs (old: {
+ #        src = pkgs.fetchFromGitLab  {
+ #          domain = "gitlab.gnome.org";
+ #          owner = "vanvugt";
+ #          repo = "mutter";
+ #          rev = "triple-buffering-v4-46";
+ #          hash = "sha256-C2VfW3ThPEZ37YkX7ejlyumLnWa9oij333d5c4yfZxc=";
+ #        };
+ #      });
+ #    })
+ #  ];
+
   systemd.services.greetd.serviceConfig = {
     Type = "idle";
     StandardInput = "tty";
@@ -44,20 +59,22 @@ in {
         enable = true;
       };
     };
-
-    espanso = {
-      enable = true;
-    };
     
     gnome = {
+      evolution-data-server.enable = true;
       gnome-settings-daemon.enable = true;
       gnome-keyring.enable = true;
       gnome-browser-connector.enable = true;
       gnome-online-accounts.enable = true;
     };
 
+    # for systray icons in gnome
+    udev.packages = with pkgs; [ gnome-settings-daemon ];
+
+    # conflicts with Cosmic greeter
+    # 
     # greetd = {
-    #   # enable = true;
+    #   enable = true;
     #   settings = {
     #     default_session = {
     #       command = "${tuigreet} --time --remember --remember-session";
@@ -65,7 +82,14 @@ in {
     #   };
     # };
       
+
     kmonad.enable = true;
+    espanso.enable = true;
+    devmon.enable = true;
+    gvfs.enable = true;
+    udisks2.enable = true;
+
+    sysprof.enable = true;
 
     openssh = {
       enable = true;

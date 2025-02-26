@@ -34,6 +34,11 @@
     # ];
 
   home.packages = with pkgs; [
+    espanso-wayland
+    lutris
+    swayr
+    discord
+    gammastep
 
     # gnome-shell
     # gnome-logs
@@ -80,6 +85,10 @@
     # gnome-extension-manager
     # gnome-browser-connector
     # gnome-nettool
+
+    adwaita-icon-theme
+    gnomeExtensions.appindicator
+    
 
     bibata-cursors
     clipman

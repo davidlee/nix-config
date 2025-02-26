@@ -6,12 +6,11 @@
 
   home.packages = with pkgs; [
 
-    # go
     lua
+    nerd-font-patcher
     lua54Packages.luarocks-nix 
     lua-language-server
     luarocks-packages-updater
-    # virtualenv
     _1password-cli
     antidote
     aria2
@@ -92,7 +91,6 @@
     marksman
     ncdu
     neofetch
-    # nerdfonts
     nethack
     nh
     nil
@@ -121,8 +119,6 @@
     semgrep
     shellcheck
     shfmt
-    # shortcat
-    # skhd
     slurp
     sn0int
     sqlite
@@ -141,11 +137,11 @@
     unixtools.xxd
     unzip
     vimPlugins.fzf-lua
-    # virtualenv
     vit
     vulkan-headers
     vulkan-loader
     vulkan-tools
+    nvimpager
     watchman
     wezterm
     xh
