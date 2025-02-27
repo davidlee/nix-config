@@ -56,18 +56,6 @@ in {
     # for systray icons in gnome
     udev.packages = with pkgs; [ gnome-settings-daemon ];
 
-    # conflicts with Cosmic greeter
-    # 
-    # greetd = {
-    #   enable = true;
-    #   settings = {
-    #     default_session = {
-    #       command = "${tuigreet} --time --remember --remember-session";
-    #     };
-    #   };
-    # };
-      
-
     kmonad.enable = true;
     espanso.enable = true;
     devmon.enable = true;
@@ -79,10 +67,12 @@ in {
     openssh = {
       enable = true;
       settings = {
+        GatewayPorts = "yes";
         PasswordAuthentication = false;
         X11Forwarding = false;
+        LogLevel = "VERBOSE";
         PermitRootLogin = "prohibit-password";
-        UseDns = true;
+        # UseDns = true;
       };
     };
 
@@ -101,9 +91,9 @@ in {
       interval = "hourly";
     };
 
-    # proxmox-ve = {
-    #   enable = true; 
-    #   ipAddress = "";
-    # }
+    caddy = {
+      enable = true;
+      acmeCA = "https://acme-v02.api.letsencrypt.org/directory";
+    };
   };
 }
