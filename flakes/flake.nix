@@ -34,11 +34,6 @@
       url = "github:abenz1267/walker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # WARN proxmox wants nixos-stable
-    # proxmox-nixos = {
-    #   url = "github:SaumonNet/proxmox-nixos";
-    # };
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
@@ -58,6 +53,7 @@
 
         modules = [
           ./hosts/${hostname}/config.nix
+          ./modules/gnome.nix
 
           inputs.home-manager.nixosModules.home-manager
           {

@@ -3,13 +3,11 @@
     inputs.lix-module.nixosModules.default
     inputs.nixos-cosmic.nixosModules.default
 
-    ../../system/mine.nix
     ../../system/default.nix
     ../../system/nvidia-drivers.nix
     ./hardware-configuration.nix
   ];
 
-  mine.something = true;
   users.enable = true;
 
   system.stateVersion = "24.11"; 
