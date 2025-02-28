@@ -4,17 +4,11 @@
     home.packages = with pkgs; [
       gnomeExtensions.appindicator
     ];
-
-    # dconf.settings = {
-    #   "org/gnome/shell" = {
-    #     favorite-apps = [ "firefox.desktop" "code.desktop" ];
-    #   };
-    # };
-
   };
 
   programs = {
     dconf.enable = true;
+    gnome-terminal.enable = true;
   };
 
   services = {
@@ -45,8 +39,5 @@
 
     sysprof.enable = true;
   };
-
-
-
 
 }

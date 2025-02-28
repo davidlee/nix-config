@@ -3,6 +3,9 @@
   inputs,
   ...
 }: {
+
+
+
   home.packages = with pkgs; [
     _1password-gui
     alacritty
@@ -33,10 +36,17 @@
     tauon
     tokei
     trippy
-    ungoogled-chromium
     virt-viewer 
     viu
     vivaldi
+    ladybird
+    librewolf
+    firefox
+    qutebrowser
+    floorp
+    ungoogled-chromium
+    # midori
+    # palemoon-bin
     vscode
     zed-editor
   ];
