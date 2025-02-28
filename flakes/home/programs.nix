@@ -66,7 +66,12 @@
       enable = true;
       enableBashIntegration = true;
     };
-           firefox = {
+
+    librewolf = {
+      enable = true;
+    };
+
+    firefox = {
       enable = true;
       # enableGnomeExtensions = true;
     };

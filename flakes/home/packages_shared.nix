@@ -5,7 +5,6 @@
 }: {
 
   home.packages = with pkgs; [
-
     lua
     nerd-font-patcher
     lua54Packages.luarocks-nix 
@@ -110,7 +109,7 @@
     python312
     python312Packages.pywatchman
     python313Packages.pip
-    qemu
+    # qemu
     qmk
     ranger
     rathole
