@@ -95,7 +95,7 @@
     clipse
     copyq
     dmenu
-    dolphin
+    # dolphin
     dwl
     dwlb
     flameshot

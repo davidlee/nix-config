@@ -112,7 +112,7 @@
     # qemu
     qmk
     ranger
-    rathole
+    # rathole
     raylib
     sad
     semgrep
