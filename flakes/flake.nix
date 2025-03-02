@@ -2,12 +2,9 @@
   description = "machine songs";
 
   inputs = {
-    # note - this sets the pace for everything else
-    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
 
     nixpkgs = {
       url = "github:nixos/nixpkgs/nixos-unstable";
-      follows = "nixos-cosmic/nixpkgs";
     };
 
     home-manager = { 
