@@ -77,7 +77,8 @@ in {
     };
 
     printing.enable = true;
-
+    
+  
     pipewire = {
       enable = true;
       alsa.enable = true;

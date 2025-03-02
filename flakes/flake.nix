@@ -39,7 +39,7 @@
   outputs = inputs@{ self, nixpkgs, ... }:
     let
       inherit (self) outputs;
-      hostname = "nixos";
+      hostname = "Sleipnir";
       username = "david";
     in
   {
