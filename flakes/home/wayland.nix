@@ -39,63 +39,14 @@
     swayr
     discord
     gammastep
-
-    # gnome-shell
-    # gnome-logs
-    # gnome-usage
-    # gnome-panel
-    # gnome-notes
-    # gnome-menus
-    # gnome-feeds
-    # gnome-chess
-    # gnome-tweaks
-    # gnome-robots
-    # gnome-graphs
-    # gnome-common
-    # gnome-weather
-    # gnome-session
-    # gnome-secrets
-    # gnome-keysign
-    # gnome-keyring
-    # gnome-desktop
-    # gnome-builder
-    # gnome-applets
-    # gnome-podcasts
-    # gnome-firmware
-    # gnome-contacts
-    # gnome-calendar
-    # gnome-gnome-user-docs
-    # gnome-commander
-    # gnome-doc-utils
-    # gnome-bluetooth
-    # gnome-screenshot
-    # gnome-solanum
-    # gnome-icon-theme
-    # gnome-characters
-    # gnome-text-editor
-    # gnome-session-ctl
-    # gnome-font-viewer
-    # gnome-connections
-    # gnome-disk-utility
-    # gnome-power-manager
-    # gnome-system-monitor
-    # gnome-control-center
-    # gnome-shell-extensions
-    # gnome-settings-daemon
-    # gnome-extension-manager
-    # gnome-browser-connector
-    # gnome-nettool
-
     adwaita-icon-theme
     gnomeExtensions.appindicator
-    
-
+  
     bibata-cursors
     clipman
     clipse
     copyq
     dmenu
-    # dolphin
     dwl
     dwlb
     flameshot
@@ -104,14 +55,12 @@
     gdm
     grim
     imv
-    imv
-    imv
     kanshi
     kmonad
     limo    
     nemo
     protontricks
-    river
+    # river
     rootbar
     shotman
     shotman
@@ -119,16 +68,15 @@
     signal-desktop
     sirula
     spatial-shell
-    swaybg
-    swaybg
+    # swaybg
     sway-contrib.grimshot
-    swayidle
-    swayimg
-    swaylock
-    swaymux
+    # swayidle
+    # swayimg
+    # swaylock
+    # swaymux
     tuba
-    waybar
-    waypipe
+    # waybar
+    # waypipe
     wev
     wine
     winePackages.full
@@ -146,17 +94,17 @@
     zathura
   ];
 
-  wayland = {
-    windowManager = {
-      river = {
-        enable = true;
-        systemd.enable = true;
-      };
-      wayfire = {
-        enable = true;
-      };
-    };
-  };
+  # wayland = {
+  #   windowManager = {
+  #     river = {
+  #       enable = true;
+  #       systemd.enable = true;
+  #     };
+  #     wayfire = {
+  #       enable = true;
+  #     };
+  #   };
+  # };
 
   # programs = {
   #   dconf.enable = true;

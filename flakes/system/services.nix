@@ -22,7 +22,7 @@ in {
       enable = true;
       displayManager = {
         gdm = {
-          # enable = true;
+          enable = true;
           wayland = true;
         };
       };
@@ -33,17 +33,17 @@ in {
       };
     };
 
-    desktopManager = {
-      cosmic = {
-        enable = true;
-      };
-    };
+    # desktopManager = {
+    #   cosmic = {
+    #     enable = true;
+    #   };
+    # };
     
-    displayManager = {
-      cosmic-greeter = {
-        enable = true;
-      };
-    };
+    # displayManager = {
+    #   cosmic-greeter = {
+    #     enable = true;
+    #   };
+    # };
     
     gnome = {
       evolution-data-server.enable = true;
