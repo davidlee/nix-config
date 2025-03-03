@@ -18,7 +18,7 @@
       dmenu
       # dwl
       # dwlb
-      espanso-wayland
+      # sssanso-wayland
       flameshot
       fuzzel
       gamehub

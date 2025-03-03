@@ -18,11 +18,12 @@ in {
   };
 
   services = {
+
     xserver = {
       enable = true;
       displayManager = {
         gdm = {
-          enable = true;
+          # enable = true;
           wayland = true;
         };
       };
@@ -33,35 +34,19 @@ in {
       };
     };
 
-    # desktopManager = {
-    #   cosmic = {
-    #     enable = true;
-    #   };
-    # };
-    
-    # displayManager = {
-    #   cosmic-greeter = {
-    #     enable = true;
-    #   };
-    # };
-    
-    gnome = {
-      evolution-data-server.enable = true;
-      gnome-settings-daemon.enable = true;
-      gnome-keyring.enable = true;
-      gnome-browser-connector.enable = true;
-      gnome-online-accounts.enable = true;
+    greetd = {
+      enable = true;
+      settings = {
+        default_session = {
+          command = "${tuigreet} --time --remember --remember-session";
+        };
+      };
     };
 
-    # for systray icons in gnome
-    udev.packages = with pkgs; [ gnome-settings-daemon ];
-
     kmonad.enable = true;
-    espanso.enable = true;
     devmon.enable = true;
     gvfs.enable = true;
     udisks2.enable = true;
-
     sysprof.enable = true;
 
     openssh = {
@@ -77,8 +62,7 @@ in {
     };
 
     printing.enable = true;
-    
-  
+
     pipewire = {
       enable = true;
       alsa.enable = true;

@@ -32,6 +32,7 @@
       nerd-fonts.hasklug
       nerd-fonts.zed-mono
       victor-mono
+      terminus_font
       jetbrains-mono
       monaspace
       dina-font

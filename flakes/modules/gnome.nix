@@ -64,7 +64,7 @@
       enable = true;
       displayManager = {
         gdm = {
-          enable = true;
+          # enable = true;
           wayland = true;
         };
       };
@@ -82,6 +82,7 @@
       gnome-browser-connector.enable = true;
       gnome-online-accounts.enable = true;
     };
+
     # for systray icons in gnome
     udev.packages = with pkgs; [ gnome-settings-daemon ];
 

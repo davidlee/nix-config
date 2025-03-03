@@ -1,7 +1,5 @@
 {
-  config,
   pkgs,
-  lib,
   ...
 }: {
   boot = {
@@ -29,15 +27,20 @@
       "rd.systemd.show_status=false"
       "rd.udev.log_level=3"
       "udev.log_priority=3"
-      "video=3840x2160@59.98"
+      "video=3840x2160"
     ];
   };
 
-  services = {
-    kmscon = {
-      enable = true;
-      fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
-      # hwRender = true;
-    };
-  };
+  console.font = "${pkgs.kbd}/share/consolefonts/Lat2-Terminus16.psfu.gz";
+
+  # probably Nvidia's fault this isn't quite working.
+  # 
+  # services = {
+  #   kmscon = {
+  #     enable = true;
+  #     fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
+  #     hwRender = true;
+  #   };
+  # };
+
 }
