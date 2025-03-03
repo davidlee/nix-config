@@ -64,7 +64,7 @@ in {
 
         (lib.attrsets.concatMapAttrs (key: direction: {
             "${mod}+${key}" = "focus ${direction}";
-            "${mod}+Ctrl+${key}" = "move ${direction}";
+            "${mod}+Shift+${key}" = "move ${direction}";
           }) {
             left  = "left";
             down  = "down";
@@ -73,7 +73,7 @@ in {
           })
 
           {
-            "${mod}+Return" = "exec --no-startup-id ${pkgs.ghostty}/bin/ghostty";
+            "${mod}+Return" = "exec --no-startup-id ${pkgs.kitty}/bin/kitty";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
             "Alt+Tab" = "exec swayr switch-window";
 
