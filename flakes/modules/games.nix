@@ -28,10 +28,6 @@
     #   # enable = true;
     #   # powerOnBoot = true;
     # };
-    # logitech.wireless = {
-    #   enable = false;
-    #   enableGraphical = false;
-    # };
   };
 
   programs = {

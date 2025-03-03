@@ -4,7 +4,10 @@
   username,
   lib,
   ...
-}: {
+}:
+let
+  mod = "Mod4";
+in {
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
@@ -19,6 +22,9 @@
       mako
       slurp
       wl-clipboard-rs
+      ulauncher
+      wshowkeys
+      kanshi
     ];
     
     programs = {
@@ -32,11 +38,15 @@
       };
     };
 
+    # https://github.com/nix-community/home-manager/blob/master/modules/services/window-managers/i3-sway/sway.nix
+
     wayland.windowManager.sway = {
       enable = true;
       config = {
-        modifier = "Mod4";
+        modifier = mod;
         terminal = "kitty";
+        workspaceAutoBackAndForth = true;
+
         gaps = {
           smartGaps = true;
           smartBorders = "on";
@@ -44,32 +54,88 @@
           inner = 15;
         };
 
-        # bars = [{
-        #   command = "waybar";
-        # }];
+        keybindings = lib.attrsets.mergeAttrsList [
+        (lib.attrsets.mergeAttrsList (map (num: let
+          ws = toString num;
+        in {
+          "${mod}+${ws}" = "workspace ${ws}";
+          "${mod}+Ctrl+${ws}" = "move container to workspace ${ws}";
+        }) [1 2 3 4 5 6 7 8 9]))
 
-        # TODO maybe we want to use lib.attrsets.mergeAttrsList like in https://lafreniere.xyz/docs/nix-home-manager-sway.html
-        keybindings =
-        let
-          mod = "Mod4";
-        in lib.mkOptionDefault { # override not replace defaults
-          "${mod}+n" = "scratchpad show";
-          "${mod}+Shift+n" = "move scratchpad";
-          "${mod}+t" = "layout tabbed";
-          "${mod}+space" = "exec fuzzel";
-        
-          # replace floating window binds we stomped with launcher binds on space
-          "${mod}+l" = "focus mode_toggle";
-          "${mod}+Shift+l" = "floating toggle";
-        };
+        (lib.attrsets.concatMapAttrs (key: direction: {
+            "${mod}+${key}" = "focus ${direction}";
+            "${mod}+Ctrl+${key}" = "move ${direction}";
+          }) {
+            left  = "left";
+            down  = "down";
+            up    = "up";
+            right = "right";
+          })
+
+          {
+            "${mod}+Return" = "exec --no-startup-id ${pkgs.ghostty}/bin/ghostty";
+            "Alt+space" = "exec --no-startup-id wofi --show drun,run";
+            "Alt+Tab" = "exec swayr switch-window";
+
+            "${mod}+k" = "kill";
+
+            "${mod}+a" = "focus parent";
+            "${mod}+f" = "fullscreen toggle";
+            "${mod}+g" = "split h";
+            "${mod}+v" = "split v";
+            "${mod}+e" = "layout toggle split";
+            "${mod}+s" = "layout stacking";
+            "${mod}+w" = "layout tabbed";
+            "${mod}+space" = "exec fuzzel";
+            "${mod}+n" = "scratchpad show";
+            "${mod}+Shift+n" = "move scratchpad";
+          
+            # replace floating window binds we stomped with launcher binds on space
+            "${mod}+l" = "focus mode_toggle";
+            "${mod}+Shift+l" = "floating toggle";
+
+            "${mod}+Shift+r" = "exec swaymsg reload";
+            "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
+            "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
+            "${mod}+Ctrl+q" = "exit";
+          }
+        ];
+        startup = [
+          # { command = "firefox"; }
+          {
+            command = "systemctl --user restart kanshi";
+            always = true;
+          }
+          {
+            command = "systemctl --user restart waybar";
+            always = true;
+          }
+          {
+            command = "systemctl --user restart swayidle";
+            always = true;
+          }
+          {
+            command = "systemctl --user restart swayr";
+            always = true;
+          }
+        ];
+
+        bars = [];
+        floating.titlebar = false;
+        window.titlebar = false;
       };
       # swaynag.enable = false;
+      wrapperFeatures.gtk = true;
       extraOptions = [ "--unsupported-gpu" ];
     };
-
   };
-  security.polkit.enable = true;
-  security.pam.services.swaylock = {};
+  
+  services = {
+    blueman.enable = true;
+  };
 
-  ## TODO swaybar
+  security = {
+    polkit.enable = true;
+    pam.services.swaylock = {};
+  };
 }
