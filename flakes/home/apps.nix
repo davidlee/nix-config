@@ -4,8 +4,6 @@
   ...
 }: {
 
-
-
   home.packages = with pkgs; [
     _1password-gui
     alacritty
@@ -17,7 +15,6 @@
     code-cursor
     foot
     fooyin
-    gamescope
     ghostty
     kando
     kitty
@@ -38,6 +35,8 @@
     trippy
     virt-viewer 
     viu
+
+    # browsers
     vivaldi
     ladybird
     librewolf
@@ -49,7 +48,6 @@
     palemoon-bin
     vscode
     zed-editor
-    mangohud protonup-qt bottles heroic
     inputs.zen-browser.packages.${pkgs.system}.default
     thunderbird
     morgen

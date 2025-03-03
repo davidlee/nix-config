@@ -6,10 +6,6 @@
   ...
 }: {
 
-  imports = [
-    # ../home/wayland.nix
-  ];
-
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       swaybg
