@@ -8,7 +8,6 @@
   imports = [
     ./zsh.nix
     ./kitty.nix
-    ./wayland.nix
   ];
 
   programs = {

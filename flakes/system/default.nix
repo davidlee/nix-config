@@ -14,6 +14,5 @@
     # ./virtualisation.nix
     ./users.nix
     ./fonts.nix
-    ./xdg.nix
   ];
 }
