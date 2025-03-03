@@ -9,19 +9,13 @@
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
       systemd-boot.configurationLimit = 10;
-      systemd-boot.consoleMode = "max";
+      systemd-boot.consoleMode = "auto";
     };
 
-    # apparently advised for beta nvidia drivers
     kernelPackages = pkgs.linuxPackages_latest;
-    # kernelPackages = pkgs.linuxPackages_6_12;
     
     plymouth = {
       enable = true;
-      # theme = "rings";
-      # themePackages = with pkgs; [
-          
-      # ];
     };
     
     # silencio
@@ -35,10 +29,15 @@
       "rd.systemd.show_status=false"
       "rd.udev.log_level=3"
       "udev.log_priority=3"
+      "video=3840x2160@59.98"
     ];
-    
-    # loader.timeout = 0;  
   };
 
-  
+  services = {
+    kmscon = {
+      enable = true;
+      fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
+      # hwRender = true;
+    };
+  };
 }
