@@ -53,6 +53,7 @@
           ./modules/wayland.nix
           ./modules/gnome.nix
           ./modules/sway.nix
+          ./modules/games.nix
 
           inputs.home-manager.nixosModules.home-manager
           {
