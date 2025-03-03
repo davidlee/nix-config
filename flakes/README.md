@@ -1,9 +1,12 @@
 # nixos / darwin config with flakes
 
+
+
 todo
 - [ ] run home-manager independently
 - [ ] darwin
-- [ ] organise by topic
+- [/] organise by topic
+- [ ] fix usb kvm / hotplug
 
 
 - research: attempting to create custom options for conditional inclusions:
