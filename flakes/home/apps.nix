@@ -10,7 +10,7 @@
     _1password-gui
     alacritty
     beeper
-    beets
+    # beets
     blender
     cloudlens
     cmus
@@ -46,8 +46,12 @@
     floorp
     ungoogled-chromium
     # midori
-    # palemoon-bin
+    palemoon-bin
     vscode
     zed-editor
+    mangohud protonup-qt bottles heroic
+    inputs.zen-browser.packages.${pkgs.system}.default
+    thunderbird
+    morgen
   ];
 }

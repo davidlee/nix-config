@@ -14,6 +14,7 @@ with lib; let
     else config.boot.kernelPackages.nvidiaPackages.beta;
 
   extraEnv = { WLR_NO_HARDWARE_CURSORS = "1"; };
+  
 in {
   hardware.graphics.enable = true;
   
@@ -25,6 +26,8 @@ in {
     nvidiaSettings = true;
     package = nvidiaPackage;
   };
+
+  hardware.graphics.extraPackages = [ pkgs.mesa.drivers ];
 
   environment.variables = extraEnv;
   environment.sessionVariables = extraEnv;

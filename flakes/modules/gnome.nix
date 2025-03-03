@@ -4,51 +4,51 @@
     home.packages = with pkgs; [
       gnomeExtensions.appindicator
 
-    gnome-shell
-    gnome-logs
-    gnome-usage
-    gnome-panel
-    gnome-notes
-    gnome-menus
-    gnome-feeds
-    gnome-chess
-    gnome-tweaks
-    gnome-robots
-    gnome-graphs
-    gnome-common
-    gnome-weather
-    gnome-session
-    gnome-secrets
-    gnome-keysign
-    gnome-keyring
-    gnome-desktop
-    gnome-builder
     gnome-applets
-    gnome-podcasts
-    gnome-firmware
-    gnome-contacts
-    gnome-calendar
-    gnome-gnome-user-docs
-    gnome-commander
-    gnome-doc-utils
     gnome-bluetooth
-    gnome-screenshot
-    gnome-solanum
-    gnome-icon-theme
+    gnome-browser-connector
+    gnome-builder
+    gnome-calendar
     gnome-characters
-    gnome-text-editor
-    gnome-session-ctl
-    gnome-font-viewer
+    gnome-chess
+    gnome-commander
+    gnome-common
     gnome-connections
-    gnome-disk-utility
-    gnome-power-manager
-    gnome-system-monitor
+    gnome-contacts
     gnome-control-center
-    gnome-shell-extensions
-    gnome-settings-daemon
+    gnome-desktop
+    gnome-disk-utility
+    gnome-doc-utils
     gnome-extension-manager
-    gnome-browser-connectorp 
+    gnome-feeds
+    gnome-firmware
+    gnome-font-viewer
+    gnome-graphs
+    gnome-icon-theme
+    gnome-keyring
+    gnome-keysign
+    gnome-logs
+    gnome-menus
     gnome-nettool
+    gnome-notes
+    gnome-panel
+    gnome-podcasts
+    gnome-power-manager
+    gnome-robots
+    gnome-screenshot
+    gnome-secrets
+    gnome-session
+    gnome-session-ctl
+    gnome-settings-daemon
+    gnome-shell
+    gnome-shell-extensions
+    gnome-solanum
+    gnome-system-monitor
+    gnome-text-editor
+    gnome-tweaks
+    gnome-usage
+    gnome-user-docs
+    gnome-weather
 
     adwaita-icon-theme
     ];

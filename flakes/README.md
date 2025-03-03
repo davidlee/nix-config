@@ -1,5 +1,9 @@
 # nixos / darwin config with flakes
 
+todo
+- [ ] run home-manager independently
+- [ ] darwin
+- [ ] organise by topic
 
 
 - research: attempting to create custom options for conditional inclusions:
