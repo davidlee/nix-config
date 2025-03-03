@@ -44,5 +44,7 @@
     wireplumber
     wob
     wtype
+    # prism-launcher
+    # minecraft
   ];
 }

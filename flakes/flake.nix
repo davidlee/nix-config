@@ -51,6 +51,7 @@
         modules = [
           ./hosts/${hostname}/config.nix
           ./modules/gnome.nix
+          ./modules/sway.nix
 
           inputs.home-manager.nixosModules.home-manager
           {
