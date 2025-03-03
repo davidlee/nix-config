@@ -41,6 +41,7 @@
     emacs
     exercism
     eza
+    fastfetch
     fd
     file
     fontconfig
