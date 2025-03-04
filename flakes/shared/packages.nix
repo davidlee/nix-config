@@ -12,10 +12,15 @@
       antidote
       aria2
       aspell
+      frogmouth
+      fsearch
+      calcurse
       atop
       bat
       bison
       bottom
+      yt-dlp
+      barrier
       broot
       btop
       caddy
