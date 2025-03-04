@@ -5,17 +5,13 @@
 }:
 {
 
-  # imports = [
-  #   ./apps.nix
-  # ];
+  imports = [
+    ./shared-packages.nix
+  ];
 
   # user packages
   # 
   home-manager.users.${username} = {
-    imports = [
-      ../home/packages_shared.nix
-    ];
-
     home.packages = with pkgs; [
       _1password-cli
       ccache

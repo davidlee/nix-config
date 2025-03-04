@@ -14,30 +14,27 @@
       clipman
       clipse
       copyq
-      discord
       dmenu
-      # dwl
-      # dwlb
-      # sssanso-wayland
       flameshot
+      mako
+      rofi-wayland
+      somebar
       fuzzel
-      gamehub
       gammastep
       gdm
       gnomeExtensions.appindicator
       grim
       imv
+      kando
       kanshi
       kmonad
-      limo    
-      lutris
       nemo
       protontricks
-      # river
+      phinger-cursors
+      river
       rootbar
       shotman
       showmethekey
-      signal-desktop
       sirula
       spatial-shell
       tuba
@@ -58,7 +55,6 @@
       xfce.thunar
       xwayland
       zathura
-
     ];
 
     home.pointerCursor = {
@@ -71,6 +67,8 @@
         defaultCursor = "phinger-cursors-light";
       };
     };
+
+    services.copyq.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
