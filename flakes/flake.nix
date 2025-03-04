@@ -50,12 +50,6 @@
 
         modules = [
           ./hosts/${hostname}/config.nix
-          ./modules/nixos-packages.nix
-          ./modules/nixos-apps.nix
-          ./modules/wayland.nix
-          ./modules/gnome.nix
-          ./modules/sway.nix
-          ./modules/games.nix
 
           inputs.home-manager.nixosModules.home-manager
           {

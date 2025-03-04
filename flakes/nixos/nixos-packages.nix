@@ -6,7 +6,7 @@
 {
 
   imports = [
-    ./shared-packages.nix
+    ../shared/packages.nix
   ];
 
   # user packages
