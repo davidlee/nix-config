@@ -2,10 +2,15 @@
   imports = [
     inputs.lix-module.nixosModules.default
     # inputs.nixos-cosmic.nixosModules.default
-
-    ../../system/default.nix
-    ../../system/nvidia-drivers.nix
     ./hardware-configuration.nix
+
+    ../../system/boot.nix
+    ../../system/nvidia-drivers.nix
+    ../../system/accounts.nix
+    ../../system/network.nix
+    ../../system/services.nix
+    ../../system/virtualisation.nix
+    ../../system/fonts.nix
   ];
 
   users.enable = true;
