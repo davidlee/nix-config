@@ -9,6 +9,9 @@
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       blender
+      gimp-with-plugins
+      krita
+      inkscape
 
       # util
       _1password-gui      
