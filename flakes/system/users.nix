@@ -11,8 +11,7 @@ in {
   options = {users.enable = lib.mkEnableOption "Enables users module";};
 
   config = lib.mkIf config.users.enable {
-    # TODO investigate; this may not be required if hashedPassword is set?
-    users.mutableUsers = true; 
+    users.mutableUsers = true; # can do without password being clobbered
 
     users.users = {
       "${username}" = {
@@ -23,10 +22,8 @@ in {
         extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" ];
         home = "/home/david";
         shell = pkgs.zsh;
-        # ignoreShellProgramCheck = true;
         packages = with pkgs; [
           inputs.home-manager.packages.${pkgs.system}.default
-          pkgs.hello
         ];
       };
     };
@@ -34,7 +31,6 @@ in {
     environment = {
       variables = {
         NIXOS = "true";
-        EDITOR = "nvim";
         VISUAL = "hx";
       };
       pathsToLink = [ "/share/zsh" ]; # for autocompletion
@@ -55,6 +51,5 @@ in {
       LC_TELEPHONE = "en_AU.UTF-8";
       LC_TIME = "en_AU.UTF-8";
     };
-
   };
 }

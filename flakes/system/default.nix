@@ -5,8 +5,6 @@
 }: {
   imports = [
     ./boot.nix
-    ./packages.nix
-    ./programs.nix
     ./services.nix
     ./hardware.nix
     ./network.nix
