@@ -77,13 +77,7 @@
     initExtraBeforeCompInit = ''
     '';
     initExtra = ''
-    # shouldn't these be done by nix? TODO test removal
-    # 
-      eval "$(zoxide init zsh)"
-      eval "$(mcfly init zsh)"
-      eval "$(direnv hook zsh)"
-
-    # TODO manage this stuff where it doesn't need a `nixos-rebuild switch` to take effect
+      # TODO manage this stuff where it doesn't need a `nixos-rebuild switch` to take effect
       # manage dotfiles with bare repo
       gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
       cfg() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
@@ -120,7 +114,10 @@
 
     '';
     shellAliases = {
-      # scr = "grim -g $(slurp)";
+      t = "task";
+      ta = "task add";
+      tl = "task list";
+      
       scr = "grimshot save area";
       v = "nvim";
       ngc = "nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
@@ -136,7 +133,6 @@
       dir = "dir --color=auto";
       cat = "bat --style snip --style changes --style header";
       l = "eza -lh"; # long
-      # ls = "eza --icons=auto --group-directories-first --icons"; # short
       ll = "eza -lh --grid --group-directories-first";
       la = "eza -lah --grid --group-directories-first";
       ld = "eza -lhD";

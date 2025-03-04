@@ -3,8 +3,6 @@
   imports = [
     inputs.walker.homeManagerModules.default
 
-    ../../home/packages.nix
-    ../../home/programs.nix    
     ../../home/apps.nix
    ];
   

@@ -50,6 +50,7 @@
 
         modules = [
           ./hosts/${hostname}/config.nix
+          ./modules/nixosPackages.nix
           ./modules/wayland.nix
           ./modules/gnome.nix
           ./modules/sway.nix
