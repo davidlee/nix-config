@@ -189,6 +189,7 @@
     nix-melt
     nix-top
     nix-tree
+    nh
     nmap
     nmon
     nnn
