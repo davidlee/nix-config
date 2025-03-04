@@ -11,4 +11,18 @@
 
   # Odin hung from Yggdrassil for nine nights
   
+  services = {
+    openssh = {
+      enable = true;
+      settings = {
+        GatewayPorts = "yes";
+        PasswordAuthentication = false;
+        X11Forwarding = false;
+        LogLevel = "VERBOSE";
+        PermitRootLogin = "prohibit-password";
+        # UseDns = true;
+      };
+    };
+  };
+
 }

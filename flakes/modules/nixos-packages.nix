@@ -16,6 +16,7 @@
       _1password-cli
       ccache
       devcontainer
+      quickemu
       dfu-util
       difftastic
       dmidecode
