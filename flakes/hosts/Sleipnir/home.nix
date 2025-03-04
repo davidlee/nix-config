@@ -2,8 +2,8 @@
 
   imports = [
     inputs.walker.homeManagerModules.default
-
-    ../../home/apps.nix
+    ../../home/zsh.nix
+    ../../home/kitty.nix
    ];
   
   home = {
@@ -19,9 +19,6 @@
     };
   };
 
-  # services.swayidle.enable = true;
-  services.copyq.enable = true;
-  
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
 }

@@ -50,7 +50,8 @@
 
         modules = [
           ./hosts/${hostname}/config.nix
-          ./modules/nixosPackages.nix
+          ./modules/nixos-packages.nix
+          ./modules/nixos-apps.nix
           ./modules/wayland.nix
           ./modules/gnome.nix
           ./modules/sway.nix
@@ -60,7 +61,6 @@
           {
 
             home-manager.extraSpecialArgs = { inherit inputs outputs username hostname; };
-
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "backup";
