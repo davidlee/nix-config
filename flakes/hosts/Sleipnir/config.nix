@@ -3,12 +3,12 @@
     inputs.lix-module.nixosModules.default
     ./hardware-configuration.nix
 
-    ../../system/boot.nix
-    ../../system/nvidia-drivers.nix
-    ../../system/accounts.nix
-    ../../system/network.nix
-    ../../system/virtualisation.nix
-    ../../system/fonts.nix
+    ../../nixos/boot.nix
+    ../../nixos/nvidia-drivers.nix
+    ../../nixos/accounts.nix
+    ../../nixos/network.nix
+    ../../nixos/virtualisation.nix
+    ../../nixos/fonts.nix
   ];
 
   users.enable = true;
