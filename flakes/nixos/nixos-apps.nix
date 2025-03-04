@@ -26,6 +26,7 @@
       guitarix
       supercollider-with-plugins
       chuck
+      
      
       # graphics & 3d
       blender
@@ -35,30 +36,71 @@
       darktable
       ansel
       digikam
+      penpot-desktop
       pikopixel
 
+      # media players
+      vlc
+      kodi-wayland
+      # kodi-cli
+      celluloid
+      mpv
+      kdePackages.gwenview
+
+      # video
+      shotcut
+      
       # util
       _1password-gui      
       virt-viewer 
+      upscayl
+      evince
+      persepolis
+      qbittorrent
+      calibre
+      flameshot
+      ventoy-full
+      artha
+      guvcview
+      inxi
+      easyeffects
+
+      # productivity
+      thunderbird
+      evolution
+      morgen
+      zotero
+      foliate
+      onlyoffice-bin
+      libreoffice
+      minder
+      gnome-frog
+      papers
 
       # games
+      retroarch-full
       limo    
       lutris
       gamehub
 
-      # messaging
+      # messaging / social
+      newsflash
       discord
       beeper
       signal-desktop
       slack
+      rambox
+      telegram-desktop
 
-      # music 
+      # music player & library management
       beets
       fooyin
       quodlibet
       spotify
       tauon
       tokei
+      deadbeef
+      cantata
       
       # terminals
       alacritty
@@ -72,11 +114,9 @@
       code-cursor
       vscode
       zed-editor
-      
-      # office
-      thunderbird
-      morgen
-      
+      joplin
+      vscodium
+            
       # browsers
       inputs.zen-browser.packages.${pkgs.system}.default
       vivaldi
@@ -87,6 +127,7 @@
       floorp
       ungoogled-chromium
       palemoon-bin
+      tor-browser
       # midori
     ];
   };

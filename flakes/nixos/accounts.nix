@@ -24,7 +24,7 @@ in {
         isNormalUser = true;
         description = "David Lee";
         hashedPassword = "$y$j9T$M1O771cWWQrbfPt1rH6Q91$BdWZzN5nF6AHnnPt.WVV5N6WTnuho7xJFT8OW14PrJA";
-        extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" ];
+        extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio"];
         home = "/home/david";
         shell = pkgs.zsh;
         packages = with pkgs; [
