@@ -3,6 +3,12 @@
     inputs.lix-module.nixosModules.default
     ./hardware-configuration.nix
 
+    ../../nixos/nixos-packages.nix
+    ../../nixos/nixos-apps.nix
+    ../../nixos/wayland.nix
+    ../../nixos/gnome.nix
+    ../../nixos/sway.nix
+    ../../nixos/games.nix
     ../../nixos/boot.nix
     ../../nixos/nvidia-drivers.nix
     ../../nixos/accounts.nix
