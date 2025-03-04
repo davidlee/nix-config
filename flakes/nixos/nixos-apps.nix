@@ -8,10 +8,34 @@
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
+      # daw & audio
+      # jack2
+      # puredata-with-plugins
+      carla
+      reaper
+      bitwig-studio      
+      renoise
+      lmms 
+      zrythm
+      ardour
+      hydrogen
+      audacity
+      yoshimi
+      qtractor
+      rakarrack
+      guitarix
+      supercollider-with-plugins
+      chuck
+     
+      # graphics & 3d
       blender
       gimp-with-plugins
       krita
       inkscape
+      darktable
+      ansel
+      digikam
+      pikopixel
 
       # util
       _1password-gui      
