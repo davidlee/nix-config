@@ -146,6 +146,7 @@
       keys = "ghostty +list-keybinds";
 
       nrs = "sudo nixos-rebuild switch";
+      hms = "home-manager build --flake ~/flakes/.#david";
     };
   };
 }
