@@ -85,10 +85,5 @@
       package = pkgs.plocate;
       interval = "hourly";
     };
-
-    caddy = {
-      enable = true;
-      acmeCA = "https://acme-v02.api.letsencrypt.org/directory";
-    };
   };
 }

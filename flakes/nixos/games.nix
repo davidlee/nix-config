@@ -18,6 +18,7 @@
       mangohud
       protonup-qt
       gamescope
+      moonlight-qt
     ];
   };
 
@@ -43,4 +44,23 @@
     gamemode.enable = true;
     gamescope.enable = true;
   };
+
+  # Sunshine
+  # 
+  services = {
+    sunshine = {
+      enable = true; 
+      openFirewall = true;
+      autoStart = true;
+      capSysAdmin = true;
+    };
+  };
+
+  # security.wrappers.sunshine = {
+  #   owner = "root";
+  #   group = "root";
+  #   capabilities = "cap_sys_admin+p";
+  #   source = "${pkgs.sunshine}/bin/sunshine";
+  # };
+
 }

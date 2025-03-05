@@ -15,6 +15,7 @@
     home.packages = with pkgs; [
       _1password-cli
       ccache
+      # gnomeExtensions.allow-locked-remote-desktop 
       devcontainer
       quickemu
       dfu-util
@@ -23,7 +24,6 @@
       dtc
       flatpak
       inetutils
-      nodejs_latest
       nixd
       nix-diff
       nix-index
@@ -37,8 +37,79 @@
       unixtools.xxd
       wbg
       wireplumber
+      emacsclient-commands
       wob
       wtype
+
+      # tui apps
+      asak
+      atuin
+      basilk
+      calcure
+      cfm
+      chess-tui
+      cicero-tui
+      crates-tui
+      csv-tui
+      debase
+      distrobox-tui
+      di-tui
+      docfd
+      docui
+      felix-fm
+      fltrdr
+      fum
+      gitu
+      gitui
+      gobang
+      gomanagedocker
+      gtt
+      hexpatch
+      hextazy
+      invidtui
+      isd
+      jjui
+      jqp
+      lazyjj
+      lazyjournal
+      lazysql
+      libcryptui
+      managarr
+      md-tui
+      mmtui
+      mprocs
+      ngrrram
+      otree
+      play
+      rainfrog
+      rmpc
+      russ
+      rustmission
+      steam-tui
+      stig
+      systemctl-tui
+      taskflow
+      task-keeper
+      tasktimer
+      taskwarrior-tui
+      tdf
+      television
+      termusic
+      # textual-paint
+      thokr
+      tray-tui
+      tui-journal
+      tuir
+      tuisky
+      tut
+      vault-tasks
+      vim-language-server
+      vi-mongo
+      wiki-tui
+      xplr
+      youtube-tui
+      ytermusic
+
     ];
 
     programs = {
@@ -83,7 +154,6 @@
       git.enable = true;
 
       zellij = {
-        # enable = true;
         enableZshIntegration = true;
       };
 

@@ -11,8 +11,14 @@ in {
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
-      swaybg
+      sway-launcher-desktop
+      sway-audio-idle-inhibit
+      sway-easyfocus
+      sway-overfocus
+      sway-scratch
+      sway-new-workspace
       sway-contrib.grimshot
+      swaybg
       swayidle
       swayimg
       swaylock
