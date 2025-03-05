@@ -115,7 +115,7 @@
       vscode
       zed-editor
       joplin
-      vscodium
+      # vscodium
             
       # browsers
       inputs.zen-browser.packages.${pkgs.system}.default
