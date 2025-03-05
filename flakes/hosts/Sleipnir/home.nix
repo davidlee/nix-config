@@ -8,6 +8,7 @@
   
   home = {
     username = "${username}";
+    homeDirectory = "/home/${username}";
     stateVersion = "24.11";
     sessionVariables = {
       EDITOR = "hx";
@@ -21,4 +22,6 @@
 
   # Nicely reload system units when changing configs
   systemd.user.startServices = "sd-switch";
-}
+
+  programs.home-manager.enable = true;
+ }

@@ -108,6 +108,7 @@
       foot
       ghostty
       kitty
+      rio
 
       # editors
       obsidian
@@ -115,6 +116,8 @@
       vscode
       zed-editor
       joplin
+      claude-code
+      # vscode-extensions.saoudrizwan.claude-dev
       # vscodium
             
       # browsers
