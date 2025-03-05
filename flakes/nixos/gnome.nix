@@ -49,7 +49,8 @@
     gnome-usage
     gnome-user-docs
     gnome-weather
-
+    gnome-tweaks
+    marble-shell-theme
     adwaita-icon-theme
     ];
   };
