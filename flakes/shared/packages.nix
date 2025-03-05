@@ -7,6 +7,7 @@
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
+      backblaze-b2
 
       _1password-cli
       antidote
@@ -36,7 +37,7 @@
       direnv
       docutils
       duf
-      emacs
+      # emacs
       exercism
       eza
       fastfetch
@@ -101,6 +102,7 @@
       ninja
       nix-direnv
       nix-search-cli
+      nodejs_latest
       nmap
       nnn
       nodejs_23

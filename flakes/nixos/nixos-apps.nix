@@ -8,6 +8,9 @@
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
+     
+
+    
       # daw & audio
       # jack2
       # puredata-with-plugins
@@ -111,6 +114,8 @@
       rio
 
       # editors
+      neovim-gtk
+      emacs-gtk
       obsidian
       code-cursor
       vscode
