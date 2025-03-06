@@ -31,6 +31,8 @@
       url = "github:abenz1267/walker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixarr.url = "github:rasmus-kirk/nixarr";
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:

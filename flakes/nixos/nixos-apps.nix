@@ -122,6 +122,8 @@
       zed-editor
       joplin
       claude-code
+      zim
+      # zim-tools
       # vscode-extensions.saoudrizwan.claude-dev
       # vscodium
             
