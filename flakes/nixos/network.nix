@@ -19,7 +19,7 @@
     
     # for tailscale:
     nameservers = [ "100.100.100.100" "8.8.8.8" "1.1.1.1" ];
-    search = [ "taildcdfde.ts.net" ];
+    search = [ "bandicoot-sunfish.ts.net" ];
   };
 
   # Odin hung from Yggdrassil for nine nights

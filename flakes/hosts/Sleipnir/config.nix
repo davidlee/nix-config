@@ -1,6 +1,7 @@
 {inputs, pkgs, ...}: {
   imports = [
     inputs.lix-module.nixosModules.default
+    inputs.nixarr.nixosModules.default
     ./hardware-configuration.nix
 
     ../../nixos/nixos-packages.nix
