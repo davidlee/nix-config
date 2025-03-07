@@ -8,6 +8,7 @@
     ../../nixos/nixos-apps.nix
     ../../nixos/wayland.nix
     ../../nixos/gnome.nix
+    ../../nixos/arr.nix
     ../../nixos/sway.nix
     ../../nixos/games.nix
     ../../nixos/boot.nix
