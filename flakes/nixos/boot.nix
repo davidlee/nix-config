@@ -1,10 +1,12 @@
 {
   pkgs,
+  inputs,
   ...
 }:
 let
   tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
 in {
+  imports = [ inputs.ucodenix.nixosModules.default ];
 
   boot = {
     loader = {
@@ -33,6 +35,11 @@ in {
       "udev.log_priority=3"
       "video=3840x2160"
     ];
+  };
+
+  services.ucodenix = {
+    enable = true;
+    cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
   };
 
   console.font = "${pkgs.kbd}/share/consolefonts/Lat2-Terminus16.psfu.gz";
