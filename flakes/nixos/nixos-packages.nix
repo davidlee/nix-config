@@ -14,6 +14,11 @@
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       _1password-cli
+      cpuid
+      cpuinfo
+      x86info
+      # dropbox
+      dropbox-cli
       ccache
       # gnomeExtensions.allow-locked-remote-desktop 
       devcontainer

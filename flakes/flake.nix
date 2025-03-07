@@ -33,6 +33,9 @@
     };
 
     nixarr.url = "github:rasmus-kirk/nixarr";
+
+    # update AMD microcode
+    ucodenix.url = "github:e-tho/ucodenix";
   };
 
   outputs = inputs@{ self, nixpkgs, ... }:
