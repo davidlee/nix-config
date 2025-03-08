@@ -5,127 +5,66 @@
 }:
 {
 
-  imports = [
-    ../shared/packages.nix
-  ];
-
   # user packages
   # 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
-      _1password-cli
-      cpuid
-      cpuinfo
-      x86info
-      # dropbox
-      dropbox-cli
-      ccache
-      # gnomeExtensions.allow-locked-remote-desktop 
-      devcontainer
-      quickemu
-      dfu-util
-      difftastic
-      dmidecode
-      dtc
-      flatpak
-      inetutils
-      nixd
-      nix-diff
-      nix-index
-      nix-search-cli
-      nwg-look
-      p7zip
-      qmk-udev-rules
-      sd-switch
-      swww
-      unixtools.nettools
-      unixtools.xxd
-      wbg
-      wireplumber
-      emacsclient-commands
-      wob
-      wtype
+      # lang.odin
+      ols
 
-      # tui apps
-      asak
-      atuin
-      basilk
-      calcure
-      cfm
-      chess-tui
-      cicero-tui
-      crates-tui
-      csv-tui
-      debase
-      distrobox-tui
-      di-tui
-      docfd
-      docui
-      felix-fm
-      fltrdr
-      fum
-      gitu
-      gitui
-      gobang
-      gomanagedocker
-      gtt
-      hexpatch
-      hextazy
-      invidtui
-      isd
-      jjui
-      jqp
-      lazyjj
-      lazyjournal
-      lazysql
-      libcryptui
-      managarr
-      md-tui
-      mmtui
-      mprocs
-      ngrrram
-      otree
-      play
-      rainfrog
-      rmpc
-      russ
-      rustmission
-      steam-tui
-      stig
-      systemctl-tui
-      taskflow
-      task-keeper
-      tasktimer
-      taskwarrior-tui
-      tdf
-      television
-      termusic
-      # textual-paint
-      thokr
-      tray-tui
-      tui-journal
-      tuir
-      tuisky
-      tut
-      vault-tasks
-      vim-language-server
-      vi-mongo
-      wiki-tui
-      xplr
-      youtube-tui
-      ytermusic
+      # lang.ruby
+      ruby
 
+      # lang.lua
+      lua
+      lua54Packages.luarocks-nix 
+      vimPlugins.fzf-lua
+      lua-language-server
+      luarocks-packages-updater
+
+      # lang.js
+      bun
+      pnpm
+      corepack_latest
+      nodejs_latest
+      typescript-language-server
+      typescript
+
+      # download / backup
+      yt-dlp
+
+      # tasks
+      tasksh
+      taskwarrior3
+
+      # frivolity
+      neofetch
+      fastfetch
+
+      # ai 
+      ollama
+      oterm
+      aichat
+      local-ai
+      mods
     ];
 
     programs = {
+      helix.defaultEditor = true;
+
+      eza.enable = true;
+      firefox.enable = true;
+      git.enable = true;
+      librewolf.enable = true;
+      nushell.enable = true;
+      zk.enable = true;
+
       direnv = {
         enable = true;
         enableZshIntegration = true; 
         enableBashIntegration = true; 
         nix-direnv.enable = true;
       };
-
-      helix.defaultEditor = true;
 
       neovim = {
         enable = true;
@@ -153,10 +92,6 @@
         enableNushellIntegration = true;
       };
 
-      zk.enable = true;
-      nushell.enable = true;
-      eza.enable = true;
-      git.enable = true;
 
       zellij = {
         enableZshIntegration = true;
@@ -171,17 +106,6 @@
         enable = true;
         enableBashIntegration = true;
       };
-
-      librewolf = {
-        enable = true;
-      };
-
-      firefox = {
-        enable = true;
-        # enableGnomeExtensions = true;
-      };
-
-      # gnome-terminal.enable = true;
 
       starship = {
         enable = true;
@@ -218,92 +142,240 @@
   # system packages
   # 
   environment.systemPackages = with pkgs; [
-    _7zz
-    alsa-utils
-    appimage-run
-    btrfs-progs
-    cachix
-    cpio
-    dconf
-    directx-headers
-    directx-shader-compiler
-    # dwl
-    # dwlb
-    ffmpeg
-    file
-    findutils
-    fd
-    # gcc
-    glfw
-    greetd.greetd
-    greetd.tuigreet
-    hdparm
-    i3status
-    ictree
-    iftop
-    iotop
-    iptraf-ng
-    just
+    # secrets 
+    _1password-cli
     keepassxc
-    killall
+
+    # libs 
+    polkit
+    directx-headers
+    glib
+    libffi
+    libGL
+    libiconv
+    libyaml
+    vulkan-headers
+    vulkan-loader
+    vulkan-tools
+    raylib
     libGL
     libnotify
-    llvm
-    lsd
-    lshw
-    mesa
-    meson
-    mods
-    mpv
-    nethogs
-    ninja
+    
+    # boot 
+    greetd.greetd
+    greetd.tuigreet
+
+    # disk / io
+    duf
+    hdparm
+    smartmontools
+    iotop
+    pydf
+
+    # package management
+    appimage-run
+    cachix
+    devcontainer
+    flatpak
+    manix
+    nh
+    nil
     nix-bisect
     nix-btm
+    nixd
     nix-diff
+    nix-diff
+    nix-direnv
     nix-du
+    nix-index
     nix-inspect
     nix-melt
+    nix-search-cli
+    nix-search-cli
     nix-top
     nix-tree
-    nh
+    pkg-config
+    sd-switch
+    unixtools.nettools
+    unixtools.xxd
+
+    # network / http
+    curl
+    dig
+    httpie
+    iftop
+    inetutils
+    iptraf-ng
+    nethogs
     nmap
     nmon
-    nnn
-    ols
+    oha
     openssl
-    pciutils
-    pinfo
-    pipewire
-    pipx
-    pkg-config
-    plocate
-    polkit
-    pstree
-    pydf
-    python312
-    python312Packages.pywatchman
-    ripgrep
-    ruby
-    rustup
-    smartmontools
-    smem
-    strace
-    sysstat
-    sysprof
+    sn0int
     tcpdump
-    tmux
-    tree
-    unrar
-    unzip
-    usbutils 
-    valgrind
+    trippy
+    unixtools.nettools
+    unixtools.xxd
     vnstat
     wget
-    which
-    xplr
+    xh
+    
+    # files / find
+    fd
+    file
+    findutils
+    fsearch
+    fzf-zsh
+    fzy
+    mcfly
+    plocate
+    ripgrep
+    sad
+    semgrep
+    tree
+    zoxide
+
+    # compression
+    xz
+    unar
+    _7zz
+    unrar
+    p7zip
+    unzip
+    gnutar
+    cpio
+
+    # process management
+    pstree
+    killall
+
+    # programming general
+    lldb
+    valgrind
+    direnv
+    exercism
+    tree-sitter
+    overmind
+    watchman
+    just
+
+    # low level / system monitoring
+    ccache
+    cpuid
+    cpuinfo
+    dmidecode
+    lshw
+    pciutils
+    smem
+    stress-ng
+    sysprof
+    sysstat
+    usbutils 
+    x86info
+
+    # build
+    gnumake
+    ninja
+
+    # lang.c
+    bison
+    lld
+    llvm
+    strace
+
+    # lang.zig
+    zig
     zls
+
+    # lang.python
+    pipx
+    python313Packages.pywatchman
+    python313Packages.pip
+    docutils
+    meson
+
+    #lang.rust
+    rustup
+
+    # lang.shell
+    antidote
+    nushell
+    shellcheck
+    shfmt
     zsh
     zstd
+
+    # unix / text
+    coreutils
+    gnused
+    gawk
+    aspell
+    less
+    bat
+    emacsclient-commands
+    lsd
+    eza
+
+    # download / backup
+    syncthing
+    backblaze-b2
+    aria2
+
+    # json/yaml
+    jq
+    yq-go
+
+    # vcs 
+    gh
+    git 
+    delta
+    difftastic
+    jujutsu
+
+    # emulation / virtualisation
+    qemu
+    quickemu
+
+    # session manager
+    zellij
+    tmux
+
+    # markdown
+    markdownlint-cli
+    markdownlint-cli2
+    markdown-oxide
+    marksman
+
+    # info
+    tealdeer
+    pinfo
+
+    # image / graphics / multimedia
+    alsa-utils
+    d2
+    directx-shader-compiler
+    ffmpeg
+    fontconfig
+    glfw
+    graphviz
+    mesa
+    mpv
+    nerd-font-patcher
+    pastel
+    pipewire
+    viu
+    wireplumber
+
+    # keyboard firmware
+    qmk-udev-rules
+    dfu-util
+    qmk
+    dtc
+
+    # servers
+    caddy
+    sqlite
+    postgresql
   ];
 
   programs = {

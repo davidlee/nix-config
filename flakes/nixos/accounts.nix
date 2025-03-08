@@ -5,10 +5,7 @@
   config,
   inputs,
   ...
-}: let
-  inherit (import ../../hosts/nixos/variables.nix) gitUsername;
-in {
-
+}: {
   options = {users.enable = lib.mkEnableOption "Enables users module";};
 
   config = lib.mkIf config.users.enable {
@@ -23,11 +20,10 @@ in {
         homeMode = "755";
         isNormalUser = true;
         description = "David Lee";
-        hashedPassword = "$y$j9T$M1O771cWWQrbfPt1rH6Q91$BdWZzN5nF6AHnnPt.WVV5N6WTnuho7xJFT8OW14PrJA";
         extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio"];
-        home = "/home/david";
+        home = "/home/${username}";
         shell = pkgs.zsh;
-        packages = with pkgs; [
+        packages = [
           inputs.home-manager.packages.${pkgs.system}.default
         ];
       };
@@ -37,6 +33,8 @@ in {
       variables = {
         NIXOS = "true";
         VISUAL = "hx";
+        XCURSOR_SIZE = 24;
+        NIXOS_OZONE_WL = 1;
       };
       pathsToLink = [ "/share/zsh" ]; # for autocompletion
     };

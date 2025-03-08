@@ -10,6 +10,8 @@
     home.packages = with pkgs; [
      
 
+      nwg-look
+      slurp
     
       # daw & audio
       # jack2
@@ -29,6 +31,7 @@
       guitarix
       supercollider-with-plugins
       chuck
+      vcv-rack
       
      
       # graphics & 3d
@@ -67,6 +70,7 @@
       guvcview
       inxi
       easyeffects
+      barrier
 
       # productivity
       thunderbird

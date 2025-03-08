@@ -4,7 +4,4 @@
     git
     zsh
   ];
-
-  # environment.variables.EDITOR = "hx";
-
 }

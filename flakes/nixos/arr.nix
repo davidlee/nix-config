@@ -1,63 +1,28 @@
-
 {
+  username,
+  pkgs,
   ...
 }: {
 
-#   services.sonarr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-#   services.radarr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-#   services.readarr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-#   services.lidarr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-#   services.whisparr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-#   services.prowlarr = {
-#     enable = true;
-#     openFirewall = true;
-#   };
-
+home-manager.users.${username} = {
+  home.packages = with pkgs; [
+    nzbget
+    nzbhydra2
+    sabnzbd
+    pan
+    plex
+  ];
+};
 
 nixarr = {
     enable = true;
     mediaDir = "/media";
     stateDir = "/media/.state/nixarr";
 
-    vpn = {
-      # enable = true; # WARN TODO
-      # WARNING: This file must _not_ be in the config git directory
-      # You can usually get this wireguard file from your VPN provider
-      # wgConf = "/data/.secret/wg.conf";
-    };
+    # WARN no VPN setup. is it possible to get wg.conf from tailscale?
 
-    jellyfin = {
-      enable = true;
-      # These options set up a nginx HTTPS reverse proxy, so you can access
-      # Jellyfin on your domain with HTTPS
-      expose.https = {
-        # enable = true;
-        # domainName = "your.domain.com";
-        # acmeMail = "your@email.com"; # Required for ACME-bot
-      };
-    };
-
-    transmission = {
-      enable = true;
-      # vpn.enable = true;
-      # peerPort = 50000; # Set this to the port forwarded by your VPN
-    };
-
+    jellyfin.enable = true;
+    transmission.enable = true;
     bazarr.enable = true;
     lidarr.enable = true;
     prowlarr.enable = true;
@@ -65,5 +30,25 @@ nixarr = {
     readarr.enable = true;
     sonarr.enable = true;
     jellyseerr.enable = true;
+  };
+
+  services = {
+    whisparr = {
+      enable = true;
+      openFirewall = true;
+      dataDir = "/media/x/";
+      group = "media";
+      # user
+    };
+    nzbget = {
+      enable = true;
+      group = "media";
+      # user = ""
+    };
+    headphones = {
+      enable = true;
+      dataDir = "/media/music";
+      group = "media";
+    };
   };
 }
