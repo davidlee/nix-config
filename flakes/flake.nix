@@ -78,7 +78,6 @@
         extraSpecialArgs = { inherit inputs outputs username hostname; };       
         modules = [
           ./hosts/${hostname}/home.nix         
-          ./shared/packages.nix
         ];
       };
     };

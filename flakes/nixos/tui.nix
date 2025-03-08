@@ -1,0 +1,116 @@
+{pkgs, username,... }: {
+
+  
+  home-manager.users.${username} = {
+    home.packages = with pkgs; [
+
+      asak
+      atop
+      atuin
+      basilk
+      bottom
+      broot
+      btop
+      btop
+      calcure
+      calcurse
+      cfm
+      chess-tui
+      cicero-tui
+      clock-rs
+      cmus
+      crates-tui
+      csv-tui
+      debase
+      distrobox-tui
+      di-tui
+      docfd
+      docui
+      felix-fm
+      fltrdr
+      frogmouth
+      fum
+      gh-dash
+      gitu
+      gitu
+      gitui
+      glances
+      glow
+      gobang
+      gomanagedocker
+      gtop
+      gtt
+      helix
+      hexpatch
+      hextazy
+      hexyl
+      htop
+      ictree
+      invidtui
+      isd
+      jjui
+      jqp
+      kakoune
+      lazydocker
+      lazygit
+      lazyjj
+      lazyjournal
+      lazysql
+      lf
+      libcryptui
+      lynx
+      managarr
+      md-tui
+      mmtui
+      mprocs
+      ncdu
+      nethack
+      ngrrram
+      nnn
+      nvimpager
+      otree
+      play
+      rainfrog
+      ranger
+      rmpc
+      russ
+      rustmission
+      steam-tui
+      stig
+      superfile
+      systemctl-tui
+      taskflow
+      task-keeper
+      tasktimer
+      taskwarrior-tui
+      tdf
+      television
+      termusic
+      # textual-paint
+      thokr
+      tpnote
+      tray-tui
+      tty-clock
+      tui-journal
+      tuir
+      tuisky
+      tut
+      vault-tasks
+      vim-language-server
+      vi-mongo
+      vit
+      wiki-tui
+      xplr
+      xplr
+      yazi
+      youtube-tui
+      ytermusic
+
+    ];
+  };
+
+  environment.systemPackages = with pkgs; [
+    helix
+    neovim
+  ];
+}

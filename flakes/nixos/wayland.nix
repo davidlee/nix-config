@@ -16,9 +16,6 @@
       copyq
       dmenu
       flameshot
-      mako
-      rofi-wayland
-      somebar
       fuzzel
       gammastep
       gdm
@@ -28,18 +25,23 @@
       kando
       kanshi
       kmonad
+      mako
       nemo
-      protontricks
       phinger-cursors
+      protontricks
       river
+      rofi-wayland
       rootbar
       shotman
       showmethekey
       sirula
+      somebar
       spatial-shell
+      swww
       tuba
       waybar
       waypipe
+      wbg
       wev
       wine
       winePackages.full
@@ -48,13 +50,18 @@
       wl-clipboard-rs
       wldash
       wlroots
+      dconf
+      i3status
       wmenu
+      wob
       wofi
+      wtype
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
       xfce.thunar
       xwayland
       zathura
+
     ];
 
     home.pointerCursor = {

@@ -4,18 +4,20 @@
     inputs.nixarr.nixosModules.default
     ./hardware-configuration.nix
 
-    ../../nixos/nixos-packages.nix
-    ../../nixos/nixos-apps.nix
-    ../../nixos/wayland.nix
-    ../../nixos/gnome.nix
-    ../../nixos/arr.nix
-    ../../nixos/sway.nix
-    ../../nixos/games.nix
     ../../nixos/boot.nix
     ../../nixos/nvidia-drivers.nix
-    ../../nixos/accounts.nix
     ../../nixos/network.nix
     ../../nixos/virtualisation.nix
+    ../../nixos/accounts.nix
+    ../../nixos/nixos-packages.nix
+    ../../nixos/nixos-apps.nix
+    ../../nixos/tui.nix
+    ../../nixos/wayland.nix
+    ../../nixos/gnome.nix
+    ../../nixos/sway.nix
+    ../../nixos/arr.nix
+    ../../nixos/serve.nix
+    ../../nixos/games.nix
     ../../nixos/fonts.nix
   ];
 

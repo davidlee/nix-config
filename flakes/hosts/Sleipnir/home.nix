@@ -10,14 +10,6 @@
     username = "${username}";
     homeDirectory = "/home/${username}";
     stateVersion = "24.11";
-    sessionVariables = {
-      EDITOR = "hx";
-      DIFFPROG = "delta";
-      MANPAGER = "nvim +Man!";
-
-      XCURSOR_SIZE = 24;
-      NIXOS_OZONE_WL = 1;
-    };
   };
 
   # Nicely reload system units when changing configs
