@@ -54,7 +54,8 @@
       hostname = "Sleipnir";
       username = "david";
     in {
-      nixpkgs.overlays = [ inputs.nixpkgs-wayland.overlay ];
+    
+      # nixpkgs.overlays = [ inputs.nixpkgs-wayland.overlay ];
 
       "${hostname}" = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs outputs username hostname; };

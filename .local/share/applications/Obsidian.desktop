@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Obsidian
+Comment=Must run under X11
+Exec=obsidian --enable-features=UseOzonePlatform --ozone-platform=x11
+Icon=
+Terminal=false
+Type=Application
+Categories=Productivity;
