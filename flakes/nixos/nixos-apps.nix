@@ -8,7 +8,6 @@
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
-     
 
       nwg-look
       slurp

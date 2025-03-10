@@ -12,7 +12,7 @@
           file_server browse
           templates
           encode gzip
-          acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+          # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
         }
     
         pktls.tplinkdns.com:443 {
@@ -20,7 +20,7 @@
           file_server
           templates
           encode gzip
-          acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+          # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
         }
 
         pktls.tplinkdns.com:80 {

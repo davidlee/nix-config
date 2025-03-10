@@ -34,6 +34,11 @@
 
     nixarr.url = "github:rasmus-kirk/nixarr";
 
+    nixpkgs-wayland = {
+      url = "github:nix-community/nixpkgs-wayland";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # update AMD microcode
     ucodenix.url = "github:e-tho/ucodenix";
   };
@@ -44,22 +49,25 @@
     in
   {
 
+        
     nixosConfigurations = let
       hostname = "Sleipnir";
       username = "david";
     in {
+      nixpkgs.overlays = [ inputs.nixpkgs-wayland.overlay ];
+
       "${hostname}" = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs outputs username hostname; };
+        specialArgs = { inherit inputs outputs username hostname; };
 
-      modules = [
-        ./hosts/${hostname}/config.nix
+        modules = [
+          ./hosts/${hostname}/config.nix
 
-        inputs.home-manager.nixosModules.home-manager {
-            home-manager.extraSpecialArgs = { inherit inputs outputs username hostname; };
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
+          inputs.home-manager.nixosModules.home-manager {
+              home-manager.extraSpecialArgs = { inherit inputs outputs username hostname; };
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "backup";
+              home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
           }
         ];
       };

@@ -35,6 +35,7 @@
         VISUAL = "hx";
         XCURSOR_SIZE = 24;
         NIXOS_OZONE_WL = 1;
+        ELECTRON_OZONE_PLATFORM_HINT = "x11";
       };
       pathsToLink = [ "/share/zsh" ]; # for autocompletion
     };

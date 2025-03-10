@@ -8,7 +8,33 @@
 let
   mod = "Mod4";
 in {
+  services = {
+    blueman.enable = true;
+  };
 
+  security = {
+    polkit.enable = true;
+    pam.services.swaylock = {};
+  };
+
+  programs = {
+    sway = {
+      enable = true;
+      wrapperFeatures.gtk = true;
+    };
+    
+    uwsm = {
+      enable = true;
+      waylandCompositors = {
+        sway = {
+          prettyName = "Sway";
+          comment = "Sway compositor managed by UWSM";
+          binPath = "/run/current-system/sw/bin/sway";
+        };
+      };
+    };
+  };
+  
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       sway-launcher-desktop
@@ -134,14 +160,5 @@ in {
       wrapperFeatures.gtk = true;
       extraOptions = [ "--unsupported-gpu" ];
     };
-  };
-  
-  services = {
-    blueman.enable = true;
-  };
-
-  security = {
-    polkit.enable = true;
-    pam.services.swaylock = {};
-  };
+  }; # home-manager directives
 }
