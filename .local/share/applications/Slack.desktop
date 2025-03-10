@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Slack
+Comment=Must run under X11
+Exec=slack --enable-features=UseOzonePlatform --ozone-platform=x11
+Icon=
+Terminal=false
+Type=Application
+Categories=Productivity;
+MimeType=x-scheme-handler/slack;
