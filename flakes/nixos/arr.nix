@@ -4,17 +4,7 @@
   ...
 }: {
 
-home-manager.users.${username} = {
-  home.packages = with pkgs; [
-    nzbget
-    nzbhydra2
-    sabnzbd
-    pan
-    plex
-  ];
-};
-
-nixarr = {
+  nixarr = {
     enable = true;
     mediaDir = "/media";
     stateDir = "/media/.state/nixarr";
@@ -50,5 +40,15 @@ nixarr = {
       dataDir = "/media/music";
       group = "media";
     };
+  };
+
+  home-manager.users.${username} = {
+    home.packages = with pkgs; [
+      nzbget
+      nzbhydra2
+      sabnzbd
+      pan
+      plex
+    ];
   };
 }

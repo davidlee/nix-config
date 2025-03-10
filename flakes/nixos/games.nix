@@ -5,23 +5,6 @@
   username,
   ...
 }: {
-
-  home-manager.users.${username} = {
-    home.packages = with pkgs; [
-      steamcmd
-      steam-tui
-      steamcmd
-      steam-run
-      bottles
-      lutris
-      heroic
-      mangohud
-      protonup-qt
-      gamescope
-      moonlight-qt
-    ];
-  };
-
   hardware = {
     steam-hardware.enable = true;
   
@@ -63,4 +46,19 @@
   #   source = "${pkgs.sunshine}/bin/sunshine";
   # };
 
+  home-manager.users.${username} = {
+    home.packages = with pkgs; [
+      steamcmd
+      steam-tui
+      steamcmd
+      steam-run
+      bottles
+      lutris
+      heroic
+      mangohud
+      protonup-qt
+      gamescope
+      moonlight-qt
+    ];
+  };
 }

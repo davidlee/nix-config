@@ -36,11 +36,6 @@
       export MCFLY_INTERFACE_VIEW=BOTTOM
       export TERM=xterm-256color
 
-      # export ELECTRON_OZONE_PLATFORM_HINT=wayland
-
-      # dumb flickering because nvidia drivers
-      export ELECTRON_OZONE_PLATFORM_HINT=x11 
-
       export EDITOR=nvim
       export VISUAL=hx
     '';

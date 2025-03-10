@@ -4,141 +4,6 @@
   ...
 }:
 {
-
-  # user packages
-  # 
-  home-manager.users.${username} = {
-    home.packages = with pkgs; [
-      # lang.odin
-      ols
-
-      # lang.ruby
-      ruby
-
-      # lang.lua
-      lua
-      lua54Packages.luarocks-nix 
-      vimPlugins.fzf-lua
-      lua-language-server
-      luarocks-packages-updater
-
-      # lang.js
-      bun
-      pnpm
-      corepack_latest
-      nodejs_latest
-      typescript-language-server
-      typescript
-
-      # download / backup
-      yt-dlp
-
-      # tasks
-      tasksh
-      taskwarrior3
-
-      # frivolity
-      neofetch
-      fastfetch
-
-      # ai 
-      ollama
-      oterm
-      aichat
-      local-ai
-      mods
-    ];
-
-    programs = {
-      helix.defaultEditor = true;
-
-      eza.enable = true;
-      firefox.enable = true;
-      git.enable = true;
-      librewolf.enable = true;
-      nushell.enable = true;
-      zk.enable = true;
-
-      direnv = {
-        enable = true;
-        enableZshIntegration = true; 
-        enableBashIntegration = true; 
-        nix-direnv.enable = true;
-      };
-
-      neovim = {
-        enable = true;
-        vimAlias = true;
-      };
-
-      fzf = {
-        enable = true;
-        enableZshIntegration = true;
-      };
-
-      zoxide = {
-        enable = true;
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-        options = [ 
-          "--cmd cd" 
-          "--hook pwd" 
-        ];
-      };
-
-      carapace = {
-        enable = true;
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-      };
-
-
-      zellij = {
-        enableZshIntegration = true;
-      };
-
-      yazi = {
-        enable = true;
-        enableZshIntegration = true;
-      };
-
-      skim = {
-        enable = true;
-        enableBashIntegration = true;
-      };
-
-      starship = {
-        enable = true;
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-        settings = {
-          add_newline = false;
-          buf = {symbol = " ";};
-          c = {symbol = " ";};
-          directory = {read_only = " 󰌾";};
-          docker_context = {symbol = " ";};
-          fossil_branch = {symbol = " ";};
-          git_branch = {symbol = " ";};
-          golang = {symbol = " ";};
-          hg_branch = {symbol = " ";};
-          hostname = {ssh_symbol = " ";};
-          lua = {symbol = " ";};
-          memory_usage = {symbol = "󰍛 ";};
-          meson = {symbol = "󰔷 ";};
-          nim = {symbol = "󰆥 ";};
-          nix_shell = {symbol = " ";};
-          nodejs = {symbol = " ";};
-          ocaml = {symbol = " ";};
-          package = {symbol = "󰏗 ";};
-          python = {symbol = " ";};
-          rust = {symbol = " ";};
-          swift = {symbol = " ";};
-          zig = {symbol = " ";};
-        };
-      };
-    };
-  };
-
   # system packages
   # 
   environment.systemPackages = with pkgs; [
@@ -393,5 +258,139 @@
   # allow non-root write access to firmware 
   hardware = {
     keyboard.qmk.enable = true;
+  };
+
+  # user packages
+  # 
+  home-manager.users.${username} = {
+    home.packages = with pkgs; [
+      # lang.odin
+      ols
+
+      # lang.ruby
+      ruby
+
+      # lang.lua
+      lua
+      lua54Packages.luarocks-nix 
+      vimPlugins.fzf-lua
+      lua-language-server
+      luarocks-packages-updater
+
+      # lang.js
+      bun
+      pnpm
+      corepack_latest
+      nodejs_latest
+      typescript-language-server
+      typescript
+
+      # download / backup
+      yt-dlp
+
+      # tasks
+      tasksh
+      taskwarrior3
+
+      # frivolity
+      neofetch
+      fastfetch
+
+      # ai 
+      ollama
+      oterm
+      aichat
+      local-ai
+      mods
+    ];
+
+    programs = {
+      helix.defaultEditor = true;
+
+      eza.enable = true;
+      firefox.enable = true;
+      git.enable = true;
+      librewolf.enable = true;
+      nushell.enable = true;
+      zk.enable = true;
+
+      direnv = {
+        enable = true;
+        enableZshIntegration = true; 
+        enableBashIntegration = true; 
+        nix-direnv.enable = true;
+      };
+
+      neovim = {
+        enable = true;
+        vimAlias = true;
+      };
+
+      fzf = {
+        enable = true;
+        enableZshIntegration = true;
+      };
+
+      zoxide = {
+        enable = true;
+        enableZshIntegration = true;
+        enableNushellIntegration = true;
+        options = [ 
+          "--cmd cd" 
+          "--hook pwd" 
+        ];
+      };
+
+      carapace = {
+        enable = true;
+        enableZshIntegration = true;
+        enableNushellIntegration = true;
+      };
+
+
+      zellij = {
+        enableZshIntegration = true;
+      };
+
+      yazi = {
+        enable = true;
+        enableZshIntegration = true;
+      };
+
+      skim = {
+        enable = true;
+        enableBashIntegration = true;
+      };
+
+      starship = {
+        enable = true;
+        enableZshIntegration = true;
+        enableNushellIntegration = true;
+        settings = {
+          add_newline = false;
+          buf = {symbol = " ";};
+          c = {symbol = " ";};
+          directory = {read_only = " 󰌾";};
+          docker_context = {symbol = " ";};
+          fossil_branch = {symbol = " ";};
+          git_branch = {symbol = " ";};
+          golang = {symbol = " ";};
+          hg_branch = {symbol = " ";};
+          hostname = {ssh_symbol = " ";};
+          lua = {symbol = " ";};
+          memory_usage = {symbol = "󰍛 ";};
+          meson = {symbol = "󰔷 ";};
+          nim = {symbol = "󰆥 ";};
+          nix_shell = {symbol = " ";};
+          nodejs = {symbol = " ";};
+          ocaml = {symbol = " ";};
+          package = {symbol = "󰏗 ";};
+          python = {symbol = " ";};
+          rust = {symbol = " ";};
+          swift = {symbol = " ";};
+          zig = {symbol = " ";};
+        };
+      };
+    };
   };
 }

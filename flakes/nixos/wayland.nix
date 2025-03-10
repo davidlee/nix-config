@@ -3,6 +3,29 @@
   username,
   ...
 }: {
+  environment.systemPackages = with pkgs; [
+    xdg-desktop-portal
+    xdg-desktop-portal-gtk
+    xdg-desktop-portal-wlr
+    xdg-desktop-portal-gnome
+  ];
+
+  xdg.portal = {
+    enable = true;
+    wlr.enable = true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gnome
+      ];
+    configPackages = with pkgs; [
+      xdg-desktop-portal
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-wlr
+      xdg-desktop-portal-gnome
+    ];
+  };
 
   # packages which are more about providing a foundational
   # window system, WMs, etc, than e.g. standalone GUI apps
@@ -76,29 +99,5 @@
     };
 
     services.copyq.enable = true;
-  };
-
-  environment.systemPackages = with pkgs; [
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-wlr
-    # xdg-desktop-portal-cosmic
-    xdg-desktop-portal
-  ];
-
-  xdg.portal = {
-    enable = true;
-    wlr.enable = true;
-    extraPortals = with pkgs; [
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-wlr
-      # xdg-desktop-portal-cosmic
-      xdg-desktop-portal
-      ];
-    configPackages = with pkgs; [
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-wlr
-      # xdg-desktop-portal-cosmic
-      xdg-desktop-portal
-    ];
-  };
+  }; # home-manager
 }
