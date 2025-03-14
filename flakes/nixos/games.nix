@@ -7,11 +7,6 @@
 }: {
   hardware = {
     steam-hardware.enable = true;
-  
-    # bluetooth = {
-    #   # enable = true;
-    #   # powerOnBoot = true;
-    # };
   };
 
   programs = {
@@ -59,6 +54,7 @@
       protonup-qt
       gamescope
       moonlight-qt
+      sunshine
     ];
   };
 }

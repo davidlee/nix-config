@@ -67,10 +67,39 @@ in {
       waybar =  {
         enable = true;
         systemd.enable = true; 
+        settings = {
+          
+          mainBar = {
+            layer = "top";
+            position = "top";
+            height = 30;
+            modules-left = [ "sway/workspaces" "sway/mode" "wlr/taskbar" "tray" "gamemode" ];
+            modules-center = [ "sway/window" ];
+            modules-right = [ "clock" ];
+
+            "sway/workspaces" = {
+            };
+
+            "wlr/taskbar" = {
+              on-click = "activate";
+              on-click-right = "maximise";
+              on-click-middle = "close";
+              tooltip-format = "{title}";
+            };
+
+            tray = {
+              spacing = 10;
+              icon-size = 16; 
+              show-passive-items = true;
+            };
+
+            clock = {
+              format = "Wk{:%V | %a %d %B | %I:%M:%S}";
+            };
+          };
+        };
       };
     };
-
-    # https://github.com/nix-community/home-manager/blob/master/modules/services/window-managers/i3-sway/sway.nix
 
     wayland.windowManager.sway = {
       enable = true;
@@ -133,7 +162,6 @@ in {
           }
         ];
         startup = [
-          # { command = "firefox"; }
           {
             command = "systemctl --user restart kanshi";
             always = true;
