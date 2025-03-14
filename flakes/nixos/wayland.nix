@@ -54,14 +54,14 @@
       protontricks
       river
       rofi-wayland
-      rootbar
       shotman
       showmethekey
       sirula
-      somebar
       spatial-shell
       swww
       tuba
+      # rootbar
+      # somebar
       waybar
       waypipe
       wbg

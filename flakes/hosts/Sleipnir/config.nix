@@ -7,7 +7,6 @@
     ../../nixos/boot.nix
     ../../nixos/nvidia-drivers.nix
     ../../nixos/network.nix
-    ../../nixos/virtualisation.nix
     ../../nixos/accounts.nix
     ../../nixos/nixos-packages.nix
     ../../nixos/nixos-apps.nix
@@ -15,9 +14,10 @@
     ../../nixos/wayland.nix
     ../../nixos/gnome.nix
     ../../nixos/sway.nix
-    ../../nixos/arr.nix
     ../../nixos/serve.nix
+    ../../nixos/arr.nix
     ../../nixos/games.nix
+    ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
   ];
 
