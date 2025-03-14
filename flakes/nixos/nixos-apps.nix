@@ -74,7 +74,7 @@
       # productivity
       thunderbird-latest
       evolution
-      morgen
+      # morgen # TODO enable when electron deps fixed
       zotero
       foliate
       onlyoffice-bin
