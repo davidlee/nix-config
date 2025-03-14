@@ -2,7 +2,7 @@
 Name=Slack
 Comment=Must run under X11
 Exec=slack --enable-features=UseOzonePlatform --ozone-platform=x11
-Icon=
+Icon=/etc/profiles/per-user/david/share/pixmaps/slack.png
 Terminal=false
 Type=Application
 Categories=Productivity;
