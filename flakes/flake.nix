@@ -7,6 +7,11 @@
       url = "github:nixos/nixpkgs/nixos-unstable";
     };
 
+    home-manager = { 
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -38,7 +43,6 @@
       inherit (self) outputs;
     in
   {
-       
     nixosConfigurations = let
       hostname = "Sleipnir";
       username = "david";
@@ -62,39 +66,5 @@
         ];
       };
     };
-
-    # darwinConfigurations = let
-    #   hostname = "fusillade";
-    #   username = "davidlee";
-    #   specialArgs = { inherit inputs outputs username hostname; };
-    # in {
-    #   "${hostname}" = inputs.darwin.lib.darwinSystem {
-      
-    #     inherit specialArgs; 
-
-    #     pkgs = import nixpkgs { 
-    #       system = "aarch64-darwin";
-    #       config.allowUnfree = true; 
-    #     };
-
-    #     modules = [
-    #       ./darwin/nix-core.nix
-    #       # ./darwin/system.nix
-    #       # ./darwin/apps.nix
-    #       # ./darwin/host-users.nix
-    #       # ./darwin/brew.nix
-          
-    #       inputs.home-manager.darwinModules.home-manager
-    #       {
-    #         home-manager.useGlobalPkgs = true;
-    #         home-manager.useUserPackages = true;
-    #         home-manager.extraSpecialArgs = specialArgs;
-    #         home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
-    #       }
-    #     ]; 
-    #   };
-      
-    # };
-    
   };
 }
