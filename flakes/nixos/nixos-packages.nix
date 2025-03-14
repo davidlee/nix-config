@@ -96,7 +96,7 @@
     plocate
     ripgrep
     sad
-    semgrep
+    # semgrep # FIXME busted 
     tree
     zoxide
 
