@@ -1,9 +1,8 @@
 {inputs, pkgs, ...}: {
   imports = [
-    # inputs.lix-module.nixosModules.default
+    # inputs.lix-module.nixosModules.default # FIXME re-enable once it works again
     inputs.nixarr.nixosModules.default
     ./hardware-configuration.nix
-
     ../../nixos/boot.nix
     ../../nixos/nvidia-drivers.nix
     ../../nixos/network.nix
@@ -36,8 +35,6 @@
         "https://walker.cachix.org"
         "https://walker-git.cachix.org"
         "https://nixpkgs-wayland.cachix.org"
-      # ];
-      # extra-substituters = [
       ];
     
       trusted-public-keys = [
@@ -68,15 +65,9 @@
 
     jack = {
       jackd.enable = true;
-      # support ALSA only programs via ALSA JACK PCM plugin
       alsa.enable = false;
-      # support ALSA only programs via loopback device (supports programs like Steam)
       loopback = {
         enable = true;
-        # buffering parameters for dmix device to work with ALSA only semi-professional sound programs
-        #dmixConfig = ''
-        #  period_size 2048
-        #'';
       };
     };
     

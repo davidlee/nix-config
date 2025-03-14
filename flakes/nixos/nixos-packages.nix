@@ -147,6 +147,8 @@
     lld
     llvm
     strace
+    stdenv
+    gcc
 
     # lang.zig
     zig
@@ -161,6 +163,7 @@
 
     #lang.rust
     rustup
+    cargo
 
     # lang.shell
     antidote
