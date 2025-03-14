@@ -7,16 +7,6 @@
       url = "github:nixos/nixpkgs/nixos-unstable";
     };
 
-    home-manager = { 
-      url = "github:nix-community/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    darwin = {
-      url = "github:lnl7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     lix-module = {
       url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -48,8 +38,7 @@
       inherit (self) outputs;
     in
   {
-
-        
+       
     nixosConfigurations = let
       hostname = "Sleipnir";
       username = "david";
@@ -74,47 +63,38 @@
       };
     };
 
-    # FIXME fails at runtime. Probably requires me to change approach to modules;
-    # assuming it can work in principle
-    # 
-    homeConfigurations = let
-      hostname = "Sleipnir";
-      username = "david";
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
-    in {
-      "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = { inherit inputs outputs username hostname; };       
-        modules = [
-          ./hosts/${hostname}/home.nix         
-        ];
-      };
-    };
-
-    darwinConfigurations = let
-      hostname = "fusillade";
-      username = "davidlee";
-      specialArgs = { inherit inputs outputs username hostname; };
-    in {
-      "${hostname}" = inputs.darwin.lib.darwinSystem {
-        pkgs = import nixpkgs;
+    # darwinConfigurations = let
+    #   hostname = "fusillade";
+    #   username = "davidlee";
+    #   specialArgs = { inherit inputs outputs username hostname; };
+    # in {
+    #   "${hostname}" = inputs.darwin.lib.darwinSystem {
       
-        modules = [
-          ./darwin/nix-core.nix
-          ./darwin/system.nix
-          ./darwin/apps.nix
-          ./darwin/host-users.nix
-          ./darwin/brew.nix
+    #     inherit specialArgs; 
+
+    #     pkgs = import nixpkgs { 
+    #       system = "aarch64-darwin";
+    #       config.allowUnfree = true; 
+    #     };
+
+    #     modules = [
+    #       ./darwin/nix-core.nix
+    #       # ./darwin/system.nix
+    #       # ./darwin/apps.nix
+    #       # ./darwin/host-users.nix
+    #       # ./darwin/brew.nix
           
-          inputs.home-manager.darwinModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = specialArgs;
-            home-manager.users.${username} = import ./home;
-          }
-        ]; 
-      };
-    };
+    #       inputs.home-manager.darwinModules.home-manager
+    #       {
+    #         home-manager.useGlobalPkgs = true;
+    #         home-manager.useUserPackages = true;
+    #         home-manager.extraSpecialArgs = specialArgs;
+    #         home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
+    #       }
+    #     ]; 
+    #   };
+      
+    # };
+    
   };
 }

@@ -1,5 +1,4 @@
-
-{ hostname, username, ... } @ args:
+{ hostname, username, ... }:
 {
   networking.hostName = hostname;
   networking.computerName = hostname;
