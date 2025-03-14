@@ -72,7 +72,7 @@
       barrier
 
       # productivity
-      thunderbird
+      thunderbird-latest
       evolution
       morgen
       zotero
