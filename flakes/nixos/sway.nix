@@ -136,29 +136,38 @@ in {
           {
             "${mod}+Return" = "exec --no-startup-id ${pkgs.kitty}/bin/kitty";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
-            "Alt+Tab" = "exec swayr switch-window";
+            "Alt+Tab" = "exec swayr switch-workspace";
+            "${mod}+Tab" = "exec swayr switch-window";
 
-            "${mod}+k" = "kill";
 
             "${mod}+a" = "focus parent";
+            "${mod}+c" = "focus child";
+
             "${mod}+f" = "fullscreen toggle";
+            "${mod}+k" = "kill";
+
             "${mod}+g" = "split h";
             "${mod}+v" = "split v";
             "${mod}+e" = "layout toggle split";
             "${mod}+s" = "layout stacking";
             "${mod}+w" = "layout tabbed";
+            "${mod}+r" = "mode resize";
+
             "${mod}+space" = "exec fuzzel";
+
             "${mod}+n" = "scratchpad show";
             "${mod}+Shift+n" = "move scratchpad";
           
-            # replace floating window binds we stomped with launcher binds on space
             "${mod}+l" = "focus mode_toggle";
             "${mod}+Shift+l" = "floating toggle";
 
             "${mod}+Shift+r" = "exec swaymsg reload";
+
             "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
+            
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
+
           }
         ];
         startup = [

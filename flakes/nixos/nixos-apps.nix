@@ -97,6 +97,7 @@
       slack
       rambox
       telegram-desktop
+      element-desktop
 
       # music player & library management
       beets
