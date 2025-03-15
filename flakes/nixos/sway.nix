@@ -105,7 +105,6 @@ in {
       enable = true;
       config = {
         modifier = mod;
-        terminal = "kitty";
         workspaceAutoBackAndForth = true;
 
         gaps = {
@@ -134,7 +133,7 @@ in {
           })
 
           {
-            "${mod}+Return" = "exec --no-startup-id ${pkgs.kitty}/bin/kitty";
+            "${mod}+Return" = "exec --no-startup-id ${pkgs.foot}/bin/foot";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
             "Alt+Tab" = "exec swayr switch-workspace";
             "${mod}+Tab" = "exec swayr switch-window";
@@ -167,9 +166,23 @@ in {
             
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
-
           }
         ];
+
+        modes = {
+          resize = {
+            Escape = "mode default";
+            Return = "mode default";
+            Left   = "resize shrink width 100 px";
+            Down   = "resize grow height 100 px";
+            Up     = "resize shrink height 100 px";
+            Right  = "resize grow width 100 px";
+            h = "resize shrink width 25 px";
+            a = "resize grow height 25 px";
+            e = "resize shrink height 25 px";
+            i = "resize grow width 25 px";
+          };
+        };
         startup = [
           {
             command = "systemctl --user restart kanshi";
@@ -188,6 +201,7 @@ in {
             always = true;
           }
         ];
+
 
         bars = [];
         floating.titlebar = false;
