@@ -27,7 +27,7 @@ in {
     package = nvidiaPackage;
   };
 
-  hardware.graphics.extraPackages = [ pkgs.mesa.drivers ];
+  hardware.graphics.extraPackages = [ pkgs.mesa ];
 
   environment.variables = extraEnv;
   environment.sessionVariables = extraEnv;

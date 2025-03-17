@@ -8,6 +8,7 @@
 let
   mod = "Mod4";
 in {
+
   services = {
     blueman.enable = true;
   };
@@ -23,16 +24,16 @@ in {
       wrapperFeatures.gtk = true;
     };
     
-    uwsm = {
-      enable = true;
-      waylandCompositors = {
-        sway = {
-          prettyName = "Sway";
-          comment = "Sway compositor managed by UWSM";
-          binPath = "/run/current-system/sw/bin/sway";
-        };
-      };
-    };
+    # uwsm = {
+    #   enable = true;
+    #   waylandCompositors = {
+    #     sway = {
+    #       prettyName = "Sway";
+    #       comment = "Sway compositor managed by UWSM";
+    #       binPath = "/run/current-system/sw/bin/sway";
+    #     };
+    #   };
+    # };
   };
   
   home-manager.users.${username} = {
@@ -49,7 +50,6 @@ in {
       swayimg
       swaylock
       swaymux
-      swayr
       grim
       mako
       slurp
@@ -60,6 +60,12 @@ in {
     ];
     
     programs = {
+    # install swayr using cargo
+      # swayr = {
+      #   enable = true;
+      #   systemd.enable = true;
+      # };
+
       walker = {
         enable = true;
         runAsService = true;
@@ -135,8 +141,8 @@ in {
           {
             "${mod}+Return" = "exec --no-startup-id ${pkgs.foot}/bin/foot";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
-            "Alt+Tab" = "exec swayr switch-workspace";
-            "${mod}+Tab" = "exec swayr switch-window";
+            "Alt+Tab" = "exec ~/.cargo/bin/swayr switch-workspace";
+            "${mod}+Tab" = "exec ~/.cargo/bin/swayr switch-window";
 
 
             "${mod}+a" = "focus parent";
@@ -197,11 +203,10 @@ in {
             always = true;
           }
           {
-            command = "systemctl --user restart swayr";
+            command = "~/.cargo/bin/swayrd &";
             always = true;
           }
         ];
-
 
         bars = [];
         floating.titlebar = false;

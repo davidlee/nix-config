@@ -11,19 +11,23 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
     autocd = true;
+
+    defaultKeymap = "emacs";
+    dotDir = ".config/zsh";
+
+    history.size = 10000;
+    
     history = {
       ignoreDups = true;
       ignoreAllDups = true;
       extended = true;
       findNoDups = true;
     };
-    dotDir = ".config/zsh";
 
     antidote = {
       enable = true; 
       # plugins = ["git" "sudo"];
     };
-    history.size = 10000;
 
     envExtra = ''
       export MANPAGER='nvim +Man!'
@@ -51,11 +55,12 @@
       setopt HIST_REDUCE_BLANKS        # Remove superfluous blanks before recording entry.
       setopt HIST_VERIFY               # Do not execute immediately upon history expansion.
     '';
+
     initExtraFirst = '';
-      bindkey -e
       autoload zmv
 
       path+=~/.local/bin
+      path+=~/.cargo/bin
       path+=$PWD/bin
 
       typeset -U path
@@ -67,8 +72,7 @@
       select-word-style normal
       zstyle ':zle:*' word-style unspecified
     '';
-    initExtraBeforeCompInit = ''
-    '';
+    # initExtraBeforeCompInit = "";
     initExtra = ''
       # TODO manage this stuff where it doesn't need a `nixos-rebuild switch` to take effect
       # manage dotfiles with bare repo
@@ -101,11 +105,10 @@
 
       emo() {
         $VISUAL $(mo) -w $ORG_DIR
-
       }
       
-
     '';
+    
     shellAliases = {
       t = "task";
       ta = "task add";
@@ -140,6 +143,7 @@
 
       nrs = "sudo nixos-rebuild switch";
       hms = "home-manager build --flake ~/flakes/.#david";
+      cl = "clock-rs -Bbt --fmt '%Y-%m-%d'";
     };
   };
 }
