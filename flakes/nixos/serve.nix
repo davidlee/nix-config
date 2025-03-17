@@ -1,5 +1,4 @@
-
-{inputs, pkgs, ...}: {
+{ pkgs, ... }: {
 
   services = {
 
@@ -31,6 +30,22 @@
 
     ollama = {
       enable = true;
+    };
+
+    postgresql = {
+      enable = true;
+      ensureUsers = [{
+        name = "david";
+        ensureDBOwnership = true;
+        ensureClauses = {
+          # superuser = true;
+          createrole = true;
+          createdb = true;
+        };
+      }];
+      ensureDatabases = [ "david" ];
+      enableTCPIP = false;
+      # extensions = [ ];
     };
 
   };
