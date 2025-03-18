@@ -113,6 +113,7 @@
       t = "task";
       ta = "task add";
       tl = "task list";
+      tc = "task context";
       
       scr = "grimshot save area";
       v = "nvim";

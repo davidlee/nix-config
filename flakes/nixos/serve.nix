@@ -48,6 +48,12 @@
       # extensions = [ ];
     };
 
+    taskchampion-sync-server = {
+      enable = true; 
+      openFirewall = true;
+      allowClientIds = [ ];
+    };
+
   };
 
   networking.firewall.allowedTCPPorts = [ 80 443 ];
