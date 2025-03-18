@@ -1,0 +1,106 @@
+# [Created by task 3.3.0 3/4/2025 01:13:09]
+data.location=/home/david/.task
+news.version=3.3.1
+
+sync.server.url = http://localhost:10222/
+sync.server.client_id =  29fe917c-e186-43c8-ba1d-5c5637383aca
+sync.encryption_secret = df3d082c-afef-432a-9894-35e8f3a89739
+
+# To use the default location of the XDG directories,
+# move this configuration file from ~/.taskrc to ~/.config/task/taskrc and update location config as follows:
+
+data.location=~/.local/share/task
+hooks.location=~/.config/task/hooks
+
+#
+# Theme
+#
+
+# Color theme (uncomment one to use)
+#include light-16.theme
+#include light-256.theme
+#include bubblegum-256.theme
+#include dark-16.theme
+#include dark-256.theme
+#include dark-red-256.theme
+#include dark-green-256.theme
+#include dark-blue-256.theme
+#include dark-violets-256.theme
+include dark-yellow-green.theme
+#include dark-gray-256.theme
+#include dark-gray-blue-256.theme
+#include solarized-dark-256.theme
+#include solarized-light-256.theme
+#include no-color.theme
+
+#
+# REPORT
+#
+
+report._reviewed.description=Tasksh review report.  Adjust the filter to your needs.
+report._reviewed.columns=uuid
+report._reviewed.sort=reviewed+,modified+
+report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )
+
+report.next.filter=status:pending -WAITING limit:page -nix -@nix -shopping 
+
+report.notag.filter=-TAGGED status:pending
+
+# 
+# CONTEXT
+# 
+
+context.home.read=+home -shopping -desk
+context.home.write=+home
+
+context.work.read=+work -home -self
+context.work.write=+work
+
+context.self.read=-work
+context.self.write=+self
+
+context.desk.read=+desk -home -shopping
+context.desk.write=+desk
+
+context.rec.read=+CHILD
+
+# 
+# UDA
+# 
+
+uda.reviewed.type=date
+uda.reviewed.label=Reviewed
+
+uda.url.type=string
+
+uda.estimate.type=numeric
+uda.estimate.size=string
+uda.estimate.label=Estimate
+
+
+uda.size.type=string
+uda.size.values=huge,large,medium,small,tiny
+uda.size.default=medium
+
+uda.required.type=string
+uda.required.values=must,should,could,may
+uda.required.label=Optional?
+
+# 
+# URGENCY
+#
+
+urgency.uda.estimate..coefficient=1.0
+urgency.uda.size..coefficient=1.0
+
+urgency.uda.required.must.coefficient=3.0
+urgency.uda.required.should.coefficient=2.0
+urgency.uda.required.could.coefficient=1.0
+urgency.uda.required.may.coefficient=-1.0
+
+urgency.user.tag.desk.coefficient = -1.0
+urgency.user.tag.shopping.coefficient = -2.0
+urgency.user.tag.home.coefficient = 1.0
+urgency.user.tag.duty.coefficient = 3.0
+
+context=rec
