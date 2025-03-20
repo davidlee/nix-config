@@ -46,6 +46,13 @@ report.next.filter=status:pending -WAITING limit:page -nix -@nix -shopping
 
 report.notag.filter=-TAGGED status:pending
 
+
+report.agenda.columns=id,start.age,entry.age,depends.indicator,priority,project,tags,agenda,scheduled.countdown,due,until.remaining,description.count,urgency
+report.agenda.context=1
+report.agenda.description=Agenda items
+report.agenda.labels=ID,Active,Age,D,P,Project,Tags,Who,Sch,Due,Until,Description,Urg
+
+
 # 
 # CONTEXT
 # 
@@ -69,13 +76,11 @@ context.rec.read=+CHILD
 # 
 
 uda.reviewed.type=date
-uda.reviewed.label=Reviewed
 
 uda.url.type=string
+uda.url.label=URL
 
 uda.estimate.type=numeric
-uda.estimate.size=string
-uda.estimate.label=Estimate
 
 
 uda.size.type=string
@@ -84,7 +89,9 @@ uda.size.default=medium
 
 uda.required.type=string
 uda.required.values=must,should,could,may
-uda.required.label=Optional?
+
+uda.agenda.type=string
+uda.agenda.label=People
 
 # 
 # URGENCY
@@ -103,4 +110,4 @@ urgency.user.tag.shopping.coefficient = -2.0
 urgency.user.tag.home.coefficient = 1.0
 urgency.user.tag.duty.coefficient = 3.0
 
-context=rec
+context=home
