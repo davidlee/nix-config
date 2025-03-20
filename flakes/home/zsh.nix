@@ -110,40 +110,51 @@
     '';
     
     shellAliases = {
-      t = "task";
-      ta = "task add";
-      tl = "task list";
-      tc = "task context";
-      
+      # util / override
       scr = "grimshot save area";
-      v = "nvim";
-      ngc = "nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
-      opts = "man home-configuration.nix";
-      zed = "zeditor";
-      lg = "lazygit";
-      ip = "ip -color";
-      untar = "tar -zxvf ";
-      egrep = "grep -E --color=auto";
-      fgrep = "grep -F --color=auto";
-      grep = "grep --color=auto";
-      vdir = "vdir --color=auto";
-      dir = "dir --color=auto";
       cat = "bat --style snip --style changes --style header";
-      l = "eza -lh"; # long
-      ll = "eza -lh --grid --group-directories-first";
-      la = "eza -lah --grid --group-directories-first";
-      ld = "eza -lhD";
-      lt = "eza --tree"; # list folder as tree
-      jctl = "journalctl -p 3 -xb";
       mkdir = "mkdir -p";
-      yz = "yazi";
+     
+      # cd
       ".." = "cd ..";
       "..." = "cd ../..";
       "...." = "cd ../../..";
-      keys = "ghostty +list-keybinds";
 
+      # list files
+      vdir = "vdir --color=auto";
+      dir = "dir --color=auto";
+      l = "eza -lh"; 
+      ll = "eza -lh --grid --group-directories-first";
+      la = "eza -lah --grid --group-directories-first";
+      ld = "eza -lhD";
+      lt = "eza --tree"; 
+
+      # grep
+      egrep = "grep -E --color=auto";
+      fgrep = "grep -F --color=auto";
+      grep = "grep --color=auto";
+      
+      # editors
+      v = "nvim";
+      zed = "zeditor";
+
+      # TUI shortcuts
+      yz = "yazi";
+      lg = "lazygit";
+      ip = "ip -color";
+
+      # nix
+      ngc = "nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
+      opts = "man home-configuration.nix";
       nrs = "sudo nixos-rebuild switch";
-      hms = "home-manager build --flake ~/flakes/.#david";
+      
+      # taskwarrior
+      t = "task";
+      ta = "task add";
+      tc = "task context";
+      tl = "task list";
+
+      # miscellany
       cl = "clock-rs -Bbt --fmt '%Y-%m-%d'";
     };
   };
