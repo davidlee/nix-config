@@ -1,7 +1,8 @@
 {inputs, pkgs, ...}: {
   imports = [
-    # inputs.lix-module.nixosModules.default # FIXME re-enable once it works again
+    # inputs.lix-module.nixosModules.default 
     inputs.nixarr.nixosModules.default
+    inputs.nixos-cosmic.nixosModules.default
     ./hardware-configuration.nix
     ../../nixos/boot.nix
     ../../nixos/nvidia-drivers.nix
@@ -13,6 +14,7 @@
     ../../nixos/wayland.nix
     ../../nixos/gnome.nix
     ../../nixos/sway.nix
+    ../../nixos/cosmic.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
     ../../nixos/games.nix
@@ -32,13 +34,15 @@
       auto-optimise-store = true;
       substituters = [
         "https://cache.nixos.org"
+        "https://cosmic.cachix.org/" 
+        "https://nixpkgs-wayland.cachix.org"
         "https://walker.cachix.org"
         "https://walker-git.cachix.org"
-        "https://nixpkgs-wayland.cachix.org"
       ];
     
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE=" 
         "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
         "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
         "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="

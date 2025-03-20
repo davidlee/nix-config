@@ -41,7 +41,7 @@
       flameshot
       fuzzel
       gammastep
-      gdm
+      # gdm
       gnomeExtensions.appindicator
       grim
       imv

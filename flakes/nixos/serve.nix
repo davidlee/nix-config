@@ -48,11 +48,12 @@
       # extensions = [ ];
     };
 
-    taskchampion-sync-server = {
-      enable = true; 
-      openFirewall = true;
-      allowClientIds = [ ];
-    };
+    # FIXME upstream service needs patch
+    # taskchampion-sync-server = {
+    #   enable = true; 
+    #   openFirewall = true;
+    #   allowClientIds = [ ];
+    # };
 
   };
 

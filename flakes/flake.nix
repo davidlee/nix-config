@@ -3,8 +3,11 @@
 
   inputs = {
 
+    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
+    
     nixpkgs = {
       url = "github:nixos/nixpkgs/nixos-unstable";
+      follows = "nixos-cosmic/nixpkgs";
     };
 
     home-manager = { 
@@ -33,6 +36,7 @@
       url = "github:nix-community/nixpkgs-wayland";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
 
     # update AMD microcode
     ucodenix.url = "github:e-tho/ucodenix";

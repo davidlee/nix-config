@@ -8,16 +8,16 @@
   services = {
     xserver = {
       enable = true;
-      displayManager = {
-        gdm = {
-          wayland = true;
-        };
-      };
-      desktopManager = {
-        gnome = {
-          enable = true;
-        };
-      };
+      # displayManager = {
+      #   gdm = {
+      #     wayland = true;
+      #   };
+      # };
+      # desktopManager = {
+      #   gnome = {
+      #     enable = true;
+      #   };
+      # };
     };
 
     gnome = {
