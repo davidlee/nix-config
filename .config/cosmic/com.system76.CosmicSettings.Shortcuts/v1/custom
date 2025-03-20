@@ -2,10 +2,10 @@
     (
         modifiers: [
             Super,
-            Ctrl,
             Alt,
+            Shift,
         ],
-        key: "l",
+        key: "j",
     ): Disable,
     (
         modifiers: [
@@ -17,36 +17,131 @@
     (
         modifiers: [
             Super,
+            Ctrl,
+            Shift,
+        ],
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Shift,
+        ],
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+        ],
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "l",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
         ],
         key: "j",
-    ): System(WorkspaceOverview),
+    ): Disable,
     (
         modifiers: [
             Super,
         ],
-        key: "d",
-    ): System(Launcher),
+        key: "slash",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Shift,
+        ],
+        key: "l",
+    ): Disable,
     (
         modifiers: [
             Super,
             Shift,
         ],
-        key: "q",
-    ): System(LogOut),
+        key: "t",
+    ): ToggleTiling,
     (
         modifiers: [
             Super,
             Shift,
         ],
-        key: "s",
-    ): System(Screenshot),
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+        ],
+        key: "h",
+    ): System(HomeFolder),
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "Escape",
+    ): Disable,
     (
         modifiers: [
             Super,
             Ctrl,
             Alt,
         ],
-        key: "j",
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Alt,
+        ],
+        key: "Tab",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "c",
+    ): ToggleOrientation,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "h",
+    ): Focus(Out),
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "o",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "Escape",
     ): Disable,
     (
         modifiers: [
@@ -58,58 +153,86 @@
         modifiers: [
             Super,
         ],
-        key: "o",
-    ): Orientation(Horizontal),
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "v",
-    ): Orientation(Vertical),
-    (
-        modifiers: [
-            Super,
-        ],
-    ): Disable,
+        key: "n",
+    ): System(Launcher),
     (
         modifiers: [
             Super,
             Ctrl,
-            Alt,
-        ],
-        key: "h",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Alt,
         ],
         key: "k",
     ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "t",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "p",
+    ): Spawn("rio"),
     (
         modifiers: [
             Super,
             Shift,
         ],
-        key: "h",
-    ): System(HomeFolder),
+        key: "s",
+    ): System(Screenshot),
     (
         modifiers: [
             Super,
         ],
-        key: "k",
-    ): ToggleSticky,
+        key: "u",
+    ): Disable,
     (
         modifiers: [
             Super,
+            Shift,
         ],
         key: "l",
     ): System(LockScreen),
     (
         modifiers: [
             Super,
-            Shift,
+        ],
+        key: "space",
+    ): Spawn("fuzzel"),
+    (
+        modifiers: [
+            Super,
+            Alt,
+        ],
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Alt,
+        ],
+        key: "l",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Alt,
+        ],
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
         ],
         key: "l",
     ): Disable,
@@ -117,11 +240,12 @@
         modifiers: [
             Super,
         ],
-        key: "w",
+        key: "k",
     ): Close,
     (
         modifiers: [
             Super,
+            Ctrl,
             Shift,
         ],
         key: "j",
@@ -129,20 +253,73 @@
     (
         modifiers: [
             Super,
-            Shift,
+            Ctrl,
         ],
-        key: "Escape",
+        key: "l",
     ): Disable,
     (
         modifiers: [
             Super,
-        ],
-        key: "Escape",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
+            Ctrl,
+            Alt,
         ],
         key: "h",
-    ): ToggleOrientation,
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "q",
+    ): System(LogOut),
+    (
+        modifiers: [
+            Ctrl,
+            Alt,
+            Shift,
+        ],
+        key: "t",
+        description: Some("rio"),
+    ): Spawn("rio"),
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+        ],
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "m",
+    ): Minimize,
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "l",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "q",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "y",
+    ): ToggleSticky,
 }

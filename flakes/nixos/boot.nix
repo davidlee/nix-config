@@ -12,19 +12,21 @@ in {
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
-      systemd-boot.configurationLimit = 10;
-      systemd-boot.consoleMode = "auto";
+
+      systemd-boot = {
+        configurationLimit = 10;
+        consoleMode = "auto";
+      };
     };
 
     kernelPackages = pkgs.linuxPackages_latest;
     
     plymouth = {
-      enable = true;
+      enable = false;
     };
     
-    # silencio
-    consoleLogLevel = 0;
-    initrd.verbose = false;
+    consoleLogLevel = 5;
+    initrd.verbose = true;
     kernelParams = [
       "quiet"
       "splash"
@@ -43,16 +45,6 @@ in {
   };
 
   console.font = "${pkgs.kbd}/share/consolefonts/Lat2-Terminus16.psfu.gz";
-
-  # probably Nvidia's fault this isn't quite working.
-  # 
-  # services = {
-  #   kmscon = {
-  #     enable = true;
-  #     fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
-  #     hwRender = true;
-  #   };
-  # };
 
   systemd.services.greetd.serviceConfig = {
     Type = "idle";
@@ -75,4 +67,5 @@ in {
       };
     };
   };
+
 }

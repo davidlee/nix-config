@@ -70,9 +70,11 @@ in {
         enable = true;
         runAsService = true;
       };
+
+      # start from sway; we don't need it for other WM with their own bars
       waybar =  {
-        enable = true;
-        systemd.enable = true; 
+        # enable = true;
+        # systemd.enable = true; 
         settings = {
           
           mainBar = {
