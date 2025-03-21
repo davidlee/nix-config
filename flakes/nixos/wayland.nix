@@ -8,7 +8,7 @@
     xdg-desktop-portal-gtk
     xdg-desktop-portal-wlr
     xdg-desktop-portal-gnome
-    xdg-desktop-portal-kde
+    # kdePackages.xdg-desktop-portal-kde
     xdg-desktop-portal-cosmic
   ];
 
@@ -20,7 +20,7 @@
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
-      xdg-desktop-portal-kde
+    # kdePackages.xdg-desktop-portal-kde
       xdg-desktop-portal-cosmic
     ];
     # TODO .config 
@@ -33,13 +33,11 @@
       adwaita-icon-theme
       bibata-cursors
       clipman
-      clipse
       copyq
       dmenu
       flameshot
       fuzzel
       gammastep
-      # gdm
       gnomeExtensions.appindicator
       grim
       imv
@@ -58,9 +56,6 @@
       spatial-shell
       swww
       tuba
-      # rootbar
-      # somebar
-      # waybar
       waypipe
       wbg
       wev
@@ -93,6 +88,6 @@
       };
     };
 
-    # services.copyq.enable = true;
+    services.copyq.enable = true;
   }; # home-manager
 }
