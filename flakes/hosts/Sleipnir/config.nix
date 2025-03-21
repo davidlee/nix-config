@@ -12,8 +12,8 @@
     ../../nixos/nixos-apps.nix
     ../../nixos/tui.nix
     ../../nixos/wayland.nix
-    ../../nixos/gnome.nix
-    ../../nixos/sway.nix
+    # ../../nixos/gnome.nix
+    # ../../nixos/sway.nix
     ../../nixos/cosmic.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
@@ -67,13 +67,13 @@
     sysprof.enable = true;
     printing.enable = true;
 
-    jack = {
-      jackd.enable = true;
-      alsa.enable = false;
-      loopback = {
-        enable = true;
-      };
-    };
+    # jack = {
+    #   jackd.enable = true;
+    #   alsa.enable = false;
+    #   loopback = {
+    #     enable = true;
+    #   };
+    # };
     
     pipewire = {
       enable = true;

@@ -38,7 +38,7 @@
         name = "david";
         ensureDBOwnership = true;
         ensureClauses = {
-          # superuser = true;
+          superuser = true;
           createrole = true;
           createdb = true;
         };

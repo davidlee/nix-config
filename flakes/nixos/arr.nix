@@ -13,27 +13,19 @@
 
     jellyfin.enable = true;
     transmission.enable = true;
-    bazarr.enable = true;
     lidarr.enable = true;
     prowlarr.enable = true;
     radarr.enable = true;
     readarr.enable = true;
     sonarr.enable = true;
     jellyseerr.enable = true;
+    # bazarr.enable = true;
   };
 
   services = {
-    whisparr = {
-      enable = true;
-      openFirewall = true;
-      dataDir = "/media/x/";
-      group = "media";
-      # user
-    };
     nzbget = {
       enable = true;
       group = "media";
-      # user = ""
     };
     headphones = {
       enable = true;

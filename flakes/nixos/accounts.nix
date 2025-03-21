@@ -9,7 +9,7 @@
   options = {users.enable = lib.mkEnableOption "Enables users module";};
 
   config = lib.mkIf config.users.enable {
-    security.rtkit.enable = true;
+    # security.rtkit.enable = true;
     security.polkit.enable = true;
     security.sudo.wheelNeedsPassword = false; # WARN 
 
