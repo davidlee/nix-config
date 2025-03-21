@@ -20,7 +20,7 @@
   ];
   
   users.groups.libvirtd.members = [ username ];
-  # programs.virt-manager.enable = true;
+  programs.virt-manager.enable = true;
 
   # virtualisation = {
   #   spiceUSBRedirection.enable = true;

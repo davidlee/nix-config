@@ -23,8 +23,6 @@
     gamescope.enable = true;
   };
 
-  # Sunshine
-  # 
   services = {
     sunshine = {
       enable = true; 
@@ -33,13 +31,6 @@
       capSysAdmin = true;
     };
   };
-
-  # security.wrappers.sunshine = {
-  #   owner = "root";
-  #   group = "root";
-  #   capabilities = "cap_sys_admin+p";
-  #   source = "${pkgs.sunshine}/bin/sunshine";
-  # };
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [

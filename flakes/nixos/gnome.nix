@@ -1,4 +1,5 @@
 {pkgs, username, lib, config, ... }: {
+
   programs = {
     dconf.enable = true;
     gnome-terminal.enable = true;
@@ -8,16 +9,11 @@
   services = {
     xserver = {
       enable = true;
-      # displayManager = {
-      #   gdm = {
-      #     wayland = true;
-      #   };
-      # };
-      # desktopManager = {
-      #   gnome = {
-      #     enable = true;
-      #   };
-      # };
+      desktopManager = {
+        gnome = {
+          enable = true;
+        };
+      };
     };
 
     gnome = {

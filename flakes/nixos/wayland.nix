@@ -8,6 +8,8 @@
     xdg-desktop-portal-gtk
     xdg-desktop-portal-wlr
     xdg-desktop-portal-gnome
+    xdg-desktop-portal-kde
+    xdg-desktop-portal-cosmic
   ];
 
   xdg.portal = {
@@ -18,20 +20,16 @@
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
-      ];
-    configPackages = with pkgs; [
-      xdg-desktop-portal
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-wlr
-      xdg-desktop-portal-gnome
+      xdg-desktop-portal-kde
+      xdg-desktop-portal-cosmic
     ];
+    # TODO .config 
   };
 
   # packages which are more about providing a foundational
   # window system, WMs, etc, than e.g. standalone GUI apps
   home-manager.users.${username} = {
     home.packages = with pkgs; [
-
       adwaita-icon-theme
       bibata-cursors
       clipman
@@ -62,7 +60,7 @@
       tuba
       # rootbar
       # somebar
-      waybar
+      # waybar
       waypipe
       wbg
       wev
@@ -79,12 +77,9 @@
       wob
       wofi
       wtype
-      xdg-desktop-portal-gtk
-      xdg-desktop-portal-wlr
       xfce.thunar
       xwayland
       zathura
-
     ];
 
     home.pointerCursor = {
@@ -98,6 +93,6 @@
       };
     };
 
-    services.copyq.enable = true;
+    # services.copyq.enable = true;
   }; # home-manager
 }
