@@ -21,20 +21,15 @@ in {
 
     kernelPackages = pkgs.linuxPackages_latest;
     
-    # plymouth = {
-    #   enable = false;
-    # };
+    plymouth = {
+      enable = false;
+    };
     
-    consoleLogLevel = 5;
-    initrd.verbose = true;
+    # consoleLogLevel = 5;
+    # initrd.verbose = true;
+
     kernelParams = [
-      # "quiet"
-      # "splash"
       "boot.shell_on_fail"
-      # "loglevel=3"
-      # "rd.systemd.show_status=false"
-      # "rd.udev.log_level=3"
-      # "udev.log_priority=3"
       "video=3840x2160"
     ];
   };
@@ -67,5 +62,4 @@ in {
       };
     };
   };
-
 }
