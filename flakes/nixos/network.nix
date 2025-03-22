@@ -38,6 +38,7 @@
 
     tailscale = {
       enable = true;
+      permitCertUid = "239"; # FIXME (caddy) - what's the less brittle / idiomatic way?
     };
   };
 }

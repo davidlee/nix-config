@@ -1,6 +1,6 @@
 # [Created by task 3.3.0 3/4/2025 01:13:09]
 data.location=/home/david/.task
-news.version=3.3.1
+news.version=3.4.1
 
 sync.server.url = http://localhost:10222/
 sync.server.client_id =  29fe917c-e186-43c8-ba1d-5c5637383aca
@@ -42,10 +42,9 @@ report._reviewed.columns=uuid
 report._reviewed.sort=reviewed+,modified+
 report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )
 
-report.next.filter=status:pending -WAITING limit:page -nix -@nix -shopping 
+report.next.filter=status:pending -WAITING limit:page 
 
 report.notag.filter=-TAGGED status:pending
-
 
 report.agenda.columns=id,start.age,entry.age,depends.indicator,priority,project,tags,agenda,scheduled.countdown,due,until.remaining,description.count,urgency
 report.agenda.context=1
