@@ -154,6 +154,11 @@
       tc = "task context";
       tl = "task list";
 
+  
+      h = "harsh";
+      hc ="$VISUAL ~/.config/harsh/habits";
+      hl = "$VISUAL ~/.config/harsh/log";
+
       # miscellany
       cl = "clock-rs -Bbt --fmt '%Y-%m-%d'";
     };

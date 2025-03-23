@@ -24,6 +24,7 @@
       debase
       distrobox-tui
       di-tui
+      dijo
       docfd
       docui
       felix-fm
@@ -40,6 +41,7 @@
       gomanagedocker
       gtop
       gtt
+      harsh
       helix
       hexpatch
       hextazy

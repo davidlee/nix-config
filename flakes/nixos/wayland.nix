@@ -30,16 +30,20 @@
   # window system, WMs, etc, than e.g. standalone GUI apps
   home-manager.users.${username} = {
     home.packages = with pkgs; [
+
       adwaita-icon-theme
       bibata-cursors
       clipman
       copyq
+      dconf
       dmenu
       flameshot
       fuzzel
       gammastep
       gnomeExtensions.appindicator
       grim
+      grim
+      i3status
       imv
       kando
       kanshi
@@ -53,9 +57,11 @@
       shotman
       showmethekey
       sirula
+      slurp
       spatial-shell
       swww
       tuba
+      ulauncher
       waypipe
       wbg
       wev
@@ -66,15 +72,15 @@
       wl-clipboard-rs
       wldash
       wlroots
-      dconf
-      i3status
       wmenu
       wob
       wofi
+      wshowkeys
       wtype
       xfce.thunar
       xwayland
       zathura
+
     ];
 
     home.pointerCursor = {

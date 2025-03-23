@@ -50,22 +50,9 @@ in {
       swayimg
       swaylock
       swaymux
-      grim
-      mako
-      slurp
-      wl-clipboard-rs
-      ulauncher
-      wshowkeys
-      kanshi
     ];
     
     programs = {
-    # install swayr using cargo
-      # swayr = {
-      #   enable = true;
-      #   systemd.enable = true;
-      # };
-
       walker = {
         enable = true;
         runAsService = true;
