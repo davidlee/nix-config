@@ -1,13 +1,18 @@
 {
   pkgs,
-  username,
-  lib,
-  config,
-  inputs,
   ...
 }: {
-  # Fonts
-  # 
+
+  # console.font = "Lat2-Terminus16";
+
+  console = {
+    font = "ter-124b";
+    keyMap = "us";
+    packages = with pkgs; [
+      terminus_font
+    ];
+  };
+   
   fonts = {
     packages = with pkgs; [
       font-awesome
@@ -46,22 +51,24 @@
       nerd-fonts.overpass 
       victor-mono
       terminus_font
+      termsyn
+      tamsyn
+      terminus_font_ttf
       jetbrains-mono
       monaspace
       dina-font
       geist-font
-      
     ];
+
+    fontconfig = {
+      enable = true; 
+      defaultFonts.monospace = [ "JetBrainsMono Nerd Font" ];
+      defaultFonts.sansSerif = [ "Noto Sans" ];
+      defaultFonts.serif = [ "Noto Serif" ];
+      defaultFonts.emoji = [ "Noto Color Emoji" ];
+    };
+
+    fontDir.enable = true;
+    enableDefaultPackages = true;
   };
-  
-  fonts.fontDir.enable = true;
-  fonts.enableDefaultPackages = true;
-
-  fonts.fontconfig.enable = true; 
-  fonts.fontconfig.defaultFonts.monospace = [ "JetBrainsMono Nerd Font" ];
-  fonts.fontconfig.defaultFonts.sansSerif = [ "Noto Sans" ];
-  fonts.fontconfig.defaultFonts.serif = [ "Noto Serif" ];
-  fonts.fontconfig.defaultFonts.emoji = [ "Noto Color Emoji" ];
-
-
 }

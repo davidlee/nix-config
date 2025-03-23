@@ -21,6 +21,19 @@ in {
 
     kernelPackages = pkgs.linuxPackages_latest;
     
+    # extraModprobeConfig = [ ];
+    # kernelModules = [];
+    
+    initrd = {
+      kernelModules = [ ];
+      verbose = true;
+    };
+    
+    blacklistedKernelModules = [
+      "ucsi_ccg"
+      "vc032x"
+    ];
+    
     plymouth = {
       enable = false;
     };
@@ -30,27 +43,19 @@ in {
 
     kernelParams = [
       "boot.shell_on_fail"
-      "video=3840x2160"
+      # "video=3840x2160"
     ];
-  };
+  }; # /boot
 
   services.ucodenix = {
     enable = true;
     cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
   };
 
-  console.font = "${pkgs.kbd}/share/consolefonts/Lat2-Terminus16.psfu.gz";
-
-  # systemd.services.greetd.serviceConfig = {
-  #   Type = "idle";
-  #   StandardInput = "tty";
-  #   StandardOutput = "tty";
-  #   # StandardError = "journal"; # Without this errors will spam on screen
-  #   # Without these bootlogs will spam on screen
-  #   TTYReset = true;
-  #   TTYVHangup = true;
-  #   TTYVTDisallocate = true;
-  # };
+  console = {
+    earlySetup = true;
+    enable = true;
+  };
 
   services = {
     greetd = {

@@ -5,7 +5,7 @@
     inputs.nixos-cosmic.nixosModules.default
     ./hardware-configuration.nix
     ../../nixos/boot.nix
-    ../../nixos/nvidia-drivers.nix
+    ../../nixos/nvidia.nix
     ../../nixos/network.nix
     ../../nixos/accounts.nix
     ../../nixos/nixos-packages.nix
