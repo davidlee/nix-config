@@ -11,6 +11,7 @@
     ];
 
     builders-use-substitutes = true;
+
   };
 
   nix.package = pkgs.nix;

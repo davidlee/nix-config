@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ ... }: {
   system = {
     activationScripts.postUserActivation.text = ''
       # so we do not need to logout and login again to make the changes take effect.
