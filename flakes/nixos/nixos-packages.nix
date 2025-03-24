@@ -49,7 +49,6 @@
     nix-btm
     nixd
     nix-diff
-    nix-diff
     nix-direnv
     nix-du
     nix-index
@@ -59,6 +58,8 @@
     nix-search-cli
     nix-top
     nix-tree
+    nix-output-monitor
+    nix-bash-completions
     pkg-config
     sd-switch
     unixtools.nettools

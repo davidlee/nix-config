@@ -280,8 +280,8 @@
             Shift,
         ],
         key: "t",
-        description: Some("rio"),
-    ): Spawn("rio"),
+        description: Some("terminal"),
+    ): Spawn("alacritty"),
     (
         modifiers: [
             Super,
@@ -322,7 +322,7 @@
             Super,
         ],
         key: "p",
-    ): Spawn("rio"),
+    ): Spawn("alacritty"),
     (
         modifiers: [
             Super,

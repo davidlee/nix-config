@@ -74,6 +74,7 @@
       gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
       cfg() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
 
+      om() { $* --log-format internal-json -v |& nom --json }
 
       # manage text files
       export ORG_DIR=~/org
