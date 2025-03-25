@@ -1,9 +1,4 @@
-{
-  pkgs,
-  hostname,
-  username,
-  ...
-}: {
+{ ... }: {
 
   programs.kitty= {
     enable = true;
