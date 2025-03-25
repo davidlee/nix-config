@@ -60,6 +60,7 @@
     nix-tree
     nix-output-monitor
     nix-bash-completions
+    nvd
     pkg-config
     sd-switch
     unixtools.nettools
@@ -240,6 +241,10 @@
     dfu-util
     qmk
     dtc
+
+    # security
+    nvdtools
+    seclists
 
     # servers
     caddy
