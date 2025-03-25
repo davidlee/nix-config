@@ -10,6 +10,11 @@
       follows = "nixos-cosmic/nixpkgs";
     };
 
+    darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     home-manager = { 
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,35 +42,60 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-
     # update AMD microcode
     ucodenix.url = "github:e-tho/ucodenix";
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
+  outputs = inputs@{ self, nixpkgs, darwin, home-manager, ... }:
     let
       inherit (self) outputs;
     in
   {
+
+    darwinConfigurations = let
+      username = "davidlee";
+      hostname = "fusillade";
+      system = "aarch64-darwin";
+
+      configuration = { pkgs, ... }: {
+        system.configurationRevision = self.rev or self.dirtyRev or null;
+        system.stateVersion = 6;
+      };
+
+      specialArgs = { inherit inputs outputs username hostname; };
+    in {
+      "${hostname}" = inputs.darwin.lib.darwinSystem {
+        
+        modules = [
+          configuration
+          ./darwin
+          inputs.home-manager.darwinModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = specialArgs;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.${username} = import ./darwin/home;
+          }
+        ];
+      };
+    };
+      
     nixosConfigurations = let
       hostname = "Sleipnir";
       username = "david";
+      specialArgs = { inherit inputs outputs username hostname; };
     in {
-    
-      # nixpkgs.overlays = [ inputs.nixpkgs-wayland.overlay ];
-
       "${hostname}" = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs outputs username hostname; };
 
         modules = [
           ./hosts/${hostname}/config.nix
-
           inputs.home-manager.nixosModules.home-manager {
-              home-manager.extraSpecialArgs = { inherit inputs outputs username hostname; };
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = specialArgs;
               home-manager.backupFileExtension = "backup";
-              home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
+              home-manager.users.${username} = import ./hosts/${hostname}/home.nix; # TODO move to /hosts/Sleipnir.nix
           }
         ];
       };
