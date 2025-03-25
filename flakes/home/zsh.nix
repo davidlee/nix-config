@@ -24,11 +24,6 @@
       findNoDups = true;
     };
 
-    antidote = {
-      enable = true; 
-      # plugins = ["git" "sudo"];
-    };
-
     envExtra = ''
       export MANPAGER='nvim +Man!'
       export MCFLY_KEY_SCHEME=vim

@@ -21,7 +21,8 @@
     };
 
     lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0.tar.gz";
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0-1.tar.gz";
+      # url = "https://git.lix.systems/lix-project/nixos-module.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -42,7 +43,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # update AMD microcode
     ucodenix.url = "github:e-tho/ucodenix";
   };
 

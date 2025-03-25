@@ -1,9 +1,11 @@
 {inputs, pkgs, ...}: {
   imports = [
-    # inputs.lix-module.nixosModules.default 
+    ./hardware-configuration.nix
+
+    inputs.lix-module.nixosModules.default 
     inputs.nixarr.nixosModules.default
     inputs.nixos-cosmic.nixosModules.default
-    ./hardware-configuration.nix
+
     ../../nixos/boot.nix
     ../../nixos/nvidia.nix
     ../../nixos/network.nix
