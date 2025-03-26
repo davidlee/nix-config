@@ -72,7 +72,7 @@
       # TODO manage this stuff where it doesn't need a `nixos-rebuild switch` to take effect
       # manage dotfiles with bare repo
       gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
-      cfg() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }   
+      prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }   
 
       om() { $* --log-format internal-json -v |& nom --json }
 

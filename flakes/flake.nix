@@ -43,6 +43,7 @@
 
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";
+    opnix.url = "github:brizzbuzz/opnix";
   };
 
   outputs = inputs@{ self, nixpkgs, darwin, home-manager, ... }: {
@@ -52,6 +53,7 @@
       username = "davidlee";
       hostname = "fusillade";
       system = "aarch64-darwin";
+
       specialArgs = { inherit inputs outputs username hostname; };
 
       pkgs = import nixpkgs {
@@ -61,8 +63,7 @@
       };
     in {
       "${hostname}" = inputs.darwin.lib.darwinSystem {
-        inherit pkgs;
-        inherit specialArgs;
+        inherit pkgs specialArgs;
        
         modules = [
           ./darwin
@@ -87,6 +88,7 @@
       specialArgs = { inherit inputs outputs username hostname; };
     in {
       "${hostname}" = nixpkgs.lib.nixosSystem {
+        inherit specialArgs;
 
         modules = [
           ./hosts/${hostname}/config.nix
@@ -95,7 +97,7 @@
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = specialArgs;
               home-manager.backupFileExtension = "backup";
-              home-manager.users.${username} = import ./hosts/${hostname}/home.nix; # TODO move to /hosts/Sleipnir.nix
+              home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
           }
         ];
       };

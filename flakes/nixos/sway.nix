@@ -23,17 +23,6 @@ in {
       enable = true;
       wrapperFeatures.gtk = true;
     };
-    
-    # uwsm = {
-    #   enable = true;
-    #   waylandCompositors = {
-    #     sway = {
-    #       prettyName = "Sway";
-    #       comment = "Sway compositor managed by UWSM";
-    #       binPath = "/run/current-system/sw/bin/sway";
-    #     };
-    #   };
-    # };
   };
   
   home-manager.users.${username} = {
