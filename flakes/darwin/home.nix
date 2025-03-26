@@ -10,7 +10,6 @@
    ];
   
   home = {
-    # inherit username;
     homeDirectory = "/Users/${username}";
     stateVersion = "24.11";
   };
@@ -18,9 +17,13 @@
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
-    darwin.trash
-    sad
+
+    # emacs-macport # insecure
     # semgrep
+    # taskwarrior
+    SDL
+    SDL2
+    SDL2_mixer
     antidote 
     aria2
     aspell
@@ -32,32 +35,33 @@
     chez
     chicken
     clangStdenv
+    cmake
     corepack_latest
     coreutils
     curl
     d2
+    darwin.trash
     delta
+    deno
     difftastic
     direnv
-    nix-direnv
     docutils
-    deno
-    # emacs-macport # insecure
     exercism
     eza
     fd
     file
     fontconfig
-    fzf
     fswatch
+    fzf
     gawk
     gh
     ghc
-    glfw
     git
     gitu
+    glfw
     glib
     glow
+    gnumake
     gnused
     gnutar
     graphviz
@@ -78,55 +82,48 @@
     lazygit
     less
     lf
+    libGL
     libclang
     libiconv
+    libyaml
     lld
+    lldb
     lsd
-    lynx
     lunarvim
+    lynx
     markdown-oxide
     marksman
     ncdu
     nethack
     nil
     ninja
-    nix-search-cli
+    nix-direnv
     nix-index
+    nix-search-cli
     nmap
     nnn
     nodejs_latest
     nushell
-    overmind
-    redo-apenwarr      
-    libGL
-    SDL
-    SDL2
-    SDL2_mixer
-    vulkan-headers
-    vulkan-loader
-    vulkan-tools
-    gnumake
-    libyaml
     odin
-    lldb
     ols
+    overmind
     p7zip
     pipx
     pixman
     pnpm
     pstree
-    cmake
     python312
-    python312Packages.pywatchman
     python312Packages.pip
+    python312Packages.pywatchman
     qmk
-    # racket
-    raylib
     ranger
+    raylib
     rbenv
+    redo-apenwarr      
     ripgrep
     ruby
     rustup
+    sad
     shortcat
     skhd
     socat
@@ -135,7 +132,6 @@
     stdenv
     stow
     syncthing
-    # taskwarrior
     tldr
     tmux
     tpnote
@@ -144,6 +140,9 @@
     unar
     unzip
     vit
+    vulkan-headers
+    vulkan-loader
+    vulkan-tools
     watchman
     wezterm
     wget
@@ -154,12 +153,13 @@
     yq-go
     zellij
     zig
-    zls
     zip
     zk
+    zls
     zoxide
     zsh
     zstd
+
   ];
 
   programs = {
