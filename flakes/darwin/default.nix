@@ -1,9 +1,11 @@
-{ ... }: {
-  modules = [
-    ./nix-core.nix
+{username, hostname, ... }: {
+
+  imports = [
+    # ./host-users.nix
+    # ./apps.nix
     ./system.nix
-    ./apps.nix
-    ./host-users.nix
+    ./nix-core.nix
     ./brew.nix
   ];
+
 }
