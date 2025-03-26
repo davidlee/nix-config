@@ -5,6 +5,7 @@
     inputs.lix-module.nixosModules.default 
     inputs.nixarr.nixosModules.default
     inputs.nixos-cosmic.nixosModules.default
+    inputs.opnix.nixosModules.default
 
     ../../nixos/boot.nix
     ../../nixos/nvidia.nix
@@ -14,14 +15,14 @@
     ../../nixos/nixos-apps.nix
     ../../nixos/tui.nix
     ../../nixos/wayland.nix
-    # ../../nixos/gnome.nix
-    # ../../nixos/sway.nix
     ../../nixos/cosmic.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
     ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
+    # ../../nixos/gnome.nix
+    # ../../nixos/sway.nix
   ];
 
   users.enable = true;
@@ -69,14 +70,6 @@
     sysprof.enable = true;
     printing.enable = true;
 
-    # jack = {
-    #   jackd.enable = true;
-    #   alsa.enable = false;
-    #   loopback = {
-    #     enable = true;
-    #   };
-    # };
-    
     pipewire = {
       enable = true;
       alsa.enable = true;

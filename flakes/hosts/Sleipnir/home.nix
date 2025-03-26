@@ -1,7 +1,9 @@
-{ username, inputs, ... }: {
+{ lib, pkgs, username, inputs, ... }: {
 
   imports = [
     inputs.walker.homeManagerModules.default
+    inputs.opnix.homeManagerModules.default
+
     ../../home/zsh.nix
     ../../home/kitty.nix
    ];
@@ -16,4 +18,4 @@
   systemd.user.startServices = "sd-switch";
 
   programs.home-manager.enable = true;
- }
+}
