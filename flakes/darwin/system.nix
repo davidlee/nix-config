@@ -26,8 +26,6 @@
       };
     };
 
-    # configurationRevision = self.rev or self.dirtyRev or null;
-
     stateVersion = 6;
     
     defaults.smb.NetBIOSName = hostname;

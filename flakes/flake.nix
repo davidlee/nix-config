@@ -66,6 +66,8 @@
        
         modules = [
           ./darwin
+          { system.configurationRevision = self.rev or self.dirtyRev or null; }
+  
           inputs.home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
