@@ -1,23 +1,26 @@
-{ pkgs, username, ...}: {
+{ 
+  pkgs, 
+  username, 
+  ...
+}: {
 
-  # imports = [
-  #   ../home/zsh.nix
-  #   ../home/kitty.nix
-  #  ];
+  imports = [
+    ../home/zsh.nix
+    ../home/kitty.nix
+   ];
   
-
   home = {
-    inherit username;
+    # inherit username;
     homeDirectory = "/Users/${username}";
     stateVersion = "24.11";
   };
 
   programs.home-manager.enable = true;
 
-  packages = with pkgs; [
+  home.packages = with pkgs; [
     darwin.trash
     sad
-    semgrep
+    # semgrep
     antidote 
     aria2
     aspell
@@ -39,7 +42,7 @@
     nix-direnv
     docutils
     deno
-    emacs-macport
+    # emacs-macport # insecure
     exercism
     eza
     fd
@@ -84,7 +87,6 @@
     markdown-oxide
     marksman
     ncdu
-    nerdfonts
     nethack
     nil
     ninja
@@ -118,7 +120,7 @@
     python312Packages.pywatchman
     python312Packages.pip
     qmk
-    racket
+    # racket
     raylib
     ranger
     rbenv
@@ -133,7 +135,7 @@
     stdenv
     stow
     syncthing
-    taskwarrior
+    # taskwarrior
     tldr
     tmux
     tpnote
@@ -159,7 +161,6 @@
     zsh
     zstd
   ];
-  };
 
   programs = {
     helix.defaultEditor = true;

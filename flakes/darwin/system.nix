@@ -1,4 +1,10 @@
-{ ... }: {
+{ hostname, username, pkgs, ... }: {
+
+  environment.systemPackages = with pkgs; [
+    git
+    zsh
+  ];
+  
   system = {
     activationScripts.postUserActivation.text = ''
       # so we do not need to logout and login again to make the changes take effect.
@@ -19,8 +25,28 @@
         _FXShowPosixPathInTitle = true;
       };
     };
+
+    # configurationRevision = self.rev or self.dirtyRev or null;
+
+    stateVersion = 6;
+    
+    defaults.smb.NetBIOSName = hostname;
+  };
+  security.pam.services.sudo_local.touchIdAuth = true;
+
+  networking = {
+    hostName = hostname;
+    computerName = hostname;
   };
 
-  security.pam.services.sudo_local.touchIdAuth = true;
-  programs.zsh.enable = true;
+  #
+  # users
+  # 
+
+  users.users."${username}" = {
+    home = "/Users/${username}";
+    description = username;
+  };
+
+  nix.settings.trusted-users = [ username ];
 }
