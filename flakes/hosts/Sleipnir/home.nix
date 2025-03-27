@@ -2,7 +2,6 @@
 
   imports = [
     inputs.walker.homeManagerModules.default
-    inputs.opnix.homeManagerModules.default
 
     ../../home/zsh.nix
     ../../home/kitty.nix

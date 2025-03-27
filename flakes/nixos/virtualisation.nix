@@ -17,8 +17,28 @@
     virt-manager
     lxc
     lxd-lts
+    incus
   ];
+
+  virtualisation = {
+    incus = {
+      enable = true;
+      # ui.enable = true;
+      # agent.enable = true;
+    };
+    libvirtd = {
+      enable = true;
+      qemu = {
+        package = pkgs.qemu_kvm;
+        # runAsRoot = true;
+        # swtpm.enable = true;
+        # ovmf = { };
+      };
+    };
+  };
   
+  users.groups.incus-admin.members = [ username ];
+  users.groups.incus.members = [ username ];
   users.groups.libvirtd.members = [ username ];
   programs.virt-manager.enable = true;
 

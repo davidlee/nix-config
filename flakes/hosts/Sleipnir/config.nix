@@ -5,7 +5,6 @@
     inputs.lix-module.nixosModules.default 
     inputs.nixarr.nixosModules.default
     inputs.nixos-cosmic.nixosModules.default
-    inputs.opnix.nixosModules.default
 
     ../../nixos/boot.nix
     ../../nixos/nvidia.nix
@@ -21,8 +20,6 @@
     ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
-    # ../../nixos/gnome.nix
-    # ../../nixos/sway.nix
   ];
 
   users.enable = true;
@@ -83,4 +80,8 @@
       interval = "hourly";
     };
   };
+
+  # mouse - logitech unifying receiver
+  hardware.logitech.wireless.enable = true;
+  
 }

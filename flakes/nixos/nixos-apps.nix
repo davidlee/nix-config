@@ -9,12 +9,7 @@
   home-manager.users.${username} = {
     home.packages = with pkgs; [
 
-      nwg-look
-      slurp
-    
       # daw & audio
-      # jack2
-      # puredata-with-plugins
       carla
       reaper
       bitwig-studio      
@@ -32,7 +27,6 @@
       chuck
       vcv-rack
       
-     
       # graphics & 3d
       blender
       gimp-with-plugins
@@ -95,6 +89,7 @@
       beeper
       signal-desktop
       slack
+      zoom-us
       rambox
       telegram-desktop
       element-desktop
@@ -143,6 +138,9 @@
       palemoon-bin
       tor-browser
       # midori
+
+      # gamedev
+      godot
     ];
   };
 }

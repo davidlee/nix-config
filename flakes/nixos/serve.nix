@@ -37,16 +37,6 @@
       enable = true;
     };
 
-
-    # gitea = {
-    #   useWizard = true;
-    #   enable = true;
-    #   settings = {
-    #     server = {
-    #     };
-    #   };
-    # };
-
     # FIXME upstream service needs patch
     # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/nixos/modules/services/misc/taskchampion-sync-server.nix
     # taskchampion-sync-server = {

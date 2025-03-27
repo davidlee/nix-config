@@ -185,6 +185,7 @@
     emacsclient-commands
     lsd
     eza
+    ov
 
     # download / backup
     syncthing
@@ -205,6 +206,7 @@
     # emulation / virtualisation
     qemu
     quickemu
+    # darling 
 
     # session manager
     zellij
@@ -245,6 +247,9 @@
     # security
     nvdtools
     seclists
+    git-crypt
+    gpgme
+    gpg-tui
 
     # servers
     caddy
@@ -262,10 +267,17 @@
       
     nix-ld.enable = true;
     dconf.enable = true;
+    gnupg.agent.enable = true;
   
     thunar = {
       enable = true;
       plugins = with pkgs.xfce; [thunar-archive-plugin thunar-volman];
+    };
+
+    foot = {
+      enable = true;
+      # enableZshIntegration = true;
+      theme = "gruvbox-dark";
     };
 
     zsh.enable = true;
@@ -350,11 +362,11 @@
       zoxide = {
         enable = true;
         enableZshIntegration = true;
-        enableNushellIntegration = true;
-        options = [ 
-          "--cmd cd" 
-          "--hook pwd" 
-        ];
+        # enableNushellIntegration = true;
+        # options = [ 
+        #   "--cmd cd" 
+        #   "--hook pwd" 
+        # ];
       };
 
       carapace = {
@@ -381,31 +393,7 @@
       starship = {
         enable = true;
         enableZshIntegration = true;
-        enableNushellIntegration = true;
-        settings = {
-          add_newline = false;
-          buf = {symbol = " ";};
-          c = {symbol = " ";};
-          directory = {read_only = " 󰌾";};
-          docker_context = {symbol = " ";};
-          fossil_branch = {symbol = " ";};
-          git_branch = {symbol = " ";};
-          golang = {symbol = " ";};
-          hg_branch = {symbol = " ";};
-          hostname = {ssh_symbol = " ";};
-          lua = {symbol = " ";};
-          memory_usage = {symbol = "󰍛 ";};
-          meson = {symbol = "󰔷 ";};
-          nim = {symbol = "󰆥 ";};
-          nix_shell = {symbol = " ";};
-          nodejs = {symbol = " ";};
-          ocaml = {symbol = " ";};
-          package = {symbol = "󰏗 ";};
-          python = {symbol = " ";};
-          rust = {symbol = " ";};
-          swift = {symbol = " ";};
-          zig = {symbol = " ";};
-        };
+        settings = pkgs.lib.importTOML ../files/starship.toml;
       };
     };
   };
