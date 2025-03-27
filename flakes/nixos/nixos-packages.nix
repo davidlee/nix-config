@@ -97,7 +97,9 @@
     mcfly
     plocate
     ripgrep
+    vgrep
     sad
+    trash-cli
     # semgrep # FIXME busted 
     tree
     zoxide
@@ -124,7 +126,9 @@
     tree-sitter
     overmind
     watchman
+    zeal
     just
+    dnote
 
     # low level / system monitoring
     ccache
@@ -174,6 +178,7 @@
     fish
     shellcheck
     shfmt
+    xonsh
     zsh
 
     # unix / text
@@ -187,11 +192,14 @@
     lsd
     eza
     ov
+    chroma
+    viddy
 
     # download / backup
     syncthing
     backblaze-b2
     aria2
+    backintime
 
     # json/yaml
     jq
@@ -200,8 +208,10 @@
     # vcs 
     gh
     git 
+    hub
     delta
     difftastic
+    diffnav
     jujutsu
 
     # emulation / virtualisation
@@ -251,6 +261,7 @@
     git-crypt
     gpgme
     gpg-tui
+    oath-toolkit
 
     # servers
     caddy
@@ -277,7 +288,6 @@
 
     foot = {
       enable = true;
-      # enableZshIntegration = true;
       theme = "gruvbox-dark";
     };
 
@@ -343,6 +353,8 @@
       git.enable = true;
       librewolf.enable = true;
       nushell.enable = true;
+      fish.enable = true;
+
       zk.enable = true;
 
       direnv = {
@@ -365,7 +377,7 @@
       zoxide = {
         enable = true;
         enableZshIntegration = true;
-        # enableNushellIntegration = true;
+        enableNushellIntegration = true;
         # options = [ 
         #   "--cmd cd" 
         #   "--hook pwd" 
