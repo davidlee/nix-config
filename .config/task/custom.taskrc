@@ -1,37 +1,17 @@
-# [Created by task 3.3.0 3/4/2025 01:13:09]
-data.location=/home/david/.task
-news.version=3.4.1
+#
+# Sync
+# 
 
 sync.server.url = http://localhost:10222/
 sync.server.client_id =  29fe917c-e186-43c8-ba1d-5c5637383aca
-sync.encryption_secret = df3d082c-afef-432a-9894-35e8f3a89739
+# sync.encryption_secret
 
-# To use the default location of the XDG directories,
-# move this configuration file from ~/.taskrc to ~/.config/task/taskrc and update location config as follows:
+#
+# Paths
+#
 
 data.location=~/.local/share/task
 hooks.location=~/.config/task/hooks
-
-#
-# Theme
-#
-
-# Color theme (uncomment one to use)
-#include light-16.theme
-#include light-256.theme
-#include bubblegum-256.theme
-#include dark-16.theme
-#include dark-256.theme
-#include dark-red-256.theme
-#include dark-green-256.theme
-#include dark-blue-256.theme
-#include dark-violets-256.theme
-include dark-yellow-green.theme
-#include dark-gray-256.theme
-#include dark-gray-blue-256.theme
-#include solarized-dark-256.theme
-#include solarized-light-256.theme
-#include no-color.theme
 
 #
 # REPORT
@@ -116,8 +96,23 @@ urgency.user.tag.home.coefficient = 1.0
 urgency.user.tag.soon.coefficient = 3.0
 
 #
-# state
+# Theme
 #
 
+# include dark-yellow-green.theme
+# include solarized-dark-256.theme
+include dark-256.theme
+# include dark-red-256.theme
+# include dark-green-256.theme
+# include dark-blue-256.theme
+# include dark-violets-256.theme
+# include dark-gray-256.theme
+# include dark-gray-blue-256.theme
+# include light-16.theme
+# include light-256.theme
+# include bubblegum-256.theme
+# include dark-16.theme
+# include solarized-light-256.theme
+# include no-color.theme
 
-context=self
+
