@@ -5,27 +5,20 @@
   ...
 }: {
 
-  # environment.pathsToLink = [ "/share/zsh" ];
 
   programs.zsh = {
     enable = true;
-    autocd = true;
+    # autocd = true;
 
     dotDir = ".config/zsh";
     defaultKeymap = "emacs";
     
-    enableCompletion = true;
-    syntaxHighlighting.enable = true;
-
-    autosuggestion = {
-      enable = true;
-      strategy = [ "history" "match_prev_cmd" "completion" ];
-    };
-
+    # manage these w/ antidote
+    enableCompletion = false;
+    syntaxHighlighting.enable = false;
+    autosuggestion.enable = false;
 
     history = {
-      # ignoreDups = true;
-      # findNoDups = true;
       ignoreAllDups = true;
       size = 10000;
       extended = true;
@@ -59,20 +52,17 @@
         belak/zsh-utils path:completion/functions kind:autoload post:compstyle_zshzoo_setup
         
         # aloxaf/fzf-tab  
-        # zsh-users/zsh-syntax-highlighting
 
         zsh-users/zsh-completions kind:fpath path:src
         zsh-users/zsh-autosuggestions
         zsh-users/zsh-history-substring-search  
-
-        
+        # zsh-users/zsh-syntax-highlighting
         zdharma-continuum/fast-syntax-highlighting  
+         
         marlonrichert/zsh-autocomplete
       ''];
     };
     
-    oh-my-zsh.enable = true;
-
     envExtra = ''
       source $HOME/.config/zsh/env.zsh
     '';

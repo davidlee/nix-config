@@ -2,6 +2,9 @@
 # ENV 
 #
 
+# don't load system-wide nixos defaults for ZSH from /etc/zprofile and /etc/zshrc:
+setopt no_global_rcs 
+
 export EDITOR=nvim
 export VISUAL=hx
 export PAGER=ov

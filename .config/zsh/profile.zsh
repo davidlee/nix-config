@@ -3,4 +3,4 @@
 # executed once per login
 #
 
-export TERM=xterm-256color
+#export TERM=xterm-256color
