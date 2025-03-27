@@ -1,0 +1,19 @@
+#
+# includes
+#
+
+# mostly this exists so that changing context doesn't create constant config churn: 
+
+include custom.taskrc
+
+#
+# secrets
+#
+
+sync.encryption_secret = xxxxxxxxxx
+
+#
+# state
+#
+
+news.version=3.4.1

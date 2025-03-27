@@ -42,7 +42,7 @@ alias nrs="sudo nixos-rebuild switch |& nom --json";
 # taskwarrior
 alias t=task;
 alias ta=task add;
-alias tc=task context;
+alias tc='task context';
 
 alias h=harsh;
 alias hc="$VISUAL ~/.config/harsh/habits";
