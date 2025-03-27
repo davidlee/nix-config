@@ -12,6 +12,8 @@
     xdg-desktop-portal-cosmic
   ];
 
+  programs.labwc.enable = true; # lightweight wm
+
   xdg.portal = {
     enable = true;
     wlr.enable = true;
@@ -80,6 +82,7 @@
       xfce.thunar
       xwayland
       zathura
+      slurp
 
     ];
 
