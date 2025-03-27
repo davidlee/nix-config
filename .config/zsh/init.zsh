@@ -1,5 +1,7 @@
 autoload zmv
 
+bindkey -e
+
 path+=~/.local/bin
 path+=~/.cargo/bin
 path+=$PWD/bin

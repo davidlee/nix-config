@@ -170,10 +170,11 @@
     # lang.shell
     antidote
     nushell
+    oils-for-unix
+    fish
     shellcheck
     shfmt
     zsh
-    zstd
 
     # unix / text
     coreutils
@@ -280,7 +281,9 @@
       theme = "gruvbox-dark";
     };
 
-    zsh.enable = true;
+    zsh = {
+      enable = true;
+    };
   };
 
   # allow non-root write access to firmware 
@@ -397,4 +400,6 @@
       };
     };
   };
+
+  environment.pathsToLink = [ "/share/zsh" ];
 }
