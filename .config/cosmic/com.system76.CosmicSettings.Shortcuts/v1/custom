@@ -2,49 +2,20 @@
     (
         modifiers: [
             Super,
-            Alt,
-            Shift,
-        ],
-        key: "h",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "c",
-    ): ToggleOrientation,
-    (
-        modifiers: [
-            Super,
             Ctrl,
             Shift,
-        ],
-        key: "h",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "l",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
         ],
         key: "j",
     ): Disable,
     (
         modifiers: [
-            Super,
-            Shift,
+            Alt,
         ],
-        key: "t",
-    ): ToggleTiling,
+        key: "Tab",
+    ): Disable,
     (
         modifiers: [
             Super,
-            Ctrl,
             Alt,
         ],
         key: "k",
@@ -52,8 +23,33 @@
     (
         modifiers: [
             Super,
+            Ctrl,
         ],
-        key: "Escape",
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Shift,
+        ],
+        key: "l",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "j",
     ): Disable,
     (
         modifiers: [
@@ -64,30 +60,15 @@
     (
         modifiers: [
             Super,
-            Shift,
         ],
-        key: "j",
-    ): Disable,
+        key: "h",
+    ): Focus(Out),
     (
         modifiers: [
             Super,
             Ctrl,
         ],
-        key: "k",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Shift,
-        ],
-        key: "k",
-    ): Disable,
-    (
-        modifiers: [
-            Alt,
-        ],
-        key: "Tab",
+        key: "l",
     ): Disable,
     (
         modifiers: [
@@ -101,20 +82,20 @@
             Ctrl,
             Alt,
         ],
-        key: "l",
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
     ): Disable,
     (
         modifiers: [
             Super,
             Ctrl,
-            Alt,
+            Shift,
         ],
-        key: "j",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
+        key: "k",
     ): Disable,
     (
         modifiers: [
@@ -127,15 +108,62 @@
     (
         modifiers: [
             Super,
+            Shift,
         ],
         key: "t",
+    ): ToggleTiling,
+    (
+        modifiers: [
+            Super,
+            Alt,
+        ],
+        key: "l",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "p",
+        description: Some("ghostty"),
+    ): Spawn("ghostty"),
+    (
+        modifiers: [
+            Ctrl,
+            Alt,
+            Shift,
+        ],
+        key: "t",
+        description: Some("terminal"),
+    ): Spawn("alacritty"),
+    (
+        modifiers: [
+            Super,
+            Shift,
+        ],
+        key: "q",
+    ): System(LogOut),
+    (
+        modifiers: [
+            Super,
+            Alt,
+            Shift,
+        ],
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Alt,
+        ],
+        key: "j",
     ): Disable,
     (
         modifiers: [
             Super,
             Ctrl,
+            Alt,
         ],
-        key: "h",
+        key: "l",
     ): Disable,
     (
         modifiers: [
@@ -148,12 +176,31 @@
         modifiers: [
             Super,
         ],
-        key: "space",
-    ): Spawn("fuzzel"),
+        key: "y",
+    ): ToggleSticky,
     (
         modifiers: [
             Super,
-            Alt,
+        ],
+        key: "m",
+    ): Minimize,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Shift,
+        ],
+        key: "h",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "c",
+    ): ToggleOrientation,
+    (
+        modifiers: [
+            Super,
             Shift,
         ],
         key: "j",
@@ -161,10 +208,15 @@
     (
         modifiers: [
             Super,
-            Alt,
         ],
-        key: "l",
+        key: "slash",
     ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "space",
+    ): Spawn("fuzzel"),
     (
         modifiers: [
             Super,
@@ -174,8 +226,24 @@
     (
         modifiers: [
             Super,
+            Ctrl,
+            Alt,
         ],
-        key: "q",
+        key: "k",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+            Ctrl,
+            Alt,
+        ],
+        key: "j",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "t",
     ): Disable,
     (
         modifiers: [
@@ -187,10 +255,21 @@
     (
         modifiers: [
             Super,
-            Alt,
         ],
-        key: "h",
-    ): System(HomeFolder),
+        key: "q",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "Escape",
+    ): Disable,
+    (
+        modifiers: [
+            Super,
+        ],
+        key: "l",
+    ): Disable,
     (
         modifiers: [
             Super,
@@ -200,14 +279,19 @@
     (
         modifiers: [
             Super,
-            Shift,
         ],
-        key: "k",
-    ): Disable,
+        key: "f",
+    ): Maximize,
     (
         modifiers: [
             Super,
-            Alt,
+        ],
+        key: "v",
+        description: Some("vivaldi"),
+    ): Spawn("vivaldi"),
+    (
+        modifiers: [
+            Super,
             Shift,
         ],
         key: "k",
@@ -223,110 +307,27 @@
             Super,
             Shift,
         ],
-        key: "q",
-    ): System(LogOut),
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "m",
-    ): Minimize,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "v",
-        description: Some("vivaldi"),
-    ): Spawn("vivaldi"),
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-        ],
-        key: "l",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Shift,
-        ],
         key: "l",
     ): System(LockScreen),
     (
         modifiers: [
             Super,
             Ctrl,
-            Alt,
-        ],
-        key: "h",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "slash",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Alt,
-        ],
-        key: "j",
-    ): Disable,
-    (
-        modifiers: [
-            Ctrl,
-            Alt,
-            Shift,
-        ],
-        key: "t",
-        description: Some("terminal"),
-    ): Spawn("alacritty"),
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Shift,
-        ],
-        key: "l",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-            Ctrl,
-            Shift,
-        ],
-        key: "j",
-    ): Disable,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "f",
-    ): Maximize,
-    (
-        modifiers: [
-            Super,
-        ],
-        key: "y",
-    ): ToggleSticky,
-    (
-        modifiers: [
-            Super,
-            Alt,
         ],
         key: "k",
     ): Disable,
     (
         modifiers: [
             Super,
+            Ctrl,
         ],
-        key: "p",
-    ): Spawn("alacritty"),
+        key: "j",
+    ): Disable,
     (
         modifiers: [
             Super,
+            Alt,
         ],
         key: "h",
-    ): Focus(Out),
+    ): System(HomeFolder),
 }
