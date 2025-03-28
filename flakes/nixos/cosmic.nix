@@ -1,8 +1,5 @@
 {
-  # config,
   pkgs,
-  username,
-  # lib,
   ...
 }:
 {
@@ -14,7 +11,6 @@
     cosmic-bg
     cosmic-comp
     cosmic-edit
-    # cosmic-ext-calculator
     cosmic-ext-ctl
     cosmic-ext-tweaks
     cosmic-files
@@ -30,7 +26,6 @@
     cosmic-screenshot
     cosmic-session
     cosmic-settings
-    # cosmic-store
     cosmic-tasks
     cosmic-term
     cosmic-wallpapers
@@ -78,15 +73,5 @@
     };
 
     sysprof.enable = true;
-    # displayManager.cosmic-greeter.enable = true;
-  };
-
-  home-manager.users.${username} = {
-    programs = {
-      walker = {
-        enable = true;
-        runAsService = true;
-      };
-    };
   };
 }

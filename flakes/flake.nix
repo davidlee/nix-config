@@ -30,16 +30,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
         
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-
-    nixpkgs-wayland = {
-      url = "github:nix-community/nixpkgs-wayland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # fenix = {
+    #   url = "github:nix-community/fenix";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";

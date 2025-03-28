@@ -20,14 +20,8 @@ in {
   boot.kernelModules = ["nvidia" "nvidia_modeset" "nvidia_uvm" "nvidia_drm" ];
   boot.kernelParams = [ "nvidia-drm.modeset=1" "nvidia-drm.fbdev=1" ];
 
-  # boot.blacklistedKernelModules = [ "i915" ];
-
   nixpkgs.config.nvidia.acceptLicense = true;
   services.xserver.videoDrivers = [ "nvidia" ];
-
-  # nixpkgs.config = {
-  #   packageOverrides = _: { inherit (pkgs) linuxPackages_latest nvidia_x11; };
-  # };
 
   hardware = {
     graphics = {
