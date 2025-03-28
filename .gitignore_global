@@ -9,6 +9,5 @@ result
 .cache
 .trash
 _archive
+_trash
 .git
-
-flake.lock
