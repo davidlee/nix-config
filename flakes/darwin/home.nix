@@ -165,6 +165,11 @@
   programs = {
     helix.defaultEditor = true;
 
+    ghostty = {
+      enable = true;
+      enableZshIntegration = true;
+    };
+
     neovim = {
       enable = true;
       vimAlias = true;
