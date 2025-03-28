@@ -15,8 +15,8 @@
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
       xdg-desktop-portal-cosmic
-      # xdg-desktop-portal-termfilechooser
-      # xdg-desktop-portal-xapp
+      xdg-desktop-portal-termfilechooser
+      xdg-desktop-portal-xapp
       # xdg-desktop-portal-kde
     ];
     config = {
