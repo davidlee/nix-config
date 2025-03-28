@@ -20,6 +20,7 @@
     ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
+    ../../nixos/rust.nix
   ];
 
   users.enable = true;

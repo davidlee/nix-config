@@ -167,10 +167,6 @@
     docutils
     meson
 
-    #lang.rust
-    rustup
-    cargo
-
     # lang.shell
     antidote
     nushell
