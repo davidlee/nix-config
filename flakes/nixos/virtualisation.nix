@@ -41,18 +41,5 @@
   users.groups.incus.members = [ username ];
   users.groups.libvirtd.members = [ username ];
   programs.virt-manager.enable = true;
-
-  # virtualisation = {
-  #   spiceUSBRedirection.enable = true;
-  #   libvirtd.enable = true;
-  #   docker = {
-  #     enable = true;
-  #     enableOnBoot = true;
-  #     rootless = {
-  #       enable = true;
-  #       setSocketVariable = true;
-  #     };
-  #   };
-  # };
 }
 

@@ -1,8 +1,6 @@
 { lib, pkgs, username, inputs, ... }: {
 
   imports = [
-    inputs.walker.homeManagerModules.default
-
     ../../home/zsh.nix
     ../../home/kitty.nix
    ];
