@@ -3,14 +3,6 @@
   username,
   ...
 }: {
-  environment.systemPackages = with pkgs; [
-    xdg-desktop-portal
-    xdg-desktop-portal-gtk
-    xdg-desktop-portal-wlr
-    xdg-desktop-portal-gnome
-    # kdePackages.xdg-desktop-portal-kde
-    xdg-desktop-portal-cosmic
-  ];
 
   programs.labwc.enable = true; # lightweight wm
 
@@ -22,14 +14,25 @@
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
-    # kdePackages.xdg-desktop-portal-kde
       xdg-desktop-portal-cosmic
+      # xdg-desktop-portal-termfilechooser
+      # xdg-desktop-portal-xapp
+      # xdg-desktop-portal-kde
     ];
-    # TODO .config 
+    config = {
+      common = {
+        default = [ "cosmic" ];
+      };
+      cosmic = {
+       "org.freedesktop.impl.portal.Secret" = [
+        "gnome-keyring"
+        ];
+      };
+    };
   };
 
   # packages which are more about providing a foundational
-  # window system, WMs, etc, than e.g. standalone GUI apps
+  # window system & desktopn environment, than e.g. standalone GUI apps
   home-manager.users.${username} = {
     home.packages = with pkgs; [
 
