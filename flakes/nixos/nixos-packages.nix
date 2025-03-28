@@ -404,7 +404,10 @@
       starship = {
         enable = true;
         enableZshIntegration = true;
-        settings = pkgs.lib.importTOML ../files/starship.toml;
+        settings = pkgs.lib.importTOML ../files/starship.toml // {
+          scan_timeout = 100;
+          command_timeout = 750;
+        };
       };
     };
   };
