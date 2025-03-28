@@ -137,6 +137,7 @@
       ungoogled-chromium
       palemoon-bin
       tor-browser
+      wavebox
       # midori
 
       # gamedev

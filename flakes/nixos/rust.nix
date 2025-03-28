@@ -1,13 +1,12 @@
-({ pkgs, inputs, ... }: {
-  nixpkgs.overlays = [ inputs.fenix.overlays.default ];
-  environment.systemPackages = with pkgs; [
-    (inputs.fenix.packages.x86_64-linux.complete.withComponents [
-      "cargo"
-      "clippy"
-  # "rust-src"
-      "rustc"
-      "rustfmt"
-    ])
-    rust-analyzer-nightly
-  ];
+({ inputs, pkgs, ... }: {
+  nixpkgs.overlays = [ inputs.rust-overlay.overlays.default ];
+  
+  environment.systemPackages =
+  let
+    nightly = (pkgs.rust-bin.selectLatestNightlyWith(
+      toolchain: toolchain.default.override {
+        extensions = [ "rust-analyzer" "rustfmt" "clippy" ];
+      }));
+    # stable = (pkgs.rust-bin.stable.latest.default.override { extensions = [ "rust-analyzer" ]; });
+  in [ nightly ];
 })

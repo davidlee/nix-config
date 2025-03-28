@@ -30,8 +30,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
         
-    fenix = {
-      url = "github:nix-community/fenix";
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -39,10 +39,7 @@
     ucodenix.url = "github:e-tho/ucodenix";
   };
 
-  outputs = inputs@{ self, nixpkgs, home-manager, fenix, ... }: {
-    packages.x86_64-linux.default = fenix.packages.x86_64-linux.toolchain;
-
-
+  outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     nixosConfigurations = let
       inherit (self) outputs;
       hostname = "Sleipnir";
@@ -51,7 +48,6 @@
     in {
       "${hostname}" = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
-
         modules = [
           ./hosts/${hostname}/config.nix
           home-manager.nixosModules.home-manager {
@@ -62,19 +58,6 @@
               home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
           }
 
-          ({ pkgs, ... }: {
-            nixpkgs.overlays = [ fenix.overlays.default ];
-            environment.systemPackages = with pkgs; [
-              (fenix.packages.x86_64-linux.complete.withComponents [
-                "cargo"
-                "clippy"
-            # "rust-src"
-                "rustc"
-                "rustfmt"
-              ])
-              rust-analyzer-nightly
-            ];
-          })
         ];
       };
     };
