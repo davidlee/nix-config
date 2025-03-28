@@ -328,6 +328,7 @@
       # tasks
       tasksh
       taskwarrior3
+      taskchampion-sync-server
 
       # frivolity
       neofetch
