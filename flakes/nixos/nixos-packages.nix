@@ -130,6 +130,9 @@
     just
     dnote
 
+    # www
+    html-tidy
+    
     # low level / system monitoring
     ccache
     cpuid
