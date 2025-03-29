@@ -37,7 +37,7 @@ alias ip=ip -color;
 # nix
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
 alias opts="man home-configuration.nix";
-alias nrs="sudo nixos-rebuild switch |& nom --json";
+alias nrs="sudo nixos-rebuild switch --log-format internal-json -v |& nom --json";
 
 # taskwarrior
 alias t=task;
