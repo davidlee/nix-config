@@ -9,12 +9,19 @@ prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }
 # nix formatter convenience
 # ex usage: om sudo nixos-rebuild switch
 #
-om() { $* --log-format internal-json -v |& nom --json }
+# om() { $* --log-format internal-json -v |& nom --json }
 
 # not quite trash, but not treasure either
 # 
 compost() {
   mv -i $* ~/.compost/
+}
+
+#
+# watch files matching a pattern, run X on change
+# 
+watching() {
+  watchman-make -p $1 -r $2
 }
 
 #

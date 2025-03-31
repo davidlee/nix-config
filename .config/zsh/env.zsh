@@ -5,10 +5,11 @@
 # don't load system-wide nixos defaults for ZSH from /etc/zprofile and /etc/zshrc:
 setopt no_global_rcs 
 
-export EDITOR=nvim
+export EDITOR=hx
 export VISUAL=hx
 export PAGER=ov
-export MANPAGER='nvim +Man!'
+export MANPAGER=ov
+# export MANPAGER='nvim +Man!'
 
 export ORG_DIR=~/org
 

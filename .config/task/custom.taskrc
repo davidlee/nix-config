@@ -22,7 +22,7 @@ report._reviewed.columns=uuid
 report._reviewed.sort=reviewed+,modified+
 report._reviewed.filter=( reviewed.none: or reviewed.before:now-6days ) and ( +PENDING or +WAITING )
 
-report.next.filter=status:pending -WAITING limit:page 
+report.next.filter=status:pending -WAITING limit:page -someday -maybe
 
 report.notag.filter=-TAGGED status:pending
 
@@ -89,6 +89,8 @@ urgency.uda.required.should.coefficient=2.0
 urgency.uda.required.could.coefficient=1.0
 urgency.uda.required.may.coefficient=-1.0
 
+urgency.uda.required.someday.coefficient=-2.0
+urgency.uda.required.maybe.coefficient=-3.0
 
 urgency.user.tag.desk.coefficient = -1.0
 urgency.user.tag.shopping.coefficient = -2.0

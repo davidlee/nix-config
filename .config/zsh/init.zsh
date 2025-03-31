@@ -25,7 +25,7 @@ setopt pushdminus
 setopt HIST_REDUCE_BLANKS 
 setopt HIST_VERIFY        
 
-source .config/zsh/completions.zsh
-source .config/zsh/functions.zsh
-source .config/zsh/zstyle.zsh
-source .config/zsh/aliases.zsh
+source $HOME/.config/zsh/completions.zsh
+source $HOME/.config/zsh/functions.zsh
+source $HOME/.config/zsh/zstyle.zsh
+source $HOME/.config/zsh/aliases.zsh
