@@ -6,6 +6,14 @@
 
   programs.labwc.enable = true; # lightweight wm
 
+  # services.xserver = {
+  #   enable = true;
+  #   desktopManager = {
+  #     xterm.enable = true;
+  #     xfce.enable = true;
+  #   };
+  # };
+
   xdg.portal = {
     enable = true;
     wlr.enable = true;

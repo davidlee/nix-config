@@ -39,10 +39,15 @@ alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && su
 alias opts="man home-configuration.nix";
 alias nrs="sudo nixos-rebuild switch --log-format internal-json -v |& nom --json";
 
+alias -g om=' --log-format internal-json -v |& nom --json';
+alias lgc='lazygit -g ~/.cfg -w ~/';
+
 # taskwarrior
 alias t=task;
 alias ta=task add;
 alias tc='task context';
+
+alias taskserver='taskchampion-sync-server --listen localhost:10222';
 
 alias h=harsh;
 alias hc="$VISUAL ~/.config/harsh/habits";

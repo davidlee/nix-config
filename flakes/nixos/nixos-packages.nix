@@ -60,6 +60,8 @@
     nix-tree
     nix-output-monitor
     nix-bash-completions
+    nixfmt-rfc-style
+    # nixfmt-tree
     nvd
     pkg-config
     sd-switch
@@ -129,9 +131,13 @@
     zeal
     just
     dnote
+    gofumpt # go formatter
+    # nickel
+    # nls
 
     # www
     html-tidy
+    prettierd
     
     # low level / system monitoring
     ccache
@@ -299,6 +305,10 @@
   hardware = {
     keyboard.qmk.enable = true;
   };
+
+  ##              ##
+  ## HOME MANAGER ##
+  ##              ##
 
   # user packages
   # 
