@@ -218,6 +218,15 @@
     difftastic
     diffnav
     jujutsu
+    sublime-merge
+    meld
+    diffr
+    diffsitter
+    diffstat
+    diffedit3
+    diffoscope
+    mergiraf
+
 
     # emulation / virtualisation
     qemu
