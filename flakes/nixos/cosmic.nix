@@ -1,8 +1,29 @@
 {
   pkgs,
+  inputs,
   ...
 }:
 {
+
+  imports = [
+    inputs.nixos-cosmic.nixosModules.default
+  ];
+
+  xdg.portal = {
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-cosmic
+    ];
+    config = {
+      common = {
+        default = [ "cosmic" ];
+      };
+      cosmic = {
+       "org.freedesktop.impl.portal.Secret" = [
+        "gnome-keyring"
+        ];
+      };
+    };
+  };
 
   environment.systemPackages = with pkgs; [
 
@@ -31,31 +52,9 @@
     cosmic-wallpapers
     cosmic-workspaces-epoch
 
-    gnome-system-monitor
-    gnome-weather
-    gnome-podcasts
-    gnome-feeds
-    gnome-nettool
-    gnome-logs
-    gnome-calendar
-
-    swaybg
-    swayimg
-    sway-contrib.grimshot
   ];
 
-  environment.etc = {
-    "1password/custom_allowed_browsers" = {
-      text = ''
-        vivaldi-bin
-        zen
-        wavebox
-      '';
-      mode = "0755";
-    };
-  };
-
-  # might fix copyq
+  # fix clipboard, but bad for security?
   environment.variables = {
     COSMIC_DATA_CONTROL_ENABLED = 1;  
   };

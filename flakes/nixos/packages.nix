@@ -7,28 +7,53 @@
   # system packages
   # 
   environment.systemPackages = with pkgs; [
+
     # secrets 
     _1password-cli
     keepassxc
-
-    # libs 
-    polkit
-    directx-headers
-    glib
-    libffi
-    libGL
-    libiconv
-    libyaml
-    vulkan-headers
-    vulkan-loader
-    vulkan-tools
-    raylib
-    libGL
-    libnotify
     
     # boot 
     greetd.greetd
     greetd.tuigreet
+
+    # supervisors / runners
+    direnv
+    overmind
+    watchman
+    just
+
+    # programming - general 
+    exercism
+    tree-sitter
+
+    # vcs 
+    gh
+    git 
+    hub
+    delta
+    difftastic
+    diffnav
+    jujutsu
+    sublime-merge
+    meld
+    diffr
+    diffsitter
+    diffstat
+    diffedit3
+    diffoscope
+    mergiraf
+
+    # zsh / posix
+    zsh
+    antidote
+    shellcheck
+    shfmt
+
+    # alt shells
+    nushell
+    oils-for-unix
+    fish
+    xonsh
 
     # disk / io
     duf
@@ -54,14 +79,10 @@
     nix-index
     nix-inspect
     nix-melt
-    nix-search-cli
+    nix-output-monitor
     nix-search-cli
     nix-top
     nix-tree
-    nix-output-monitor
-    nix-bash-completions
-    nixfmt-rfc-style
-    # nixfmt-tree
     nvd
     pkg-config
     sd-switch
@@ -88,6 +109,7 @@
     vnstat
     wget
     xh
+    yt-dlp
     
     # files / find
     fd
@@ -120,24 +142,6 @@
     pstree
     killall
 
-    # programming general
-    lldb
-    valgrind
-    direnv
-    exercism
-    tree-sitter
-    overmind
-    watchman
-    zeal
-    just
-    dnote
-    gofumpt # go formatter
-    # nickel
-    # nls
-
-    # www
-    html-tidy
-    prettierd
     
     # low level / system monitoring
     ccache
@@ -153,39 +157,6 @@
     usbutils 
     x86info
 
-    # build
-    gnumake
-    ninja
-
-    # lang.c
-    bison
-    lld
-    llvm
-    strace
-    stdenv
-    gcc
-
-    # lang.zig
-    zig
-    zls
-
-    # lang.python
-    pipx
-    python313Packages.pywatchman
-    python313Packages.pip
-    docutils
-    meson
-
-    # lang.shell
-    antidote
-    nushell
-    oils-for-unix
-    fish
-    shellcheck
-    shfmt
-    xonsh
-    zsh
-
     # unix / text
     coreutils
     gnused
@@ -199,34 +170,15 @@
     ov
     chroma
     viddy
+    # json/yaml
+    jq
+    yq-go
 
     # download / backup
     syncthing
     backblaze-b2
     aria2
     backintime
-
-    # json/yaml
-    jq
-    yq-go
-
-    # vcs 
-    gh
-    git 
-    hub
-    delta
-    difftastic
-    diffnav
-    jujutsu
-    sublime-merge
-    meld
-    diffr
-    diffsitter
-    diffstat
-    diffedit3
-    diffoscope
-    mergiraf
-
 
     # emulation / virtualisation
     qemu
@@ -243,9 +195,11 @@
     markdown-oxide
     marksman
 
-    # info
+    # documentation
     tealdeer
     pinfo
+    zeal
+    dnote
 
     # image / graphics / multimedia
     alsa-utils
@@ -281,6 +235,22 @@
     caddy
     sqlite
     postgresql
+
+    # tasks
+    tasksh
+    taskwarrior3
+    taskchampion-sync-server
+
+    # frivolity
+    neofetch
+    fastfetch
+
+    # ai 
+    ollama
+    oterm
+    aichat
+    local-ai
+    mods
   ];
 
   programs = {
@@ -322,48 +292,6 @@
   # user packages
   # 
   home-manager.users.${username} = {
-    home.packages = with pkgs; [
-      # lang.odin
-      ols
-
-      # lang.ruby
-      ruby
-
-      # lang.lua
-      lua
-      lua54Packages.luarocks-nix 
-      vimPlugins.fzf-lua
-      lua-language-server
-      luarocks-packages-updater
-
-      # lang.js
-      bun
-      pnpm
-      corepack_latest
-      nodejs_latest
-      typescript-language-server
-      typescript
-
-      # download / backup
-      yt-dlp
-
-      # tasks
-      tasksh
-      taskwarrior3
-      taskchampion-sync-server
-
-      # frivolity
-      neofetch
-      fastfetch
-
-      # ai 
-      ollama
-      oterm
-      aichat
-      local-ai
-      mods
-    ];
-
     programs = {
       helix.defaultEditor = true;
 

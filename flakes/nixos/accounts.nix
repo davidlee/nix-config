@@ -34,8 +34,9 @@
         NIXOS = "true";
         VISUAL = "hx";
         XCURSOR_SIZE = 24;
-        NIXOS_OZONE_WL = 1;
-        ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+        # NIXOS_OZONE_WL = 1;
+        # ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+        ELECTRON_OZONE_PLATFORM_HINT = "x11"; # or else, sway + nvidia has a bad time 
       };
       pathsToLink = [ "/share/zsh" ]; # for autocompletion
     };

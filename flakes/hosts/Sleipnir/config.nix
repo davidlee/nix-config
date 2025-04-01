@@ -4,17 +4,19 @@
 
     inputs.lix-module.nixosModules.default 
     inputs.nixarr.nixosModules.default
-    inputs.nixos-cosmic.nixosModules.default
+    # inputs.nixos-cosmic.nixosModules.default
 
     ../../nixos/boot.nix
     ../../nixos/nvidia.nix
     ../../nixos/network.nix
     ../../nixos/accounts.nix
-    ../../nixos/nixos-packages.nix
-    ../../nixos/nixos-apps.nix
+    ../../nixos/packages.nix
+    ../../nixos/comp-lang.nix
     ../../nixos/tui.nix
+    ../../nixos/apps.nix
     ../../nixos/wayland.nix
-    ../../nixos/cosmic.nix
+    # ../../nixos/cosmic.nix
+    ../../nixos/kde.nix
     ../../nixos/sway.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
@@ -67,8 +69,15 @@
     gvfs.enable = true;
     udisks2.enable = true;
     sysprof.enable = true;
+
     printing.enable = true;
 
+    avahi = {
+      enable = true;
+      nssmdns4 = true;
+      openFirewall = true;
+    };
+    
     pipewire = {
       enable = true;
       alsa.enable = true;
@@ -81,9 +90,26 @@
       package = pkgs.plocate;
       interval = "hourly";
     };
+
+    pulseaudio = {
+      package = pkgs.pulseaudioFull; # additional codecs
+    };
   };
 
-  # mouse - logitech unifying receiver
-  hardware.logitech.wireless.enable = true;
+  hardware = {
+    logitech.wireless.enable = true;
   
+    bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+      settings = {
+        General.Experimental = true; # battery level
+      };
+    };
+
+    printers = {
+      # ensurePrinters = [{ .. }];
+    };
+  };
+
 }

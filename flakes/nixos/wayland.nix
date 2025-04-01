@@ -4,8 +4,13 @@
   ... 
 }: {
 
-  programs.labwc.enable = true; # lightweight wm
-
+  # programs.labwc.enable = true; # lightweight wm
+  
+  programs = {
+    dconf.enable = true;
+    gnome-disks.enable = true;
+  };
+  
   xdg.portal = {
     enable = true;
     wlr.enable = true;
@@ -14,22 +19,43 @@
       xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
-      xdg-desktop-portal-cosmic
       xdg-desktop-portal-termfilechooser
       xdg-desktop-portal-xapp
       kdePackages.xdg-desktop-portal-kde
     ];
     config = {
       common = {
-        default = [ "cosmic" ];
-      };
-      cosmic = {
-       "org.freedesktop.impl.portal.Secret" = [
-        "gnome-keyring"
-        ];
+        default  = [ "gtk" "kde" ];
+       "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
     };
   };
+
+  environment.etc = {
+    "1password/custom_allowed_browsers" = {
+      text = ''
+        vivaldi-bin
+        zen
+        wavebox
+      '';
+      mode = "0755";
+    };
+  };
+
+  environment.systemPackages = with pkgs; [
+    dconf
+    kando
+    kanshi
+    wl-clipboard-rs
+    wldash
+    wlroots
+    xwayland
+    gnome-secrets
+    gnome-system-monitor
+    blueman
+    bluez-tools
+    mako
+  ];
 
   # packages which are more about providing a foundational
   # window system & desktopn environment, than e.g. standalone GUI apps
@@ -42,25 +68,19 @@
       copyq
       clipse
       cliphist
-      
-      dconf
+      river
       dmenu
       flameshot
       fuzzel
       gammastep
       gnomeExtensions.appindicator
       grim
-      grim
       i3status
       imv
-      kando
-      kanshi
       kmonad
-      mako
       nemo
       phinger-cursors
       protontricks
-      river
       rofi-wayland
       shotman
       showmethekey
@@ -77,20 +97,25 @@
       winePackages.full
       winetricks
       wine-wayland
-      wl-clipboard-rs
-      wldash
-      wlroots
       wmenu
       wob
       wofi
       wshowkeys
       wtype
       xfce.thunar
-      xwayland
       zathura
       slurp
-      wayland-scanner
-
+      adwaita-icon-theme
+      marble-shell-theme
+      swaybg
+      swayimg
+      sway-contrib.grimshot
+      gnome-weather
+      # gnome-podcasts
+      # gnome-feeds
+      gnome-nettool
+      gnome-logs
+      gnome-calendar
     ];
 
     home.pointerCursor = {
