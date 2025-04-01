@@ -1,5 +1,6 @@
 # single character aliases 
 alias g=git;
+alias j=just;
 
 # util / override
 alias scr="grimshot save area";
