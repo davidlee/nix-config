@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   username,
   lib,
@@ -7,11 +6,11 @@
 }:
 let
   mod = "Mod4";
+  # term = "${pkgs.ghostty}/bin/ghostty";
+  term = "${pkgs.kitty}/bin/kitty";
 in {
 
-  services = {
-    blueman.enable = true;
-  };
+ # TODO style / config for swayr + fuzzel
 
   security = {
     polkit.enable = true;
@@ -19,10 +18,22 @@ in {
   };
 
   programs = {
+    dconf.enable = true;
     sway = {
       enable = true;
       wrapperFeatures.gtk = true;
     };
+  };
+
+
+
+  services = {
+    gnome = {
+      gnome-keyring.enable = true;
+    };
+    
+    blueman.enable = true;
+    sysprof.enable = true;
   };
   
   home-manager.users.${username} = {
@@ -39,54 +50,37 @@ in {
       swayimg
       swaylock
       swaymux
+      waybar
+      swaycons
+      swaysettings
+      swayr
+      swayrbar
+
+      gdk-pixbuf
+      gdk-pixbuf-xlib
+
+      adwaita-icon-theme
+      marble-shell-theme
+
+      gnome-secrets
     ];
-    
+
     programs = {
-      walker = {
+      swayr = {
         enable = true;
-        runAsService = true;
-      };
-
-      # start from sway; we don't need it for other WM with their own bars
-      waybar =  {
-        # enable = true;
-        # systemd.enable = true; 
-        settings = {
-          
-          mainBar = {
-            layer = "top";
-            position = "top";
-            height = 30;
-            modules-left = [ "sway/workspaces" "sway/mode" "wlr/taskbar" "tray" "gamemode" ];
-            modules-center = [ "sway/window" ];
-            modules-right = [ "clock" ];
-
-            "sway/workspaces" = {
-            };
-
-            "wlr/taskbar" = {
-              on-click = "activate";
-              on-click-right = "maximise";
-              on-click-middle = "close";
-              tooltip-format = "{title}";
-            };
-
-            tray = {
-              spacing = 10;
-              icon-size = 16; 
-              show-passive-items = true;
-            };
-
-            clock = {
-              format = "Wk{:%V | %a %d %B | %I:%M:%S}";
-            };
-          };
+        systemd = {
+          enable = true;
         };
       };
     };
 
+    services = {
+      swayosd.enable = true;
+    };
+    
     wayland.windowManager.sway = {
       enable = true;
+
       config = {
         modifier = mod;
         workspaceAutoBackAndForth = true;
@@ -117,7 +111,7 @@ in {
           })
 
           {
-            "${mod}+Return" = "exec --no-startup-id ${pkgs.foot}/bin/foot";
+            "${mod}+Return" = "exec --no-startup-id ${term}";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
             "Alt+Tab" = "exec ~/.cargo/bin/swayr switch-workspace";
             "${mod}+Tab" = "exec ~/.cargo/bin/swayr switch-window";
@@ -150,6 +144,11 @@ in {
             
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
+
+            # Volume
+            "XF86AudioRaiseVolume"= "exec 'pactl set-sink-volume @DEFAULT_SINK@ +1%'";
+            "XF86AudioLowerVolume"= "exec 'pactl set-sink-volume @DEFAULT_SINK@ -1%'";
+            "XF86AudioMute"= "exec 'pactl set-sink-mute @DEFAULT_SINK@ toggle'";
           }
         ];
 
@@ -167,27 +166,23 @@ in {
             i = "resize grow width 25 px";
           };
         };
+
         startup = [
-          {
-            command = "systemctl --user restart kanshi";
-            always = true;
-          }
-          {
-            command = "systemctl --user restart waybar";
-            always = true;
-          }
-          {
-            command = "systemctl --user restart swayidle";
-            always = true;
-          }
-          {
-            command = "~/.cargo/bin/swayrd &";
-            always = true;
-          }
+          { command = "waybar -c /home/david/.config/waybar/config.jsonc"; }
+          { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
+          { command = "firefox"; }
         ];
 
+        colors.focused = {
+          background = "#285577";
+          border = "#ff9900";
+          childBorder = "#285577";
+          indicator = "#2e9ef4";
+          text = "#ffffff";
+        };
+        
         bars = [];
-        floating.titlebar = false;
+        floating.titlebar = true;
         window.titlebar = false;
       };
       # swaynag.enable = false;
