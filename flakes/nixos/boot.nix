@@ -3,9 +3,7 @@
   inputs,
   ...
 }:
-let
-  tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
-in {
+{
   imports = [ inputs.ucodenix.nixosModules.default ];
 
   boot = {
@@ -20,9 +18,6 @@ in {
     };
 
     kernelPackages = pkgs.linuxPackages_latest;
-    
-    # extraModprobeConfig = [ ];
-    # kernelModules = [];
     
     initrd = {
       kernelModules = [ ];
@@ -42,15 +37,12 @@ in {
     # initrd.verbose = true;
 
     kernelParams = [
-      "boot.shell_on_fail"
+      "boot.shell_on_fail" # for ucodenix
+      "microcode.amd_sha_check=off" 
       # "video=3840x2160"
     ];
   }; # /boot
 
-  services.ucodenix = {
-    enable = true;
-    cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
-  };
 
   console = {
     earlySetup = true;
@@ -58,13 +50,23 @@ in {
   };
 
   services = {
-    greetd = {
+    ucodenix = {
       enable = true;
-      settings = {
-        default_session = {
-          command = "${tuigreet} --time --remember --remember-session";
-        };
-      };
+      cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
     };
+
+    # DISABLED - use sddm
+    # 
+    # greetd = let
+    #   tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
+    # in  {
+    #   enable = true;
+    #   settings = {
+    #     default_session = {
+    #       command = "${tuigreet} --time --remember --remember-session";
+    #     };
+    #   };
+    # };
   };
+  
 }

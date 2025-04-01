@@ -3,13 +3,11 @@
 
   inputs = {
 
-    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
-    
-    nixpkgs = {
-      url = "github:nixos/nixpkgs/nixos-unstable";
-      follows = "nixos-cosmic/nixpkgs";
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
 
+    # nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
+    # nixpkgs.follows = "nixos-cosmic/nixpkgs";
+    
     darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";

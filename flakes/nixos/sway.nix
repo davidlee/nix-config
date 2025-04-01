@@ -6,11 +6,9 @@
 }:
 let
   mod = "Mod4";
-  # term = "${pkgs.ghostty}/bin/ghostty";
-  term = "${pkgs.kitty}/bin/kitty";
+  term = "${pkgs.ghostty}/bin/ghostty";
+  # term = "${pkgs.kitty}/bin/kitty";
 in {
-
- # TODO style / config for swayr + fuzzel
 
   security = {
     polkit.enable = true;
@@ -24,8 +22,6 @@ in {
       wrapperFeatures.gtk = true;
     };
   };
-
-
 
   services = {
     gnome = {
@@ -55,24 +51,7 @@ in {
       swaysettings
       swayr
       swayrbar
-
-      gdk-pixbuf
-      gdk-pixbuf-xlib
-
-      adwaita-icon-theme
-      marble-shell-theme
-
-      gnome-secrets
     ];
-
-    programs = {
-      swayr = {
-        enable = true;
-        systemd = {
-          enable = true;
-        };
-      };
-    };
 
     services = {
       swayosd.enable = true;
@@ -113,9 +92,10 @@ in {
           {
             "${mod}+Return" = "exec --no-startup-id ${term}";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
-            "Alt+Tab" = "exec ~/.cargo/bin/swayr switch-workspace";
-            "${mod}+Tab" = "exec ~/.cargo/bin/swayr switch-window";
+            "Alt+Tab" = "exec swayr switch-window";
+            "${mod}+Tab" = "exec swayr switch-to-urgent-or-lru-window";
 
+            "--release ${mod}" = "exec swayr nop";
 
             "${mod}+a" = "focus parent";
             "${mod}+c" = "focus child";
@@ -142,6 +122,8 @@ in {
 
             "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
             
+            "${mod}+p" = "exec --no-starup-id ${term}";
+
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
 
@@ -169,7 +151,9 @@ in {
 
         startup = [
           { command = "waybar -c /home/david/.config/waybar/config.jsonc"; }
+          { command = "blueman-tray"; }
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
+          { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
           { command = "firefox"; }
         ];
 
@@ -180,12 +164,15 @@ in {
           indicator = "#2e9ef4";
           text = "#ffffff";
         };
+
+        # use Menu as Compose key
+        input."*".xkb_options = "compose:menu";
         
         bars = [];
         floating.titlebar = true;
         window.titlebar = false;
       };
-      # swaynag.enable = false;
+
       wrapperFeatures.gtk = true;
       extraOptions = [ "--unsupported-gpu" ];
     };
