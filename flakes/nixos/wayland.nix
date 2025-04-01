@@ -1,18 +1,10 @@
 {
   pkgs,
   username,
-  ...
+  ... 
 }: {
 
   programs.labwc.enable = true; # lightweight wm
-
-  # services.xserver = {
-  #   enable = true;
-  #   desktopManager = {
-  #     xterm.enable = true;
-  #     xfce.enable = true;
-  #   };
-  # };
 
   xdg.portal = {
     enable = true;
@@ -25,7 +17,7 @@
       xdg-desktop-portal-cosmic
       xdg-desktop-portal-termfilechooser
       xdg-desktop-portal-xapp
-      # xdg-desktop-portal-kde
+      kdePackages.xdg-desktop-portal-kde
     ];
     config = {
       common = {
@@ -48,6 +40,9 @@
       bibata-cursors
       clipman
       copyq
+      clipse
+      cliphist
+      
       dconf
       dmenu
       flameshot
@@ -94,6 +89,7 @@
       xwayland
       zathura
       slurp
+      wayland-scanner
 
     ];
 
@@ -108,6 +104,7 @@
       };
     };
 
-    services.copyq.enable = true;
+    # services.copyq.enable = true;
+    services.cliphist.enable = true;
   }; # home-manager
 }

@@ -15,6 +15,7 @@
     ../../nixos/tui.nix
     ../../nixos/wayland.nix
     ../../nixos/cosmic.nix
+    ../../nixos/sway.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
     ../../nixos/games.nix
