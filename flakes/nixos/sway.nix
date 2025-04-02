@@ -7,7 +7,6 @@
 let
   mod = "Mod4";
   term = "${pkgs.ghostty}/bin/ghostty";
-  # term = "${pkgs.kitty}/bin/kitty";
 in {
 
   security = {
@@ -94,7 +93,7 @@ in {
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
             "Alt+Tab" = "exec swayr switch-window";
             "${mod}+Tab" = "exec swayr switch-to-urgent-or-lru-window";
-            "${mod}+p" = "exec --no-starup-id ${term}";
+            "${mod}+p" = "exec --no-startup-id ${term}";
 
             "--release ${mod}" = "exec swayr nop";
 
@@ -150,16 +149,7 @@ in {
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
           { command = "firefox"; }
         ];
-
-        colors.focused = {
-          background = "#285577";
-          border = "#ff9900";
-          childBorder = "#285577";
-          indicator = "#2e9ef4";
-          text = "#ffffff";
-        };
         
-
         # use Menu as Compose key
         input."*".xkb_options = "compose:menu";
         
