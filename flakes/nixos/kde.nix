@@ -17,6 +17,10 @@
     kdeplasma-addons
   ];
 
+  environment.plasma6.excludePackages = with pkgs.kdePackages; [
+    plasma-browser-integration
+  ];
+
   # qt = {
   #   enable = true;
   #   platformTheme = "gnome";

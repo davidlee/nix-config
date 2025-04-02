@@ -32,6 +32,10 @@
         default  = [ "kde" "gtk" "wlr" ];
        "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
       };
+      sway = {
+        # default  = [ "wlr" "gtk" "termfilechooser" ];
+       "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+      };
       # ...
     };
   };

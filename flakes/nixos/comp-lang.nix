@@ -56,6 +56,7 @@
     # lang.zig
     zig
     zls
+    zig-shell-completions
 
     #
     # libs

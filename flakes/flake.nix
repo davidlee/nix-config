@@ -33,6 +33,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # zig.url = "github:mitchellh/zig-overlay";
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";
   };
@@ -74,6 +75,7 @@
     in {
       "${hostname}" = inputs.darwin.lib.darwinSystem {
         inherit pkgs specialArgs;
+        # nixpkgs.overlays = [inputs.zig.overlays.default];
         modules = [
           ./darwin
           { system.configurationRevision = self.rev or self.dirtyRev or null; }

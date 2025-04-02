@@ -251,6 +251,9 @@
     aichat
     local-ai
     mods
+
+    # media 
+    playerctl
   ];
 
   programs = {
