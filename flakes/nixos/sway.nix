@@ -125,11 +125,6 @@ in {
 
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
-
-            # Volume
-            "XF86AudioRaiseVolume"= "exec 'pactl set-sink-volume @DEFAULT_SINK@ +1%'";
-            "XF86AudioLowerVolume"= "exec 'pactl set-sink-volume @DEFAULT_SINK@ -1%'";
-            "XF86AudioMute"= "exec 'pactl set-sink-mute @DEFAULT_SINK@ toggle'";
           }
         ];
 
@@ -163,6 +158,7 @@ in {
           indicator = "#2e9ef4";
           text = "#ffffff";
         };
+        
 
         # use Menu as Compose key
         input."*".xkb_options = "compose:menu";
@@ -170,7 +166,17 @@ in {
         bars = [];
         floating.titlebar = true;
         window.titlebar = false;
-      };
+      }; # /config
+
+      extraConfig = ''
+        bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+        bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+        bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+        bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+        bindsym XF86AudioPlay exec playerctl play-pause
+        bindsym XF86AudioNext exec playerctl next
+        bindsym XF86AudioPrev exec playerctl previous
+      '';
 
       wrapperFeatures.gtk = true;
       extraOptions = [ "--unsupported-gpu" ];
