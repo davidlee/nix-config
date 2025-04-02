@@ -1,0 +1,26 @@
+{
+    "layer": "top",
+    "position": "top",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["sway/window"],
+    "modules-right": [ "wlr/taskbar","tray", "gamemode", "clock" ],
+    "sway/window": {
+        "max-length": 50
+    },
+    "wlr/taskbar": {
+        "on-click": "activate",
+        "on-click-right": "maximise",
+        "on-click-middle": "close",
+        "tooltip-format": "{title}",
+    },
+    "tray": {
+      "spacing": 10,
+      "icon-size": 16,
+      "show-passive-items": true,  
+    },
+    "clock": {
+        "format": "Wk{:%V -- %I:%M:%S}",
+        "format-alt": "{:%a, %d. %b -- %I:%M}",
+        "interval": 1,
+    },
+}
