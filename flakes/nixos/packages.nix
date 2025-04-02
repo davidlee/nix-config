@@ -42,6 +42,7 @@
     diffedit3
     diffoscope
     mergiraf
+    tig
 
     # zsh / posix
     zsh
@@ -98,6 +99,8 @@
     iptraf-ng
     nethogs
     nmap
+    netcat
+    socat
     nmon
     oha
     openssl
@@ -110,6 +113,10 @@
     wget
     xh
     yt-dlp
+    # www
+    w3m-full
+    lynx
+    
     
     # files / find
     fd
@@ -141,7 +148,6 @@
     # process management
     pstree
     killall
-
     
     # low level / system monitoring
     ccache
@@ -173,6 +179,10 @@
     # json/yaml
     jq
     yq-go
+    # convert
+    pandoc
+
+    # notes / kb
 
     # download / backup
     syncthing
@@ -194,6 +204,9 @@
     markdownlint-cli2
     markdown-oxide
     marksman
+
+    # pdf
+
 
     # documentation
     tealdeer
@@ -254,6 +267,8 @@
 
     # media 
     playerctl
+    ffmpeg
+    
   ];
 
   programs = {
