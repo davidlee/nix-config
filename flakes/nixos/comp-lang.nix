@@ -61,13 +61,16 @@
     # libs
     # 
     # - graphic  
+    openssl
+    openssl.dev
+    pkg-config
     libxkbcommon
     directx-headers
     vulkan-headers
     vulkan-loader
     vulkan-tools
     raylib
-    libGL
+    libGL.dev
     wayland-scanner
     wayland-protocols
     wayland-utils

@@ -25,9 +25,14 @@
     ];
     config = {
       common = {
-        default  = [ "gtk" "kde" ];
+        default  = [ "gtk" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
+      kde = {
+        default  = [ "kde" "gtk" "wlr" ];
+       "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
+      };
+      # ...
     };
   };
 
