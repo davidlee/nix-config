@@ -94,6 +94,7 @@ in {
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
             "Alt+Tab" = "exec swayr switch-window";
             "${mod}+Tab" = "exec swayr switch-to-urgent-or-lru-window";
+            "${mod}+p" = "exec --no-starup-id ${term}";
 
             "--release ${mod}" = "exec swayr nop";
 
@@ -121,8 +122,6 @@ in {
             "${mod}+Shift+r" = "exec swaymsg reload";
 
             "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
-            
-            "${mod}+p" = "exec --no-starup-id ${term}";
 
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
