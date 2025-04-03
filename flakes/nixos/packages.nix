@@ -29,6 +29,7 @@
     # vcs 
     gh
     git 
+    # gitFull
     hub
     delta
     difftastic
@@ -182,8 +183,6 @@
     # convert
     pandoc
 
-    # notes / kb
-
     # download / backup
     syncthing
     backblaze-b2
@@ -207,12 +206,12 @@
 
     # pdf
 
-
-    # documentation
+    # docs, notes, productivity
     tealdeer
     pinfo
     zeal
     dnote
+    remind
 
     # image / graphics / multimedia
     alsa-utils
@@ -343,10 +342,10 @@
         enable = true;
         enableZshIntegration = true;
         enableNushellIntegration = true;
-        # options = [ 
-        #   "--cmd cd" 
-        #   "--hook pwd" 
-        # ];
+        options = [ 
+          "--cmd cd" 
+          "--hook pwd" 
+        ];
       };
 
       carapace = {
@@ -355,6 +354,15 @@
         enableNushellIntegration = true;
       };
 
+      atuin = {
+        enable = true;
+        enableFishIntegration = true;
+        enableNushellIntegration = true;
+        settings = {
+          show_tabs = false;
+          style = "compact";
+        };
+      };
 
       zellij = {
         enableZshIntegration = true;
