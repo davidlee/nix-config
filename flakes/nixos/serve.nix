@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ username, ... }: {
 
   services = {
     static-web-server = {
@@ -20,7 +20,7 @@
     postgresql = {
       enable = true;
       ensureUsers = [{
-        name = "david";
+        name = username;
         ensureDBOwnership = true;
         ensureClauses = {
           superuser = true;
@@ -28,7 +28,7 @@
           createdb = true;
         };
       }];
-      ensureDatabases = [ "david" ];
+      ensureDatabases = [ username ];
       enableTCPIP = false;
       # extensions = [ ];
     };
