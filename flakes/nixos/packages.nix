@@ -276,7 +276,7 @@
 
     _1password-gui = {
       enable = true;
-      polkitPolicyOwners = ["david"];
+      polkitPolicyOwners = [ username ];
     };
       
     nix-ld.enable = true;

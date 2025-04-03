@@ -143,7 +143,7 @@ in {
         };
 
         startup = [
-          { command = "waybar -c /home/david/.config/waybar/config.jsonc"; }
+          { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
           { command = "blueman-tray"; }
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
