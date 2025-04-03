@@ -132,6 +132,9 @@
     minder
     semantik
     vue
+
+    ## search
+    recoll
     
     ## 
 
@@ -139,7 +142,6 @@
     # dbvisualizer
     # beekeeper-studio
 
-    
     # zim-tools
     # vscode-extensions.saoudrizwan.claude-dev
     # vscodium

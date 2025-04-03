@@ -4,9 +4,9 @@
   inputs = {
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    # nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
     # nixpkgs.follows = "nixos-cosmic/nixpkgs";
+
+    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
     
     darwin = {
       url = "github:LnL7/nix-darwin";
@@ -33,22 +33,39 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # zig.url = "github:mitchellh/zig-overlay";
+    zig-overlay.url = "github:mitchellh/zig-overlay";
+    zls-overlay.url = "github:zigtools/zls";
+
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";
   };
 
+  #
+  # NixOS
+  # 
   outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
     nixosConfigurations = let
       inherit (self) outputs;
       hostname = "Sleipnir";
       username = "david";
+
+      zig = inputs.zig-overlay.packages.x86_64-linux.master;
+
+      overlays = [(self: super: {
+        inherit zig;
+        zls = inputs.zls-overlay.packages.x86_64-linux.zls.overrideAttrs (finalAttrs: prevAttrs: {
+          nativeBuildInputs = [ zig ];
+        });
+      })];
+        
       specialArgs = { inherit inputs outputs username hostname; };
     in {
+    
       "${hostname}" = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
         modules = [
           ./hosts/${hostname}/config.nix
+          { nixpkgs.overlays = overlays; }
           home-manager.nixosModules.home-manager {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -61,6 +78,9 @@
       };
     };
 
+    #
+    # DARWIN
+    # 
     darwinConfigurations = let
       inherit (self) outputs;
       username = "davidlee";
@@ -75,7 +95,6 @@
     in {
       "${hostname}" = inputs.darwin.lib.darwinSystem {
         inherit pkgs specialArgs;
-        # nixpkgs.overlays = [inputs.zig.overlays.default];
         modules = [
           ./darwin
           { system.configurationRevision = self.rev or self.dirtyRev or null; }

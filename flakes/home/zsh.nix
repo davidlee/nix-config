@@ -67,13 +67,13 @@
         aloxaf/fzf-tab  
 
         belak/zsh-utils path:editor
-        belak/zsh-utils path:history
+        # belak/zsh-utils path:history
         belak/zsh-utils path:utility
         belak/zsh-utils path:completion/functions kind:autoload post:compstyle_zshzoo_setup
 
         zsh-users/zsh-completions kind:fpath path:src
         zsh-users/zsh-autosuggestions
-        zsh-users/zsh-history-substring-search  
+        # zsh-users/zsh-history-substring-search  
         zdharma-continuum/fast-syntax-highlighting
       ''];
     };
