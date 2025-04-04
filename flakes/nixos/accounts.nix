@@ -6,13 +6,28 @@
   inputs,
   ...
 }: {
+
+  # TODO remove this unnecessary complexity .
+  # 
   options = {users.enable = lib.mkEnableOption "Enables users module";};
 
   config = lib.mkIf config.users.enable {
-    security.rtkit.enable = true;
-    security.polkit.enable = true;
-    security.sudo.wheelNeedsPassword = false; # WARN 
+    security = {
+      rtkit.enable = true;
+      polkit.enable = true;
 
+      sudo = {
+        enable = true;
+        extraRules = [
+        { groups = [ "wheel" ]; commands = [{ command = "${pkgs.nix}/bin/nix"; options = [ "NOPASSWD" ]; }]; }
+        { groups = [ "wheel" ]; commands = [ "ALL" ]; }
+        ];
+      };
+    };
+
+    # security.sudo.wheelNeedsPassword = false; # WARN 
+
+    # TODO remove immutable users
     users.mutableUsers = true; # can do without password being clobbered
 
     users.users = {
