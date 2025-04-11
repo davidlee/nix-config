@@ -63,6 +63,7 @@
     smartmontools
     iotop
     pydf
+    udiskie
 
     # package management
     appimage-run
@@ -267,7 +268,13 @@
     # media 
     playerctl
     ffmpeg
-    
+
+    # wine etc
+    wine
+    wineWowPackages.stagingFull
+    winetricks
+    wine-wayland
+    wine-staging
   ];
 
   programs = {

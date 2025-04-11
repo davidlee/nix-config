@@ -24,6 +24,7 @@
     supercollider-with-plugins
     chuck
     vcv-rack
+    helm
     
     ## graphics & 3d
     blender
@@ -91,6 +92,7 @@
     rambox
     telegram-desktop
     element-desktop
+    whatsie
 
     ## music player & library management
     beets
@@ -132,6 +134,10 @@
     minder
     semantik
     vue
+
+    # ai / ml
+    gpt-cli
+    claude-code
 
     ## search
     recoll

@@ -33,16 +33,22 @@
       enable = false;
     };
     
-    # consoleLogLevel = 5;
-    # initrd.verbose = true;
-
     kernelParams = [
       "boot.shell_on_fail" # for ucodenix
       "microcode.amd_sha_check=off" 
-      # "video=3840x2160"
     ];
   }; # /boot
 
+  systemd.services.greetd.serviceConfig = {
+    Type = "idle";
+    StandardInput = "tty";
+    StandardOutput = "tty";
+    StandardError = "journal"; # Without this errors will spam on screen
+    # Without these bootlogs will spam on screen
+    TTYReset = true;
+    TTYVHangup = true;
+    TTYVTDisallocate = true;
+  };
 
   console = {
     earlySetup = true;
@@ -55,18 +61,16 @@
       cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
     };
 
-    # DISABLED - use sddm
-    # 
-    # greetd = let
-    #   tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
-    # in  {
-    #   enable = true;
-    #   settings = {
-    #     default_session = {
-    #       command = "${tuigreet} --time --remember --remember-session";
-    #     };
-    #   };
-    # };
+    greetd = let
+      tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
+    in  {
+      enable = true;
+      settings = {
+        default_session = {
+          command = "${tuigreet} --time --remember --remember-session";
+        };
+      };
+    };
   };
   
 }

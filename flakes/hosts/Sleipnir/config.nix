@@ -107,9 +107,9 @@
       };
     };
 
-    printers = {
-      # ensurePrinters = [{ .. }];
-    };
+    # printers = {
+    #   # ensurePrinters = [{ .. }];
+    # };
   };
 
 }

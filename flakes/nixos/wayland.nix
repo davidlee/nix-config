@@ -14,6 +14,7 @@
   xdg.portal = {
     enable = true;
     wlr.enable = true;
+    xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal
       xdg-desktop-portal-gtk
@@ -25,18 +26,17 @@
     ];
     config = {
       common = {
-        default  = [ "gtk" ];
+        default  = [ "gtk" "wlr" "kde" "termfilechooser" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
       kde = {
-        default  = [ "kde" "gtk" "wlr" ];
+        # default  = [ "kde" "gtk" "wlr" ];
        "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
       };
       sway = {
         # default  = [ "wlr" "gtk" "termfilechooser" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
-      # ...
     };
   };
 
@@ -102,10 +102,6 @@
       waypipe
       wbg
       wev
-      wine
-      winePackages.full
-      winetricks
-      wine-wayland
       wmenu
       wob
       wofi
@@ -120,8 +116,6 @@
       swayimg
       sway-contrib.grimshot
       gnome-weather
-      # gnome-podcasts
-      # gnome-feeds
       gnome-nettool
       gnome-logs
       gnome-calendar
