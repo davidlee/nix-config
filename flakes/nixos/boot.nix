@@ -1,6 +1,8 @@
 {
   pkgs,
   inputs,
+  lib,
+  config,
   ...
 }:
 {
@@ -56,18 +58,33 @@
   };
 
   services = {
+
     ucodenix = {
       enable = true;
       cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
     };
 
-    greetd = let
-      tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
-    in  {
+    greetd = {
       enable = true;
       settings = {
-        default_session = {
-          command = "${tuigreet} --time --remember --remember-session";
+        default_session = let
+          tuigreet = "${lib.getExe pkgs.greetd.tuigreet}";
+          baseSessionsDir = "${config.services.displayManager.sessionData.desktops}";
+          xSessions = "${baseSessionsDir}/share/xsessions";
+          waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
+          tuigreetOptions = [
+            "--remember"
+            "--remember-session"
+            "--sessions ${waylandSessions}:${xSessions}"
+            "--time"
+            # Make sure theme is wrapped in single quotes. See https://github.com/apognu/tuigreet/issues/147
+            "--theme 'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'"
+            "--cmd Hyprland"
+          ];
+          flags = lib.concatStringsSep " " tuigreetOptions;
+        in {
+          command = "${tuigreet} ${flags}";
+          user = "greeter";
         };
       };
     };

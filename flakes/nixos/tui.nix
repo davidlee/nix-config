@@ -2,6 +2,11 @@
 
   environment.systemPackages = with pkgs; [
 
+    ## audio
+    ncpamixer
+
+    ## *
+
     asak
     atop
     atuin

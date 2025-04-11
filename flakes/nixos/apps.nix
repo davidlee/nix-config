@@ -25,6 +25,7 @@
     chuck
     vcv-rack
     helm
+    pavucontrol
     
     ## graphics & 3d
     blender

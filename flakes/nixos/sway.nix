@@ -147,6 +147,7 @@ in {
           { command = "blueman-tray"; }
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
+          { command = "swayosd-server"; }
           { command = "floorp"; }
         ];
         
@@ -158,11 +159,24 @@ in {
         window.titlebar = false;
       }; # /config
 
+      # https://github.com/ErikReider/SwayOSD
       extraConfig = ''
-        bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
-        bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
-        bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
-        bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+        bindsym XF86AudioRaiseVolume exec swayosd-client --output-volume raise --max-volume 100
+        bindsym XF86AudioLowerVolume exec  swayosd-client --output-volume lower 
+        bindsym XF86AudioMute exec swayosd-client --output-volume mute-toggle
+        bindsym XF86AudioMicMute exec swayosd-client --input-volume mute-toggle
+
+        # Capslock (If you don't want to use the backend)
+        bindsym --release Caps_Lock exec swayosd-client --caps-lock
+
+        bindsym XF86MonBrightnessUp exec swayosd-client --brightness raise
+        bindsym XF86MonBrightnessDown exec swayosd-client --brightness lower
+
+        # bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+        # bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+        # bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+        # bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+
         bindsym XF86AudioPlay exec playerctl play-pause
         bindsym XF86AudioNext exec playerctl next
         bindsym XF86AudioPrev exec playerctl previous
