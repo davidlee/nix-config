@@ -36,7 +36,7 @@ alias lg=lazygit;
 alias ip=ip -color;
 
 # nix
-alias nrs="nixos-rebuild --log-format internal-json -v switch |& nom --json";
+alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch |& nom --json' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
 alias -g om=' --log-format internal-json -v |& nom --json';
 alias lgc='lazygit -g ~/.cfg -w ~/';
