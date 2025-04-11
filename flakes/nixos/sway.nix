@@ -147,7 +147,7 @@ in {
           { command = "blueman-tray"; }
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
-          { command = "firefox"; }
+          { command = "floorp"; }
         ];
         
         # use Menu as Compose key

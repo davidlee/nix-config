@@ -23,6 +23,7 @@
   last = log -1 HEAD --stat
   ll = log --oneline
   hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  filehist = log --follow -p
 [core]
   editor = hx
   excludesFile = ~/.gitignore_global

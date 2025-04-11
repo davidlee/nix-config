@@ -3,10 +3,8 @@
   ...
 }: {
 
-  # console.font = "Lat2-Terminus16";
-
   console = {
-    font = "ter-124b";
+    font = "${pkgs.terminus_font}/share/consolefonts/ter-124n.psf.gz";
     keyMap = "us";
     packages = with pkgs; [
       terminus_font
