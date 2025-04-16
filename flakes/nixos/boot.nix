@@ -20,6 +20,11 @@
     };
 
     kernelPackages = pkgs.linuxPackages_latest;
+
+    extraModulePackages = with config.boot.kernelPackages; [ xpadneo ];
+    extraModprobeConfig = ''
+      options bluetooth disable_ertm=Y
+    ''; # xbox controller cargo culting
     
     initrd = {
       kernelModules = [ ];

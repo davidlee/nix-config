@@ -13,8 +13,15 @@
   
   xdg.portal = {
     enable = true;
-    wlr.enable = true;
-    xdgOpenUsePortal = true;
+    wlr = {
+      enable = true;
+      settings.screencast = {
+        output_name = "DP-2";
+        chooser_type = "simple";
+        chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
+      };
+    };
+    # xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal
       xdg-desktop-portal-gtk
@@ -26,15 +33,13 @@
     ];
     config = {
       common = {
-        default  = [ "gtk" "wlr" "kde" "termfilechooser" ];
+        default  = [ "wlr" "gtk" "kde" "xapp" "termfilechooser" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
       kde = {
-        # default  = [ "kde" "gtk" "wlr" ];
        "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
       };
       sway = {
-        # default  = [ "wlr" "gtk" "termfilechooser" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
     };

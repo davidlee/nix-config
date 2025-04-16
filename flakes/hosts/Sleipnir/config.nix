@@ -69,6 +69,7 @@
     gvfs.enable = true;
     udisks2.enable = true;
     sysprof.enable = true;
+    blueman.enable = true;
 
     printing.enable = true;
 
@@ -98,12 +99,20 @@
 
   hardware = {
     logitech.wireless.enable = true;
+    xpadneo.enable = true;
   
     bluetooth = {
       enable = true;
       powerOnBoot = true;
+      
       settings = {
-        General.Experimental = true; # battery level
+        General = {
+          Experimental = true; # battery level
+          JustWorksRepairing = "always";
+          FastConnectable = true;
+          # Class = "0x00100";
+          Privacy = "device";
+        };
       };
     };
 
