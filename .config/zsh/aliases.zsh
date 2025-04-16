@@ -43,7 +43,7 @@ alias lgc='lazygit -g ~/.cfg -w ~/';
 
 # taskwarrior
 alias t=task;
-alias ta=task add;
+alias ta='task add';
 alias tc='task context';
 
 alias taskserver='taskchampion-sync-server --listen localhost:10222';
