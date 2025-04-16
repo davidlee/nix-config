@@ -8,6 +8,16 @@
   # 
   environment.systemPackages = with pkgs; [
 
+  bluez
+  bluetui
+  bluetuith
+  # bluetility
+  bluewalker
+  bluez
+  bluez-experimental
+  bluez-tools
+  bluez-experimental
+
     # secrets 
     _1password-cli
     keepassxc
@@ -66,6 +76,7 @@
     udiskie
 
     # package management
+    comma
     appimage-run
     cachix
     devcontainer

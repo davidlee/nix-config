@@ -12,7 +12,14 @@
     qemu_xen
     qemu-utils
     qemu-user
-    docker
+    distrobox
+    distrobox-tui
+    dive # inspect docker image layers
+    podman
+    podman-compose
+    podman-desktop
+    podman-tui
+    # docker
     docker-compose
     virt-manager
     lxc
@@ -26,6 +33,7 @@
       # ui.enable = true;
       # agent.enable = true;
     };
+    
     libvirtd = {
       enable = true;
       qemu = {
@@ -34,6 +42,14 @@
         # swtpm.enable = true;
         # ovmf = { };
       };
+    };
+
+    containers.enable = true;
+
+    podman = {
+      enable = true;
+      dockerCompat = true;
+      defaultNetwork.settings.dns_enabled = true;
     };
   };
   
