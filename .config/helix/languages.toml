@@ -1,0 +1,3 @@
+[[language]]
+name = "cpp"
+file-types = [ "cpp", "h", "keymap", "conf", "dtsi"]
