@@ -47,7 +47,6 @@ in {
       swaymux
       waybar
       cava
-      # libcava
       swaycons
       swaysettings
       swayr
