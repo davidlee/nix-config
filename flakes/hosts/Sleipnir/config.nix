@@ -15,6 +15,7 @@
     ../../nixos/tui.nix
     ../../nixos/apps.nix
     ../../nixos/wayland.nix
+    ../../nixos/gnome.nix
     # ../../nixos/cosmic.nix
     ../../nixos/kde.nix
     ../../nixos/sway.nix
@@ -70,7 +71,6 @@
     udisks2.enable = true;
     sysprof.enable = true;
     blueman.enable = true;
-
     printing.enable = true;
 
     avahi = {
@@ -79,6 +79,12 @@
       openFirewall = true;
     };
     
+    locate = {
+      enable = true;
+      package = pkgs.plocate;
+      interval = "hourly";
+    };
+
     pipewire = {
       enable = true;
       alsa.enable = true;
@@ -86,14 +92,16 @@
       pulse.enable = true;
     };
 
-    locate = {
-      enable = true;
-      package = pkgs.plocate;
-      interval = "hourly";
-    };
-
     pulseaudio = {
       package = pkgs.pulseaudioFull; # additional codecs
+    };
+
+    jack = {
+      jackd.enable = true;
+      alsa.enable = false;
+      loopback = {
+        enable = true;
+      };
     };
   };
 
@@ -101,6 +109,7 @@
     logitech.wireless.enable = true;
     xpadneo.enable = true;
   
+    # it's amazing bluetooth _ever_ works
     bluetooth = {
       enable = true;
       powerOnBoot = true;

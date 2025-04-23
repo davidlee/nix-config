@@ -37,13 +37,16 @@
       enable = true;
     };
 
-    # # FIXME upstream service needs patch
-    # # https://github.com/NixOS/nixpkgs/blob/nixos-unstable/nixos/modules/services/misc/taskchampion-sync-server.nix
-    # taskchampion-sync-server = {
-    #   enable = true; 
-    #   # openFirewall = true;
-    #   allowClientIds = [ ];
-    # };
+    taskchampion-sync-server = {
+      enable = true; 
+    };
+
+    mpd = {
+      enable = true;
+      musicDirectory = "/media/music";
+      extraConfig = ''
+      '';
+    };
 
   };
 

@@ -54,3 +54,4 @@ alias hl="$VISUAL ~/.config/harsh/log";
 
 # misc
 alias cl="clock-rs -Bbt --fmt '%Y-%m-%d'";
+alias arch="distrobox enter archlinux";

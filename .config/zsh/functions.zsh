@@ -42,7 +42,7 @@ _month_note() {
 
 _year_note() {
   date +"$ORG_DIR/%Y/mo/%m.md"
-}
+} 
 
 _edit_note() {
   $VISUAL $($*) -w $ORG_DIR
@@ -50,7 +50,12 @@ _edit_note() {
 
 # today's note
 day() {
-  _edit_note _day_note
+  p=$(_day_note)
+  echo "edting daily note: $p"
+  if [ ! -f $p ]; then
+    date +"# %F" > $p
+  fi
+  $VISUAL "$p" -w $ORG_DIR
 }
 
 # this week's note

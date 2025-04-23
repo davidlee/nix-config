@@ -4,6 +4,7 @@
   inputs = {
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
     # nixpkgs.follows = "nixos-cosmic/nixpkgs";
 
     nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
@@ -43,22 +44,30 @@
   #
   # NixOS
   # 
-  outputs = inputs@{ self, nixpkgs, home-manager, ... }: {
+  outputs = inputs@{ self, nixpkgs, nix-stable, home-manager, ... }: {
     nixosConfigurations = let
       inherit (self) outputs;
       hostname = "Sleipnir";
       username = "david";
+      system = "x86_64-linux";
 
-      zig = inputs.zig-overlay.packages.x86_64-linux.master;
+      stable = import nix-stable {
+        inherit system;
+        config.allowUnfree = true;
+      };
 
-      overlays = [(self: super: {
-        inherit zig;
-        zls = inputs.zls-overlay.packages.x86_64-linux.zls.overrideAttrs (finalAttrs: prevAttrs: {
-          nativeBuildInputs = [ zig ];
-        });
-      })];
+      zig = inputs.zig-overlay.packages.${system}.master;
+
+      overlays = [
+        (self: super: {
+          inherit zig;
+          zls = inputs.zls-overlay.packages.${system}.zls.overrideAttrs (finalAttrs: prevAttrs: {
+            nativeBuildInputs = [ zig ];
+          });
+        })
+      ];
         
-      specialArgs = { inherit inputs outputs username hostname; };
+      specialArgs = { inherit inputs outputs username hostname stable; };
     in {
     
       "${hostname}" = nixpkgs.lib.nixosSystem {
