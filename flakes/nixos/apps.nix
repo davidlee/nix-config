@@ -1,6 +1,6 @@
-
 { 
   pkgs,
+  stable,
   inputs,
   ...
 }: {
@@ -24,6 +24,7 @@
     supercollider-with-plugins
     chuck
     vcv-rack
+    cardinal
     helm
     pavucontrol
     
@@ -33,8 +34,8 @@
     krita
     inkscape
     darktable
-    ansel
-    digikam
+    # ansel
+    # digikam
     penpot-desktop
     pikopixel
 
@@ -85,7 +86,8 @@
 
     ## messaging / social
     newsflash
-    discord
+    #discord broken, using stable
+    stable.discord
     beeper
     signal-desktop
     slack
@@ -97,13 +99,13 @@
 
     ## music player & library management
     beets
-    fooyin
-    quodlibet
+    # fooyin
+    # quodlibet
     spotify
-    tauon
+    # tauon
     tokei
     deadbeef
-    cantata
+    # cantata
     
     ## terminals
     alacritty
@@ -173,6 +175,7 @@
     amfora
 
     ## gamedev
-    godot
+    #godot
+    stable.godot_4
   ];
 }

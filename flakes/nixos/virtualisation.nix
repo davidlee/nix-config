@@ -9,7 +9,7 @@
     qemu
     qemu_full
     qemu_kvm
-    qemu_xen
+    # qemu_xen
     qemu-utils
     qemu-user
     distrobox

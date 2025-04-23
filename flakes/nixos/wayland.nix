@@ -1,5 +1,6 @@
 {
   pkgs,
+  stable,
   username,
   ... 
 }: {
@@ -42,6 +43,9 @@
       sway = {
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
+      gnome = {
+         # ...
+      };
     };
   };
 
@@ -79,7 +83,7 @@
       adwaita-icon-theme
       bibata-cursors
       clipman
-      copyq
+      stable.copyq
       clipse
       cliphist
       river
@@ -139,5 +143,6 @@
 
     # services.copyq.enable = true;
     services.cliphist.enable = true;
+
   }; # home-manager
 }

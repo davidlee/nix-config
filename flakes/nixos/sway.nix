@@ -46,6 +46,8 @@ in {
       swaylock
       swaymux
       waybar
+      cava
+      # libcava
       swaycons
       swaysettings
       swayr
@@ -89,39 +91,44 @@ in {
           })
 
           {
-            "${mod}+Return" = "exec --no-startup-id ${term}";
             "Alt+space" = "exec --no-startup-id wofi --show drun,run";
+            "${mod}+space" = "exec fuzzel";
+            "${mod}+Return" = "exec --no-startup-id ${term}";
+            "${mod}+p" = "exec --no-startup-id ${term}";
+            
             "Alt+Tab" = "exec swayr switch-window";
             "${mod}+Tab" = "exec swayr switch-to-urgent-or-lru-window";
-            "${mod}+p" = "exec --no-startup-id ${term}";
-
             "--release ${mod}" = "exec swayr nop";
 
-            "${mod}+a" = "focus parent";
-            "${mod}+c" = "focus child";
 
-            "${mod}+f" = "fullscreen toggle";
-            "${mod}+k" = "kill";
+            "${mod}+h" = "focus parent";
+            "${mod}+i" = "focus child";
 
-            "${mod}+g" = "split h";
-            "${mod}+v" = "split v";
-            "${mod}+e" = "layout toggle split";
+            "${mod}+g" = "split horizontal";
+            "${mod}+v" = "split vertical";
+            "${mod}+b" = "split none";
+
+            "${mod}+c" = "layout toggle split";
+            "${mod}+Alt+c" = "layout toggle all";
             "${mod}+s" = "layout stacking";
             "${mod}+w" = "layout tabbed";
-            "${mod}+r" = "mode resize";
+            
+            "${mod}+x" = "sticky enable";
+            "${mod}+q" = "sticky disable";
 
-            "${mod}+space" = "exec fuzzel";
+            "${mod}+l" = "focus mode_toggle";
+            "${mod}+Shift+l" = "floating toggle";
+            
+            "${mod}+f" = "fullscreen toggle";
+            "${mod}+k" = "kill";
+            "${mod}+r" = "mode resize";
 
             "${mod}+n" = "scratchpad show";
             "${mod}+Shift+n" = "move scratchpad";
           
-            "${mod}+l" = "focus mode_toggle";
-            "${mod}+Shift+l" = "floating toggle";
+            "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot savecopy area";
 
             "${mod}+Shift+r" = "exec swaymsg reload";
-
-            "${mod}+z" = "exec --no-startup-id ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
-
             "${mod}+Ctrl+l" = "exec ${pkgs.swaylock-fancy}/bin/swaylock-fancy";
             "${mod}+Ctrl+q" = "exit";
           }
@@ -144,7 +151,8 @@ in {
 
         startup = [
           { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
-          { command = "blueman-tray"; }
+          { command = "blueman-tray"; } # or blueman-tray?
+          { command = "pavucontrol"; } 
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
           { command = "swayosd-server"; }

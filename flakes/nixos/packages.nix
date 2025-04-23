@@ -7,17 +7,6 @@
   # system packages
   # 
   environment.systemPackages = with pkgs; [
-
-  bluez
-  bluetui
-  bluetuith
-  # bluetility
-  bluewalker
-  bluez
-  bluez-experimental
-  bluez-tools
-  bluez-experimental
-
     # secrets 
     _1password-cli
     keepassxc
@@ -129,7 +118,6 @@
     # www
     w3m-full
     lynx
-    
     
     # files / find
     fd
@@ -286,6 +274,13 @@
     winetricks
     wine-wayland
     wine-staging
+
+    # bluetooth
+    bluetui
+    bluetuith
+    bluewalker
+    bluez-tools
+    bluez-experimental
   ];
 
   programs = {
@@ -336,6 +331,7 @@
       librewolf.enable = true;
       nushell.enable = true;
       fish.enable = true;
+      cava.enable = true;
 
       zk.enable = true;
 
@@ -376,6 +372,7 @@
         enable = true;
         enableFishIntegration = true;
         enableNushellIntegration = true;
+        flags = [ "--disable-up-arrow" ];
         settings = {
           show_tabs = false;
           style = "compact";
@@ -404,6 +401,7 @@
           command_timeout = 750;
         };
       };
+
     };
   };
 

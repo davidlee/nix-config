@@ -25,7 +25,10 @@
       };
     };
 
-    # security.sudo.wheelNeedsPassword = false; # WARN 
+    security.pam.loginLimits = [
+      # allow any user prog to request realtime priority
+      { domain = "@users"; item = "rtprio"; type = "-"; value = 1; }
+    ];
 
     # TODO remove immutable users
     users.mutableUsers = true; # can do without password being clobbered
@@ -51,6 +54,7 @@
         XCURSOR_SIZE = 24;
         # NIXOS_OZONE_WL = 1;
         # ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+        # MOZ_ENABLE_WAYLAND = true ;
         ELECTRON_OZONE_PLATFORM_HINT = "x11"; # or else, sway + nvidia has a bad time 
       };
       pathsToLink = [ "/share/zsh" ]; # for autocompletion

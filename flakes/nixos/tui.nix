@@ -1,4 +1,4 @@
-{pkgs,... }: {
+{pkgs, stable, ... }: {
 
   environment.systemPackages = with pkgs; [
 
@@ -44,7 +44,7 @@
     gomanagedocker
     gtop
     gtt
-    harlequin
+    stable.harlequin
     harsh
     helix
     helix
