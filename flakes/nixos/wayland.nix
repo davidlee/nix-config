@@ -65,7 +65,23 @@
     kando
     kanshi
     wl-clipboard-rs
+    wl-screenrec
+    wl-clicker
+    wl-crosshair
+    wl-clip-persist
+    wl-gammactl
+    wl-gammarelay-rs
+    wl-color-picker
+    wl-kbptr
+    wl-restart
+    wl-mirror
+    wlr-layout-ui
+    wlclock
+    wlock
     wldash
+    wlinhibit
+    wleave
+    wlprop
     wlroots
     xwayland
     gnome-secrets
@@ -117,6 +133,7 @@
       wshowkeys
       wtype
       xfce.thunar
+      xfce.tumbler
       zathura
       slurp
       adwaita-icon-theme
@@ -128,6 +145,8 @@
       gnome-nettool
       gnome-logs
       gnome-calendar
+      wttrbar
+
     ];
 
     home.pointerCursor = {
