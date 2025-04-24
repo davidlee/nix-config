@@ -1,11 +1,40 @@
 { pkgs, ... } : {
   
   environment.systemPackages = with pkgs; [
-    
     # nix
     nix-bash-completions
     nixfmt-rfc-style
     
+    # programming - general 
+    exercism
+    tree-sitter
+
+    # vcs 
+    gh
+    # git 
+    gitFull
+    jj
+    hub
+    delta
+    difftastic
+    diffnav
+    jujutsu
+    sublime-merge
+    meld
+    diffr
+    diffsitter
+    diffstat
+    diffedit3
+    diffoscope
+    mergiraf
+    tig
+
+    # supervisors / runners
+    direnv
+    overmind
+    watchman
+    just
+
     # www
     html-tidy
     prettierd
@@ -17,6 +46,7 @@
     llvm
     strace
     gcc
+    
     # build
     bison
     gnumake
@@ -26,12 +56,17 @@
     gofumpt # go formatter
     
     # lang.python
-    python3Full
-    pipx
+    uv
     python313Packages.pywatchman
-    python313Packages.pip
-    docutils
-    meson
+    python3Packages.python-lsp-server
+    python3Packages.python-lsp-ruff
+    python3Packages.python-lsp-jsonrpc
+    python3Packages.python-lsp-black
+    python3Packages.pyls-isort
+    python3Packages.pyls-flake8
+    python3Packages.flake8
+    python3Packages.isort
+    python3Packages.black
 
     # lang.odin
     ols
@@ -61,38 +96,5 @@
     zig
     zls
     zig-shell-completions
-
-    #
-    # libs
-    # 
-    # - graphic  
-    openssl
-    openssl.dev
-    pkg-config
-    libxkbcommon
-    directx-headers
-    vulkan-headers
-    vulkan-loader
-    vulkan-tools
-    raylib
-    libGL.dev
-    wayland-scanner
-    wayland-protocols
-    wayland-utils
-    xorg.libX11
-    xorg.libX11.dev
-    xorg.libXcursor
-    xorg.libXi
-    xorg.libXinerama
-    xorg.libXrandr
-    # - misc 
-    polkit
-    libyaml
-    libffi
-    glib
-    libiconv
-    libnotify
-    emscripten
-
   ];
 }
