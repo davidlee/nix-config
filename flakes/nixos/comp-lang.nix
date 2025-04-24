@@ -1,4 +1,4 @@
-{ pkgs, overlays, ... } : {
+{ pkgs, ... } : {
   
   environment.systemPackages = with pkgs; [
     
@@ -45,6 +45,9 @@
     vimPlugins.fzf-lua
     lua-language-server
     luarocks-packages-updater
+
+    # lang.vim
+    vim-language-server
 
     # lang.js
     bun

@@ -1,122 +1,170 @@
 {pkgs, stable, ... }: {
 
   environment.systemPackages = with pkgs; [
+    ## cli general
+    atuin # shell history 
+    mprocs # parellel command runner
+    tray-tui # systray
 
-    ## audio
-    ncpamixer
-
-    ## *
-
-    asak
+    ## system monitors
     atop
-    atuin
-    basilk
     bottom
-    broot
     btop
-    btop
-    calcure
-    calcurse
-    cfm
-    chess-tui
-    cicero-tui
-    clock-rs
-    cmus
-    crates-tui
-    csv-tui
-    debase
-    dijo
+    glances
+    htop
+    gtop
+
+    ## system utils
+    isd # systemd
+    lazyjournal # logs & containers
+    systemctl-tui
+
+    ## containers
     distrobox-tui
-    di-tui
-    docfd
     docui
+    lazydocker
+    gomanagedocker
+
+    ## file managers
+    broot
+    cfm
     felix-fm
-    fltrdr
-    frogmouth
-    fum
+    ictree
+    nnn
+    ranger
+    xplr
+    yazi
+    lf
+    superfile
+
+    ## disk & file io 
+    ncdu
+    mmtui # mount manager
+    
+    ## file find & search
+    docfd
+    television
+
+    ## git / SCM
+    debase
     gh-dash
     gitu
-    gitu
     gitui
-    glances
+    lazygit
+    lazyjj
+    jjui
+    
+    ## text editors
+    helix
+    kakoune
+    neovim
+    sc-im # er, spreadsheet
+    wordgrinder
+
+    ## notes / knowledge base
+    kb
+    nb
+    tpnote
+    tui-journal
+
+    ## text utils
+    cicero-tui # unicode 
+    gtt # translation
+    play # playground fer sed, grep, awk, ...
+
+    ## markdown
+    frogmouth
     glow
-    gobang
-    gomanagedocker
-    gtop
-    gtt
-    stable.harlequin
-    harsh
-    helix
-    helix
+    marked-man
+    md-tui
+
+    ## CSV
+    csv-tui
+    tidy-viewer
+    
+    ## JSON
+    jqp # jq
+    otree # text object tree viewer
+
+    ## PDF
+    tdf
+
+    ## text readers, pagers
+    fltrdr
+    nvimpager
+
+    ## feeds, content / social
+    russ # RSS
+    tuir # reddit
+    tut # mastodon
+    tuisky # bluesky
+    wiki-tui # wikipedia
+    
+    ## hex edit for infinite grenades
     hexpatch
     hextazy
     hexyl
-    htop
-    ictree
-    invidtui
-    isd
-    jjui
-    jqp
-    kakoune
-    nb
-    kb
-    lazydocker
-    lazygit
-    lazyjj
-    lazyjournal
-    lazysql
-    lf
-    libcryptui
-    managarr
-    marked-man
-    md-tui
-    mmtui
-    mprocs
-    ncdu
-    neovim
-    nethack
+
+    ## typing
+    thokr 
     ngrrram
-    nnn
-    nvimpager
-    otree
-    play
-    rainfrog
-    ranger
-    rmpc
-    russ
-    rustmission
-    sc-im
-    steam-tui
-    stig
-    superfile
-    systemctl-tui
+
+    ## crypto
+    libcryptui
+
+    ## task / time / calendar mgmt
+    basilk
+    calcure
+    calcurse
     taskflow
     task-keeper
     tasktimer
     taskwarrior-tui
-    tdf
-    television
-    termusic
-    # textual-paint
-    thokr
-    tidy-viewer
-    tpnote
-    tray-tui
-    tty-clock
-    tui-journal
-    tuir
-    tuisky
-    tut
     vault-tasks
-    vim-language-server
-    vi-mongo
     vit
-    wiki-tui
-    wordgrinder
-    xplr
-    yazi
+
+    ## habit trackers
+    dijo
+    harsh
+    
+    ## database
+    gobang
+    lazysql
+    rainfrog
+    stable.harlequin
+    vi-mongo
+
+    ## audio / music
+    ncpamixer
+    asak
+    cmus
+    di-tui # di.fm player
+    fum
+    termusic
+    rmpc
+
+    ## paint
+    # textual-paint
+
+    ## games
+    chess-tui
+    nethack
+    steam-tui
+    
+    ## arr
+    managarr
+    stig
+    rustmission
+    
+    ## youtube
+    invidtui
     youtube-tui
     ytermusic
+    
+    ## clock
+    clock-rs
+    tty-clock
+    crates-tui
 
     ## www
     w3m
