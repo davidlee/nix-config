@@ -55,26 +55,14 @@
         inherit system;
         config.allowUnfree = true;
       };
-
-      zig = inputs.zig-overlay.packages.${system}.master;
-
-      overlays = [
-        (self: super: {
-          inherit zig;
-          zls = inputs.zls-overlay.packages.${system}.zls.overrideAttrs (finalAttrs: prevAttrs: {
-            nativeBuildInputs = [ zig ];
-          });
-        })
-      ];
         
-      specialArgs = { inherit inputs outputs username hostname stable; };
+      specialArgs = { inherit inputs outputs username hostname stable system; };
     in {
     
       "${hostname}" = nixpkgs.lib.nixosSystem {
         inherit specialArgs;
         modules = [
           ./hosts/${hostname}/config.nix
-          { nixpkgs.overlays = overlays; }
           home-manager.nixosModules.home-manager {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
