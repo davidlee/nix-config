@@ -2,6 +2,8 @@
 alias g=git;
 alias j=just;
 
+alias hxr="hx ~/.reminders";
+
 # util / override
 alias scr="grimshot save area";
 alias ct="bat --style snip --style changes --style header";
