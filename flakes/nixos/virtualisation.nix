@@ -5,6 +5,8 @@
 }: {
   
   environment.systemPackages =  with pkgs; [
+    quickemu
+    # darling 
     nemu
     qemu
     qemu_full

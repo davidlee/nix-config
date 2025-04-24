@@ -170,6 +170,8 @@
     gawk
     aspell
     less
+    most
+    moar
     bat
     emacsclient-commands
     lsd
@@ -188,11 +190,6 @@
     backblaze-b2
     aria2
     backintime
-
-    # emulation / virtualisation
-    qemu
-    quickemu
-    # darling 
 
     # session manager
     zellij

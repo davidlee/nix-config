@@ -26,6 +26,7 @@
     gofumpt # go formatter
     
     # lang.python
+    python3Full
     pipx
     python313Packages.pywatchman
     python313Packages.pip
