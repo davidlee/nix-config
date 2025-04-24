@@ -15,35 +15,6 @@
     greetd.greetd
     greetd.tuigreet
 
-    # supervisors / runners
-    direnv
-    overmind
-    watchman
-    just
-
-    # programming - general 
-    exercism
-    tree-sitter
-
-    # vcs 
-    gh
-    git 
-    # gitFull
-    hub
-    delta
-    difftastic
-    diffnav
-    jujutsu
-    sublime-merge
-    meld
-    diffr
-    diffsitter
-    diffstat
-    diffedit3
-    diffoscope
-    mergiraf
-    tig
-
     # zsh / posix
     zsh
     antidote
@@ -60,7 +31,6 @@
     duf
     hdparm
     smartmontools
-    iotop
     pydf
     udiskie
 
@@ -69,6 +39,7 @@
     appimage-run
     cachix
     devcontainer
+    devenv
     flatpak
     manix
     nh
@@ -169,16 +140,12 @@
     gnused
     gawk
     aspell
-    less
-    most
-    moar
     bat
     emacsclient-commands
     lsd
     eza
-    ov
     chroma
-    viddy
+
     # json/yaml
     jq
     yq-go
@@ -190,10 +157,6 @@
     backblaze-b2
     aria2
     backintime
-
-    # session manager
-    zellij
-    tmux
 
     # markdown
     markdownlint-cli
@@ -272,12 +235,37 @@
     wine-wayland
     wine-staging
 
-    # bluetooth
-    bluetui
-    bluetuith
-    bluewalker
-    bluez-tools
-    bluez-experimental
+    #
+    # libs
+    # 
+    # - graphic  
+    openssl
+    openssl.dev
+    pkg-config
+    libxkbcommon
+    directx-headers
+    vulkan-headers
+    vulkan-loader
+    vulkan-tools
+    raylib
+    libGL.dev
+    # wayland-scanner
+    xorg.libX11
+    xorg.libX11.dev
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXinerama
+    xorg.libXrandr
+
+    # - misc 
+    polkit
+    libyaml
+    libffi
+    glib
+    libiconv
+    libnotify
+    emscripten
+
   ];
 
   programs = {

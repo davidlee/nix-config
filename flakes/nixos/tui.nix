@@ -13,7 +13,13 @@
     glances
     htop
     gtop
+    iotop
 
+    # session manager
+    zellij
+    tmux
+    screen
+    
     ## system utils
     isd # systemd
     lazyjournal # logs & containers
@@ -92,6 +98,10 @@
     ## text readers, pagers
     fltrdr
     nvimpager
+    less
+    most
+    moar
+    viddy
 
     ## feeds, content / social
     russ # RSS
@@ -165,6 +175,10 @@
     clock-rs
     tty-clock
     crates-tui
+
+    # bluetooth
+    bluetui
+    bluetuith
 
     ## www
     w3m

@@ -21,10 +21,4 @@
     plasma-browser-integration
   ];
 
-  # qt = {
-  #   enable = true;
-  #   platformTheme = "gnome";
-  #   style = "adwaita-dark";
-  # };
-
 }

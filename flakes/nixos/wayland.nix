@@ -88,7 +88,12 @@
     gnome-system-monitor
     blueman
     bluez-tools
+    bluez-experimental
     mako
+    wayland-protocols
+    wayland-utils
+    wayland-logout
+    wayland-pipewire-idle-inhibit
   ];
 
   # packages which are more about providing a foundational
