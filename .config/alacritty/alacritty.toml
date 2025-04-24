@@ -1,0 +1,23 @@
+
+[window]
+decorations = "None"
+blur = true
+padding = {x = 5, y = 3 }
+dynamic_padding = true
+opacity = 0.9
+
+[general]
+live_config_reload = true
+
+[font]
+# normal =  { family = "JetBrains Mono Nerd Font", style = "Regular" }
+# normal =  { family = "Consolas", style = "Regular" }
+# normal =  { family = "Monaspace", style = "Regular" }
+normal =  { family = "Hack Nerd Font", style = "Regular" }
+
+
+[cursor]
+
+
+[mouse]
+
