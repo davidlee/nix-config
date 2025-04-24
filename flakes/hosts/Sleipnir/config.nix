@@ -25,6 +25,8 @@
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
     ../../nixos/rust.nix
+    ../../nixos/zig.nix
+
   ];
 
   users.enable = true;
