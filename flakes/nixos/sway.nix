@@ -149,13 +149,17 @@ in {
         };
 
         startup = [
-          { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
-          { command = "blueman-tray"; } # or blueman-tray?
-          { command = "pavucontrol"; } 
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
+          { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
+          
+          { command = "blueman-tray"; } 
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
           { command = "swayosd-server"; }
+          { command = "$HOME/.config/waybar/scripts/timer serve > /tmp/timer.log 2>&1"; }
+
+          # apps 
           { command = "floorp"; }
+          { command = "1password --silent"; }
         ];
         
         # use Menu as Compose key

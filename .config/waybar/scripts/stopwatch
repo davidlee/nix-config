@@ -1,0 +1,48 @@
+#!/run/current-system/sw/bin/env python
+# Copyright 2024 Raffaele Mancuso
+# SPDX-License-Identifier: MIT
+
+import os
+import time
+import sys
+from pathlib import Path
+
+
+def printtime(h=0, m=0, s=0, icon="󰚭"):
+    msg = f'{{"text":"{icon} '
+    if h > 0:
+        msg += f"{h:02d}:"
+    if m > 0:
+        msg += f"{m:02d}:"
+    msg += f'{s:02d}"}}'
+    print(msg, flush=True)
+
+
+fp = Path("/tmp/waybar-stopwatch")
+if sys.argv[1] == "start":
+    printtime()
+    while True:
+        if fp.is_file():
+            with open(fp, "r") as fh:
+                start = float(fh.read())
+            while fp.is_file():
+                s = time.time() - start
+                m = int(s // 60)
+                s = int(s % 60)
+                h = int(m // 60)
+                m = int(m % 60)
+                printtime(h, m, s, "󱦟")
+                time.sleep(1)
+            printtime()
+        time.sleep(1)
+
+elif sys.argv[1] == "restart":
+    if os.path.exists(fp):
+        os.unlink(fp)
+    else:
+        with open(fp, "w") as fh:
+            t = time.time()
+            fh.write(f"{t:.2f}")
+
+else:
+    print('{"text": "ERROR", "tooltip":"error"}')
