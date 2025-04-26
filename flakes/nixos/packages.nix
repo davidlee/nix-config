@@ -7,34 +7,30 @@
   # system packages
   # 
   environment.systemPackages = with pkgs; [
-    # secrets 
-    _1password-cli
-    keepassxc
-    
-    # boot 
+    ## boot 
     greetd.greetd
     greetd.tuigreet
 
-    # zsh / posix
+    ## zsh / posix
     zsh
     antidote
     shellcheck
     shfmt
 
-    # alt shells
+    ## alt shells
     nushell
     oils-for-unix
     fish
     xonsh
 
-    # disk / io
+    ## disk / io
     duf
     hdparm
     smartmontools
     pydf
     udiskie
 
-    # package management
+    ## package management
     comma
     appimage-run
     cachix
@@ -54,9 +50,17 @@
     nix-inspect
     nix-melt
     nix-output-monitor
+    nix-bash-completions
     nix-search-cli
+    nix-search-tv
+    nix-derivation
+    nix-deploy
+    nix-forecast
+    nix-health
+    nix-janitor
     nix-top
     nix-tree
+    nixfmt-rfc-style
     nvd
     pkg-config
     sd-switch
@@ -75,8 +79,8 @@
     netcat
     socat
     nmon
-    oha
     openssl
+    oha
     sn0int
     tcpdump
     trippy
@@ -86,11 +90,12 @@
     wget
     xh
     yt-dlp
-    # www
+    
+    ## www
     w3m-full
     lynx
     
-    # files / find
+    ## files / find
     fd
     file
     findutils
@@ -103,11 +108,11 @@
     vgrep
     sad
     trash-cli
-    # semgrep # FIXME busted 
+    # semgrep 
     tree
     zoxide
 
-    # compression
+    ## compression
     xz
     unar
     _7zz
@@ -117,11 +122,11 @@
     gnutar
     cpio
 
-    # process management
+    ## process management
     pstree
     killall
     
-    # low level / system monitoring
+    ## low level / system monitoring
     ccache
     cpuid
     cpuinfo
@@ -135,137 +140,96 @@
     usbutils 
     x86info
 
-    # unix / text
+    ## unix / text
     coreutils
     gnused
     gawk
-    aspell
     bat
     emacsclient-commands
     lsd
     eza
     chroma
+    sd 
 
-    # json/yaml
-    jq
-    yq-go
-    # convert
+    ## English
+    vale
+    vale-ls
+    aspell
+
+    ## converters
     pandoc
 
-    # download / backup
+    ## download / backup
     syncthing
     backblaze-b2
     aria2
     backintime
 
-    # markdown
-    markdownlint-cli
-    markdownlint-cli2
-    markdown-oxide
-    marksman
-
-    # pdf
-
-    # docs, notes, productivity
+    ## docs, notes, productivity
     tealdeer
     pinfo
     zeal
     dnote
     remind
 
-    # image / graphics / multimedia
-    alsa-utils
+    ## graphing
     d2
-    directx-shader-compiler
-    ffmpeg
-    fontconfig
-    glfw
     graphviz
-    mesa
-    mpv
-    nerd-font-patcher
+
+    ## image / graphics / multimedia
+    ffmpeg
+    glfw
     pastel
-    pipewire
     viu
+
+    ## fonts
+    nerd-font-patcher
+    fontconfig
+
+    ## audio
+    alsa-utils
+    pipewire
     wireplumber
-
-    # keyboard firmware
-    qmk-udev-rules
-    dfu-util
-    qmk
-    dtc
-
-    # security
+    
+    ## media players
+    mpv
+    playerctl
+    
+    ## security / crypto / secrets
     nvdtools
     seclists
     git-crypt
     gpgme
     gpg-tui
     oath-toolkit
+    _1password-cli
+    keepassxc
 
-    # servers
+    ## servers
     caddy
     sqlite
     postgresql
 
-    # tasks
+    ## tasks
     tasksh
     taskwarrior3
     taskchampion-sync-server
 
-    # frivolity
+    ## frivolity
     neofetch
     fastfetch
 
-    # ai 
-    ollama
-    oterm
-    aichat
-    local-ai
-    mods
-
-    # media 
-    playerctl
-    ffmpeg
-
-    # wine etc
-    wine
-    wineWowPackages.stagingFull
-    winetricks
-    wine-wayland
-    wine-staging
-
-    #
-    # libs
-    # 
-    # - graphic  
+    ### libs
+    glib
+    libffi
+    libiconv
+    libyaml
     openssl
     openssl.dev
     pkg-config
-    libxkbcommon
-    directx-headers
-    vulkan-headers
-    vulkan-loader
-    vulkan-tools
     raylib
-    libGL.dev
-    # wayland-scanner
-    xorg.libX11
-    xorg.libX11.dev
-    xorg.libXcursor
-    xorg.libXi
-    xorg.libXinerama
-    xorg.libXrandr
-
-    # - misc 
-    polkit
-    libyaml
-    libffi
-    glib
-    libiconv
-    libnotify
-    emscripten
-
+    zlib
+    
   ];
 
   programs = {
@@ -309,7 +273,6 @@
   home-manager.users.${username} = {
     programs = {
       helix.defaultEditor = true;
-
       eza.enable = true;
       firefox.enable = true;
       git.enable = true;
@@ -317,7 +280,6 @@
       nushell.enable = true;
       fish.enable = true;
       cava.enable = true;
-
       zk.enable = true;
 
       direnv = {

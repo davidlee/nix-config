@@ -5,7 +5,7 @@
   ... 
 }: {
 
-  # programs.labwc.enable = true; # lightweight wm
+  programs.labwc.enable = true;
   
   programs = {
     dconf.enable = true;
@@ -22,7 +22,7 @@
         chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
       };
     };
-    # xdgOpenUsePortal = true;
+    xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal
       xdg-desktop-portal-gtk
@@ -60,10 +60,12 @@
     };
   };
 
+  # these are about providing a useful common foundation
   environment.systemPackages = with pkgs; [
-    dconf
-    kando
-    kanshi
+    wayland-protocols
+    wayland-utils
+    wayland-logout
+    wayland-pipewire-idle-inhibit
     wl-clipboard-rs
     wl-screenrec
     wl-clicker
@@ -84,76 +86,87 @@
     wlprop
     wlroots
     xwayland
+    wine
+    wineWowPackages.stagingFull
+    winetricks
+    wine-wayland
+    wine-staging
+    dconf
+    kando
+    kanshi
     gnome-secrets
     gnome-system-monitor
     blueman
     bluez-tools
     bluez-experimental
     mako
-    wayland-protocols
-    wayland-utils
-    wayland-logout
-    wayland-pipewire-idle-inhibit
+    adwaita-icon-theme
+    bibata-cursors
+    cava
+    cliphist
+    clipman
+    clipse
+    dmenu
+    flameshot
+    fuzzel
+    gammastep
+    gnome-calendar
+    gnomeExtensions.appindicator
+    gnome-logs
+    gnome-nettool
+    gnome-weather
+    grim
+    i3status
+    imv
+    kmonad
+    marble-shell-theme
+    nemo
+    phinger-cursors
+    river
+    rofi-wayland
+    shotman
+    showmethekey
+    sirula
+    slurp
+    spatial-shell
+    stable.copyq
+    swaybg
+    sway-contrib.grimshot
+    swayimg
+    swww
+    tuba
+    ulauncher
+    waypipe
+    wbg
+    wev
+    wmenu
+    wob
+    wofi
+    wshowkeys
+    wttrbar
+    wtype
+    xfce.thunar
+    xfce.tumbler
+    zathura
+      
+    ## libs
+    libxkbcommon
+    directx-headers
+    vulkan-headers
+    vulkan-loader
+    vulkan-tools
+    libGL.dev
+    xorg.libX11
+    xorg.libX11.dev
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXinerama
+    xorg.libXrandr
+    libnotify
   ];
 
-  # packages which are more about providing a foundational
-  # window system & desktopn environment, than e.g. standalone GUI apps
   home-manager.users.${username} = {
-    home.packages = with pkgs; [
-
-      adwaita-icon-theme
-      bibata-cursors
-      clipman
-      stable.copyq
-      clipse
-      cliphist
-      river
-      dmenu
-      flameshot
-      fuzzel
-      gammastep
-      gnomeExtensions.appindicator
-      grim
-      i3status
-      imv
-      kmonad
-      nemo
-      phinger-cursors
-      protontricks
-      rofi-wayland
-      shotman
-      showmethekey
-      sirula
-      slurp
-      spatial-shell
-      swww
-      tuba
-      ulauncher
-      waypipe
-      wbg
-      wev
-      wmenu
-      wob
-      wofi
-      wshowkeys
-      wtype
-      xfce.thunar
-      xfce.tumbler
-      zathura
-      slurp
-      adwaita-icon-theme
-      marble-shell-theme
-      swaybg
-      swayimg
-      sway-contrib.grimshot
-      gnome-weather
-      gnome-nettool
-      gnome-logs
-      gnome-calendar
-      wttrbar
-
-    ];
-
+  
     home.pointerCursor = {
       name = "phinger-cursors-light";
       package = pkgs.phinger-cursors;

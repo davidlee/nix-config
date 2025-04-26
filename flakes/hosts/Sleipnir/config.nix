@@ -11,7 +11,7 @@
     ../../nixos/network.nix
     ../../nixos/accounts.nix
     ../../nixos/packages.nix
-    ../../nixos/comp-lang.nix
+    ../../nixos/dev.nix
     ../../nixos/tui.nix
     ../../nixos/apps.nix
     ../../nixos/wayland.nix

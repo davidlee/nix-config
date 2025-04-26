@@ -46,7 +46,6 @@ in {
       swaylock
       swaymux
       waybar
-      cava
       swaycons
       swaysettings
       swayr
