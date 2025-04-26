@@ -12,14 +12,22 @@
     # You need to install all these Apps manually first so that your apple account have records for them.
     # otherwise Apple Store will refuse to install them.
     # For details, see https://github.com/mas-cli/mas 
-    masApps = {
-      Xcode = 497799835;
-    };
+    #
+    # Note: currently disabled due to excessive install time
+    # 
+    # masApps = {
+    #   Xcode = 497799835;
+    # };
      brews = [
        # "jordanbaird-ice"
       "dnote"
       "cmdg"
+      "mlx"
+      "llm"
       "llvm@18"
+      "python3"
+      "node"
+      "surreal"
     ];
     casks = [
       "firefox"
@@ -45,6 +53,7 @@
       "homebrew/services"
       "dnote/dnote"
       "cutzenfriend/homebrew-cmdg"
+      "surrealdb/surreal"
     ];
 
     extraConfig = ''
