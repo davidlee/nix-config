@@ -102,6 +102,7 @@
     most
     moar
     viddy
+    ov
 
     ## feeds, content / social
     russ # RSS

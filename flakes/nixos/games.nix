@@ -1,7 +1,5 @@
-
 { 
   pkgs,
-  inputs,
   username,
   ...
 }: {
@@ -30,6 +28,7 @@
       autoStart = true;
       capSysAdmin = true;
     };
+    udev.packages = [ pkgs.game-devices-udev-rules ];
   };
 
   home-manager.users.${username} = {
@@ -42,7 +41,9 @@
       lutris
       heroic
       mangohud
+      protontricks
       protonup-qt
+      gamemode
       gamescope
       moonlight-qt
       sunshine
