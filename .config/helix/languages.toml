@@ -1,3 +1,4 @@
+# for ZMK
 [[language]]
 name = "cpp"
 file-types = [ "cpp", "h", "keymap", "conf", "dtsi"]
@@ -5,3 +6,16 @@ file-types = [ "cpp", "h", "keymap", "conf", "dtsi"]
 # [[language]]
 # name = "text"
 # indent = { tab-width = 2, unit = " " }
+
+[language-server.godot]
+command = "nc" 
+args = [ "127.0.0.1", "6005"]
+
+[[language]]
+name = "gdscript"
+language-servers = [ "godot" ]
+
+[[language]]
+name="rust"
+formatter = { command = "rustfmt", args = ["+nightly"]}
+
