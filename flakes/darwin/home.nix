@@ -101,18 +101,18 @@
     nix-search-cli
     nmap
     nnn
-    nodejs_latest
+    # nodejs_latest
     nushell
     odin
     ols
     overmind
     p7zip
-    pipx
+    # pipx
     pixman
-    pnpm
+    # pnpm
     pstree
-    python312
-    python312Packages.pip
+    # python312
+    # python312Packages.pip
     python312Packages.pywatchman
     qmk
     ranger
@@ -158,16 +158,17 @@
     zoxide
     zsh
     zstd
+    uv
 
   ];
 
   programs = {
     helix.defaultEditor = true;
 
-    ghostty = {
-      enable = true;
-      enableZshIntegration = true;
-    };
+    # ghostty = {
+    #   enable = true;
+    #   enableZshIntegration = true;
+    # };
 
     neovim = {
       enable = true;
