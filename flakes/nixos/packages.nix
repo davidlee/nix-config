@@ -257,6 +257,9 @@
     zsh = {
       enable = true;
     };
+
+    appimage.binfmt = true;
+    appimage.enable = true;
   };
 
   # allow non-root write access to firmware 

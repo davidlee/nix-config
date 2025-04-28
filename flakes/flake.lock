@@ -354,6 +354,22 @@
     },
     "nixpkgs_4": {
       "locked": {
+        "lastModified": 1745526057,
+        "narHash": "sha256-ITSpPDwvLBZBnPRS2bUcHY3gZSwis/uTe255QgMtTLA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "f771eb401a46846c1aebd20552521b233dd7e18b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_5": {
+      "locked": {
         "lastModified": 1708161998,
         "narHash": "sha256-6KnemmUorCvlcAvGziFosAVkrlWZGIc6UNT9GUYr0jQ=",
         "owner": "NixOS",
@@ -368,7 +384,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_6": {
       "locked": {
         "lastModified": 1744440957,
         "narHash": "sha256-FHlSkNqFmPxPJvy+6fNLaNeWnF1lZSgqVCl/eWaJRc4=",
@@ -384,6 +400,25 @@
         "type": "github"
       }
     },
+    "ramalama": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_4"
+      },
+      "locked": {
+        "lastModified": 1745615245,
+        "narHash": "sha256-1hiPjJe6xo0yiSNMqzQnpJIWukag/PTmpql0PuTPQ70=",
+        "owner": "containers",
+        "repo": "ramalama",
+        "rev": "c58f56e1127c181b7de3718e86ae166845b9d067",
+        "type": "github"
+      },
+      "original": {
+        "owner": "containers",
+        "ref": "main",
+        "repo": "ramalama",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "darwin": "darwin",
@@ -393,6 +428,7 @@
         "nixarr": "nixarr",
         "nixos-cosmic": "nixos-cosmic",
         "nixpkgs": "nixpkgs_3",
+        "ramalama": "ramalama",
         "rust-overlay": "rust-overlay_2",
         "ucodenix": "ucodenix",
         "zen-browser": "zen-browser",
@@ -564,7 +600,7 @@
       "inputs": {
         "flake-compat": "flake-compat_2",
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "lastModified": 1745195712,
@@ -606,7 +642,7 @@
     "zls-overlay": {
       "inputs": {
         "gitignore": "gitignore",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_6",
         "zig-overlay": "zig-overlay_2"
       },
       "locked": {

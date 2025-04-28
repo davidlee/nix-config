@@ -91,6 +91,8 @@
     winetricks
     wine-wayland
     wine-staging
+    wofi-emoji
+    wofi-power-menu
     dconf
     kando
     kanshi
