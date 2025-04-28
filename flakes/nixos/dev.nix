@@ -5,6 +5,19 @@
     exercism
     tree-sitter
 
+    ## ai 
+    ollama
+    oterm
+    aichat
+    local-ai
+    mods
+    llama-cpp
+    llm
+    llm-ls
+    # vllm FIX 
+    mistral-rs
+    lmstudio
+
     ## SCM
     gh
     gitFull
@@ -77,13 +90,6 @@
     dfu-util
     qmk
     dtc
-
-    ## ai 
-    ollama
-    oterm
-    aichat
-    local-ai
-    mods
 
     ## parse / lex
     bison
