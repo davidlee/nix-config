@@ -148,11 +148,18 @@ in {
         };
 
         startup = [
+          # wallpaper
           { command = "swaybg -i ~/Pictures/wallpaper/dark-water.jpg -m fill"; }
-          { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
           
-          { command = "blueman-tray"; } 
+          # swaybar & dependies
+          { command = "waybar -c $HOME/.config/waybar/config.jsonc"; }
           { command = "env RUST_BACKTRACE=1 RUST_LOG=swayr=debug swayrd > /tmp/swayrd.log 2>&1"; }
+
+          # tray
+          { command = "blueman-tray"; } 
+          { command = "gnome-keyring-daemon --start --daemonize --components=secrets,ssh && export SSH_AUTH_SOCK"; } 
+
+          # ui stuff
           { command = "swayosd-server"; }
           { command = "$HOME/.config/waybar/scripts/timer serve > /tmp/timer.log 2>&1"; }
 
@@ -193,7 +200,6 @@ in {
       '';
 
       wrapperFeatures.gtk = true;
-      extraOptions = [ "--unsupported-gpu" ];
     };
   }; # home-manager directives
 }

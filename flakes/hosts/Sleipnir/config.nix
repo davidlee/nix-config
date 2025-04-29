@@ -7,7 +7,7 @@
     # inputs.nixos-cosmic.nixosModules.default
 
     ../../nixos/boot.nix
-    ../../nixos/nvidia.nix
+    ../../nixos/radeon.nix
     ../../nixos/network.nix
     ../../nixos/accounts.nix
     ../../nixos/packages.nix

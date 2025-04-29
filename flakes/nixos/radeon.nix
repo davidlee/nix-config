@@ -23,8 +23,8 @@
       initrd.enable = true;
       amdvlk = {
         enable = true;
-        supportExperimental = true;
-        support32Bit = true;
+        supportExperimental.enable = true;
+        support32Bit.enable = true;
       };
     };
   };

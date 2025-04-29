@@ -23,6 +23,8 @@
 
   # Odin hung from Yggdrassil for nine nights
   
+  programs.ssh.startAgent = true;
+
   services = {
     openssh = {
       enable = true;
