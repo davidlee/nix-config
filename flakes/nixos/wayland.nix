@@ -29,22 +29,17 @@
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gnome
       xdg-desktop-portal-termfilechooser
-      xdg-desktop-portal-xapp
+      xdg-desktop-portal-hyprland
+      # xdg-desktop-portal-xdg-desktop-portal-xapp
       kdePackages.xdg-desktop-portal-kde
     ];
     config = {
       common = {
-        default  = [ "wlr" "gtk" "kde" "xapp" "termfilechooser" ];
+        default  = [ "wlr" "gtk" "termfilechooser" ];
        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
       };
       kde = {
        "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
-      };
-      sway = {
-       "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-      };
-      gnome = {
-         # ...
       };
     };
   };
