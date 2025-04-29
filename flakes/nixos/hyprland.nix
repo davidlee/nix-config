@@ -1,5 +1,7 @@
 { pkgs, username, ...} : {
+
   programs.hyprland.enable = true; 
+  programs.hyprland.withUWSM = true;
 
   environment.systemPackages = [
   ];
@@ -12,46 +14,75 @@
       enable = true;
       xwayland.enable = true;
 
-      # plugins = [ pkgs.hyprlandPlugins.hyprscroller ];
       plugins = [
-        # hy3.packages.${pkgs.stdenv.hostPlatform.system}.hy3
+        pkgs.hyprlandPlugins.hy3
         # pkgs.hyprlandPlugins.hyprscroller
-        # inputs.hy3.packages.x86_64-linux.hy3
+        pkgs.hyprlandPlugins.hyprexpo
+        # pkgs.hyprlandPlugins.hyprfocus
+        # pkgs.hyprlandPlugins.hyprspace
+        # pkgs.hyprlandPlugins.hyprsplit
       ];
 
       settings = {
         "$mod" = "SUPER";
         "$terminal" = "kitty";
         "$menu" = "wofi --show drun";
-        # "$menu" = "walker";
         "$fileManager" = "nemo";
       
         bind = [
           "$mod, P, exec, $terminal"
-          "$mod CTRL, Q, exit"
           "$mod, F, fullscreen"
           "$mod, space, exec, $menu"
           "$mod, K, killactive"
-          "$mod, E, exec, $fileManager"
+          "$mod SHIFT, K, hy3:killactive"
+
+          "$mod,     C,   hy3:makegroup, h"
+          "$mod,     V,   hy3:makegroup, v"
+          "$mod,     S,   hy3:makegroup, tab"
+          "$mod,     G,   hy3:makegroup, opposite"
+          
+          "$mod ALT, C,   hy3:changegroup, h"
+          "$mod ALT, V,   hy3:changegroup, v"
+          "$mod ALT, S,   hy3:changegroup, toggletab"
+          "$mod ALT, G,   hy3:changegroup, opposite"
+
+          "$mod, E,       hy3:setephemeral, true"
+          "$mod SHIFT, E, hy3:setephemeral, false"
+          
+          "$mod, U,       hy3:changefocus, raise"
+          "$mod SHIFT, U, hy3:changefocus, lower"
+          
+          "$mod, O,       hy3:changefocus, tab"
+          "$mod SHIFT, O, hy3:changefocus, tabnode"
+          
+          "$mod, Y,       hy3:changefocus, top"
+          "$mod SHIFT, Y, hy3:changefocus, bottom"
+          
+          "$mod, L,       hy3:togglefocuslayer"
           "$mod SHIFT, L, togglefloating"
-          # "$mod, G, exec, ghostty"
-          # "$mod, D, scroller:toggleoverview"
-          # "$mod, J, scroller:jump"
+          
+          "$mod CTRL, Q, exit"
+          "$mod SHIFT, D, hy3:debugnodes"
+
+          "$mod, E, exec, $fileManager"
         
-          "$mod, left, movefocus, l" 
-          "$mod, right, movefocus, r" 
-          "$mod, up, movefocus, u" 
-          "$mod, down, movefocus, d" 
+          "$mod, left,  hy3:movefocus, l" 
+          "$mod, right, hy3:movefocus, r" 
+          "$mod, up,    hy3:movefocus, u" 
+          "$mod, down,  hy3:movefocus, d" 
 
-          "$mod SHIFT, left, movewindow, l" 
-          "$mod SHIFT, right, movewindow, r" 
-          "$mod SHIFT, up, movewindow, u" 
-          "$mod SHIFT, down, movewindow , d" 
-          #"$mod CTRL, home, scroller:movewindow, begin" 
-          #"$mod CTRL, end, scroller:movewindow , end" 
+          "$mod ALT, left,  hy3:movefocus, l, visible" 
+          "$mod ALT, right, hy3:movefocus, r, visible" 
+          "$mod ALT, up,    hy3:movefocus, u, visible" 
+          "$mod ALT, down,  hy3:movefocus, d, visible" 
 
-          #"$mod, bracketleft, scroller:setmode, row" 
-          #"$mod, bracketright, scroller:setmode, col" 
+          "$mod SHIFT, left,  hy3:movewindow, l" 
+          "$mod SHIFT, right, hy3:movewindow, r" 
+          "$mod SHIFT, up,    hy3:movewindow, u" 
+          "$mod SHIFT, down,  hy3:movewindow , d" 
+
+          "$mod, page_down, hy3:focustab, l"
+          "$mod, page_up,   hy3:focustab, r"
 
           "$mod, N, togglespecialworkspace, magic" 
           "$mod SHIFT, N, movetoworkspace, special:magic" 
@@ -84,16 +115,24 @@
         bind = $mod, 0, workspace, 10
 
         # Move active window to a workspace with mod + SHIFT + [0-9]
-        bind = $mod SHIFT, 1, movetoworkspace, 1
-        bind = $mod SHIFT, 2, movetoworkspace, 2
-        bind = $mod SHIFT, 3, movetoworkspace, 3
-        bind = $mod SHIFT, 4, movetoworkspace, 4
-        bind = $mod SHIFT, 5, movetoworkspace, 5
-        bind = $mod SHIFT, 6, movetoworkspace, 6
-        bind = $mod SHIFT, 7, movetoworkspace, 7
-        bind = $mod SHIFT, 8, movetoworkspace, 8
-        bind = $mod SHIFT, 9, movetoworkspace, 9
-        bind = $mod SHIFT, 0, movetoworkspace, 10
+        bind = $mod SHIFT, 1, hy3:movetoworkspace, 1
+        bind = $mod SHIFT, 2, hy3:movetoworkspace, 2
+        bind = $mod SHIFT, 3, hy3:movetoworkspace, 3
+        bind = $mod SHIFT, 4, hy3:movetoworkspace, 4
+        bind = $mod SHIFT, 5, hy3:movetoworkspace, 5
+        bind = $mod SHIFT, 6, hy3:movetoworkspace, 6
+        bind = $mod SHIFT, 7, hy3:movetoworkspace, 7
+        bind = $mod SHIFT, 8, hy3:movetoworkspace, 8
+        bind = $mod SHIFT, 9, hy3:movetoworkspace, 9
+        bind = $mod SHIFT, 0, hy3:movetoworkspace, 10
+
+        bindl = , XF86AudioRaiseVolume, exec, swayosd-client --output-volume raise --max-volume 100
+        bindl = , XF86AudioLowerVolume, exec,  swayosd-client --output-volume lower 
+        bindl = , XF86AudioMute, exec, swayosd-client --output-volume mute-toggle
+        bindl = , XF86AudioMicMute, exec, swayosd-client --input-volume mute-toggle
+        bindl = , XF86AudioPlay, exec, playerctl play-pause
+        bindl = , XF86AudioNext, exec, playerctl next
+        bindl = , XF86AudioPrev, exec, playerctl previous
 
         # Ignore maximize requests from apps. You'll probably like this.
         windowrulev2 = suppressevent maximize, class:.*
@@ -104,48 +143,39 @@
         # no anim for fullscreen
         windowrulev2 = noanim, class:.*,fullscreen:1
 
-      
-        # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
+        general {
+            gaps_in = 5
+            gaps_out = 20
+
+            border_size = 1
+
+            col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
+            col.inactive_border = rgba(595959aa)
+
+            resize_on_border = true
+            allow_tearing = true
+
+            # layout = dwindle | master | scroller | hy3
+            layout = hy3
+        }
+        
         dwindle {
             pseudotile = true # Master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
             preserve_split = true # You probably want this
         }
 
-        # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
         master {
             new_status = master
         }
 
-        # https://wiki.hyprland.org/Configuring/Variables/#misc
         misc {
             force_default_wallpaper = -1 # Set to 0 or 1 to disable the anime mascot wallpapers
-            disable_hyprland_logo = false # If true disables the random hyprland logo / anime girl background. :(
+            disable_hyprland_logo = 1
         }
 
-        # https://wiki.hyprland.org/Configuring/Variables/#general
-        general {
-            gaps_in = 5
-            gaps_out = 20
-
-            border_size = 2
-
-            # https://wiki.hyprland.org/Configuring/Variables/#variable-types for info about colors
-            col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-            col.inactive_border = rgba(595959aa)
-
-            # Set to true enable resizing windows by clicking and dragging on borders and gaps
-            resize_on_border = false
-
-            # Please see https://wiki.hyprland.org/Configuring/Tearing/ before you turn this on
-            allow_tearing = true
-
-            layout = dwindle
-            # layout = scroller
-        }
         decoration {
             rounding = 10
 
-            # Change transparency of focused and unfocused windows
             active_opacity = 1.0
             inactive_opacity = 0.9
 
@@ -156,7 +186,6 @@
                 color = rgba(1a1a1aee)
             }
 
-            # https://wiki.hyprland.org/Configuring/Variables/#blur
             blur {
                 enabled = true
                 size = 3
@@ -166,16 +195,25 @@
             }
         }
 
-        exec-once = clipse -listen # run listener on startup
-        exec-once = swaybg -i ~/Downloads/dock.png
+        plugin {
+          hy3 {
+            tabs {
+            }
+            autotile {
+              enable = 1
+            }
+          }
+        }
+
+        exec-once = waybar -c ~/.config/waybar/config.jsonc
+        exec-once = swaybg -i ~/Pictures/wallpaper/dark-water.jpg
+        exec-once = swayosd-server
+        exec-once = blueman-tray
+        exec-once = 1password --silent
         exec-once = copyq --start-server
-        # exec-once = walker --gapplication-service
 
+        animation = windows, 1, 1, default
 
-        windowrulev2 = float,class:(clipse) # ensure you have a floating window class set if you want this behavior
-        windowrulev2 = size 622 652,class:(clipse) # set the size of the window as necessary
-
-        bind = SUPER, V, exec,  <terminal name> --class clipse -e 'clipse' 
       '';
     };
   };
