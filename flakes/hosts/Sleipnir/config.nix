@@ -16,6 +16,7 @@
     ../../nixos/apps.nix
     ../../nixos/wayland.nix
     ../../nixos/gnome.nix
+    ../../nixos/hyprland.nix
     # ../../nixos/cosmic.nix
     ../../nixos/kde.nix
     ../../nixos/sway.nix
@@ -45,6 +46,7 @@
         "https://nixpkgs-wayland.cachix.org"
         "https://walker.cachix.org"
         "https://walker-git.cachix.org"
+        "https://hyprland.cachix.org"
       ];
     
       trusted-public-keys = [
@@ -53,6 +55,7 @@
         "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
         "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
         "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
+        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       ];
     };
 

@@ -82,9 +82,8 @@
             "--remember-session"
             "--sessions ${waylandSessions}:${xSessions}"
             "--time"
-            # Make sure theme is wrapped in single quotes. See https://github.com/apognu/tuigreet/issues/147
             "--theme 'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'"
-            "--cmd Hyprland"
+            "--cmd sway"
           ];
           flags = lib.concatStringsSep " " tuigreetOptions;
         in {
