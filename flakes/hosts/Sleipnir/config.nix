@@ -30,8 +30,6 @@
 
   ];
 
-  users.enable = true;
-
   system.stateVersion = "24.11"; 
   nixpkgs.config.allowUnfree = true;
 
@@ -134,5 +132,9 @@
     #   # ensurePrinters = [{ .. }];
     # };
   };
+
+  # environment.systemPackages = with pkgs; [
+  #   brlaser
+  # ];
 
 }

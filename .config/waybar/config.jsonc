@@ -5,9 +5,16 @@
         "sway/workspaces",
         "sway/mode",
         "sway/scratchpad",
+        
+        "hyprland/workspaces",
+        "hyprland/submap",
+        
         "wlr/taskbar",
     ],
-    "modules-center": ["sway/window"],
+    "modules-center": [
+        "sway/window",
+        "hyprland/window",
+    ],
     "modules-right": [
         "cava",
         "gamemode",
@@ -15,19 +22,30 @@
         "mpris",
         "pulseaudio",
         "cpu",
-        // "mpd",
-        // "network",
-        // "bluetooth",
-        // "temperature",
         "power-profiles-daemon",
         "idle_inhibitor",
-        // "custom/stopwatch",
         "tray",
         "custom/weather",
-
         "custom/timer",
-        "clock"
+        "clock",
     ],
+    "hyprland/workspaces": {
+        "show-special": true,
+        "persistent-workspaces": {
+            "*":    4,
+            "DP-3": 4,
+        },
+        // "format": "{name}: {icon}",
+        // "format-icons": {
+        //     "1": "",
+        // 		"2": "",
+        // 		// "3": "",
+        // 		"4": "",
+        // 		"5": "",
+        // 		"active": "",
+        // 		"default": "",
+        // }
+    },
     
     "sway/window": {
         "max-length": 50

@@ -219,6 +219,8 @@
     neofetch
     fastfetch
 
+    openrgb-with-all-plugins
+
     ### libs
     glib
     libffi
