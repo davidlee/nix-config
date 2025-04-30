@@ -168,6 +168,7 @@
     tor-browser
     wavebox
     kdePackages.angelfish
+    pkgs.firefoxpwa
     # midori
     
     ## non-web
@@ -178,4 +179,11 @@
     #godot
     stable.godot_4
   ];
+
+  programs.firefox = {
+    enable = true;
+    package = pkgs.firefox;
+    nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
+  };
+
 }
