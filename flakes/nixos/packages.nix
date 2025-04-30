@@ -139,6 +139,7 @@
     sysstat
     usbutils 
     x86info
+    lm_sensors
 
     ## unix / text
     coreutils
@@ -218,7 +219,10 @@
     ## frivolity
     neofetch
     fastfetch
-
+    figlet
+    fortune
+    cmatrix
+    nms
     openrgb-with-all-plugins
 
     ### libs
@@ -235,17 +239,26 @@
   ];
 
   programs = {
+    nix-ld.enable = true;
+    dconf.enable = true;
+    gnupg.agent.enable = true;
     _1password.enable = true;
+
+    appimage.binfmt = true;
+    appimage.enable = true;
 
     _1password-gui = {
       enable = true;
       polkitPolicyOwners = [ username ];
     };
       
-    nix-ld.enable = true;
-    dconf.enable = true;
-    gnupg.agent.enable = true;
-  
+    rust-motd = {
+      enable = true;
+      settings = {
+        
+      };
+    };
+    
     thunar = {
       enable = true;
       plugins = with pkgs.xfce; [thunar-archive-plugin thunar-volman];
@@ -260,8 +273,6 @@
       enable = true;
     };
 
-    appimage.binfmt = true;
-    appimage.enable = true;
   };
 
   # allow non-root write access to firmware 

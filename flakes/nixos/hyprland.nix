@@ -205,15 +205,30 @@
           }
         }
 
+        input {
+          kb_layout = us
+          kb_variant =
+          kb_model =
+          kb_options = compose:menu
+        }
+
+        xwayland {
+          force_zero_scaling = true
+        }
+
+        # toolkit-specific scale
+        env = GDK_SCALE,2
+        env = XCURSOR_SIZE,32
+
         exec-once = waybar -c ~/.config/waybar/config.jsonc
         exec-once = swaybg -i ~/Pictures/wallpaper/dark-water.jpg
+        exec-once = gnome-keyring-daemon --start --daemonize --components=ssh,secrets && export SSH_AUTH_SOCK
         exec-once = swayosd-server
         exec-once = blueman-tray
         exec-once = 1password --silent
         exec-once = copyq --start-server
 
         animation = windows, 1, 1, default
-
       '';
     };
   };
