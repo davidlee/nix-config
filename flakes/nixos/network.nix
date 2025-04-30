@@ -1,8 +1,15 @@
 {
   hostname,
   options,
+  pkgs,
   ...
 }: {
+
+  # network manager frontends
+  environment.systemPackages = with pkgs; [
+    nm-tray
+  ];
+
   networking = {
     networkmanager.enable = true;
     hostName = hostname;
