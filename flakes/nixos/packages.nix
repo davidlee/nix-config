@@ -252,10 +252,9 @@
       polkitPolicyOwners = [ username ];
     };
       
-    rust-motd = {
+    rust-motd = { # fixme
       enable = true;
       settings = {
-        
       };
     };
     

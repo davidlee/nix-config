@@ -1,0 +1,9 @@
+# man 5 wofi
+
+# matching = fuzzy
+# allow_images = true
+insensitive = true
+filter_rate = 10
+key_expand = Tab
+width = 800
+lines = 18

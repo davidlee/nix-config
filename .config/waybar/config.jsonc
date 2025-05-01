@@ -22,11 +22,11 @@
         "mpris",
         "pulseaudio",
         "cpu",
-        "power-profiles-daemon",
-        "idle_inhibitor",
-        "tray",
         "custom/weather",
         "custom/timer",
+        "idle_inhibitor",
+        "power-profiles-daemon",
+        "tray",
         "clock",
     ],
     "hyprland/workspaces": {
@@ -35,16 +35,6 @@
             "*":    4,
             "DP-3": 4,
         },
-        // "format": "{name}: {icon}",
-        // "format-icons": {
-        //     "1": "",
-        // 		"2": "",
-        // 		// "3": "",
-        // 		"4": "",
-        // 		"5": "",
-        // 		"active": "",
-        // 		"default": "",
-        // }
     },
     
     "sway/window": {

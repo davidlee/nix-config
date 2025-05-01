@@ -1,0 +1,23 @@
+* {
+    font-family: monospace;
+    font-size: 20px;
+}
+window {
+    background-color: #222530;
+}
+
+#img {
+    margin: 0 12px 0 4px;
+}
+
+#expander-box {
+    border: 1px solid red;
+}
+
+#entry {
+    margin-left: 15px;
+}
+
+#entry > expander {
+    margin-left: -10px;
+}
