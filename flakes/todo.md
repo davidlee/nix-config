@@ -1,0 +1,4 @@
+- hyprland twiddles
+  - styling groupbar ?!
+  - rewrite rules
+- xwaylandvideobridge / screen sharing

@@ -12,6 +12,15 @@
     gnome-disks.enable = true;
   };
   
+  environment = {
+    variables = {
+      XCURSOR_SIZE = 24;
+      NIXOS_OZONE_WL = 1;
+      MOZ_ENABLE_WAYLAND = 1;
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+    };
+  };
+
   xdg.portal = {
     enable = true;
     wlr = {

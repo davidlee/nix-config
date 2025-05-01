@@ -2,7 +2,6 @@
 
   imports = [
     ../../home/zsh.nix
-    ../../home/kitty.nix
    ];
   
   home = {
