@@ -20,6 +20,10 @@
     };
 
     kernelPackages = pkgs.linuxPackages_latest;
+    kernelModules = [
+      "snd-seq"
+      "snd-rawmidi"
+    ];
 
     extraModulePackages = with config.boot.kernelPackages; [ xpadneo ];
     extraModprobeConfig = ''

@@ -5,8 +5,8 @@
   ...
 }: {
 
-  environment.systemPackages = with pkgs; [
 
+  environment.systemPackages = with pkgs; [
     ## daw & audio
     carla
     reaper
@@ -145,7 +145,11 @@
     ## search
     recoll
     
-    ## 
+    ## scanner
+    # naps2
+    xsane
+    kdePackages.skanlite
+    kdePackages.skanpage
 
     ## data:
     # dbvisualizer

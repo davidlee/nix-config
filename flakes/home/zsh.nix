@@ -35,6 +35,8 @@
       plugins = [''
         getantidote/use-omz
 
+        ohmyzsh/ohmyzsh path:lib # load all of omz lib. Slow.
+
         ohmyzsh/ohmyzsh path:plugins/colored-man-pages
         ohmyzsh/ohmyzsh path:plugins/extract
         ohmyzsh/ohmyzsh path:plugins/fancy-ctrl-z
@@ -73,6 +75,7 @@
 
         zsh-users/zsh-completions kind:fpath path:src
         zsh-users/zsh-autosuggestions
+
         # zsh-users/zsh-history-substring-search  
         zdharma-continuum/fast-syntax-highlighting
       ''];

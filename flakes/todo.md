@@ -1,4 +1,20 @@
+- meta
+  - steal aaron's structure for packages https://github.com/kranners/jimbo/blob/main/modules/apps/default.nix
+
+- vim
+
 - hyprland twiddles
   - styling groupbar ?!
   - rewrite rules
-- xwaylandvideobridge / screen sharing
+  - tray apps
+    - why slack no tray?
+      - is electron wayland a mistake?
+  - maybe
+    - xwaylandvideobridge / screen sharing
+    - hypr crashes when monitor turned off
+    - mimeapps / xdg-mime query
+
+- busted
+  - antidote omz plugin loading
+
+

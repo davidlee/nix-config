@@ -53,6 +53,22 @@
     };
   };
 
+  # # app launcher & mime type metadata
+  # # https://github.com/nix-community/home-manager/blob/master/modules/misc/xdg-desktop-entries.nix
+  # xdg.desktopEntries = {
+  #   # "name".mimeType = [ "" ];
+  #   # "Slack".settings .. icon
+  #   # "Helix".terminal = true;
+  # };
+
+  # xdg.mimeApps = {
+  #   enable = false;    
+  #   associations = {
+  #     added = {};
+  #     removed = {};
+  #   };
+  # };
+
   environment.etc = {
     "1password/custom_allowed_browsers" = {
       text = ''
@@ -185,7 +201,7 @@
     };
 
     # services.copyq.enable = true;
-    services.cliphist.enable = true;
+    # services.cliphist.enable = true;
 
   }; # home-manager
 }
