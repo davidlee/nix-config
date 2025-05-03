@@ -34,26 +34,34 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ramalama.url = "github:containers/ramalama/main";
+    gauntlet = {
+      url = "github:project-gauntlet/gauntlet";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
 
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";
+
+
+    # musnix.url = "github:musnix/musnix";
+    # ramalama.url = "github:containers/ramalama/main";
   };
 
   #
   # NixOS
   # 
   outputs = inputs@{ self, nixpkgs, nix-stable, home-manager, ... }: {
-    nixosConfigurations = let
+    nixosConfigurations =
+    let
       inherit (self) outputs;
+
       hostname = "Sleipnir";
       username = "david";
-      system = "x86_64-linux";
-
-      stable = import nix-stable {
+      system   = "x86_64-linux";
+      stable   = import nix-stable {
         inherit system;
         config.allowUnfree = true;
       };
@@ -65,6 +73,8 @@
         inherit specialArgs;
         modules = [
           ./hosts/${hostname}/config.nix
+          # TODO understand if we need a realtime kernel and whether it'll break virtualization
+          # inputs.musnix.nixosModules.musnix
           home-manager.nixosModules.home-manager {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;

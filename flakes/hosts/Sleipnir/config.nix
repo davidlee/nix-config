@@ -11,6 +11,7 @@
     ../../nixos/network.nix
     ../../nixos/accounts.nix
     ../../nixos/packages.nix
+    # ../../nixos/gauntlet.nix
     ../../nixos/dev.nix
     ../../nixos/tui.nix
     ../../nixos/apps.nix
@@ -96,7 +97,7 @@
     };
 
     pulseaudio = {
-      package = pkgs.pulseaudioFull; # additional codecs
+      package = pkgs.pulseaudioFull.override { jackaudioSupport = true; };
     };
 
     jack = {
@@ -107,6 +108,14 @@
       };
     };
   };
+
+  environment.systemPackages = with pkgs; [
+    jack2
+    libjack2
+    qjackctl
+    pavucontrol
+    jack_capture
+  ];
 
   hardware = {
     logitech.wireless.enable = true;
@@ -127,14 +136,5 @@
         };
       };
     };
-
-    # printers = {
-    #   # ensurePrinters = [{ .. }];
-    # };
   };
-
-  # environment.systemPackages = with pkgs; [
-  #   brlaser
-  # ];
-
 }

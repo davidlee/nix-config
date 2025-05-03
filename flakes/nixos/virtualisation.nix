@@ -1,6 +1,7 @@
 {
   pkgs,
   username,
+  lib,
   ...
 }: {
   
@@ -32,17 +33,12 @@
   virtualisation = {
     incus = {
       enable = true;
-      # ui.enable = true;
-      # agent.enable = true;
     };
     
     libvirtd = {
       enable = true;
       qemu = {
         package = pkgs.qemu_kvm;
-        # runAsRoot = true;
-        # swtpm.enable = true;
-        # ovmf = { };
       };
     };
 
@@ -53,11 +49,24 @@
       dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
     };
+
+    lxd = {
+      enable = true;
+    };
   };
   
   users.groups.incus-admin.members = [ username ];
   users.groups.incus.members = [ username ];
   users.groups.libvirtd.members = [ username ];
   programs.virt-manager.enable = true;
+
+  # leave services idle by default; start with systemctl or by poking them on the cli
+  systemd.services.incus-startup.wantedBy = lib.mkForce [];
+  systemd.services.incus.wantedBy = lib.mkForce [];
+  systemd.services.libvirtd.wantedBy = lib.mkForce [];
+  systemd.services.libvirt-guests.wantedBy = lib.mkForce [];
+  systemd.services.docker.wantedBy = lib.mkForce [];
+  # systemd.services.lxd.wantedBy = lib.mkForce [];
+
 }
 

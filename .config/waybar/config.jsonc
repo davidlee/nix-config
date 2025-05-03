@@ -38,7 +38,22 @@
     },
     
     "sway/window": {
-        "max-length": 50
+      // "max-length": 50,
+      "icon": true,
+      "icon-size": 16,
+      "rewrite": {
+          "(.*) - Ablaze Floorp:?": " $1",
+          "(.*) - Mozilla Firefox": " $1",
+      },
+    },
+
+    "hyprland/window": {
+      "icon": true,
+      "icon-size": 16,
+      "rewrite": {
+          "(.*) - Ablaze Floorp:?": " $1",
+          "(.*) - Mozilla Firefox": " $1",
+      },
     },
     "sway/scratchpad": {
         "format": "{icon} {count}",
@@ -136,6 +151,7 @@
     },
     
     "privacy": { "modules": [{ "type":"screenshare" }] },
+
     "wlr/taskbar": {
         "on-click": "activate",
         "on-click-right": "maximise",
@@ -174,14 +190,6 @@
             "on-scroll-down": "shift_down"
         }
     },
-    
-    // "custom/stopwatch": {
-    //     "exec": "$HOME/.config/waybar/scripts/stopwatch start",
-    //     "format": "{}",
-    //     "interval": 1,
-    //     "return-type": "json",
-    //     "on-click": "$HOME/.config/waybar/scripts/stopwatch restart"
-    // },
     "custom/timer": {
         "exec": "$HOME/.config/waybar/scripts/timer hook",
         "exec-on-event": false,

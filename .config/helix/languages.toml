@@ -1,3 +1,7 @@
 [[language]]
 name = "cpp"
 file-types = [ "cpp", "h", "keymap", "conf", "dtsi"]
+
+# [[language]]
+# name = "text"
+# indent = { tab-width = 2, unit = " " }
