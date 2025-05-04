@@ -44,7 +44,7 @@
 
     nixarr.url = "github:rasmus-kirk/nixarr";
     ucodenix.url = "github:e-tho/ucodenix";
-
+    raise.url = "github:knarkzel/raise";
 
     # musnix.url = "github:musnix/musnix";
     # ramalama.url = "github:containers/ramalama/main";
