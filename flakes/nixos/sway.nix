@@ -39,17 +39,18 @@ in {
       sway-overfocus
       sway-scratch
       sway-new-workspace
-      sway-contrib.grimshot
-      swaybg
+      sway-easyfocus
       swayidle
-      swayimg
       swaylock
+      swaynotificationcenter
+      swaycwd
       swaymux
-      waybar
       swaycons
       swaysettings
       swayr
       swayrbar
+      waybar
+      spatial-shell
     ];
 
     services = {

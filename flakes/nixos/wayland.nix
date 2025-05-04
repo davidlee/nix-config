@@ -86,11 +86,23 @@
     wayland-utils
     wayland-logout
     wayland-pipewire-idle-inhibit
-    wl-clipboard-rs
+    wlroots
+    xwayland
+    dconf
+    waypipe
+
+    # util
+    gammastep
+    kanshi
+    wtype
+    wlclock
+    wlock
+    wlinhibit
+    wleave
+    wlprop
     wl-screenrec
     wl-clicker
     wl-crosshair
-    wl-clip-persist
     wl-gammactl
     wl-gammarelay-rs
     wl-color-picker
@@ -98,78 +110,95 @@
     wl-restart
     wl-mirror
     wlr-layout-ui
-    wlclock
-    wlock
-    wldash
-    wlinhibit
-    wleave
-    wlprop
-    wlroots
-    xwayland
+    gnome-secrets
+    gnome-system-monitor
+    gnome-calendar
+    gnome-nettool
+    gnomeExtensions.appindicator
+
+    # wine
     wine
     wineWowPackages.stagingFull
     winetricks
     wine-wayland
     wine-staging
-    wofi-emoji
-    wofi-power-menu
-    dconf
-    kando
-    kanshi
-    gnome-secrets
-    gnome-system-monitor
+
+    # compositors
+    river
+
+    # notifications
+    mako
+
+    # file managers
+    nemo
+    xfce.thunar
+    xfce.tumbler
+
+    # themes & cursors
+    phinger-cursors
+    adwaita-icon-theme
+    bibata-cursors
+    marble-shell-theme
+
+    # bars & widgets
+    waybar
+    wob
+    i3status
+    wttrbar
+    gnome-weather
+
+    # wallpapers
+    swww
+    swaybg
+    wbg
+
+    # keyboard / input
+    wev
+    wshowkeys
+    showmethekey
+    kmonad
+    
+    # viewers
+    swayimg
+    zathura
+    imv
+    cava
+    tuba
+    gnome-logs
+
+    # screenshots
+    flameshot
+    grim
+    shotman
+    slurp
+    sway-contrib.grimshot
+
+    # bluetooth
     blueman
     bluez-tools
     bluez-experimental
-    mako
-    adwaita-icon-theme
-    bibata-cursors
-    cava
+
+    # clipboard managers
     cliphist
     clipman
     clipse
-    dmenu
-    flameshot
-    fuzzel
-    gammastep
-    gnome-calendar
-    gnomeExtensions.appindicator
-    gnome-logs
-    gnome-nettool
-    gnome-weather
-    grim
-    i3status
-    imv
-    kmonad
-    marble-shell-theme
-    nemo
-    phinger-cursors
-    river
-    rofi-wayland
-    shotman
-    showmethekey
-    sirula
-    slurp
-    spatial-shell
+    wl-clip-persist
+    wl-clipboard-rs
     stable.copyq
-    swaybg
-    sway-contrib.grimshot
-    swayimg
-    swww
-    tuba
-    ulauncher
-    waypipe
-    wbg
-    wev
-    wmenu
-    wob
+
+    # launchers
+    anyrun
     wofi
-    wshowkeys
-    wttrbar
-    wtype
-    xfce.thunar
-    xfce.tumbler
-    zathura
+    wmenu
+    ulauncher
+    rofi-wayland
+    wofi-emoji
+    kando
+    wofi-power-menu
+    wldash
+    fuzzel
+    dmenu
+    sirula
       
     ## libs
     libxkbcommon

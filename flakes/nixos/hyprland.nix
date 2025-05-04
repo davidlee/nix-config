@@ -1,4 +1,4 @@
-{ pkgs, username, ...} : {
+{ pkgs, username, inputs, ...} : {
 
   programs.hyprland.enable = true; 
   programs.hyprland.withUWSM = true;
@@ -6,6 +6,8 @@
   environment.systemPackages = with pkgs; [
     hyprlock
     hypridle
+    inputs.raise.defaultPackage.${system}
+
   ];
 
   environment.sessionVariables.HYPRCURSOR_SIZE = "24";
