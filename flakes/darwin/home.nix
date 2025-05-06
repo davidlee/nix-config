@@ -99,20 +99,16 @@
     nix-direnv
     nix-index
     nix-search-cli
+    nix-search-tv
     nmap
     nnn
-    # nodejs_latest
     nushell
     odin
     ols
     overmind
     p7zip
-    # pipx
     pixman
-    # pnpm
     pstree
-    # python312
-    # python312Packages.pip
     python312Packages.pywatchman
     qmk
     ranger
