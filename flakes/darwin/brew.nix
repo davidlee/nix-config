@@ -20,6 +20,7 @@
     # };
      brews = [
        # "jordanbaird-ice"
+      "jupyterlab"
       "dnote"
       "cmdg"
       "mlx"
@@ -28,9 +29,11 @@
       "python3"
       "node"
       "surreal"
+      "television"
     ];
     casks = [
       "firefox"
+      "anaconda"
       "zoom"
       "obs"
       "aerospace"

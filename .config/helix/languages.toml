@@ -19,3 +19,15 @@ language-servers = [ "godot" ]
 name="rust"
 formatter = { command = "rustfmt", args = ["+nightly"]}
 
+# darwin-specific bits here
+#
+# 
+# [language-server.c]
+# command = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang"
+# 
+# [language-server.omnisharp]
+# command = "dotnet"
+# args = [ "~/.local/omnisharp/OmniSharp.dll", "--languageserver" ]
+# 
+# [language-server.c]
+# command = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang"
