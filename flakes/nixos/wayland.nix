@@ -15,9 +15,10 @@
   environment = {
     variables = {
       XCURSOR_SIZE = 24;
-      NIXOS_OZONE_WL = 1;
+      # NIXOS_OZONE_WL = 1;
+      # ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+      ELECTRON_OZONE_PLATFORM_HINT = "x11";
       MOZ_ENABLE_WAYLAND = 1;
-      ELECTRON_OZONE_PLATFORM_HINT = "wayland";
     };
   };
 
@@ -109,6 +110,7 @@
     wl-kbptr
     wl-restart
     wl-mirror
+    wlopm
     wlr-layout-ui
     gnome-secrets
     gnome-system-monitor
@@ -167,11 +169,14 @@
     gnome-logs
 
     # screenshots
-    flameshot
+    (flameshot.override { enableWlrSupport = true; })
     grim
     shotman
     slurp
     sway-contrib.grimshot
+
+    # img editor
+    swappy
 
     # bluetooth
     blueman

@@ -110,6 +110,7 @@
     tut # mastodon
     tuisky # bluesky
     wiki-tui # wikipedia
+    slack-term
     
     ## hex edit for infinite grenades
     hexpatch
@@ -127,6 +128,7 @@
     basilk
     calcure
     calcurse
+    gcalcli
     taskflow
     task-keeper
     tasktimer
