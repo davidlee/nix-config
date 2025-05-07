@@ -26,6 +26,7 @@
         supportExperimental.enable = true;
         support32Bit.enable = true;
       };
+      opencl.enable = true;
     };
   };
 

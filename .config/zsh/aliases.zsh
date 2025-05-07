@@ -1,6 +1,7 @@
 # single character aliases 
 alias g=git;
 alias j=just;
+alias zz=zellij;
 
 alias hxr="hx ~/.reminders";
 

@@ -1,4 +1,4 @@
-{ username, ... }: {
+{ pkgs, username, ... }: {
 
   services = {
     static-web-server = {
@@ -15,6 +15,9 @@
 
     ollama = {
       enable = true;
+      acceleration = "rocm";
+      rocmOverrideGfx = "10.3.0";
+      package = pkgs.ollama-rocm;
     };
 
     postgresql = {

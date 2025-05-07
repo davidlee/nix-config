@@ -235,7 +235,10 @@
     pkg-config
     raylib
     zlib
-    
+
+    # windows API libs
+    dotnet-runtime
+
   ];
 
   programs = {
