@@ -30,7 +30,7 @@
       nerd-fonts.noto 
       nerd-fonts.hack 
       nerd-fonts.tinos 
-      nerd-fonts.mplus 
+      # nerd-fonts.mplus 
       nerd-fonts.lilex 
       nerd-fonts.arimo 
       nerd-fonts.agave 

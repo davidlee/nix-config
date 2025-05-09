@@ -123,7 +123,7 @@
     jupyter-all
 
     ## lang.odin
-    ols
+    # ols broken
 
     ## lang.clojure
     clojure-lsp

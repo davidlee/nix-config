@@ -73,6 +73,15 @@
       cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
     };
 
+    kmscon = {
+      enable = true;
+      hwRender = true;
+      fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
+      autologinUser = "david"; # WARN : arguably insecure
+      # useXkbConfig = true;
+      # extraOptions
+    };
+
     greetd = {
       enable = true;
       settings = {
