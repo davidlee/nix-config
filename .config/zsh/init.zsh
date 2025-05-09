@@ -7,8 +7,6 @@ path+=$PWD/bin
 
 typeset -U path
 
-# Fix Alt-BSPC & word navigation:
-
 bindkey -e
 
 # WORDCHARS are defined in belak/zsh-utils:editor
@@ -18,14 +16,13 @@ select-word-style normal
 
 setopt extended_glob
 setopt glob_dots
-# setopt no_complete_aliases
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
 setopt HIST_REDUCE_BLANKS 
 setopt HIST_VERIFY        
+# setopt no_complete_aliases
 
 source $HOME/.config/zsh/completions.zsh
 source $HOME/.config/zsh/functions.zsh
-source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh

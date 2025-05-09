@@ -1,22 +1,16 @@
 {
-  # pkgs,
-  # hostname,
-  # username,
+  lib,
   ...
 }: {
 
+  environment.pathsToLink = [ "/share/zsh" ];
 
   programs.zsh = {
     enable = true;
-    # autocd = true;
-
     dotDir = ".config/zsh";
     defaultKeymap = "emacs";
-    
-    # manage these w/ antidote
+    # manage w/ antidote
     enableCompletion = false;
-    syntaxHighlighting.enable = false;
-    autosuggestion.enable = false;
 
     history = {
       ignoreAllDups = true;
@@ -47,25 +41,26 @@
         ohmyzsh/ohmyzsh path:plugins/copyfile
         ohmyzsh/ohmyzsh path:plugins/colorize
         ohmyzsh/ohmyzsh path:plugins/fzf
-        ohmyzsh/ohmyzsh path:plugins/foot
         ohmyzsh/ohmyzsh path:plugins/gh
         ohmyzsh/ohmyzsh path:plugins/github
         ohmyzsh/ohmyzsh path:plugins/eza
         ohmyzsh/ohmyzsh path:plugins/rust
-        ohmyzsh/ohmyzsh path:plugins/tailscale
         ohmyzsh/ohmyzsh path:plugins/systemd
         ohmyzsh/ohmyzsh path:plugins/globalias
+        ohmyzsh/ohmyzsh path:plugins/kitty
+        ohmyzsh/ohmyzsh path:plugins/podman
         
+        # ohmyzsh/ohmyzsh path:plugins/tailscale
+        # ohmyzsh/ohmyzsh path:plugins/foot
         # ohmyzsh/ohmyzsh path:plugins/command-not-found
         # ohmyzsh/ohmyzsh path:plugins/httpie
-        # ohmyzsh/ohmyzsh path:plugins/kitty
         # ohmyzsh/ohmyzsh path:plugins/ngrok
         # ohmyzsh/ohmyzsh path:plugins/nmap
-        # ohmyzsh/ohmyzsh path:plugins/podman
         # ohmyzsh/ohmyzsh path:plugins/magic-enter
         # ohmyzsh/ohmyzsh path:plugins/otp
 
         # marlonrichert/zsh-autocomplete
+
         aloxaf/fzf-tab  
 
         belak/zsh-utils path:editor
@@ -89,7 +84,7 @@
       source $HOME/.config/zsh/profile.zsh
     '';
 
-    initExtra = ''
+    initContent = lib.mkOrder 1500 ''
       source $HOME/.config/zsh/init.zsh
     '';
 

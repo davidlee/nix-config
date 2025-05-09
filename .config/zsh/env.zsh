@@ -8,7 +8,6 @@ setopt no_global_rcs
 export EDITOR=hx
 export VISUAL=hx
 export PAGER=ov
-# export MANPAGER=ov
 export MANPAGER='nvim +Man!'
 
 export ORG_DIR=~/org

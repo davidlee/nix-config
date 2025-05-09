@@ -291,7 +291,6 @@
   home-manager.users.${username} = {
     programs = {
       helix.defaultEditor = true;
-      eza.enable = true;
       firefox.enable = true;
       git.enable = true;
       librewolf.enable = true;
@@ -310,6 +309,26 @@
       neovim = {
         enable = true;
         vimAlias = true;
+      };
+
+      broot = {
+        enable = true;
+        enableZshIntegration = true;
+      };
+      
+      mcfly = {
+        enable = true;
+        enableZshIntegration = true;
+      };
+
+      eza = {
+        enable = true;
+        enableZshIntegration = true;
+      };
+
+      lsd = {
+        enable = true;
+        enableZshIntegration = true;
       };
 
       fzf = {
