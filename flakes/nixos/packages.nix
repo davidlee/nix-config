@@ -13,6 +13,7 @@
 
     ## zsh / posix
     zsh
+    zsh-autocomplete
     antidote
     shellcheck
     shfmt
@@ -321,6 +322,17 @@
         enableZshIntegration = true;
       };
 
+      skim = {
+        enable = true;
+        enableBashIntegration = true;
+      };
+
+      carapace = {
+        enable = true;
+        enableZshIntegration = true;
+        enableNushellIntegration = true;
+      };
+
       eza = {
         enable = true;
         enableZshIntegration = true;
@@ -328,7 +340,7 @@
 
       lsd = {
         enable = true;
-        enableZshIntegration = true;
+        enableZshIntegration = false;
       };
 
       fzf = {
@@ -346,11 +358,6 @@
         ];
       };
 
-      carapace = {
-        enable = true;
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-      };
 
       atuin = {
         enable = true;
@@ -370,11 +377,6 @@
       yazi = {
         enable = true;
         enableZshIntegration = true;
-      };
-
-      skim = {
-        enable = true;
-        enableBashIntegration = true;
       };
 
       starship = {
