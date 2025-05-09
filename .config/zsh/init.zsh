@@ -1,28 +1,38 @@
 autoload zmv
 
-
 path+=~/.local/bin
 path+=~/.cargo/bin
 path+=$PWD/bin
 
 typeset -U path
 
-bindkey -e
-
-# WORDCHARS are defined in belak/zsh-utils:editor
-autoload -Uz select-word-style
-select-word-style normal
-# zstyle ':zle:*' word-style unspecified
-
 setopt extended_glob
 setopt glob_dots
-setopt auto_pushd
-setopt pushd_ignore_dups
-setopt pushdminus
 setopt HIST_REDUCE_BLANKS 
-setopt HIST_VERIFY        
-# setopt no_complete_aliases
+setopt BEEP
 
-source $HOME/.config/zsh/completions.zsh
+unsetopt FLOW_CONTROL
+
+# OMZ plugins 
+plugins=(colored-man-pages extract taskwarrior 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
+
+zle -N menu-search
+zle -N recent-paths
+
+antidote load ${ZDOTDIR}/.zsh_plugins.txt
+source ${ZDOTDIR}/.zsh_plugins.zsh
+
 source $HOME/.config/zsh/functions.zsh
+source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh
+
+#
+# 
+# 
+
+WORDCHARS='*?_.[]~&;!#$%^(){}<>'
+autoload -Uz select-word-style
+select-word-style normal
+
+# ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_STRATEGY=()

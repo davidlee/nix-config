@@ -28,7 +28,7 @@
     extraModulePackages = with config.boot.kernelPackages; [ xpadneo ];
     extraModprobeConfig = ''
       options bluetooth disable_ertm=Y
-    ''; # xbox controller cargo culting
+    ''; # TODO xbox controller cargo culting, doesn't seem to help bluetooth connectivity
     
     initrd = {
       kernelModules = [ ];
@@ -76,10 +76,8 @@
     kmscon = {
       enable = true;
       hwRender = true;
-      fonts = [ { name = "Source Code Pro"; package = pkgs.source-code-pro; } ];
-      autologinUser = "david"; # WARN : arguably insecure
-      # useXkbConfig = true;
-      # extraOptions
+      fonts = [ { name = "JetBrainsMono Nerd Font"; package = pkgs.nerd-fonts.jetbrains-mono; }];
+      autologinUser = "david"; # WARN insecure, but if someone evil and smart enough to figure out how to change TTY on my keyboard has physical access to my machine, I'm dead alreody.
     };
 
     greetd = {
