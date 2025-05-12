@@ -3,20 +3,41 @@
   programs.hyprland.enable = true; 
   programs.hyprland.withUWSM = true;
 
+  security = {
+    polkit.enable = true;
+    # pam.services.swaylock = {};
+  };
+
+  programs = {
+    # dconf.enable = true;
+  };
+
+
+  services = {
+    gnome = {
+      gnome-keyring.enable = true;
+    };
+    
+    blueman.enable = true;
+    sysprof.enable = true;
+  };
+
   environment.systemPackages = with pkgs; [
     hyprlock
     hypridle
+    swayosd
+    waybar
     inputs.raise.defaultPackage.${system}
-
   ];
 
   environment.sessionVariables.HYPRCURSOR_SIZE = "24";
 
   home-manager.users.${username} = {
-
     wayland.windowManager.hyprland = {
       enable = true;
       xwayland.enable = true;
+      package = null;
+      portalPackage = null;
 
       plugins = [
         pkgs.hyprlandPlugins.hy3
@@ -28,6 +49,8 @@
         # pkgs.hyprlandPlugins.borders-plus-plus
       ];
 
+      settings = {
+      };
       # keep this out of nix / home manager for lower friction iteration
       extraConfig = ''
       source = /home/david/.config/hypr/custom.conf
@@ -35,7 +58,10 @@
 
     }; # hyprland
 
-    # https://github.com/hyprwm/hypridle
+    services = {
+      swayosd.enable = true;
+    };
+    
     services.hypridle = {
       enable = true;
       settings = {
@@ -58,5 +84,6 @@
         ];
       };
     }; # hypridle
+
   }; # home manager
 }

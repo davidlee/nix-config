@@ -29,23 +29,23 @@ watching() {
 # 
 
 _week_note() {
-  date +"$ORG_DIR/%Y/wk/%Ywk%U.md"
+  date +"$OBS_DIR/%Y/wk/%Ywk%U.md"
 }
 
 _day_note() {
-  date +"$ORG_DIR/%Y/dd/%F.md"
+  date +"$OBS_DIR/%Y/dd/%F.md"
 }
 
 _month_note() {
-  date +"$ORG_DIR/%Y/mo/%m.md"
+  date +"$OBS_DIR/%Y/mo/%m.md"
 }
 
 _year_note() {
-  date +"$ORG_DIR/%Y/mo/%m.md"
+  date +"$OBS_DIR/%Y/mo/%m.md"
 } 
 
 _edit_note() {
-  $VISUAL $($*) -w $ORG_DIR
+  $VISUAL $($*) -w $OBS_DIR
 }
 
 # today's note
@@ -55,7 +55,7 @@ day() {
   if [ ! -f $p ]; then
     date +"# %F" > $p
   fi
-  $VISUAL "$p" -w $ORG_DIR
+  $VISUAL "$p" -w $OBS_DIR
 }
 
 # this week's note

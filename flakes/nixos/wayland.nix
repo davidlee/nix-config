@@ -19,6 +19,9 @@
       # ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "x11";
       MOZ_ENABLE_WAYLAND = 1;
+      # XDG_CURRENT_DESKTOP = "Hyprland";
+      GTK_USE_PORTAL = 1;
+      # WLR_RENDERER = "vulkan";
     };
   };
 
@@ -32,21 +35,24 @@
         chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
       };
     };
+    
     xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
       xdg-desktop-portal
-      xdg-desktop-portal-gtk
       xdg-desktop-portal-wlr
-      xdg-desktop-portal-gnome
-      xdg-desktop-portal-termfilechooser
+      xdg-desktop-portal-gtk
       xdg-desktop-portal-hyprland
-      # xdg-desktop-portal-xdg-desktop-portal-xapp
+      xdg-desktop-portal-termfilechooser
+      xdg-desktop-portal-gnome
       kdePackages.xdg-desktop-portal-kde
+      xdg-desktop-portal-xapp
     ];
     config = {
       common = {
-        default  = [ "wlr" "gtk" "termfilechooser" ];
-       "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        # default  = [ "wlr" "gtk" "termfilechooser" ];
+        default = [ "Hyprland" "gtk" "wlr" "kde" ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
       };
       kde = {
        "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
@@ -117,14 +123,7 @@
     gnome-calendar
     gnome-nettool
     gnomeExtensions.appindicator
-
-    # wine
-    wine
-    wineWowPackages.stagingFull
-    winetricks
-    wine-wayland
-    wine-staging
-
+    
     # compositors
     river
 
