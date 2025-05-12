@@ -5,6 +5,7 @@
 }: {
   hardware = {
     steam-hardware.enable = true;
+    xone.enable = true;
   };
 
   programs = {
@@ -17,36 +18,79 @@
       protontricks.enable = true;
     };
 
-    gamemode.enable = true;
+    gamemode = {
+      enable = true;
+      settings = {
+        general.inhibit_screensaver = 0;
+      };
+    };
     gamescope.enable = true;
+
+    appimage = {
+      enable = true;
+      binfmt = true;
+    };
+  };
+
+  ## home manager for the things only it supports
+  home-manager.users.${username} = {
+    programs = {
+      lutris.enable = true;
+      mangohud.enable = true;  
+    };
   };
 
   services = {
     sunshine = {
       enable = true; 
       openFirewall = true;
-      autoStart = true;
       capSysAdmin = true;
+      # capSysNice = true;
+      autoStart = false;
     };
     udev.packages = [ pkgs.game-devices-udev-rules ];
   };
 
-  home-manager.users.${username} = {
-    home.packages = with pkgs; [
+  environment = {
+    sessionVariables = {
+      # use it for everything
+      # MANGOHUD = 1;
+    };
+
+    systemPackages = with pkgs; [
+      # steam 
       steamcmd
       steam-tui
       steamcmd
-      steam-run
-      bottles
+
+      # other runners
       lutris
       heroic
-      mangohud
-      protontricks
-      protonup-qt
+      bottles
+
+      # compositor stuff
       gamemode
       gamescope
+      mangohud
+    
+      # remote sessions
       moonlight-qt
       sunshine
+
+      # wine - try only 32 bit
+      wine
+      winePackages.staging
+      # winePackages
+    
+      # compatibility - extras
+      winetricks
+      protontricks
+      protonup-qt
+    
+      # wine-staging
+      # wineWowPackages.stagingFull # support both 32 and 64 bit
+      # wine-wayland # not sure if we _want_ to have wayland support, it doesn't seem ready yet
     ];
   };
+
 }

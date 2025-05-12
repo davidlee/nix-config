@@ -94,7 +94,7 @@
             "--sessions ${waylandSessions}:${xSessions}"
             "--time"
             "--theme 'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'"
-            "--cmd sway"
+            # "--cmd sway"
           ];
           flags = lib.concatStringsSep " " tuigreetOptions;
         in {

@@ -17,7 +17,7 @@ in {
   programs = {
     dconf.enable = true;
     sway = {
-      enable = true;
+      # enable = true;
       wrapperFeatures.gtk = true;
     };
   };

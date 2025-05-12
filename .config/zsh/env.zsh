@@ -10,7 +10,7 @@ export VISUAL=hx
 export PAGER=ov
 export MANPAGER='nvim +Man!'
 
-export ORG_DIR=~/org
+export OBS_DIR=~/workbench
 
 export MCFLY_KEY_SCHEME=vim
 export MCFLY_FUZZY=2

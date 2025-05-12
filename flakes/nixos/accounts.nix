@@ -31,7 +31,7 @@
       homeMode = "755";
       isNormalUser = true;
       description = "David Lee";
-      extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" ];
+      extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode" ];
       home = "/home/${username}";
       shell = pkgs.zsh;
       packages = [

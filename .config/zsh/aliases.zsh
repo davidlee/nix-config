@@ -45,6 +45,9 @@ alias -g om=' --log-format internal-json -v |& nom --json';
 alias lgc='lazygit -g ~/.cfg -w ~/';
 alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --scheme history"
 
+# hyprland
+alias waybar-reload='pkill waybar && hyprctl dispatch exec waybar'
+
 # taskwarrior
 alias t=task;
 alias ta='task add';

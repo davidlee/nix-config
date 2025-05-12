@@ -1,36 +1,27 @@
-- meta
+- # FIXME
+  
+---
+
+- meta / refactor
   - steal aaron's structure for packages https://github.com/kranners/jimbo/blob/main/modules/apps/default.nix
 
-- vim / lazyvim conf
-
-- speech to text
-  - nerd-dictation?
-
-- local ai
-  - local llm setup x tuis r
-  - stable diffusion
-  - rocm / gpu support for 9070xt?
-  - zed
-  - try various (cline, windsurf, void, ...)
- 
-- try replace tty with kmscon  fbcon, fbterm, bterm, yaft,  fbpad. 
-
-- zsh
-  - troubleshoot antidote plugin loading
+- unscratched itches
+  - vim / lazyvim conf
+  - figure out how not to go insane when I need to install a python / npm pkg
   
+  - speech to text
+    - nerd-dictation?
 
-- hyprland twiddles
-  - styling groupbar ?!
+  - local ai
+    - local llm setup x tuis 
+    - stable diffusion?
+    - rocm / gpu support for 9070xt?
+    - zed vs cursor vs try various cli (cline, windsurf, void, ...)
+ 
+- hyprland 
   - rewrite rules
-  - tray apps
-    - why slack no tray?
-      - is electron wayland a mistake?
   - maybe
-    - xwaylandvideobridge / screen sharing
+    - xwaylandvideobridge / screen sharing - is this working ok?
     - hypr crashes when monitor turned off
     - mimeapps / xdg-mime query
-
-- busted
-  - antidote omz plugin loading
-
 

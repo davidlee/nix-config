@@ -33,6 +33,7 @@
   environment = {
     systemPackages = with pkgs; [
       egl-wayland
+      lact
       libGL
       libglvnd
       libva-utils
@@ -58,16 +59,4 @@
 
   systemd.packages = with pkgs; [ lact ];
   systemd.services.lactd.wantedBy = ["multi-user.target"];
-
-  # # Enable the AMDGPU Control Daemon
-  # systemd.services.lact = {
-  #   description = "AMDGPU Control Daemon";
-  #   after = [ "multi-user.target" ];
-  #   wantedBy = [ "multi-user.target" ];
-  #   serviceConfig = {
-  #     ExecStart = "${pkgs.lact}/bin/lact daemon";
-  #   };
-  #   enable = true;
-  # };
-
 }

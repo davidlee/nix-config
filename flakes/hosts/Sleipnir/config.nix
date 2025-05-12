@@ -20,7 +20,7 @@
     ../../nixos/hyprland.nix
     # ../../nixos/cosmic.nix
     ../../nixos/kde.nix
-    ../../nixos/sway.nix
+    # ../../nixos/sway.nix
     ../../nixos/serve.nix
     ../../nixos/arr.nix
     ../../nixos/games.nix
