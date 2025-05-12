@@ -11,6 +11,13 @@
     dconf.enable = true;
     gnome-disks.enable = true;
   };
+
+  services = {
+    xserver = {
+      enable = true;
+    };
+    systprof.enable = true;
+  };
   
   environment = {
     variables = {

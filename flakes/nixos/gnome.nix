@@ -3,7 +3,7 @@
     dconf.enable = true;
     gnome-disks.enable = true;
     
-    # fix collision w/ KDE if gnome enabled 
+    # fix collision w/ KDE; prefer gnome's secrets manager
     ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
   };
 
@@ -24,17 +24,15 @@
     };
 
     gnome = {
+      gnome-keyring.enable = true;
       # evolution-data-server.enable = true;
       # gnome-settings-daemon.enable = true;
-      gnome-keyring.enable = true;
       # gnome-browser-connector.enable = true;
       # gnome-online-accounts.enable = true;
     };
 
     # for systray icons in gnome
-    udev.packages = with pkgs; [ gnome-settings-daemon ];
-
-    sysprof.enable = true;
+    # udev.packages = with pkgs; [ gnome-settings-daemon ];
   };
 
   environment.systemPackages = with pkgs; [
