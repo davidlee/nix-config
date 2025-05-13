@@ -28,30 +28,31 @@ watching() {
 # periodic files
 # 
 
-_week_note() {
+_week() {
   date +"$OBS_DIR/%Y/wk/%Ywk%U.md"
 }
 
-_day_note() {
+_day() {
   date +"$OBS_DIR/%Y/dd/%F.md"
 }
 
-_month_note() {
+_month() {
   date +"$OBS_DIR/%Y/mo/%m.md"
 }
 
-_year_note() {
+_year() {
   date +"$OBS_DIR/%Y/mo/%m.md"
 } 
 
-_edit_note() {
-  $VISUAL $($*) -w $OBS_DIR
+_edit() {
+  # $VISUAL $($*) -w $OBS_DIR
 }
 
 # today's note
 day() {
-  p=$(_day_note)
-  echo "edting daily note: $p"
+  p=$(_day)
+  # echo "editing daily note: $p"
+  # echo $p
   if [ ! -f $p ]; then
     date +"# %F" > $p
   fi
@@ -60,12 +61,12 @@ day() {
 
 # this week's note
 week() {
-  _edit_note _week_note
+  _edit _week
 }
 
 # this month's note
 month() {
-  _edit_note _month_note
+  _edit _month
 }
 
 #
