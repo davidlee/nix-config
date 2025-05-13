@@ -4,6 +4,8 @@
 
   services.xserver.videoDrivers = [ "modesetting" ];
 
+  # boot.kernelModules = [ "amdgpu" ];
+
   hardware = {
     # opengl.driSupport = true;
     graphics = {
@@ -12,9 +14,13 @@
       extraPackages = with pkgs; [
         mesa
         amdvlk
+        libvdpau-va-gl
+        vaapiVdpau
         rocmPackages.clr.icd
       ];
       extraPackages32 = with pkgs; [
+        libvdpau-va-gl
+        vaapiVdpau
         driversi686Linux.amdvlk
       ];
     };
@@ -39,8 +45,21 @@
       libva-utils
       libvdpau-va-gl
       vdpauinfo
+
       vulkan-tools
       vulkan-validation-layers
+      vulkan-extension-layer
+      vulkan-hdr-layer-kwin6
+      vulkan-headers
+      vulkan-helper
+      vulkan-loader
+      vulkan-tools
+      vulkan-tools-lunarg
+      vulkan-caps-viewer
+      vulkan-cts
+
+      rocmPackages.clr.icd
+
       glxinfo
       nvtopPackages.amd
       amd-blis
@@ -57,6 +76,20 @@
     ];
   };
 
+  systemd.tmpfiles.rules = 
+  let
+    rocmEnv = pkgs.symlinkJoin {
+      name = "rocm-combined";
+      paths = with pkgs.rocmPackages; [
+        rocblas
+        hipblas
+        clr
+      ];
+    };
+  in [
+    "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+  ];
+  
   systemd.packages = with pkgs; [ lact ];
   systemd.services.lactd.wantedBy = ["multi-user.target"];
 }

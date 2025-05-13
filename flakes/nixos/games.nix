@@ -24,7 +24,17 @@
         general.inhibit_screensaver = 0;
       };
     };
-    gamescope.enable = true;
+    
+    gamescope = {
+      enable = true;
+      capSysNice = false; # see ananicy
+      args = [
+        "-w 1920"
+        "-h 1440"
+        "-f"
+        "-e"
+      ];
+    };
 
     appimage = {
       enable = true;
@@ -49,6 +59,18 @@
       autoStart = false;
     };
     udev.packages = [ pkgs.game-devices-udev-rules ];
+
+    ananicy = {
+      enable = true;
+      package = pkgs.ananicy-cpp;
+      rulesProvider = pkgs.ananicy-cpp;
+      extraRules = [
+        {
+          "name" = "gamescope";
+          "nice" = -20;
+        }
+      ];
+    };
   };
 
   environment = {

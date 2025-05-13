@@ -16,7 +16,7 @@
     xserver = {
       enable = true;
     };
-    systprof.enable = true;
+    sysprof.enable = true;
   };
   
   environment = {
