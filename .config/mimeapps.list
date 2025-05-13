@@ -10,13 +10,13 @@ application/x-extension-xht=firefox.desktop;zen.desktop;
 application/x-extension-xhtml=firefox.desktop;zen.desktop;
 application/x-yaml=Helix.desktop;
 application/xhtml+xml=floorp.desktop;zen.desktop;
-
 image/png=swayimg.desktop;imv.desktop;
 text/html=org.gnome.Epiphany.desktop;firefox.desktop;floorp.desktop;zen.desktop;
 text/markdown=Helix.desktop;
 text/org=calibre-gui.desktop
 text/plain=Helix.desktop;dev.zed.Zed.desktop;
 text/x-cmake=Helix.desktop;
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;
 
 [Default Applications]
 application/json=Helix.desktop;
@@ -32,14 +32,12 @@ application/x-extension-xhtml=floorp.desktop
 application/x-terminal-emulator=com.mitchellh.ghostty.desktop
 application/x-yaml=Helix.desktop;
 application/xhtml+xml=floorp.desktop
-
 message/rfc822=userapp-Thunderbird-0UNG32.desktop
 text/calendar=userapp-Thunderbird-YTWE32.desktop
 text/html=floorp.desktop
 text/markdown=Helix.desktop;
 text/plain=Helix.desktop;
 text/x-cmake=Helix.desktop;
-
 x-scheme-handler/chrome=floorp.desktop
 x-scheme-handler/obsidian=obsidian.desktop
 x-scheme-handler/feed=userapp-Thunderbird-3LNF32.desktop

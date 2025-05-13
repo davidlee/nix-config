@@ -1,6 +1,9 @@
-
 # theme = 'monokai_pro_octagon'
 theme = 'gruvbox'
+
+[editor.file-picker]
+hidden = true # when true, hide .* and gitignored files
+follow-symlinks = false 
 
 [editor]
 shell = ['zsh', '-c']
@@ -40,10 +43,6 @@ display-messages = true
 enable = true
 max-wrap = 30
 max-indent-retain = 60
-
-[editor.file-picker]
-hidden = false # don't show hidden files
-follow-symlinks = false 
 
 ##########################################################
 ##
