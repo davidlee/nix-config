@@ -5,13 +5,7 @@
 
   security = {
     polkit.enable = true;
-    # pam.services.swaylock = {};
   };
-
-  programs = {
-    # dconf.enable = true;
-  };
-
 
   services = {
     gnome = {

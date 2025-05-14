@@ -5,30 +5,34 @@
   ... 
 }: {
 
-  programs.labwc.enable = true;
-  
   programs = {
+    labwc.enable = true; # fallback wm
     dconf.enable = true;
     gnome-disks.enable = true;
   };
 
+  
   services = {
     xserver = {
       enable = true;
     };
+
+    gnome = {
+      gnome-online-accounts.enable = true;
+      gnome-keyring.enable = true;
+    };
+    
     sysprof.enable = true;
   };
   
   environment = {
     variables = {
-      XCURSOR_SIZE = 24;
       # NIXOS_OZONE_WL = 1;
       # ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+      XCURSOR_SIZE = 24;
       ELECTRON_OZONE_PLATFORM_HINT = "x11";
       MOZ_ENABLE_WAYLAND = 1;
-      # XDG_CURRENT_DESKTOP = "Hyprland";
       GTK_USE_PORTAL = 1;
-      # WLR_RENDERER = "vulkan";
     };
   };
 
@@ -45,18 +49,16 @@
     
     xdgOpenUsePortal = true;
     extraPortals = with pkgs; [
-      xdg-desktop-portal
+      xdg-desktop-portal-hyprland
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
-      xdg-desktop-portal-hyprland
-      xdg-desktop-portal-termfilechooser
       xdg-desktop-portal-gnome
       kdePackages.xdg-desktop-portal-kde
-      xdg-desktop-portal-xapp
+      # xdg-desktop-portal-termfilechooser
+      # xdg-desktop-portal-xapp
     ];
     config = {
       common = {
-        # default  = [ "wlr" "gtk" "termfilechooser" ];
         default = [ "Hyprland" "gtk" "wlr" "kde" ];
         "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
         "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
@@ -133,6 +135,7 @@
     
     # compositors
     river
+    niri
 
     # notifications
     mako

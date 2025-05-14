@@ -4,7 +4,7 @@
 
   services.xserver.videoDrivers = [ "modesetting" ];
 
-  # boot.kernelModules = [ "amdgpu" ];
+  boot.kernelModules = [ "amdgpu" ];
 
   hardware = {
     # opengl.driSupport = true;
@@ -13,7 +13,7 @@
       enable32Bit = true; 
       extraPackages = with pkgs; [
         mesa
-        amdvlk
+        # amdvlk
         libvdpau-va-gl
         vaapiVdpau
         rocmPackages.clr.icd
@@ -21,14 +21,14 @@
       extraPackages32 = with pkgs; [
         libvdpau-va-gl
         vaapiVdpau
-        driversi686Linux.amdvlk
+        # driversi686Linux.amdvlk
       ];
     };
     
     amdgpu = {
       initrd.enable = true;
       amdvlk = {
-        enable = true;
+        enable = false;
         supportExperimental.enable = true;
         support32Bit.enable = true;
       };
