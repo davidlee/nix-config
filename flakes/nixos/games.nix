@@ -29,10 +29,11 @@
       enable = true;
       capSysNice = false; # see ananicy
       args = [
-        "-w 1920"
+        "-w 1920" # game dimensions
         "-h 1440"
-        "-f"
-        "-e"
+        "-f" # fullscreen
+        # "-e" # steam integration
+        "--force-grab-cursor"
       ];
     };
 

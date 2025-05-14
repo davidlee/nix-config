@@ -22,9 +22,7 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  # TODO fix this mount point
-  # 
-  fileSystems."/mnt/NIXROOT" =
+  fileSystems."/mnt/500G" =
     { device = "/dev/disk/by-uuid/e31f1ad9-d298-4732-bfab-42c71212d9f7";
       fsType = "ext4";
     };

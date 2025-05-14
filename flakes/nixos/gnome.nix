@@ -18,7 +18,7 @@
       };
       desktopManager = {
         gnome = {
-          enable = true;
+          enable = true; # TODO try remove to dedup entries in greetd list
         };
       };
     };
