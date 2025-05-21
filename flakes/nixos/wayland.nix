@@ -6,23 +6,35 @@
 }: {
 
   programs = {
-    labwc.enable = true; # fallback wm
     dconf.enable = true;
     gnome-disks.enable = true;
+    
+    # labwc.enable = true; 
+    # river.enable = true;
+    # niri.enable = true;
   };
 
   
   services = {
+    # have X11 available, but not running by default
     xserver = {
       enable = true;
+      displayManager.startx.enable = true;
+
+      desktopManager = {
+        # cinnamon.enable = true;
+        # mate.enable = true;
+      };
     };
 
     gnome = {
       gnome-online-accounts.enable = true;
       gnome-keyring.enable = true;
+      gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
     };
     
     sysprof.enable = true;
+    blueman.enable = true;
   };
   
   environment = {
@@ -38,6 +50,7 @@
 
   xdg.portal = {
     enable = true;
+    
     wlr = {
       enable = true;
       settings.screencast = {
@@ -48,6 +61,7 @@
     };
     
     xdgOpenUsePortal = true;
+    
     extraPortals = with pkgs; [
       xdg-desktop-portal-hyprland
       xdg-desktop-portal-wlr
@@ -57,6 +71,7 @@
       # xdg-desktop-portal-termfilechooser
       # xdg-desktop-portal-xapp
     ];
+    
     config = {
       common = {
         default = [ "Hyprland" "gtk" "wlr" "kde" ];

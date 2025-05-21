@@ -3,6 +3,8 @@
   inputs,
   lib,
   config,
+  options,
+  username,
   ...
 }:
 {
@@ -26,9 +28,11 @@
     ];
 
     extraModulePackages = with config.boot.kernelPackages; [ xpadneo ];
+    # TODO resolve or remove:
+    # this is supposed to help fix xbox controller bluetooth connectivity
     extraModprobeConfig = ''
       options bluetooth disable_ertm=Y
-    ''; # TODO xbox controller cargo culting, doesn't seem to help bluetooth connectivity
+    '';
     
     initrd = {
       kernelModules = [ ];
@@ -38,16 +42,19 @@
     blacklistedKernelModules = [
       "ucsi_ccg"
       "vc032x"
+      "gspca_vc032x"
     ];
     
     plymouth = {
       enable = false;
     };
     
-    kernelParams = [
-      "boot.shell_on_fail" # for ucodenix
-      "microcode.amd_sha_check=off" 
+    # see https://github.com/e-tho/ucodenix?tab=readme-ov-file#3-apply-changes
+    kernelParams = lib.mkIf options.sleipnir.microcode_updates.enable [
+      "boot.shell_on_fail"
+      "microcode.amd_sha_check=off"
     ];
+    
   }; # /boot
 
   systemd.services.greetd.serviceConfig = {
@@ -67,17 +74,16 @@
   };
 
   services = {
-
-    ucodenix = {
+    ucodenix = lib.mkIf options.sleipnir.microcode_updates.enable {
       enable = true;
       cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
     };
 
-    kmscon = {
+    kmscon = lib.mkIf options.sleipnir.kmscon.enable {
       enable = true;
       hwRender = true;
       fonts = [ { name = "JetBrainsMono Nerd Font"; package = pkgs.nerd-fonts.jetbrains-mono; }];
-      autologinUser = "david"; # WARN insecure, but if someone evil and smart enough to figure out how to change TTY on my keyboard has physical access to my machine, I'm dead alreody.
+      autologinUser = lib.mkIf options.sleipnir.kmscon.autologin username; 
     };
 
     greetd = {
@@ -88,12 +94,14 @@
           baseSessionsDir = "${config.services.displayManager.sessionData.desktops}";
           xSessions = "${baseSessionsDir}/share/xsessions";
           waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
+          theme = "'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'";
           tuigreetOptions = [
             "--remember"
             "--remember-session"
             "--sessions ${waylandSessions}:${xSessions}"
+            "--xsession-wrapper startx /usr/bin/env"
             "--time"
-            "--theme 'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'"
+            "--theme ${theme}"
             # "--cmd sway"
           ];
           flags = lib.concatStringsSep " " tuigreetOptions;
@@ -104,5 +112,7 @@
       };
     };
   };
-  
+
+  # for unlocking slack etc in hyprland
+  security.pam.services.greetd.enableGnomeKeyring = true;
 }

@@ -4,6 +4,7 @@
   username,
   ...
 }: {
+  # https://github.com/project-gauntlet/gauntlet
 
   environment.systemPackages = [ inputs.gauntlet.packages.${pkgs.system}.default ];
 

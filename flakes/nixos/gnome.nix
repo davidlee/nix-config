@@ -10,29 +10,17 @@
   services = {
     xserver = {
       enable = true;
+      desktopManager.gnome.enable = false;
       displayManager = {
         gdm = {
           wayland = true;
-          enable = false;  # greetd please
+          enable = false; # use greetd / tuigreet
         };
       };
-      desktopManager = {
-        gnome = {
-          enable = true; # TODO try remove to dedup entries in greetd list
-        };
-      };
-    };
-
-    gnome = {
-      gnome-keyring.enable = true;
-      # evolution-data-server.enable = true;
-      # gnome-settings-daemon.enable = true;
-      # gnome-browser-connector.enable = true;
-      # gnome-online-accounts.enable = true;
     };
 
     # for systray icons in gnome
-    # udev.packages = with pkgs; [ gnome-settings-daemon ];
+    udev.packages = with pkgs; [ gnome-settings-daemon ];
   };
 
   environment.systemPackages = with pkgs; [
