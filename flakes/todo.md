@@ -2,6 +2,24 @@
   
 ---
 
+
+- hmm
+  - DOING microcode - wrap in conditional
+  
+  - modprobe / exclude kernel modules?
+  - hibernation / deep sleep suspend?
+  
+- hyprland
+  - start gnome keyring for slack auth ?
+
+- tuigreet
+  - duplicates: gnome
+  - can't start x11 plasma
+
+
+---
+  
+
 - meta / refactor
   - steal aaron's structure for packages https://github.com/kranners/jimbo/blob/main/modules/apps/default.nix
 
@@ -19,8 +37,8 @@
     - zed vs cursor vs try various cli (cline, windsurf, void, ...)
  
 - hyprland 
-  - rewrite rules
   - maybe
+    - title rewrite rules
     - xwaylandvideobridge / screen sharing - is this working ok?
     - hypr crashes when monitor turned off
     - mimeapps / xdg-mime query

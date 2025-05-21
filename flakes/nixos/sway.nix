@@ -20,15 +20,6 @@ in {
       wrapperFeatures.gtk = true;
     };
   };
-
-  services = {
-    gnome = {
-      gnome-keyring.enable = true;
-    };
-    
-    blueman.enable = true;
-    sysprof.enable = true;
-  };
   
   home-manager.users.${username} = {
     home.packages = with pkgs; [
