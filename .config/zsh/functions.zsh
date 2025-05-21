@@ -1,3 +1,7 @@
+############
+# git x dotfiles
+# 
+
 # manage dotfiles with bare repo:
 # 
 gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
@@ -6,65 +10,54 @@ gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
 # 
 prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }
 
+#################
+# compost:
+# 
 # not quite trash, but not treasure either
 # 
 compost() {
   mv -i $* ~/.compost/
 }
 
-#
+######################
 # watch files matching a pattern, run X on change
 # 
 watching() {
   watchman-make -p $1 -r $2
 }
 
-#
+#################################################################################
 # periodic files
-# 
+#################################################################################
 
-_week() {
-  date +"$OBS_DIR/%Y/wk/%Ywk%U.md"
-}
+export OBS_DIR=~/workbench
+export DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
+export WEEK_NOTE_FORMAT="$OBS_DIR/%Y/wk/%Ywk%U.md"
+export MONTH_NOTE_FORMAT="$OBS_DIR/%Y/mo/%m.md"
+export YEAR_NOTE_FORMAT="$OBS_DIR/%Y.md"
 
-_day() {
-  date +"$OBS_DIR/%Y/dd/%F.md"
-}
+_day_note_path() { date +$DAY_NOTE_FORMAT }
+_week_note_path() { date +$WEEK_NOTE_FORMAT }
+_month_note_path() { date +$MONTH_NOTE_FORMAT }
+_year_note_path() { date +$YEAR_NOTE_FORMAT }
 
-_month() {
-  date +"$OBS_DIR/%Y/mo/%m.md"
-}
-
-_year() {
-  date +"$OBS_DIR/%Y/mo/%m.md"
-} 
-
-_hxo() {
- hx $($*) -w $OBS_DIR
-}
-
-# today's note
-day() {
-  p=$(_day)
-  echo "Daily Note: $p";
-  if [ ! -f $p ]; then
-    touch $p
-    date +"# %F" > $p
-    echo "creating $p ..."
+_ensure_periodic_note_exists() {
+  if [ ! -f $1 ]; then
+    echo "# ${2}\n" >> $1
+    echo "creating $1 ..."
     sleep 1
   fi
-  hx $p -w $OBS_DIR
 }
 
-# this week's note
-week() {
-  _hxo _week
+_edit_periodic_note() {
+  _ensure_periodic_note_exists $1 $2; # path, heading
+  hx $1 -w $OBS_DIR
 }
 
-# this month's note
-month() {
-  _hxo _month
-}
+day() { _edit_periodic_note $(_day_note_path) `date +"%F"` }
+week() { _edit_periodic_note $(_week_note_path) `date +"%Ywk%U"` }
+month() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
+year() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
 
 #
 # FZF
