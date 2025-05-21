@@ -6,11 +6,6 @@ gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
 # 
 prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }
 
-# nix formatter convenience
-# ex usage: om sudo nixos-rebuild switch
-#
-# om() { $* --log-format internal-json -v |& nom --json }
-
 # not quite trash, but not treasure either
 # 
 compost() {
@@ -44,29 +39,31 @@ _year() {
   date +"$OBS_DIR/%Y/mo/%m.md"
 } 
 
-_edit() {
-  # $VISUAL $($*) -w $OBS_DIR
+_hxo() {
+ hx $($*) -w $OBS_DIR
 }
 
 # today's note
 day() {
   p=$(_day)
-  # echo "editing daily note: $p"
-  # echo $p
+  echo "Daily Note: $p";
   if [ ! -f $p ]; then
+    touch $p
     date +"# %F" > $p
+    echo "creating $p ..."
+    sleep 1
   fi
-  $VISUAL "$p" -w $OBS_DIR
+  hx $p -w $OBS_DIR
 }
 
 # this week's note
 week() {
-  _edit _week
+  _hxo _week
 }
 
 # this month's note
 month() {
-  _edit _month
+  _hxo _month
 }
 
 #

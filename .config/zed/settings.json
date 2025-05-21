@@ -24,5 +24,21 @@
     "mode": "system",
     "light": "Gruvbox Dark Hard",
     "dark": "One Dark"
+  },
+  "indent_guides": {
+    "enabled": true,
+    "line_width": 1,
+    "active_line_width": 1,
+    "coloring": "indent_aware"
+    // "background_coloring": "disabled"
+  },
+  "journal": {
+    "path": "~",
+    "hour_format": "hour12"
+  },
+  "languages": {
+    "Plain Text": {
+      "tab_size": 2
+    }
   }
 }

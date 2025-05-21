@@ -39,12 +39,11 @@
     },
     
     "sway/window": {
-      // "max-length": 50,
       "icon": true,
       "icon-size": 16,
       "rewrite": {
-          "(.*) - Ablaze Floorp:?": " $1",
-          "(.*) - Mozilla Firefox": " $1",
+          "(.*) — Ablaze Floorp": "$1",
+          "(.*) — Mozilla Firefox": "$1",
       },
     },
 
@@ -52,8 +51,8 @@
       "icon": true,
       "icon-size": 16,
       "rewrite": {
-          "(.*) - Ablaze Floorp:?": " $1",
-          "(.*) - Mozilla Firefox": " $1",
+          "(.*) — Ablaze Floorp": "$1",
+          "(.*) — Mozilla Firefox": "$1",
       },
     },
     "sway/scratchpad": {
@@ -66,8 +65,8 @@
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
-            "activated": "",
-            "deactivated": ""
+            "activated": "",
+            "deactivated": ""
         }
     },
     "cpu": {
