@@ -4,6 +4,10 @@ max-history=10
 icon-border-radius=5
 default-timeout=4000
 
+[app-name=Slack]
+icon-border-radius=5
+default-timeout=4000
+
 [app-name="Waybar Timer"]
 icon-border-radius=5
 default-timeout=3000
