@@ -50,10 +50,10 @@
     };
     
     # see https://github.com/e-tho/ucodenix?tab=readme-ov-file#3-apply-changes
-    kernelParams = lib.mkIf options.sleipnir.microcode_updates.enable [
+    kernelParams = if config.sleipnir.microcode_updates.enable then [
       "boot.shell_on_fail"
       "microcode.amd_sha_check=off"
-    ];
+    ] else [];
     
   }; # /boot
 
@@ -74,17 +74,17 @@
   };
 
   services = {
-    ucodenix = lib.mkIf options.sleipnir.microcode_updates.enable {
+    ucodenix = if config.sleipnir.microcode_updates.enable then {
       enable = true;
       cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
-    };
+    } else {};
 
-    kmscon = lib.mkIf options.sleipnir.kmscon.enable {
+    kmscon = if config.sleipnir.kmscon.enable then {
       enable = true;
       hwRender = true;
       fonts = [ { name = "JetBrainsMono Nerd Font"; package = pkgs.nerd-fonts.jetbrains-mono; }];
-      autologinUser = lib.mkIf options.sleipnir.kmscon.autologin username; 
-    };
+      autologinUser = if config.sleipnir.kmscon.autologin then username else null;
+    } else {};
 
     greetd = {
       enable = true;
