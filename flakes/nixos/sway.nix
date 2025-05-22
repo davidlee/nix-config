@@ -51,7 +51,7 @@
       config = null; # clobber defaults
       extraConfig = ''
 
-        include $HOME/.config/sway/sway.config
+        include $HOME/.config/sway/sway.conf
        '';
     };
   };
