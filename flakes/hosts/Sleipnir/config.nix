@@ -1,12 +1,13 @@
 {inputs, pkgs, ...}: {
-  options.sleipnir = {
-    kmscon = {
-      enable = true;
-      autologin = true;
-    };
-  };
 
-  config = {
+  # options.sleipnir = {
+  #   kmscon = {
+  #     enable = true;
+  #     autologin = true;
+  #   };
+  # };
+
+  # config = {
     imports = [
       ./hardware-configuration.nix
 
@@ -165,5 +166,5 @@
         };
       };
     };
-  };
+  # };
 }
