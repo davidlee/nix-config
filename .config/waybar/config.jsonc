@@ -1,4 +1,5 @@
 {
+    // General 
     "layer": "top",
     "position": "top",
     "modules-left": [
@@ -22,6 +23,7 @@
         "privacy",
         "mpris",
         "pulseaudio",
+        // "pulseaudio/slider",
         "cpu",
         "custom/weather",
         "custom/timer",
@@ -30,6 +32,10 @@
         "tray",
         "clock",
     ],
+    
+    //
+    // HYPRLAND specific modules
+    // 
     "hyprland/workspaces": {
         "show-special": true,
         "persistent-workspaces": {
@@ -37,16 +43,6 @@
             "DP-3": 4,
         },
     },
-    
-    "sway/window": {
-      "icon": true,
-      "icon-size": 16,
-      "rewrite": {
-          "(.*) — Ablaze Floorp": "$1",
-          "(.*) — Mozilla Firefox": "$1",
-      },
-    },
-
     "hyprland/window": {
       "icon": true,
       "icon-size": 16,
@@ -55,6 +51,22 @@
           "(.*) — Mozilla Firefox": "$1",
       },
     },
+    
+    //
+    // SWAY specific modules
+    //
+    "sway/workspaces": {
+      "persistent-workspaces": {
+          "1": [],
+          "2": [],
+          "3": [],
+          "4": [],
+      }  
+    },
+    "sway/mode": {
+        "format": " {}",
+        // "max-length": 50
+    },
     "sway/scratchpad": {
         "format": "{icon} {count}",
         "show-empty": false,
@@ -62,6 +74,19 @@
         "tooltip": true,
         "tooltip-format": "{app}: {title}"
     },
+    "sway/window": {
+      "icon": true,
+      "icon-size": 16,
+      "rewrite": {
+          "(.*) — Ablaze Floorp": "$1",
+          "(.*) — Mozilla Firefox": "$1",
+      },
+      "expand": true,
+    },
+
+    //
+    // Shared modules
+    // 
     "idle_inhibitor": {
         "format": "{icon}",
         "format-icons": {
@@ -149,19 +174,21 @@
         "tooltip": true,
         "tooltip-format": "Games running: {count}"
     },
-    
-    "privacy": { "modules": [{ "type":"screenshare" }] },
+
+    // don't show when the mic's on:
+    // "privacy": { "modules": [{ "type":"screenshare" }] },
 
     "wlr/taskbar": {
         "on-click": "activate",
         "on-click-right": "maximise",
         "on-click-middle": "close",
         "tooltip-format": "{title}",
+        "active-first": true,
     },
     "tray": {
       "spacing": 10,
       "icon-size": 16,
-      "show-passive-items": true,  
+      "show-passive-items": false,  
     },
 
     "clock": {
@@ -190,6 +217,9 @@
             "on-scroll-down": "shift_down"
         }
     },
+    //
+    // custom modules
+    //
     "custom/timer": {
         "exec": "$HOME/.config/waybar/scripts/timer hook",
         "exec-on-event": false,
