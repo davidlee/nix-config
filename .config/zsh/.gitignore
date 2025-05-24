@@ -2,3 +2,8 @@
 .zcompdump*
 .antidote/
 .zsh_plugins.zsh
+# nix managed symlinks
+.zlogin
+.zprofile
+.zshenv
+.zshrc
