@@ -25,7 +25,6 @@ source ${ZDOTDIR}/.zsh_plugins.zsh
 source $HOME/.config/zsh/functions.zsh
 source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh
-<<<<<<< HEAD
 
 #
 # 
@@ -41,4 +40,3 @@ ZSH_AUTOSUGGEST_STRATEGY=()
 if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
-
