@@ -1,7 +1,13 @@
 # single character aliases 
 alias g=git;
 alias j=just;
-alias zz=zellij;
+alias _=sudo;
+alias t=task;
+alias z=zellij;
+alias y=yazi;
+alias c="cd $HOME/.config";
+
+alias -g G=" | grep -E --color=auto";
 
 alias hxr="hx ~/.reminders";
 
@@ -31,6 +37,8 @@ alias grep="grep --color=auto";
 
 # editors
 alias v=nvim;
+alias vi=nvim;
+alias vim=nvim;
 alias zed=zeditor;
 
 # TUI shortcuts
@@ -39,6 +47,7 @@ alias lg=lazygit;
 alias ip=ip -color;
 
 # nix
+alias drs="cd ~/flakes && sudo darwin-rebuild switch --flake '.#fusillade' ";
 alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch |& nom --json' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
 alias -g om=' --log-format internal-json -v |& nom --json';
@@ -48,10 +57,18 @@ alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --schem
 # hyprland
 alias waybar-reload='pkill waybar && hyprctl dispatch exec waybar'
 
-# taskwarrior
-alias t=task;
-alias ta='task add';
+
+# Taskwarrior
+alias tw='taskwarrior-tui'
+alias tn='clear;task next +READY'
+alias ta='task add'
+alias ti="task add +in"
+alias in="task add +in"
+alias tm='task modify'
+alias tl='task log'
 alias tc='task context';
+alias tin='task in'
+
 
 alias taskserver='taskchampion-sync-server --listen localhost:10222';
 

@@ -24,6 +24,8 @@
   ll = log --oneline
   hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
   filehist = log --follow -p
+  # https://spin.atomicobject.com/fuzzy-find-git-add/
+  fza = "!git ls-files -m -o --exclude-standard | fzf --print0 -m | xargs -0 -t -o git add"
 [core]
   editor = hx
   excludesFile = ~/.gitignore_global

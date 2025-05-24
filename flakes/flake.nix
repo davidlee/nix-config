@@ -5,12 +5,14 @@
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
-    # nixpkgs.follows = "nixos-cosmic/nixpkgs";
-
-    nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
     
     darwin = {
       url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixvim = {
+      url = "github:nix-community/nixvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -34,10 +36,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    gauntlet = {
-      url = "github:project-gauntlet/gauntlet";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # gauntlet = {
+    #   url = "github:project-gauntlet/gauntlet";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
