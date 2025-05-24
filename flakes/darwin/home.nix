@@ -6,6 +6,7 @@
 
   imports = [
     ../home/zsh.nix
+    ../home/nixvim.nix
    ];
   
   home = {
@@ -18,7 +19,13 @@
   home.packages = with pkgs; [
 
     # emacs-macport # insecure
-    # semgrep
+    semgrep
+    luarocks
+    tectonic
+    ast-grep
+    imagemagick
+    lua5_1
+
     # taskwarrior
     SDL
     SDL2

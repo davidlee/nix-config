@@ -33,6 +33,7 @@
     ];
     casks = [
       "firefox"
+      "floorp"
       "anaconda"
       "zoom"
       "obs"

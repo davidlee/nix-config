@@ -22,7 +22,7 @@ compost() {
 ######################
 # watch files matching a pattern, run X on change
 # 
-watching() {
+wm() {
   watchman-make -p $1 -r $2
 }
 

@@ -3,11 +3,8 @@
 ---
 
 
-- hmm
-  - DOING microcode - wrap in conditional
-  
-  - modprobe / exclude kernel modules?
-  - hibernation / deep sleep suspend?
+- power management
+  - hibernation / deep sleep suspend? - systemctl suspend
   
 - hyprland
   - start gnome keyring for slack auth ?
@@ -16,10 +13,8 @@
   - duplicates: gnome
   - can't start x11 plasma
 
-
 ---
   
-
 - meta / refactor
   - steal aaron's structure for packages https://github.com/kranners/jimbo/blob/main/modules/apps/default.nix
 
