@@ -6,10 +6,12 @@
   ];
   
   system = {
-    activationScripts.postUserActivation.text = ''
-      # so we do not need to logout and login again to make the changes take effect.
-      /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    '';
+    primaryUser = "davidlee";
+
+    # activationScripts.postUserActivation.text = ''
+    #   # so we do not need to logout and login again to make the changes take effect.
+    #   /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    # '';
 
     defaults = {  
       NSGlobalDomain = {
