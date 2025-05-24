@@ -81,7 +81,7 @@
     lazygit
     less
     lf
-    libGL
+    # libGL
     libclang
     libiconv
     libyaml
