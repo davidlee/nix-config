@@ -1,6 +1,5 @@
 mattmc3/ez-compinit
 
-
 getantidote/use-omz
 ohmyzsh/ohmyzsh path:lib 
 ohmyzsh/ohmyzsh path:plugins/colored-man-pages

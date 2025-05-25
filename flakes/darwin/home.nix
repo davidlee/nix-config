@@ -20,6 +20,7 @@
     # TODO semantic grouping
 
     # emacs-macport # insecure
+    btop
     semgrep
     taskwarrior
     SDL
