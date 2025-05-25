@@ -53,6 +53,7 @@ max-indent-retain = 60
 
 ##################
 ### NORMAL #######
+
 [keys.normal]
 
 V = ["goto_first_nonwhitespace", "extend_to_line_end"]
@@ -67,9 +68,13 @@ C-space = "signature_help"
 C-j = ["extend_to_line_bounds", "delete_selection", "paste_after"]
 C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_before"]
 
-# next / prev paragraph
+# select & move to next / prev paragraph
 "A-j" = ["move_next_word_end", "select_mode", "insert_at_line_start", "move_line_down", "goto_next_paragraph", "normal_mode", "goto_prev_paragraph", "goto_next_paragraph", "trim_selections"]
 "A-k" = ["move_next_word_start", "select_mode", "insert_at_line_end", "move_line_up", "goto_prev_paragraph", "normal_mode", "goto_next_paragraph", "goto_prev_paragraph", "trim_selections"]
+
+# move to next / prev paragraph
+"{" = "goto_prev_paragraph"
+"}" = "goto_next_paragraph"
 
 # Buffers
 "C-[" = ":buffer-next"
@@ -78,24 +83,42 @@ C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 
 ";" = ["collapse_selection", "normal_mode"] # save hitting esc
 
+"-" = ":write"
+C-r = [":reload"]
+
 ##################
 ### INSERT #######
+
 [keys.insert]
+
+A-F = ":format"
 
 ################## 
 ### SELECT #######
+
 [keys.select]
+
 V = "extend_to_line_end"
 x = "extend_line"
+
+"{" = "goto_prev_paragraph"
+"}" = "goto_next_paragraph"
 
 ";" = ["collapse_selection", "normal_mode"] # save hitting esc
 
 ##################
 ### MINOR MODES ##
-[keys.normal.space.u]
-n = ":set-option line-number absolute"
-r = ":set-option line-number relative"
-
+ 
 [keys.normal.space]
-q = ":quit"
+
+space = "goto_next_buffer"
+m = "goto_previous_buffer"
+
+A-F = ":format"
+Q = ":quit"
+q = ":buffer-close"
+
+[keys.normal.space.l]
+a = ":set-option line-number absolute"
+r = ":set-option line-number relative"
 
