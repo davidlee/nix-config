@@ -6,7 +6,7 @@
 
   imports = [
     ../home/zsh.nix
-    ../home/nixvim.nix
+    ../home/vim.nix
    ];
   
   home = {
@@ -17,16 +17,11 @@
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
+    # TODO semantic grouping
 
     # emacs-macport # insecure
     semgrep
-    luarocks
-    tectonic
-    ast-grep
-    imagemagick
-    lua5_1
-
-    # taskwarrior
+    taskwarrior
     SDL
     SDL2
     SDL2_mixer
@@ -95,7 +90,7 @@
     lld
     lldb
     lsd
-    lunarvim
+    # lunarvim
     lynx
     markdown-oxide
     marksman
@@ -168,15 +163,11 @@
   programs = {
     helix.defaultEditor = true;
 
+    # BROKEN
     # ghostty = {
     #   enable = true;
     #   enableZshIntegration = true;
     # };
-
-    neovim = {
-      enable = true;
-      vimAlias = true;
-    };
 
     starship = {
       enable = true;
