@@ -11,11 +11,15 @@ scroll-lines = 10
 completion-trigger-len = 1
 true-color = true
 color-modes = true 
-auto-save = true
 idle-timeout = 50
+completion-timeout = 50
+end-of-line-diagnostics = 'hint'
 rulers = [80, 120]
 bufferline = 'multiple'
 cursorline = true
+continue-comments = false
+undercurl = true
+popup-border = "all"
 
 [editor.cursor-shape]
 insert='bar'
@@ -27,14 +31,26 @@ center = ['version-control','spacer', 'position-percentage', 'file-type', 'file-
 right = ['diagnostics', 'workspace-diagnostics', 'selections','primary-selection-length', 'register', 'position']
 
 [editor.whitespace.render]
-tab = 'all'
-nbsp = 'all'
+space = "none"
+newline = "none"
+tab = "all"
+nbsp = "all"
+nnbsp = "all"
+
+[editor.whitespace.characters]
+space = "·"
+nbsp = "⍽"
+nnbsp = "␣"
+tab = "→"
+newline = "⏎"
+tabpad = "·" # Tabs will look like "→···" (depending on tab width)
 
 [editor.gutters.line-numbers]
 min-width = 2
 
 [editor.indent-guides]
 render = true 
+character = "╎" # Some characters that work well: "▏", "┆", "┊", "⸽"
 
 [editor.lsp]
 display-messages = true
@@ -43,6 +59,14 @@ display-messages = true
 enable = true
 max-wrap = 30
 max-indent-retain = 60
+
+[editor.auto-save]
+focus-lost = true
+
+# needs newer helix version
+# [editor.inline-diagostics]
+# cursor-line = 'info'
+# other-lines = 'error'
 
 ##########################################################
 ##
@@ -55,6 +79,8 @@ max-indent-retain = 60
 ### NORMAL #######
 
 [keys.normal]
+tab = "move_parent_node_end"
+S-tab = "move_parent_node_start"
 
 V = ["goto_first_nonwhitespace", "extend_to_line_end"]
 D = ["ensure_selections_forward", "extend_to_line_end"]
@@ -90,6 +116,7 @@ C-r = [":reload"]
 ### INSERT #######
 
 [keys.insert]
+S-tab = "move_parent_node_start"
 
 A-F = ":format"
 
@@ -97,6 +124,8 @@ A-F = ":format"
 ### SELECT #######
 
 [keys.select]
+tab = "extend_parent_node_end"
+S-tab = "extend_parent_node_start"
 
 V = "extend_to_line_end"
 x = "extend_line"
