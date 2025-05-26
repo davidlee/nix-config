@@ -17,7 +17,7 @@
     };
 
     lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.92.0-3.tar.gz";
+      url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.0.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -31,11 +31,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # gauntlet = {
-    #   url = "github:project-gauntlet/gauntlet";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
 
@@ -43,7 +38,6 @@
     ucodenix.url = "github:e-tho/ucodenix";
     raise.url = "github:knarkzel/raise";
 
-    # musnix.url = "github:musnix/musnix";
     # ramalama.url = "github:containers/ramalama/main";
   };
 
@@ -70,8 +64,6 @@
         inherit specialArgs;
         modules = [
           ./hosts/${hostname}/config.nix
-          # TODO understand if we need a realtime kernel and whether it'll break virtualization
-          # inputs.musnix.nixosModules.musnix
           home-manager.nixosModules.home-manager {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
@@ -114,6 +106,5 @@
         ];
       };
     };
-          
   };
 }
