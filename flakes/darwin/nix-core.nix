@@ -14,5 +14,12 @@
 
       builders-use-substitutes = true;
     };
+    gc = {
+      automatic = true;
+      interval = [{
+        Hour = 12;
+        Minute = 15;
+      }];
+    };
   };
 }

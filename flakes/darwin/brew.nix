@@ -89,7 +89,7 @@
       "arc"
       "chatgpt"
       "blurred"
-      "moonlight"
+      # "moonlight"
       
       # "firefox"
       # "grain-lang/tap/grain"
