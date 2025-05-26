@@ -94,15 +94,8 @@
       "${hostname}" = inputs.darwin.lib.darwinSystem {
         inherit pkgs specialArgs;
         modules = [
-          ./darwin
           { system.configurationRevision = self.rev or self.dirtyRev or null; }
-          home-manager.darwinModules.home-manager {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = specialArgs;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.${username} = import ./darwin/home.nix;
-          }
+          ./darwin
         ];
       };
     };
