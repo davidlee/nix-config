@@ -29,6 +29,7 @@
       "dnote"
       "mlx"
       "surreal"
+      "docker-compose"
       # "cmdg"
       # "llm"
       # "llvm@18"
@@ -89,6 +90,7 @@
       "arc"
       "chatgpt"
       "blurred"
+      "docker"
       # "moonlight"
       
       # "firefox"
