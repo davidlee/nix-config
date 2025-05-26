@@ -1,0 +1,8 @@
+[language.typescript]
+filetypes = ["typescript", "javascript"]
+roots = [".git"]
+command = "deno"
+args = ["lsp"]
+[language.typescript.settings.deno]
+enable = true
+lint = true
