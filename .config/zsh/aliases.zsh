@@ -7,6 +7,8 @@ alias z=zellij;
 alias y=yazi;
 alias c="cd $HOME/.config";
 
+alias tmx="tmux new -A";
+
 alias -g G=" | grep -E --color=auto";
 
 alias hxr="hx ~/.reminders";

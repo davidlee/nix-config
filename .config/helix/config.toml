@@ -79,6 +79,7 @@ focus-lost = true
 ### NORMAL #######
 
 [keys.normal]
+
 tab = "move_parent_node_end"
 S-tab = "move_parent_node_start"
 
@@ -103,8 +104,8 @@ C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 "}" = "goto_next_paragraph"
 
 # Buffers
-"C-[" = ":buffer-next"
-"C-]" = ":buffer-previous"
+"C-[" = ":buffer-previous"
+"C-]" = ":buffer-next"
 "A-w" = ":buffer-close"
 
 ";" = ["collapse_selection", "normal_mode"] # save hitting esc

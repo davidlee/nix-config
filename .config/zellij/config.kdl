@@ -1,4 +1,8 @@
+// theme "gruvbox-dark"
+theme "ao"
+
 keybinds clear-defaults=true {
+
     locked {
         bind "Ctrl b" { SwitchToMode "normal"; }
     }
@@ -137,6 +141,31 @@ keybinds clear-defaults=true {
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
         bind "Ctrl Alt q" { Quit; }
+
+
+        // harpoon plugin
+        bind "Ctrl y" {
+            LaunchOrFocusPlugin "file:~/.config/zellij/plugins/harpoon.wasm" {
+                floating true; move_to_focused_tab true;
+            }
+        }
+
+        // monocle plugin
+        // bind F1 to open monocle in a new floating pane and open any results in a new tiled/floating pane
+        bind "F1" {
+            LaunchOrFocusPlugin "file:~/.config/zellij/plugins/monocle.wasm" {
+                floating true
+            };
+            SwitchToMode "Normal"
+        }
+        // bind "Alt m" to open monocle on top of the current pane and open any results on top of itself
+        bind "Alt m" {
+            LaunchPlugin "file:~/.config/zellij/plugins/monocle.wasm" {
+                in_place true
+                kiosk true
+            };
+            SwitchToMode "Normal"
+        }
     }
     shared_except "locked" "move" {
         bind "Ctrl h" { SwitchToMode "move"; }
@@ -260,6 +289,8 @@ plugins {
 // eg. "file:/path/to/my-plugin.wasm"
 // eg. "https://example.com/my-plugin.wasm"
 load_plugins {
+    "file:~/.config/zellij/plugins/monocle.wasm"
+    "file:~/.config/zellij/plugins/harpoon.wasm"
 }
  
 // Use a simplified UI without special fonts (arrow glyphs)
