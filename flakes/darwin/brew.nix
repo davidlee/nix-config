@@ -8,6 +8,12 @@
       # lockfiles = true;
     };
 
+    onActivation = {
+      autoUpdate = false;
+      upgrade = false;
+      cleanup = "zap";
+    };
+
     # Applications to install from Mac App Store using mas.
     # You need to install all these Apps manually first so that your apple account have records for them.
     # otherwise Apple Store will refuse to install them.
@@ -19,12 +25,11 @@
     #   Xcode = 497799835;
     # };
      brews = [
-      "jordanbaird-ice"
       "jupyterlab"
       "dnote"
-      "cmdg"
       "mlx"
       "surreal"
+      # "cmdg"
       # "llm"
       # "llvm@18"
       # "python3"
@@ -41,16 +46,53 @@
       "hammerspoon"
       "1password-cli"
       "beeper"
-      "grain-lang/tap/grain"
-      # "1password"
-      # "raycast"
-      # "spotify"
-      # "slack"
-      # "discord"
-      # "visual-studio-code"
+      "notunes"
+      "intellij-idea"
+      "floorp"
+      "1password"
+      "raycast"
+      "spotify"
+      "slack"
+      "discord"
+      "visual-studio-code"
+      "tailscale"
+      # "kindle"
+      "steermouse"
+      "rectangle"
+      "steam"
+      "google-drive"
+      "sublime-text"
+      "sublime-merge"
+      "signal"
+      "claude"
+      "zed"
+      "cursor"
+      "backblaze"
+      "mic-drop"
+      "emacs"
+      "aerospace"
+      "karabiner-elements"
+      "scapple"
+      "neovide"
+      "omnigraffle"
+      "omnifocus"
+      "kitty"
+      "ghostty"
+      "miro"
+      "syncthing"
+      "ollama"
+      "element"
+      "obsidian"
+      "sengi"
+      "stashpad"
+      "orion"
+      "arc"
+      "chatgpt"
+      "blurred"
+      "moonlight"
+      
       # "firefox"
-      # "floorp"
-      # "aerospace"
+      # "grain-lang/tap/grain"
     ];
     taps = [
       "nikitabobko/aerospace"
