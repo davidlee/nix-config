@@ -64,7 +64,6 @@
     dnote
 
     ## image / graphics / multimedia
-    glfw
     viu
 
     ## audio

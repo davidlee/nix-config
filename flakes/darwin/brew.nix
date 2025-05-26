@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ ... }: {
 
   homebrew = {
     enable = true;
@@ -13,31 +13,28 @@
     # otherwise Apple Store will refuse to install them.
     # For details, see https://github.com/mas-cli/mas 
     #
-    # Note: currently disabled due to excessive install time
+    # WARN: currently disabled due to excessive install time
     # 
     # masApps = {
     #   Xcode = 497799835;
     # };
      brews = [
-       # "jordanbaird-ice"
+      "jordanbaird-ice"
       "jupyterlab"
       "dnote"
       "cmdg"
       "mlx"
+      "surreal"
       # "llm"
       # "llvm@18"
       # "python3"
       # "node"
-      "surreal"
-      "television"
+      # "television"
     ];
     casks = [
-      # "firefox"
-      # "floorp"
       "anaconda"
       "zoom"
       "obs"
-      "aerospace"
       "iina"
       "jordanbaird-ice"
       "google-chrome"
@@ -51,6 +48,9 @@
       # "slack"
       # "discord"
       # "visual-studio-code"
+      # "firefox"
+      # "floorp"
+      # "aerospace"
     ];
     taps = [
       "nikitabobko/aerospace"
@@ -59,8 +59,5 @@
       "cutzenfriend/homebrew-cmdg"
       "surrealdb/surreal"
     ];
-
-    extraConfig = ''
-    '';
   };
 }

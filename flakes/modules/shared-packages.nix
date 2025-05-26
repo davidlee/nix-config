@@ -6,6 +6,7 @@
     
     ## zsh / posix
     zsh
+    zstd
     zsh-autocomplete
     antidote
     shellcheck
@@ -153,7 +154,7 @@
 
     ## image / graphics / multimedia
     ffmpeg
-    # glfw
+    glfw
     pastel
     # viu
 
@@ -196,5 +197,9 @@
     pkg-config
     raylib
     zlib
+    pixman
+    SDL
+    SDL2
+    SDL2_mixer
   ];
 }

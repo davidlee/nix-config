@@ -48,6 +48,8 @@
     ## text editors
     helix
     kakoune
+    kakoune-lsp
+    kakoune-cr
     neovim
     sc-im # er, spreadsheet
     wordgrinder

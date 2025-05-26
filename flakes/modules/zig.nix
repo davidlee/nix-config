@@ -1,4 +1,5 @@
-({ inputs, system, ... }: let
+({ inputs, pkgs, ... }: let
+  system = pkgs.system;
   zig = inputs.zig-overlay.packages.${system}.master;
 in {
   nixpkgs.overlays = [
@@ -9,4 +10,6 @@ in {
       });
     })
   ];
+
+  # environment.systemPackages = [ zig zls pkgs.zig-shell-completions ];
 })

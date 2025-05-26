@@ -17,6 +17,6 @@
       home-manager.users.${username} = import ./home.nix;
     }
 
-    ../nixos/zig.nix
+    ../modules/zig.nix
   ];
 }

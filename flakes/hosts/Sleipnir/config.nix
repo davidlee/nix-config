@@ -27,7 +27,8 @@
       ../../nixos/virtualisation.nix
       ../../nixos/fonts.nix
       ../../nixos/rust.nix
-      ../../nixos/zig.nix
+
+      ../../modules/zig.nix
 
     ];
 

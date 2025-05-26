@@ -1,5 +1,9 @@
 { pkgs, ... } : {
 
+  imports = [
+    ./zig.nix
+  ];
+
   environment.systemPackages = with pkgs; [
 
     ## programming - general 
@@ -34,7 +38,6 @@
     mergiraf
     tig
 
-
     ## supervisors / runners
     direnv
     just
@@ -43,10 +46,14 @@
     watchman
     watcher
     watchexec
+    fswatch
     
     ## build system
     gnumake
     ninja
+    autoconf
+    cmake
+    redo-apenwarr
 
     ## www
     html-tidy
@@ -96,6 +103,8 @@
     lld
     llvm
     gcc
+    clangStdenv
+    libclang
     
     ## lang.elixir 
     lexical
@@ -115,6 +124,7 @@
     python3Packages.flake8
     python3Packages.isort
     python3Packages.black
+    docutils
     jupyter-all
 
     ## lang.odin
@@ -123,14 +133,21 @@
     ## lang.clojure
     clojure-lsp
 
+    # lang.scheme
+    chez
+    chicken
+    guile
+
     ## lang.haskell
     haskell-language-server
+    ghc
 
     ## lang.ruby
     ruby
     ruby-lsp
     bundler
     rake
+    rbenv
 
     ## lang.lua
     lua
@@ -147,7 +164,8 @@
     typescript-language-server
     typescript
     emscripten
-    
+    deno
+   
     ## lang.zig
     zig
     zls
