@@ -9,7 +9,7 @@
     primaryUser = "davidlee";
 
     # so we do not need to logout and login again to make the changes take effect.
-    activationScripts.posActivation.text = ''
+    activationScripts.postActivation.text = ''
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
     '';
 

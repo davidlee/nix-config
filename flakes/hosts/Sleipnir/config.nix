@@ -1,19 +1,10 @@
 {inputs, pkgs, ...}: {
 
-  # options.sleipnir = {
-  #   kmscon = {
-  #     enable = true;
-  #     autologin = true;
-  #   };
-  # };
-
-  # config = {
     imports = [
       ./hardware-configuration.nix
 
       inputs.lix-module.nixosModules.default 
       inputs.nixarr.nixosModules.default
-      # inputs.nixos-cosmic.nixosModules.default
 
       ../../nixos/options.nix
 
@@ -37,8 +28,6 @@
       ../../nixos/fonts.nix
       ../../nixos/rust.nix
       ../../nixos/zig.nix
-      # ../../nixos/cosmic.nix
-      # ../../nixos/gauntlet.nix
 
     ];
 
