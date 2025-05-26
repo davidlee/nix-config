@@ -95,6 +95,8 @@
       zellij = {
         enable = true;
         enableZshIntegration = true;
+        attachExistingSession = true;
+        exitShellOnExit = false;
       };
 
       yazi = {
