@@ -7,6 +7,7 @@
   imports = [
     ../home/zsh.nix
     ../home/vim.nix
+    ../home/programs.nix
    ];
   
   home = {
@@ -78,7 +79,6 @@
     jq
     jq
     just
-    kakoune
     kakoune
     kitty
     lazygit
@@ -160,57 +160,4 @@
     uv
 
   ];
-
-  programs = {
-    helix.defaultEditor = true;
-
-    # BROKEN
-    # ghostty = {
-    #   enable = true;
-    #   enableZshIntegration = true;
-    # };
-
-    starship = {
-      enable = true;
-      enableZshIntegration = true;
-      enableNushellIntegration = true;
-    };
-
-    fzf = {
-      enable = true;
-      enableZshIntegration = true;
-    };
-
-    zoxide = {
-      enable = true;
-      enableZshIntegration = true;
-      options = [ 
-        "--cmd cd" 
-        "--hook pwd" 
-      ];
-    };
-
-    zk.enable = true;
-
-    zellij = {
-      enableZshIntegration = true;
-    };
-
-    yazi = {
-      enable = true;
-      enableZshIntegration = true;
-    };
-
-    eza.enable = true;
-    git.enable = true;
-
-    direnv.enable = true;
-    direnv.nix-direnv.enable = true;
-
-    skim = {
-      enable = true;
-      enableBashIntegration = true;
-    };
-  
-  };
 }

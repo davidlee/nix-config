@@ -1,7 +1,9 @@
-{ lib, pkgs, username, inputs, ... }: {
+{ username, ... }: {
 
   imports = [
     ../../home/zsh.nix
+    ../../home/vim.nix
+    ../../home/programs.nix
    ];
   
   home = {
