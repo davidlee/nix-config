@@ -10,4 +10,5 @@ result
 *.bak
 *.nixed
 \#*\#
+backup/
 
