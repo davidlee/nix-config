@@ -15,7 +15,29 @@
     stateVersion = "24.11";
   };
 
-  programs.home-manager.enable = true;
+  programs = {
+    home-manager.enable = true;
+    kitty.darwinLaunchOptions = [ 
+      "--listen-on=unix:/tmp/meow" 
+      "--single-instance" 
+    ];
+  };
 
-  # home.packages = with pkgs; [ ];
+  targets.darwin.defaults = {
+
+    # NSGlobalDomain = {
+    # };
+
+    # "com.apple.dock" = { 
+    # };
+    
+    # "com.apple.finder" = { 
+    # };
+    
+    # "com.apple.Safari" = { 
+    # };
+    
+    "com.apple.desktopservices".DSDontWriteUSBStores = true;
+  };
+
 }
