@@ -2,6 +2,8 @@
 .zcompdump*
 .antidote/
 .zsh_plugins.zsh
+.zsh_sessions/
+.zsh_history
 # nix managed symlinks
 .zlogin
 .zprofile

@@ -26,6 +26,26 @@ wm() {
   watchman-make -p $1 -r $2
 }
 
+#
+# find subdir in a zoxide dir
+# 
+
+fzd() { 
+  base=$(zoxide query $1);
+  dir="$base/$(fd . -t d --base-directory $base --strip-cwd-prefix=always | fzf)"; 
+  chdir $dir 
+}
+
+#
+# find & edit a file in a zoxide dir
+#
+fze() { 
+  base=$(zoxide query $1);
+  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)"; 
+  chdir $base 
+  $VISUAL $dir 
+}
+
 #################################################################################
 # periodic files
 #################################################################################

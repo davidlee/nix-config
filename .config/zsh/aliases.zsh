@@ -5,7 +5,9 @@ alias _=sudo;
 alias t=task;
 alias z=zellij;
 alias y=yazi;
+
 alias c="cd $HOME/.config";
+alias cfg="fzd $HOME/.config";
 
 alias tmx="tmux new -A";
 
