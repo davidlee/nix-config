@@ -4,4 +4,10 @@ result
 .cache
 .DS_Store
 
+# don't add backup files
+*~ 
+*.backup
+*.bak
+*.nixed
+\#*\#
 
