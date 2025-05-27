@@ -16,6 +16,7 @@
     defaults = {  
       NSGlobalDomain = {
         AppleShowAllExtensions = true;
+        "com.apple.swipescrolldirection" = false; # natural scrolling isn't
       };
 
       dock = {
