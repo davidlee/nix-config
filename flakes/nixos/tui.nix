@@ -1,10 +1,12 @@
-{pkgs, stable, ... }: {
+{pkgs, stable, inputs, ... }: {
 
   imports = [
     ../modules/shared-tui.nix  
   ];
 
   environment.systemPackages = with pkgs; [
+    inputs.helix.packages.${hostPlatform}.default
+    
     ## cli general
     mprocs # parellel command runner
     tray-tui # systray

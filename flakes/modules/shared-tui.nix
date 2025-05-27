@@ -46,7 +46,7 @@
     jjui
     
     ## text editors
-    helix
+    # helix REPLACED w edge 
     kakoune
     kakoune-lsp
     kakoune-cr

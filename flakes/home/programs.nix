@@ -18,10 +18,12 @@
       #   enableZshIntegration = true;
       # };
 
-      helix = {
-        enable = true;
-        defaultEditor = true;
-      };
+      # using dev branch from custom input instead
+      #
+      # helix = {
+      #   enable = true;
+      #   defaultEditor = true;
+      # };
 
       direnv = {
         enable = true;
