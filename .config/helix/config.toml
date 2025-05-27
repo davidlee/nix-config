@@ -108,8 +108,14 @@ C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 "}" = "goto_next_paragraph"
 
 # Buffers
+
+# great keybinding, but since dumb TTYs see C-[ as Esc we need a failover
 "C-[" = ":buffer-previous"
 "C-]" = ":buffer-next"
+
+"A-pageup" = ":buffer-previous"
+"A-pagedown" = ":buffer-next"
+
 "A-w" = ":buffer-close"
 
 ";" = ["collapse_selection", "normal_mode"] # save hitting esc

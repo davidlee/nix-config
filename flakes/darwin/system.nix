@@ -33,6 +33,7 @@
     
     defaults.smb.NetBIOSName = hostname;
   };
+
   security.pam.services.sudo_local.touchIdAuth = true;
 
   networking = {

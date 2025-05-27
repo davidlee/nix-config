@@ -1,8 +1,12 @@
-- # FIXME
+- # Todo / issues
   
 ---
+Darwin:
+
+  - FIXME: FFFFFuuuu natural scrolling gets turned on everytime I rebuild, presumably due to some nix-darwin regression (despite my configuration)
 
 NixOS:
+
 - power management
   - modern standby / hibernation - systemctl suspend
   

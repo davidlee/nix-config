@@ -97,7 +97,7 @@
       zellij = {
         enable = true;
         enableZshIntegration = true;
-        attachExistingSession = true;
+        attachExistingSession = false;
         exitShellOnExit = false;
       };
 
