@@ -17,9 +17,13 @@ end-of-line-diagnostics = 'hint'
 rulers = [80, 120]
 bufferline = 'multiple'
 cursorline = true
-continue-comments = false
+ # continue-comments = false
 undercurl = true
 popup-border = "all"
+# TODO enable when available
+# trim-trailing-whitespace = true
+# trim-final-newlines = true
+insert-final-newline = true
 
 [editor.cursor-shape]
 insert='bar'
@@ -63,7 +67,7 @@ max-indent-retain = 60
 [editor.auto-save]
 focus-lost = true
 
-# needs newer helix version
+# TODO enable when available - needs newer helix version
 # [editor.inline-diagostics]
 # cursor-line = 'info'
 # other-lines = 'error'
@@ -110,7 +114,7 @@ C-k = ["extend_to_line_bounds", "delete_selection", "move_line_up", "paste_befor
 
 ";" = ["collapse_selection", "normal_mode"] # save hitting esc
 
-"-" = ":write"
+"!" = ":write"
 C-r = [":reload"]
 
 ##################
@@ -140,7 +144,7 @@ x = "extend_line"
 ### MINOR MODES ##
  
 [keys.normal.space]
-
+        
 space = "goto_next_buffer"
 m = "goto_previous_buffer"
 
@@ -151,4 +155,9 @@ q = ":buffer-close"
 [keys.normal.space.l]
 a = ":set-option line-number absolute"
 r = ":set-option line-number relative"
+
+
+
+
+
 

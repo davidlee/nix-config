@@ -6,6 +6,11 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
     
+    helix = {
+      url = "github:helix-editor/helix/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
