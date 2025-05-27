@@ -91,6 +91,10 @@
       "chatgpt"
       "blurred"
       "docker"
+      "google-chrome"
+      "google-chrome@canary"
+
+
       # "moonlight"
       
       # "firefox"
