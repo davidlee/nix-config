@@ -151,12 +151,17 @@
     ## graphing
     d2
     graphviz
+    mermaid-cli
 
     ## image / graphics / multimedia
     ffmpeg
     glfw
     pastel
-    # viu
+    chafa
+    ueberzugpp
+    viu
+    ghostscript
+    latex2html
 
     ## fonts
     nerd-font-patcher
