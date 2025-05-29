@@ -1,6 +1,6 @@
 -- semantics: AST 
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "javascript", "css", "bash", "ruby", "rust", "zig", "yaml", "toml", },
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "javascript", "css", "bash", "ruby", "rust", "zig", "yaml", "toml", "regex"},
   ignore_install = { "org" },
   auto_install = true,
   highlight = { enable = true, },
