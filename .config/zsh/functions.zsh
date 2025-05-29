@@ -80,6 +80,16 @@ month() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
 year() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
 
 #
+# Color Pallette
+#
+colors () {
+  for i in {0..255}
+  do
+  print -Pn "%K{$i}  %k%F{$i}${(l:3::0:)i}%f " ${${(M)$((i%6)):#3}:+$'\n'}
+  done
+}
+
+#
 # FZF
 # 
 # Use fd (https://github.com/sharkdp/fd) for listing path candidates.
