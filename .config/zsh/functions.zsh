@@ -79,6 +79,25 @@ week() { _edit_periodic_note $(_week_note_path) `date +"%Ywk%U"` }
 month() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
 year() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
 
+_interstitial_status() {
+  filepath="${1:-$(_day_note_path)}";
+  # echo $filepath >&2;
+
+  if [ ! -f $filepath ]; then
+    echo "-1 missing" >&2;
+    return 1;
+  fi
+
+  find $filepath -mmin +15;
+  if [ ! $? -eq 0 ]; then
+    echo "-1 old" >&2;
+    return 2;
+  fi
+
+  echo "ok" >&2;
+  return 0;
+}
+
 #
 # Color Pallette
 #

@@ -8,7 +8,8 @@ setopt no_global_rcs
 export EDITOR=nvim
 export VISUAL=nvim
 export PAGER=ov
-export MANPAGER='nvim +Man!'
+# export MANPAGER='nvim +Man!'
+export MANPAGER='most'
 
 export OBS_DIR=~/workbench
 

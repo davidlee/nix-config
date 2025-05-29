@@ -10,6 +10,7 @@ alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
 
 # alias tmx="tmux new -A";
+alias tx="exec tmx default"
 
 alias -g G=" | grep -E --color=auto";
 
