@@ -32,6 +32,7 @@
     difftastic
     gh
     gitFull
+    mercurial
     hub
     jujutsu
     meld
