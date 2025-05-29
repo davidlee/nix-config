@@ -1,4 +1,7 @@
+local presets = require("markview.presets");
 
-require('render-markdown').setup({
-    completions = { lsp = { enabled = true } },
-})
+require("markview").setup({
+  markdown = {
+    headings = presets.headings.glow
+  }
+});

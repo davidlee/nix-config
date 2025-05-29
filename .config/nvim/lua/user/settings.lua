@@ -57,8 +57,9 @@ vim.o.backup = false
 vim.o.icm = 'split'
 vim.opt.foldtext = "v:lua.vim.treesitter.foldtext()"
 
-
 -- Use rg
 vim.o.grepprg = [[rg --glob "!.git" --no-heading --vimgrep --follow $*]]
 vim.opt.grepformat = vim.opt.grepformat ^ { "%f:%l:%c:%m" }
 
+-- concealLevel
+vim.opt.conceallevel = 1 -- show one char 

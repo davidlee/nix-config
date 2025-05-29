@@ -15,20 +15,20 @@ bind("n", "<leader>fl", require('fzf-lua').git_files)
 --
 -- Harpoon2
 --
-local harpoon = require("harpoon")
-harpoon:setup()
+-- local harpoon = require("harpoon")
+-- harpoon:setup()
 
-bind("n", "<leader>ha", function() harpoon:list():add() end)
-bind("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+-- bind("n", "<leader>ha", function() harpoon:list():add() end)
+-- bind("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
 
-bind("n", "<leader>h1", function() harpoon:list():select(1) end)
-bind("n", "<leader>h2", function() harpoon:list():select(2) end)
-bind("n", "<leader>h3", function() harpoon:list():select(3) end)
-bind("n", "<leader>h4", function() harpoon:list():select(4) end)
+-- bind("n", "<leader>h1", function() harpoon:list():select(1) end)
+-- bind("n", "<leader>h2", function() harpoon:list():select(2) end)
+-- bind("n", "<leader>h3", function() harpoon:list():select(3) end)
+-- bind("n", "<leader>h4", function() harpoon:list():select(4) end)
 
--- Toggle previous & next buffers stored within Harpoon list
-bind("n", "<leader>hh", function() harpoon:list():prev() end)
-bind("n", "<leader>he", function() harpoon:list():next() end)
+-- -- Toggle previous & next buffers stored within Harpoon list
+-- bind("n", "<leader>hh", function() harpoon:list():prev() end)
+-- bind("n", "<leader>he", function() harpoon:list():next() end)
 
 --
 -- Aerial
