@@ -45,3 +45,10 @@ ZSH_AUTOSUGGEST_STRATEGY=()
 if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
+
+if [ -z "$TMUX" ]; then
+  echo "connecting tmux session ...";
+  sleep 1; # safety first
+  tx # alias
+  # NOTE we could use exec but ... seems more likely to cause breakage rn
+fi
