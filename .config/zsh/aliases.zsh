@@ -9,7 +9,7 @@ alias y=yazi;
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
 
-alias tmx="tmux new -A";
+# alias tmx="tmux new -A";
 
 alias -g G=" | grep -E --color=auto";
 
