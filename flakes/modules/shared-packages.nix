@@ -12,6 +12,9 @@
     shellcheck
     shfmt
 
+    # tmux session / plugins
+    sesh
+
     ## alt shells
     nushell
     oils-for-unix
