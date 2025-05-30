@@ -1,0 +1,33 @@
+#!/usr/bin/env zsh
+# vim:set syntax=bash:
+
+# a conditional script to tell tmux whether to render a statusbar element
+# it should render when the daily note is either missing, or older than a threshold.
+
+export MINS_THRESHOLD=15
+
+export OBS_DIR=~/workbench
+export DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
+
+filepath=$(date +$DAY_NOTE_FORMAT)
+
+if [ ! -f $filepath ]; then
+  echo "file $filepath is missing" >2
+  echo -n '#[bg=#ff0000,fg=#ffffff,bold] NO NOTE #[default]'
+  exit 1
+fi
+
+#
+# simplest way to test file age is using find
+#
+find $filepath -mmin +$MINS_THRESHOLD 2>&1 >/dev/null
+if [ ! $? -eq 0 ]; then
+  echo "file $filepath is older than $MINS_THRESHOLD mins" >2
+  echo -n '#[bg=#ff00ff,fg=#ffffff,bold] OLD NOTE #[default]'
+  exit 2
+fi
+
+echo -n " 󰅎 "
+exit 0
+
+
