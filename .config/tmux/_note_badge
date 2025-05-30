@@ -1,33 +1,69 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env zsh 
 # vim:set syntax=bash:
 
 # a conditional script to tell tmux whether to render a statusbar element
 # it should render when the daily note is either missing, or older than a threshold.
+#
+# for nagging / encouraging an interstitial journalling habit.
 
-export MINS_THRESHOLD=15
+OBS_DIR=~/workbench
+DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
 
-export OBS_DIR=~/workbench
-export DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
+MINS_NOTICE=12
+MINS_WARN=25
+MINS_ERR=40
+
+# pad with random length string to be slightly annoying
+n=$((RANDOM % 5))
+pad=''
+for ((i=0; i<n; i++)); do
+  pad="$pad"
+done
+
+BADGE_MISSING="#[bg=#ff00ff,fg=#ffffff,bold] 󰅎 MISSING $pad #[default]"
+BADGE_OLD_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅎 LATE $pad #[default]"
+BADGE_OLD_WARN="#[fg=#ff3300]󰅎 STALE $pad #[default]"
+BADGE_OLD_NOTICE="#[fg=#ff9933]󰅎 "
+BADGE_OK="#[fg=#00cc33]󰅎 "
+
 
 filepath=$(date +$DAY_NOTE_FORMAT)
 
 if [ ! -f $filepath ]; then
   echo "file $filepath is missing" >2
-  echo -n '#[bg=#ff0000,fg=#ffffff,bold] NO NOTE #[default]'
+  echo -n $BADGE_MISSING
   exit 1
 fi
 
-#
 # simplest way to test file age is using find
-#
-find $filepath -mmin +$MINS_THRESHOLD 2>&1 >/dev/null
-if [ ! $? -eq 0 ]; then
-  echo "file $filepath is older than $MINS_THRESHOLD mins" >2
-  echo -n '#[bg=#ff00ff,fg=#ffffff,bold] OLD NOTE #[default]'
+# I'd roll these up into a function, but then 
+# exit only exits the fn ...
+
+find $filepath -mmin "-$MINS_NOTICE" | grep . #2>/dev/null 
+if [ $? -eq 0 ]; then
+  echo -n $BADGE_OK
   exit 2
 fi
 
-echo -n " 󰅎 "
-exit 0
+find $filepath -mmin "-$MINS_WARN" | grep . 2>/dev/null
+if [ $? -eq 0 ]; then
+  echo -n $BADGE_OLD_NOTICE
+  exit 3
+fi
+
+find $filepath -mmin "-$MINS_ERR" | grep . 2>/dev/null
+if [ $? -eq 0 ]; then
+  echo -n $BADGE_OLD_WARN
+  exit 4
+fi
+
+find $filepath -mmin "+$MINS_ERR" | grep . 2>/dev/null
+if [ $? -eq 0 ]; then
+  echo -n $BADGE_OLD_ERR
+  exit 5
+fi
+
+echo "#[bg=red]FATAL ERROR#[default]"
+exit 6
 
 

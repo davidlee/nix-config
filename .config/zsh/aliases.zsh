@@ -9,6 +9,8 @@ alias y=yazi;
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
 
+alias ij=daily; # interstitial journal 
+
 # alias tmx="tmux new -A";
 alias tx="exec tmx default"
 
