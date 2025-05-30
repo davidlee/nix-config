@@ -1,69 +1,79 @@
 #!/usr/bin/env zsh 
 # vim:set syntax=bash:
 
-# a conditional script to tell tmux whether to render a statusbar element
+# a conditional script to tell tmux whether to render a tmux statusbar element
 # it should render when the daily note is either missing, or older than a threshold.
 #
 # for nagging / encouraging an interstitial journalling habit.
 
-OBS_DIR=~/workbench
-DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
+# expect these to be exported into the execution ENV; less brittle not to duplicate 
+#
+# OBS_DIR=~/workbench
+# DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
+#
+# HACK: why doesn't the function work here? it's defined in the same file as 
+# the ENV var is exported ...
+# export filepath=$( _day_note_path )
+export filepath=$(date +$DAY_NOTE_FORMAT)
 
+# when we want to be visually annoying, but not inexcusably so:
+# append a slowly growing ellipsis
+# FIXME: multiple open sessions increase the animation speed
+# I could probably include the current tmux session id in the temp file path ...
+dotsfile=/tmp/_note_badge.dots
+touch $dotsfile
+dots=$(<$dotsfile)
+echo "$dots">$dotsfile
+if [ ${#dots} -gt 5 ]; then rm $dotsfile; fi
+
+BADGE_MISSING="#[bg=#ff00ff,fg=#ffffff,bold] 󰅌 MISSING $dots #[default]"
+BADGE_OLD_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅌 LATE $dots #[default]"
+BADGE_OLD_WARN="#[fg=#ff9933]󰅌 STALE $dots #[default]"
+BADGE_OLD_NOTICE="#[fg=#ff9933]󰅎 "
+BADGE_OK="#[fg=#00cc33]󰅎 "
+
+# here we want to be visually annoying, but just a wee little bit
+if [ $(($RANDOM % 2 )) -eq 0 ]; then BADGE_OLD_NOTICE='#[fg=#ff9922]󰅌 '; fi
+
+# file age thresholds for the different badges
 MINS_NOTICE=12
 MINS_WARN=25
 MINS_ERR=40
 
-# pad with random length string to be slightly annoying
-n=$((RANDOM % 5))
-pad=''
-for ((i=0; i<n; i++)); do
-  pad="$pad"
-done
+# exit 1 if the previous check did. 
+# Otherwise, print a badge and exit 1 if the file's old enough
+# (exit within a function only exits the function, which runs in a sub-shell)
+print_badge_if_stale() {
+  age=$1
+  badge=$2
+  last_exit_status=${3:-0}
 
-BADGE_MISSING="#[bg=#ff00ff,fg=#ffffff,bold] 󰅎 MISSING $pad #[default]"
-BADGE_OLD_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅎 LATE $pad #[default]"
-BADGE_OLD_WARN="#[fg=#ff3300]󰅎 STALE $pad #[default]"
-BADGE_OLD_NOTICE="#[fg=#ff9933]󰅎 "
-BADGE_OK="#[fg=#00cc33]󰅎 "
+  if [ ! $last_exit_status -eq 0 ]; then exit 1; fi
 
+  # the simplest way to test file age is using find
+  # grep is just massaging the exit status to correspond with find returning a result
+  find $filepath -mmin "+$age" | grep . 2>&/dev/null 
+  # if we found something, it means the file's mtime is too old; exit 1 
+  if [ $? -eq 0 ]; then
+    echo -n $badge
+    exit 1
+  fi
+}
 
-filepath=$(date +$DAY_NOTE_FORMAT)
+#
+# begin execution
+#
 
+# check if file exists at all, or print & exit 1
 if [ ! -f $filepath ]; then
-  echo "file $filepath is missing" >2
   echo -n $BADGE_MISSING
   exit 1
 fi
 
-# simplest way to test file age is using find
-# I'd roll these up into a function, but then 
-# exit only exits the fn ...
-
-find $filepath -mmin "-$MINS_NOTICE" | grep . #2>/dev/null 
-if [ $? -eq 0 ]; then
-  echo -n $BADGE_OK
-  exit 2
-fi
-
-find $filepath -mmin "-$MINS_WARN" | grep . 2>/dev/null
-if [ $? -eq 0 ]; then
-  echo -n $BADGE_OLD_NOTICE
-  exit 3
-fi
-
-find $filepath -mmin "-$MINS_ERR" | grep . 2>/dev/null
-if [ $? -eq 0 ]; then
-  echo -n $BADGE_OLD_WARN
-  exit 4
-fi
-
-find $filepath -mmin "+$MINS_ERR" | grep . 2>/dev/null
-if [ $? -eq 0 ]; then
-  echo -n $BADGE_OLD_ERR
-  exit 5
-fi
-
-echo "#[bg=red]FATAL ERROR#[default]"
-exit 6
-
+# check from the most to least severe threshold, exiting checks early where 
+# possible
+print_badge_if_stale $MINS_ERR    $BADGE_OLD_ERR    
+print_badge_if_stale $MINS_WARN   $BADGE_OLD_WARN   $?
+print_badge_if_stale $MINS_NOTICE $BADGE_OLD_NOTICE $?
+print_badge_if_stale 0            $BADGE_OK         $?
 
