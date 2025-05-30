@@ -75,10 +75,10 @@ _edit_periodic_note() {
   $VISUAL $1
 }
 
-day() { _edit_periodic_note $(_day_note_path) `date +"%F"` }
-week() { _edit_periodic_note $(_week_note_path) `date +"%Ywk%U"` }
-month() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
-year() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
+daily() { _edit_periodic_note $(_day_note_path) `date +"%F"` }
+weekly() { _edit_periodic_note $(_week_note_path) `date +"%Ywk%U"` }
+monthly() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
+yearly() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
 
 #
 # Color Pallette
