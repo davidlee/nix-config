@@ -1,6 +1,10 @@
 - # Todo / issues
   
 ---
+shell:
+  - wrap all sessions in tmux w. shared session (per tx alias)
+  - add statusbar icon for interstitial / daily note
+
 Darwin:
 
   - FIXME: FFFFFuuuu natural scrolling gets turned on everytime I rebuild, presumably due to some nix-darwin regression (despite my configuration)
