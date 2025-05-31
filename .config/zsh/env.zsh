@@ -23,4 +23,4 @@ export MCFLY_INTERFACE_VIEW=BOTTOM
 # Secrets - private bare repo (non-critical only; use 1password encryption where we really care)
 #
 
-source ./secrets.zsh
+source ~/.config/zsh/secrets.zsh
