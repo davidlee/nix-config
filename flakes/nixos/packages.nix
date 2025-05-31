@@ -28,13 +28,13 @@
     nix-janitor
     sd-switch
 
-    # # network / http
+    ## network / http
     iptraf-ng
     nethogs
     nmon
     vnstat
     
-    # ## files / find
+    ## files / find
     fsearch
     plocate
 
@@ -87,8 +87,23 @@
     nms
     openrgb-with-all-plugins
 
-    # windows API libs
+    # windows API 
     dotnet-runtime
+
+    ### libs 
+    glib
+    libffi
+    libiconv
+    libyaml
+    openssl
+    openssl.dev
+    pkg-config
+    raylib
+    zlib
+    pixman
+    SDL
+    SDL2
+    SDL2_mixer
 
   ];
 

@@ -93,6 +93,8 @@
       "docker"
       "google-chrome"
       "google-chrome@canary"
+      "activitywatch"
+      "timing"
 
 
       # "moonlight"

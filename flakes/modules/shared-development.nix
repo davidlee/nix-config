@@ -8,18 +8,12 @@
 
     ## programming - general 
     exercism
-    tree-sitter
 
-    ## ai 
-    ollama
-    oterm
-    aichat
-    mods
-    llama-cpp
-    llm
-    llm-ls
-    # vllm 
-    mistral-rs
+    ## cli / tui devtools
+    vhs
+    # bubbletea
+    # lipgloss
+    # huh 
 
     ## SCM
     delta
@@ -49,7 +43,7 @@
     watchexec
     fswatch
     
-    ## build system
+    ## build systems
     gnumake
     ninja
     autoconf
@@ -60,7 +54,8 @@
     html-tidy
     prettierd
 
-    ## utility LSPs
+    ## editor platforms: LSP / treesitter 
+    tree-sitter
     lsp-ai
     simple-completion-language-server
     dot-language-server

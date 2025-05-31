@@ -18,3 +18,9 @@ export MCFLY_FUZZY=2
 export MCFLY_RESULTS=50
 export MCFLY_RESULTS_SORT=LAST_RUN
 export MCFLY_INTERFACE_VIEW=BOTTOM
+
+#
+# Secrets - private bare repo (non-critical only; use 1password encryption where we really care)
+#
+
+source ./secrets.zsh

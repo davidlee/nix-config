@@ -15,6 +15,10 @@
     # tmux session / plugins
     sesh
 
+    # pimp the cli
+    gum
+    skate
+
     ## alt shells
     nushell
     oils-for-unix
@@ -23,18 +27,13 @@
 
     ## disk / io
     duf
-    # hdparm
-    # smartmontools
     pydf
-    # udiskie
 
     ## package management
     comma
-    # appimage-run
     cachix
     devcontainer
     devenv
-    # flatpak
     manix
     nh
     nil
@@ -61,7 +60,6 @@
     nixfmt-rfc-style
     nvd
     pkg-config
-    # sd-switch
     unixtools.nettools
     unixtools.xxd
 
@@ -71,25 +69,17 @@
     httpie
     iftop
     inetutils
-    # iptraf-ng
-    # nethogs
     nmap
     netcat
     socat
-    # nmon
     openssl
     oha
     sn0int
     tcpdump
     trippy
-    # vnstat
     wget
     xh
     yt-dlp
-
-    ## www
-    w3m-full
-    lynx
 
     ## files / find
     fd
@@ -99,7 +89,6 @@
     fzf-zsh
     fzy
     mcfly
-    # plocate
     ripgrep
     vgrep
     sad
@@ -178,7 +167,6 @@
     gpg-tui
     oath-toolkit
     _1password-cli
-    # keepassxc
 
     ## servers
     caddy
@@ -194,20 +182,5 @@
     neofetch
     fastfetch
     figlet
-
-    ### libs
-    glib
-    libffi
-    libiconv
-    libyaml
-    openssl
-    openssl.dev
-    pkg-config
-    raylib
-    zlib
-    pixman
-    SDL
-    SDL2
-    SDL2_mixer
   ];
 }

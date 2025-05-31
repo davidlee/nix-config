@@ -2,7 +2,18 @@
   
   environment.systemPackages = with pkgs; [
 
-    ## cli general
+    ## LLM / AI 
+    ollama
+    oterm
+    aichat
+    mods
+    llama-cpp
+    llm
+    llm-ls
+    # vllm 
+    mistral-rs
+
+    ## cli history
     atuin 
 
     ## system monitors
@@ -127,7 +138,7 @@
     crates-tui
 
     ## www
-    w3m
+    w3m-full
     browsh
     lynx
   ];
