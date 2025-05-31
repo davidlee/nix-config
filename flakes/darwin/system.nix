@@ -9,9 +9,10 @@
     primaryUser = "davidlee";
 
     # so we do not need to logout and login again to make the changes take effect.
-    activationScripts.postActivation.text = ''
-      /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
-    '';
+    # FIXME commented out to see if we don't need it / whether it's contributing to the issue with mouse natural scrolling 
+    # activationScripts.postActivation.text = ''
+    #   /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+    # '';
 
     defaults = {  
       NSGlobalDomain = {
