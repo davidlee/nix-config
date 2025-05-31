@@ -1,4 +1,5 @@
-{ pkgs, ... } : {
+{ pkgs, ... }:
+{
 
   imports = [
     ./zig.nix
@@ -6,14 +7,14 @@
 
   environment.systemPackages = with pkgs; [
 
-    ## programming - general 
+    ## programming - general
     exercism
 
     ## cli / tui devtools
     vhs
     # bubbletea
     # lipgloss
-    # huh 
+    # huh
 
     ## SCM
     delta
@@ -42,7 +43,7 @@
     watcher
     watchexec
     fswatch
-    
+
     ## build systems
     gnumake
     ninja
@@ -54,7 +55,7 @@
     html-tidy
     prettierd
 
-    ## editor platforms: LSP / treesitter 
+    ## editor platforms: LSP / treesitter
     tree-sitter
     lsp-ai
     simple-completion-language-server
@@ -75,7 +76,7 @@
 
     ## cli dev utils
     semgrep
-    
+
     ## json/yaml
     jq
     yq-go
@@ -93,7 +94,7 @@
 
     ## parse / lex
     bison
-    
+
     ## lang.c
     lldb
     lld
@@ -101,13 +102,15 @@
     gcc
     clangStdenv
     libclang
-    
-    ## lang.elixir 
+
+    ## lang.elixir
+    elixir
     lexical
 
     ## lang.go
+    go
     gofumpt # go formatter
-    
+
     ## lang.python
     uv
     python313Packages.pywatchman
@@ -124,7 +127,7 @@
     jupyter-all
 
     ## lang.odin
-    ols 
+    ols
 
     ## lang.clojure
     clojure-lsp
@@ -147,7 +150,7 @@
 
     ## lang.lua
     lua
-    lua54Packages.luarocks-nix 
+    lua54Packages.luarocks-nix
     vimPlugins.fzf-lua
     lua-language-server
     luarocks-packages-updater
@@ -161,7 +164,7 @@
     typescript
     emscripten
     deno
-   
+
     ## lang.zig
     zig
     zls
