@@ -2,43 +2,46 @@
 # vim:set syntax=bash:
 
 # a conditional script to tell tmux whether to render a tmux statusbar element
-# it should render when the daily note is either missing, or older than a threshold.
+# which warns when no notes have been updated in a while
 #
 # for nagging / encouraging an interstitial journalling habit.
 
-# expect these to be exported into the execution ENV; less brittle not to duplicate 
+# we expect this to be exported into the execution ENV
 #
 # OBS_DIR=~/workbench
-# DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
-#
-# HACK: why doesn't the function work here? it's defined in the same file as 
-# the ENV var is exported ...
-# export filepath=$( _day_note_path )
-export filepath=$(date +$DAY_NOTE_FORMAT)
 
-# when we want to be visually annoying, but not inexcusably so:
-# append a slowly growing ellipsis
-# FIXME: multiple open sessions increase the animation speed
-# I could probably include the current tmux session id in the temp file path ...
-dotsfile=/tmp/_note_badge.dots
-touch $dotsfile
-dots=$(<$dotsfile)
-echo "$dots">$dotsfile
-if [ ${#dots} -gt 5 ]; then rm $dotsfile; fi
-
-BADGE_MISSING="#[bg=#ff00ff,fg=#ffffff,bold] 󰅌 MISSING $dots #[default]"
-BADGE_OLD_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅌 LATE $dots #[default]"
-BADGE_OLD_WARN="#[fg=#ff9933]󰅌 STALE $dots #[default]"
-BADGE_OLD_NOTICE="#[fg=#ff9933]󰅎 "
-BADGE_OK="#[fg=#00cc33]󰅎 "
-
-# here we want to be visually annoying, but just a wee little bit
-if [ $(($RANDOM % 2 )) -eq 0 ]; then BADGE_OLD_NOTICE='#[fg=#ff9922]󰅌 '; fi
+NOTE_DIR=${OBS_DIR:-~/notes}
 
 # file age thresholds for the different badges
 MINS_NOTICE=12
 MINS_WARN=25
 MINS_ERR=40
+MINS_CRIT=480
+
+# for CRIT badge we want to be visually annoying, but not inexcusably so
+#
+# NOTE: reimplemented this way (rather than using a pidfile) to prevent 
+# multiple windows interfering 
+# (see ~/.local/bin/tmx)
+#
+# This is more elegant anyway, but is coupled to the tmux status bar update 
+# interval (expects 1s).
+n=$(( $(date +%s) % 5 + 1)) # incrementing number from unix epoch time 
+dots=$( printf "%.${n}s"  )
+
+n=$(( $(date +%s) % 2 )) # alternating frames
+if [ $n -eq 0 ]; then 
+  BADGE_NOTICE='#[fg=#ff9922]󰅌 '
+  BADGE_WARN="#[fg=#ff9933]󰅌 STALE #[default]"
+  BADGE_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅌 STALE #[default]"
+  BADGE_CRIT="#[bg=#ff00ff,fg=#ffffff,bold] 󰅌 NOTES $dots #[default]"
+else
+  BADGE_NOTICE="#[fg=#ff9933]󰅎 "
+  BADGE_WARN="#[fg=#ff9933]󰅎 NOTES #[default]"
+  BADGE_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅎 NOTES #[default]"
+  BADGE_CRIT="#[bg=#ff00ff,fg=#ffffff,bold] 󰅎 STALE $dots #[default]"
+fi
+BADGE_OK="#[fg=#00cc33]󰅎 "
 
 # exit 1 if the previous check did. 
 # Otherwise, print a badge and exit 1 if the file's old enough
@@ -52,28 +55,17 @@ print_badge_if_stale() {
 
   # the simplest way to test file age is using find
   # grep is just massaging the exit status to correspond with find returning a result
-  find $filepath -mmin "+$age" | grep . 2>&/dev/null 
-  # if we found something, it means the file's mtime is too old; exit 1 
-  if [ $? -eq 0 ]; then
+  find $NOTE_DIR -path '*.md' -type f -mmin "-$age" | grep . 2>&/dev/null || {
     echo -n $badge
     exit 1
-  fi
+  } 
 }
-
-#
-# begin execution
-#
-
-# check if file exists at all, or print & exit 1
-if [ ! -f $filepath ]; then
-  echo -n $BADGE_MISSING
-  exit 1
-fi
 
 # check from the most to least severe threshold, exiting checks early where 
 # possible
-print_badge_if_stale $MINS_ERR    $BADGE_OLD_ERR    
-print_badge_if_stale $MINS_WARN   $BADGE_OLD_WARN   $?
-print_badge_if_stale $MINS_NOTICE $BADGE_OLD_NOTICE $?
-print_badge_if_stale 0            $BADGE_OK         $?
+print_badge_if_stale $MINS_CRIT   $BADGE_CRIT
+print_badge_if_stale $MINS_ERR    $BADGE_ERR    $?   
+print_badge_if_stale $MINS_WARN   $BADGE_WARN   $?
+print_badge_if_stale $MINS_NOTICE $BADGE_NOTICE $?
+print_badge_if_stale 0            $BADGE_OK     $?
 
