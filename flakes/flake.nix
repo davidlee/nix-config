@@ -5,7 +5,7 @@
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
-    
+
     helix = {
       url = "github:helix-editor/helix/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    home-manager = { 
+    home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -30,7 +30,7 @@
       url = "github:youwen5/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-        
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,66 +43,96 @@
     ucodenix.url = "github:e-tho/ucodenix";
     raise.url = "github:knarkzel/raise";
 
+    ## https://github.com/azuwis/lazyvim-nixvim
+    #
     # ramalama.url = "github:containers/ramalama/main";
   };
 
   #
   # NixOS
-  # 
-  outputs = inputs@{ self, nixpkgs, nix-stable, home-manager, ... }: {
-    nixosConfigurations =
-    let
-      inherit (self) outputs;
+  #
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nix-stable,
+      home-manager,
+      ...
+    }:
+    {
+      nixosConfigurations =
+        let
+          inherit (self) outputs;
 
-      hostname = "Sleipnir";
-      username = "david";
-      system   = "x86_64-linux";
-      stable   = import nix-stable {
-        inherit system;
-        config.allowUnfree = true;
-      };
-        
-      specialArgs = { inherit inputs outputs username hostname stable system; };
-    in {
-    
-      "${hostname}" = nixpkgs.lib.nixosSystem {
-        inherit specialArgs;
-        modules = [
-          ./hosts/${hostname}/config.nix
-          home-manager.nixosModules.home-manager {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = specialArgs;
-              home-manager.backupFileExtension = "backup";
-              home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
-          }
+          hostname = "Sleipnir";
+          username = "david";
+          system = "x86_64-linux";
+          stable = import nix-stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
 
-        ];
-      };
+          specialArgs = {
+            inherit
+              inputs
+              outputs
+              username
+              hostname
+              stable
+              system
+              ;
+          };
+        in
+        {
+
+          "${hostname}" = nixpkgs.lib.nixosSystem {
+            inherit specialArgs;
+            modules = [
+              ./hosts/${hostname}/config.nix
+              home-manager.nixosModules.home-manager
+              {
+                home-manager.useGlobalPkgs = true;
+                home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = specialArgs;
+                home-manager.backupFileExtension = "backup";
+                home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
+              }
+
+            ];
+          };
+        };
+
+      #
+      # DARWIN
+      #
+      darwinConfigurations =
+        let
+          inherit (self) outputs;
+          username = "davidlee";
+          hostname = "fusillade";
+          system = "aarch64-darwin";
+          specialArgs = {
+            inherit
+              inputs
+              outputs
+              username
+              hostname
+              ;
+          };
+          pkgs = import nixpkgs {
+            inherit system;
+            hostPlatform = system;
+            config.allowUnfree = true;
+          };
+        in
+        {
+          "${hostname}" = inputs.darwin.lib.darwinSystem {
+            inherit pkgs specialArgs;
+            modules = [
+              { system.configurationRevision = self.rev or self.dirtyRev or null; }
+              ./darwin
+            ];
+          };
+        };
     };
-
-    #
-    # DARWIN
-    # 
-    darwinConfigurations = let
-      inherit (self) outputs;
-      username = "davidlee";
-      hostname = "fusillade";
-      system = "aarch64-darwin";
-      specialArgs = { inherit inputs outputs username hostname; };
-      pkgs = import nixpkgs {
-        inherit system;
-        hostPlatform = system;
-        config.allowUnfree = true;
-      };
-    in {
-      "${hostname}" = inputs.darwin.lib.darwinSystem {
-        inherit pkgs specialArgs;
-        modules = [
-          { system.configurationRevision = self.rev or self.dirtyRev or null; }
-          ./darwin
-        ];
-      };
-    };
-  };
 }
