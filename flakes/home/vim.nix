@@ -4,9 +4,7 @@
   pkgs,
   lib,
   ...
-}:
-{
-
+}: {
   # keep our vim config as plain old lua files because I'm not a masochist -
   # this is just for plugin dependencies
   #
@@ -16,9 +14,9 @@
     enable = true;
     defaultEditor = true;
 
-    viAlias = true;
-    vimAlias = true;
-    vimdiffAlias = true;
+    # viAlias = true;
+    # vimAlias = true;
+    # vimdiffAlias = true;
 
     withNodeJs = true;
     withPython3 = true;
@@ -64,5 +62,4 @@
 
     shfmt
   ];
-
 }
