@@ -11,10 +11,15 @@ return {
       vim.g.tstest_rule_hlgroup = "FoldColumn"
     end,
   },
+
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = { ensure_installed = { "css", "html" } },
+    opts = {
+      ensure_installed = { "css", "html" },
+      ignore_install = { "org" },
+    },
   },
+
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -36,6 +41,7 @@ return {
       },
     },
   },
+
   {
     "stevearc/conform.nvim",
     opts = {
@@ -50,9 +56,7 @@ return {
       local ensure_installed = {
         astro = true,
         tailwindcss = true,
-        -- unocss = true,
-        -- volar = true,
-        -- vtsls = true,
+        vtsls = true,
       }
       for server, server_opts in pairs(opts.servers) do
         if type(server_opts) == "table" and not ensure_installed[server] then

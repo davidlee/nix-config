@@ -26,3 +26,7 @@ opt.listchars = "tab:»·,trail:·,extends:>,precedes:<,nbsp:+"
 -- opt.swapfile = false
 -- opt.backup = false
 opt.smoothscroll = false
+
+-- use edge, build locally
+--
+-- vim.g.lazyvim_blink_main = true

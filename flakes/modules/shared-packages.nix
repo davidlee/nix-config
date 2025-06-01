@@ -35,6 +35,7 @@
     devcontainer
     devenv
     manix
+    alejandra
     nh
     nil
     nix-bisect
