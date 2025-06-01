@@ -15,10 +15,14 @@ opt.colorcolumn = "80,120"
 opt.listchars = "tab:»·,trail:·,extends:>,precedes:<,nbsp:+"
 
 -- not sure if we want these but they're not in the LazyVim defaults
+--
 
 -- Wrapping
+--
 -- opt.breakindent = true
 
 -- Don't use temp files
+--
 -- opt.swapfile = false
 -- opt.backup = false
+opt.smoothscroll = false

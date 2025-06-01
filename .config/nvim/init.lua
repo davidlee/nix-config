@@ -16,3 +16,5 @@ require("render-markdown").setup({
   },
   preset = "obsidian",
 })
+
+Snacks.scroll.disable() -- fix shitty performance

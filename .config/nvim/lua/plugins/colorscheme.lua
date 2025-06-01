@@ -43,8 +43,9 @@ return {
     "LazyVim/LazyVim",
     opts = {
       -- colorscheme = "gruvbox-material",
-      colorscheme = "gruvbox",
+      -- colorscheme = "gruvbox",
       -- colorscheme = "papercolor",
+      colorcsheme = "habamax",
     },
   },
 }

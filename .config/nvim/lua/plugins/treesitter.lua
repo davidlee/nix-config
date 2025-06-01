@@ -3,37 +3,16 @@ return {
   -- add more treesitter parsers
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "bash",
-        "c",
-        "diff",
-        "html",
-        "javascript",
-        "jsdoc",
-        "json",
-        "jsonc",
-        "lua",
-        "luadoc",
-        "luap",
-        "markdown",
-        "markdown_inline",
-        "printf",
-        "python",
-        "query",
+    opts = function(_, opts)
+      -- add grammars
+      vim.list_extend(opts.ensure_installed, {
         "rust",
         "zig",
-        "css",
+        "elixir",
         "ruby",
-        "regex",
-        "toml",
-        "tsx",
-        "typescript",
-        "vim",
-        "vimdoc",
-        "xml",
-        "yaml",
-      },
-    },
+        "css",
+      })
+      -- vim.fn.remove(l, )
+    end,
   },
 }
