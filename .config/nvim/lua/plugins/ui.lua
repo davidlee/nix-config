@@ -94,7 +94,7 @@ require("lze").load({
     end,
   },
 
-  -- TODO: https://github.com/arkav/lualine-lsp-progress
+  -- TODO: or do heirline instead https://github.com/arkav/lualine-lsp-progress
   {
     "lualine-lsp-progress",
   },

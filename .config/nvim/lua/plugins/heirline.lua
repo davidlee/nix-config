@@ -1,3 +1,5 @@
+-- TODO: heirline config
+--
 require("lze").load({
   -- heirline
   "heirline.nvim",

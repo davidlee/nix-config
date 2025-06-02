@@ -1,8 +1,9 @@
 require("lze").load({
   {
-    "nvim-treesitter.configs",
+    -- "nvim-treesitter.configs",
+    "nvim-treesitter",
     after = function()
-      require("nvim-treesitter.configs").setup({
+      require("nvim-treesitter").setup({
         highlight = { enable = true },
       })
     end,
