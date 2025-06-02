@@ -3,37 +3,30 @@ require("lze").load({
     "snacks.nvim",
     after = function()
       Snacks.setup({
-        dashboard = { enabled = false },
-        notifier = { enabled = true },
+        dashboard = {
+          enabled = false,
+        },
+        notifier = {},
+        profiler = {},
+        scratch = {},
+        rename = {},
+        statuscolumn = {},
+        scope = {},
         explorer = {
           enabled = true,
           replace_netrw = true,
         },
-        terminal = { enabled = true },
-        picker = { enabled = true },
+        terminal = {},
+        picker = {},
         indent = {},
-
-        -- keys = {
-        --   {
-        --     "<leader>z",
-        --     function()
-        --       Snacks.zen()
-        --     end,
-        --     desc = "Toggle Zen Mode",
-        --   },
-        --   {
-        --     "<leader>Z",
-        --     function()
-        --       Snacks.zen.zoom()
-        --     end,
-        --     desc = "Toggle Zoom",
-        --   },
-        -- },
       })
     end,
     keys = {
       -- Toggles
-      { "<leader>u", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
+      { "<leader>u", function() end, desc = "Toggles" },
+      { "<leader>ut", function() Snacks.terminal.toggle() end, desc = "Toggle terminal" },
+      { "<leader>u.", function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
+      { "<leader>S", function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
       -- Top Pickers & Explorer
       { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
       { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
@@ -104,7 +97,8 @@ require("lze").load({
       { "<leader>uz", function() Snacks.zen() end, desc = "Toggle zen mode" },
       { "<leader>uZ", function() Snacks.zen.zoom() end, desc = "Toggle zen zoom mode" },
       -- bufdelete
-      { "<leader>bd", function() Snacks.zen.zoom() end, desc = "Toggle zen zoom mode" },
+      { "<leader>bd", function() Snacks.bufdelete() end, desc = "Buffer > delete" },
+      -- toggle terminal
     },
   },
 })

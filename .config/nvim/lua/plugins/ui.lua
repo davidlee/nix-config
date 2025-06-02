@@ -1,5 +1,6 @@
 -- UI
 require("lze").load({
+
   -- icons
   {
     "mini.icons",
@@ -9,21 +10,37 @@ require("lze").load({
     end,
   },
 
+  -- nvim-notify
+  -- {
+  --   "nvim-notify",
+  --   after = function()
+  --     require("notify").setup({
+  --       --
+  --     })
+  --   end,
+  -- },
+
+  -- vim-illuminate
+  {
+    "vim-illuminate",
+    after = function()
+      require("illuminate").configure({
+        --
+      })
+    end,
+  },
+
   -- gitsigns
   {
     "gitsigns.nvim",
 
-    after = function()
-      require("gitsigns").setup()
-    end,
+    after = function() require("gitsigns").setup() end,
   },
 
   -- bufferline
   {
     "bufferline.nvim",
-    after = function()
-      require("bufferline").setup()
-    end,
+    after = function() require("bufferline").setup() end,
   },
 
   -- lualine
@@ -37,6 +54,43 @@ require("lze").load({
         --   },
         -- },
       })
+    end,
+  },
+
+  -- noice
+  {
+    "noice.nvim",
+    after = function()
+      require("noice").setup({
+        notify = { enabled = false },
+        presets = {
+          long_message_to_split = true,
+          command_palette = true,
+        },
+      })
+    end,
+  },
+
+  -- smart-splits
+  {
+    "smart-splits.nvim",
+    after = function() require("smart-splits").setup() end,
+  },
+
+  -- edgy
+  {
+    "edgy.nvim",
+    after = function() require("edgy").setup() end,
+  },
+
+  -- smear-cursor
+  {
+    "smear-cursor.nvim",
+    after = function()
+      local smear = require("smear_cursor")
+      smear.enabled = true
+      -- requires eg cascadia code
+      -- smear.legacy_computing_symbols_support = true
     end,
   },
 

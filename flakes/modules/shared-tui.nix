@@ -1,8 +1,6 @@
 {pkgs, ...}: {
-  
   environment.systemPackages = with pkgs; [
-
-    ## LLM / AI 
+    ## LLM / AI
     ollama
     oterm
     aichat
@@ -10,11 +8,11 @@
     llama-cpp
     llm
     llm-ls
-    # vllm 
+    # vllm
     mistral-rs
 
     ## cli history
-    atuin 
+    atuin
 
     ## system monitors
     bottom
@@ -27,7 +25,7 @@
     zellij
     tmux
     screen
-    
+
     ## file managers
     broot
     cfm
@@ -40,9 +38,10 @@
     lf
     superfile
 
-    ## disk & file io 
+    ## disk & file io
     ncdu
-    
+    gdu
+
     ## file find & search
     docfd
     television
@@ -55,9 +54,9 @@
     lazygit
     lazyjj
     jjui
-    
+
     ## text editors
-    # helix REPLACED w edge 
+    # helix REPLACED w edge
     kakoune
     kakoune-lsp
     kakoune-cr
@@ -83,7 +82,7 @@
     ## CSV
     csv-tui
     tidy-viewer
-    
+
     ## JSON
     jqp # jq
     otree # text object tree viewer
@@ -104,14 +103,14 @@
     tuisky # bluesky
     wiki-tui # wikipedia
     slack-term
-    
+
     ## hex edit for infinite grenades
     hexpatch
     hextazy
     hexyl
 
     ## typing
-    thokr 
+    thokr
     ngrrram
 
     ## task / time / calendar mgmt
@@ -129,7 +128,7 @@
     ## habit trackers
     dijo
     harsh
-    
+
     ## clock
     clock-rs
     # tty-clock
