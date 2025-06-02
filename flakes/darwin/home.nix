@@ -3,7 +3,7 @@
     ../home/zsh.nix
     ../home/vim.nix
     ../home/programs.nix
-    ../home/nixCats.nix
+    # ../home/nixCats.nix
 
     # inputs.LazyVim.homeManagerModules.default
   ];

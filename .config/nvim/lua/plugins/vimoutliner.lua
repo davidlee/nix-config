@@ -1,6 +1,0 @@
-return {
-  --
-  -- Outliner
-  --
-  "vimoutliner/vimoutliner",
-}

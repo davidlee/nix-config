@@ -1,15 +1,26 @@
-{ inputs, outputs, pkgs, username, hostname, system, ... }: 
-  let specialArgs = { inherit inputs outputs pkgs username hostname system; };
-  in {
+{
+  inputs,
+  outputs,
+  pkgs,
+  username,
+  hostname,
+  system,
+  ...
+}: let
+  specialArgs = {inherit inputs outputs pkgs username hostname system;};
+in {
   imports = [
     ./system.nix
     ./nix-core.nix
     ./brew.nix
     ./packages.nix
 
-    inputs.lix-module.nixosModules.default 
-    
-    inputs.home-manager.darwinModules.home-manager {
+    ../modules/nixCats.nix
+
+    inputs.lix-module.nixosModules.default
+
+    inputs.home-manager.darwinModules.home-manager
+    {
       home-manager.useGlobalPkgs = true;
       home-manager.useUserPackages = true;
       home-manager.extraSpecialArgs = specialArgs;

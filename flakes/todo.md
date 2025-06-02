@@ -4,6 +4,7 @@
 
 - nvim:
 
+  - [ ] nixCats system module + greenfields lua config
   - [ ] mason + LazyVim don't play nice with nix. Try:
     - <https://github.com/azuwis/lazyvim-nixvim/blob/master/flake.nix>
 
