@@ -1,3 +1,5 @@
+require("plugins.treesitter")
+
 require("lze").load({
   -- blink.cmp
   {

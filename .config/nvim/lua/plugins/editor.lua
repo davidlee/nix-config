@@ -1,3 +1,9 @@
+-- editor
+-- TODO: prolly move to debug.lua
+require("plugins.trouble")
+require("plugins.autopairs")
+require("plugins.lint")
+
 require("lze").load({
   {
     "yanky.nvim",
@@ -12,12 +18,4 @@ require("lze").load({
       vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
     end,
   },
-  {
-    "nvim-lint",
-  },
 })
--- nix: repeat
-
--- todo prolly move to debug.lua
-require("plugins.trouble")
-require("plugins.autopairs")

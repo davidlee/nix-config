@@ -1,11 +1,11 @@
--- set leaders
+-- set up leader keys first
 vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
+vim.g.maplocalleader = ","
+
+require("config.options")
+require("config.colorscheme")
 
 require("plugins")
 
-require("config.options")
 -- TODO ensure these load after lazy plugins
 require("config.keymap")
-
--- put =execute('echo nvim_list_runtime_paths()')

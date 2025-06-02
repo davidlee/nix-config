@@ -37,6 +37,7 @@
     stylua
     luarocks
     lua5_1
+    selene
 
     # nix
     #

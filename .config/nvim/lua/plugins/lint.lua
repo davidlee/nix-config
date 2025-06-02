@@ -2,7 +2,7 @@ require("lze").load({
   -- lint
   "nvim-lint",
   after = function()
-    local lint = require("nvim-lint")
+    local lint = require("lint")
     -- more: https://github.com/mfussenegger/nvim-lint?tab=readme-ov-file
     lint.linters_by_ft = {
       markdown = { "vale" },
