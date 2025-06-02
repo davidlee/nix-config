@@ -137,24 +137,24 @@ in {
             ];
           };
 
-          # themer = with pkgs; [
-          #   # you can even make subcategories based on categories and settings sets!
-          #   (builtins.getAttr packageDef.categories.colorscheme {
-          #       "onedark" = onedark-vim;
-          #       "catppuccin" = catppuccin-nvim;
-          #       "catppuccin-mocha" = catppuccin-nvim;
-          #       "tokyonight" = tokyonight-nvim;
-          #       "tokyonight-day" = tokyonight-nvim;
-          #     }
-          #   )
-          # ];
+          themer = with pkgs; [
+            # you can even make subcategories based on categories and settings sets!
+            (builtins.getAttr packageDef.categories.colorscheme {
+                "onedark" = onedark-vim;
+                "catppuccin" = catppuccin-nvim;
+                "catppuccin-mocha" = catppuccin-nvim;
+                "tokyonight" = tokyonight-nvim;
+                "tokyonight-day" = tokyonight-nvim;
+              }
+            )
+          ];
         };
         
-      # not loaded automatically at startup.
-      # use with packadd and an autocommand in config to achieve lazy loading
-      # or a tool for organizing this like lze or lz.n!
-      # to get the name packadd expects, use the
-      # `:NixCats pawsible` command to see them all
+        # not loaded automatically at startup.
+        # use with packadd and an autocommand in config to achieve lazy loading
+        # or a tool for organizing this like lze or lz.n!
+        # to get the name packadd expects, use the
+        # `:NixCats pawsible` command to see them all
         optionalPlugins = {
         
           debug = with pkgs.vimPlugins; {
@@ -200,7 +200,7 @@ in {
           treesitter = with pkgs.vimPlugins; [
             nvim-treesitter-textobjects
             nvim-treesitter.withAllGrammars
-            # This is for if you only want some of the grammars
+            # if you only want some of the grammars:
             # (nvim-treesitter.withPlugins (
             #   plugins: with plugins; [
             #     nix
@@ -334,7 +334,7 @@ in {
 
             # IMPORTANT:
             # your alias may not conflict with your other packages.
-            aliases = [ "vi" "vim" "ncats" ];
+            aliases = [ "vi" "vim" "nvim" "nvimdiff" ];
             neovim-unwrapped = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
           };
 

@@ -74,7 +74,6 @@
       "aerospace"
       "karabiner-elements"
       "scapple"
-      "neovide"
       "omnigraffle"
       "omnifocus"
       "kitty"
