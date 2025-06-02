@@ -150,6 +150,7 @@
 
     ## lang.lua
     lua
+    stylua
     lua54Packages.luarocks-nix
     vimPlugins.fzf-lua
     lua-language-server

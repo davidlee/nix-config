@@ -1,11 +1,10 @@
 {username, ...}: {
   imports = [
     ../home/zsh.nix
-    ../home/vim.nix
+    ../home/nvim.nix
     ../home/programs.nix
     # ../home/nixCats.nix
 
-    # inputs.LazyVim.homeManagerModules.default
   ];
 
   home = {

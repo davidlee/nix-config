@@ -39,12 +39,6 @@
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
-    # LazyVim = {
-    #   url = "github:matadaniel/LazyVim-module";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-    ## https://github.com/azuwis/lazyvim-nixvim
-
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
 
