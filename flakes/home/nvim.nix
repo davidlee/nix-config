@@ -161,6 +161,7 @@ in {
       tokyonight-nvim
       papercolor-theme
       sonokai
+      astrotheme
 
       # amenities
       which-key-nvim
