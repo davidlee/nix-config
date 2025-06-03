@@ -35,9 +35,11 @@
     #
     lua-language-server
     stylua
-    luarocks
-    lua5_1
     selene
+    lua5_1
+    lua51Packages.luarocks
+    lua51Packages.rocks-git-nvim
+    lua51Packages.rocks-dev-nvim
 
     # nix
     #
@@ -119,7 +121,8 @@ in {
     withPython3 = true;
     withRuby = true;
 
-    #  package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
+    # use bleeding edge nvim
+    package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
 
     #########################################
     # nix packages
@@ -135,11 +138,17 @@ in {
 
     plugins = with pkgs.vimPlugins; [
       # package management
+      lz-n
       lze
       lzextras
+      rocks-nvim
+      rocks-config-nvim
+      rtp-nvim
+
 
       # meta
       mini-nvim
+      mini-deps
       plenary-nvim
       blink-compat
       nvim-nio

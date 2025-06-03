@@ -5,8 +5,10 @@
 -- put =execute('echo nvim_list_runtime_paths()')
 require("lze")
 
--- if we need to manage dependencies we want to keep more current than nixpkgs:
--- require("mini.deps").setup()
+-- for managing dependencies unavailable on nixpkgs, or which need to be fresher
+--
+-- looks like it could be The Way, but needs more support from plugin authors
+require("rocks")
 
 require("plugins.mini")
 require("plugins.amenities")
@@ -15,4 +17,6 @@ require("plugins.movement")
 require("plugins.completion")
 require("plugins.format")
 require("plugins.ui")
-require("plugins.render-markdown")
+
+-- require("plugins.render-markdown")
+require("plugins.modes")
