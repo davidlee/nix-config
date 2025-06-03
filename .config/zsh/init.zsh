@@ -8,12 +8,12 @@ typeset -U path
 
 setopt extended_glob
 setopt glob_dots
-setopt HIST_REDUCE_BLANKS 
+setopt HIST_REDUCE_BLANKS
 setopt BEEP
 
 unsetopt FLOW_CONTROL
 
-# OMZ plugins 
+# OMZ plugins
 plugins=(colored-man-pages extract taskwarrior 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
 
 zle -N menu-search
@@ -46,9 +46,21 @@ if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
 
-# if [ -z "$TMUX" ]; then
-#   echo "connecting tmux session ...";
-#   sleep 1; # safety first
-#   tx # alias
-#   # NOTE we could use exec but ... seems more likely to cause breakage rn
-# fi
+if [ -z "$TMUX" ]; then
+  default_session_name='default'
+  wanna_mux=`gum choose --header="Psst ... wanna mux?" yeah nah "gimme something special"`
+
+  if [[ $wanna_mux = yeah ]]; then
+    if [ -z "$TMUX" ]; then
+      ~/.local/bin/tmx $default_session_name
+    fi
+  else
+    if [[ $wanna_mux = "gimme something special" ]]; then
+      session_name=`gum input --placeholder='session name'`
+      exec ~/.local/bin/tmx $session_name
+    else
+      echo "have it your way."
+    fi
+  fi
+fi
+

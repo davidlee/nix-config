@@ -84,6 +84,14 @@
     marksman
     markdown-oxide
     markdownlint-cli2
+    vale
+    valeStyles.alex
+    valeStyles.google
+    valeStyles.joblint
+    valeStyles.microsoft
+    valeStyles.proselint
+    valeStyles.readability
+    valeStyles.write-good
 
     # zig
     #
