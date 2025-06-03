@@ -16,10 +16,10 @@ if [[ "$1" == "ls" ]]; then
   exit
 fi
 
-if [[ -z "$NVIM" ]]; then
-  echo "running in a neovim terminal; let's avoid a tmux matryoshka scene."
-  # exit
-fi
+# if [[ -z "$NVIM" ]]; then
+#   echo "running in a neovim terminal; let's avoid a tmux matryoshka scene."
+#   # exit
+# fi
 
 base_session="$1"
 # This actually works without the trim() on all systems except OSX
