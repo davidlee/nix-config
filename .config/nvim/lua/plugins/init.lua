@@ -1,8 +1,6 @@
 -- nix handles installation; lua loads & configures;
 -- lze just manages laziness.
---
--- to find nix paths:
--- put =execute('echo nvim_list_runtime_paths()')
+
 require("lze")
 
 -- for managing dependencies unavailable on nixpkgs, or which need to be fresher

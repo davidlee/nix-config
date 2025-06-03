@@ -13,12 +13,17 @@ require("lze").load({
         statuscolumn = {},
         scope = {},
         explorer = {
-          enabled = true,
           replace_netrw = false,
         },
         terminal = {},
         picker = {},
+        quickfile = {},
+        toggle = {},
+        dim = {},
         indent = {},
+        win = {},
+        git = {},
+        debug = {},
       })
     end,
     keys = {

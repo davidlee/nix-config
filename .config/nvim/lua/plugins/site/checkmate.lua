@@ -5,6 +5,9 @@ require("mini.deps").add({
 })
 
 require("mini.deps").now(function()
-  -- print("checkmate")
-  require("checkmate").setup()
+  print("CHECK MATE")
+  require("checkmate").setup({
+    ft = "markdown",
+    enabled = true,
+  }) --
 end)

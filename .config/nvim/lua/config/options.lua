@@ -4,10 +4,9 @@ local opt = vim.opt
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-
 -- colorsheme
 opt.termguicolors = true -- True color support
-vim.cmd('colorscheme gruvbox')
+vim.cmd("colorscheme gruvbox")
 
 -- LazyVim auto format
 vim.g.autoformat = true
@@ -116,3 +115,7 @@ end
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
 
+-- Fix neotree
+require("neo-tree.setup.netrw")
+vim.g.neotree_watching_bufenter = 0
+vim.g.hijack_netrw_behavior = 0

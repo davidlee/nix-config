@@ -145,7 +145,6 @@ in {
       rocks-config-nvim
       rtp-nvim
 
-
       # meta
       mini-nvim
       mini-deps
@@ -185,8 +184,6 @@ in {
       which-key-nvim
       vim-startuptime
       vim-sleuth
-      oil-nvim
-      neo-tree-nvim
       todo-comments-nvim
       smart-splits-nvim
       toggleterm-nvim
@@ -197,6 +194,11 @@ in {
       overseer-nvim
       octo-nvim
       project-nvim
+
+      # files
+      oil-nvim
+      neo-tree-nvim
+      tryptich-nvim
 
       # navigation
       leap-nvim
