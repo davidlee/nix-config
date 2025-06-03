@@ -3,13 +3,14 @@ require("lze").load({
   {
     "render-markdown.nvim",
     after = function()
-      print("render-markdown")
       require("render-markdown").setup({
+        -- enabled = false,
         indent = {
+          enabled = { false },
           completions = { blink = { enabled = true } },
         },
         bullet = {
-          enabled = true,
+          -- enabled = false,
           icons = { "-", "", "", "", "󰨕" },
         },
         heading = {
@@ -17,7 +18,7 @@ require("lze").load({
           icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
         },
         checkbox = {
-          -- checked = { raw = "[x]", },
+          -- enabled = false, -- checkmate
           custom = {
             wip = { raw = "[/]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo", scope_highlight = nil },
             defer = { raw = "[>]", rendered = "󰃮 ", highlight = "RenderMarkdownOk", scope_highlight = nil },

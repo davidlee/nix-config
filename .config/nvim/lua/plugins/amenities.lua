@@ -31,3 +31,5 @@ vim.keymap.set("n", "[t", function()
 end, { desc = "Previous todo comment" })
   --]]
 })
+
+require("plugins.neo-tree") 

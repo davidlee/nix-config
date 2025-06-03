@@ -10,16 +10,6 @@ require("lze").load({
     end,
   },
 
-  -- nvim-notify
-  -- {
-  --   "nvim-notify",
-  --   after = function()
-  --     require("notify").setup({
-  --       --
-  --     })
-  --   end,
-  -- },
-
   -- vim-illuminate
   {
     "vim-illuminate",
@@ -46,15 +36,7 @@ require("lze").load({
   -- lualine
   {
     "lualine.nvim",
-    after = function()
-      require("lualine").setup({
-        -- sections = {
-        --   lualine_c = {
-        --     "lsp_progress",
-        --   },
-        -- },
-      })
-    end,
+    after = function() require("lualine").setup({}) end,
   },
 
   -- noice
@@ -88,9 +70,8 @@ require("lze").load({
     "smear-cursor.nvim",
     after = function()
       local smear = require("smear_cursor")
-      smear.enabled = true
-      -- requires eg cascadia code
-      -- smear.legacy_computing_symbols_support = true
+      smear.enabled = true -- requires eg cascadia code
+      smear.legacy_computing_symbols_support = true
     end,
   },
 
