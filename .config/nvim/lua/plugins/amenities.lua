@@ -20,7 +20,7 @@ require("lze").load({
   { "vim-sleuth" },
 
   -- todo-comments
-  { "todo-comments.nvim", after = function() require("todo-comments").setup() end },
+  { "todo-comments.nvim", after = function() require("todo-comments").setup({}) end },
   --[[
 vim.keymap.set("n", "]t", function()
   require("todo-comments").jump_next()
@@ -30,39 +30,4 @@ vim.keymap.set("n", "[t", function()
   require("todo-comments").jump_prev()
 end, { desc = "Previous todo comment" })
   --]]
-
-  -- neo-tree
-  {
-    "neo-tree.nvim",
-    keys = {
-      -- Create a key mapping and lazy-load when it is used
-      { "<leader>uF", "<CMD>Neotree toggle<CR>", desc = "Toggle NeoTree" },
-    },
-    after = function()
-      require("neo-tree").setup({
-        default_component_configs = {
-          icon = {
-            provider = function(icon, node)
-              local text, hl
-              local mini_icons = require("mini.icons")
-              if node.type == "file" then
-                text, hl = mini_icons.get("file", node.name)
-              elseif node.type == "directory" then
-                text, hl = mini_icons.get("directory", node.name)
-                if node:is_expanded() then text = nil end
-              end
-
-              if text then icon.text = text end
-              if hl then icon.highlight = hl end
-            end,
-          },
-          kind_icon = {
-            provider = function(icon, node)
-              icon.text, icon.highlight = require("mini.icons").get("lsp", node.extra.kind.name)
-            end,
-          },
-        },
-      })
-    end,
-  },
 })

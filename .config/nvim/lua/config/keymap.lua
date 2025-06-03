@@ -26,6 +26,10 @@ bind({ "n", "x" }, "<Leader>yp", '"+p', { desc = "paste to system clipboard" })
 -- ya: select entire buffer
 bind("n", "<leader>ya", ":keepjumps normal! ggVG<cr>", { desc = "Select entire buffer" })
 
+-- E: (:Ex) Explore with NetRW
+
+bind("n", "<leader>E", ":Ex<cr>", { desc = ":Ex" })
+
 -- Leader + single char bindings:
 -- !: write file
 bind("n", "<space>!", "<cmd>write<cr>", { desc = "Save" })

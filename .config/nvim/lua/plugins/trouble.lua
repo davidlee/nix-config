@@ -2,7 +2,6 @@ require("lze").load({
   -- trouble
   "trouble.nvim",
   after = function()
-    print("trouble")
     require("trouble").setup({
       cmd = "Trouble",
       keys = {

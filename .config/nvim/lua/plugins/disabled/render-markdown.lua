@@ -3,6 +3,7 @@ require("lze").load({
   {
     "render-markdown.nvim",
     after = function()
+      print("render-markdown")
       require("render-markdown").setup({
         indent = {
           completions = { blink = { enabled = true } },
