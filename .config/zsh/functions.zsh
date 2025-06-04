@@ -1,60 +1,73 @@
 ############
 # git x dotfiles
-# 
+#
 
 # manage dotfiles with bare repo:
-# 
+#
 gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
 
 # and non-public files, using the same approach w. a private repo
-# 
+#
 prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }
 
 #################
 # compost:
-# 
+#
 # not quite trash, but not treasure either
-# 
+#
 compost() {
   mv -i $* ~/.compost/
 }
 
 ######################
 # watch files matching a pattern, run X on change
-# 
+#
 wm() {
   watchman-make -p $1 -r $2
 }
 
 #
 # find subdir in a zoxide dir
-# 
+#
 
-fzd() { 
+cz() {
   base=$(zoxide query $1);
-  dir="$base/$(fd . -t d --base-directory $base --strip-cwd-prefix=always | fzf)"; 
-  chdir $dir 
+  dir="$base/$(fd . -t d --base-directory $base --strip-cwd-prefix=always | fzf)";
+  chdir $dir
 }
 
 #
 # find & edit a file in a zoxide dir
 #
-fze() { 
+vfe() {
   base=$(zoxide query $1);
-  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)"; 
-  chdir $base 
-  $VISUAL $dir 
+  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)";
+  chdir $base
+  $VISUAL $dir
 }
+
+#
+# find & edit a file in the notes dir
+#
+vn() {
+  base=$OBS_DIR
+  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)";
+  chdir $base
+  $VISUAL $dir
+}
+
+# like ij (interstitial writing) but open note in obsidian
+oj() {
+  uri="obsidian://new?vault=workbench&file=`date +$OBS_DAY_NOTE_FORMAT`"
+  echo "opening $uri"
+  open $uri
+}
+
+
 
 #################################################################################
 # periodic files
 #################################################################################
-
-export OBS_DIR=~/workbench
-export DAY_NOTE_FORMAT="$OBS_DIR/%Y/dd/%F.md"
-export WEEK_NOTE_FORMAT="$OBS_DIR/%Y/wk/%Ywk%U.md"
-export MONTH_NOTE_FORMAT="$OBS_DIR/%Y/mo/%m.md"
-export YEAR_NOTE_FORMAT="$OBS_DIR/%Y.md"
 
 _day_note_path() { date +$DAY_NOTE_FORMAT }
 _week_note_path() { date +$WEEK_NOTE_FORMAT }
@@ -81,7 +94,7 @@ monthly() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
 yearly() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
 
 #
-# Color Pallette
+# Color Palette
 #
 colors () {
   for i in {0..255}
@@ -92,7 +105,7 @@ colors () {
 
 #
 # FZF
-# 
+#
 # Use fd (https://github.com/sharkdp/fd) for listing path candidates.
 # - The first argument to the function ($1) is the base path to start traversal
 # - See the source code (completion.{bash,zsh}) for the details.

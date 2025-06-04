@@ -15,6 +15,7 @@ require("plugins.movement")
 require("plugins.completion")
 require("plugins.format")
 require("plugins.ui")
+require("plugins.file_managers")
 
 -- require("plugins.render-markdown")
 require("plugins.modes")

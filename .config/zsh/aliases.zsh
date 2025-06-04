@@ -1,4 +1,4 @@
-# single character aliases 
+# single character aliases
 alias g=git;
 alias j=just;
 alias _=sudo;
@@ -9,7 +9,7 @@ alias y=yazi;
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
 
-alias ij=daily; # interstitial journal 
+alias ij=daily; # interstitial journal
 
 # alias tmx="tmux new -A";
 alias tx="exec tmx default"
@@ -31,11 +31,11 @@ alias "...."="cd ../../..";
 # list files
 alias vdir="vdir --color=auto";
 alias dir="dir --color=auto";
-alias l="eza -lh"; 
+alias l="eza -lh";
 alias ll="eza -lh --grid --group-directories-first";
 alias la="eza -lah --grid --group-directories-first";
 alias ld="eza -lhD";
-alias lt="eza --tree"; 
+alias lt="eza --tree";
 
 # grep
 alias egrep="grep -E --color=auto";
@@ -64,7 +64,6 @@ alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --schem
 # hyprland
 alias waybar-reload='pkill waybar && hyprctl dispatch exec waybar'
 
-
 # Taskwarrior
 alias tw='taskwarrior-tui'
 alias tn='clear;task next +READY'
@@ -76,9 +75,9 @@ alias tl='task log'
 alias tc='task context';
 alias tin='task in'
 
-
 alias taskserver='taskchampion-sync-server --listen localhost:10222';
 
+# harsh
 alias h=harsh;
 alias hc="$VISUAL ~/.config/harsh/habits";
 alias hl="$VISUAL ~/.config/harsh/log";
