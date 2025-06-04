@@ -198,7 +198,8 @@ in {
       # files
       oil-nvim
       neo-tree-nvim
-      tryptich-nvim
+      triptych-nvim
+      yazi-nvim
 
       # navigation
       leap-nvim

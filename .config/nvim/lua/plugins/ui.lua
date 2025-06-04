@@ -83,3 +83,4 @@ require("lze").load({
 
 require("plugins.snacks")
 -- require("plugins.heirline")
+--  'stevearc/stickybuf.nvim',
