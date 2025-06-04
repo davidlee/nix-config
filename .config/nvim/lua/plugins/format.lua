@@ -1,5 +1,5 @@
 require("lze").load({
-  {
+  { -- https://github.com/stevearc/conform.nvim?tab=readme-ov-file#setup
     "conform.nvim",
     after = function()
       require("conform").setup({
@@ -27,8 +27,9 @@ require("lze").load({
         notify_no_formatters = true,
         format_on_save = {
           -- I recommend these options. See :help conform.format for details.
+          async = false,
           lsp_format = "fallback",
-          timeout_ms = 3000,
+          timeout_ms = 800,
         },
         -- If this is set, Conform will run the formatter asynchronously after save.
         -- It will pass the table to conform.format().
@@ -37,18 +38,19 @@ require("lze").load({
           lsp_format = "fallback",
         },
       })
-
-      vim.api.nvim_create_user_command("Format", function(args)
-        local range = nil
-        if args.count ~= -1 then
-          local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
-          range = {
-            start = { args.line1, 0 },
-            ["end"] = { args.line2, end_line:len() },
-          }
-        end
-        require("conform").format({ async = true, lsp_format = "fallback", range = range })
-      end, { range = true })
     end,
   },
 })
+
+-- set up user command
+vim.api.nvim_create_user_command("Format", function(args)
+  local range = nil
+  if args.count ~= -1 then
+    local end_line = vim.api.nvim_buf_get_lines(0, args.line2 - 1, args.line2, true)[1]
+    range = {
+      start = { args.line1, 0 },
+      ["end"] = { args.line2, end_line:len() },
+    }
+  end
+  require("conform").format({ async = true, lsp_format = "fallback", range = range })
+end, { range = true })

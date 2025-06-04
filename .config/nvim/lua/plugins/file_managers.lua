@@ -14,9 +14,9 @@ require("lze").load({
 })
 
 require("mini.deps").add({ source = "antosha417/nvim-lsp-file-operations" })
-require("mini.deps").now(function() require("lsp-file-operations").setup() end)
+require("mini.deps").later(function() require("lsp-file-operations").setup() end)
 
---
+-- triptych
 require("lze").load({
   "triptych.nvim",
   after = function()
@@ -26,7 +26,7 @@ require("lze").load({
   end,
 })
 
--- neo-tree really doesn't want to be lazy loaded
+-- neo-tree: really doesn't want to be lazy loaded
 require("neo-tree").setup({
   -- NOTE: without this, tabbing between netrw / snacks.picker will open a bonus neotree
   -- regardless of whether we've required neo-tree.
@@ -35,5 +35,5 @@ require("neo-tree").setup({
   },
 })
 
--- oil don't wanna lazy load
+-- oil: don't wanna lazy load either
 require("oil").setup()

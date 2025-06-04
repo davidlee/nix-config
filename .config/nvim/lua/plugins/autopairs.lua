@@ -7,7 +7,6 @@ require("lze").load({
     require("nvim-autopairs").setup({
       --
       check_ts = true,
-      -- enabled = function(bufnr) return require("astrocore.buffer").is_valid(bufnr) end,
       -- enabled = function(bufnr) return true end,
       ts_config = { java = false },
       fast_wrap = {

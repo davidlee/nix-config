@@ -4,7 +4,7 @@ require("mini.deps").add({
   ft = "markdown",
 })
 
-require("mini.deps").now(function()
+require("mini.deps").later(function()
   require("checkmate").setup({
     ft = "markdown",
     enabled = true,

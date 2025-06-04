@@ -21,6 +21,9 @@ require("which-key").add({
 local Keys = {
   snacks = {
     keys = {
+      --------------------------------------------------------------------------------
+      --- Leader key bindings
+      --------------------------------------------------------------------------------
       -- Toggles
       { "<leader>ut", function() Snacks.terminal.toggle() end, desc = "Toggle terminal" },
       { "<leader>u.", function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
@@ -77,20 +80,22 @@ local Keys = {
       { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume" },
       { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo History" },
       { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes" },
+      { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
+      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
+      -- Toggle
+      { "<leader>uz", function() Snacks.zen() end, desc = "Toggle zen mode" },
+      { "<leader>uZ", function() Snacks.zen.zoom() end, desc = "Toggle zen zoom mode" },
+      -- Buffer
+      { "<leader>bd", function() Snacks.bufdelete() end, desc = "Buffer > Delete" },
+      --------------------------------------------------------------------------------
+      --- Other keybindings
+      --------------------------------------------------------------------------------
       -- LSP
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition" },
       { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration" },
       { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
       { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation" },
       { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition" },
-      { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols" },
-      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols" },
-      -- Toggle
-      { "<leader>uz", function() Snacks.zen() end, desc = "Toggle zen mode" },
-      { "<leader>uZ", function() Snacks.zen.zoom() end, desc = "Toggle zen zoom mode" },
-      -- bufdelete
-      { "<leader>bd", function() Snacks.bufdelete() end, desc = "Buffer > delete" },
-      -- toggle terminal
     },
   },
   aerial = {
@@ -127,6 +132,40 @@ local Keys = {
 
       suffix_last = "l", -- Suffix to search with "prev" method
       suffix_next = "n", -- Suffix to search with "next" method
+    },
+  },
+  trouble = {
+    keys = {
+      {
+        "<leader>xx",
+        "<cmd>Trouble diagnostics toggle<cr>",
+        desc = "Diagnostics (Trouble)",
+      },
+      {
+        "<leader>xX",
+        "<cmd>Trouble diagnostics toggle filter.buf=0<cr>",
+        desc = "Buffer Diagnostics (Trouble)",
+      },
+      {
+        "<leader>cs",
+        "<cmd>Trouble symbols toggle focus=false<cr>",
+        desc = "Symbols (Trouble)",
+      },
+      {
+        "<leader>cl",
+        "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
+        desc = "LSP Definitions / references / ... (Trouble)",
+      },
+      {
+        "<leader>xL",
+        "<cmd>Trouble loclist toggle<cr>",
+        desc = "Location List (Trouble)",
+      },
+      {
+        "<leader>xQ",
+        "<cmd>Trouble qflist toggle<cr>",
+        desc = "Quickfix List (Trouble)",
+      },
     },
   },
   which_key = {
@@ -203,6 +242,9 @@ bind("n", "<leader>fy", "<cmd>Yazi<cr>", { desc = "Yazi (:Yazi)" })
 -- set a keymap to toggle aerial
 bind("n", "<leader>ua", "<cmd>AerialToggle!<CR>", { desc = "Toggle Aerial" })
 
+-- Conform --------------------
+-- bf: Buffer > Format
+bind("", "<leader>bf", "<cmd>Format<cr>", { desc = "Buffer > Format" })
 -----------------------------------------------------
 --- [ / ] mode bindings
 -----------------------------------------------------
@@ -235,6 +277,16 @@ bind("i", "<A-k>", "<esc>:m .-2<cr>==gi", { desc = "Move line up" })
 -- visual mode
 bind("v", "<A-j>", "<cmd>m '>+1<cr>gv=gv", { desc = "Move selected lines down" })
 bind("v", "<A-k>", "<cmd>m '<-2<cr>gv=gv", { desc = "Move selected lines up" })
+
+--[[
+--defaults for checkmate.nvim:
+    ["<leader>Tt"] = "toggle", -- Toggle todo item
+    ["<leader>Tc"] = "check", -- Set todo item as checked (done)
+    ["<leader>Tu"] = "uncheck", -- Set todo item as unchecked (not done)
+    ["<leader>Tn"] = "create", -- Create todo item
+    ["<leader>TR"] = "remove_all_metadata", -- Remove all metadata from a todo item
+    ["<leader>Ta"] = "archive", -- Archive checked/completed todo items (move to bottom section)
+--]]
 
 --- export the key table for use elsewhere
 return Keys
