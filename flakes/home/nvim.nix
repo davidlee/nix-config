@@ -258,6 +258,7 @@ in {
       nvim-treesitter.withAllGrammars
       nvim-treesitter-textobjects
       nvim-treesitter-context
+      # nvim-lsp-file-operations
       nvim-ts-autotag
       nvim-ts-context-commentstring
 
