@@ -4,13 +4,10 @@ require("lze").load({
     "render-markdown.nvim",
     after = function()
       require("render-markdown").setup({
-        -- enabled = false,
         indent = {
-          enabled = { false },
           completions = { blink = { enabled = true } },
         },
         bullet = {
-          -- enabled = false,
           icons = { "-", "", "", "", "󰨕" },
         },
         heading = {
@@ -18,7 +15,6 @@ require("lze").load({
           icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
         },
         checkbox = {
-          -- enabled = false, -- checkmate
           custom = {
             wip = { raw = "[/]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo", scope_highlight = nil },
             defer = { raw = "[>]", rendered = "󰃮 ", highlight = "RenderMarkdownOk", scope_highlight = nil },
@@ -44,8 +40,5 @@ require("lze").load({
         preset = "obsidian",
       })
     end,
-    -- dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" }, -- if you use the mini.nvim suite
-    -- dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.icons" }, -- if you use standalone mini plugins
-    -- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
   },
 })
