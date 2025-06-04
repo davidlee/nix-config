@@ -8,7 +8,6 @@ require("lze")
 -- looks like it could be The Way, but needs more support from plugin authors
 require("rocks")
 
-require("plugins.mini")
 require("plugins.amenities")
 require("plugins.editor")
 require("plugins.movement")

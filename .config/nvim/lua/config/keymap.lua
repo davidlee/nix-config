@@ -11,6 +11,7 @@ require("which-key").add({
   { "<leader>b", group = "Buffer" },
   { "<leader>g", group = "Git" },
   { "<leader>s", group = "Search" },
+  { "<leader>r", group = "SurRound" },
   { "<leader>u", group = "Toggle" },
 })
 
@@ -100,6 +101,49 @@ local Keys = {
       -- toggle terminal
     },
   },
+  -- TODO:
+  autopairs = {},
+  aerial = {},
+  triptych = {
+    mappings = {},
+  },
+  flash = {
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
+      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+    },
+  },
+  mini_surround = {
+    mappings = {
+      add = "<leader>ra", -- Add surrounding in Normal and Visual modes
+      delete = "<leader>rd", -- Delete surrounding
+      find = "<leader>rf", -- Find surrounding (to the right)
+      find_left = "<leader>rF", -- Find surrounding (to the left)
+      highlight = "<leader>rh", -- Highlight surrounding
+      replace = "<leader>rr", -- Replace surrounding
+      update_n_lines = "<leader>rn", -- Update `n_lines`
+
+      suffix_last = "l", -- Suffix to search with "prev" method
+      suffix_next = "n", -- Suffix to search with "next" method
+    },
+  },
+  which_key = {
+    keys = {
+      {
+        "<leader>?",
+        function() require("which-key").show({ global = false }) end,
+        desc = "Buffer Local Keymaps (which-key)",
+      },
+      {
+        "<leader><f1>",
+        function() require("which-key").show({ global = true }) end,
+        desc = "Global Keymaps (which-key)",
+      },
+    },
+  },
 }
 
 --- Normal Mode bindings:
@@ -107,8 +151,8 @@ local Keys = {
 bind({ "n", "x" }, "X", '"_x', { desc = "delete char without yank" })
 
 -- Alt-PgUp/Dn: buffer next/prev
-bind("", "<A-PageDown>", "<cmd>bp<cr>")
-bind("", "<A-PageUp>", "<cmd>bn<cr>")
+bind("", "<A-PageDown>", "<cmd>bp<cr>", { desc = "Buffer > next" })
+bind("", "<A-PageUp>", "<cmd>bn<cr>", { desc = "Buffer > prev" })
 
 --- Leader Mode bindings:
 -- (y) clipboard
@@ -147,5 +191,18 @@ bind("i", "<A-k>", "<esc>:m .-2<cr>==gi", { desc = "Move line up" })
 -- visual mode
 bind("v", "<A-j>", "<cmd>m '>+1<cr>gv=gv", { desc = "Move selected lines down" })
 bind("v", "<A-k>", "<cmd>m '<-2<cr>gv=gv", { desc = "Move selected lines up" })
+
+-- todo-comments
+bind("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next todo comment" })
+bind("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Previous todo comment" })
+
+-- Yanky (shadows built-ins)
+bind({ "n", "x" }, "p", "<Plug>(YankyPutAfter)", { desc = "Yanky put (after)" })
+bind({ "n", "x" }, "P", "<Plug>(YankyPutBefore)", { desc = "Yanky put (before)" })
+bind({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)", { desc = "Yanky gput (after)" })
+bind({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)", { desc = "Yanky gput (after)" })
+
+bind("n", "<c-p>", "<Plug>(YankyPreviousEntry)", { desc = "Yanky prev entry" })
+bind("n", "<c-n>", "<Plug>(YankyNextEntry)", { desc = "Yanky next entry" })
 
 return Keys

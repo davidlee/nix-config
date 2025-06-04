@@ -7,15 +7,17 @@ require("plugins.lint")
 require("lze").load({
   {
     "yanky.nvim",
-    after = function()
-      require("yanky").setup()
-      vim.keymap.set({ "n", "x" }, "p", "<Plug>(YankyPutAfter)")
-      vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
-      vim.keymap.set({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)")
-      vim.keymap.set({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)")
+    after = function() require("yanky").setup() end,
+  },
 
-      vim.keymap.set("n", "<c-p>", "<Plug>(YankyPreviousEntry)")
-      vim.keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
+  -- mini.surround
+  -- INFO: note the conflict with leap.nvim default bindings
+  {
+    "mini.nvim",
+    after = function()
+      require("mini.surround").setup({
+        mappings = require("config.keymap").mini_surround.mappings,
+      })
     end,
   },
 })
