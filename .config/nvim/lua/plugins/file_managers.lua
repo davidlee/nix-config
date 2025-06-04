@@ -21,10 +21,7 @@ require("lze").load({
   "triptych.nvim",
   after = function()
     require("triptych").setup({
-      mappings = {
-        nav_left = { "h", "<left>" },
-        nav_right = { "l", "i", "<right>", "<CR>" }, -- If target is a file, opens the file in-place
-      },
+      mappings = require("config.keymap").triptych.mappings,
     })
   end,
 })

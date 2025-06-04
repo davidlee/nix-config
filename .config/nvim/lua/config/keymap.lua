@@ -1,10 +1,6 @@
--- Keymaps are automatically loaded on the VeryLazy event
--- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
--- Add any additional keymaps here
-
--- save a few bytes
-local bind = vim.keymap.set
-
+-----------------------------------------------------
+--- Leader Key Groups
+-----------------------------------------------------
 require("which-key").add({
   -- add headings
   { "<leader>f", group = "File" },
@@ -13,19 +9,15 @@ require("which-key").add({
   { "<leader>s", group = "Search" },
   { "<leader>r", group = "SurRound" },
   { "<leader>u", group = "Toggle" },
+  { "<leader>y", group = "Clipboard" },
 })
 
---
-----------------------------------------------------------------------------------------------------
----
--- bind {mode} args:
--- (n)orm (i)ns (x)norm/ins
--- (c)md (v)is (s)elect
--- (o)per (t)erm (l)ang
--- '' :map = nvo
--- ! :map! = ic
+-----------------------------------------------------
+--- Keymap Config Table
+-----------------------------------------------------
+-- export a table to consolidate binds in this file
+-- while allowing them to be set up elsewhere (e.g. lazy loaded plugins)
 
--- export table to keep all binds in this file, as best we can
 local Keys = {
   snacks = {
     keys = {
@@ -101,11 +93,18 @@ local Keys = {
       -- toggle terminal
     },
   },
-  -- TODO:
-  autopairs = {},
-  aerial = {},
+  aerial = {
+    on_attach = function(bufnr)
+      -- Jump forwards/backwards with '{' and '}'
+      vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
+      vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
+    end,
+  },
   triptych = {
-    mappings = {},
+    mappings = {
+      nav_left = { "h", "<left>" },
+      nav_right = { "l", "i", "<right>", "<CR>" }, -- If target is a file, opens the file in-place
+    },
   },
   flash = {
     keys = {
@@ -146,7 +145,23 @@ local Keys = {
   },
 }
 
+-----------------------------------------------------
+--- Keymap Bindings
+-----------------------------------------------------
+local bind = vim.keymap.set
+-----------------------------------------------------
+-- bind {mode} args:
+-- (n)orm (i)ns (x)norm/ins
+-- (c)md (v)is (s)elect
+-- (o)per (t)erm (l)ang
+-- '' :map = nvo
+-- ! :map! = ic
+-----------------------------------------------------
+
+-----------------------------------------------------
 --- Normal Mode bindings:
+-----------------------------------------------------
+
 -- X: delete char without yank
 bind({ "n", "x" }, "X", '"_x', { desc = "delete char without yank" })
 
@@ -154,10 +169,17 @@ bind({ "n", "x" }, "X", '"_x', { desc = "delete char without yank" })
 bind("", "<A-PageDown>", "<cmd>bp<cr>", { desc = "Buffer > next" })
 bind("", "<A-PageUp>", "<cmd>bn<cr>", { desc = "Buffer > prev" })
 
---- Leader Mode bindings:
--- (y) clipboard
-bind({ "n", "x" }, "<leader>y", "", { desc = "Clipboard" })
+-----------------------------------------------------
+--- Leader Mode single char bindings:
+-----------------------------------------------------
+-- !: write file
+bind("n", "<space>!", "<cmd>write<cr>", { desc = "Save" })
 
+-----------------------------------------------------
+--- Leader Mode multi-key bindings:
+-----------------------------------------------------
+
+--- Clipboard --------------------
 -- yy: system clipboard: copy
 bind({ "n", "x" }, "<leader>yy", '"+y', { desc = "Yank to system clipboard" })
 
@@ -167,11 +189,7 @@ bind({ "n", "x" }, "<leader>yp", '"+p', { desc = "Paste to system clipboard" })
 -- ya: select entire buffer
 bind("n", "<leader>ya", ":keepjumps normal! ggVG<cr>", { desc = "Select entire buffer" })
 
---- Leader + single char bindings:
--- !: write file
-bind("n", "<space>!", "<cmd>write<cr>", { desc = "Save" })
-
--- file managers
+--- File Managers --------------------
 -- f-: (:Triptych)
 bind("n", "<leader>f-", "<cmd>Triptych<cr>", { silent = true, desc = "Toggle Triptych" })
 -- fo: (:Oil)
@@ -181,7 +199,33 @@ bind("n", "<leader>fE", "<cmd>Ex<cr>", { desc = "NetRW (:Ex)" })
 -- fy: (:Yazi) open in Yazi
 bind("n", "<leader>fy", "<cmd>Yazi<cr>", { desc = "Yazi (:Yazi)" })
 
---- move lines:
+-- Aerial --------------------
+-- set a keymap to toggle aerial
+bind("n", "<leader>ua", "<cmd>AerialToggle!<CR>", { desc = "Toggle Aerial" })
+
+-----------------------------------------------------
+--- [ / ] mode bindings
+-----------------------------------------------------
+-- Todo-Comments --------------------
+bind("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next todo comment" })
+bind("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Previous todo comment" })
+
+-- Yanky (shadows built-ins) -------
+bind({ "n", "x" }, "p", "<Plug>(YankyPutAfter)", { desc = "Yanky put (after)" })
+bind({ "n", "x" }, "P", "<Plug>(YankyPutBefore)", { desc = "Yanky put (before)" })
+bind({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)", { desc = "Yanky gput (after)" })
+bind({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)", { desc = "Yanky gput (after)" })
+
+bind("n", "<c-p>", "<Plug>(YankyPreviousEntry)", { desc = "Yanky prev entry" })
+bind("n", "<c-n>", "<Plug>(YankyNextEntry)", { desc = "Yanky next entry" })
+
+-----------------------------------------------------
+--- Misc
+-----------------------------------------------------
+
+-------------------------------------------
+--- move lines up / down
+-------------------------------------------
 -- normal mode
 bind("n", "<A-j>", "<cmd>m .+1<cr>", { desc = "Move line down" })
 bind("n", "<A-k>", "<cmd>m .-2<cr>", { desc = "Move line up" })
@@ -192,17 +236,5 @@ bind("i", "<A-k>", "<esc>:m .-2<cr>==gi", { desc = "Move line up" })
 bind("v", "<A-j>", "<cmd>m '>+1<cr>gv=gv", { desc = "Move selected lines down" })
 bind("v", "<A-k>", "<cmd>m '<-2<cr>gv=gv", { desc = "Move selected lines up" })
 
--- todo-comments
-bind("n", "]t", function() require("todo-comments").jump_next() end, { desc = "Next todo comment" })
-bind("n", "[t", function() require("todo-comments").jump_prev() end, { desc = "Previous todo comment" })
-
--- Yanky (shadows built-ins)
-bind({ "n", "x" }, "p", "<Plug>(YankyPutAfter)", { desc = "Yanky put (after)" })
-bind({ "n", "x" }, "P", "<Plug>(YankyPutBefore)", { desc = "Yanky put (before)" })
-bind({ "n", "x" }, "gp", "<Plug>(YankyGPutAfter)", { desc = "Yanky gput (after)" })
-bind({ "n", "x" }, "gP", "<Plug>(YankyGPutBefore)", { desc = "Yanky gput (after)" })
-
-bind("n", "<c-p>", "<Plug>(YankyPreviousEntry)", { desc = "Yanky prev entry" })
-bind("n", "<c-n>", "<Plug>(YankyNextEntry)", { desc = "Yanky next entry" })
-
+--- export the key table for use elsewhere
 return Keys
