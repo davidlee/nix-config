@@ -1,6 +1,6 @@
 [user]
-	email = dav@davlee.com
-	name = David Lee
+  email = dav@davlee.com
+  name = David Lee
 [init]
   defaultBranch = main
 [filter "lfs"]
@@ -27,7 +27,7 @@
   # https://spin.atomicobject.com/fuzzy-find-git-add/
   fza = "!git ls-files -m -o --exclude-standard | fzf --print0 -m | xargs -0 -t -o git add"
 [core]
-  editor = hx
+  editor = $VISUAL
   excludesFile = ~/.gitignore_global
   pager = delta
 [color]
