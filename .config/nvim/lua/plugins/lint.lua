@@ -21,7 +21,7 @@ require("lze").load({
   end,
 })
 
---  keybindings / onsave autocmd
+-- onsave autocmd
 vim.api.nvim_create_autocmd({ "BufWritePost" }, {
   callback = function()
     -- try_lint without arguments runs the linters defined in `linters_by_ft`
