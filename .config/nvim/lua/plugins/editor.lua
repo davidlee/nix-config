@@ -1,17 +1,12 @@
 -- editor
--- TODO: prolly move to debug.lua
-require("plugins.trouble")
-require("plugins.autopairs")
-require("plugins.lint")
-
 require("lze").load({
+  -- yanky
   {
     "yanky.nvim",
     after = function() require("yanky").setup() end,
   },
 
   -- mini.surround
-  -- INFO: note the conflict with leap.nvim default bindings
   {
     "mini.nvim",
     after = function()

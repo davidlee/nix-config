@@ -1,4 +1,5 @@
 -- UI
+
 require("lze").load({
 
   -- icons
@@ -81,6 +82,7 @@ require("lze").load({
   },
 })
 
+-- make sure icons have loaded before snacks
 require("plugins.snacks")
+-- ultimately, replace lualine with:
 -- require("plugins.heirline")
---  'stevearc/stickybuf.nvim',

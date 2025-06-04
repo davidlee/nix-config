@@ -1,6 +1,6 @@
 require("lze").load({
   {
-    -- "nvim-treesitter.configs",
+    -- nvim-treesitter
     "nvim-treesitter",
     after = function()
       require("nvim-treesitter").setup({

@@ -171,6 +171,7 @@ in {
       dashboard-nvim
       dressing-nvim
       smear-cursor-nvim
+      nvim-colorizer-lua
 
       # themes
       gruvbox
@@ -185,15 +186,15 @@ in {
       vim-startuptime
       vim-sleuth
       todo-comments-nvim
-      smart-splits-nvim
-      toggleterm-nvim
-      resession-nvim
-      grug-far-nvim
-      persistence-nvim
+      # toggleterm-nvim
+      # project-nvim
       outline-nvim
+      persistence-nvim
+      resession-nvim
       overseer-nvim
       octo-nvim
-      project-nvim
+      grug-far-nvim
+      smart-splits-nvim
 
       # files
       oil-nvim
@@ -206,34 +207,36 @@ in {
       fzf-lua
       aerial-nvim
       nvim-window-picker
-      telescope-nvim
-      flit-nvim
       nvim-navic
       flash-nvim
-      telescope-fzf-native-nvim
+      # telescope-nvim
+      # flit-nvim
+      # telescope-fzf-native-nvim
 
       # editor
       vim-repeat
       nvim-autopairs
-      better-escape-nvim
-      neogen
       yanky-nvim
       dial-nvim
-      inc-rename-nvim
+      # better-escape-nvim
+      # neogen
+      # inc-rename-nvim
+      # indent-blankline-nvim
       refactoring-nvim
-      indent-blankline-nvim
 
       # completion
       blink-cmp
+      blink-compat
       luasnip
+      LuaSnip-snippets-nvim
       nvim-highlight-colors
-      nvim-cmp
+      # nvim-cmp
       friendly-snippets
       cmp_luasnip
       cmp-buffer
       cmp-path
       cmp-nvim-lsp
-      nvim-snippets
+      # nvim-snippets
       # cmp-mini-snippets
 
       # lint
@@ -243,22 +246,23 @@ in {
       conform-nvim
 
       # test / debug
+      trouble-nvim
       nvim-dap
       nvim-dap-ui
       nvim-dap-virtual-text
-      trouble-nvim
       neotest
 
       # lsp
       nvim-lspconfig
       luvit-meta
-      none-ls-nvim
+      # none-ls-nvim
 
       # treesitter
       nvim-treesitter.withAllGrammars
       nvim-treesitter-textobjects
+      nvim-treesitter-textsubjects
       nvim-treesitter-context
-      # nvim-lsp-file-operations
+      nvim-lsp-file-operations
       nvim-ts-autotag
       nvim-ts-context-commentstring
 

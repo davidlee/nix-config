@@ -1,3 +1,4 @@
+-- snacks
 require("lze").load({
   {
     "snacks.nvim",
@@ -7,6 +8,7 @@ require("lze").load({
           enabled = false,
         },
         notifier = {},
+        quickfile = {},
         profiler = {},
         scratch = {},
         rename = {},
