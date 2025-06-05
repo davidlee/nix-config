@@ -1,14 +1,3 @@
--- set up leader keys first
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
-require("config.options")
-require("config.colorscheme")
-
-require("plugins")
-
-require("config.keymap")
-
 -- open a note in obsidian; if it doesn't exist, ask Obsidian to create it first
 local open_obsidian_note = function(date_format_string)
   -- get both the relative and absolute paths for the note; we may need both

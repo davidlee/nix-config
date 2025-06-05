@@ -1,5 +1,4 @@
 -- UI
-
 require("lze").load({
 
   -- icons
@@ -54,6 +53,12 @@ require("lze").load({
     end,
   },
 
+  -- navic
+  {
+    "nvim-navic",
+    after = function() require("nvim-navic").setup() end,
+  },
+
   -- smart-splits
   {
     "smart-splits.nvim",
@@ -73,6 +78,30 @@ require("lze").load({
       local smear = require("smear_cursor")
       smear.enabled = true -- requires eg cascadia code
       smear.legacy_computing_symbols_support = true
+    end,
+  },
+
+  -- rainbow-delimiters:w
+  {
+    "rainbow-delimiters.nvim",
+    after = function()
+      require("rainbow-delimiters.setup").setup({
+        strategy = {
+          [""] = "rainbow-delimiters.strategy.local",
+        },
+
+        highlight = {
+          "Normal",
+          "RainbowDelimiterRed",
+          "RainbowDelimiterYellow",
+          "RainbowDelimiterBlue",
+          "RainbowDelimiterOrange",
+          "RainbowDelimiterGreen",
+          "RainbowDelimiterViolet",
+          "RainbowDelimiterCyan",
+        },
+        -- blacklist = { 'cpp' }
+      })
     end,
   },
 

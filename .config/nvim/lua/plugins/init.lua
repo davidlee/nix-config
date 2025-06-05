@@ -37,3 +37,5 @@ require("plugins.snippets")
 -- grug-far-nvim
 -- smart-splits-nvim
 -- stevearc/stickybuf.nvim
+-- https://github.com/wurli/visimatch.nvim
+-- https://github.com/nvim-pack/nvim-spectre

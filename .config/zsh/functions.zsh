@@ -69,29 +69,43 @@ oj() {
 # periodic files
 #################################################################################
 
+_rel_day_note_path() { date +$OBS_DAY_NOTE_FORMAT }
+_rel_week_note_path() { date +$OBS_WEEK_NOTE_FORMAT }
+_rel_month_note_path() { date +$OBS_MONTH_NOTE_FORMAT }
+_rel_year_note_path() { date +$OBS_YEAR_NOTE_FORMAT }
+
 _day_note_path() { date +$DAY_NOTE_FORMAT }
 _week_note_path() { date +$WEEK_NOTE_FORMAT }
 _month_note_path() { date +$MONTH_NOTE_FORMAT }
 _year_note_path() { date +$YEAR_NOTE_FORMAT }
 
+
+# $1 = vault-relative path
 _ensure_periodic_note_exists() {
-  if [ ! -f $1 ]; then
-    echo "# ${2}\n" >> $1
-    echo "creating $1 ..."
-    sleep 1
+  abs_path="$OBS_DIR/$1"
+  echo $1
+  if [ ! -f $abs_path ]; then
+    echo "creating note with Obsidian: $1" # ensure we apply the template
+    uri="obsidian://new?vault=workbench&file=$1"
+    open $uri
+    # sleep 1
   fi
 }
 
+_obs_uri() {
+  uri="obsidian://new?vault=workbench&file=$1"
+}
+
+# $1 = vault-relative path, $2 = heading
 _edit_periodic_note() {
-  _ensure_periodic_note_exists $1 $2; # path, heading
-  # hx $1 -w $OBS_DIR
+  _ensure_periodic_note_exists $1 $2;
   $VISUAL $1
 }
 
-daily() { _edit_periodic_note $(_day_note_path) `date +"%F"` }
-weekly() { _edit_periodic_note $(_week_note_path) `date +"%Ywk%U"` }
-monthly() { _edit_periodic_note $(_month_note_path) `date +"%m"` }
-yearly() { _edit_periodic_note $(_year_note_path) `date +"%Y"` }
+daily() { _edit_periodic_note $(_rel_day_note_path) `date +"%F"` }
+weekly() { _edit_periodic_note $(_rel_week_note_path) `date +"%Ywk%U"` }
+monthly() { _edit_periodic_note $(_rel_month_note_path) `date +"%m"` }
+yearly() { _edit_periodic_note $(_rel_year_note_path) `date +"%Y"` }
 
 #
 # Color Palette
