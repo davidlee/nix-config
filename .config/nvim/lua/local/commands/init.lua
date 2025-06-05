@@ -1,0 +1,1 @@
+require("local.commands.obsidian")
