@@ -33,10 +33,18 @@ export OBS_MONTH_NOTE_FORMAT="%Y/mo/%m.md"
 export OBS_YEAR_NOTE_FORMAT="%Y.md"
 
 export DAY_NOTE_FORMAT="$OBS_DIR/$OBS_DAY_NOTE_FORMAT"
-export WEEK_NOTE_FORMAT="$OBS_DIR/$OBS_YEAR_NOTE_FORMAT"
+export WEEK_NOTE_FORMAT="$OBS_DIR/$OBS_WEEK_NOTE_FORMAT"
 export MONTH_NOTE_FORMAT="$OBS_DIR/$OBS_MONTH_NOTE_FORMAT"
 export YEAR_NOTE_FORMAT="$OBS_DIR/$OBS_YEAR_NOTE_FORMAT"
 
+if [[ $(uname -s) = 'Darwin' ]]; then
+  TASKWARRIOR_PRIMARY_HOST=0
+else
+  TASKWARRIOR_PRIMARY_HOST=1
+fi
+
+# don't create recurring Taskwarrior tasks on multiple synced devices
+export TASKWARRIOR_RECURRENCE=1 # $TASKWARRIOR_PRIMARY_HOST
 
 #
 # Secrets - private bare repo (non-critical only; use 1password encryption where we really care)

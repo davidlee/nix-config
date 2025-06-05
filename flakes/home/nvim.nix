@@ -145,16 +145,18 @@ in {
       rocks-config-nvim
       rtp-nvim
 
+      # libs
+      plenary-nvim
+      nui-nvim
+
       # meta
       mini-nvim
       mini-deps
-      plenary-nvim
       blink-compat
       nvim-nio
 
       # ui
       snacks-nvim
-      nvim-web-devicons
       mini-icons
       heirline-nvim
       lualine-nvim
@@ -162,16 +164,23 @@ in {
       gitsigns-nvim
       snacks-nvim
       bufferline-nvim
-      vim-illuminate
+      smart-splits-nvim
       nvim-notify
       noice-nvim
-      nui-nvim
       edgy-nvim
-      alpha-nvim
-      dashboard-nvim
-      dressing-nvim
       smear-cursor-nvim
+      nvim-navic
+
+      # highlight
+      vim-illuminate
       nvim-colorizer-lua
+      rainbow-delimiters-nvim
+      # nvim-highlight-colors
+
+      # startup
+      dashboard-nvim
+      alpha-nvim
+      vim-startuptime
 
       # themes
       gruvbox
@@ -183,18 +192,16 @@ in {
 
       # amenities
       which-key-nvim
-      vim-startuptime
       vim-sleuth
-      todo-comments-nvim
-      # toggleterm-nvim
+
+      # projects / multiple files
+      overseer-nvim
+      grug-far-nvim
       # project-nvim
-      outline-nvim
+
+      # sessions
       persistence-nvim
       resession-nvim
-      overseer-nvim
-      octo-nvim
-      grug-far-nvim
-      smart-splits-nvim
 
       # files
       oil-nvim
@@ -203,25 +210,18 @@ in {
       yazi-nvim
 
       # navigation
+      outline-nvim
       leap-nvim
       fzf-lua
       aerial-nvim
       nvim-window-picker
-      nvim-navic
       flash-nvim
-      # telescope-nvim
-      # flit-nvim
-      # telescope-fzf-native-nvim
 
       # editor
       vim-repeat
       nvim-autopairs
       yanky-nvim
       dial-nvim
-      # better-escape-nvim
-      # neogen
-      # inc-rename-nvim
-      # indent-blankline-nvim
       refactoring-nvim
 
       # completion
@@ -229,7 +229,6 @@ in {
       blink-compat
       luasnip
       LuaSnip-snippets-nvim
-      nvim-highlight-colors
       # nvim-cmp
       friendly-snippets
       cmp_luasnip
@@ -266,13 +265,17 @@ in {
       nvim-ts-autotag
       nvim-ts-context-commentstring
 
+      # comments
+      todo-comments-nvim
+
       #
-      # Language specific
+      # Language specific / special modes
       #
 
       # lua
       lazydev-nvim
       one-small-step-for-vimkind
+      neogen
 
       # git
 
@@ -283,6 +286,13 @@ in {
       vim-markdown-toc
       render-markdown-nvim
       markdown-preview-nvim
+
+      # git / github
+      octo-nvim
+
+      # modes: other
+      neorg
+      orgmode
     ];
   };
 }
