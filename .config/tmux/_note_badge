@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh 
+#!/usr/bin/env zsh
 # vim:set syntax=bash:
 
 # a conditional script to tell tmux whether to render a tmux statusbar element
@@ -8,9 +8,9 @@
 
 # we expect this to be exported into the execution ENV
 #
-# OBS_DIR=~/workbench
+# OBS_VAULT_PATH=~/workbench
 
-NOTE_DIR=${OBS_DIR:-~/notes}
+NOTE_DIR=${OBS_VAULT_PATH:-~/notes}
 
 # file age thresholds for the different badges
 MINS_NOTICE=12
@@ -20,17 +20,17 @@ MINS_CRIT=480
 
 # for CRIT badge we want to be visually annoying, but not inexcusably so
 #
-# NOTE: reimplemented this way (rather than using a pidfile) to prevent 
-# multiple windows interfering 
+# NOTE: reimplemented this way (rather than using a pidfile) to prevent
+# multiple windows interfering
 # (see ~/.local/bin/tmx)
 #
-# This is more elegant anyway, but is coupled to the tmux status bar update 
+# This is more elegant anyway, but is coupled to the tmux status bar update
 # interval (expects 1s).
-n=$(( $(date +%s) % 5 + 1)) # incrementing number from unix epoch time 
+n=$(( $(date +%s) % 5 + 1)) # incrementing number from unix epoch time
 dots=$( printf "%.${n}s"  )
 
 n=$(( $(date +%s) % 2 )) # alternating frames
-if [ $n -eq 0 ]; then 
+if [ $n -eq 0 ]; then
   BADGE_NOTICE='#[fg=#ff9922]󰅌 '
   BADGE_WARN="#[fg=#ff9933]󰅌 STALE #[default]"
   BADGE_ERR="#[bg=#ff0000,fg=#ffffff,bold] 󰅌 STALE #[default]"
@@ -43,7 +43,7 @@ else
 fi
 BADGE_OK="#[fg=#00cc33]󰅎 "
 
-# exit 1 if the previous check did. 
+# exit 1 if the previous check did.
 # Otherwise, print a badge and exit 1 if the file's old enough
 # (exit within a function only exits the function, which runs in a sub-shell)
 print_badge_if_stale() {
@@ -58,13 +58,13 @@ print_badge_if_stale() {
   find $NOTE_DIR -path '*.md' -type f -mmin "-$age" | grep . 2>&/dev/null || {
     echo -n $badge
     exit 1
-  } 
+  }
 }
 
-# check from the most to least severe threshold, exiting checks early where 
+# check from the most to least severe threshold, exiting checks early where
 # possible
 print_badge_if_stale $MINS_CRIT   $BADGE_CRIT
-print_badge_if_stale $MINS_ERR    $BADGE_ERR    $?   
+print_badge_if_stale $MINS_ERR    $BADGE_ERR    $?
 print_badge_if_stale $MINS_WARN   $BADGE_WARN   $?
 print_badge_if_stale $MINS_NOTICE $BADGE_NOTICE $?
 print_badge_if_stale 0            $BADGE_OK     $?
