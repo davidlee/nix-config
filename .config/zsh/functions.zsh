@@ -50,7 +50,7 @@ vfe() {
 # find & edit a file in the notes dir
 #
 vn() {
-  base=$OBS_DIR
+  base=$OBS_VAULT_PATH
   dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)";
   chdir $base
   $VISUAL $dir
@@ -79,10 +79,9 @@ _week_note_path() { date +$WEEK_NOTE_FORMAT }
 _month_note_path() { date +$MONTH_NOTE_FORMAT }
 _year_note_path() { date +$YEAR_NOTE_FORMAT }
 
-
 # $1 = vault-relative path
 _ensure_periodic_note_exists() {
-  abs_path="$OBS_DIR/$1"
+  abs_path="$OBS_VAULT_PATH/$1"
   echo $1
   if [ ! -f $abs_path ]; then
     echo "creating note with Obsidian: $1" # ensure we apply the template
