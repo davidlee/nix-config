@@ -1,16 +1,16 @@
 -----------------------------------------------------
 --- Leader Key Groups
 -----------------------------------------------------
-require("which-key").add({
-  -- add headings
-  { "<leader>f", group = "File" },
-  { "<leader>b", group = "Buffer" },
-  { "<leader>g", group = "Git" },
-  { "<leader>s", group = "Search" },
-  { "<leader>r", group = "SurRound" },
-  { "<leader>u", group = "Toggle" },
-  { "<leader>y", group = "Clipboard" },
-})
+-- require("which-key").add({
+--   -- add headings
+--   { "<leader>f", group = "File" },
+--   { "<leader>b", group = "Buffer" },
+--   { "<leader>g", group = "Git" },
+--   { "<leader>s", group = "Search" },
+--   { "<leader>r", group = "SurRound" },
+--   { "<leader>u", group = "Toggle" },
+--   { "<leader>y", group = "Clipboard" },
+-- })
 
 -----------------------------------------------------
 --- Keymap Config Table
@@ -180,6 +180,13 @@ local Keys = {
         function() require("which-key").show({ global = true }) end,
         desc = "Global Keymaps (which-key)",
       },
+      { "<leader>f", group = "File" },
+      { "<leader>b", group = "Buffer" },
+      { "<leader>g", group = "Git" },
+      { "<leader>s", group = "Search" },
+      { "<leader>r", group = "SurRound" },
+      { "<leader>u", group = "Toggle" },
+      { "<leader>y", group = "Clipboard" },
     },
   },
 }

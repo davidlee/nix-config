@@ -1,4 +1,5 @@
--- UI
+-- UII
+require("plenary")
 require("lze").load({
 
   -- icons
@@ -9,6 +10,25 @@ require("lze").load({
       require("mini.icons").mock_nvim_web_devicons()
     end,
   },
+
+  -- which-key
+  {
+    "which-key.nvim",
+    keys = require("config.keymap").which_key.keys,
+    lazy = false,
+    after = function()
+      print("keys")
+      require("which-key")
+    end,
+  },
+
+  -- TODO: plenary
+  {},
+})
+
+require("plugins.snacks")
+
+require("lze").load({
 
   -- vim-illuminate
   {
@@ -34,9 +54,17 @@ require("lze").load({
   },
 
   -- lualine
+  -- TODO: replace lualine with:
+  -- require("plugins.heirline")
   {
     "lualine.nvim",
     after = function() require("lualine").setup({}) end,
+  },
+
+  -- nvim-notify
+  {
+    "nvim-notify",
+    after = function() require("notify").setup({}) end,
   },
 
   -- noice
@@ -72,16 +100,16 @@ require("lze").load({
   },
 
   -- smear-cursor
-  {
-    "smear-cursor.nvim",
-    after = function()
-      local smear = require("smear_cursor")
-      smear.enabled = true -- requires eg cascadia code
-      smear.legacy_computing_symbols_support = true
-    end,
-  },
-
-  -- rainbow-delimiters:w
+  -- {
+  --   "smear-cursor.nvim",
+  --   after = function()
+  --     local smear = require("smear_cursor")
+  --     smear.enabled = true -- requires eg cascadia code
+  --     smear.legacy_computing_symbols_support = true
+  --   end,
+  -- },
+  --
+  -- rainbow-delimiters
   {
     "rainbow-delimiters.nvim",
     after = function()
@@ -110,8 +138,3 @@ require("lze").load({
     "lualine-lsp-progress",
   },
 })
-
--- make sure icons have loaded before snacks
-require("plugins.snacks")
--- ultimately, replace lualine with:
--- require("plugins.heirline")

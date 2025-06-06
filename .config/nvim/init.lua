@@ -3,7 +3,10 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
 require("config.options")
-require("config.colorscheme")
 require("plugins")
 require("local.commands")
 require("config.keymap")
+
+-- for k, v in pairs(package.loaded) do
+--   print(k)
+-- end
