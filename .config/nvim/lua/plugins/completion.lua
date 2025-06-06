@@ -1,26 +1,5 @@
 -- completion
 require("lze").load({
-  -- blink.cmp
-  {
-    "blink.cmp",
-    after = function()
-      require("blink.cmp").setup({
-        sources = {
-          -- add lazydev to your completion providers
-          default = { "lazydev", "lsp", "path", "snippets", "buffer" },
-          providers = {
-            lazydev = {
-              name = "LazyDev",
-              module = "lazydev.integrations.blink",
-              -- make lazydev completions top priority (see `:h blink.cmp`)
-              score_offset = 100,
-            },
-          },
-        },
-      })
-    end,
-  },
-
   -- lazydev.nvim
   {
     "lazydev.nvim",
@@ -30,9 +9,38 @@ require("lze").load({
       require("lazydev").setup({
         library = {
           { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-          { path = "LazyVim", words = { "LazyVim" } },
           { path = "snacks.nvim", words = { "Snacks" } },
-          { path = "lazy.nvim", words = { "LazyVim" } },
+        },
+        integrations = {
+          cmp = false,
+        },
+      })
+      require("lazydev.integrations.blink")
+    end,
+  },
+
+  -- blink.cmp
+  {
+    "blink.compat",
+    lazy = false, -- for lazydev.ingrations.blink
+  },
+  {
+    "blink.cmp",
+    after = function()
+      -- require("lazydev.integrations.blink")
+      require("blink.cmp").setup({
+        sources = {
+          -- add lazydev to your completion providers
+          default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+          providers = {
+            lazydev = {
+              name = "LazyDev",
+              -- FIXME: can't seem to make this happy
+              module = "lazydev.integrations.blink",
+              -- make lazydev completions top priority (see `:h blink.cmp`)
+              score_offset = 100,
+            },
+          },
         },
       })
     end,

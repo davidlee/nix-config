@@ -2,13 +2,15 @@
 require("lze").load({
   {
     "snacks.nvim",
+    -- event = "VimEnter",
+    -- priority = 10,
+    lazy = false,
     after = function()
       Snacks.setup({
         dashboard = {
           enabled = false,
         },
         notifier = {},
-        quickfile = {},
         profiler = {},
         scratch = {},
         rename = {},
@@ -20,6 +22,10 @@ require("lze").load({
         terminal = {},
         picker = {},
         quickfile = {},
+        bigfile = {},
+        image = {},
+        words = {},
+        input = {},
         toggle = {},
         dim = {},
         indent = {},

@@ -15,4 +15,10 @@ require("lze").load({
       })
     end,
   },
+-- todo-comments
+  {
+    "todo-comments.nvim",
+    after = function() require("todo-comments").setup({}) end,
+  },
+
 })
