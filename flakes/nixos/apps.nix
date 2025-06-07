@@ -59,7 +59,7 @@
     qbittorrent
     calibre
     flameshot
-    ventoy-full
+    # ventoy-full
     artha
     guvcview
     inxi

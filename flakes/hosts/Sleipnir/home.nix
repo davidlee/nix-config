@@ -2,7 +2,7 @@
 
   imports = [
     ../../home/zsh.nix
-    ../../home/vim.nix
+    ../../home/nvim.nix
     ../../home/programs.nix
    ];
   
