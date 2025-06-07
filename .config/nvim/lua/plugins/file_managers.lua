@@ -1,10 +1,13 @@
+local md = require("mini.deps")
+local lz = require("lze")
+
 --
 -- File managers
 --
 -- note: see snacks.lua for Snacks.picker & Snacks.explorer, our main file manager
 
 -- yazi
-require("lze").load({
+lz.load({
   "yazi.nvim",
   after = function()
     --
@@ -13,11 +16,11 @@ require("lze").load({
   end,
 })
 
-require("mini.deps").add({ source = "antosha417/nvim-lsp-file-operations" })
-require("mini.deps").later(function() require("lsp-file-operations").setup() end)
+md.add({ source = "antosha417/nvim-lsp-file-operations" })
+md.later(function() require("lsp-file-operations").setup() end)
 
 -- triptych
-require("lze").load({
+lz.load({
   "triptych.nvim",
   after = function()
     require("triptych").setup({

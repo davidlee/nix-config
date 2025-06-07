@@ -1,4 +1,7 @@
-require("lze").load({
+-- local md = require("mini.deps")
+local lz = require("lze")
+
+lz.load({
   { -- https://github.com/stevearc/conform.nvim?tab=readme-ov-file#setup
     "conform.nvim",
     after = function()

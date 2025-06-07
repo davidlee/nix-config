@@ -1,16 +1,17 @@
--- UII
+local md = require("mini.deps")
+local lz = require("lze")
+--
+-- UI
 require("plenary")
-require("lze").load({
+require("mini.icons").setup()
+require("mini.icons").mock_nvim_web_devicons()
+require("mini.git").setup()
+require("mini.diff").setup()
+require("mini.statusline").setup({
+  use_icons = true,
+})
 
-  -- icons
-  {
-    "mini.icons",
-    after = function()
-      require("mini.icons").setup()
-      require("mini.icons").mock_nvim_web_devicons()
-    end,
-  },
-
+lz.load({
   -- which-key
   {
     "which-key.nvim",
@@ -18,14 +19,11 @@ require("lze").load({
     lazy = false,
     after = function() require("which-key").add(require("config.keymap").which_key.headings) end,
   },
-
-  -- TODO: plenary
-  {},
 })
 
 require("plugins.snacks")
 
-require("lze").load({
+lz.load({
 
   -- gitsigns
   {
@@ -43,7 +41,7 @@ require("lze").load({
   -- nvim-notify
   {
     "nvim-notify",
-    after = function() require("notify").setup({}) end,
+    after = function() require("notify").setup() end,
   },
 
   -- noice
@@ -55,6 +53,13 @@ require("lze").load({
         presets = {
           long_message_to_split = true,
           command_palette = true,
+        },
+        lsp = {
+          override = {
+            ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+            ["vim.lsp.util.stylize_markdown"] = true,
+            ["cmp.entry.get_documentation"] = true,
+          },
         },
       })
     end,
@@ -87,15 +92,6 @@ require("lze").load({
       smear.legacy_computing_symbols_support = true
     end,
   },
-
-  -- lualine
-  -- TODO: replace lualine with:
-  -- require("plugins.heirline")
-  {
-    "lualine.nvim",
-    after = function() require("lualine").setup({}) end,
-  },
-  {
-    "lualine-lsp-progress",
-  },
 })
+
+-- require("plugins.heirline")

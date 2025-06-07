@@ -1,5 +1,8 @@
+-- local md = require("mini.deps")
+local lz = require("lze")
+
 -- markdown
-require("lze").load({
+lz.load({
 
   {
     "nvim-lspconfig",

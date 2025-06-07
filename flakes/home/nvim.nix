@@ -186,7 +186,7 @@
 
     # navigation
     nvim-window-picker
-    outline-nvim
+    # outline-nvim
     leap-nvim
     fzf-lua
     aerial-nvim
@@ -251,7 +251,7 @@
 
     # lang.lua
     one-small-step-for-vimkind
-    lazydev-nvim
+    # lazydev-nvim
 
     # lang.markdown
     markdown-preview-nvim
@@ -264,6 +264,7 @@
     # modes: other
     neorg
     orgmode
+    vimoutliner
 
     # AI
     aider-nvim

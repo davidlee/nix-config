@@ -1,14 +1,10 @@
--- nix handles installation; lua loads & configures;
--- lze just manages lazy loading & simplifies some event handler setup / config
--- (e.g. passing keys)
-require("lze")
+-- nix handles installation; lua loads & configures; lze just manages lazy
+-- loading & simplifies some event handler setup / config (e.g. passing keys)
+-- mini.deps is for anything we need more recent than nixpkgs
 
--- for managing dependencies unavailable on nixpkgs, or which need to be
--- fresher this looks like it could eventually be The Way, but needs more
--- support from plugin authors.
---
--- Loads without errors, but unused.
--- require("rocks")
+-- make sure lze has loaded mini.deps before we need it; as a nice side affect,
+-- we can assume the rest of mini.nvim is available afterwards
+require("lze").load({ "mini.nvim", lazy = false, after = function() require("mini.deps") end })
 
 require("plugins.ui")
 require("plugins.editor")
@@ -30,13 +26,11 @@ require("plugins.snippets")
 --
 -- jghauser/kitty-runner.nvim
 -- nvim_highlight_colors
--- outline-nvim
 -- persistence-nvim
 -- resession-nvim
 -- overseer-nvim
 -- octo-nvim
 -- grug-far-nvim
--- smart-splits-nvim
 -- stevearc/stickybuf.nvim
 -- https://github.com/wurli/visimatch.nvim
 -- https://github.com/nvim-pack/nvim-spectre

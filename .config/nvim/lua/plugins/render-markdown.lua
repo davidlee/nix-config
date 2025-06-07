@@ -1,7 +1,11 @@
-require("lze").load({
+-- local md = require("mini.deps")
+local lz = require("lze")
+
+lz.load({
   -- render-markdown
   {
     "render-markdown.nvim",
+    ft = "markdown",
     after = function()
       require("render-markdown").setup({
         indent = {

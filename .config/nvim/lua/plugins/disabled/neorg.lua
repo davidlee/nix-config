@@ -1,4 +1,7 @@
-require("lze").load({
+-- local md = require("mini.deps")
+local lz = require("lze")
+
+lz.load({
   {
     "neorg",
     lazy = false,
