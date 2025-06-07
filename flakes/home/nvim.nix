@@ -165,7 +165,6 @@
     heirline-nvim
 
     # highlight
-    vim-illuminate
     nvim-colorizer-lua
     rainbow-delimiters-nvim
 
@@ -253,7 +252,6 @@
     # lang.lua
     one-small-step-for-vimkind
     lazydev-nvim
-    neogen
 
     # lang.markdown
     markdown-preview-nvim
@@ -266,9 +264,12 @@
     # modes: other
     neorg
     orgmode
+
+    # AI
+    aider-nvim
+    codecompanion-nvim
   ];
 in {
-  # home-manager.users.${username}.
   home.packages = nvimDependencyPackages;
 
   programs.neovim = {

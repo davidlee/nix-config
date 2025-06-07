@@ -1,18 +1,4 @@
------------------------------------------------------
---- Leader Key Groups
------------------------------------------------------
--- require("which-key").add({
---   -- add headings
---   { "<leader>f", group = "File" },
---   { "<leader>b", group = "Buffer" },
---   { "<leader>g", group = "Git" },
---   { "<leader>s", group = "Search" },
---   { "<leader>r", group = "SurRound" },
---   { "<leader>u", group = "Toggle" },
---   { "<leader>y", group = "Clipboard" },
--- })
-
------------------------------------------------------
+----------------------------------------------------
 --- Keymap Config Table
 -----------------------------------------------------
 -- export a table to consolidate binds in this file
@@ -147,12 +133,12 @@ local Keys = {
         desc = "Buffer Diagnostics (Trouble)",
       },
       {
-        "<leader>cs",
+        "<leader>xs",
         "<cmd>Trouble symbols toggle focus=false<cr>",
         desc = "Symbols (Trouble)",
       },
       {
-        "<leader>cl",
+        "<leader>xl",
         "<cmd>Trouble lsp toggle focus=false win.position=right<cr>",
         desc = "LSP Definitions / references / ... (Trouble)",
       },
@@ -162,7 +148,7 @@ local Keys = {
         desc = "Location List (Trouble)",
       },
       {
-        "<leader>xQ",
+        "<leader>xq",
         "<cmd>Trouble qflist toggle<cr>",
         desc = "Quickfix List (Trouble)",
       },
@@ -180,11 +166,18 @@ local Keys = {
         function() require("which-key").show({ global = true }) end,
         desc = "Global Keymaps (which-key)",
       },
+    },
+    -----------------------------------------------------
+    --- Leader Key Group Labels
+    -----------------------------------------------------
+    headings = {
       { "<leader>f", group = "File" },
       { "<leader>b", group = "Buffer" },
       { "<leader>g", group = "Git" },
       { "<leader>s", group = "Search" },
-      { "<leader>r", group = "SurRound" },
+      { "<leader>r", group = "rurRound" },
+      { "<leader>R", group = "Registers" },
+      { "<leader>x", group = "Trouble" },
       { "<leader>u", group = "Toggle" },
       { "<leader>y", group = "Clipboard" },
     },
@@ -215,6 +208,9 @@ bind({ "n", "x" }, "X", '"_x', { desc = "delete char without yank" })
 bind("", "<A-PageDown>", "<cmd>bp<cr>", { desc = "Buffer > next" })
 bind("", "<A-PageUp>", "<cmd>bn<cr>", { desc = "Buffer > prev" })
 
+-- Alt-Home/End: tab next/prev
+bind("", "<A-Home>", "<cmd>tabn<cr>", { desc = "Buffer > next" })
+bind("", "<A-End>", "<cmd>tabp<cr>", { desc = "Buffer > prev" })
 -----------------------------------------------------
 --- Leader Mode single char bindings:
 -----------------------------------------------------

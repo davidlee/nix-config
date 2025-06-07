@@ -16,10 +16,7 @@ require("lze").load({
     "which-key.nvim",
     keys = require("config.keymap").which_key.keys,
     lazy = false,
-    after = function()
-      print("keys")
-      require("which-key")
-    end,
+    after = function() require("which-key").add(require("config.keymap").which_key.headings) end,
   },
 
   -- TODO: plenary
@@ -29,16 +26,6 @@ require("lze").load({
 require("plugins.snacks")
 
 require("lze").load({
-
-  -- vim-illuminate
-  {
-    "vim-illuminate",
-    after = function()
-      require("illuminate").configure({
-        --
-      })
-    end,
-  },
 
   -- gitsigns
   {
@@ -51,14 +38,6 @@ require("lze").load({
   {
     "bufferline.nvim",
     after = function() require("bufferline").setup() end,
-  },
-
-  -- lualine
-  -- TODO: replace lualine with:
-  -- require("plugins.heirline")
-  {
-    "lualine.nvim",
-    after = function() require("lualine").setup({}) end,
   },
 
   -- nvim-notify
@@ -100,40 +79,22 @@ require("lze").load({
   },
 
   -- smear-cursor
-  -- {
-  --   "smear-cursor.nvim",
-  --   after = function()
-  --     local smear = require("smear_cursor")
-  --     smear.enabled = true -- requires eg cascadia code
-  --     smear.legacy_computing_symbols_support = true
-  --   end,
-  -- },
-  --
-  -- rainbow-delimiters
   {
-    "rainbow-delimiters.nvim",
+    "smear-cursor.nvim",
     after = function()
-      require("rainbow-delimiters.setup").setup({
-        strategy = {
-          [""] = "rainbow-delimiters.strategy.local",
-        },
-
-        highlight = {
-          "Normal",
-          "RainbowDelimiterRed",
-          "RainbowDelimiterYellow",
-          "RainbowDelimiterBlue",
-          "RainbowDelimiterOrange",
-          "RainbowDelimiterGreen",
-          "RainbowDelimiterViolet",
-          "RainbowDelimiterCyan",
-        },
-        -- blacklist = { 'cpp' }
-      })
+      local smear = require("smear_cursor")
+      smear.enabled = true -- requires eg cascadia code
+      smear.legacy_computing_symbols_support = true
     end,
   },
 
-  -- TODO: or do heirline instead https://github.com/arkav/lualine-lsp-progress
+  -- lualine
+  -- TODO: replace lualine with:
+  -- require("plugins.heirline")
+  {
+    "lualine.nvim",
+    after = function() require("lualine").setup({}) end,
+  },
   {
     "lualine-lsp-progress",
   },

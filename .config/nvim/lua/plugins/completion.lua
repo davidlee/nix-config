@@ -1,10 +1,17 @@
+-- HACK: solves the path issue which makes blink unable to load
+-- lazydev.integrations.blink - there's potential for issues caused by having
+-- it load from a more recent versions of lazyvim, but it seems minor and I
+-- spent way too long on this already.
+-- TODO: prolly just replace nix lazyvim entirely with mini.deps version
+require("mini.deps").add({ source = "folke/LazyDev.nvim", name = "lazydev" })
+
 -- completion
 require("lze").load({
   -- lazydev.nvim
   {
     "lazydev.nvim",
     ft = "lua",
-    cmd = "LazyDev",
+    -- cmd = "LazyDev",
     after = function()
       require("lazydev").setup({
         library = {
@@ -15,7 +22,6 @@ require("lze").load({
           cmp = false,
         },
       })
-      require("lazydev.integrations.blink")
     end,
   },
 
@@ -35,7 +41,6 @@ require("lze").load({
           providers = {
             lazydev = {
               name = "LazyDev",
-              -- FIXME: can't seem to make this happy
               module = "lazydev.integrations.blink",
               -- make lazydev completions top priority (see `:h blink.cmp`)
               score_offset = 100,

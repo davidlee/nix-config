@@ -7,6 +7,7 @@ require("lze").load({
       require("lspconfig")["marksman"].setup({
         --
       })
+      -- require("lspconfig")["luals"].setup({ })
     end,
   },
 })
