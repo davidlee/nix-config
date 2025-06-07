@@ -1,4 +1,4 @@
-# single character aliases
+# single character aliases 
 alias g=git;
 alias j=just;
 alias _=sudo;
@@ -11,10 +11,16 @@ alias cfg="fzd $HOME/.config";
 
 alias ij=daily; # interstitial journal
 
-# alias tmx="tmux new -A";
 alias tx="exec tmx default"
 
 alias -g G=" | grep -E --color=auto";
+alias zz=zellij;
+alias gg=git;
+alias G='| egrep ';
+
+if [[ $OSTYPE = 'linux-gnu' ]]; then
+  alias open = xdg-open
+fi
 
 alias hxr="hx ~/.reminders";
 
