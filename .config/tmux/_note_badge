@@ -53,8 +53,9 @@ print_badge_if_stale() {
 
   if [ ! $last_exit_status -eq 0 ]; then exit 1; fi
 
-  # the simplest way to test file age is using find
+  # the simplest way to test file age is using find.
   # grep is just massaging the exit status to correspond with find returning a result
+  # if grep sees no input, the || returns the current value of $badge and we exit 1
   find $NOTE_DIR -path '*.md' -type f -mmin "-$age" | grep . 2>&/dev/null || {
     echo -n $badge
     exit 1

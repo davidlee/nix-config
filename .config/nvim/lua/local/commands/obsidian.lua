@@ -53,9 +53,4 @@ vim.api.nvim_create_user_command("Monthly", function()
   M.create_or_edit(rel_path)
 end, {})
 
--- return {
---   create_or_edit,
---   util = {},
--- }
-
 return M

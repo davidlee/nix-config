@@ -82,12 +82,10 @@ _year_note_path() { date +$YEAR_NOTE_FORMAT }
 # $1 = vault-relative path
 _ensure_periodic_note_exists() {
   abs_path="$OBS_VAULT_PATH/$1"
-  echo $1
   if [ ! -f $abs_path ]; then
     echo "creating note with Obsidian: $1" # ensure we apply the template
     uri="obsidian://new?vault=workbench&file=$1"
     open $uri
-    # sleep 1
   fi
 }
 
@@ -98,7 +96,8 @@ _obs_uri() {
 # $1 = vault-relative path, $2 = heading
 _edit_periodic_note() {
   _ensure_periodic_note_exists $1 $2;
-  $VISUAL $1
+  sleep 1
+  $VISUAL "$OBS_VAULT_PATH/$1"
 }
 
 daily() { _edit_periodic_note $(_rel_day_note_path) `date +"%F"` }
