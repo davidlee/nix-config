@@ -1,10 +1,12 @@
+-- local md = require("mini.deps")
+local lz = require("lze")
+
 -- snacks
-require("lze").load({
+lz.load({
   {
     "snacks.nvim",
-    -- event = "VimEnter",
-    -- priority = 10,
-    lazy = false,
+    -- there's prolly a faster loading way to make sure it happens before VimEnter
+    -- lazy = false,
     after = function()
       Snacks.setup({
         dashboard = {

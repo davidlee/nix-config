@@ -1,5 +1,8 @@
+-- local md = require("mini.deps")
+local lz = require("lze")
+
 -- amenities
-require("lze").load({
+lz.load({
 
   -- vim-startuptime
   { "vim-startuptime" },

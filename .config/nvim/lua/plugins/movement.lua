@@ -1,5 +1,8 @@
+-- local md = require("mini.deps")
+local lz = require("lze")
+
 -- movement
-require("lze").load({
+lz.load({
   -- flash
   {
     "flash.nvim",

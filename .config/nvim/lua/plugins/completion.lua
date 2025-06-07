@@ -1,30 +1,27 @@
+local md = require("mini.deps")
+local lz = require("lze")
+
 -- HACK: solves the path issue which makes blink unable to load
 -- lazydev.integrations.blink - there's potential for issues caused by having
 -- it load from a more recent versions of lazyvim, but it seems minor and I
 -- spent way too long on this already.
--- TODO: prolly just replace nix lazyvim entirely with mini.deps version
-require("mini.deps").add({ source = "folke/LazyDev.nvim", name = "lazydev" })
+-- TODO: prolly just replace nix lazyvim
+md.add({ source = "folke/LazyDev.nvim", name = "lazydev" })
+md.later(
+  function()
+    require("lazydev").setup({
+      library = {
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        { path = "snacks.nvim", words = { "Snacks" } },
+      },
+      integrations = {
+        cmp = false,
+      },
+    })
+  end
+)
 
--- completion
-require("lze").load({
-  -- lazydev.nvim
-  {
-    "lazydev.nvim",
-    ft = "lua",
-    -- cmd = "LazyDev",
-    after = function()
-      require("lazydev").setup({
-        library = {
-          { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-          { path = "snacks.nvim", words = { "Snacks" } },
-        },
-        integrations = {
-          cmp = false,
-        },
-      })
-    end,
-  },
-
+lz.load({
   -- blink.cmp
   {
     "blink.compat",

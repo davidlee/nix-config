@@ -1,5 +1,8 @@
+-- local md = require("mini.deps")
+local lz = require("lze")
+
 -- autopairs
-require("lze").load({
+lz.load({
   -- autopairs
   "nvim-autopairs",
   event = "InsertEnter",

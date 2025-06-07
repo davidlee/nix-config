@@ -1,6 +1,9 @@
+local md = require("mini.deps")
+-- local lz = require("lze")
+
 -- illuminate
 -- added via github because the older version in nixpkgs has deprecation warnings
-require("mini.deps").add({
+md.add({
   source = "RRethy/vim-illuminate",
 })
 
@@ -12,7 +15,7 @@ require("mini.deps").add({
 -- Presumably there's a way to change the load path, or to require with some
 -- extra conditions to achieve this.
 --
-require("mini.deps").later(function()
+md.later(function()
   require("illuminate").configure({
     --
   })
