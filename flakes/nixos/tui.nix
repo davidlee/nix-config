@@ -5,7 +5,7 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    inputs.helix.packages.${hostPlatform}.default
+    inputs.helix.packages.x86_64-linux.default
     
     ## cli general
     mprocs # parellel command runner

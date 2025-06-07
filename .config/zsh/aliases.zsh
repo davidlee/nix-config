@@ -1,4 +1,4 @@
-# single character aliases 
+# single character aliases
 alias g=git;
 alias j=just;
 alias _=sudo;
@@ -19,7 +19,7 @@ alias gg=git;
 alias G='| egrep ';
 
 if [[ $OSTYPE = 'linux-gnu' ]]; then
-  alias open = xdg-open
+  alias open=xdg-open
 fi
 
 alias hxr="hx ~/.reminders";
