@@ -93,5 +93,3 @@ lz.load({
     end,
   },
 })
-
--- require("plugins.heirline")

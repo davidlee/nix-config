@@ -68,7 +68,7 @@ alias lgc='lazygit -g ~/.cfg -w ~/';
 alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --scheme history"
 
 # hyprland
-alias waybar-reload='pkill waybar && hyprctl dispatch exec waybar'
+alias waybar-reload='pkill waybar --signal SIGUSR2'
 
 # Taskwarrior
 alias tw='taskwarrior-tui'
