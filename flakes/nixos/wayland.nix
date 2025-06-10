@@ -2,19 +2,20 @@
   pkgs,
   stable,
   username,
-  ... 
+  ...
 }: {
-
   programs = {
+    seahorse.enable = true;
     dconf.enable = true;
     gnome-disks.enable = true;
-    
-    # labwc.enable = true; 
+    # fix collision w/ KDE; prefer gnome's secrets manager
+    ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
+
+    # labwc.enable = true;
     # river.enable = true;
     # niri.enable = true;
   };
 
-  
   services = {
     # have X11 available, but not running by default
     xserver = {
@@ -32,11 +33,18 @@
       gnome-keyring.enable = true;
       gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
     };
-    
+
     sysprof.enable = true;
     blueman.enable = true;
+    dbus.packages = [pkgs.gnome-keyring pkgs.gcr];
   };
-  
+
+  security.pam.services = {
+    greetd.enableGnomeKeyring = true;
+    greetd-password.enableGnomeKeyring = true;
+    login.enableGnomeKeyring = true;
+  };
+
   environment = {
     variables = {
       # NIXOS_OZONE_WL = 1;
@@ -50,7 +58,7 @@
 
   xdg.portal = {
     enable = true;
-    
+
     wlr = {
       enable = true;
       settings.screencast = {
@@ -59,9 +67,9 @@
         chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
       };
     };
-    
+
     xdgOpenUsePortal = true;
-    
+
     extraPortals = with pkgs; [
       xdg-desktop-portal-hyprland
       xdg-desktop-portal-wlr
@@ -71,15 +79,15 @@
       # xdg-desktop-portal-termfilechooser
       # xdg-desktop-portal-xapp
     ];
-    
+
     config = {
       common = {
-        default = [ "Hyprland" "gtk" "wlr" "kde" ];
-        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
-        "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+        default = ["Hyprland" "gtk" "wlr" "kde"];
+        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+        "org.freedesktop.impl.portal.FileChooser" = ["kde"];
       };
       kde = {
-       "org.freedesktop.impl.portal.Secret" = [ "kwalletd6" ];
+        "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
       };
     };
   };
@@ -93,7 +101,7 @@
   # };
 
   # xdg.mimeApps = {
-  #   enable = false;    
+  #   enable = false;
   #   associations = {
   #     added = {};
   #     removed = {};
@@ -147,7 +155,7 @@
     gnome-calendar
     gnome-nettool
     gnomeExtensions.appindicator
-    
+
     # compositors
     river
     niri
@@ -183,7 +191,7 @@
     wshowkeys
     showmethekey
     kmonad
-    
+
     # viewers
     swayimg
     zathura
@@ -193,7 +201,7 @@
     gnome-logs
 
     # screenshots
-    (flameshot.override { enableWlrSupport = true; })
+    (flameshot.override {enableWlrSupport = true;})
     grim
     shotman
     slurp
@@ -228,7 +236,7 @@
     fuzzel
     dmenu
     sirula
-      
+
     ## libs
     libxkbcommon
     directx-headers
@@ -246,7 +254,6 @@
   ];
 
   home-manager.users.${username} = {
-  
     home.pointerCursor = {
       name = "phinger-cursors-light";
       package = pkgs.phinger-cursors;
@@ -260,6 +267,5 @@
 
     # services.copyq.enable = true;
     # services.cliphist.enable = true;
-
   }; # home-manager
 }

@@ -1,26 +1,16 @@
-{pkgs, ... }: {
-  programs = {
-    dconf.enable = true;
-    gnome-disks.enable = true;
-    
-    # fix collision w/ KDE; prefer gnome's secrets manager
-    ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
-  };
-
+{pkgs, ...}: {
   services = {
-    xserver = {
-      enable = true;
-      desktopManager.gnome.enable = false;
-      displayManager = {
-        gdm = {
-          wayland = true;
-          enable = false; # use greetd / tuigreet
-        };
-      };
+    displayManager.gdm = {
+      enable = false;
+      wayland = true;
+    };
+
+    desktopManager = {
+      gnome.enable = false;
     };
 
     # for systray icons in gnome
-    udev.packages = with pkgs; [ gnome-settings-daemon ];
+    udev.packages = with pkgs; [gnome-settings-daemon];
   };
 
   environment.systemPackages = with pkgs; [
