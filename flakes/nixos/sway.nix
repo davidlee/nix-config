@@ -4,7 +4,6 @@
   # lib,
   ...
 }: {
-
   security = {
     polkit.enable = true;
     pam.services.swaylock = {};
@@ -16,7 +15,7 @@
       wrapperFeatures.gtk = true;
     };
   };
-  
+
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       sway-launcher-desktop
@@ -43,7 +42,7 @@
     services = {
       swayosd.enable = true;
     };
-    
+
     wayland.windowManager.sway = {
       enable = true;
       wrapperFeatures.gtk = true;
@@ -52,7 +51,14 @@
       extraConfig = ''
 
         include $HOME/.config/sway/sway.conf
-       '';
+      '';
+    };
+
+    programs = {
+      waybar = {
+        enable = true;
+        systemd.enable = true;
+      };
     };
   };
- }
+}

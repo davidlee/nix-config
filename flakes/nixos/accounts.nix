@@ -4,7 +4,6 @@
   inputs,
   ...
 }: {
-
   security = {
     rtkit.enable = true;
     polkit.enable = true;
@@ -12,26 +11,47 @@
     sudo = {
       enable = true;
       extraRules = [
-      { groups = [ "wheel" ]; commands = [{ command = "${pkgs.nix}/bin/nix"; options = [ "NOPASSWD" ]; }]; }
-      { groups = [ "wheel" ]; commands = [ "ALL" ]; }
+        {
+          groups = ["wheel"];
+          commands = [
+            {
+              command = "${pkgs.nix}/bin/nix";
+              options = ["NOPASSWD"];
+            }
+          ];
+        }
+        {
+          groups = ["wheel"];
+          commands = ["ALL"];
+        }
       ];
     };
   };
 
   security.pam.loginLimits = [
     # allow any user prog to request realtime priority
-    { domain = "@users"; item = "rtprio"; type = "-"; value = 1; }
+    {
+      domain = "@users";
+      item = "rtprio";
+      type = "-";
+      value = 1;
+    }
   ];
 
   # TODO remove immutable users
   users.mutableUsers = true; # can do without password being clobbered
+
+  programs.ssh = {
+    startAgent = true;
+    enableAskPassword = true;
+  };
 
   users.users = {
     "${username}" = {
       homeMode = "755";
       isNormalUser = true;
       description = "David Lee";
-      extraGroups = [ "networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode" ];
+      extraGroups = ["networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode"];
       home = "/home/${username}";
       shell = pkgs.zsh;
       packages = [
@@ -44,12 +64,13 @@
     variables = {
       NIXOS = "true";
       VISUAL = "hx";
+      SSH_ASKPASS_REQUIRE = "prefer";
     };
-    pathsToLink = [ "/share/zsh" ]; # for autocompletion
+    pathsToLink = ["/share/zsh"]; # for autocompletion
   };
 
   # i18n / l10n
-  # 
+  #
   time.timeZone = "Australia/Melbourne";
 
   i18n.defaultLocale = "en_AU.UTF-8";
@@ -64,5 +85,4 @@
     LC_TELEPHONE = "en_AU.UTF-8";
     LC_TIME = "en_AU.UTF-8";
   };
-
 }
