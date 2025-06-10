@@ -22,6 +22,10 @@ zle -N recent-paths
 antidote load ${ZDOTDIR}/.zsh_plugins.txt
 source ${ZDOTDIR}/.zsh_plugins.zsh
 
+if [[ $OSTYPE = 'linux-gnu' ]]; then
+  alias open=xdg-open
+fi
+
 source $HOME/.config/zsh/functions.zsh
 source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh

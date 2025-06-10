@@ -56,3 +56,5 @@ x-scheme-handler/webcal=userapp-Thunderbird-YTWE32.desktop
 x-scheme-handler/webcals=userapp-Thunderbird-YTWE32.desktop
 x-scheme-handler/about=floorp.desktop
 x-scheme-handler/unknown=floorp.desktop
+x-scheme-handler/sgnl=signal.desktop
+x-scheme-handler/signalcaptcha=signal.desktop

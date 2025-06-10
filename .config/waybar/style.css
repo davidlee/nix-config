@@ -15,20 +15,12 @@ window#waybar.hidden {
     opacity: 0.2;
 }
 
-window#waybar.ghostty {
-    background-color: #3F3F3F;
-    border:none;
-}
-
-window#waybar.chromium {
-    background-color: #000000;
-    border: none;
-}
-
+/*
 window#waybar.floorp {
-    background-color: red;
+    background-color: #007739;
     border: none;
 }
+*/
 
 button {
     /* Use box-shadow instead of border so the text isn't offset */
@@ -84,7 +76,7 @@ button:hover {
     box-shadow: inset 0 -3px #ffffff;
 }
 
-/* specificity: ensure font weight is applied when .empty */ 
+/* specificity: ensure font weight is applied when .empty */
 #workspaces button:hover, #workspaces button.empty:hover {
     background: rgba(0, 0, 0, 0.2);
     animation-name: blink;
