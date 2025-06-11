@@ -1,9 +1,0 @@
-#!/usr/bin/env -S zsh 
-
-cd ~/flakes
-
-git --work-tree=/home/david --git-dir=/home/david/.cfg add -u
-git --work-tree=/home/david --git-dir=/home/david/.cfg commit -v
-git --work-tree=/home/david --git-dir=/home/david/.cfg push
-
-sudo nixos-rebuild build --show-trace --print-build-logs 

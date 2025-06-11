@@ -14,10 +14,10 @@
         {
           groups = ["wheel"];
           commands = [
-            {
-              command = "${pkgs.nix}/bin/nix";
-              options = ["NOPASSWD"];
-            }
+            # {
+            #   command = "${pkgs.nix}/bin/nixos-rebuild";
+            #   options = ["NOPASSWD"];
+            # }
           ];
         }
         {
