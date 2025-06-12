@@ -41,6 +41,11 @@
 
     services = {
       swayosd.enable = true;
+      # use hypridle instead
+      #
+      # swayidle = {
+      #   enable = true;
+      # };
     };
 
     wayland.windowManager.sway = {
