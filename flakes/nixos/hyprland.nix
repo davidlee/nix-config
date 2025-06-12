@@ -1,6 +1,12 @@
-{ pkgs, username, inputs, ...} : {
-
-  programs.hyprland.enable = true; 
+{
+  pkgs,
+  username,
+  inputs,
+  ...
+}: let
+  screen = "DP-3";
+in {
+  programs.hyprland.enable = true;
   programs.hyprland.withUWSM = true;
 
   security = {
@@ -11,7 +17,7 @@
     gnome = {
       gnome-keyring.enable = true;
     };
-    
+
     blueman.enable = true;
     sysprof.enable = true;
   };
@@ -24,7 +30,10 @@
     inputs.raise.defaultPackage.${system}
   ];
 
-  environment.sessionVariables.HYPRCURSOR_SIZE = "24";
+  environment.sessionVariables = {
+    HYPRCURSOR_SIZE = "24";
+    XDG_SCREENSHOTS_DIR = "/home/${username}/Pictures/Screenshots";
+  };
 
   home-manager.users.${username} = {
     wayland.windowManager.hyprland = {
@@ -47,20 +56,20 @@
       };
       # keep this out of nix / home manager for lower friction iteration
       extraConfig = ''
-      source = /home/david/.config/hypr/custom.conf
+        source = /home/david/.config/hypr/custom.conf
       '';
-
     }; # hyprland
 
     services = {
       swayosd.enable = true;
     };
-    
+
     services.hypridle = {
       enable = true;
       settings = {
         general = {
-          after_sleep_cmd = "hyprctl dispatch dpms on";
+          # after_sleep_cmd = "hyprctl dispatch dpms on";
+          after_sleep_cmd = "wlopm --off ${screen}";
           ignore_dbus_inhibit = false;
           lock_cmd = "hyprlock";
         };
@@ -71,13 +80,14 @@
             on-timeout = "hyprlock";
           }
           {
-            timeout = 1800;
-            on-timeout = "hyprctl dispatch dpms off";
-            on-resume = "hyprctl dispatch dpms on";
+            timeout = 1500;
+            # on-timeout = "hyprctl dispatch dpms off";
+            # on-resume = "hyprctl dispatch dpms on";
+            on-timeout = "wlopm --off ${screen}";
+            on-resume = "wlopm --on ${screen}";
           }
         ];
       };
     }; # hypridle
-
   }; # home manager
 }

@@ -2,17 +2,15 @@
   pkgs,
   username,
   ...
-}:
-{
-
+}: {
   imports = [
-    ../modules/shared-packages.nix   
+    ../modules/shared-packages.nix
   ];
 
   # system packages
-  # 
+  #
   environment.systemPackages = with pkgs; [
-    ## boot 
+    ## boot
     greetd.greetd
     greetd.tuigreet
 
@@ -33,7 +31,7 @@
     nethogs
     nmon
     vnstat
-    
+
     ## files / find
     fsearch
     plocate
@@ -49,7 +47,7 @@
     stress-ng
     sysprof
     sysstat
-    usbutils 
+    usbutils
     x86info
     lm_sensors
 
@@ -70,11 +68,11 @@
     alsa-utils
     pipewire
     wireplumber
-    
+
     ## media players
     mpv
     playerctl
-    
+
     ## security / crypto / secrets
     keepassxc
 
@@ -87,10 +85,13 @@
     nms
     openrgb-with-all-plugins
 
-    # windows API 
+    # windows API
     dotnet-runtime
 
-    ### libs 
+    # dictionaries
+    hunspellDicts.en-us-large
+
+    ### libs
     glib
     libffi
     libiconv
@@ -104,7 +105,6 @@
     SDL
     SDL2
     SDL2_mixer
-
   ];
 
   programs = {
@@ -118,15 +118,16 @@
 
     _1password-gui = {
       enable = true;
-      polkitPolicyOwners = [ username ];
+      polkitPolicyOwners = [username];
     };
-      
-    rust-motd = { # fixme
+
+    rust-motd = {
+      # fixme
       enable = true;
       settings = {
       };
     };
-    
+
     thunar = {
       enable = true;
       plugins = with pkgs.xfce; [thunar-archive-plugin thunar-volman];
@@ -137,22 +138,21 @@
       theme = "gruvbox-dark";
       settings.main = {
         font = "Fira Code:size=11";
-      #   main = {
-      #     font = "Fira Code:size=11";
-      #   };
+        #   main = {
+        #     font = "Fira Code:size=11";
+        #   };
       };
     };
 
     zsh = {
       enable = true;
     };
-
   };
 
-  # allow non-root write access to firmware 
+  # allow non-root write access to firmware
   hardware = {
     keyboard.qmk.enable = true;
   };
 
-  environment.pathsToLink = [ "/share/zsh" ];
+  environment.pathsToLink = ["/share/zsh"];
 }
