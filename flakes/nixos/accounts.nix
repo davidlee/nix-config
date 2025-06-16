@@ -41,9 +41,17 @@
   # TODO remove immutable users
   users.mutableUsers = true; # can do without password being clobbered
 
-  programs.ssh = {
-    startAgent = true;
-    enableAskPassword = true;
+  programs = {
+    ssh = {
+      startAgent = true;
+      enableAskPassword = true;
+    };
+
+    # cant' have this and ssh-agent both enabled
+    gnupg.agent = {
+      enable = false;
+      enableSSHSupport = true;
+    };
   };
 
   users.users = {

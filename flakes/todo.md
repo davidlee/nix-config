@@ -2,8 +2,6 @@
 
 ---
 
-- [x] nvim:
-
 - Darwin:
 
   - [ ] FIXME: natural scrolling activated every time I rebuild, ignoring config options
@@ -12,17 +10,15 @@
 
 NixOS:
 
-- power management
-  - modern standby / hibernation - systemctl suspend
-- hyprland
-  - try to start gnome keyring to fix flappy slack auth
-- tuigreet
-  - exclude or fix X11
+- [ ] sway: try to start gnome keyring to fix flappy slack auth
+- [ ] tuigreet: exclude or fix X11
+
+- [ ] nvim: 
+  - [ ] LSP config - ts, etc
 
 ---
 
 - meta / refactor
-
   - steal structure for packages <https://github.com/kranners/jimbo/blob/main/modules/apps/default.nix>
 
 - unscratched itches
@@ -34,3 +30,7 @@ NixOS:
     - stable diffusion?
     - rocm / gpu support for 9070xt?
     - zed vs cursor vs try various cli (cline, windsurf, void, ...)
+
+## Archive
+
+- [x] nvim:

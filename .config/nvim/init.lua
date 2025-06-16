@@ -6,7 +6,3 @@ require("config.options")
 require("plugins")
 require("local.commands")
 require("config.keymap")
-
--- for k, v in pairs(package.loaded) do
---   print(k)
--- end

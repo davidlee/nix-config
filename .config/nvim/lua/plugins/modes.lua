@@ -4,6 +4,7 @@ local lz = require("lze")
 -- markdown checklists
 require("plugins.checkmate")
 require("plugins.render-markdown")
+require("plugins.zk")
 -- require("plugins.neorg")
 
 -- TODO: set up providers

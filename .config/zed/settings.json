@@ -7,17 +7,33 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  // Editor - Keys
+  "vim_mode": true,
+  // Editor - Search
+  "use_smartcase_search": true,
+  // Editor - Completion
   "edit_predictions": {
     "mode": "subtle",
     "copilot": {
       "proxy": null,
       "proxy_no_verify": null
     },
-    "enabled_in_assistant": false
+    "disabled_globs": [
+      "**/.env*",
+      "**/*.pem",
+      "**/*.key",
+      "**/*.cert",
+      "**/*.crt",
+      "**/.dev.vars",
+      "**/secrets.yml"
+    ],
+    "enabled_in_text_threads": false
   },
   "features": {
     "edit_prediction_provider": "zed"
   },
+
+  // UI
   "ui_font_size": 16,
   "buffer_font_size": 16,
   "theme": {
@@ -30,12 +46,32 @@
     "line_width": 1,
     "active_line_width": 1,
     "coloring": "indent_aware"
-    // "background_coloring": "disabled"
+    // "background_coloring": "indent_aware"
   },
+  "active_pane_modifiers": {
+    "border_size": 0.0,
+    "inactive_opacity": 0.85
+  },
+
+  "auto_install_extensions": {
+    "html": true
+    //"dockerfile": true,
+    //"docker-compose": false
+  },
+
+  // Auto QoL
   "journal": {
     "path": "~",
     "hour_format": "hour12"
   },
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
+  "load_direnv": "shell_hook",
+
+  // Languages
   "languages": {
     "Plain Text": {
       "tab_size": 2
