@@ -20,7 +20,12 @@
     # have X11 available, but not running by default
     xserver = {
       enable = true;
-      displayManager.startx.enable = true;
+      displayManager = {
+        startx.enable = true;
+        sessionCommands = ''
+          export SSH_AUTH_SOCK
+        '';
+      };
 
       desktopManager = {
         # cinnamon.enable = true;
@@ -32,6 +37,7 @@
       gnome-online-accounts.enable = true;
       gnome-keyring.enable = true;
       gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
+      # gcr-ssh-agent.enable = true;
     };
 
     sysprof.enable = true;
@@ -71,10 +77,10 @@
     xdgOpenUsePortal = true;
 
     extraPortals = with pkgs; [
-      xdg-desktop-portal-hyprland
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
       xdg-desktop-portal-gnome
+      xdg-desktop-portal-hyprland
       kdePackages.xdg-desktop-portal-kde
       # xdg-desktop-portal-termfilechooser
       # xdg-desktop-portal-xapp

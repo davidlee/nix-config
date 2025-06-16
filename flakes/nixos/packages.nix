@@ -89,7 +89,12 @@
     dotnet-runtime
 
     # dictionaries
-    hunspellDicts.en-us-large
+    hunspellDicts.en_AU
+    hunspellDicts.en_AU-large
+    # hunspellDicts.en_GB
+    # hunspellDicts.en_GB-large
+    hunspellDicts.en_US
+    hunspellDicts.en_US-large
 
     ### libs
     glib
@@ -110,7 +115,6 @@
   programs = {
     nix-ld.enable = true;
     dconf.enable = true;
-    gnupg.agent.enable = true;
     _1password.enable = true;
 
     appimage.binfmt = true;

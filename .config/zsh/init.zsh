@@ -43,28 +43,16 @@ WORDCHARS='*?_.[]~&;!#$%^(){}<>'
 autoload -Uz select-word-style
 select-word-style normal
 
-# ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-ZSH_AUTOSUGGEST_STRATEGY=()
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+# ZSH_AUTOSUGGEST_STRATEGY=()
 
 if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
 
-if [ -z "$TMUX" ]; then
-  default_session_name='default'
-  wanna_mux=`gum choose --header="Psst ... wanna mux?" yeah nah "gimme something special"`
+# TODO: figure out how to skip this if launched with e.g. ghostty -e somecommand
+# (as with sway-launcher-desktop)
 
-  if [[ $wanna_mux = yeah ]]; then
-    if [ -z "$TMUX" ]; then
-      ~/.local/bin/tmx $default_session_name
-    fi
-  else
-    if [[ $wanna_mux = "gimme something special" ]]; then
-      session_name=`gum input --placeholder='session name'`
-      exec ~/.local/bin/tmx $session_name
-    else
-      echo "have it your way."
-    fi
-  fi
+if [[ -z $TMUX ]]; then
+  (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
 fi
-

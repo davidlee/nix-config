@@ -13,10 +13,19 @@ alias ij=daily; # interstitial journal
 
 alias tx="exec tmx default"
 
-alias -g G=" | grep -E --color=auto";
+# alias -g G="| grep -E --color=auto";
+alias -g C="| wl-copy -rp"
+alias -g E='| grep -E'
+alias -g G='| grep'
+alias -g H='| head'
+alias -g I='| grep -iE'
+alias -g J='| jq .'
+alias -g L='| less'
+alias -g T="| tr -d '\n' "
+alias -g W='| wc -l'
+
 alias zz=zellij;
 alias gg=git;
-alias G='| egrep ';
 
 if [[ $OSTYPE = 'linux-gnu' ]]; then
   alias open=xdg-open

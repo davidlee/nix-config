@@ -265,6 +265,7 @@
     neorg
     orgmode
     vimoutliner
+    zk-nvim
 
     # AI
     aider-nvim
