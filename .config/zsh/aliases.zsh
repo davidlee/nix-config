@@ -9,6 +9,8 @@ alias y=yazi;
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
 
+alias lgc="lazygit -g ~/.cfg -w ~"
+
 alias ij=daily; # interstitial journal
 
 alias tx="exec tmx default"

@@ -54,5 +54,6 @@ fi
 # (as with sway-launcher-desktop)
 
 if [[ -z $TMUX ]]; then
-  (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
+  # (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
+  (tmux list-sessions | grep -v -E '^_') || echo "No tmux sessions."
 fi
