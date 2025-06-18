@@ -133,6 +133,23 @@ _fzf_compgen_dir() {
 # Sesh https://github.com/joshmedeski/sesh?tab=readme-ov-file
 #
 
+# open a session such that you can have different windows open
+# who'd have thought this would require such a shell game? [sic]
+#
+function sesh-graft() {
+  base_session=$1
+  session_id=$(date +%Y%m%d%H%M%S)
+  # Create a new session (without attaching it) and link to base session
+  # to share windows
+  tmux new-session -d -t $base_session -s $session_id
+  if [[ "$2" == "1" ]]; then
+    # Create a new window in that session
+    tmux new-window
+  fi
+  # Attach to the new session & kill it once orphaned
+  tmux attach-session -t $session_id \; set-option destroy-unattached
+}
+
 function sesh-sessions() {
   {
     exec </dev/tty
@@ -142,6 +159,7 @@ function sesh-sessions() {
     zle reset-prompt > /dev/null 2>&1 || true
     [[ -z "$session" ]] && return
     sesh connect $session
+    # sesh-graft $session
   }
 }
 
