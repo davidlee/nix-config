@@ -10,7 +10,8 @@
 #
 # OBS_VAULT_PATH=~/workbench
 
-NOTE_DIR=${OBS_VAULT_PATH:-~/notes}
+# the trailing slash is significant here if the target is a symlink!
+NOTE_DIR=${OBS_VAULT_PATH:-~/notes}/
 
 # file age thresholds for the different badges
 MINS_NOTICE=12
