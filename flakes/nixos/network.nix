@@ -22,9 +22,9 @@
 
     nftables.enable = true;
 
-    # for tailscale:
-    nameservers = ["100.100.100.100" "1.1.1.1"];
-    search = ["bandicoot-sunfish.ts.net"];
+    # for tailscale (NOTE: disabled while I get NextDNS set up nice)
+    # nameservers = ["100.100.100.100" "1.1.1.1"];
+    # search = ["bandicoot-sunfish.ts.net"];
   };
 
   # Odin hung from Yggdrassil for nine nights
@@ -44,6 +44,10 @@
     };
 
     tailscale = {
+      enable = true;
+    };
+
+    nextdns = {
       enable = true;
     };
   };

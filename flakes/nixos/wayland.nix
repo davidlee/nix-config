@@ -156,7 +156,7 @@
     wl-mirror
     wlopm
     wlr-layout-ui
-    gnome-secrets
+    # gnome-secrets BROKEN
     gnome-system-monitor
     gnome-calendar
     gnome-nettool
