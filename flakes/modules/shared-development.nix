@@ -1,12 +1,9 @@
-{ pkgs, ... }:
-{
-
+{pkgs, ...}: {
   imports = [
     ./zig.nix
   ];
 
   environment.systemPackages = with pkgs; [
-
     ## programming - general
     exercism
 
@@ -124,7 +121,7 @@
     python3Packages.isort
     python3Packages.black
     docutils
-    jupyter-all
+    # jupyter-all
 
     ## lang.odin
     ols

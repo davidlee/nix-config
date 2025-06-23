@@ -1,19 +1,17 @@
-{ 
+{
   pkgs,
   stable,
   inputs,
   ...
 }: {
-
-
   environment.systemPackages = with pkgs; [
     ## daw & audio
-    carla
+    # carla # BROKEN (pyliblo)
     reaper
-    bitwig-studio      
+    bitwig-studio
     renoise
-    lmms 
-    zrythm
+    # lmms # BROKEN
+    # zrythm # BROKEN
     ardour
     hydrogen
     audacity
@@ -27,7 +25,7 @@
     cardinal
     helm
     pavucontrol
-    
+
     ## graphics & 3d
     blender
     gimp-with-plugins
@@ -48,11 +46,11 @@
     kdePackages.gwenview
 
     ## video
-    shotcut
-    
+    # shortcut #??
+
     ## util
-    _1password-gui      
-    virt-viewer 
+    _1password-gui
+    virt-viewer
     upscayl
     evince
     persepolis
@@ -80,7 +78,7 @@
 
     ## games
     retroarch-full
-    limo    
+    limo
     lutris
     gamehub
 
@@ -106,7 +104,7 @@
     tokei
     deadbeef
     # cantata
-    
+
     ## terminals
     alacritty
     wezterm
@@ -144,7 +142,7 @@
 
     ## search
     recoll
-    
+
     ## scanner
     # naps2
     xsane
@@ -158,7 +156,7 @@
     # zim-tools
     # vscode-extensions.saoudrizwan.claude-dev
     # vscodium
-          
+
     ## browsers
     inputs.zen-browser.packages.${pkgs.system}.default
     vivaldi
@@ -174,7 +172,7 @@
     kdePackages.angelfish
     pkgs.firefoxpwa
     # midori
-    
+
     ## non-web
     bombadillo
     amfora
@@ -187,7 +185,6 @@
   programs.firefox = {
     enable = true;
     package = pkgs.firefox;
-    nativeMessagingHosts.packages = [ pkgs.firefoxpwa ];
+    nativeMessagingHosts.packages = [pkgs.firefoxpwa];
   };
-
 }

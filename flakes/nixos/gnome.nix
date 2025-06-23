@@ -37,7 +37,7 @@
     gnome-graphs
     gnome-icon-theme
     gnome-keyring
-    gnome-keysign
+    # gnome-keysign # BROKEN
     gnome-logs
     gnome-menus
     gnome-nettool
@@ -47,7 +47,7 @@
     gnome-power-manager
     gnome-robots
     gnome-screenshot
-    gnome-secrets
+    # gnome-secrets BROKEN
     gnome-session
     gnome-session-ctl
     gnome-settings-daemon
