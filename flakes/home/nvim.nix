@@ -39,8 +39,8 @@
     selene
     lua5_1
     lua51Packages.luarocks
-    lua51Packages.rocks-git-nvim
-    lua51Packages.rocks-dev-nvim
+    # lua51Packages.rocks-git-nvim
+    # lua51Packages.rocks-dev-nvim
 
     # nix
     #
@@ -146,7 +146,7 @@
     tokyonight-nvim
     papercolor-theme
     sonokai
-    astrotheme
+    # astrotheme
 
     # ui
     snacks-nvim
@@ -268,7 +268,7 @@
     zk-nvim
 
     # AI
-    aider-nvim
+    # aider-nvim
     codecompanion-nvim
   ];
 in {

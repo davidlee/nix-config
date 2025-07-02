@@ -17,7 +17,7 @@
     delta
     diffedit3
     diffnav
-    diffoscope
+    # diffoscope
     diffr
     diffsitter
     diffstat
@@ -148,10 +148,10 @@
     ## lang.lua
     lua
     stylua
-    lua54Packages.luarocks-nix
-    vimPlugins.fzf-lua
-    lua-language-server
-    luarocks-packages-updater
+    #la51Packages.rocks-nvim
+    #vimPlugins.fzf-lua
+    #luarocks-packages-updater
+    #lua-language-server
 
     ## lang.js
     bun
