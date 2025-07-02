@@ -29,7 +29,7 @@ export OBS_VAULT=workbench
 export OBS_VAULT_PATH=$HOME/$OBS_VAULT
 
 export OBS_DAY_NOTE_FORMAT="%Y/dd/%F.md"
-export OBS_WEEK_NOTE_FORMAT="%Y/wk/%Ywk%U.md"
+export OBS_WEEK_NOTE_FORMAT="%Y/wk/%Y-W%U.md"
 export OBS_MONTH_NOTE_FORMAT="%Y/mo/%m.md"
 export OBS_YEAR_NOTE_FORMAT="%Y.md"
 

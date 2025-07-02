@@ -5,7 +5,7 @@
     oterm
     aichat
     mods
-    aider-chat-full
+    # aider-chat-full
     llama-cpp
     llm
     llm-ls
