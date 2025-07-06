@@ -8,14 +8,13 @@ vim.lsp.enable("nixd")
 
 -- markdown
 lz.load({
-
   {
     "nvim-lspconfig",
     after = function()
-      require("lspconfig")["marksman"].setup({
-        --
-      })
-      require("lspconfig")["lua_ls"].setup({})
+      -- require("lspconfig")["marksman"].setup({
+      --   --
+      -- })
+      -- require("lspconfig")["lua_ls"].setup({})
     end,
   },
 })
