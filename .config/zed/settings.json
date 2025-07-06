@@ -7,7 +7,30 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  // Editor - Keys
+  // ensure access to ENV vars
+  "file_scan_inclusions": [".env*"],
+
+  // MCP Tools
+  "agent": {
+    "model_parameters": [],
+    "always_allow_tool_actions": true,
+    "version": "2"
+  },
+  "context_servers": {
+    // NOTE: secrets must be configured per-project in a .gitignored settings.json file until this is resolved
+    // https://github.com/zed-industries/zed/discussions/26043
+    // or there is a way to split settings.json into multiple files (an include directive)
+    // https://github.com/zed-industries/zed/issues/20038
+    // 
+    // "mcp-server-github": {
+    //   "settings": {
+    //     "github_personal_access_token": "${GITHUB_MCP_TOKEN}"
+    //   }
+    // }
+    
+  },
+
+  // Editor - Keybindings & Core Behaviour
   "vim_mode": true,
   // Editor - Search
   "use_smartcase_search": true,
@@ -29,6 +52,7 @@
     ],
     "enabled_in_text_threads": false
   },
+
   "features": {
     "edit_prediction_provider": "zed"
   },
@@ -36,6 +60,7 @@
   // UI
   "ui_font_size": 16,
   "buffer_font_size": 16,
+
   "theme": {
     "mode": "system",
     "light": "Gruvbox Dark Hard",

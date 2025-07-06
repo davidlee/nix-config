@@ -18,6 +18,21 @@ lz.load({
           position = "inline",
           icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
         },
+        link = {
+          enabled = true,
+          render_modes = false,
+          footnote = {
+            enabled = true,
+            superscript = true,
+            prefix = "",
+            suffix = "",
+          },
+          image = "󰥶 ",
+          email = "󰀓 ",
+          hyperlink = "󰌹 ",
+          highlight = "RenderMarkdownLink",
+          wiki = { icon = "" }, -- prevent double icon rendering, still don't really understand the bug
+        },
         checkbox = {
           custom = {
             wip = { raw = "[/]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo", scope_highlight = nil },
