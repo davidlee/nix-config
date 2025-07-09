@@ -27,7 +27,6 @@
     ../../nixos/serve.nix
     # ../../nixos/arr.nix
     ../../nixos/games.nix
-    ../../nixos/timers.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
     ../../nixos/rust.nix
