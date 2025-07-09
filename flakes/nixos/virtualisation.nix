@@ -4,10 +4,9 @@
   lib,
   ...
 }: {
-  
-  environment.systemPackages =  with pkgs; [
+  environment.systemPackages = with pkgs; [
     quickemu
-    # darling 
+    # darling
     nemu
     qemu
     qemu_full
@@ -34,7 +33,7 @@
     incus = {
       enable = true;
     };
-    
+
     libvirtd = {
       enable = true;
       qemu = {
@@ -54,10 +53,10 @@
       enable = true;
     };
   };
-  
-  users.groups.incus-admin.members = [ username ];
-  users.groups.incus.members = [ username ];
-  users.groups.libvirtd.members = [ username ];
+
+  users.groups.incus-admin.members = [username];
+  users.groups.incus.members = [username];
+  users.groups.libvirtd.members = [username];
   programs.virt-manager.enable = true;
 
   # leave services idle by default; start with systemctl or by poking them on the cli
@@ -66,7 +65,6 @@
   systemd.services.libvirtd.wantedBy = lib.mkForce [];
   systemd.services.libvirt-guests.wantedBy = lib.mkForce [];
   systemd.services.docker.wantedBy = lib.mkForce [];
+  systemd.services.podman.wantedBy = lib.mkForce [];
   # systemd.services.lxd.wantedBy = lib.mkForce [];
-
 }
-

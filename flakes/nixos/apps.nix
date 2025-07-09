@@ -168,7 +168,6 @@
     ungoogled-chromium
     palemoon-bin
     tor-browser
-    wavebox
     kdePackages.angelfish
     pkgs.firefoxpwa
     # midori
