@@ -91,7 +91,6 @@
       package = pkgs.plocate;
       interval = "hourly";
 
-      # for now, let's index the nix store. Probably there's a better tool I need to learn though
       prunePaths = [
         "/tmp"
         "/var/tmp"
@@ -99,7 +98,8 @@
         "/var/lock"
         "/var/run"
         "/var/spool"
-        # "/nix/store"
+        # use nix-locate / nix-index instead to avoid polluting locate results:
+        "/nix/store"
         "/nix/var/log/nix"
       ];
     };
@@ -112,16 +112,20 @@
     };
 
     pulseaudio = {
-      package = pkgs.pulseaudioFull.override {jackaudioSupport = true;};
+      # package = pkgs.pulseaudioFull.override {jackaudioSupport = true;};
     };
 
-    jack = {
-      jackd.enable = true;
-      alsa.enable = false;
-      loopback = {
-        enable = true;
-      };
-    };
+    # see https://nixos.wiki/wiki/JACK
+    # this doesn't seem to work so far
+    # TODO: experiment with musnix
+    #
+    # jack = {
+    #   jackd.enable = true;
+    #   alsa.enable = false;
+    #   loopback = {
+    #     enable = true;
+    #   };
+    # };
 
     hardware.openrgb.enable = true;
 
