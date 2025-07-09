@@ -30,11 +30,10 @@
           Description = "Sleepy time soon.";
         };
         Service = {
-          Type = "oneshot";
+          Type = "simple";
           ExecStart = toString (
             pkgs.writeShellScript "nightly-shutdown.sh" ''
-              #!/bin/env bash
-              set -eou pipefail
+              set -e
 
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-important.svg "The system is going down soon."
               ${pkgs.systemd}/bin/shutdown -h "23:00"
@@ -49,12 +48,9 @@
           Description = "Reminder to take welfare breaks.";
         };
         Service = {
-          Type = "oneshot";
+          Type = "simple";
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
-              #!/bin/env bash
-              set -eou pipefail
-
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
             ''
           );
