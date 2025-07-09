@@ -119,7 +119,6 @@
       text = ''
         vivaldi-bin
         zen
-        wavebox
       '';
       mode = "0755";
     };
