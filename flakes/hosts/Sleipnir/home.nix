@@ -18,6 +18,7 @@
 
   # TODO: verify if this helps ssh agent work
   services.gnome-keyring.enable = true;
+  services.systembus-notify.enable = true; # notify-send from systemd
 
   systemd.user = {
     # Nicely reload system units when changing configs
@@ -32,7 +33,9 @@
           Type = "oneshot";
           ExecStart = toString (
             pkgs.writeShellScript "nightly-shutdown.sh" ''
+              #!/bin/env bash
               set -eou pipefail
+
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-important.svg "The system is going down soon."
               ${pkgs.systemd}/bin/shutdown -h "23:00"
             ''
@@ -49,7 +52,9 @@
           Type = "oneshot";
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
+              #!/bin/env bash
               set -eou pipefail
+
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
             ''
           );
