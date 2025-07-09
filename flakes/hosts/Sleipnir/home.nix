@@ -26,9 +26,8 @@
 
     services = {
       shutdown-nightly = {
-        Unit = {
-          Description = "Sleepy time soon.";
-        };
+        Unit.Description = "Sleepy time soon.";
+
         Service = {
           Type = "simple";
           ExecStart = toString (
@@ -40,13 +39,11 @@
             ''
           );
         };
-        Install.WantedBy = ["timers.target"];
       };
 
       break-remind = {
-        Unit = {
-          Description = "Reminder to take welfare breaks.";
-        };
+        Unit.Description = "Reminder to take welfare breaks.";
+
         Service = {
           Type = "simple";
           ExecStart = toString (
@@ -55,7 +52,6 @@
             ''
           );
         };
-        Install.WantedBy = ["timers.target"];
       };
     }; # services
 
@@ -65,6 +61,7 @@
         Timer = {
           Unit = "shutdown-nightly";
           OnCalendar = "10:50..10:59";
+          wantedBy = ["timers.target"];
         };
       };
 
@@ -73,6 +70,7 @@
         Timer = {
           Unit = "break-remind";
           OnCalendar = "*:0/30";
+          wantedBy = ["timers.target"];
         };
       };
     }; # timers
