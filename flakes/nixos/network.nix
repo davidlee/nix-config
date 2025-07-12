@@ -22,9 +22,17 @@
 
     nftables.enable = true;
 
-    # for tailscale (NOTE: disabled while I get NextDNS set up nice)
+    # for tailscale (disabled)
     # nameservers = ["100.100.100.100" "1.1.1.1"];
     # search = ["bandicoot-sunfish.ts.net"];
+
+    # nextdns
+    nameservers = [
+      "45.90.28.0#83ab1e.dns.nextdns.io"
+      "2a07:a8c0::#83ab1e.dns.nextdns.io"
+      "45.90.30.0#83ab1e.dns.nextdns.io"
+      "2a07:a8c1::#83ab1e.dns.nextdns.io"
+    ];
   };
 
   # Odin hung from Yggdrassil for nine nights
@@ -45,6 +53,19 @@
 
     tailscale = {
       enable = true;
+    };
+
+    resolved = {
+      enable = true;
+      dnssec = "true";
+      domains = ["~."];
+      fallbackDns = [
+        "45.90.28.0#83ab1e.dns.nextdns.io"
+        # "2a07:a8c0::#83ab1e.dns.nextdns.io"
+        "45.90.30.0#83ab1e.dns.nextdns.io"
+        # "2a07:a8c1::#83ab1e.dns.nextdns.io"
+      ];
+      dnsovertls = "true";
     };
 
     nextdns = {

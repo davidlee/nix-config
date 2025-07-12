@@ -1,9 +1,7 @@
 {pkgs, ...}: {
-  
   # system packages
-  # 
+  #
   environment.systemPackages = with pkgs; [
-    
     ## zsh / posix
     zsh
     zstd
@@ -81,6 +79,7 @@
     wget
     xh
     yt-dlp
+    nextdns
 
     ## files / find
     fd
@@ -94,7 +93,7 @@
     vgrep
     sad
     trash-cli
-    semgrep 
+    semgrep
     tree
     zoxide
 
@@ -121,7 +120,7 @@
     lsd
     eza
     chroma
-    sd 
+    sd
 
     ## English
     vale
