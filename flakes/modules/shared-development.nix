@@ -9,9 +9,7 @@
 
     ## cli / tui devtools
     vhs
-    # bubbletea
-    # lipgloss
-    # huh
+    freeze
 
     ## SCM
     delta

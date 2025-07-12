@@ -30,6 +30,7 @@
 
         Service = {
           Type = "simple";
+          RemainAfterExit = false;
           ExecStart = toString (
             pkgs.writeShellScript "nightly-shutdown.sh" ''
               set -e
@@ -43,9 +44,11 @@
 
       break-remind = {
         Unit.Description = "Reminder to take welfare breaks.";
+        Install.WantedBy = ["timers.target"];
 
         Service = {
           Type = "simple";
+          RemainAfterExit = false;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
@@ -59,18 +62,28 @@
       shutdown-nightly = {
         Unit.Description = "Sleipnir is going to sleep soon.";
         Timer = {
-          Unit = "shutdown-nightly";
+          Unit = "shutdown-nightly.service";
           OnCalendar = "10:50..10:59";
           wantedBy = ["timers.target"];
+          # Persistent = false;
+          RuntimeMaxSec = 30;
+          AccuracySec = "1s";
         };
       };
 
       break-remind = {
         Unit.Description = "Take short breaks";
+        Install.WantedBy = ["timers.target"];
         Timer = {
-          Unit = "break-remind";
-          OnCalendar = "*:0/30";
+          Unit = "break-remind.service";
+          # OnCalendar = "*-*-* *:*:00";
+          OnActiveSec = 30;
+          Restart = "always";
           wantedBy = ["timers.target"];
+          Persistent = false;
+          RuntimeMaxSec = 30;
+          AccuracySec = "1s";
+          RemainAfterElapse = false;
         };
       };
     }; # timers

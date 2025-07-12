@@ -1,16 +1,20 @@
-{pkgs, stable, inputs, ... }: {
-
+{
+  pkgs,
+  stable,
+  inputs,
+  ...
+}: {
   imports = [
-    ../modules/shared-tui.nix  
+    ../modules/shared-tui.nix
   ];
 
   environment.systemPackages = with pkgs; [
     inputs.helix.packages.x86_64-linux.default
-    
+
     ## cli general
-    mprocs # parellel command runner
+    mprocs # parallel command runner
     tray-tui # systray
-    
+
     ## system utils
     isd # systemd
     lazyjournal # logs & containers
@@ -21,11 +25,12 @@
     iotop
 
     ## text utils
-    cicero-tui # unicode 
+    cicero-tui # unicode
     gtt
 
     ## text readers, pagers
     fltrdr
+    circumflex
 
     ## containers
     distrobox-tui
@@ -33,9 +38,9 @@
     lazydocker
     gomanagedocker
 
-    ## disk & file io 
+    ## disk & file io
     mmtui # mount manager
-    
+
     ## PDF
     tdf
 
@@ -62,17 +67,17 @@
     chess-tui
     nethack
     steam-tui
-    
+
     ## arr
     managarr
     stig
     rustmission
-    
+
     ## youtube
     invidtui
     youtube-tui
     ytermusic
-    
+
     ## clock
     tty-clock
 
@@ -82,6 +87,5 @@
     # bluetooth
     bluetui
     bluetuith
-
   ];
 }
