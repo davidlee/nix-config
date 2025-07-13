@@ -144,6 +144,7 @@
     d2
     graphviz
     mermaid-cli
+    structurizr-cli
 
     ## image / graphics / multimedia
     ffmpeg

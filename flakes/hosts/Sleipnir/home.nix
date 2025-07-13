@@ -31,6 +31,7 @@
         Service = {
           Type = "simple";
           RemainAfterExit = false;
+          Restart = "always";
           ExecStart = toString (
             pkgs.writeShellScript "nightly-shutdown.sh" ''
               set -e
@@ -49,6 +50,7 @@
         Service = {
           Type = "simple";
           RemainAfterExit = false;
+          Restart = "always";
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
@@ -65,9 +67,11 @@
           Unit = "shutdown-nightly.service";
           OnCalendar = "10:50..10:59";
           wantedBy = ["timers.target"];
-          # Persistent = false;
+          Persistent = false;
           RuntimeMaxSec = 30;
           AccuracySec = "1s";
+          Restart = "always";
+          RemainAfterElapse = false;
         };
       };
 
@@ -77,7 +81,7 @@
         Timer = {
           Unit = "break-remind.service";
           # OnCalendar = "*-*-* *:*:00";
-          OnActiveSec = 30;
+          OnActiveSec = 600;
           Restart = "always";
           wantedBy = ["timers.target"];
           Persistent = false;

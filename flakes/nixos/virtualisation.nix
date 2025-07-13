@@ -16,13 +16,13 @@
     qemu-user
     distrobox
     distrobox-tui
-    dive # inspect docker image layers
-    podman
-    podman-compose
-    podman-desktop
-    podman-tui
-    # docker
+    # podman
+    # podman-compose
+    # podman-desktop
+    # podman-tui
+    docker
     docker-compose
+    dive # inspect docker image layers
     virt-manager
     lxc
     lxd-lts
@@ -43,10 +43,29 @@
 
     containers.enable = true;
 
-    podman = {
+    # podman = {
+    #   enable = true;
+    #   dockerCompat = true;
+    #   defaultNetwork.settings.dns_enabled = true;
+    # };
+
+    docker = {
       enable = true;
-      dockerCompat = true;
-      defaultNetwork.settings.dns_enabled = true;
+      # Set up resource limits
+      daemon.settings = {
+        experimental = true;
+        default-address-pools = [
+          {
+            base = "172.30.0.0/16";
+            size = 24;
+          }
+        ];
+      };
+      # Use the rootless mode - run Docker daemon as non-root user
+      rootless = {
+        enable = true;
+        setSocketVariable = true;
+      };
     };
 
     lxd = {
@@ -64,7 +83,7 @@
   systemd.services.incus.wantedBy = lib.mkForce [];
   systemd.services.libvirtd.wantedBy = lib.mkForce [];
   systemd.services.libvirt-guests.wantedBy = lib.mkForce [];
-  systemd.services.docker.wantedBy = lib.mkForce [];
-  systemd.services.podman.wantedBy = lib.mkForce [];
+  # systemd.services.docker.wantedBy = lib.mkForce [];
+  # systemd.services.podman.wantedBy = lib.mkForce [];
   # systemd.services.lxd.wantedBy = lib.mkForce [];
 }
