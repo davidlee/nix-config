@@ -50,7 +50,9 @@
         Service = {
           Type = "simple";
           RemainAfterExit = false;
+          Persistent = false;
           Restart = "always";
+          RuntimeMaxSec = 120;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
@@ -68,7 +70,7 @@
           OnCalendar = "10:50..10:59";
           wantedBy = ["timers.target"];
           Persistent = false;
-          RuntimeMaxSec = 30;
+          # RuntimeMaxSec = 30;
           AccuracySec = "1s";
           Restart = "always";
           RemainAfterElapse = false;
@@ -80,12 +82,12 @@
         Install.WantedBy = ["timers.target"];
         Timer = {
           Unit = "break-remind.service";
-          OnCalendar = "*-*-* *:*:00/15";
-          # OnActiveSec = 60;
+          # OnCalendar = "*-*-* *:*:00/15";
+          OnActiveSec = 60;
           Restart = "always";
           wantedBy = ["timers.target"];
-          Persistent = false;
-          RuntimeMaxSec = 10;
+          # Persistent = false;
+          # RuntimeMaxSec = 10;
           AccuracySec = "1s";
           RemainAfterElapse = false;
         };
