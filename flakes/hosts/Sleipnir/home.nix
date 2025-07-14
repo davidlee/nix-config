@@ -80,12 +80,12 @@
         Install.WantedBy = ["timers.target"];
         Timer = {
           Unit = "break-remind.service";
-          # OnCalendar = "*-*-* *:*:00";
-          OnActiveSec = 600;
+          OnCalendar = "*-*-* *:*:00/15";
+          # OnActiveSec = 60;
           Restart = "always";
           wantedBy = ["timers.target"];
           Persistent = false;
-          RuntimeMaxSec = 30;
+          RuntimeMaxSec = 10;
           AccuracySec = "1s";
           RemainAfterElapse = false;
         };
