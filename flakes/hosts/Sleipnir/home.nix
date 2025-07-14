@@ -25,34 +25,32 @@
     startServices = "sd-switch";
 
     services = {
-      shutdown-nightly = {
-        Unit.Description = "Sleepy time soon.";
-
-        Service = {
-          Type = "simple";
-          RemainAfterExit = false;
-          Restart = "always";
-          ExecStart = toString (
-            pkgs.writeShellScript "nightly-shutdown.sh" ''
-              set -e
-
-              ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-important.svg "The system is going down soon."
-              ${pkgs.systemd}/bin/shutdown -h "23:00"
-            ''
-          );
-        };
-      };
+      # shutdown-nightly = {
+      #   Unit.Description = "Sleepy time soon.";
+      #
+      #   Service = {
+      #     Type = "oneshot";
+      #     # RemainAfterExit = false;
+      #     Restart = "always";
+      #     ExecStart = toString (
+      #       pkgs.writeShellScript "nightly-shutdown.sh" ''
+      #         set -e
+      #
+      #         ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-important.svg "The system is going down soon."
+      #         ${pkgs.systemd}/bin/shutdown -h "23:00"
+      #       ''
+      #     );
+      #   };
+      # };
 
       break-remind = {
         Unit.Description = "Reminder to take welfare breaks.";
-        Install.WantedBy = ["timers.target"];
 
         Service = {
           Type = "simple";
-          RemainAfterExit = false;
           Persistent = false;
           Restart = "always";
-          RuntimeMaxSec = 120;
+          RuntimeMaxSec = 30;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
@@ -63,19 +61,20 @@
     }; # services
 
     timers = {
-      shutdown-nightly = {
-        Unit.Description = "Sleipnir is going to sleep soon.";
-        Timer = {
-          Unit = "shutdown-nightly.service";
-          OnCalendar = "10:50..10:59";
-          wantedBy = ["timers.target"];
-          Persistent = false;
-          # RuntimeMaxSec = 30;
-          AccuracySec = "1s";
-          Restart = "always";
-          RemainAfterElapse = false;
-        };
-      };
+      # shutdown-nightly = {
+      #   Unit.Description = "Sleipnir is going to sleep soon.";
+      #   Install.WantedBy = ["timers.target"];
+      #   Timer = {
+      #     Unit = "shutdown-nightly.service";
+      #     OnCalendar = "10:50..10:59";
+      #     wantedBy = ["timers.target"];
+      #     # Persistent = false;
+      #     # RuntimeMaxSec = 30;
+      #     AccuracySec = "1s";
+      #     Restart = "always";
+      #     RemainAfterElapse = false;
+      #   };
+      # };
 
       break-remind = {
         Unit.Description = "Take short breaks";
@@ -85,7 +84,7 @@
           # OnCalendar = "*-*-* *:*:00/15";
           OnActiveSec = 60;
           Restart = "always";
-          wantedBy = ["timers.target"];
+          # wantedBy = ["timers.target"];
           # Persistent = false;
           # RuntimeMaxSec = 10;
           AccuracySec = "1s";
