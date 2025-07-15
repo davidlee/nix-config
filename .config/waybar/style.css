@@ -358,3 +358,31 @@ label:focus {
 }
 #custom-weather {
 }
+
+/* break reminder */
+#custom-break-reminder {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border-radius: 5px;
+    padding: 0 10px;
+    margin: 0 5px;
+    font-weight: bold;
+}
+
+#custom-break-reminder.paused {
+    background-color: #f6ad55;
+    color: #1a202c;
+}
+
+#custom-break-reminder.break_time {
+    background-color: #f56565;
+    color: #fff;
+    animation: blink 1s infinite;
+}
+
+/*
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+*/
