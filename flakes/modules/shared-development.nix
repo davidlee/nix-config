@@ -7,9 +7,17 @@
     ## programming - general
     exercism
 
-    ## cli / tui devtools
+    ## alt shells
+    nushell
+    oils-for-unix
+    fish
+    xonsh
+
+    ## charmbracelet
     vhs
     freeze
+    gum
+    skate
 
     ## SCM
     delta
@@ -107,6 +115,7 @@
     gofumpt # go formatter
 
     ## lang.python
+    python3
     uv
     python313Packages.pywatchman
     python3Packages.python-lsp-server

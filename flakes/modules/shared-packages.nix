@@ -13,16 +13,6 @@
     # tmux session / plugins
     sesh
 
-    # pimp the cli
-    gum
-    skate
-
-    ## alt shells
-    nushell
-    oils-for-unix
-    fish
-    xonsh
-
     ## disk / io
     duf
     pydf
@@ -177,6 +167,7 @@
     ## tasks
     tasksh
     taskwarrior3
+    remind
     # taskchampion-sync-server
 
     ## frivolity
