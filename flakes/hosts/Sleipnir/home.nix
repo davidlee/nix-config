@@ -47,10 +47,11 @@
         Unit.Description = "Reminder to take welfare breaks.";
 
         Service = {
-          Type = "simple";
+          Type = "oneshot";
           Persistent = false;
-          Restart = "always";
-          RuntimeMaxSec = 30;
+          RemainAfterExit = false;
+          # Restart = "always";
+          # RuntimeMaxSec = 30;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
               ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
@@ -82,13 +83,11 @@
         Timer = {
           Unit = "break-remind.service";
           # OnCalendar = "*-*-* *:*:00/15";
-          OnActiveSec = 60;
-          Restart = "always";
+          OnActiveSec = 60;  # Initial delay after timer starts
+          OnUnitInactiveSec = 900;  # Repeat every 15 minutes (900 seconds)
           # wantedBy = ["timers.target"];
-          # Persistent = false;
-          # RuntimeMaxSec = 10;
+          Persistent = true;  # Run missed executions if system was off
           AccuracySec = "1s";
-          RemainAfterElapse = false;
         };
       };
     }; # timers

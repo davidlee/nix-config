@@ -14,7 +14,7 @@
     greetd.greetd
     greetd.tuigreet
 
-    # ## disk / io
+    ## disk / io
     hdparm
     smartmontools
     udiskie

@@ -7,6 +7,7 @@
     mods
     # aider-chat-full
     llama-cpp
+    vllm
     llm
     llm-ls
     # vllm
