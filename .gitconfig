@@ -3,11 +3,11 @@
   name = David Lee
 [init]
   defaultBranch = main
-[filter "lfs"]
-  smudge = git-lfs smudge -- %f
-  process = git-lfs filter-process
-  required = true
-  clean = git-lfs clean -- %f
+; [filter "lfs"]
+;   smudge = git-lfs smudge -- %f
+;   process = git-lfs filter-process
+;   required = true
+;   clean = git-lfs clean -- %f
 [alias]
   co = checkout
   br = branch
@@ -37,8 +37,8 @@
 [delta]
   navigate = true
 [merge]
-  conflictstyle = diff3
-  tool = nvimdiff2
+  # conflictstyle = diff3
+  tool = nvimdiff
 [diff]
   colorMoved = default
 [diff "lockb"]
