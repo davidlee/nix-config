@@ -118,6 +118,7 @@
     python3
     uv
     python313Packages.pywatchman
+    python3Packages.pip
     python3Packages.python-lsp-server
     python3Packages.python-lsp-ruff
     python3Packages.python-lsp-jsonrpc
