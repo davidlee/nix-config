@@ -47,10 +47,38 @@ get_state() {
     fi
 }
 
+# Function to check if screen is locked with swaylock
+is_screen_locked() {
+    # Check for swaylock processes
+    pgrep -x "swaylock" >/dev/null || pgrep -x "swaylock-fancy" >/dev/null
+    "locked"
+}
+
 # Function to get time remaining
 get_time_remaining() {
     source "$STATE_FILE"
     local current_time=$(date +%s)
+
+    # Handle screen lock - pause the timer
+    if is_screen_locked; then
+        # If not already tracking lock time, start tracking
+        if ! grep -q "LOCK_START" "$STATE_FILE"; then
+            echo "LOCK_START=$current_time" >>"$STATE_FILE"
+        fi
+        echo "🔒"
+        return
+    else
+        # Screen is unlocked - adjust timer if we were locked
+        if grep -q "LOCK_START" "$STATE_FILE"; then
+            source "$STATE_FILE"
+            local lock_duration=$((current_time - LOCK_START))
+            local adjusted_last_break=$((LAST_BREAK + lock_duration))
+            sed -i "s/LAST_BREAK=.*/LAST_BREAK=$adjusted_last_break/" "$STATE_FILE"
+            # Remove lock tracking
+            sed -i "/LOCK_START/d" "$STATE_FILE"
+        fi
+    fi
+
     local elapsed=$((current_time - LAST_BREAK))
     local remaining=$((INTERVAL - elapsed))
 
@@ -111,8 +139,6 @@ case "$1" in
     ;;
 "display")
     get_time_remaining
-    ;;
-"check")
     if [[ "$(get_state)" == "break_time" ]]; then
         send_notification
         reset_timer
@@ -130,7 +156,7 @@ case "$1" in
     fi
     ;;
 *)
-    echo "Usage: $0 {status|display|check|reset|toggle|set <seconds>}"
+    echo "Usage: $0 {status|display|reset|toggle|set <seconds>}"
     exit 1
     ;;
 esac

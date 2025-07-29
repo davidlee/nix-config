@@ -28,7 +28,6 @@ lz.load({
   -- gitsigns
   {
     "gitsigns.nvim",
-
     after = function() require("gitsigns").setup() end,
   },
 
@@ -49,10 +48,21 @@ lz.load({
     "noice.nvim",
     after = function()
       require("noice").setup({
-        notify = { enabled = false },
         presets = {
           long_message_to_split = true,
+          bottom_search = true,
           command_palette = true,
+          inc_rename = false,
+          lsp_doc_border = false,
+        },
+        notify = {
+          enabled = false,
+        },
+        cmdline = {
+          enabled = false,
+        },
+        messages = {
+          enabled = false,
         },
         lsp = {
           override = {

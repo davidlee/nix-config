@@ -2,6 +2,8 @@ autoload zmv
 
 path+=~/.local/bin
 path+=~/.cargo/bin
+path+=~/.npm-global/bin
+path+=~/go/bin
 path+=$PWD/bin
 
 typeset -U path
