@@ -1,12 +1,12 @@
 {
   lib,
+  config,
   ...
 }: {
-
   # NOTE using antidote vanilla because it's easier to reason about
   programs.zsh = {
     enable = true;
-    dotDir = ".config/zsh";
+    dotDir = config.xdg.configHome + "/zsh";
     defaultKeymap = "emacs";
     # manage w/ antidote
     enableCompletion = false;
@@ -22,7 +22,7 @@
         "rmdir *"
       ];
     };
-    
+
     envExtra = ''
       source $HOME/.config/zsh/env.zsh
     '';
@@ -38,11 +38,11 @@
       zshConfigLateInit = lib.mkOrder 1000 ''
         source $HOME/.config/zsh/init.zsh
       '';
-    in lib.mkMerge [ zshConfigEarlyInit zshConfigLateInit ];
+    in
+      lib.mkMerge [zshConfigEarlyInit zshConfigLateInit];
 
     loginExtra = ''
       source $HOME/.config/zsh/login.zsh
     '';
-    
   };
 }

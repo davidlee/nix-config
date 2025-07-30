@@ -49,7 +49,7 @@
     nixfmt-rfc-style
     nvd
     pkg-config
-    unixtools.nettools
+    unixtools.net-tools
     unixtools.xxd
 
     # network / http
