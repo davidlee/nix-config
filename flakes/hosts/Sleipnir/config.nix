@@ -29,7 +29,7 @@
     ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
-    ../../nixos/rust.nix
+    # ../../nixos/rust.nix # broken
 
     ../../modules/zig.nix
   ];

@@ -163,6 +163,7 @@
     ladybird
     librewolf
     firefox
+    firefoxpwa
     qutebrowser
     floorp
     ungoogled-chromium
