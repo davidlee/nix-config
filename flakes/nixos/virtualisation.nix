@@ -8,12 +8,12 @@
     quickemu
     # darling
     nemu
-    qemu
-    qemu_full
-    qemu_kvm
+    #qemu
+    #qemu_full
+    #qemu_kvm
     # qemu_xen
-    qemu-utils
-    qemu-user
+    #qemu-utils
+    #qemu-user
     distrobox
     distrobox-tui
     # podman

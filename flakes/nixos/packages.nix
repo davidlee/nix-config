@@ -11,8 +11,8 @@
   #
   environment.systemPackages = with pkgs; [
     ## boot
-    greetd.greetd
-    greetd.tuigreet
+    greetd
+    tuigreet
 
     ## disk / io
     hdparm
