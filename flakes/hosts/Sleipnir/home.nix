@@ -17,7 +17,7 @@
   };
 
   # TODO: verify if this helps ssh agent work
-  services.gnome-keyring.enable = true;
+  # services.gnome-keyring.enable = true;
   services.systembus-notify.enable = true; # notify-send from systemd
 
   systemd.user = {
@@ -83,10 +83,10 @@
         Timer = {
           Unit = "break-remind.service";
           # OnCalendar = "*-*-* *:*:00/15";
-          OnActiveSec = 60;  # Initial delay after timer starts
-          OnUnitInactiveSec = 900;  # Repeat every 15 minutes (900 seconds)
+          OnActiveSec = 60; # Initial delay after timer starts
+          OnUnitInactiveSec = 900; # Repeat every 15 minutes (900 seconds)
           # wantedBy = ["timers.target"];
-          Persistent = true;  # Run missed executions if system was off
+          Persistent = true; # Run missed executions if system was off
           AccuracySec = "1s";
         };
       };

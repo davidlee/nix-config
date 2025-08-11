@@ -6,8 +6,9 @@
   imports = [
     ./hardware-configuration.nix
 
-    inputs.lix-module.nixosModules.default
-    inputs.nixarr.nixosModules.default
+    # inputs.lix-module.nixosModules.default
+    inputs.lix-module.nixosModules.lixFromNixpkgs
+    # inputs.nixarr.nixosModules.default
 
     ../../nixos/options.nix
 
@@ -20,9 +21,9 @@
     ../../nixos/tui.nix
     ../../nixos/apps.nix
     ../../nixos/wayland.nix
-    ../../nixos/gnome.nix
-    ../../nixos/hyprland.nix
-    ../../nixos/kde.nix
+    # ../../nixos/gnome.nix # fuck you libsoup
+    #../../nixos/hyprland.nix
+    #../../nixos/kde.nix
     ../../nixos/sway.nix
     ../../nixos/serve.nix
     # ../../nixos/arr.nix

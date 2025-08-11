@@ -7,9 +7,9 @@
   programs = {
     seahorse.enable = true;
     dconf.enable = true;
-    gnome-disks.enable = true;
+    # gnome-disks.enable = true;
     # fix collision w/ KDE; prefer gnome's secrets manager
-    ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
+    # ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
 
     # labwc.enable = true;
     # river.enable = true;
@@ -33,23 +33,24 @@
       };
     };
 
-    gnome = {
-      gnome-online-accounts.enable = true;
-      gnome-keyring.enable = true;
-      gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
-      # gcr-ssh-agent.enable = true;
-    };
+    # gnome = {
+    #   # gnome-online-accounts.enable = true;
+    #   gnome-keyring.enable = true;
+    #   # gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
+    #   # gcr-ssh-agent.enable = true;
+    # };
 
     sysprof.enable = true;
     blueman.enable = true;
-    dbus.packages = [pkgs.gnome-keyring pkgs.gcr];
+    # dbus.packages = [pkgs.gnome-keyring pkgs.gcr];
+    dbus.packages = [pkgs.gcr];
   };
 
-  security.pam.services = {
-    greetd.enableGnomeKeyring = true;
-    greetd-password.enableGnomeKeyring = true;
-    login.enableGnomeKeyring = true;
-  };
+  # security.pam.services = {
+  #   greetd.enableGnomeKeyring = true;
+  #   greetd-password.enableGnomeKeyring = true;
+  #   login.enableGnomeKeyring = true;
+  # };
 
   environment = {
     variables = {
@@ -88,7 +89,7 @@
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
-      xdg-desktop-portal-gnome
+      # xdg-desktop-portal-gnome
       xdg-desktop-portal-hyprland
       kdePackages.xdg-desktop-portal-kde
       # xdg-desktop-portal-termfilechooser
@@ -97,9 +98,9 @@
 
     config = {
       common = {
-        default = ["Hyprland" "gtk" "wlr" "kde"];
-        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
-        "org.freedesktop.impl.portal.FileChooser" = ["kde"];
+        #default = ["Hyprland" "gtk" "wlr" "kde"];
+        # "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+        #"org.freedesktop.impl.portal.FileChooser" = ["kde"];
       };
       kde = {
         "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
@@ -165,10 +166,10 @@
     wlopm
     wlr-layout-ui
     # gnome-secrets BROKEN
-    gnome-system-monitor
-    gnome-calendar
-    gnome-nettool
-    gnomeExtensions.appindicator
+    # gnome-system-monitor
+    # gnome-calendar
+    # gnome-nettool
+    # gnomeExtensions.appindicator
 
     # compositors
     river
@@ -193,7 +194,7 @@
     wob
     i3status
     wttrbar
-    gnome-weather
+    # gnome-weather
 
     # wallpapers
     swww
@@ -212,7 +213,7 @@
     imv
     cava
     tuba
-    gnome-logs
+    # gnome-logs
 
     # screenshots
     (flameshot.override {enableWlrSupport = true;})
@@ -241,7 +242,7 @@
     anyrun
     wofi
     wmenu
-    ulauncher
+    # ulauncher
     rofi-wayland
     wofi-emoji
     kando
@@ -276,7 +277,7 @@
       name = "phinger-cursors-light";
       package = pkgs.phinger-cursors;
       size = 32;
-      gtk.enable = true;
+      # gtk.enable = true;
       x11 = {
         enable = true;
         defaultCursor = "phinger-cursors-light";
