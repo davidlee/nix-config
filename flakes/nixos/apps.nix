@@ -31,7 +31,7 @@
     gimp-with-plugins
     krita
     inkscape
-    darktable
+    # darktable
     # ansel
     # digikam
     penpot-desktop
@@ -72,7 +72,7 @@
     foliate
     onlyoffice-bin
     libreoffice
-    gnome-frog
+    # gnome-frog
     papers
     scribus
 
@@ -80,7 +80,7 @@
     retroarch-full
     limo
     lutris
-    gamehub
+    # gamehub
 
     ## messaging / social
     newsflash

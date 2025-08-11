@@ -7,7 +7,7 @@
     mods
     # aider-chat-full
     llama-cpp
-    vllm
+    #vllm
     llm
     llm-ls
     # vllm
@@ -117,9 +117,9 @@
 
     ## task / time / calendar mgmt
     basilk
-    calcure
+    # calcure
     calcurse
-    gcalcli
+    # gcalcli
     taskflow
     task-keeper
     tasktimer
