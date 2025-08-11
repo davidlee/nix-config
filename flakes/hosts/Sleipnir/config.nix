@@ -6,8 +6,8 @@
   imports = [
     ./hardware-configuration.nix
 
-    # inputs.lix-module.nixosModules.default
-    inputs.lix-module.nixosModules.lixFromNixpkgs
+    inputs.lix-module.nixosModules.default
+    # inputs.lix-module.nixosModules.lixFromNixpkgs
     # inputs.nixarr.nixosModules.default
 
     ../../nixos/options.nix
@@ -32,7 +32,7 @@
     ../../nixos/fonts.nix
     # ../../nixos/rust.nix # broken
 
-    ../../modules/zig.nix
+    # ../../modules/zig.nix
   ];
 
   system.stateVersion = "24.11";

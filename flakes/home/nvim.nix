@@ -98,8 +98,8 @@
 
     # zig
     #
-    zls
-    zig-shell-completions
+    #zls
+    #zig-shell-completions
 
     # rust
     #

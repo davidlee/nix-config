@@ -173,7 +173,7 @@
 
     ## lang.zig
     zig
-    zls
+    #zls
     zig-shell-completions
   ];
 }

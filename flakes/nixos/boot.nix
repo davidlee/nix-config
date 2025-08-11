@@ -6,9 +6,8 @@
   options,
   username,
   ...
-}:
-{
-  imports = [ inputs.ucodenix.nixosModules.default ];
+}: {
+  imports = [inputs.ucodenix.nixosModules.default];
 
   boot = {
     loader = {
@@ -27,34 +26,36 @@
       "snd-rawmidi"
     ];
 
-    extraModulePackages = with config.boot.kernelPackages; [ xpadneo ];
+    extraModulePackages = with config.boot.kernelPackages; [xpadneo];
     # TODO resolve or remove:
     # this is supposed to help fix xbox controller bluetooth connectivity
     extraModprobeConfig = ''
       options bluetooth disable_ertm=Y
     '';
-    
+
     initrd = {
-      kernelModules = [ ];
+      kernelModules = [];
       verbose = true;
     };
-    
+
     blacklistedKernelModules = [
       "ucsi_ccg"
       "vc032x"
       "gspca_vc032x"
     ];
-    
+
     plymouth = {
       enable = false;
     };
-    
+
     # see https://github.com/e-tho/ucodenix?tab=readme-ov-file#3-apply-changes
-    kernelParams = if config.sleipnir.microcode_updates.enable then [
-      "boot.shell_on_fail"
-      "microcode.amd_sha_check=off"
-    ] else [];
-    
+    kernelParams =
+      if config.sleipnir.microcode_updates.enable
+      then [
+        "boot.shell_on_fail"
+        "microcode.amd_sha_check=off"
+      ]
+      else [];
   }; # /boot
 
   systemd.services.greetd.serviceConfig = {
@@ -74,23 +75,37 @@
   };
 
   services = {
-    ucodenix = if config.sleipnir.microcode_updates.enable then {
-      enable = true;
-      cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
-    } else {};
+    ucodenix =
+      if config.sleipnir.microcode_updates.enable
+      then {
+        enable = true;
+        cpuModelId = "00B40F40"; # 9950x ;  Current revision: 0x0b404023
+      }
+      else {};
 
-    kmscon = if config.sleipnir.kmscon.enable then {
-      enable = true;
-      hwRender = true;
-      fonts = [ { name = "JetBrainsMono Nerd Font"; package = pkgs.nerd-fonts.jetbrains-mono; }];
-      autologinUser = if config.sleipnir.kmscon.autologin then username else null;
-    } else {};
+    kmscon =
+      if config.sleipnir.kmscon.enable
+      then {
+        enable = true;
+        hwRender = true;
+        fonts = [
+          {
+            name = "JetBrainsMono Nerd Font";
+            package = pkgs.nerd-fonts.jetbrains-mono;
+          }
+        ];
+        autologinUser =
+          if config.sleipnir.kmscon.autologin
+          then username
+          else null;
+      }
+      else {};
 
     greetd = {
       enable = true;
       settings = {
         default_session = let
-          tuigreet = "${lib.getExe pkgs.greetd.tuigreet}";
+          tuigreet = "${lib.getExe pkgs.tuigreet}";
           baseSessionsDir = "${config.services.displayManager.sessionData.desktops}";
           xSessions = "${baseSessionsDir}/share/xsessions";
           waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
