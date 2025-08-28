@@ -21,7 +21,7 @@
     };
 
     postgresql = {
-      enable = true;
+      enable = false;
       ensureUsers = [{
         name = username;
         ensureDBOwnership = true;
@@ -33,15 +33,14 @@
       }];
       ensureDatabases = [ username ];
       enableTCPIP = false;
-      # extensions = [ ];
     };
 
     forgejo = {
-      enable = true;
+      enable = false;
     };
 
     taskchampion-sync-server = {
-      enable = true; 
+      enable = false; 
     };
 
     mpd = {

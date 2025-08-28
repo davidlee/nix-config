@@ -25,11 +25,11 @@
       flake = false;
     };
 
-    lix-module = {
-      url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.lix.follows = "lix";
-    };
+    # lix-module = {
+    #   url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    #   inputs.lix.follows = "lix";
+    # };
 
     # lix-module = {
     #   url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.3-1.tar.gz";
@@ -47,14 +47,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
+    #nixCats.url = "github:BirdeeHub/nixCats-nvim";
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
 
-    nixarr.url = "github:rasmus-kirk/nixarr";
+    # nixarr.url = "github:rasmus-kirk/nixarr";
+
     ucodenix.url = "github:e-tho/ucodenix";
     raise.url = "github:knarkzel/raise";
 

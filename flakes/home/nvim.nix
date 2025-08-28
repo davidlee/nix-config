@@ -4,7 +4,8 @@
   username,
   lib,
   ...
-}: let
+}:
+let
   # ensure these are installed to the user environment as well as the nix
   # editor context for the least opportunity for nvim not to be able to find
   # them at runtime
@@ -12,7 +13,7 @@
     # general
     #
     ripgrep
-    tectonic
+    # tectonic
     ast-grep
     imagemagick
     fzf
@@ -56,7 +57,7 @@
     # python
     #
     ruff
-    python313Packages.jedi-language-server
+    # python313Packages.jedi-language-server # BROKEN
 
     # ruby
     #
@@ -271,7 +272,8 @@
     # aider-nvim
     codecompanion-nvim
   ];
-in {
+in
+{
   home.packages = nvimDependencyPackages;
 
   programs.neovim = {
@@ -302,9 +304,8 @@ in {
     plugins =
       nvimEagerPlugins
       ++ (map (p: {
-          plugin = p;
-          optional = true;
-        })
-        nvimLazyPlugins);
+        plugin = p;
+        optional = true;
+      }) nvimLazyPlugins);
   };
 }

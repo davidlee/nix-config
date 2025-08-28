@@ -1,17 +1,18 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   environment.systemPackages = with pkgs; [
     ## LLM / AI
     ollama
-    oterm
-    aichat
+    # oterm # BROKEN
+    # aichat
     mods
     # aider-chat-full
-    llama-cpp
-    #vllm
-    llm
-    llm-ls
+    # llama-cpp
+    # vllm # BROKEN
+    # llm
+    # llm-ls
     # vllm
-    mistral-rs
+    # mistral-rs
 
     ## cli history
     atuin
@@ -26,7 +27,7 @@
     # session manager
     zellij
     tmux
-    screen
+    # screen
 
     ## file managers
     broot
@@ -51,8 +52,8 @@
     ## git / SCM
     debase
     gh-dash
-    gitu
-    gitui
+    # gitu
+    # gitui # BROKEN
     lazygit
     lazyjj
     jjui

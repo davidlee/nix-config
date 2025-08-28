@@ -1,13 +1,14 @@
-{ pkgs, ... } : {
-  
+{ pkgs, ... }:
+{
+
   imports = [
-    ../modules/shared-development.nix   
+    ../modules/shared-development.nix
   ];
 
   environment.systemPackages = with pkgs; [
 
-    # ## ai 
-    local-ai
+    # ## ai
+    # local-ai
     lmstudio
     # vllm
 
