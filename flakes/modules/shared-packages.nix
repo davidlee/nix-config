@@ -30,7 +30,7 @@
     nix-btm
     nixd
     nix-diff
-    nix-direnv
+    # nix-direnv
     nix-du
     nix-index
     nix-inspect

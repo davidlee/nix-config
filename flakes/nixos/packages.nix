@@ -142,9 +142,6 @@
       theme = "gruvbox-dark";
       settings.main = {
         font = "Fira Code:size=11";
-        #   main = {
-        #     font = "Fira Code:size=11";
-        #   };
       };
     };
 

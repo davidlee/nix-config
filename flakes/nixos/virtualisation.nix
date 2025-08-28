@@ -31,7 +31,7 @@
 
   virtualisation = {
     incus = {
-      enable = true;
+      enable = false;
     };
 
     libvirtd = {

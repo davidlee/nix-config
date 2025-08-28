@@ -36,7 +36,7 @@
       swayr
       swayrbar
       waybar
-      spatial-shell
+      # spatial-shell
     ];
 
     services = {

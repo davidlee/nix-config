@@ -12,15 +12,15 @@
     renoise
     # lmms # BROKEN
     # zrythm # BROKEN
-    ardour
-    hydrogen
-    audacity
-    yoshimi
-    qtractor
-    rakarrack
-    guitarix
-    supercollider-with-plugins
-    chuck
+    # ardour
+    # hydrogen
+    # audacity
+    # yoshimi
+    # qtractor
+    # rakarrack
+    # guitarix
+    # supercollider-with-plugins
+    # chuck
     vcv-rack
     cardinal
     helm
@@ -35,15 +35,15 @@
     # ansel
     # digikam
     penpot-desktop
-    pikopixel
+    # pikopixel
 
     ## media players
     vlc
-    kodi-wayland
+    # kodi-wayland
     # kodi-cli
     celluloid
     mpv
-    kdePackages.gwenview
+    # kdePackages.gwenview
 
     ## video
     # shortcut #??
@@ -51,18 +51,18 @@
     ## util
     _1password-gui
     virt-viewer
-    upscayl
-    evince
-    persepolis
-    qbittorrent
-    calibre
+    # upscayl
+    # evince
+    # persepolis
+    # qbittorrent
+    #calibre
     flameshot
     # ventoy-full
     artha
-    guvcview
+    # guvcview
     inxi
-    easyeffects
-    barrier
+    # easyeffects
+    # barrier
 
     ## productivity
     thunderbird-latest
@@ -77,9 +77,9 @@
     scribus
 
     ## games
-    retroarch-full
-    limo
-    lutris
+    # retroarch-full
+    # limo
+    # lutris
     # gamehub
 
     ## messaging / social
@@ -90,19 +90,19 @@
     signal-desktop
     slack
     zoom-us
-    rambox
+    # rambox
     telegram-desktop
     element-desktop
     whatsie
 
     ## music player & library management
-    beets
+    # beets
     # fooyin
     # quodlibet
     spotify
     # tauon
-    tokei
-    deadbeef
+    # tokei
+    # deadbeef
     # cantata
 
     ## terminals
@@ -169,7 +169,7 @@
     ungoogled-chromium
     palemoon-bin
     tor-browser
-    kdePackages.angelfish
+    # kdePackages.angelfish
     pkgs.firefoxpwa
     # midori
 
@@ -178,8 +178,8 @@
     amfora
 
     ## gamedev
-    #godot
-    stable.godot_4
+    # godot
+    # stable.godot_4
   ];
 
   programs.firefox = {

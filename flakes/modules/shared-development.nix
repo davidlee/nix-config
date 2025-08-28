@@ -8,16 +8,16 @@
     exercism
 
     ## alt shells
-    nushell
-    oils-for-unix
-    fish
-    xonsh
+    # nushell
+    # oils-for-unix
+    # fish
+    # xonsh
 
     ## charmbracelet
     vhs
     freeze
     gum
-    skate
+    # skate
 
     ## SCM
     delta
@@ -25,20 +25,20 @@
     diffnav
     # diffoscope
     diffr
-    diffsitter
+    # diffsitter
     diffstat
     difftastic
     gh
     gitFull
-    mercurial
+    # mercurial
     hub
     jujutsu
-    meld
+    # meld
     mergiraf
     tig
 
     ## supervisors / runners
-    direnv
+    # direnv
     just
     overmind
     watch
@@ -52,10 +52,10 @@
     ninja
     autoconf
     cmake
-    redo-apenwarr
+    # redo-apenwarr
 
     ## www
-    html-tidy
+    # html-tidy
     prettierd
 
     ## editor platforms: LSP / treesitter
@@ -66,7 +66,7 @@
     yaml-language-server
     tooling-language-server
     mdx-language-server
-    docker-language-server
+    # docker-language-server
     bash-language-server
     vim-language-server
     # just-lsp
@@ -74,7 +74,7 @@
     typos-lsp
     htmx-lsp
     jq-lsp
-    fish-lsp
+    # fish-lsp
     ctags-lsp
 
     ## cli dev utils
@@ -132,10 +132,10 @@
     # jupyter-all
 
     ## lang.odin
-    ols
+    # ols
 
     ## lang.clojure
-    clojure-lsp
+    # clojure-lsp
 
     # lang.scheme
     chez
@@ -156,10 +156,10 @@
     ## lang.lua
     lua
     stylua
-    #la51Packages.rocks-nvim
-    #vimPlugins.fzf-lua
-    #luarocks-packages-updater
-    #lua-language-server
+    # la51Packages.rocks-nvim
+    # vimPlugins.fzf-lua
+    # luarocks-packages-updater
+    # lua-language-server
 
     ## lang.js
     bun
@@ -173,7 +173,7 @@
 
     ## lang.zig
     zig
-    #zls
+    # zls
     zig-shell-completions
   ];
 }

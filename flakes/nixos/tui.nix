@@ -1,6 +1,6 @@
 {
   pkgs,
-  stable,
+  # stable,
   inputs,
   ...
 }: {
@@ -45,14 +45,14 @@
     tdf
 
     ## crypto
-    libcryptui
+    # libcryptui
 
     ## database
     gobang
     lazysql
     rainfrog
-    stable.harlequin
-    vi-mongo
+    # stable.harlequin
+    # vi-mongo
 
     ## audio / music
     ncpamixer
@@ -64,19 +64,19 @@
     rmpc
 
     ## games
-    chess-tui
+    # chess-tui
     nethack
-    steam-tui
+    # steam-tui
 
     ## arr
-    managarr
-    stig
-    rustmission
+    # managarr
+    # stig # BROKEN
+    # rustmission
 
     ## youtube
-    invidtui
-    youtube-tui
-    ytermusic
+    # invidtui
+    # youtube-tui
+    # ytermusic
 
     ## clock
     tty-clock

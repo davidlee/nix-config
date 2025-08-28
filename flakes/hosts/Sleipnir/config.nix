@@ -3,10 +3,28 @@
   pkgs,
   ...
 }: {
+  # use lix
+  nixpkgs.overlays = [
+    (final: prev: {
+      inherit
+        (final.lixPackageSets.latest)
+        #nixpkgs-review
+        nix-direnv
+        #nix-eval-jobs
+        #nix-fast-build
+        #colmena
+        ;
+    })
+  ];
+  #
+  # nix.package = pkgs.lixPackageSets.stable.lix;
+  nix.package = pkgs.lixPackageSets.latest.lix;
+
+  # other stuff
   imports = [
     ./hardware-configuration.nix
 
-    inputs.lix-module.nixosModules.default
+    # inputs.lix-module.nixosModules.default
     # inputs.lix-module.nixosModules.lixFromNixpkgs
     # inputs.nixarr.nixosModules.default
 
@@ -27,10 +45,10 @@
     ../../nixos/sway.nix
     ../../nixos/serve.nix
     # ../../nixos/arr.nix
-    ../../nixos/games.nix
+    # ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
-    # ../../nixos/rust.nix # broken
+    # ../../nixos/rust.nix
 
     # ../../modules/zig.nix
   ];

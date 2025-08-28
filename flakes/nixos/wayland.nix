@@ -239,7 +239,7 @@
     stable.copyq
 
     # launchers
-    anyrun
+    # anyrun # BROKEN
     wofi
     wmenu
     # ulauncher
