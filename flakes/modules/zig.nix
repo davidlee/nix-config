@@ -1,4 +1,8 @@
-({ inputs, pkgs, ... }: let
+({
+  inputs,
+  pkgs,
+  ...
+}: let
   system = pkgs.system;
   zig = inputs.zig-overlay.packages.${system}.master;
 in {
@@ -6,10 +10,14 @@ in {
     (self: super: {
       inherit zig;
       zls = inputs.zls-overlay.packages.${system}.zls.overrideAttrs (finalAttrs: prevAttrs: {
-        nativeBuildInputs = [ zig ];
+        nativeBuildInputs = [zig];
       });
     })
   ];
 
-  # environment.systemPackages = [ zig zls pkgs.zig-shell-completions ];
+  environment.systemPackages = [
+    zig
+    inputs.zls-overlay.packages.${system}.zls
+    pkgs.zig-shell-completions
+  ];
 })

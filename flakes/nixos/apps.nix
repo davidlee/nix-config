@@ -120,6 +120,7 @@
     code-cursor
     vscode
     zed-editor
+    xed-editor
     joplin
     claude-code
     zim
@@ -187,4 +188,6 @@
     package = pkgs.firefox;
     nativeMessagingHosts.packages = [pkgs.firefoxpwa];
   };
+
+  services.flatpak.enable = true;
 }

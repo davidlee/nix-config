@@ -1,18 +1,16 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     ## LLM / AI
     ollama
+    mods
+    mistral-rs
     # oterm # BROKEN
     # aichat
-    mods
     # aider-chat-full
     # llama-cpp
-    # vllm # BROKEN
+    # vllm
     # llm
     # llm-ls
-    # vllm
-    # mistral-rs
 
     ## cli history
     atuin

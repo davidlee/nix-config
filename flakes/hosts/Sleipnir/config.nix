@@ -48,9 +48,8 @@
     # ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
-    # ../../nixos/rust.nix
-
-    # ../../modules/zig.nix
+    ../../nixos/rust.nix
+    ../../modules/zig.nix
   ];
 
   system.stateVersion = "24.11";
