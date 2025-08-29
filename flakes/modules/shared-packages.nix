@@ -126,8 +126,8 @@
     ## docs, notes, productivity
     tealdeer
     pinfo
-    # zeal
-    # dnote
+    zeal
+    dnote
     remind
 
     ## graphing
