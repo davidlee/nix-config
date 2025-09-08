@@ -54,7 +54,18 @@
           # RuntimeMaxSec = 30;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
-              ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg "Take a short break: stretch, drink water, rest your eyes." -A OK
+              TMP=/tmp/break-remind.notify-id
+
+              if [ -f $TMP ]; then
+                NID=$(cat $TMP)
+              else
+                NID=$(notify-send -p "initial message")
+              fi
+
+              ICON=/run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg
+              TEXT="Get out of your chair. Rest your eyes."
+
+              ${pkgs.libnotify}/bin/notify-send -r "$NID" -i $ICON $TEXT -A OK
             ''
           );
         };

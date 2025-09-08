@@ -3,7 +3,20 @@
   stable,
   username,
   ...
-}: {
+}:
+# for hypridle
+let
+  screen = "DP-3";
+in {
+  security = {
+    polkit.enable = true;
+    pam.services = {
+      #   greetd.enableGnomeKeyring = true;
+      #   greetd-password.enableGnomeKeyring = true;
+      #   login.enableGnomeKeyring = true;
+    };
+  };
+
   programs = {
     seahorse.enable = true;
     dconf.enable = true;
@@ -31,27 +44,24 @@
         # cinnamon.enable = true;
         # mate.enable = true;
       };
+    }; # services
+
+    gnome = {
+      gnome-keyring.enable = true;
+      # gcr-ssh-agent.enable = true;
     };
 
-    # gnome = {
-    #   # gnome-online-accounts.enable = true;
-    #   gnome-keyring.enable = true;
-    #   # gnome-browser-connector.enable = true; # does this make keyring work? for electron apps like slack?
-    #   # gcr-ssh-agent.enable = true;
-    # };
-
-    sysprof.enable = true;
+    # misc services
+    #
     blueman.enable = true;
-    # dbus.packages = [pkgs.gnome-keyring pkgs.gcr];
+    sysprof.enable = true;
+
+    # dbus
+    #
     dbus.packages = [pkgs.gcr];
-  };
+  }; # services
 
-  # security.pam.services = {
-  #   greetd.enableGnomeKeyring = true;
-  #   greetd-password.enableGnomeKeyring = true;
-  #   login.enableGnomeKeyring = true;
-  # };
-
+  ## Env
   environment = {
     variables = {
       XCURSOR_SIZE = 24;
@@ -98,31 +108,15 @@
 
     config = {
       common = {
-        #default = ["Hyprland" "gtk" "wlr" "kde"];
+        # default = ["Hyprland" "gtk" "wlr" "kde"];
         # "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
-        #"org.freedesktop.impl.portal.FileChooser" = ["kde"];
+        # "org.freedesktop.impl.portal.FileChooser" = ["kde"];
       };
       kde = {
         "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
       };
     };
-  };
-
-  # # app launcher & mime type metadata
-  # # https://github.com/nix-community/home-manager/blob/master/modules/misc/xdg-desktop-entries.nix
-  # xdg.desktopEntries = {
-  #   # "name".mimeType = [ "" ];
-  #   # "Slack".settings .. icon
-  #   # "Helix".terminal = true;
-  # };
-
-  # xdg.mimeApps = {
-  #   enable = false;
-  #   associations = {
-  #     added = {};
-  #     removed = {};
-  #   };
-  # };
+  }; # XDG portal
 
   environment.etc = {
     "1password/custom_allowed_browsers" = {
@@ -165,10 +159,8 @@
     wl-mirror
     wlopm
     wlr-layout-ui
-    # gnome-secrets BROKEN
     # gnome-system-monitor
     # gnome-calendar
-    # gnome-nettool
     # gnomeExtensions.appindicator
 
     # compositors
@@ -213,7 +205,6 @@
     imv
     cava
     tuba
-    # gnome-logs
 
     # screenshots
     (flameshot.override {enableWlrSupport = true;})
@@ -239,10 +230,8 @@
     stable.copyq
 
     # launchers
-    # anyrun # BROKEN
     wofi
     wmenu
-    # ulauncher
     rofi-wayland
     wofi-emoji
     kando
@@ -284,7 +273,39 @@
       };
     };
 
-    # services.copyq.enable = true;
-    # services.cliphist.enable = true;
+    home.packages = with pkgs; [
+      # others
+      hyprlock
+      hypridle
+      swayosd
+    ];
+
+    services = {
+      swayosd.enable = true;
+
+      hypridle = {
+        enable = true;
+        settings = {
+          general = {
+            # after_sleep_cmd = "hyprctl dispatch dpms on";
+            after_sleep_cmd = "wlopm --off ${screen}";
+            ignore_dbus_inhibit = false;
+            lock_cmd = "hyprlock";
+          };
+
+          listener = [
+            {
+              timeout = 1200;
+              on-timeout = "hyprlock";
+            }
+            {
+              timeout = 1500;
+              on-timeout = "wlopm --off ${screen}";
+              on-resume = "wlopm --on ${screen}";
+            }
+          ];
+        };
+      }; # hypridle
+    }; # services
   }; # home-manager
 }
