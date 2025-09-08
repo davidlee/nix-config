@@ -16,8 +16,7 @@
         ;
     })
   ];
-  #
-  # nix.package = pkgs.lixPackageSets.stable.lix;
+
   nix.package = pkgs.lixPackageSets.latest.lix;
 
   # other stuff
@@ -25,7 +24,6 @@
     ./hardware-configuration.nix
 
     # inputs.lix-module.nixosModules.default
-    # inputs.lix-module.nixosModules.lixFromNixpkgs
     # inputs.nixarr.nixosModules.default
 
     ../../nixos/options.nix
@@ -39,17 +37,17 @@
     ../../nixos/tui.nix
     ../../nixos/apps.nix
     ../../nixos/wayland.nix
-    # ../../nixos/gnome.nix # fuck you libsoup
-    #../../nixos/hyprland.nix
-    #../../nixos/kde.nix
     ../../nixos/sway.nix
     ../../nixos/serve.nix
-    # ../../nixos/arr.nix
-    # ../../nixos/games.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
     ../../nixos/rust.nix
     ../../modules/zig.nix
+    # ../../nixos/gnome.nix
+    # ../../nixos/hyprland.nix
+    # ../../nixos/kde.nix
+    # ../../nixos/arr.nix
+    # ../../nixos/games.nix
   ];
 
   system.stateVersion = "24.11";

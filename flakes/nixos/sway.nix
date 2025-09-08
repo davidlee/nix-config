@@ -4,17 +4,15 @@
   # lib,
   ...
 }: {
-  security = {
-    polkit.enable = true;
-    pam.services.swaylock = {};
-  };
-
   programs = {
     sway = {
       enable = true;
       wrapperFeatures.gtk = true;
     };
-  };
+  }; # programs
+
+  services = {
+  }; # services
 
   home-manager.users.${username} = {
     home.packages = with pkgs; [
@@ -35,18 +33,13 @@
       swaysettings
       swayr
       swayrbar
+      swayosd
       waybar
-      # spatial-shell
-    ];
+    ]; # user packages
 
     services = {
       swayosd.enable = true;
-      # use hypridle instead
-      #
-      # swayidle = {
-      #   enable = true;
-      # };
-    };
+    }; # user services
 
     wayland.windowManager.sway = {
       enable = true;
@@ -57,13 +50,13 @@
 
         include $HOME/.config/sway/sway.conf
       '';
-    };
+    }; # sway
 
     programs = {
       waybar = {
         enable = true;
         systemd.enable = true;
       };
-    };
-  };
+    }; # user programs
+  }; # home-manager
 }
