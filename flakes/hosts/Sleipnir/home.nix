@@ -16,8 +16,6 @@
     stateVersion = "24.11";
   };
 
-  # TODO: verify if this helps ssh agent work
-  # services.gnome-keyring.enable = true;
   services.systembus-notify.enable = true; # notify-send from systemd
 
   systemd.user = {
@@ -54,18 +52,20 @@
           # RuntimeMaxSec = 30;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
+              #!/usr/bin/env zsh
               TMP=/tmp/break-remind.notify-id
 
-              if [ -f $TMP ]; then
-                NID=$(cat $TMP)
-              else
-                NID=$(notify-send -p "initial message")
+              if [ ! -f $TMP ]; then
+                  NID=$(notify-send -p "initial message")
+                  echo $NID > $TMP
               fi
+              NID=$(cat $TMP)
 
               ICON=/run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg
               TEXT="Get out of your chair. Rest your eyes."
 
-              ${pkgs.libnotify}/bin/notify-send -r "$NID" -i $ICON $TEXT -A OK
+              ${pkgs.libnotify}/bin/notify-send -r "$NID" -i $ICON $TEXT
+              exit 0
             ''
           );
         };
@@ -97,7 +97,7 @@
           OnActiveSec = 60; # Initial delay after timer starts
           OnUnitInactiveSec = 900; # Repeat every 15 minutes (900 seconds)
           # wantedBy = ["timers.target"];
-          Persistent = true; # Run missed executions if system was off
+          # Persistent = true; # Run missed executions if system was off
           AccuracySec = "1s";
         };
       };
