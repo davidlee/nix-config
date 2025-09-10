@@ -15,8 +15,7 @@
           groups = ["wheel"];
           commands = [
             {
-              # command = "${pkgs.nix}/bin/rtcwake *";
-              command = "/run/current/system/sw/bin/rtcwake *";
+              command = "${pkgs.nix}/bin/rtcwake *";
               options = ["NOPASSWD" "SETENV"];
             }
           ];
