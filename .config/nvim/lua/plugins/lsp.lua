@@ -6,6 +6,9 @@ local lz = require("lze")
 -- nix
 vim.lsp.enable("nixd")
 
+-- go
+vim.lsp.enable("gopls")
+
 -- markdown
 lz.load({
   {

@@ -6,28 +6,39 @@
 // To see all of Zed's default settings without changing your
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
+//
+// https://zed.dev/docs/ai/llm-providers#anthropic TODO: claude agent
+//
 {
   // ensure access to ENV vars
+  "icon_theme": "Colored Zed Icons Theme Dark",
   "file_scan_inclusions": [".env*"],
+  "use_system_path_prompts": true,
+  "bottom_dock_layout": "contained",
 
   // MCP Tools
   "agent": {
+    "use_modifier_to_send": true,
+    "play_sound_when_agent_done": true,
     "model_parameters": [],
-    "always_allow_tool_actions": true,
-    "version": "2"
+    "always_allow_tool_actions": true
   },
   "context_servers": {
-    // NOTE: secrets must be configured per-project in a .gitignored settings.json file until this is resolved
-    // https://github.com/zed-industries/zed/discussions/26043
-    // or there is a way to split settings.json into multiple files (an include directive)
-    // https://github.com/zed-industries/zed/issues/20038
-    // 
+    // NOTE: secrets must be configured per-project in a .gitignored settings.json file until this is resolved//github.com/zed-industries/zed/discussions/26043
+    // or there is a way to split settings.json into multiple files (an include directive)//github.com/zed-industries/zed/issues/20038
+    //
     // "mcp-server-github": {
     //   "settings": {
     //     "github_personal_access_token": "${GITHUB_MCP_TOKEN}"
     //   }
     // }
-    
+    "mcp-server-context7": {
+      "source": "extension",
+      "enabled": true,
+      "settings": {
+        "default_minimum_tokens": "10000"
+      }
+    }
   },
 
   // Editor - Keybindings & Core Behaviour
@@ -52,7 +63,12 @@
     ],
     "enabled_in_text_threads": false
   },
-
+  "inlay_hints": {
+    "enabled": true,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
+  },
   "features": {
     "edit_prediction_provider": "zed"
   },
@@ -64,7 +80,7 @@
   "theme": {
     "mode": "system",
     "light": "Gruvbox Dark Hard",
-    "dark": "One Dark"
+    "dark": "Catppuccin Mocha"
   },
   "indent_guides": {
     "enabled": true,
@@ -77,13 +93,19 @@
     "border_size": 0.0,
     "inactive_opacity": 0.85
   },
+  "tabs": {
+    "show_diagnostics": "errors"
+  },
 
   "auto_install_extensions": {
     "html": true
     //"dockerfile": true,
     //"docker-compose": false
   },
-
+  "terminal": {
+    "font_family": "JetBrainsMono Nerd Font Mono", // Example: A Nerd Font
+    "font_size": 14
+  },
   // Auto QoL
   "journal": {
     "path": "~",
