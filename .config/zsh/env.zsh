@@ -61,4 +61,5 @@ export TASKWARRIOR_RECURRENCE=1 # $TASKWARRIOR_PRIMARY_HOST
 # Secrets - private bare repo (non-critical only; use 1password encryption where we really care)
 #
 
+source ~/.config/zsh/zoxide_init.sh
 source ~/.config/zsh/secrets.zsh

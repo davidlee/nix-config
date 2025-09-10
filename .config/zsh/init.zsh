@@ -40,7 +40,6 @@ bindkey -M menuselect              '^I'         menu-complete
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
 
-
 WORDCHARS='*?_.[]~&;!#$%^(){}<>'
 autoload -Uz select-word-style
 select-word-style normal
