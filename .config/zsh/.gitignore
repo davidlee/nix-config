@@ -1,6 +1,7 @@
 secrets.zsh
 secret*
 
+\.*
 .zcompdump
 .zcompdump*
 .antidote/

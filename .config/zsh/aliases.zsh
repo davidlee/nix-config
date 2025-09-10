@@ -2,9 +2,9 @@
 alias g=git;
 alias j=just;
 alias _=sudo;
-alias t=task;
-alias z=zellij;
-alias y=yazi;
+alias v="~/dev/vice/vice";
+alias x="~/dev/vice/vice x";
+alias a="~/dev/vice/vice x add";
 
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";
@@ -14,6 +14,11 @@ alias lgc="lazygit -g ~/.cfg -w ~"
 alias ij=daily; # interstitial journal
 
 alias tx="exec tmx default"
+
+alias tw=task;
+alias yy=yazi;
+
+alias gcauto='git commit -m "$(claude -p "Look at the staged git changes and create a summarizing git commit title. Only respond with the title and no affirmation.")"'
 
 # alias -g G="| grep -E --color=auto";
 alias -g C="| wl-copy -rp"
@@ -60,7 +65,6 @@ alias fgrep="grep -F --color=auto";
 alias grep="grep --color=auto";
 
 # editors
-alias v=nvim;
 alias vi=nvim;
 alias vim=nvim;
 alias zed=zeditor;
