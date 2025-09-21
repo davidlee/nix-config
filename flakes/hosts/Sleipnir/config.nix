@@ -1,33 +1,24 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   # use lix
-  nixpkgs.overlays = [
-    (final: prev: {
-      inherit
-        (final.lixPackageSets.latest)
-        #nixpkgs-review
-        nix-direnv
-        #nix-eval-jobs
-        #nix-fast-build
-        #colmena
-        ;
-    })
-  ];
-
-  nix.package = pkgs.lixPackageSets.latest.lix;
-
+  #
+  # nixpkgs.overlays = [
+  #   (final: prev: {
+  #     inherit
+  #       (final.lixPackageSets.stable)
+  #       nixpkgs-review
+  #       nix-direnv
+  #       nix-eval-jobs
+  #       nix-fast-build
+  #       colmena
+  #       ;
+  #   })
+  # ];
+  #
+  # nix.package = pkgs.lixPackageSets.stable.lix;
+  #
   # other stuff
   imports = [
-    ./hardware-configuration.nix
-
-    # inputs.lix-module.nixosModules.default
-    # inputs.nixarr.nixosModules.default
-
     ../../nixos/options.nix
-
     ../../nixos/boot.nix
     ../../nixos/radeon.nix
     ../../nixos/network.nix
@@ -43,6 +34,10 @@
     ../../nixos/fonts.nix
     ../../nixos/rust.nix
     ../../modules/zig.nix
+    ./hardware-configuration.nix
+
+    # inputs.lix-module.nixosModules.default
+    # inputs.nixarr.nixosModules.default
     # ../../nixos/gnome.nix
     # ../../nixos/hyprland.nix
     # ../../nixos/kde.nix

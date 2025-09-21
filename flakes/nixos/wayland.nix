@@ -171,7 +171,7 @@ in {
     # gnomeExtensions.appindicator
 
     # compositors
-    river
+    # river
     niri
 
     # notifications
@@ -239,7 +239,7 @@ in {
     # launchers
     wofi
     wmenu
-    rofi-wayland
+    rofi
     wofi-emoji
     kando
     wofi-power-menu

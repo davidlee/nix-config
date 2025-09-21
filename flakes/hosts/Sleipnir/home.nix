@@ -52,11 +52,10 @@
           # RuntimeMaxSec = 30;
           ExecStart = toString (
             pkgs.writeShellScript "break-remind.sh" ''
-              #!/usr/bin/env zsh
               TMP=/tmp/break-remind.notify-id
 
               if [ ! -f $TMP ]; then
-                  NID=$(notify-send -p "initial message")
+                  NID=$(${pkgs.libnotify}/bin/notify-send -p "initial message")
                   echo $NID > $TMP
               fi
               NID=$(cat $TMP)
@@ -64,7 +63,7 @@
               ICON=/run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-information.svg
               TEXT="Get out of your chair. Rest your eyes."
 
-              ${pkgs.libnotify}/bin/notify-send -r "$NID" -i $ICON $TEXT
+              ${pkgs.libnotify}/bin/notify-send -r "$NID" -i "$ICON" "$TEXT" -u low
               exit 0
             ''
           );
