@@ -58,18 +58,18 @@
     #calibre
     flameshot
     # ventoy-full
-    artha
+    # artha
     # guvcview
-    inxi
+    # inxi
     # easyeffects
     # barrier
 
     ## productivity
     thunderbird-latest
-    evolution
+    #evolution
     # morgen # TODO enable when electron deps fixed
     zotero
-    foliate
+    #foliate
     onlyoffice-bin
     libreoffice
     # gnome-frog
@@ -84,16 +84,16 @@
 
     ## messaging / social
     newsflash
-    #discord broken, using stable
-    stable.discord
+    #discord # broken, using stable
+    #stable.discord
     beeper
     signal-desktop
     slack
     zoom-us
     # rambox
-    telegram-desktop
+    # telegram-desktop
     element-desktop
-    whatsie
+    #whatsie
 
     ## music player & library management
     # beets
@@ -107,7 +107,7 @@
 
     ## terminals
     alacritty
-    wezterm
+    #wezterm
     foot
     ghostty
     kitty
@@ -118,24 +118,24 @@
     emacs-gtk
     obsidian
     code-cursor
-    vscode
+    #vscode
     zed-editor
     xed-editor
     joplin
     claude-code
     zim
-    kdePackages.kate
+    #kdePackages.kate
     lapce
-    saber
+    # saber
     # sublime4
     marktext
     apostrophe
 
     ## mind map etc
     freemind
-    minder
-    semantik
-    vue
+    # minder
+    # semantik
+    # vue
 
     # ai / ml
     gpt-cli
@@ -146,9 +146,9 @@
 
     ## scanner
     # naps2
-    xsane
-    kdePackages.skanlite
-    kdePackages.skanpage
+    # xsane
+    # kdePackages.skanlite
+    # kdePackages.skanpage
 
     ## data:
     # dbvisualizer
@@ -161,22 +161,24 @@
     ## browsers
     inputs.zen-browser.packages.${pkgs.system}.default
     vivaldi
-    ladybird
+    # ladybird
     librewolf
     firefox
+    firefox-devedition
+
     firefoxpwa
-    qutebrowser
-    floorp
+    # qutebrowser
+    floorp-bin
     ungoogled-chromium
-    palemoon-bin
+    # palemoon-bin
     tor-browser
     # kdePackages.angelfish
     pkgs.firefoxpwa
     # midori
 
     ## non-web
-    bombadillo
-    amfora
+    # bombadillo
+    # amfora
 
     ## gamedev
     # godot
