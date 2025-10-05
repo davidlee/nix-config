@@ -4,10 +4,10 @@
   ...
 }: {
   networking = {
-    networkmanager = {
-      enable = true;
-      # dns = "none";
-    };
+    # networkmanager = {
+    #   enable = true;
+    #   dns = "none";
+    # };
 
     hostName = hostname;
     timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
@@ -58,28 +58,19 @@
 
     resolved = {
       enable = true;
-      dnssec = "true";
+      dnssec = "allow-downgrade";
       domains = ["~."];
-      fallbackDns = [
-        # "45.90.28.0#83ab1e.dns.nextdns.io"
-        # "45.90.30.0#83ab1e.dns.nextdns.io"
 
-        # controlD bootstrap IPs
+      fallbackDns = [
+        # controlD IPs - authenticated via source IP
         "76.76.2.22"
         "2606:1a40::22"
       ];
-      dnsovertls = "true";
 
-      # DNS=45.90.28.0#83ab1e.dns.nextdns.io
-      # DNS=2a07:a8c0::#83ab1e.dns.nextdns.io
-      # DNS=45.90.30.0#83ab1e.dns.nextdns.io
-      # DNS=2a07:a8c1::#83ab1e.dns.nextdns.io
-      # fuck this
       extraConfig = ''
-        # controlD
-        # bootstrap
-        #
-        DNS=76.76.2.22#1qncxpyinu9.dns.controld.com
+        # ignore DHCP-provided DNS, use fallbackDns only
+        [Resolve]
+        DNS=76.76.2.22 2606:1a40::22
       '';
     };
   };

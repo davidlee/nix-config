@@ -21,26 +21,7 @@
   systemd.user = {
     # Nicely reload system units when changing configs
     startServices = "sd-switch";
-
     services = {
-      # shutdown-nightly = {
-      #   Unit.Description = "Sleepy time soon.";
-      #
-      #   Service = {
-      #     Type = "oneshot";
-      #     # RemainAfterExit = false;
-      #     Restart = "always";
-      #     ExecStart = toString (
-      #       pkgs.writeShellScript "nightly-shutdown.sh" ''
-      #         set -e
-      #
-      #         ${pkgs.libnotify}/bin/notify-send -i /run/current-system/sw/share/icons/breeze-dark/emblems/16/emblem-important.svg "The system is going down soon."
-      #         ${pkgs.systemd}/bin/shutdown -h "23:00"
-      #       ''
-      #     );
-      #   };
-      # };
-
       break-remind = {
         Unit.Description = "Reminder to take welfare breaks.";
 
@@ -72,21 +53,6 @@
     }; # services
 
     timers = {
-      # shutdown-nightly = {
-      #   Unit.Description = "Sleipnir is going to sleep soon.";
-      #   Install.WantedBy = ["timers.target"];
-      #   Timer = {
-      #     Unit = "shutdown-nightly.service";
-      #     OnCalendar = "10:50..10:59";
-      #     wantedBy = ["timers.target"];
-      #     # Persistent = false;
-      #     # RuntimeMaxSec = 30;
-      #     AccuracySec = "1s";
-      #     Restart = "always";
-      #     RemainAfterElapse = false;
-      #   };
-      # };
-
       break-remind = {
         Unit.Description = "Take short breaks";
         Install.WantedBy = ["timers.target"];
