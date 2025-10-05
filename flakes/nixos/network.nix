@@ -56,21 +56,37 @@
     #   enable = true;
     # };
 
+    stubby = {
+      enable = true;
+      settings = {
+        resolution_type = "GETDNS_RESOLUTION_STUB";
+        dns_transport_list = ["GETDNS_TRANSPORT_TLS"];
+        tls_authentication = "GETDNS_AUTHENTICATION_REQUIRED";
+        listen_addresses = ["127.0.0.1@8053" "0::1@8053"];
+
+        upstream_recursive_servers = [
+          {
+            address_data = "76.76.2.22";
+            tls_auth_name = "1qncxpyinu9.dns.controld.com";
+          }
+          {
+            address_data = "2606:1a40::22";
+            tls_auth_name = "1qncxpyinu9.dns.controld.com";
+          }
+        ];
+      };
+    };
+
     resolved = {
       enable = true;
       dnssec = "allow-downgrade";
       domains = ["~."];
 
-      fallbackDns = [
-        # controlD IPs - authenticated via source IP
-        "76.76.2.22"
-        "2606:1a40::22"
-      ];
-
       extraConfig = ''
-        # ignore DHCP-provided DNS, use fallbackDns only
+        # use stubby for DoT
         [Resolve]
-        DNS=76.76.2.22 2606:1a40::22
+        DNS=127.0.0.1:8053
+        DNSOverTLS=no
       '';
     };
   };
