@@ -25,7 +25,7 @@
     dive # inspect docker image layers
     virt-manager
     lxc
-    lxd-lts
+    # lxd-lts
     incus
   ];
 
@@ -68,9 +68,9 @@
       };
     };
 
-    lxd = {
-      enable = true;
-    };
+    # lxd = {
+    #   enable = true;
+    # };
   };
 
   users.groups.incus-admin.members = [username];

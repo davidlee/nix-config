@@ -170,6 +170,9 @@
     typescript
     emscripten
     deno
+    nodejs_latest
+    eslint
+    prettier
 
     ## lang.zig
     zig

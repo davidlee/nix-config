@@ -25,6 +25,11 @@
       flake = false;
     };
 
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # lix-module = {
     #   url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
     #   inputs.nixpkgs.follows = "nixpkgs";

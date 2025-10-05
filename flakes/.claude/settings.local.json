@@ -1,7 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "mcp__sequential-thinking__sequentialthinking"
+      "mcp__sequential-thinking__sequentialthinking",
+      "Read(//tmp/**)",
+      "Bash(resolvectl:*)",
+      "Bash(journalctl:*)",
+      "Bash(nmcli dev show:*)",
+      "Read(//run/systemd/resolve/**)",
+      "Bash(systemctl status:*)",
+      "Bash(ip addr:*)",
+      "Bash(systemctl list-units:*)",
+      "Bash(ip:*)",
+      "Read(//etc/systemd/**)"
     ],
     "deny": [],
     "ask": []

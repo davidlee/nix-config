@@ -84,7 +84,7 @@
 
     ## messaging / social
     newsflash
-    #discord # broken, using stable
+    discord # broken, using stable
     #stable.discord
     beeper
     signal-desktop
@@ -161,6 +161,7 @@
     ## browsers
     inputs.zen-browser.packages.${pkgs.system}.default
     vivaldi
+
     # ladybird
     librewolf
     firefox

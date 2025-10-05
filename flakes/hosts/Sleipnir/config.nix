@@ -33,6 +33,7 @@
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
     ../../nixos/rust.nix
+    ../../nixos/nur.nix
     ../../modules/zig.nix
     ./hardware-configuration.nix
 
