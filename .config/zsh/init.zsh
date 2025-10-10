@@ -58,3 +58,11 @@ if [[ -z $TMUX ]]; then
   # (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
   (tmux list-sessions | grep -v -E '^_') || echo "No tmux sessions."
 fi
+
+# silence, nix-direnv
+
+export DIRENV_LOG_FORMAT="$(printf "\033[2mdirenv: %%s\033[0m")"
+eval "$(direnv hook zsh)"
+_direnv_hook() {
+  eval "$(direnv export zsh 2> >(egrep -v -e '^....direnv: export' >&2))"
+};
