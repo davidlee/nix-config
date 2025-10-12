@@ -11,6 +11,7 @@
     fish.enable = true;
     cava.enable = true;
     zk.enable = true;
+    nix-search-tv.enableTelevisionIntegration = true;
 
     # BROKEN
     # ghostty = {

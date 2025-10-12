@@ -9,102 +9,102 @@
   # editor context for the least opportunity for nvim not to be able to find
   # them at runtime
   nvimDependencyPackages = with pkgs; [
-    # general
+    # # general
+    # #
+    # ripgrep
+    # # tectonic
+    # ast-grep
+    # imagemagick
+    # fzf
+    # gh
+    # gcc
+    # fd
     #
-    ripgrep
-    # tectonic
-    ast-grep
-    imagemagick
-    fzf
-    gh
-    gcc
-    fd
-
+    # #
+    # # LSP / treesitter / formatters
+    # #
     #
-    # LSP / treesitter / formatters
+    # # general
+    # #
+    # vscode-langservers-extracted
+    # emmet-language-server
     #
-
-    # general
+    # # general
+    # codespell
     #
-    vscode-langservers-extracted
-    emmet-language-server
-
-    # general
-    codespell
-
-    # lua
+    # # lua
+    # #
+    # lua-language-server
+    # stylua
+    # selene
+    # lua5_1
+    # lua51Packages.luarocks
+    # # lua51Packages.rocks-git-nvim
+    # # lua51Packages.rocks-dev-nvim
     #
-    lua-language-server
-    stylua
-    selene
-    lua5_1
-    lua51Packages.luarocks
-    # lua51Packages.rocks-git-nvim
-    # lua51Packages.rocks-dev-nvim
-
-    # nix
+    # # nix
+    # #
+    # nixd
+    # nixpkgs-fmt
+    # alejandra
     #
-    nixd
-    nixpkgs-fmt
-    alejandra
-
-    # ts
+    # # ts
+    # #
+    # typescript-language-server
+    # prettierd
     #
-    typescript-language-server
-    prettierd
-
-    # python
+    # # python
+    # #
+    # ruff
+    # # python313Packages.jedi-language-server # BROKEN
     #
-    ruff
-    # python313Packages.jedi-language-server # BROKEN
-
-    # ruby
+    # # ruby
+    # #
+    # ruby-lsp
+    # rubocop
     #
-    ruby-lsp
-    rubocop
-
-    # shell
+    # # shell
+    # #
+    # shfmt
     #
-    shfmt
-
-    # erlang
+    # # erlang
+    # #
+    # # beam27Packages.erlang-ls
     #
-    # beam27Packages.erlang-ls
-
+    # # go
+    # #
+    # gofumpt
+    # gopls
+    # golint
+    # golangci-lint
+    # gotools
+    # go-tools
     # go
+    # delve
     #
-    gofumpt
-    gopls
-    golint
-    golangci-lint
-    gotools
-    go-tools
-    go
-    delve
-
-    # markdown
+    # # markdown
+    # #
+    # marksman
+    # markdown-oxide
+    # markdownlint-cli2
+    # vale
+    # valeStyles.alex
+    # valeStyles.google
+    # valeStyles.joblint
+    # valeStyles.microsoft
+    # valeStyles.proselint
+    # valeStyles.readability
+    # valeStyles.write-good
     #
-    marksman
-    markdown-oxide
-    markdownlint-cli2
-    vale
-    valeStyles.alex
-    valeStyles.google
-    valeStyles.joblint
-    valeStyles.microsoft
-    valeStyles.proselint
-    valeStyles.readability
-    valeStyles.write-good
-
-    # zig
+    # # zig
+    # #
+    # #zls
+    # #zig-shell-completions
     #
-    #zls
-    #zig-shell-completions
-
-    # rust
-    #
-    rust-analyzer
-    # rust-analyzer-nightly
+    # # rust
+    # #
+    # rust-analyzer
+    # # rust-analyzer-nightly
   ];
 
   #
