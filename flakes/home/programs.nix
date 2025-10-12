@@ -29,7 +29,7 @@
       enable = true;
       enableZshIntegration = true;
       enableBashIntegration = true;
-      # nix-direnv.enable = true;
+      nix-direnv.enable = true;
     };
 
     neovim = {

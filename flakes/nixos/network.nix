@@ -3,11 +3,28 @@
   options,
   ...
 }: {
+  systemd.network.networks.enp8s0 = {
+    defaultGateway = "192.168.0.1";
+    addresses = [
+      {
+        Address = "192.168.0.9/24";
+      }
+    ];
+    enable = true;
+  };
+
   networking = {
-    # networkmanager = {
-    #   enable = true;
-    #   dns = "none";
-    # };
+    # interfaces.eth0.ip4.addresses = [
+    #   {
+    #     address = "192.168.0.9";
+    #     prefixLength = 24;
+    #   }
+    # ];
+    # defaultGateway = "192.168.0.1";
+    networkmanager = {
+      enable = true;
+      dns = "systemd-resolved";
+    };
 
     hostName = hostname;
     timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];

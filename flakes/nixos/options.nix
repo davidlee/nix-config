@@ -4,12 +4,6 @@
 
     sleipnir = {
       # TODO refactor with mkEnableOption
-      amdvlk.enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = "whether to use amdvlk graphic drivers, which can conflict with mesa";
-      };
-
       microcode_updates.enable = mkOption {
         type = types.bool;
         default = false;

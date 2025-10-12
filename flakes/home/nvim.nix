@@ -4,8 +4,7 @@
   username,
   lib,
   ...
-}:
-let
+}: let
   # ensure these are installed to the user environment as well as the nix
   # editor context for the least opportunity for nvim not to be able to find
   # them at runtime
@@ -70,7 +69,7 @@ let
 
     # erlang
     #
-    beam27Packages.erlang-ls
+    # beam27Packages.erlang-ls
 
     # go
     #
@@ -272,8 +271,7 @@ let
     # aider-nvim
     codecompanion-nvim
   ];
-in
-{
+in {
   home.packages = nvimDependencyPackages;
 
   programs.neovim = {
@@ -304,8 +302,9 @@ in
     plugins =
       nvimEagerPlugins
       ++ (map (p: {
-        plugin = p;
-        optional = true;
-      }) nvimLazyPlugins);
+          plugin = p;
+          optional = true;
+        })
+        nvimLazyPlugins);
   };
 }
