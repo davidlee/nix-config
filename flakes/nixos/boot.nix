@@ -14,6 +14,9 @@
   ];
 
   boot = {
+    #
+    # loader
+    #
     loader = {
       systemd-boot.enable = true;
       efi.canTouchEfiVariables = true;
@@ -24,34 +27,35 @@
       };
     };
 
-    kernelPackages = pkgs.linuxPackages_latest;
-    kernelModules = [
-      "snd-seq"
-      "snd-rawmidi"
-    ];
+    plymouth = {
+      enable = true;
+    };
 
-    extraModulePackages = with config.boot.kernelPackages; [xpadneo];
-    # TODO resolve or remove:
-    # this is supposed to help fix xbox controller bluetooth connectivity
-    extraModprobeConfig = ''
-      options bluetooth disable_ertm=Y
-    '';
-
+    #
+    # initrd
+    #
     initrd = {
       kernelModules = [];
       verbose = true;
     };
 
-    blacklistedKernelModules = [
-      "ucsi_ccg"
-      "vc032x"
-      "gspca_vc032x"
+    #
+    # Kernel modules
+    #
+    kernelPackages = pkgs.linuxPackages_latest;
+    kernelModules = [
+      "snd-seq"
+      "snd-rawmidi"
     ];
-
-    plymouth = {
-      enable = false;
-    };
-
+    kernelPatches = [
+      {
+        name = "Rust Support";
+        patch = null;
+        features = {
+          rust = true;
+        };
+      }
+    ];
     # see https://github.com/e-tho/ucodenix?tab=readme-ov-file#3-apply-changes
     kernelParams =
       if config.sleipnir.microcode_updates.enable
@@ -60,8 +64,18 @@
         "microcode.amd_sha_check=off"
       ]
       else [];
+    extraModulePackages = with config.boot.kernelPackages; [xpadneo];
+
+    blacklistedKernelModules = [
+      "ucsi_ccg"
+      "vc032x"
+      "gspca_vc032x"
+    ];
   }; # /boot
 
+  #
+  # greetd
+  #
   systemd.services.greetd.serviceConfig = {
     Type = "idle";
     StandardInput = "tty";
@@ -121,7 +135,6 @@
             "--xsession-wrapper startx /usr/bin/env"
             "--time"
             "--theme ${theme}"
-            # "--cmd sway"
           ];
           flags = lib.concatStringsSep " " tuigreetOptions;
         in {
@@ -132,6 +145,6 @@
     };
   };
 
-  # for unlocking slack etc in hyprland
+  # for unlocking slack etc in hyprland/sway
   security.pam.services.greetd.enableGnomeKeyring = true;
 }
