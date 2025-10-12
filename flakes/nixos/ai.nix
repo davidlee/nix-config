@@ -1,32 +1,31 @@
 {pkgs, ...}: {
   services = {
+    open-webui.enable = true; # 8080
     ollama = {
       enable = true;
+      # loadModels = [""];
       acceleration = "rocm";
-      rocmOverrideGfx = "10.3.0";
+      rocmOverrideGfx = "gfx1036";
       package = pkgs.ollama-rocm;
     };
   };
   environment.systemPackages = with pkgs; [
     ## LLM / AI
-    # ollama
+    ollama
     # mods
     # mistral-rs
     # oterm # BROKEN
     # aichat
     # aider-chat-full
     # llama-cpp
-    # vllm
+    vllm
     # llm
     # llm-ls
 
     # ## ai
     # local-ai
     # lmstudio
-    # vllm
     #
     # ## CLI - use npx instead for latest
-    # gpt-cli
-    # claude-code
   ];
 }

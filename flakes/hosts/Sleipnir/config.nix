@@ -51,6 +51,7 @@
     ../../nixos/sysmon.nix
     ../../nixos/util.nix
     ../../nixos/keeb.nix
+    ../../nixos/ai.nix
 
     ../../nixos/apps.nix
     ../../nixos/browsers.nix
