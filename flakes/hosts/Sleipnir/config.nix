@@ -19,6 +19,21 @@
     ../../modules/shared-packages.nix
     ../../modules/shared-development.nix
     ../../modules/shared-tui.nix
+    ../../modules/shared-shell.nix
+    ../../modules/shared-scm.nix
+    ../../modules/shared-editors.nix
+    ../../modules/shared-text.nix
+    ../../modules/shared-search.nix
+    ../../modules/shared-build.nix
+    ../../modules/shared-supervisors.nix
+    ../../modules/shared-keeb.nix
+    ../../modules/shared-lsp.nix
+    ../../modules/shared-sysmon.nix
+    ../../modules/shared-security.nix
+    ../../modules/shared-fileutil.nix
+    ../../modules/shared-gfx.nix
+    ../../modules/shared-net.nix
+    ../../modules/shared-pkg.nix
 
     ../../nixos/options.nix
     ../../nixos/boot.nix
@@ -32,6 +47,8 @@
     ../../nixos/tui.nix
     ../../nixos/packages.nix
     ../../nixos/apps.nix
+    ../../nixos/browsers.nix
+    ../../nixos/editors.nix
     ../../nixos/radeon.nix
     ../../nixos/games.nix
     ../../nixos/fonts.nix

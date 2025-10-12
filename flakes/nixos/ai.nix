@@ -8,6 +8,18 @@
     };
   };
   environment.systemPackages = with pkgs; [
+    ## LLM / AI
+    # ollama
+    # mods
+    # mistral-rs
+    # oterm # BROKEN
+    # aichat
+    # aider-chat-full
+    # llama-cpp
+    # vllm
+    # llm
+    # llm-ls
+
     # ## ai
     # local-ai
     # lmstudio
