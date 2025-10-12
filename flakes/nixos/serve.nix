@@ -1,37 +1,42 @@
-{ pkgs, username, ... }: {
-
+{
+  pkgs,
+  username,
+  ...
+}: {
   services = {
     static-web-server = {
       enable = true;
       root = "/var/www";
       listen = "[::]:80";
-      
+
       configuration = {
-        general = { 
+        general = {
           directory-listing = true;
         };
       };
     };
 
-    ollama = {
-      enable = true;
-      acceleration = "rocm";
-      rocmOverrideGfx = "10.3.0";
-      package = pkgs.ollama-rocm;
-    };
-
+    # ollama = {
+    #   enable = true;
+    #   acceleration = "rocm";
+    #   rocmOverrideGfx = "10.3.0";
+    #   package = pkgs.ollama-rocm;
+    # };
+    #
     postgresql = {
       enable = false;
-      ensureUsers = [{
-        name = username;
-        ensureDBOwnership = true;
-        ensureClauses = {
-          superuser = true;
-          createrole = true;
-          createdb = true;
-        };
-      }];
-      ensureDatabases = [ username ];
+      ensureUsers = [
+        {
+          name = username;
+          ensureDBOwnership = true;
+          ensureClauses = {
+            superuser = true;
+            createrole = true;
+            createdb = true;
+          };
+        }
+      ];
+      ensureDatabases = [username];
       enableTCPIP = false;
     };
 
@@ -40,7 +45,7 @@
     };
 
     taskchampion-sync-server = {
-      enable = false; 
+      enable = false;
     };
 
     mpd = {
@@ -49,8 +54,7 @@
       extraConfig = ''
       '';
     };
-
   };
 
-  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  networking.firewall.allowedTCPPorts = [80 443];
 }

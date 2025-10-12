@@ -7,7 +7,7 @@
   environment.systemPackages = with pkgs; [
     quickemu
     # darling
-    nemu
+    # nemu
     #qemu
     #qemu_full
     #qemu_kvm

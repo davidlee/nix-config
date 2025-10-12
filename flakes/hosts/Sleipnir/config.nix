@@ -1,22 +1,4 @@
 {pkgs, ...}: {
-  # use lix
-  #
-  # nixpkgs.overlays = [
-  #   (final: prev: {
-  #     inherit
-  #       (final.lixPackageSets.stable)
-  #       nixpkgs-review
-  #       nix-direnv
-  #       nix-eval-jobs
-  #       nix-fast-build
-  #       colmena
-  #       ;
-  #   })
-  # ];
-  #
-  # nix.package = pkgs.lixPackageSets.stable.lix;
-  #
-  # other stuff
   imports = [
     ../../nixos/options.nix
     ../../nixos/boot.nix
@@ -32,18 +14,18 @@
     ../../nixos/serve.nix
     ../../nixos/virtualisation.nix
     ../../nixos/fonts.nix
-    ../../nixos/rust.nix
-    ../../nixos/nur.nix
-    ../../modules/zig.nix
+    # ../../nixos/rust.nix
+    # ../../modules/zig.nix
+    # ../../nixos/games.nix
     ./hardware-configuration.nix
 
     # inputs.lix-module.nixosModules.default
     # inputs.nixarr.nixosModules.default
     # ../../nixos/gnome.nix
+    # ../../nixos/nur.nix
     # ../../nixos/hyprland.nix
     # ../../nixos/kde.nix
     # ../../nixos/arr.nix
-    # ../../nixos/games.nix
   ];
 
   system.stateVersion = "24.11";
@@ -53,6 +35,8 @@
     settings = {
       trusted-users = ["root" "@wheel"];
       experimental-features = ["nix-command" "flakes"];
+      max-jobs = 12;
+      cores = 12;
       auto-optimise-store = true;
       substituters = [
         "https://cache.nixos.org"
@@ -124,20 +108,7 @@
     };
 
     pulseaudio = {
-      # package = pkgs.pulseaudioFull.override {jackaudioSupport = true;};
     };
-
-    # see https://nixos.wiki/wiki/JACK
-    # this doesn't seem to work so far
-    # TODO: experiment with musnix
-    #
-    # jack = {
-    #   jackd.enable = true;
-    #   alsa.enable = false;
-    #   loopback = {
-    #     enable = true;
-    #   };
-    # };
 
     hardware.openrgb.enable = true;
 
@@ -174,5 +145,4 @@
       };
     };
   };
-  # };
 }

@@ -1,4 +1,4 @@
-{ 
+{
   pkgs,
   username,
   ...
@@ -14,7 +14,7 @@
       gamescopeSession.enable = true;
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
-      localNetworkGameTransfers.openFirewall = true; 
+      localNetworkGameTransfers.openFirewall = true;
       protontricks.enable = true;
     };
 
@@ -24,7 +24,7 @@
         general.inhibit_screensaver = 0;
       };
     };
-    
+
     gamescope = {
       enable = true;
       capSysNice = false; # see ananicy
@@ -47,19 +47,19 @@
   home-manager.users.${username} = {
     programs = {
       lutris.enable = true;
-      mangohud.enable = true;  
+      mangohud.enable = true;
     };
   };
 
   services = {
     sunshine = {
-      enable = true; 
+      enable = true;
       openFirewall = true;
       capSysAdmin = true;
       # capSysNice = true;
       autoStart = false;
     };
-    udev.packages = [ pkgs.game-devices-udev-rules ];
+    udev.packages = [pkgs.game-devices-udev-rules];
 
     ananicy = {
       enable = true;
@@ -81,7 +81,7 @@
     };
 
     systemPackages = with pkgs; [
-      # steam 
+      # steam
       steamcmd
       steam-tui
       steamcmd
@@ -95,7 +95,7 @@
       gamemode
       gamescope
       mangohud
-    
+
       # remote sessions
       moonlight-qt
       sunshine
@@ -104,16 +104,18 @@
       wine
       winePackages.staging
       # winePackages
-    
+
       # compatibility - extras
       winetricks
       protontricks
       protonup-qt
-    
+
+      # minecraft
+      # prismlauncher
+
       # wine-staging
       # wineWowPackages.stagingFull # support both 32 and 64 bit
       # wine-wayland # not sure if we _want_ to have wayland support, it doesn't seem ready yet
     ];
   };
-
 }

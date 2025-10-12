@@ -1,15 +1,12 @@
-{ pkgs, ... }:
-{
-
+{pkgs, ...}: {
   imports = [
     ../modules/shared-development.nix
   ];
 
   environment.systemPackages = with pkgs; [
-
     # ## ai
     # local-ai
-    lmstudio
+    # lmstudio
     # vllm
 
     # ## SCM
@@ -21,6 +18,5 @@
     # ## lang.c
     valgrind
     strace
-
   ];
 }

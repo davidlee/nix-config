@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     ## LLM / AI
-    ollama
+    # ollama
     mods
     mistral-rs
     # oterm # BROKEN
@@ -46,6 +46,8 @@
     ## file find & search
     docfd
     television
+    nix-search-tv
+    nix-search-cli
 
     ## git / SCM
     debase

@@ -165,7 +165,7 @@
     postgresql
 
     ## tasks
-    tasksh
+    # tasksh
     taskwarrior3
     remind
     # taskchampion-sync-server

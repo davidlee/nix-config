@@ -118,7 +118,7 @@
     emacs-gtk
     obsidian
     code-cursor
-    #vscode
+    vscode
     zed-editor
     xed-editor
     joplin
@@ -159,7 +159,7 @@
     # vscodium
 
     ## browsers
-    inputs.zen-browser.packages.${pkgs.system}.default
+    # inputs.zen-browser.packages.${pkgs.system}.default
     vivaldi
 
     # ladybird

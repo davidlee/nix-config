@@ -13,7 +13,6 @@
       enable32Bit = true;
       extraPackages = with pkgs; [
         mesa
-        # amdvlk
         libvdpau-va-gl
         vaapiVdpau
         rocmPackages.clr.icd
@@ -21,17 +20,11 @@
       extraPackages32 = with pkgs; [
         libvdpau-va-gl
         vaapiVdpau
-        # driversi686Linux.amdvlk
       ];
     };
 
     amdgpu = {
       initrd.enable = true;
-      amdvlk = {
-        enable = false;
-        supportExperimental.enable = true;
-        support32Bit.enable = true;
-      };
       opencl.enable = true;
     };
   };

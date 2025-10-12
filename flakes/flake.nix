@@ -25,47 +25,17 @@
       flake = false;
     };
 
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # lix-module = {
-    #   url = "https://git.lix.systems/lix-project/nixos-module/archive/main.tar.gz";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    #   inputs.lix.follows = "lix";
-    # };
-
-    # lix-module = {
-    #   url = "https://git.lix.systems/lix-project/nixos-module/archive/2.93.3-1.tar.gz";
-    #   # url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz"
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
-    zen-browser = {
-      url = "github:youwen5/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    #nixCats.url = "github:BirdeeHub/nixCats-nvim";
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
 
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
 
-    # nixarr.url = "github:rasmus-kirk/nixarr";
-
     ucodenix.url = "github:e-tho/ucodenix";
-    raise.url = "github:knarkzel/raise";
-
-    #
-    # ramalama.url = "github:containers/ramalama/main";
   };
 
   #
