@@ -1,4 +1,7 @@
 {pkgs, ...}: {
+  ## USE LIX
+  nix.package = pkgs.lixPackageSets.stable.lix;
+
   imports = [
     ../../nixos/options.nix
     ../../nixos/boot.nix
