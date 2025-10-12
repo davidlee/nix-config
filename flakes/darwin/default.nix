@@ -14,8 +14,6 @@ in {
     ./nix-core.nix
     ./brew.nix
     ./packages.nix
-   
-    # ../modules/nixCats.nix
 
     inputs.lix-module.nixosModules.default
 

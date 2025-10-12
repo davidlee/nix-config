@@ -9,5 +9,16 @@
     # ## lang.c
     valgrind
     strace
+
+    # ## servers
+    caddy
+
+    ## database
+    sqlite
+    # gobang
+    # lazysql
+    # rainfrog
+    # stable.harlequin
+    # vi-mongo
   ];
 }

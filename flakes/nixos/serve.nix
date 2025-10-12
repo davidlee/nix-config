@@ -32,21 +32,6 @@
       ensureDatabases = [username];
       enableTCPIP = false;
     };
-
-    # forgejo = {
-    #   enable = false;
-    # };
-    #
-    # taskchampion-sync-server = {
-    #   enable = false;
-    # };
-
-    mpd = {
-      enable = false;
-      musicDirectory = "/media/music";
-      extraConfig = ''
-      '';
-    };
   };
 
   networking.firewall.allowedTCPPorts = [80 443];

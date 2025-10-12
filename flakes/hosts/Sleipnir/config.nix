@@ -17,7 +17,6 @@
     ./hardware-configuration.nix
 
     ../../modules/shared-packages.nix
-    ../../modules/shared-development.nix
     ../../modules/shared-tui.nix
     ../../modules/shared-shell.nix
     ../../modules/shared-scm.nix
@@ -38,14 +37,21 @@
     ../../nixos/options.nix
     ../../nixos/boot.nix
     ../../nixos/accounts.nix
+    ../../nixos/env.nix
+    ../../nixos/pkg.nix
     ../../nixos/network.nix
     ../../nixos/serve.nix
     ../../nixos/virtualisation.nix
     ../../nixos/wayland.nix
     ../../nixos/sway.nix
     ../../nixos/dev.nix
-    ../../nixos/tui.nix
+    ../../nixos/lang.nix
+    ../../nixos/media.nix
     ../../nixos/packages.nix
+    ../../nixos/sysmon.nix
+    ../../nixos/util.nix
+    ../../nixos/keeb.nix
+
     ../../nixos/apps.nix
     ../../nixos/browsers.nix
     ../../nixos/editors.nix
