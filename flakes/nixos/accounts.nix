@@ -49,7 +49,7 @@
       homeMode = "755";
       isNormalUser = true;
       description = "David Lee";
-      extraGroups = ["networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode"];
+      extraGroups = ["networkmanager" "wheel" "root" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode" "input"];
       home = "/home/${username}";
       shell = pkgs.zsh;
       packages = [
