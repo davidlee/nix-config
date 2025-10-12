@@ -21,6 +21,10 @@ lz.load({
       python = { "ruff" },
       html = { "tidy" },
     }
+    local ruff = lint.linters.ruff
+    ruff.args = {
+      -- "-q",
+    }
   end,
 })
 
