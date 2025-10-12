@@ -27,6 +27,9 @@
     lxc
     # lxd-lts
     incus
+    docui
+    # lazydocker
+    # gomanagedocker
   ];
 
   virtualisation = {

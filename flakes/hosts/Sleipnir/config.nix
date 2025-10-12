@@ -14,27 +14,33 @@
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = [
-    ../../nixos/options.nix
-    ../../nixos/boot.nix
-    ../../nixos/radeon.nix
-    ../../nixos/network.nix
-    ../../nixos/accounts.nix
-    ../../nixos/packages.nix
-    ../../nixos/dev.nix
-    ../../nixos/tui.nix
-    ../../nixos/apps.nix
-    ../../nixos/wayland.nix
-    ../../nixos/sway.nix
-    ../../nixos/serve.nix
-    ../../nixos/virtualisation.nix
-    ../../nixos/fonts.nix
-    # ../../nixos/rust.nix
-    # ../../modules/zig.nix
-    # ../../nixos/games.nix
     ./hardware-configuration.nix
 
-    # inputs.lix-module.nixosModules.default
-    # inputs.nixarr.nixosModules.default
+    ../../modules/shared-packages.nix
+    ../../modules/shared-development.nix
+    ../../modules/shared-tui.nix
+
+    ../../nixos/options.nix
+    ../../nixos/boot.nix
+    ../../nixos/accounts.nix
+    ../../nixos/network.nix
+    ../../nixos/serve.nix
+    ../../nixos/virtualisation.nix
+    ../../nixos/wayland.nix
+    ../../nixos/sway.nix
+    ../../nixos/dev.nix
+    ../../nixos/tui.nix
+    ../../nixos/packages.nix
+    ../../nixos/apps.nix
+    ../../nixos/radeon.nix
+    ../../nixos/games.nix
+    ../../nixos/fonts.nix
+    ../../nixos/ai.nix
+
+    # ../../nixos/graphics.nix
+    # ../../nixos/audio.nix
+    # ../../nixos/rust.nix
+    # ../../modules/zig.nix
     # ../../nixos/gnome.nix
     # ../../nixos/nur.nix
     # ../../nixos/hyprland.nix
@@ -82,7 +88,7 @@
   fileSystems."/".options = ["noatime" "nodiratime" "discard"];
 
   services = {
-    kmonad.enable = true;
+    # kmonad.enable = true;
     devmon.enable = true;
     gvfs.enable = true;
     udisks2.enable = true;
@@ -130,17 +136,16 @@
   };
 
   environment.systemPackages = with pkgs; [
-    jack2
-    libjack2
-    qjackctl
+    # jack2
+    # libjack2
+    # qjackctl
     pavucontrol
-    jack_capture
+    # jack_capture
   ];
 
   hardware = {
     logitech.wireless.enable = true;
     opentabletdriver.enable = true;
-    xpadneo.enable = true;
     i2c.enable = true;
 
     # it's amazing bluetooth _ever_ works

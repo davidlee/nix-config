@@ -5,7 +5,8 @@
 }: {
   hardware = {
     steam-hardware.enable = true;
-    xone.enable = true;
+    # xone.enable = true;
+    xpadneo.enable = true;
   };
 
   programs = {
@@ -111,7 +112,13 @@
       protonup-qt
 
       # minecraft
-      # prismlauncher
+      prismlauncher
+
+      ## games
+      # retroarch-full
+      # limo
+      # lutris
+      # gamehub
 
       # wine-staging
       # wineWowPackages.stagingFull # support both 32 and 64 bit
