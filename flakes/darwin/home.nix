@@ -3,8 +3,6 @@
     ../home/zsh.nix
     ../home/nvim.nix
     ../home/programs.nix
-    # ../home/nixCats.nix
-
   ];
 
   home = {

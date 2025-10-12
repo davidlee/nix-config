@@ -3,11 +3,15 @@
   inputs,
   lib,
   config,
-  options,
   username,
   ...
 }: {
   imports = [inputs.ucodenix.nixosModules.default];
+
+  environment.systemPackages = with pkgs; [
+    greetd
+    tuigreet
+  ];
 
   boot = {
     loader = {

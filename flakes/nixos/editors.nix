@@ -1,6 +1,10 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
-    ## editors
+    inputs.helix.packages.x86_64-linux.default
     # neovim-gtk
     # emacs-gtk
     obsidian
