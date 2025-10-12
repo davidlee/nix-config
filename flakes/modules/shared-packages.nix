@@ -1,6 +1,9 @@
 {pkgs, ...}: {
   # system packages
   #
+  # TODO split up into themes
+  # shared-packages-shell.nix etc
+  # for easier swapping in/out of builds
   environment.systemPackages = with pkgs; [
     ## zsh / posix
     zsh
@@ -69,7 +72,7 @@
     wget
     xh
     yt-dlp
-    nextdns
+    # nextdns
 
     ## files / find
     fd
@@ -114,7 +117,7 @@
 
     ## English
     vale
-    vale-ls
+    # vale-ls
     aspell
 
     ## download / backup

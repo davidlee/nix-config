@@ -5,38 +5,6 @@
   ...
 }: {
   environment.systemPackages = with pkgs; [
-    ## daw & audio
-    # carla # BROKEN (pyliblo)
-    reaper
-    bitwig-studio
-    renoise
-    # lmms # BROKEN
-    # zrythm # BROKEN
-    # ardour
-    # hydrogen
-    # audacity
-    # yoshimi
-    # qtractor
-    # rakarrack
-    # guitarix
-    # supercollider-with-plugins
-    # chuck
-    vcv-rack
-    cardinal
-    helm
-    pavucontrol
-
-    ## graphics & 3d
-    blender
-    gimp-with-plugins
-    krita
-    inkscape
-    # darktable
-    # ansel
-    # digikam
-    penpot-desktop
-    # pikopixel
-
     ## media players
     vlc
     # kodi-wayland
@@ -46,17 +14,18 @@
     # kdePackages.gwenview
 
     ## video
-    # shortcut #??
+    # shortcut
 
     ## util
+    pavucontrol
     _1password-gui
+    flameshot
     virt-viewer
     # upscayl
     # evince
     # persepolis
     # qbittorrent
-    #calibre
-    flameshot
+    # calibre
     # ventoy-full
     # artha
     # guvcview
@@ -75,12 +44,6 @@
     # gnome-frog
     papers
     scribus
-
-    ## games
-    # retroarch-full
-    # limo
-    # lutris
-    # gamehub
 
     ## messaging / social
     newsflash
@@ -114,8 +77,8 @@
     rio
 
     ## editors
-    neovim-gtk
-    emacs-gtk
+    # neovim-gtk
+    # emacs-gtk
     obsidian
     code-cursor
     vscode
@@ -123,8 +86,8 @@
     xed-editor
     joplin
     claude-code
-    zim
-    #kdePackages.kate
+    # zim
+    # kdePackages.kate
     lapce
     # saber
     # sublime4
@@ -136,10 +99,6 @@
     # minder
     # semantik
     # vue
-
-    # ai / ml
-    gpt-cli
-    claude-code
 
     ## search
     recoll
@@ -159,23 +118,21 @@
     # vscodium
 
     ## browsers
-    # inputs.zen-browser.packages.${pkgs.system}.default
     vivaldi
-
-    # ladybird
     librewolf
     firefox
     firefox-devedition
-
     firefoxpwa
-    # qutebrowser
     floorp-bin
     ungoogled-chromium
-    # palemoon-bin
     tor-browser
-    # kdePackages.angelfish
     pkgs.firefoxpwa
+    # ladybird
     # midori
+    # qutebrowser
+    # kdePackages.angelfish
+    # palemoon-bin
+    # inputs.zen-browser.packages.${pkgs.system}.default
 
     ## non-web
     # bombadillo

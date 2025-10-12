@@ -1,8 +1,4 @@
 {pkgs, ...}: {
-  imports = [
-    ./zig.nix
-  ];
-
   environment.systemPackages = with pkgs; [
     ## programming - general
     exercism
@@ -14,7 +10,7 @@
     # xonsh
 
     ## charmbracelet
-    vhs
+    # vhs
     freeze
     gum
     # skate
@@ -62,20 +58,20 @@
     tree-sitter
     lsp-ai
     simple-completion-language-server
-    dot-language-server
-    yaml-language-server
-    tooling-language-server
-    mdx-language-server
+    # dot-language-server
+    # yaml-language-server
+    # tooling-language-server
+
     # docker-language-server
-    bash-language-server
-    vim-language-server
+    # bash-language-server
+    # vim-language-server
     # just-lsp
-    postgres-lsp
-    typos-lsp
-    htmx-lsp
-    jq-lsp
+    # postgres-lsp
+    # typos-lsp
+    # htmx-lsp
+    # jq-lsp
     # fish-lsp
-    ctags-lsp
+    # ctags-lsp
 
     ## cli dev utils
     semgrep
@@ -107,8 +103,8 @@
     libclang
 
     ## lang.elixir
-    elixir
-    lexical
+    # elixir
+    # lexical
 
     ## lang.go
     go
@@ -117,18 +113,18 @@
     ## lang.python
     python3
     uv
-    python313Packages.pywatchman
-    python3Packages.pip
-    python3Packages.python-lsp-server
-    python3Packages.python-lsp-ruff
-    python3Packages.python-lsp-jsonrpc
-    python3Packages.python-lsp-black
-    python3Packages.pyls-isort
-    python3Packages.pyls-flake8
-    python3Packages.flake8
-    python3Packages.isort
-    python3Packages.black
-    docutils
+    # python313Packages.pywatchman
+    # python3Packages.pip
+    # python3Packages.python-lsp-server
+    # python3Packages.python-lsp-ruff
+    # python3Packages.python-lsp-jsonrpc
+    # python3Packages.python-lsp-black
+    # python3Packages.pyls-isort
+    # python3Packages.pyls-flake8
+    # python3Packages.flake8
+    # python3Packages.isort
+    # python3Packages.black
+    # docutils
     # jupyter-all
 
     ## lang.odin
@@ -138,45 +134,45 @@
     # clojure-lsp
 
     # lang.scheme
-    chez
-    chicken
-    guile
+    # chez
+    # chicken
+    # guile
 
     ## lang.haskell
-    haskell-language-server
-    ghc
+    # haskell-language-server
+    # ghc
 
     ## lang.ruby
     ruby
-    ruby-lsp
+    # ruby-lsp
     bundler
-    rake
-    rbenv
+    # rake
+    # rbenv
 
     ## lang.lua
-    lua
-    stylua
+    # lua
+    # stylua
     # la51Packages.rocks-nvim
     # vimPlugins.fzf-lua
     # luarocks-packages-updater
     # lua-language-server
 
     ## lang.js
-    bun
-    pnpm
-    corepack_latest
-    nodejs_latest
-    typescript-language-server
-    typescript
-    emscripten
-    deno
-    nodejs_latest
-    eslint
-    prettier
+    # bun
+    # pnpm
+    # corepack_latest
+    # nodejs_latest
+    # typescript-language-server
+    # typescript
+    # emscripten
+    # deno
+    # nodejs_latest
+    # eslint
+    # prettier
 
     ## lang.zig
-    zig
+    # zig
     # zls
-    zig-shell-completions
+    # zig-shell-completions
   ];
 }

@@ -4,10 +4,6 @@
   inputs,
   ...
 }: {
-  imports = [
-    ../modules/shared-tui.nix
-  ];
-
   environment.systemPackages = with pkgs; [
     inputs.helix.packages.x86_64-linux.default
 
@@ -31,12 +27,6 @@
     ## text readers, pagers
     fltrdr
     circumflex
-
-    ## containers
-    distrobox-tui
-    docui
-    lazydocker
-    gomanagedocker
 
     ## disk & file io
     mmtui # mount manager

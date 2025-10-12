@@ -16,13 +16,6 @@
       };
     };
 
-    # ollama = {
-    #   enable = true;
-    #   acceleration = "rocm";
-    #   rocmOverrideGfx = "10.3.0";
-    #   package = pkgs.ollama-rocm;
-    # };
-    #
     postgresql = {
       enable = false;
       ensureUsers = [
@@ -40,16 +33,16 @@
       enableTCPIP = false;
     };
 
-    forgejo = {
-      enable = false;
-    };
-
-    taskchampion-sync-server = {
-      enable = false;
-    };
+    # forgejo = {
+    #   enable = false;
+    # };
+    #
+    # taskchampion-sync-server = {
+    #   enable = false;
+    # };
 
     mpd = {
-      enable = true;
+      enable = false;
       musicDirectory = "/media/music";
       extraConfig = ''
       '';
