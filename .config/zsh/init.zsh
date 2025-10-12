@@ -20,7 +20,7 @@ setopt BEEP
 unsetopt FLOW_CONTROL
 
 # OMZ plugins
-plugins=(colored-man-pages extract taskwarrior 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
+plugins=(colored-man-pages extract 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
 
 zle -N menu-search
 zle -N recent-paths
@@ -48,19 +48,17 @@ WORDCHARS='*?_.[]~&;!#$%^(){}<>'
 autoload -Uz select-word-style
 select-word-style normal
 
-ZSH_AUTOSUGGEST_STRATEGY=(history completion)
-# ZSH_AUTOSUGGEST_STRATEGY=()
+# ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_STRATEGY=()
 
 if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
 
-# TODO: figure out how to skip this if launched with e.g. ghostty -e somecommand
-# (as with sway-launcher-desktop)
 
 if [[ -z $TMUX ]]; then
   # (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
-  (tmux list-sessions | grep -v -E '^_') || echo "No tmux sessions."
+  (tmux list-sessions 2>/dev/null | grep -v -E '^_') || echo "No tmux sessions."
 fi
 
 # silence, nix-direnv
