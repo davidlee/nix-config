@@ -20,7 +20,7 @@
     pavucontrol
     _1password-gui
     flameshot
-    virt-viewer
+    # virt-viewer
     # upscayl
     # evince
     # persepolis
@@ -76,24 +76,6 @@
     kitty
     rio
 
-    ## editors
-    # neovim-gtk
-    # emacs-gtk
-    obsidian
-    code-cursor
-    vscode
-    zed-editor
-    xed-editor
-    joplin
-    claude-code
-    # zim
-    # kdePackages.kate
-    lapce
-    # saber
-    # sublime4
-    marktext
-    apostrophe
-
     ## mind map etc
     freemind
     # minder
@@ -117,23 +99,6 @@
     # vscode-extensions.saoudrizwan.claude-dev
     # vscodium
 
-    ## browsers
-    vivaldi
-    librewolf
-    firefox
-    firefox-devedition
-    firefoxpwa
-    floorp-bin
-    ungoogled-chromium
-    tor-browser
-    pkgs.firefoxpwa
-    # ladybird
-    # midori
-    # qutebrowser
-    # kdePackages.angelfish
-    # palemoon-bin
-    # inputs.zen-browser.packages.${pkgs.system}.default
-
     ## non-web
     # bombadillo
     # amfora
@@ -142,12 +107,5 @@
     # godot
     # stable.godot_4
   ];
-
-  programs.firefox = {
-    enable = true;
-    package = pkgs.firefox;
-    nativeMessagingHosts.packages = [pkgs.firefoxpwa];
-  };
-
   services.flatpak.enable = true;
 }
