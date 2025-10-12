@@ -10,7 +10,9 @@ mkdir -p "$CONFIG_DIR"
 
 # Default configuration
 DEFAULT_INTERVAL=1800 # 30 minutes in seconds
-DEFAULT_MESSAGE="Time to take a break! Step away from your screen."
+DEFAULT_MESSAGE="Get out of your chair. Rest your eyes. Stretch."
+
+ICON=/run/current-system/sw/share/icons/hicolor/scalable/actions/sysprof-calgraph.svg
 
 # Initialize config file if it doesn't exist
 if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -95,7 +97,7 @@ get_time_remaining() {
 
 # Function to send notification
 send_notification() {
-    notify-send -u critical -i dialog-information "Break Reminder" "$MESSAGE"
+    notify-send -u low -i $ICON "Break Reminder" "$MESSAGE"
 }
 
 # Function to reset timer

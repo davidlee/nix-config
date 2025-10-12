@@ -8,6 +8,10 @@ path+=$PWD/bin
 
 typeset -U path
 
+typeset -U fpath
+
+fpath+=~/.config/zsh/completions
+
 setopt extended_glob
 setopt glob_dots
 setopt HIST_REDUCE_BLANKS
