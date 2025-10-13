@@ -64,6 +64,7 @@
         "microcode.amd_sha_check=off"
       ]
       else [];
+
     extraModulePackages = with config.boot.kernelPackages; [xpadneo];
 
     blacklistedKernelModules = [
