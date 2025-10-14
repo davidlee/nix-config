@@ -130,6 +130,7 @@
           waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
           theme = "'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'";
           tuigreetOptions = [
+            "--cmd sway"
             "--remember"
             "--remember-session"
             "--sessions ${waylandSessions}:${xSessions}"
