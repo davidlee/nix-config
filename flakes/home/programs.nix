@@ -5,22 +5,21 @@
 
   programs = {
     # firefox.enable = true;
+    # librewolf.enable = true;
+    # nushell.enable = true;
+    # fish.enable = true;
     git.enable = true;
-    librewolf.enable = true;
-    nushell.enable = true;
-    fish.enable = true;
     cava.enable = true;
     zk.enable = true;
     nix-search-tv.enableTelevisionIntegration = true;
 
-    # BROKEN
     # ghostty = {
     #   enable = true;
     #   enableZshIntegration = true;
     # };
 
     # using dev branch from custom input instead
-    #
+
     # helix = {
     #   enable = true;
     #   defaultEditor = true;
@@ -56,7 +55,7 @@
     carapace = {
       enable = true;
       enableZshIntegration = true;
-      enableNushellIntegration = true;
+      # enableNushellIntegration = true;
     };
 
     eza = {
@@ -77,7 +76,7 @@
     zoxide = {
       enable = true;
       enableZshIntegration = true;
-      enableNushellIntegration = true;
+      # enableNushellIntegration = true;
       options = [
         "--cmd cd"
         "--hook pwd"
@@ -86,21 +85,21 @@
 
     atuin = {
       enable = true;
-      enableFishIntegration = true;
-      enableNushellIntegration = true;
-      flags = ["--disable-up-arrow"];
+      # enableFishIntegration = true;
+      # enableNushellIntegration = true;
+      # flags = ["--disable-up-arrow"];
       settings = {
-        show_tabs = false;
+        # show_tabs = false;
         style = "compact";
       };
     };
 
-    zellij = {
-      enable = true;
-      # enableZshIntegration = true;
-      # attachExistingSession = true;
-      # exitShellOnExit = false;
-    };
+    # zellij = {
+    #   enable = true;
+    #   # enableZshIntegration = true;
+    #   # attachExistingSession = true;
+    #   # exitShellOnExit = false;
+    # };
 
     yazi = {
       enable = true;

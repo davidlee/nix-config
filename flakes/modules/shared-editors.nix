@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     ## text editors
-    # helix REPLACED w edge
+    # helix - use overlay
     kakoune
     kakoune-lsp
     kakoune-cr

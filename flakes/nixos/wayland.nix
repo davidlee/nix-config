@@ -27,13 +27,9 @@ in {
   programs = {
     seahorse.enable = true;
     dconf.enable = true;
-    # gnome-disks.enable = true;
+    gnome-disks.enable = true;
     # fix collision w/ KDE; prefer gnome's secrets manager
     # ssh.askPassword = pkgs.lib.mkForce "${pkgs.seahorse.out}/libexec/seahorse/ssh-askpass";
-
-    # labwc.enable = true;
-    # river.enable = true;
-    # niri.enable = true;
   };
 
   services = {
@@ -106,8 +102,8 @@ in {
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
-      # xdg-desktop-portal-gnome
-      xdg-desktop-portal-hyprland
+      xdg-desktop-portal-gnome
+      # xdg-desktop-portal-hyprland
       kdePackages.xdg-desktop-portal-kde
       # xdg-desktop-portal-termfilechooser
       # xdg-desktop-portal-xapp
@@ -115,9 +111,10 @@ in {
 
     config = {
       common = {
+        default = ["wlr" "gtk" "kde"];
         # default = ["Hyprland" "gtk" "wlr" "kde"];
-        # "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
-        # "org.freedesktop.impl.portal.FileChooser" = ["kde"];
+        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+        "org.freedesktop.impl.portal.FileChooser" = ["kde"];
       };
       kde = {
         "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
@@ -128,6 +125,8 @@ in {
   environment.etc = {
     "1password/custom_allowed_browsers" = {
       text = ''
+        firefox
+        floorp
         vivaldi-bin
         zen
       '';
@@ -166,13 +165,10 @@ in {
     wl-mirror
     wlopm
     wlr-layout-ui
-    # gnome-system-monitor
-    # gnome-calendar
-    # gnomeExtensions.appindicator
 
-    # compositors
-    # river
-    niri
+    gnome-system-monitor
+    gnome-calendar
+    gnomeExtensions.appindicator
 
     # notifications
     mako
@@ -204,7 +200,7 @@ in {
     wev
     wshowkeys
     showmethekey
-    kmonad
+    # kmonad
 
     # viewers
     swayimg
@@ -283,36 +279,11 @@ in {
     home.packages = with pkgs; [
       # others
       hyprlock
-      hypridle
       swayosd
     ];
 
     services = {
       swayosd.enable = true;
-
-      # hypridle = {
-      #   enable = true;
-      #   settings = {
-      #     general = {
-      #       # after_sleep_cmd = "hyprctl dispatch dpms on";
-      #       after_sleep_cmd = "wlopm --off ${screen}";
-      #       ignore_dbus_inhibit = false;
-      #       lock_cmd = "hyprlock";
-      #     };
-      #
-      #     listener = [
-      #       {
-      #         timeout = 1200;
-      #         on-timeout = "hyprlock";
-      #       }
-      #       {
-      #         timeout = 1500;
-      #         on-timeout = "wlopm --off ${screen}";
-      #         on-resume = "wlopm --on ${screen}";
-      #       }
-      #     ];
-      #   };
-      # }; # hypridle
     }; # services
   }; # home-manager
 }

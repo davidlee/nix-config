@@ -1,4 +1,5 @@
 # Home manager configuration (non-flake)
+# TODO move to ~/nix-config
 {
   username,
   lib,
@@ -17,6 +18,7 @@
     stateVersion = "24.11";
   };
 
+  programs.home-manager.enable = true;
   services.systembus-notify.enable = true;
 
   systemd.user = {
@@ -63,6 +65,4 @@
       };
     };
   };
-
-  programs.home-manager.enable = true;
 }

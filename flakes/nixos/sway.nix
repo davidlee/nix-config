@@ -12,31 +12,46 @@
   }; # programs
 
   services = {
+    gnome.gnome-keyring.enable = true;
   }; # services
 
-  home-manager.users.${username} = {
-    home.packages = with pkgs; [
-      sway-launcher-desktop
-      sway-audio-idle-inhibit
-      sway-easyfocus
-      sway-overfocus
-      sway-scratch
-      sway-new-workspace
-      sway-easyfocus
-      swayidle
-      swaylock
-      swaylock-fancy
-      swaynotificationcenter
-      swaycwd
-      swaymux
-      swaycons
-      swaysettings
-      swayr
-      swayrbar
-      swayosd
-      waybar
-    ]; # user packages
+  # kanshi systemd service - monitor hot-swapping
+  systemd.user.services.kanshi = {
+    description = "kanshi daemon";
+    environment = {
+      WAYLAND_DISPLAY = "wayland-1";
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = ''${pkgs.kanshi}/bin/kanshi -c kanshi_config_file'';
+    };
+  };
 
+  environment.systemPackages = with pkgs; [
+    sway-launcher-desktop
+    sway-audio-idle-inhibit
+    sway-easyfocus
+    sway-overfocus
+    sway-scratch
+    sway-new-workspace
+    sway-easyfocus
+    swayidle
+    swaylock
+    swaylock-fancy
+    swaynotificationcenter
+    swaycwd
+    swaymux
+    swaycons
+    swaysettings
+    swayr
+    swayrbar
+    swayosd
+    waybar
+    mako
+  ];
+
+  home-manager.users.${username} = {
     services = {
       swayosd.enable = true;
       swayidle = let
@@ -92,8 +107,10 @@
 
       config = null; # clobber defaults
       extraConfig = ''
-
         include $HOME/.config/sway/sway.conf
+
+        # give Sway a little time to startup before starting kanshi.
+        exec sleep 5; systemctl --user start kanshi.service
       '';
     }; # sway
 

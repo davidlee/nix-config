@@ -1,7 +1,10 @@
 # NixOS configuration for Sleipnir (non-flake)
-{ config, pkgs, lib, ... }:
-
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   sources = import ../../npins;
 
   # Import stable nixpkgs
@@ -19,9 +22,8 @@ let
   hostname = "Sleipnir";
   username = "david";
   system = "x86_64-linux";
-
 in {
-  ## USE LIX
+  # Lix overlay
   nixpkgs.overlays = [
     (final: prev: {
       inherit
@@ -51,18 +53,17 @@ in {
     ../../modules/shared-build.nix
     ../../modules/shared-supervisors.nix
     ../../modules/shared-keeb.nix
-    ../../modules/shared-lsp.nix
     ../../modules/shared-sysmon.nix
     ../../modules/shared-security.nix
     ../../modules/shared-fileutil.nix
     ../../modules/shared-gfx.nix
     ../../modules/shared-net.nix
-    ../../modules/shared-pkg.nix
 
     ../../nixos/options.nix
     ../../nixos/boot.nix
     ../../nixos/accounts.nix
     ../../nixos/env.nix
+    ../../nixos/nix.nix
     ../../nixos/pkg.nix
     ../../nixos/network.nix
     ../../nixos/serve.nix
@@ -77,7 +78,6 @@ in {
     ../../nixos/util.nix
     ../../nixos/keeb.nix
     ../../nixos/ai.nix
-
     ../../nixos/apps.nix
     ../../nixos/browsers.nix
     ../../nixos/editors.nix
@@ -97,42 +97,6 @@ in {
     # Pass extra arguments to home-manager
     extraSpecialArgs = {
       inherit username hostname stable system sources;
-    };
-  };
-
-  system.stateVersion = "24.11";
-  nixpkgs.config.allowUnfree = true;
-
-  nix = {
-    settings = {
-      trusted-users = ["root" "@wheel"];
-      experimental-features = ["nix-command" "flakes"];
-      max-jobs = 12;
-      cores = 12;
-      auto-optimise-store = true;
-      substituters = [
-        "https://cache.nixos.org"
-        "https://cosmic.cachix.org/"
-        "https://nixpkgs-wayland.cachix.org"
-        "https://walker.cachix.org"
-        "https://walker-git.cachix.org"
-        "https://hyprland.cachix.org"
-      ];
-
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "cosmic.cachix.org-1:Dya9IyXD4xdBehWjrkPv6rtxpmMdRel02smYzA85dPE="
-        "walker.cachix.org-1:fG8q+uAaMqhsMxWjwvk0IMb4mFPFLqHjuvfwQxE4oJM="
-        "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
-        "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-      ];
-    };
-
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 1w";
     };
   };
 

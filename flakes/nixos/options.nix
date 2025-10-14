@@ -21,10 +21,6 @@
         default = false;
         description = "whether to automatically log in kmscon sessions. WARN obvious security implications.";
       };
-
-      # window managers ...
-
-      # nixarr ...
     };
   };
 }
