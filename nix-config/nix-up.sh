@@ -3,7 +3,7 @@
 cd $(dirname $0)
 
 # assume that if there are no args, you want to switch to the configuration
-cmd=${1:-dry-build} # change default to switch when we feel comfy
+cmd=${1:-switch} # change default to switch when we feel comfy
 shift
 
 nixpkgs_pin=$(nix eval --raw -f npins/default.nix nixpkgs)
