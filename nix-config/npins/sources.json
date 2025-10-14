@@ -1,0 +1,147 @@
+{
+  "pins": {
+    "helix": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "helix-editor",
+        "repo": "helix"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "50e4385aefdd1cea80a3a50af62d5eefcb42b4e8",
+      "url": "https://github.com/helix-editor/helix/archive/50e4385aefdd1cea80a3a50af62d5eefcb42b4e8.tar.gz",
+      "hash": "065lvjgibpq6kn3mgvpfnwc9nj54ls0f6xkzzk27hy2kz5a1ydy6"
+    },
+    "home-manager": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "home-manager"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "e121f3773fa596ecaba5b22e518936a632d72a90",
+      "url": "https://github.com/nix-community/home-manager/archive/e121f3773fa596ecaba5b22e518936a632d72a90.tar.gz",
+      "hash": "0m2k94yvplvi9zz3h1gz031r020jw5l35yykqfmqpmvpiqms9m2k"
+    },
+    "lix": {
+      "type": "Tarball",
+      "url": "https://git.lix.systems/lix-project/lix/archive/main.tar.gz",
+      "locked_url": "https://git.lix.systems/api/v1/repos/lix-project/lix/archive/844feb17b562b7b9b59e73e35b73a05f8a531313.tar.gz?rev=844feb17b562b7b9b59e73e35b73a05f8a531313",
+      "hash": "1cy071m1nzlm601qpp8vjv3yq39gapp7m2fp28brwbjb6f59grmv"
+    },
+    "neovim-nightly-overlay": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "neovim-nightly-overlay"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "921a313d1522414e15f0843bae028f5327b0e2e6",
+      "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/921a313d1522414e15f0843bae028f5327b0e2e6.tar.gz",
+      "hash": "1xv6xb9vc65zsscqszjch1cl05cf9a7pzxjlymrxqjsz2g3pw4w2"
+    },
+    "nix-search-tv": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "3timeslazy",
+        "repo": "nix-search-tv"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v2.2.3",
+      "revision": "7499132c98e044e36bc73254d4179cff0d9d7768",
+      "url": "https://api.github.com/repos/3timeslazy/nix-search-tv/tarball/v2.2.3",
+      "hash": "1j3b9c7nm4lpawky8zrqjjmy532i64lbkr4wmyhbpa32gn8dn5by"
+    },
+    "nix-stable": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nixos",
+        "repo": "nixpkgs"
+      },
+      "branch": "nixos-24.11",
+      "submodules": false,
+      "revision": "50ab793786d9de88ee30ec4e4c24fb4236fc2674",
+      "url": "https://github.com/nixos/nixpkgs/archive/50ab793786d9de88ee30ec4e4c24fb4236fc2674.tar.gz",
+      "hash": "1s2gr5rcyqvpr58vxdcb095mdhblij9bfzaximrva2243aal3dgx"
+    },
+    "nixpkgs": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nixos",
+        "repo": "nixpkgs"
+      },
+      "branch": "nixos-unstable",
+      "submodules": false,
+      "revision": "cf3f5c4def3c7b5f1fc012b3d839575dbe552d43",
+      "url": "https://github.com/nixos/nixpkgs/archive/cf3f5c4def3c7b5f1fc012b3d839575dbe552d43.tar.gz",
+      "hash": "0rvzsqn8qk46mw80apwr14m9crc6a1rv404r7zshy1aq82plmbsc"
+    },
+    "rust-overlay": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "oxalica",
+        "repo": "rust-overlay"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "5694018463c2134e2369996b38deed41b1b9afc1",
+      "url": "https://github.com/oxalica/rust-overlay/archive/5694018463c2134e2369996b38deed41b1b9afc1.tar.gz",
+      "hash": "0z9wvw5kmxvbrizf6wh5z1j47fkbnm0r1m39x3a9k79pcqg1vxqs"
+    },
+    "ucodenix": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "e-tho",
+        "repo": "ucodenix"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v1.3.0",
+      "revision": "934406fca20bbd446539842cf7fcceb90a98c94a",
+      "url": "https://api.github.com/repos/e-tho/ucodenix/tarball/v1.3.0",
+      "hash": "064iv6s5zx94bk0iwijvwfnjw9l04ssmr0iin3m31x42gwrrz2d2"
+    },
+    "zig-overlay": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "mitchellh",
+        "repo": "zig-overlay"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "365085b6652259753b598d43b723858184980bbe",
+      "url": "https://github.com/mitchellh/zig-overlay/archive/365085b6652259753b598d43b723858184980bbe.tar.gz",
+      "hash": "095434n7r1k58dfh1f1193q5is7rjfx1vnvcb10shg5rhcczjf7z"
+    },
+    "zls": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "zigtools",
+        "repo": "zls"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "fc8e8b2dab059892695d471e6d4200b2d5d80988",
+      "url": "https://github.com/zigtools/zls/archive/fc8e8b2dab059892695d471e6d4200b2d5d80988.tar.gz",
+      "hash": "1k1ssn1ijvlg2a465a80rlc81dylnrgifflxrrvvka6a5yyq1h28"
+    }
+  },
+  "version": 5
+}

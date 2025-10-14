@@ -1,0 +1,1 @@
+/home/david/flakes/hosts/Sleipnir/hardware-configuration.nix
