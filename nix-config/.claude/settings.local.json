@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/david/flakes/**)",
+      "Bash(npins add github nixos nixpkgs --branch nixos-24.11 --name nix-stable)",
+      "Bash(npins add github mitchellh zig-overlay --branch master)",
+      "Bash(npins add github zigtools zls --branch master)",
+      "Bash(npins add github e-tho ucodenix)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
