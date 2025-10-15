@@ -1,5 +1,5 @@
 [Added Associations]
-application/json=Helix.desktop;
+application/json=dev.zed.Zed.desktop;Helix.desktop;
 application/rss+xml=userapp-Thunderbird-3LNF32.desktop
 application/x-docbook+xml=Helix.desktop;
 application/x-extension-htm=firefox.desktop;zen.desktop;
@@ -47,7 +47,7 @@ x-scheme-handler/mailto=userapp-Thunderbird-0UNG32.desktop
 x-scheme-handler/mid=userapp-Thunderbird-0UNG32.desktop
 x-scheme-handler/news=userapp-Thunderbird-GT2E32.desktop
 x-scheme-handler/nntp=userapp-Thunderbird-GT2E32.desktop
-x-scheme-handler/slack=slack.desktop
+x-scheme-handler/slack=Slack.desktop
 x-scheme-handler/snews=userapp-Thunderbird-GT2E32.desktop
 x-scheme-handler/terminal=com.mitchellh.ghostty.desktop
 x-scheme-handler/tg=org.telegram.desktop.desktop

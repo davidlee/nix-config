@@ -62,6 +62,12 @@ in {
     # dbus
     #
     dbus.packages = [pkgs.gcr];
+
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      pulse.enable = true;
+    };
   }; # services
 
   ## Env
