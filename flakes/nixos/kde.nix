@@ -12,47 +12,69 @@
   };
 
   environment.systemPackages = with pkgs.kdePackages; [
-    kate
     kdeplasma-addons
-    #kmouth
-    # kamoso
-    ksshaskpass
-    calendarsupport
-    kaccounts-providers
-    kpkpass
-    # kdesu
-    kwrited
-    kweather
-    # kalarm
-    # kalk
-    # kalm
-    # kasts
-    kauth
-    # kbookmarks
-    # ark
-
-    bluedevil
-    bluez-qt
+    plasma-desktop
+    plasma-systemmonitor
+    plasma-browser-integration
+    plasma-thunderbolt
+    plasma-vault
+    plasma-workspace
+    plasma-workspace-wallpapers
 
     breeze
     breeze-icons
     breeze-gtk
     breeze-plymouth
 
-    #calligra
-    #cantor
+    ksshaskpass
+    kpkpass
+    kauth
+    kwallet-pam
+    kwalletmanager
+
+    kiconthemes
+    kscreenlocker
+    kwindowsystem
+    kaccounts-providers
+
+    kde-cli-tools
+    calendarsupport
+    bluedevil
+    bluez-qt
+    xwaylandvideobridge
+
     dolphin
     dolphin-plugins
     drkonqi
-    elisa
+
+    kate
+    kweather
+    gwenview
+    karchive
+    marknote
+    klevernotes
+    zanshin
+
+    # elisa
+    # kwrited
+
+    # kalarm
+    # kdesu
+    # kalk
+    # kalm
+    # kasts
+    # kbookmarks
+    # kmouth
+    # kamoso
+    # ark
+    # calligra
+    # cantor
     # eventviews
     # falkon
     # filelight
     # ghostwriter
-    gwenview
     # isoimagewriter
     # kapidox BROKEN
-    karchive
     # katomic
     # kbackup
     # kbookmarks
@@ -61,14 +83,11 @@
     # kcolorchooser
     # kcolorpicker
     # kcron
-    kde-cli-tools
     # kdiagram
     # kget
     # kgeography
     # kgamma
     # kgraphviewer
-    kiconthemes
-    klevernotes
     # kmix
     # koi
     # kolf
@@ -77,29 +96,14 @@
     # korganizer
     # kruler
     # kscreen
-    kscreenlocker
     # ktimer
     # ktouch
     # ktorrent
-    kwallet-pam
-    kwalletmanager
     # kwave
     # kwin
-    kwindowsystem
-    marknote
     # neochat
-    plasma-desktop
-    plasma-systemmonitor
-    plasma-browser-integration
-    plasma-thunderbolt
-    plasma-vault
-    plasma-workspace
-    plasma-workspace-wallpapers
     # plasmatube
     # spectacle
-    xwaylandvideobridge
-
-    zanshin
   ];
 
   environment.plasma6.excludePackages = with pkgs.kdePackages; [
