@@ -36,6 +36,7 @@ in {
     })
   ];
   nix.package = pkgs.lixPackageSets.stable.lix;
+  nix.channel.enable = false;
 
   imports = [
     ./hardware-configuration.nix

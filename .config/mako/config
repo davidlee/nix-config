@@ -1,4 +1,6 @@
 max-history=10
+default-timeout=30000
+sort=-priority
 
 [app-name=Spotify]
 icon-border-radius=5
