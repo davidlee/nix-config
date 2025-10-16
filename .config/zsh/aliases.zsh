@@ -82,12 +82,15 @@ alias ip=ip -color;
 
 # nix
 alias drs="cd ~/flakes && sudo darwin-rebuild switch --flake '.#fusillade' ";
-alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch |& nom --json' ";
-alias nrb="sudo zsh -c 'nixos-rebuild --no-reexec -v --log-format internal-json |& nom --json --show-trace' ";
+alias nr="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch --flake /home/david/flakes/\#Sleipnir |& nom --json' ";
+alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch --flake /home/david/flakes/\#Sleipnir |& nom --json' ";
+alias nrb="sudo zsh -c 'nixos-rebuild --no-reexec -v --log-format internal-json --flake /home/david/flakes/\#Sleipnir |& nom --json --show-trace' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
 alias -g om=' --log-format internal-json -v |& nom --json';
 alias lgc='lazygit -g ~/.cfg -w ~/';
 alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --scheme history"
+
+
 
 # hyprland
 alias waybar-reload='pkill waybar --signal SIGUSR2'

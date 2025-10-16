@@ -43,6 +43,7 @@
     ../../nixos/virtualisation.nix
     ../../nixos/wayland.nix
     ../../nixos/sway.nix
+    # ../../nixos/kde.nix
     ../../nixos/dev.nix
     ../../nixos/lang.nix
     ../../nixos/media.nix
@@ -51,14 +52,12 @@
     ../../nixos/util.nix
     ../../nixos/keeb.nix
     ../../nixos/ai.nix
-
     ../../nixos/apps.nix
     ../../nixos/browsers.nix
     ../../nixos/editors.nix
     ../../nixos/radeon.nix
     ../../nixos/games.nix
     ../../nixos/fonts.nix
-    ../../nixos/ai.nix
   ];
 
   # enable SSD trim & improve perf
