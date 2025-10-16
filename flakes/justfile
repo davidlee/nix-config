@@ -1,2 +1,0 @@
-darwin-switch:
-    darwin-rebuild switch --flake '.#fusillade'

@@ -11,6 +11,8 @@
     desktopManager.plasma6.enable = true;
   };
 
+  programs.ssh.askPassword = pkgs.lib.mkForce "${pkgs.kdePackages.ksshaskpass.out}/bin/ksshaskpass";
+
   environment.systemPackages = with pkgs.kdePackages; [
     # pkgs.hello
     kdeplasma-addons
