@@ -9,9 +9,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "50e4385aefdd1cea80a3a50af62d5eefcb42b4e8",
-      "url": "https://github.com/helix-editor/helix/archive/50e4385aefdd1cea80a3a50af62d5eefcb42b4e8.tar.gz",
-      "hash": "065lvjgibpq6kn3mgvpfnwc9nj54ls0f6xkzzk27hy2kz5a1ydy6"
+      "revision": "f6f8634eb07f35f02bd2881666925a90513f6f3b",
+      "url": "https://github.com/helix-editor/helix/archive/f6f8634eb07f35f02bd2881666925a90513f6f3b.tar.gz",
+      "hash": "098rhjhl7x23h4br6rh5n4fihyxhk2z7l35id43ykidl2ihxn4b9"
     },
     "home-manager": {
       "type": "Git",
@@ -22,15 +22,15 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "e121f3773fa596ecaba5b22e518936a632d72a90",
-      "url": "https://github.com/nix-community/home-manager/archive/e121f3773fa596ecaba5b22e518936a632d72a90.tar.gz",
-      "hash": "0m2k94yvplvi9zz3h1gz031r020jw5l35yykqfmqpmvpiqms9m2k"
+      "revision": "c53e65ec92f38d30e3c14f8d628ab55d462947aa",
+      "url": "https://github.com/nix-community/home-manager/archive/c53e65ec92f38d30e3c14f8d628ab55d462947aa.tar.gz",
+      "hash": "03z33p28hgwkgaynkl6w0akwbfrkgsb217073b9lhyd9h0bkixnd"
     },
     "lix": {
       "type": "Tarball",
       "url": "https://git.lix.systems/lix-project/lix/archive/main.tar.gz",
-      "locked_url": "https://git.lix.systems/api/v1/repos/lix-project/lix/archive/844feb17b562b7b9b59e73e35b73a05f8a531313.tar.gz?rev=844feb17b562b7b9b59e73e35b73a05f8a531313",
-      "hash": "1cy071m1nzlm601qpp8vjv3yq39gapp7m2fp28brwbjb6f59grmv"
+      "locked_url": "https://git.lix.systems/api/v1/repos/lix-project/lix/archive/cac395ffbccbd0ebdbd6c7aa46f003a0be212112.tar.gz?rev=cac395ffbccbd0ebdbd6c7aa46f003a0be212112",
+      "hash": "1a6sf7s18xh89ff5qa87al2gkhhlh8zpr3y762998lnrqlcjdfc9"
     },
     "neovim-nightly-overlay": {
       "type": "Git",
@@ -41,9 +41,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "921a313d1522414e15f0843bae028f5327b0e2e6",
-      "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/921a313d1522414e15f0843bae028f5327b0e2e6.tar.gz",
-      "hash": "1xv6xb9vc65zsscqszjch1cl05cf9a7pzxjlymrxqjsz2g3pw4w2"
+      "revision": "800a400cde11cbdc9296bc3246869495560d2c9e",
+      "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/800a400cde11cbdc9296bc3246869495560d2c9e.tar.gz",
+      "hash": "04sl4prpymz9k9y0z2p04hx3vjp1bw354hi886a6jm3rll6dc6qr"
     },
     "nix-search-tv": {
       "type": "GitRelease",
@@ -96,9 +96,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "5694018463c2134e2369996b38deed41b1b9afc1",
-      "url": "https://github.com/oxalica/rust-overlay/archive/5694018463c2134e2369996b38deed41b1b9afc1.tar.gz",
-      "hash": "0z9wvw5kmxvbrizf6wh5z1j47fkbnm0r1m39x3a9k79pcqg1vxqs"
+      "revision": "11e0852a2aa3a65955db5824262d76933750e299",
+      "url": "https://github.com/oxalica/rust-overlay/archive/11e0852a2aa3a65955db5824262d76933750e299.tar.gz",
+      "hash": "0ijpq78xhh8brnxg45hg11zzpz7psiywjjc55yx0rcs90c0qzqfw"
     },
     "ucodenix": {
       "type": "GitRelease",
@@ -138,9 +138,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "fc8e8b2dab059892695d471e6d4200b2d5d80988",
-      "url": "https://github.com/zigtools/zls/archive/fc8e8b2dab059892695d471e6d4200b2d5d80988.tar.gz",
-      "hash": "1k1ssn1ijvlg2a465a80rlc81dylnrgifflxrrvvka6a5yyq1h28"
+      "revision": "f486e884f479dd816f1c57a4be7f445f3d3b279c",
+      "url": "https://github.com/zigtools/zls/archive/f486e884f479dd816f1c57a4be7f445f3d3b279c.tar.gz",
+      "hash": "1xrsv6n61i8hsyi3qkw9plyik1sn8dfl2kwakx306z66dgdgm31h"
     }
   },
   "version": 5
