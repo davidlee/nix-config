@@ -12,6 +12,7 @@
   };
 
   environment.systemPackages = with pkgs.kdePackages; [
+    # pkgs.hello
     kdeplasma-addons
     plasma-desktop
     plasma-systemmonitor

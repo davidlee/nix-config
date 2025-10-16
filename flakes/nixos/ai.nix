@@ -12,7 +12,7 @@
   environment.systemPackages = with pkgs; [
     ## LLM / AI
     ollama
-    cursor-cli
+    # cursor-cli
     # mods
     # mistral-rs
     # oterm # BROKEN
