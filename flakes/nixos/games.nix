@@ -112,7 +112,7 @@
       protonup-qt
 
       # minecraft
-      # prismlauncher
+      prismlauncher
 
       ## games
       # retroarch-full
