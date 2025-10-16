@@ -13,16 +13,45 @@
     config.allowUnfree = true;
   };
 
-  # Import home-manager
-  home-manager = import sources.home-manager {
-    inherit (pkgs) lib;
+  hmPath = sources.home-manager.outPath;
+  nixSearchPath = sources."nix-search-tv".outPath;
+
+  getFlakeOutputs = source:
+    (builtins.getFlake ("path:" + builtins.toString source.outPath)).outputs;
+
+  inputs = {
+    home-manager = {
+      nixosModules.home-manager = import (hmPath + "/nixos"); # module path
+      packages.${system}.default = import (hmPath + "/home-manager/home-manager.nix") {
+        inherit pkgs lib;
+      }; # or however you prefer to expose this package
+    };
+
+    nix-search-tv = {
+      packages.${system}.default =
+        pkgs.callPackage (nixSearchPath + "/default.nix") {};
+    };
+    helix = getFlakeOutputs sources.helix;
+    # home-manager = getFlakeOutputs sources.home-manager;
+    # "nix-search-tv" = getFlakeOutputs sources."nix-search-tv";
+    "rust-overlay" = getFlakeOutputs sources."rust-overlay";
+    ucodenix = getFlakeOutputs sources.ucodenix;
+    "neovim-nightly-overlay" = getFlakeOutputs sources."neovim-nightly-overlay";
+    "zig-overlay" = getFlakeOutputs sources."zig-overlay";
+    zls = getFlakeOutputs sources.zls;
   };
+
+  # Home Manager module from pinned flake outputs
+  homeManagerModule = inputs.home-manager.nixosModules.home-manager;
 
   # System configuration
   hostname = "Sleipnir";
   username = "david";
   system = "x86_64-linux";
 in {
+  _module.args = {
+    inherit pkgs lib username hostname system stable sources inputs;
+  };
   # Lix overlay
   nixpkgs.overlays = [
     (final: prev: {
@@ -42,7 +71,7 @@ in {
     ./hardware-configuration.nix
 
     # Home manager module
-    (home-manager + "/nixos")
+    homeManagerModule
 
     ../../modules/shared-packages.nix
     ../../modules/shared-tui.nix
@@ -65,7 +94,6 @@ in {
     ../../nixos/accounts.nix
     ../../nixos/env.nix
     ../../nixos/nix.nix
-    ../../nixos/pkg.nix
     ../../nixos/network.nix
     ../../nixos/serve.nix
     ../../nixos/virtualisation.nix
@@ -85,6 +113,7 @@ in {
     ../../nixos/radeon.nix
     ../../nixos/games.nix
     ../../nixos/fonts.nix
+    ../../nixos/kde.nix
   ];
 
   # Home manager configuration
