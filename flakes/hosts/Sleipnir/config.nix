@@ -50,6 +50,7 @@
     nixosModules.apps
     nixosModules.ai
     nixosModules.build
+    nixosModules.terminals
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode

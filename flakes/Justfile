@@ -4,3 +4,8 @@ run *args:
 darwin-switch:
   darwin-rebuild switch --flake '.#fusillade'
 
+update:
+  nix flake update
+
+build:
+  just run dry-build --show-trace -v
