@@ -1,4 +1,4 @@
-{...}: let
+_: let
   fileutilsPackages = pkgs:
     with pkgs; [
       ## file managers

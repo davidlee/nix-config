@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.util = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ## disk / io

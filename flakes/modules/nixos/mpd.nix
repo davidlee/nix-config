@@ -1,5 +1,5 @@
-{...}: {
-  flake.nixosModules.mpd = {...}: {
+_: {
+  flake.nixosModules.mpd = _: {
     services = {
       mpd = {
         enable = false;

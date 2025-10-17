@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.media = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ## CLI

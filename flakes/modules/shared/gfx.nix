@@ -1,4 +1,4 @@
-{...}: let
+_: let
   gfxPackages = pkgs:
     with pkgs; [
       ## graphing

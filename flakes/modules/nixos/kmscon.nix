@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.kmscon = {pkgs, ...}: {
     services = {
       kmscon = {

@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.keyboard = {pkgs, ...}: {
     hardware = {
       # allow non-root write access to firmware

@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.wayland-packages = {
     pkgs,
     username,

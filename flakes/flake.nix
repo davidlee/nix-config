@@ -65,8 +65,6 @@
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
-        ./hosts/Sleipnir/home.nix
-        # ./modules/nixos/ai.nix
       ];
 
       systems = [
@@ -80,6 +78,7 @@
         ...
       }: {
         treefmt.programs.alejandra.enable = true;
+        treefmt.programs.statix.enable = true;
       };
 
       flake = {
@@ -95,7 +94,7 @@
 
           specialArgs = {
             inherit self inputs username hostname system stable;
-            outputs = self.outputs;
+            inherit (self) outputs;
           };
         in {
           "${hostname}" = nixpkgs.lib.nixosSystem {
@@ -118,30 +117,30 @@
           }; # Sleipnir
         }; # nixosConfigurations
 
-        # darwinConfigurations = let
-        #   username = "davidlee";
-        #   hostname = "fusillade";
-        #   system = "aarch64-darwin";
-        #
-        #   pkgs = import nixpkgs {
-        #     inherit system;
-        #     hostPlatform = system;
-        #     config.allowUnfree = true;
-        #   };
-        #
-        #   specialArgs = {
-        #     inherit self inputs pkgs username hostname system;
-        #     outputs = self.outputs;
-        #   };
-        # in {
-        #   "${hostname}" = darwin.lib.darwinSystem {
-        #     inherit pkgs specialArgs;
-        #     modules = [
-        #       {system.configurationRevision = self.rev or self.dirtyRev or null;}
-        #       ./darwin
-        #     ];
-        #   };
-        # }; # Darwin
+        darwinConfigurations = let
+          username = "davidlee";
+          hostname = "fusillade";
+          system = "aarch64-darwin";
+
+          pkgs = import nixpkgs {
+            inherit system;
+            hostPlatform = system;
+            config.allowUnfree = true;
+          };
+
+          specialArgs = {
+            inherit self inputs pkgs username hostname system;
+            inherit (self) outputs;
+          };
+        in {
+          "${hostname}" = darwin.lib.darwinSystem {
+            inherit pkgs specialArgs;
+            modules = [
+              {system.configurationRevision = self.rev or self.dirtyRev or null;}
+              ./darwin
+            ];
+          };
+        }; # Darwin
       };
     });
 }

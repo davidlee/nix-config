@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.x11 = {
     pkgs,
     username,

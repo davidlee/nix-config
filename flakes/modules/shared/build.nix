@@ -1,4 +1,4 @@
-{...}: let
+_: let
   buildPackages = pkgs:
     with pkgs; [
       ## build tools

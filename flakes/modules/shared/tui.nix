@@ -1,4 +1,4 @@
-{...}: let
+_: let
   tuiPackages = pkgs:
     with pkgs; [
       ## text utils

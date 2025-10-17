@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.lib = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       # dictionaries

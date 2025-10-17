@@ -1,25 +1,9 @@
-{...}: {
-  flake.homeModules.Sleipnir = {
-    username,
-    pkgs,
+_: {
+  flake.homeModules.break-remind = {
     self,
+    pkgs,
     ...
   }: {
-    imports = [
-      ../../home/zsh.nix
-      ../../home/programs.nix
-      self.homeModules.nvim-plugins
-      self.homeModules.nvim
-    ];
-
-    home = {
-      inherit username;
-      homeDirectory = "/home/${username}";
-      stateVersion = "24.11";
-    };
-
-    services.systembus-notify.enable = true; # notify-send from systemd
-
     systemd.user = {
       # Nicely reload system units when changing configs
       startServices = "sd-switch";
@@ -70,7 +54,5 @@
         };
       };
     };
-
-    programs.home-manager.enable = true;
   };
 }

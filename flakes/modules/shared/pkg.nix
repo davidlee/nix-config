@@ -1,4 +1,4 @@
-{...}: let
+_: let
   pkgPackages = pkgs:
     with pkgs; [
       unixtools.net-tools

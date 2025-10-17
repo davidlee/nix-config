@@ -1,4 +1,4 @@
-{...}: let
+_: let
   searchPackages = pkgs:
     with pkgs; [
       ## file find & search
