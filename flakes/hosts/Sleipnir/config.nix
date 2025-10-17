@@ -51,6 +51,12 @@
     nixosModules.ai
     nixosModules.build
     nixosModules.terminals
+    nixosModules._1password
+    nixosModules.wayland-packages
+    nixosModules.xdg
+    nixosModules.x11
+    nixosModules.keyring
+    nixosModules.pipewire
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode

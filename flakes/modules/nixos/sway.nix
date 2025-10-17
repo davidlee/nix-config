@@ -11,23 +11,6 @@
       };
     }; # programs
 
-    services = {
-      gnome.gnome-keyring.enable = true;
-    }; # services
-
-    # kanshi systemd service - monitor hot-swapping
-    systemd.user.services.kanshi = {
-      description = "kanshi daemon";
-      environment = {
-        WAYLAND_DISPLAY = "wayland-1";
-        DISPLAY = ":0";
-      };
-      serviceConfig = {
-        Type = "simple";
-        ExecStart = ''${pkgs.kanshi}/bin/kanshi -c kanshi_config_file'';
-      };
-    };
-
     environment.systemPackages = with pkgs; [
       sway-launcher-desktop
       sway-audio-idle-inhibit
@@ -121,5 +104,18 @@
         };
       }; # user programs
     }; # home-manager
+
+    # kanshi systemd service - monitor hot-swapping
+    systemd.user.services.kanshi = {
+      description = "kanshi daemon";
+      environment = {
+        WAYLAND_DISPLAY = "wayland-1";
+        DISPLAY = ":0";
+      };
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = ''${pkgs.kanshi}/bin/kanshi -c kanshi_config_file'';
+      };
+    };
   };
 }
