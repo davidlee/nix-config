@@ -57,6 +57,10 @@
     nixosModules.x11
     nixosModules.keyring
     nixosModules.pipewire
+    nixosModules.bluetooth
+    nixosModules.openrgb
+    nixosModules.locate
+    nixosModules.avahi
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode
@@ -76,81 +80,22 @@
     nixosModules.tui
   ];
 
-  # enable SSD trim & improve perf
-  fileSystems."/".options = ["noatime" "nodiratime" "discard"];
+  programs = {
+    dconf.enable = true;
+    gnome-disks.enable = true;
+  };
 
   services = {
-    # kmonad.enable = true;
     devmon.enable = true;
     gvfs.enable = true;
     udisks2.enable = true;
     sysprof.enable = true;
-    blueman.enable = true;
     printing.enable = true;
-
-    avahi = {
-      enable = true;
-      nssmdns4 = true;
-      openFirewall = true;
-    };
-
-    locate = {
-      enable = true;
-      package = pkgs.plocate;
-      interval = "hourly";
-
-      prunePaths = [
-        "/tmp"
-        "/var/tmp"
-        "/var/cache"
-        "/var/lock"
-        "/var/run"
-        "/var/spool"
-        # use nix-locate / nix-index instead to avoid polluting locate results:
-        "/nix/store"
-        "/nix/var/log/nix"
-      ];
-    };
-
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
-    };
-
-    hardware.openrgb.enable = true;
-
-    udev.packages = [pkgs.openrgb-with-all-plugins];
   };
-
-  environment.systemPackages = with pkgs; [
-    # jack2
-    # libjack2
-    # qjackctl
-    pavucontrol
-    # jack_capture
-  ];
 
   hardware = {
     logitech.wireless.enable = true;
     opentabletdriver.enable = true;
     i2c.enable = true;
-
-    # it's amazing bluetooth _ever_ works
-    bluetooth = {
-      enable = true;
-      powerOnBoot = true;
-
-      settings = {
-        General = {
-          Experimental = true; # battery level
-          JustWorksRepairing = "always";
-          FastConnectable = true;
-          # Class = "0x00100";
-          Privacy = "device";
-        };
-      };
-    };
   };
 }

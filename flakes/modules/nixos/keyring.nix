@@ -1,9 +1,5 @@
 _: {
-  flake.nixosModules.keyring = {
-    pkgs,
-    username,
-    ...
-  }: {
+  flake.nixosModules.keyring = {pkgs, ...}: {
     security = {
       polkit.enable = true;
       pam.services = {
@@ -27,7 +23,7 @@ _: {
     services = {
       gnome = {
         gnome-keyring.enable = true;
-        # gcr-ssh-agent.enable = true;
+        gcr-ssh-agent.enable = true;
       };
 
       dbus.packages = [pkgs.gcr];

@@ -17,28 +17,9 @@ _: let
       hextazy
       hexyl
 
-      ## task / time / calendar mgmt
-      # basilk
-      # calcure
-      # calcurse
-      # gcalcli
-      # taskflow
-      # task-keeper
-      # tasktimer
-      # taskwarrior-tui
-      # vault-tasks
-      # vit
-
-      ## habit trackers
-      # dijo
-      # harsh
-
       ## clock
       clock-rs
-      # tty-clock
-
-      # rust
-      crates-tui
+      tty-clock
 
       ## www
       w3m-full
