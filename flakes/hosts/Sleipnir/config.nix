@@ -61,6 +61,7 @@
     nixosModules.openrgb
     nixosModules.locate
     nixosModules.avahi
+    nixosModules.zed-editor
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode
