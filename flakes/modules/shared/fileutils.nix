@@ -1,0 +1,47 @@
+{...}: let
+  fileutilsPackages = pkgs:
+    with pkgs; [
+      ## file managers
+      broot
+      cfm
+      felix-fm
+      ictree
+      nnn
+      ranger
+      xplr
+      yazi
+      lf
+      superfile
+
+      ## disk & file io
+      ncdu
+      gdu
+      duf
+      pydf
+
+      ## compression
+      xz
+      unar
+      _7zz
+      unrar
+      p7zip
+      unzip
+      gnutar
+      cpio
+      zip
+
+      ## download / backup
+      syncthing
+      backblaze-b2
+      aria2
+      # backintime
+    ];
+in {
+  flake.nixosModules.fileutils = {pkgs, ...}: {
+    environment.systemPackages = fileutilsPackages pkgs;
+  };
+
+  flake.darwinModules.fileutils = {pkgs, ...}: {
+    environment.systemPackages = fileutilsPackages pkgs;
+  };
+}

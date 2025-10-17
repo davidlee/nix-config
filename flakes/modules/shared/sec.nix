@@ -1,0 +1,22 @@
+{...}: let
+  secPackages = pkgs:
+    with pkgs; [
+      #
+      ## security / crypto / secrets
+      nvdtools
+      seclists
+      git-crypt
+      gpgme
+      gpg-tui
+      oath-toolkit
+      _1password-cli
+    ];
+in {
+  flake.nixosModules.sec = {pkgs, ...}: {
+    environment.systemPackages = secPackages pkgs;
+  };
+
+  flake.darwinModules.sec = {pkgs, ...}: {
+    environment.systemPackages = secPackages pkgs;
+  };
+}
