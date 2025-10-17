@@ -42,10 +42,8 @@ _: let
       tdf
 
       ## charmbracelet
-      # vhs
       freeze
       gum
-      # skate
 
       ## converters
       pandoc
@@ -54,7 +52,6 @@ _: let
       neofetch
       fastfetch
       figlet
-      ## frivolity
       fortune
       cmatrix
       nms

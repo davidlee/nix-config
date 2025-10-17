@@ -104,15 +104,7 @@
               # nixos
               ./hosts/${hostname}/config.nix
 
-              # home manager
-              home-manager.nixosModules.home-manager
-              {
-                home-manager.useGlobalPkgs = true;
-                home-manager.useUserPackages = true;
-                home-manager.extraSpecialArgs = specialArgs;
-                home-manager.backupFileExtension = "backup";
-                home-manager.users.${username} = self.homeModules.Sleipnir;
-              }
+              self.nixosModules.home-manager
             ];
           }; # Sleipnir
         }; # nixosConfigurations
