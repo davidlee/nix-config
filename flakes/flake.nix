@@ -36,14 +36,15 @@
     };
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
-
     ucodenix.url = "github:e-tho/ucodenix";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
   };
+
+  # outputs = inputs: flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 
   outputs = inputs @ {
     self,
@@ -63,7 +64,8 @@
       imports = [
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
-        ./nixos/ai.nix
+        (inputs.import-tree ./modules)
+        # ./modules/nixos/ai.nix
       ];
 
       systems = [

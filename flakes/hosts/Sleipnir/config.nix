@@ -20,50 +20,53 @@
 
   imports = with self; [
     ./hardware-configuration.nix
+    nixosModules.env
+    nixosModules.nix
     nixosModules.ai
+    nixosModules.lib
+    nixosModules.browsers
+    nixosModules.editors
+    nixosModules.fonts
+    nixosModules.keyboard
+    nixosModules.webserver
+    nixosModules.postgresql
+    nixosModules.devtools
+    nixosModules.mpd
+    nixosModules.media
+    nixosModules.sysmon
+    nixosModules.graphics
+    nixosModules.programs
+    nixosModules.util
+    nixosModules.security
+    nixosModules.user
+    nixosModules.games
+    nixosModules.boot
+    nixosModules.greeter
+    nixosModules.virtualisation
+    nixosModules.radeon
+    # nixosModules.kmscon
+    # nixosModules.microcode
 
-    ../../modules/shared-packages.nix
-    ../../modules/shared-tui.nix
-    ../../modules/shared-shell.nix
-    ../../modules/shared-scm.nix
-    ../../modules/shared-editors.nix
-    ../../modules/shared-text.nix
-    ../../modules/shared-search.nix
-    ../../modules/shared-build.nix
-    ../../modules/shared-supervisors.nix
-    ../../modules/shared-keeb.nix
-    ../../modules/shared-sysmon.nix
-    ../../modules/shared-security.nix
-    ../../modules/shared-fileutil.nix
-    ../../modules/shared-gfx.nix
-    ../../modules/shared-net.nix
-    ../../modules/shared-pkg.nix
+    ../../modules_legacy/shared-build.nix
+    ../../modules_legacy/shared-editors.nix
+    ../../modules_legacy/shared-fileutil.nix
+    ../../modules_legacy/shared-gfx.nix
+    ../../modules_legacy/shared-keeb.nix
+    ../../modules_legacy/shared-net.nix
+    ../../modules_legacy/shared-packages.nix
+    ../../modules_legacy/shared-pkg.nix
+    ../../modules_legacy/shared-scm.nix
+    ../../modules_legacy/shared-search.nix
+    ../../modules_legacy/shared-security.nix
+    ../../modules_legacy/shared-shell.nix
+    ../../modules_legacy/shared-supervisors.nix
+    ../../modules_legacy/shared-text.nix
+    ../../modules_legacy/shared-tui.nix
 
-    ../../nixos/options.nix
-    ../../nixos/boot.nix
-    ../../nixos/accounts.nix
-    ../../nixos/env.nix
-    ../../nixos/nix.nix
-    ../../nixos/lib.nix
     ../../nixos/network.nix
-    ../../nixos/serve.nix
-    ../../nixos/virtualisation.nix
     ../../nixos/wayland.nix
     ../../nixos/sway.nix
-    # ../../nixos/kde.nix
-    ../../nixos/dev.nix
-    ../../nixos/lang.nix
-    ../../nixos/media.nix
-    ../../nixos/packages.nix
-    ../../nixos/sysmon.nix
-    ../../nixos/util.nix
-    ../../nixos/keeb.nix
     ../../nixos/apps.nix
-    ../../nixos/browsers.nix
-    ../../nixos/editors.nix
-    ../../nixos/radeon.nix
-    ../../nixos/games.nix
-    ../../nixos/fonts.nix
   ];
 
   # enable SSD trim & improve perf
