@@ -2,8 +2,6 @@ _: let
   supervisorsPackages = pkgs:
     with pkgs; [
       ## supervisors / runners
-      # direnv
-      just
       overmind
       watch
       watchman

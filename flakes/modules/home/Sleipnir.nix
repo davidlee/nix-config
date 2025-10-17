@@ -9,7 +9,7 @@ _: {
       homeModules.nvim
       homeModules.zsh
       homeModules.programs
-      homeModules.break-remind
+      # homeModules.break-remind
     ];
 
     home = {

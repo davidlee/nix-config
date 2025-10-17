@@ -38,6 +38,7 @@
     zls-overlay.url = "github:zigtools/zls";
     ucodenix.url = "github:e-tho/ucodenix";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    zed-editor-flake.url = "github:Rishabh5321/zed-editor-flake";
   };
 
   outputs = inputs @ {
