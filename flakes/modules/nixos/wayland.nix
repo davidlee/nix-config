@@ -4,17 +4,6 @@ _: {
     username,
     ...
   }: {
-    programs = {
-      dconf.enable = true;
-      gnome-disks.enable = true;
-    };
-
-    services = {
-      sysprof.enable = true;
-
-      dbus.packages = [pkgs.gcr];
-    }; # services
-
     ## Env
     environment = {
       variables = {

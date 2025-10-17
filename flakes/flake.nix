@@ -5,9 +5,9 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
-    helix = {
-      url = "github:helix-editor/helix/master";
-      inputs.nixpkgs.follows = "nixpkgs";
+    lix = {
+      url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
+      flake = false;
     };
 
     darwin = {
@@ -20,14 +20,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    lix = {
-      url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
-      flake = false;
-    };
-
-    nix-search-tv = {
-      url = "github:3timeslazy/nix-search-tv";
-      # inputs.nixpkgs.follows = "nixpkgs";
+    helix = {
+      url = "github:helix-editor/helix/master";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     rust-overlay = {
@@ -35,48 +30,34 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    nix-search-tv.url = "github:3timeslazy/nix-search-tv";
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
     ucodenix.url = "github:e-tho/ucodenix";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    import-tree.url = "github:vic/import-tree";
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
-
-  # outputs = inputs: flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 
   outputs = inputs @ {
     self,
     nixpkgs,
     nix-stable,
-    home-manager,
     flake-parts,
     darwin,
     ...
   }:
-    flake-parts.lib.mkFlake {inherit inputs;} (top @ {
-      config,
-      withSystem,
-      moduleWithSystem,
-      ...
-    }: {
+    flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
       ];
 
-      systems = [
-        "x86_64-linux"
-        "aarch64-darwin"
-      ];
+      systems = ["x86_64-linux" "aarch64-darwin"];
 
-      perSystem = {
-        config,
-        pkgs,
-        ...
-      }: {
+      perSystem = _: {
         treefmt.programs.alejandra.enable = true;
         treefmt.programs.statix.enable = true;
       };
@@ -86,7 +67,6 @@
           hostname = "Sleipnir";
           username = "david";
           system = "x86_64-linux";
-
           stable = import nix-stable {
             inherit system;
             config.allowUnfree = true;
@@ -101,13 +81,11 @@
             inherit specialArgs;
 
             modules = [
-              # nixos
               ./hosts/${hostname}/config.nix
-
               self.nixosModules.home-manager
             ];
-          }; # Sleipnir
-        }; # nixosConfigurations
+          };
+        };
 
         darwinConfigurations = let
           username = "davidlee";
@@ -133,6 +111,6 @@
             ];
           };
         }; # Darwin
-      };
+      }; # flake
     });
 }
