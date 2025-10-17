@@ -1,4 +1,11 @@
-{pkgs, ...}: {
+{...}: {
+  flake.nixosModules.ai = {pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+      cursor-cli
+      hello
+    ];
+  };
+
   # services = {
   #   open-webui.enable = true; # 8080
   #   ollama = {
@@ -10,24 +17,22 @@
   #   };
   # };
 
-  environment.systemPackages = with pkgs; [
-    ## LLM / AI
-    # ollama
-    cursor-cli
-    # mods
-    # mistral-rs
-    # oterm # BROKEN
-    # aichat
-    # aider-chat-full
-    # llama-cpp
-    # vllm
-    # llm
-    # llm-ls
+  ## LLM / AI
+  # ollama
+  # cursor-cli
+  # mods
+  # mistral-rs
+  # oterm # BROKEN
+  # aichat
+  # aider-chat-full
+  # llama-cpp
+  # vllm
+  # llm
+  # llm-ls
 
-    # ## ai
-    # local-ai
-    # lmstudio
-    #
-    # ## CLI - use npx instead for latest
-  ];
+  # ## ai
+  # local-ai
+  # lmstudio
+  #
+  # ## CLI - use npx instead for latest
 }

@@ -1,13 +1,8 @@
-{
-  pkgs,
-  ...
-}: {
-
-environment.systemPackages = with pkgs; [
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [
     # dictionaries
     hunspellDicts.en_AU
     hunspellDicts.en_AU-large
-    hunspellDicts.en_GB
     hunspellDicts.en_GB-large
     hunspellDicts.en_US
     hunspellDicts.en_US-large
@@ -27,4 +22,4 @@ environment.systemPackages = with pkgs; [
     # SDL2
     # SDL2_mixer
   ];
-};
+}

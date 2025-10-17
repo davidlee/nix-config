@@ -1,9 +1,4 @@
-{
-  pkgs,
-  stable,
-  inputs,
-  ...
-}: {
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     ## media players
     vlc

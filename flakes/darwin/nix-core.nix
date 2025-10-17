@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   nix = {
     settings = {
       experimental-features = ["nix-command" "flakes"];
@@ -16,10 +16,12 @@
     };
     gc = {
       automatic = true;
-      interval = [{
-        Hour = 12;
-        Minute = 15;
-      }];
+      interval = [
+        {
+          Hour = 12;
+          Minute = 15;
+        }
+      ];
     };
   };
 }

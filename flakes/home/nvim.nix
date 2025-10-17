@@ -1,8 +1,6 @@
 {
   pkgs,
   inputs,
-  username,
-  lib,
   ...
 }: let
   # ensure these are installed to the user environment as well as the nix

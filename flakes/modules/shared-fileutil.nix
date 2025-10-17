@@ -27,6 +27,7 @@
     unzip
     gnutar
     cpio
+    zip
 
     ## download / backup
     syncthing
