@@ -3,11 +3,7 @@
   stable,
   username,
   ...
-}:
-# for hypridle
-let
-  screen = "DP-3";
-in {
+}: {
   security = {
     polkit.enable = true;
     pam.services = {

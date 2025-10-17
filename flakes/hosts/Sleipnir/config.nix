@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  self,
+  ...
+}: {
   ## USE LIX
   nixpkgs.overlays = [
     (final: prev: {
@@ -11,10 +15,12 @@
         ;
     })
   ];
+
   nix.package = pkgs.lixPackageSets.stable.lix;
 
-  imports = [
+  imports = with self; [
     ./hardware-configuration.nix
+    nixosModules.ai
 
     ../../modules/shared-packages.nix
     ../../modules/shared-tui.nix
@@ -38,6 +44,7 @@
     ../../nixos/accounts.nix
     ../../nixos/env.nix
     ../../nixos/nix.nix
+    ../../nixos/lib.nix
     ../../nixos/network.nix
     ../../nixos/serve.nix
     ../../nixos/virtualisation.nix
@@ -51,7 +58,6 @@
     ../../nixos/sysmon.nix
     ../../nixos/util.nix
     ../../nixos/keeb.nix
-    ../../nixos/ai.nix
     ../../nixos/apps.nix
     ../../nixos/browsers.nix
     ../../nixos/editors.nix
@@ -101,9 +107,6 @@
       alsa.enable = true;
       alsa.support32Bit = true;
       pulse.enable = true;
-    };
-
-    pulseaudio = {
     };
 
     hardware.openrgb.enable = true;

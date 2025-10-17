@@ -1,13 +1,8 @@
 {
   pkgs,
-  stable,
   username,
   ...
-}:
-# for hypridle
-let
-  screen = "DP-3";
-in {
+}: {
   home-manager.users.${username} = {
     home.packages = with pkgs; [
       # others
@@ -18,6 +13,10 @@ in {
     services = {
       swayosd.enable = true;
 
+      # for hypridle
+      # let
+      #   screen = "DP-3";
+      # in
       # hypridle = {
       #   enable = true;
       #   settings = {

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
-
+{pkgs, ...}: {
   console = {
     font = "${pkgs.terminus_font}/share/consolefonts/ter-124n.psf.gz";
     keyMap = "us";
@@ -10,7 +6,7 @@
       terminus_font
     ];
   };
-   
+
   fonts = {
     packages = with pkgs; [
       font-awesome
@@ -27,26 +23,26 @@
       fira-code-symbols
       proggyfonts
       noto-fonts
-      nerd-fonts.noto 
-      nerd-fonts.hack 
-      nerd-fonts.tinos 
-      # nerd-fonts.mplus 
-      nerd-fonts.lilex 
-      nerd-fonts.arimo 
-      nerd-fonts.agave 
-      nerd-fonts._3270 
-      nerd-fonts.ubuntu 
-      nerd-fonts.monoid 
-      nerd-fonts.lekton 
-      nerd-fonts.hurmit 
-      nerd-fonts.profont 
-      nerd-fonts.monofur 
-      nerd-fonts.iosevka 
-      nerd-fonts.hasklug 
-      nerd-fonts.go-mono 
-      nerd-fonts.cousine 
-      nerd-fonts.zed-mono 
-      nerd-fonts.overpass 
+      nerd-fonts.noto
+      nerd-fonts.hack
+      nerd-fonts.tinos
+      # nerd-fonts.mplus
+      nerd-fonts.lilex
+      nerd-fonts.arimo
+      nerd-fonts.agave
+      nerd-fonts._3270
+      nerd-fonts.ubuntu
+      nerd-fonts.monoid
+      nerd-fonts.lekton
+      nerd-fonts.hurmit
+      nerd-fonts.profont
+      nerd-fonts.monofur
+      nerd-fonts.iosevka
+      nerd-fonts.hasklug
+      nerd-fonts.go-mono
+      nerd-fonts.cousine
+      nerd-fonts.zed-mono
+      nerd-fonts.overpass
       victor-mono
       terminus_font
       termsyn
@@ -59,11 +55,11 @@
     ];
 
     fontconfig = {
-      enable = true; 
-      defaultFonts.monospace = [ "JetBrainsMono Nerd Font" ];
-      defaultFonts.sansSerif = [ "Noto Sans" ];
-      defaultFonts.serif = [ "Noto Serif" ];
-      defaultFonts.emoji = [ "Noto Color Emoji" ];
+      enable = true;
+      defaultFonts.monospace = ["JetBrainsMono Nerd Font"];
+      defaultFonts.sansSerif = ["Noto Sans"];
+      defaultFonts.serif = ["Noto Serif"];
+      defaultFonts.emoji = ["Noto Color Emoji"];
     };
 
     fontDir.enable = true;

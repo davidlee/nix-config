@@ -1,9 +1,4 @@
-{
-  pkgs,
-  username,
-  inputs,
-  ...
-}: {
+{...}: {
   environment = {
     variables = {
       NIXOS = "true";

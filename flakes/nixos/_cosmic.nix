@@ -2,9 +2,7 @@
   pkgs,
   inputs,
   ...
-}:
-{
-
+}: {
   imports = [
     inputs.nixos-cosmic.nixosModules.default
   ];
@@ -15,18 +13,17 @@
     ];
     config = {
       common = {
-        default = [ "cosmic" ];
+        default = ["cosmic"];
       };
       cosmic = {
-       "org.freedesktop.impl.portal.Secret" = [
-        "gnome-keyring"
+        "org.freedesktop.impl.portal.Secret" = [
+          "gnome-keyring"
         ];
       };
     };
   };
 
   environment.systemPackages = with pkgs; [
-
     cosmic-applets
     cosmic-applibrary
     cosmic-bg
@@ -51,12 +48,11 @@
     cosmic-term
     cosmic-wallpapers
     cosmic-workspaces-epoch
-
   ];
 
   # fix clipboard, but bad for security?
   environment.variables = {
-    COSMIC_DATA_CONTROL_ENABLED = 1;  
+    COSMIC_DATA_CONTROL_ENABLED = 1;
   };
 
   programs = {

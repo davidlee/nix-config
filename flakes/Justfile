@@ -1,0 +1,6 @@
+run *args:
+  sudo ./run.sh {{args}}
+
+darwin-switch:
+  darwin-rebuild switch --flake '.#fusillade'
+
