@@ -65,6 +65,7 @@
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
+        ./hosts/Sleipnir/home.nix
         # ./modules/nixos/ai.nix
       ];
 
@@ -111,36 +112,36 @@
                 home-manager.useUserPackages = true;
                 home-manager.extraSpecialArgs = specialArgs;
                 home-manager.backupFileExtension = "backup";
-                home-manager.users.${username} = import ./hosts/${hostname}/home.nix;
+                home-manager.users.${username} = self.homeModules.Sleipnir;
               }
             ];
           }; # Sleipnir
         }; # nixosConfigurations
 
-        darwinConfigurations = let
-          username = "davidlee";
-          hostname = "fusillade";
-          system = "aarch64-darwin";
-
-          pkgs = import nixpkgs {
-            inherit system;
-            hostPlatform = system;
-            config.allowUnfree = true;
-          };
-
-          specialArgs = {
-            inherit self inputs pkgs username hostname system;
-            outputs = self.outputs;
-          };
-        in {
-          "${hostname}" = darwin.lib.darwinSystem {
-            inherit pkgs specialArgs;
-            modules = [
-              {system.configurationRevision = self.rev or self.dirtyRev or null;}
-              ./darwin
-            ];
-          };
-        };
+        # darwinConfigurations = let
+        #   username = "davidlee";
+        #   hostname = "fusillade";
+        #   system = "aarch64-darwin";
+        #
+        #   pkgs = import nixpkgs {
+        #     inherit system;
+        #     hostPlatform = system;
+        #     config.allowUnfree = true;
+        #   };
+        #
+        #   specialArgs = {
+        #     inherit self inputs pkgs username hostname system;
+        #     outputs = self.outputs;
+        #   };
+        # in {
+        #   "${hostname}" = darwin.lib.darwinSystem {
+        #     inherit pkgs specialArgs;
+        #     modules = [
+        #       {system.configurationRevision = self.rev or self.dirtyRev or null;}
+        #       ./darwin
+        #     ];
+        #   };
+        # }; # Darwin
       };
     });
 }
