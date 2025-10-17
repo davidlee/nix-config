@@ -6,7 +6,11 @@
     };
 
     environment.systemPackages = with pkgs; [
+      ## keyboard firmware
       qmk-udev-rules
+      dfu-util
+      qmk
+      dtc
     ];
   };
 }

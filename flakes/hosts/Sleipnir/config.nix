@@ -22,7 +22,7 @@
     ./hardware-configuration.nix
     nixosModules.env
     nixosModules.nix
-    nixosModules.ai
+    nixosModules.flatpak
     nixosModules.lib
     nixosModules.browsers
     nixosModules.editors
@@ -42,31 +42,31 @@
     nixosModules.games
     nixosModules.boot
     nixosModules.greeter
-    nixosModules.virtualisation
     nixosModules.radeon
+    nixosModules.network
+    nixosModules.wayland
+    nixosModules.sway
+    nixosModules.office
+    nixosModules.apps
+    nixosModules.ai
+    nixosModules.build
+    # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode
 
-    ../../modules_legacy/shared-build.nix
-    ../../modules_legacy/shared-editors.nix
-    ../../modules_legacy/shared-fileutil.nix
-    ../../modules_legacy/shared-gfx.nix
-    ../../modules_legacy/shared-keeb.nix
-    ../../modules_legacy/shared-net.nix
-    ../../modules_legacy/shared-packages.nix
-    ../../modules_legacy/shared-pkg.nix
-    ../../modules_legacy/shared-scm.nix
-    ../../modules_legacy/shared-search.nix
-    ../../modules_legacy/shared-security.nix
-    ../../modules_legacy/shared-shell.nix
-    ../../modules_legacy/shared-supervisors.nix
-    ../../modules_legacy/shared-text.nix
-    ../../modules_legacy/shared-tui.nix
-
-    ../../nixos/network.nix
-    ../../nixos/wayland.nix
-    ../../nixos/sway.nix
-    ../../nixos/apps.nix
+    # shared:
+    nixosModules.fileutils
+    nixosModules.build
+    nixosModules.scm
+    nixosModules.gfx
+    nixosModules.pkg
+    nixosModules.net
+    nixosModules.search
+    nixosModules.sec
+    nixosModules.shell
+    nixosModules.supervisors
+    nixosModules.text
+    nixosModules.tui
   ];
 
   # enable SSD trim & improve perf

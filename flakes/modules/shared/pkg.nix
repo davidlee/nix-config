@@ -1,10 +1,19 @@
-{pkgs, ...}: {
-  environment.systemPackages = with pkgs; [
-    unixtools.net-tools
-    unixtools.xxd
-    flatpak
-    devcontainer
-  ];
+{...}: let
+  pkgPackages = pkgs:
+    with pkgs; [
+      unixtools.net-tools
+      unixtools.xxd
+      flatpak
+      devcontainer
+    ];
+in {
+  flake.nixosModules.pkg = {pkgs, ...}: {
+    environment.systemPackages = pkgPackages pkgs;
+  };
+
+  flake.darwinModules.pkg = {pkgs, ...}: {
+    environment.systemPackages = pkgPackages pkgs;
+  };
 }
 # ## package management comma
 # cachix
