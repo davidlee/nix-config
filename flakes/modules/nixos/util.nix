@@ -1,5 +1,24 @@
 _: {
   flake.nixosModules.util = {pkgs, ...}: {
+    programs = {
+      dconf.enable = true;
+      gnome-disks.enable = true;
+    };
+
+    services = {
+      devmon.enable = true;
+      gvfs.enable = true;
+      udisks2.enable = true;
+      sysprof.enable = true;
+      printing.enable = true;
+    };
+
+    hardware = {
+      logitech.wireless.enable = true;
+      opentabletdriver.enable = true;
+      i2c.enable = true;
+    };
+
     environment.systemPackages = with pkgs; [
       ## disk / io
       hdparm
@@ -12,37 +31,11 @@ _: {
       nmon
       vnstat
 
-      ## files / find
-      fsearch
-      plocate
-
-      ## converters
-      pandoc
-
-      ## disk & file io
-      mmtui # mount manager
-
-      ## PDF
-      tdf
-
       # ## download / backup
       backintime
 
-      # ## docs, notes, productivity
-      zeal
-
-      ## text utils
-      cicero-tui # unicode
-      gtt
-
-      ## text readers, pagers
-      fltrdr
-      circumflex
-
-      ## audio
-      alsa-utils
-      pipewire
-      wireplumber
+      ## disk & file io
+      mmtui # mount manager
 
       ## cli general
       mprocs # parallel command runner
@@ -52,25 +45,6 @@ _: {
       isd # systemd
       lazyjournal # logs & containers
       systemctl-tui
-
-      ## clock
-      tty-clock
-
-      # rust
-      crates-tui
-
-      # bluetooth
-      bluetui
-      bluetuith
-
-      ## crypto
-      # libcryptui
-
-      ## frivolity
-      fortune
-      cmatrix
-      nms
-      openrgb-with-all-plugins
     ];
   };
 }

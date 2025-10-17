@@ -38,16 +38,26 @@ _: let
       remind
       taskwarrior3
 
+      ## PDF
+      tdf
+
       ## charmbracelet
       # vhs
       freeze
       gum
       # skate
 
+      ## converters
+      pandoc
+
       ## frivolity
       neofetch
       fastfetch
       figlet
+      ## frivolity
+      fortune
+      cmatrix
+      nms
     ];
 in {
   flake.nixosModules.shell = {pkgs, ...}: {

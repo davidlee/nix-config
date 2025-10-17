@@ -46,6 +46,11 @@ _: {
       # tokei
       # deadbeef
       # cantata
+
+      ## audio
+      alsa-utils
+      pipewire
+      wireplumber
     ];
   };
 }

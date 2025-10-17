@@ -35,6 +35,9 @@ _: {
       ## search
       recoll
 
+      # ## docs, notes, productivity
+      zeal
+
       ## scanner
       # naps2
       # xsane

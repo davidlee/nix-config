@@ -10,7 +10,6 @@ _: {
     };
 
     services = {
-      blueman.enable = true;
       sysprof.enable = true;
 
       dbus.packages = [pkgs.gcr];

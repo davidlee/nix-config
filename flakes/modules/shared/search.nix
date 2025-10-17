@@ -24,6 +24,11 @@ _: let
       zoxide
 
       semgrep
+
+      ### maybe nixos only
+      ## files / find
+      fsearch
+      plocate
     ];
 in {
   flake.nixosModules.search = {pkgs, ...}: {

@@ -1,4 +1,4 @@
-{inputs, ...}: {
+_: {
   flake.nixosModules.security = {pkgs, ...}: {
     security = {
       rtkit.enable = true;
@@ -34,10 +34,5 @@
       ];
       pam.services.greetd.enableGnomeKeyring = true;
     };
-
-    services = {
-      gnome.gcr-ssh-agent.enable = true;
-    };
-    # for unlocking slack etc in hyprland/sway
   };
 }

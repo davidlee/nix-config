@@ -53,6 +53,15 @@ _: let
       ## typing
       thokr
       ngrrram
+
+      #### nixos only? #####
+      ### text utils
+      cicero-tui # unicode
+      gtt
+
+      ## text readers, pagers
+      fltrdr
+      circumflex
     ];
 in {
   flake.nixosModules.text = {pkgs, ...}: {

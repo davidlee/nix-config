@@ -31,6 +31,9 @@ _: {
       nodejs_latest
       bun
       pnpm
+
+      # rust
+      # crates-tui
     ];
   };
 }
