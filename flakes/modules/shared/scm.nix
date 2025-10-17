@@ -1,4 +1,4 @@
-{...}: let
+_: let
   scmPackages = pkgs:
     with pkgs; [
       delta

@@ -1,4 +1,4 @@
-{...}: let
+_: let
   shellPackages = pkgs:
     with pkgs; [
       ## cli history

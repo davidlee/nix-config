@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules._1password = {
     pkgs,
     username,

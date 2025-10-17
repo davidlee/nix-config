@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  system = pkgs.system;
+  inherit (pkgs) system;
   zig = inputs.zig-overlay.packages.${system}.master;
 in {
   nixpkgs.overlays = [

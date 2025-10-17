@@ -1,4 +1,4 @@
-{...}: let
+_: let
   textPackages = pkgs:
     with pkgs; [
       ## unix / text

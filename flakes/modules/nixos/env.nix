@@ -1,5 +1,5 @@
-{...}: {
-  flake.nixosModules.env = {...}: {
+_: {
+  flake.nixosModules.env = _: {
     environment = {
       variables = {
         NIXOS = "true";

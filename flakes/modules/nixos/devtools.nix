@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.devtools = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       # ## SCM

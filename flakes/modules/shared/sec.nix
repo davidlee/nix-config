@@ -1,4 +1,4 @@
-{...}: let
+_: let
   secPackages = pkgs:
     with pkgs; [
       #

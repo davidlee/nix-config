@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.postgresql = {username, ...}: {
     services = {
       postgresql = {

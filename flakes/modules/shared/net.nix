@@ -1,4 +1,4 @@
-{...}: let
+_: let
   netPackages = pkgs:
     with pkgs; [
       # network / http

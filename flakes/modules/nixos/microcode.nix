@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.microcode = {inputs, ...}: {
     imports = [inputs.ucodenix.nixosModules.default];
 

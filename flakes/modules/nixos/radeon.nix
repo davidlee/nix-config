@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.radeon = {pkgs, ...}: {
     services.xserver.videoDrivers = ["modesetting"];
 

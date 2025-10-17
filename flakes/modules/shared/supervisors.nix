@@ -1,4 +1,4 @@
-{...}: let
+_: let
   supervisorsPackages = pkgs:
     with pkgs; [
       ## supervisors / runners
