@@ -1,9 +1,5 @@
 _: {
-  flake.nixosModules.pipewire = {
-    pkgs,
-    username,
-    ...
-  }: {
+  flake.nixosModules.pipewire = {pkgs, ...}: {
     # rtkit (optional, recommended) allows Pipewire to use the realtime scheduler for increased performance.
     security.rtkit.enable = true;
     services = {
@@ -15,5 +11,6 @@ _: {
         #jack.enable = true;
       };
     }; # services
+    environment.systemPackages = [pkgs.cava];
   };
 }

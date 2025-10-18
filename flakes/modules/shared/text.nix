@@ -1,7 +1,6 @@
-_:
-let
-  textPackages =
-    pkgs: with pkgs; [
+_: let
+  textPackages = pkgs:
+    with pkgs; [
       ## unix / text
       coreutils
       gnused
@@ -54,27 +53,13 @@ let
       ## typing
       thokr
       ngrrram
-
-      #### nixos only? #####
-      ### text utils
-      # cicero-tui # unicode
-      gtt
-
-      ## text readers, pagers
-      fltrdr
-      circumflex
     ];
-in
-{
-  flake.nixosModules.text =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = textPackages pkgs;
-    };
+in {
+  flake.nixosModules.text = {pkgs, ...}: {
+    environment.systemPackages = textPackages pkgs;
+  };
 
-  flake.darwinModules.text =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = textPackages pkgs;
-    };
+  flake.darwinModules.text = {pkgs, ...}: {
+    environment.systemPackages = textPackages pkgs;
+  };
 }
