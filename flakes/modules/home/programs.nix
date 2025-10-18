@@ -15,17 +15,17 @@ _: {
         nix-direnv.enable = true;
       };
 
-      starship = {
-        enable = true;
-        enableZshIntegration = true;
-        enableNushellIntegration = true;
-        settings =
-          pkgs.lib.importTOML ../../files/starship.toml
-          // {
-            scan_timeout = 100;
-            command_timeout = 750;
-          };
-      };
+      #   starship = {
+      #     enable = true;
+      #     enableZshIntegration = true;
+      #     enableNushellIntegration = true;
+      #     settings =
+      #       pkgs.lib.importTOML ../../files/starship.toml
+      #       // {
+      #         scan_timeout = 100;
+      #         command_timeout = 750;
+      #       };
+      #   };
     };
   };
 }
