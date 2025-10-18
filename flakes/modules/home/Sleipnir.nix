@@ -21,5 +21,6 @@ _: {
     services.systembus-notify.enable = true; # notify-send from systemd
 
     programs.home-manager.enable = true;
+    # programs.cava.enable = true; # broken on macos
   };
 }

@@ -45,6 +45,23 @@ _: {
       isd # systemd
       lazyjournal # logs & containers
       systemctl-tui
+
+      ## search
+      fsearch
+      plocate
+
+      ## help
+      tealdeer
+      zeal
+      pinfo
+
+      ### text utils
+      cicero-tui # unicode
+      gtt
+
+      ## text readers, pagers
+      fltrdr
+      circumflex
     ];
   };
 }

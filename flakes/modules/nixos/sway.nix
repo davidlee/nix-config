@@ -34,6 +34,17 @@ _: {
       mako
     ];
 
+    programs.uwsm = {
+      enable = true;
+      waylandCompositors = {
+        sway = {
+          prettyName = "Sway";
+          comment = "Sway compositor managed by UWSM";
+          binPath = "/run/current-system/sw/bin/sway";
+        };
+      };
+    };
+
     home-manager.users.${username} = {
       services = {
         swayosd.enable = true;
