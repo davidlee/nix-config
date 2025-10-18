@@ -1,6 +1,7 @@
 _: let
   scmPackages = pkgs:
     with pkgs; [
+      git
       delta
       diffedit3
       diffnav

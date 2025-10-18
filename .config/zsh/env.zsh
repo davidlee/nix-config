@@ -43,23 +43,8 @@ export WEEK_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_WEEK_NOTE_FORMAT"
 export MONTH_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_MONTH_NOTE_FORMAT"
 export YEAR_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_YEAR_NOTE_FORMAT"
 
-export ZK_NOTEBOOK_DIR="$OBS_VAULT_PATH/zk"
-
-#
-# Taskwarrior
-#
-if [[ $(uname -s) = 'Darwin' ]]; then
-  TASKWARRIOR_PRIMARY_HOST=0
-else
-  TASKWARRIOR_PRIMARY_HOST=1
-fi
-
-# don't create recurring Taskwarrior tasks on multiple synced devices
-export TASKWARRIOR_RECURRENCE=1 # $TASKWARRIOR_PRIMARY_HOST
-
 #
 # Secrets - private bare repo (non-critical only; use 1password encryption where we really care)
 #
 
-source ~/.config/zsh/zoxide_init.sh
 source ~/.config/zsh/secrets.zsh

@@ -2,11 +2,12 @@ _: {
   flake.nixosModules.zed-editor = {
     inputs,
     system,
+    pkgs,
     ...
   }: {
-    environment.systemPackages = [
-      # inputs.zed-editor-flake.packages.${system}.zed-editor
-      inputs.zed.packages.${system}.default
-    ];
+    environment.systemPackages =
+      if false
+      then [inputs.zed.packages.${system}.default]
+      else [pkgs.zed-editor];
   };
 }

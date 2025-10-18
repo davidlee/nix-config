@@ -1,13 +1,51 @@
 _: let
+  # https://github.com/johnalanwoods/maintained-modern-unix
   shellPackages = pkgs:
     with pkgs; [
-      ## cli history
+      ## zsh config depends on
+      carapace
+      eza
+      lsd
+      fzf
       atuin
+      zoxide
+      yazi
+      broot
+      tmux
+      sesh
+      skim
+      delta
+
+      # also lovely
+      bat
+      jless
+      gdu
+      ncdu
+      hyperfine
+      jq
+      sd
+      jc
+      gron
+      await
+      xh
+      doggo
+      curlie
+      httpie
+      trashy
+      ripgrep-all
+      procs
+      pls
+      findutils
+      dust
+      duf
+      choose
+      glances
+      gtop
+      cheat
+      tldr
 
       # session manager
       zellij
-      tmux
-      # screen
 
       ## alt shells
       # nushell
@@ -23,8 +61,9 @@ _: let
       shellcheck
       shfmt
 
-      # tmux session / plugins
-      sesh
+      ## charmbracelet
+      freeze
+      gum
 
       ## process management
       pstree
@@ -36,10 +75,6 @@ _: let
 
       ## PDF
       tdf
-
-      ## charmbracelet
-      freeze
-      gum
 
       ## converters
       pandoc
