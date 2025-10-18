@@ -1,48 +1,51 @@
 _: {
-  flake.nixosModules.office = {pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
-      ## productivity
-      thunderbird-latest
-      #evolution
-      # morgen # TODO enable when electron deps fixed
-      zotero
-      #foliate
-      onlyoffice-bin
-      libreoffice
-      # gnome-frog
-      papers
-      scribus
+  flake.nixosModules.office =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = with pkgs; [
+        ## productivity
+        thunderbird-latest
+        #evolution
+        # morgen # TODO enable when electron deps fixed
+        zotero
+        #foliate
+        onlyoffice-bin
+        libreoffice
+        # gnome-frog
+        papers
+        scribus
 
-      ## messaging / social
-      newsflash
-      discord # broken, using stable
-      #stable.discord
-      beeper
-      signal-desktop
-      slack
-      zoom-us
-      # rambox
-      # telegram-desktop
-      element-desktop
-      #whatsie
+        ## messaging / social
+        newsflash
+        discord # broken, using stable
+        #stable.discord
+        beeper
+        signal-desktop
+        slack
+        zoom-us
+        # rambox
+        # telegram-desktop
+        element-desktop
+        #whatsie
 
-      ## mind map etc
-      freemind
-      # minder
-      # semantik
-      # vue
+        ## mind map etc
+        freemind
+        # minder
+        # semantik
+        # vue
 
-      ## search
-      recoll
+        ## search
+        recoll
 
-      # ## docs, notes, productivity
-      zeal
+        # ## docs, notes, productivity
+        zeal
+        dnote
 
-      ## scanner
-      # naps2
-      # xsane
-      # kdePackages.skanlite
-      # kdePackages.skanpage
-    ];
-  };
+        ## scanner
+        # naps2
+        # xsane
+        # kdePackages.skanlite
+        # kdePackages.skanpage
+      ];
+    };
 }

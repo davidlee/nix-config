@@ -13,6 +13,8 @@ _: {
       ];
 
       builders-use-substitutes = true;
+      show-trace = true;
+      log-lines = 50;
     };
     gc = {
       automatic = true;

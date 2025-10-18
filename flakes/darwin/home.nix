@@ -1,8 +1,10 @@
-{username, ...}: {
+{ username, outputs, ... }:
+{
   imports = [
-    ../home/zsh.nix
-    ../home/nvim.nix
-    ../home/programs.nix
+    outputs.homeModules.zsh
+    outputs.homeModules.nvim-plugins
+    outputs.homeModules.nvim
+    outputs.homeModules.programs
   ];
 
   home = {

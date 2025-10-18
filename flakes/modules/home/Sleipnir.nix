@@ -1,7 +1,6 @@
 _: {
   flake.homeModules.Sleipnir = {
     username,
-    pkgs,
     self,
     ...
   }: {

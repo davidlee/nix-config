@@ -1,6 +1,7 @@
-_: let
-  shellPackages = pkgs:
-    with pkgs; [
+_:
+let
+  shellPackages =
+    pkgs: with pkgs; [
       ## cli history
       atuin
 
@@ -31,10 +32,7 @@ _: let
       killall
 
       ## docs, notes, productivity
-      tealdeer
       pinfo
-      zeal
-      dnote
       remind
       taskwarrior3
 
@@ -56,12 +54,17 @@ _: let
       cmatrix
       nms
     ];
-in {
-  flake.nixosModules.shell = {pkgs, ...}: {
-    environment.systemPackages = shellPackages pkgs;
-  };
+in
+{
+  flake.nixosModules.shell =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = shellPackages pkgs;
+    };
 
-  flake.darwinModules.shell = {pkgs, ...}: {
-    environment.systemPackages = shellPackages pkgs;
-  };
+  flake.darwinModules.shell =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = shellPackages pkgs;
+    };
 }
