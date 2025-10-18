@@ -99,6 +99,7 @@ _: {
         dial-nvim
         refactoring-nvim
         nvim-autopairs
+        auto-save-nvim
         yanky-nvim
 
         # test / debug

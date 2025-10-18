@@ -9,10 +9,9 @@ _: {
       obsidian
       code-cursor
       vscode
-      zed-editor
-      xed-editor
+      # zed-editor
+      # xed-editor
       joplin
-      claude-code
       lapce
       marktext
       apostrophe
