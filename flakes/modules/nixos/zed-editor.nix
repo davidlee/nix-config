@@ -5,7 +5,8 @@ _: {
     ...
   }: {
     environment.systemPackages = [
-      inputs.zed-editor-flake.packages.${system}.zed-editor
+      # inputs.zed-editor-flake.packages.${system}.zed-editor
+      inputs.zed.packages.${system}.default
     ];
   };
 }
