@@ -11,6 +11,7 @@ vim.cmd("colorscheme gruvbox")
 -- alias for clumsy fingers
 vim.cmd("cnoreabbrev W w")
 vim.cmd("cnoreabbrev WQ wq")
+vim.cmd("cnoreabbrev Wq wq")
 vim.cmd("cnoreabbrev WQ! wq")
 vim.cmd("cnoreabbrev Q q")
 vim.cmd("cnoreabbrev Q! q!")
