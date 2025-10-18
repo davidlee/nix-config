@@ -8,9 +8,9 @@ _: {
     };
 
     onActivation = {
-      autoUpdate = false;
-      upgrade = false;
-      cleanup = "zap";
+      autoUpdate = true;
+      upgrade = true;
+      # cleanup = "zap";
     };
 
     # Applications to install from Mac App Store using mas.
@@ -79,7 +79,7 @@ _: {
       "ghostty"
       "miro"
       "syncthing"
-      "ollama"
+      # "ollama"
       "element"
       "obsidian"
       "sengi"
@@ -91,9 +91,8 @@ _: {
       "docker"
       "google-chrome"
       "google-chrome@canary"
-      "activitywatch"
-      "timing"
-
+      # "activitywatch"
+      # "timing"
       # "moonlight"
 
       # "firefox"
