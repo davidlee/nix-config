@@ -1,8 +1,18 @@
-{pkgs, ...}: {
+{ pkgs, outputs, ... }:
+{
   imports = [
-    ../modules/shared-packages.nix
-    ../modules/shared-development.nix
-    ../modules/shared-tui.nix
+    outputs.darwinModules.fileutils
+    outputs.darwinModules.build
+    outputs.darwinModules.scm
+    # outputs.darwinModules.gfx
+    # outputs.darwinModules.pkg
+    # outputs.darwinModules.net
+    outputs.darwinModules.search
+    outputs.darwinModules.shell
+    # outputs.darwinModules.sec
+    # outputs.darwinModules.supervisors
+    # outputs.darwinModules.text
+    # outputs.darwinModules.tui
   ];
 
   environment.systemPackages = with pkgs; [

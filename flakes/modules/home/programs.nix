@@ -10,7 +10,7 @@ _: {
       # nushell.enable = true;
       # fish.enable = true;
       git.enable = true;
-      cava.enable = true;
+      # cava.enable = true; # broken in nixpkgs-unstable
       zk.enable = true;
       nix-search-tv.enableTelevisionIntegration = true;
 

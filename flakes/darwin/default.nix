@@ -6,16 +6,28 @@
   hostname,
   system,
   ...
-}: let
-  specialArgs = {inherit inputs outputs pkgs username hostname system;};
-in {
+}:
+let
+  specialArgs = {
+    inherit
+      inputs
+      outputs
+      pkgs
+      username
+      hostname
+      system
+      ;
+  };
+
+in
+{
   imports = [
     ./system.nix
     ./nix-core.nix
     ./brew.nix
     ./packages.nix
 
-    inputs.lix-module.nixosModules.default
+    # inputs.lix-module.nixosModules.default
 
     inputs.home-manager.darwinModules.home-manager
     {
@@ -26,6 +38,19 @@ in {
       home-manager.users.${username} = import ./home.nix;
     }
 
-    ../modules/zig.nix
+    # ../modules/zig.nix
   ];
+  ## USE LIX
+  nixpkgs.overlays = [
+    (final: prev: {
+      inherit (prev.lixPackageSets.stable)
+        nixpkgs-review
+        nix-eval-jobs
+        nix-fast-build
+        colmena
+        ;
+    })
+  ];
+
+  nix.package = pkgs.lixPackageSets.stable.lix;
 }

@@ -1,6 +1,7 @@
-_: let
-  tuiPackages = pkgs:
-    with pkgs; [
+_:
+let
+  tuiPackages =
+    pkgs: with pkgs; [
       ## text utils
       play # playground for sed, grep, awk, ...
 
@@ -19,19 +20,24 @@ _: let
 
       ## clock
       clock-rs
-      tty-clock
+      # ctty-clock # broken
 
       ## www
       w3m-full
       browsh
       lynx
     ];
-in {
-  flake.nixosModules.tui = {pkgs, ...}: {
-    environment.systemPackages = tuiPackages pkgs;
-  };
+in
+{
+  flake.nixosModules.tui =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = tuiPackages pkgs;
+    };
 
-  flake.darwinModules.tui = {pkgs, ...}: {
-    environment.systemPackages = tuiPackages pkgs;
-  };
+  flake.darwinModules.tui =
+    { pkgs, ... }:
+    {
+      environment.systemPackages = tuiPackages pkgs;
+    };
 }
