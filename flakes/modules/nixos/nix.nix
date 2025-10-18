@@ -44,6 +44,7 @@
       inputs.nix-search-tv.packages.x86_64-linux.default
       alejandra
       appimage-run
+      flatpak
       cachix
       comma
       devenv

@@ -3,7 +3,6 @@ _: let
     with pkgs; [
       unixtools.net-tools
       unixtools.xxd
-      flatpak
       devcontainer
     ];
 in {
