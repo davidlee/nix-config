@@ -29,16 +29,17 @@
 [core]
 	editor = nvim
   excludesFile = ~/.gitignore_global
-  pager = delta
+	pager = delta
 [color]
   ui = true
 [interactive]
-  diffFilter = delta --color-only
+	diffFilter = delta --color-only
 [delta]
-  navigate = true
+	navigate = true
 [merge]
   # conflictstyle = diff3
   tool = nvimdiff
+	conflictStyle = zdiff3
 [diff]
   colorMoved = default
 [diff "lockb"]
