@@ -8,6 +8,13 @@ vim.g.maplocalleader = "\\"
 opt.termguicolors = true -- True color support
 vim.cmd("colorscheme gruvbox")
 
+-- alias for clumsy fingers
+vim.cmd("cnoreabbrev W w")
+vim.cmd("cnoreabbrev WQ wq")
+vim.cmd("cnoreabbrev WQ! wq")
+vim.cmd("cnoreabbrev Q q")
+vim.cmd("cnoreabbrev Q! q!")
+
 -- LazyVim auto format
 vim.g.autoformat = true
 
@@ -114,5 +121,3 @@ end
 
 -- Fix markdown indentation settings
 vim.g.markdown_recommended_style = 0
-
-
