@@ -3,6 +3,7 @@ _: let
   shellPackages = pkgs:
     with pkgs; [
       ## zsh config depends on
+      starship
       carapace
       eza
       lsd

@@ -109,6 +109,12 @@ eval "$(mcfly init zsh)"
 eval "$(zoxide init zsh --cmd cd --hook prompt)"
 
 #
+# starship
+#
+eval "$(starship init zsh)"
+
+
+#
 # silence, nix-direnv
 #
 export DIRENV_LOG_FORMAT="$(printf "\033[2mdirenv: %%s\033[0m")"
