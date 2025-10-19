@@ -9,8 +9,6 @@ _: {
       obsidian
       code-cursor
       vscode
-      # zed-editor
-      # xed-editor
       joplin
       lapce
       marktext
@@ -19,6 +17,9 @@ _: {
       kakoune-lsp
       kakoune-cr
       wordgrinder
+      micro-with-wl-clipboard
+      # zed-editor
+      # xed-editor
       # zim
       # kdePackages.kate
       # saber

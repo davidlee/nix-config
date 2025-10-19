@@ -3,7 +3,9 @@ _: let
     with pkgs; [
       # network / http
       curl
+      curlie
       dig
+      ngrok
       httpie
       iftop
       inetutils

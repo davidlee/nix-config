@@ -12,6 +12,30 @@ _: let
       chroma
       sd
 
+      ## json/yaml
+      jq
+      yq-go
+
+      ## markdown
+      markdownlint-cli
+      markdownlint-cli2
+      markdown-oxide
+      marksman
+
+      ## markdown
+      frogmouth
+      glow
+      marked-man
+      md-tui
+
+      ## CSV
+      csv-tui
+      tidy-viewer
+
+      ## JSON
+      jqp # jq
+      otree # text object tree viewer
+
       ## text readers, pagers
       # fltrdr
       nvimpager

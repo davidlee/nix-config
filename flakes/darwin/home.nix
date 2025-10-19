@@ -1,5 +1,8 @@
-{ username, outputs, ... }:
 {
+  username,
+  outputs,
+  ...
+}: {
   imports = [
     outputs.homeModules.zsh
     outputs.homeModules.nvim-plugins

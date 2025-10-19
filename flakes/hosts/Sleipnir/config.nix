@@ -62,6 +62,7 @@
     nixosModules.locate
     nixosModules.avahi
     nixosModules.zed-editor
+    nixosModules.cliPackages
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode

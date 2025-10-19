@@ -18,9 +18,11 @@ _: {
       stateVersion = "24.11";
     };
 
-    services.systembus-notify.enable = true; # notify-send from systemd
-
     programs.home-manager.enable = true;
-    # programs.cava.enable = true; # broken on macos
+
+    services = {
+      systembus-notify.enable = true; # notify-send from systemd
+      mpris-proxy.enable = true;
+    };
   };
 }
