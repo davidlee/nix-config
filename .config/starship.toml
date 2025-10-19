@@ -37,7 +37,7 @@ $character\
 [time]
 disabled = false
 use_12hr = true
-time_format = "%k:%M"
+time_format = "%I:%M"
 format = "\\[[$time]($style)\\] "
 
 [os]
