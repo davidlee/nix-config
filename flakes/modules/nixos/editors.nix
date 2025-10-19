@@ -19,6 +19,7 @@ _: {
       wordgrinder
       micro-with-wl-clipboard
       emacsclient-commands
+      sublime-merge
       # zed-editor
       # xed-editor
       # zim

@@ -33,6 +33,7 @@ _: {
       waybar
       mako
       cava
+      flameshot
     ];
 
     # programs.uwsm = {

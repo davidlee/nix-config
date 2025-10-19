@@ -18,6 +18,7 @@ _: {
       "help"
       "display"
       "net"
+      "dev"
       "help"
       "viewers"
       "unix"
@@ -199,6 +200,7 @@ _: {
       lazyjournal # logs & containers
       systemctl-tui
     ];
+
     ################################################################################
     #
     # fileutils
@@ -241,6 +243,7 @@ _: {
     ];
     config.nixosCliPackages.fileutils = with pkgs; [
     ];
+
     ################################################################################
     #
     # net
@@ -304,6 +307,7 @@ _: {
       plocate
       # fsearch
     ];
+
     ################################################################################
     #
     # scm
@@ -330,6 +334,44 @@ _: {
     ];
     config.nixosCliPackages.scm = with pkgs; [
     ];
+
+    ################################################################################
+    #
+    # dev
+    #
+    config.sharedCliPackages.dev = with pkgs; [
+      just
+      ## database
+      sqlite
+
+      ## prog general
+      exercism
+
+      ## lang.go
+      go
+
+      ## lang.ruby
+      ruby
+      bundler
+      # rake
+      # rbenv
+
+      ## lang.python
+      uv
+
+      ## javascript
+      corepack_latest
+      nodejs_latest
+      bun
+      pnpm
+    ];
+    config.nixosCliPackages.dev = with pkgs; [
+      treefmt
+      # ## lang.c
+      valgrind
+      strace
+    ];
+
     ################################################################################
     #
     # security
@@ -346,6 +388,7 @@ _: {
     ];
     config.nixosCliPackages.security = with pkgs; [
     ];
+
     ################################################################################
     #
     # supervisors
@@ -361,6 +404,7 @@ _: {
     ];
     config.nixosCliPackages.supervisors = with pkgs; [
     ];
+
     ################################################################################
     #
     # display

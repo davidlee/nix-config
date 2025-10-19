@@ -30,10 +30,8 @@
     nixosModules.keyboard
     nixosModules.webserver
     nixosModules.postgresql
-    nixosModules.devtools
     nixosModules.mpd
     nixosModules.media
-    nixosModules.sysmon
     nixosModules.graphics
     nixosModules.programs
     nixosModules.util
@@ -47,9 +45,7 @@
     nixosModules.wayland
     nixosModules.sway
     nixosModules.office
-    nixosModules.apps
     nixosModules.ai
-    nixosModules.build
     nixosModules.terminals
     nixosModules._1password
     nixosModules.wayland-packages
@@ -62,23 +58,14 @@
     nixosModules.locate
     nixosModules.avahi
     nixosModules.zed-editor
-    nixosModules.cliPackages
     # nixosModules.virtualisation
     # nixosModules.kmscon
     # nixosModules.microcode
 
     # shared:
-    nixosModules.fileutils
-    nixosModules.build
-    nixosModules.scm
-    nixosModules.gfx
+    nixosModules.cliPackages
     nixosModules.pkg
-    nixosModules.net
-    nixosModules.search
-    nixosModules.sec
     nixosModules.shell
-    nixosModules.supervisors
-    nixosModules.text
     nixosModules.tui
   ];
 }
