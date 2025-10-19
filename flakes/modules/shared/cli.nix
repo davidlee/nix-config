@@ -1,4 +1,17 @@
-_: {
+{lib, ...}: let
+  #
+  # helpers for reducing all of the cli packages
+  #
+  collectSharedPackages = config:
+    lib.lists.foldl (a: x: a ++ x)
+    []
+    (lib.attrsets.attrValues config.sharedCliPackages);
+
+  collectNixosPackages = config:
+    lib.lists.foldl (a: x: a ++ x)
+    []
+    (lib.attrsets.attrValues config.nixosCliPackages);
+in {
   flake.flakeModules.cliPackages = {
     pkgs,
     lib,
@@ -23,11 +36,27 @@ _: {
       "viewers"
       "unix"
       "filetypes"
-      "example"
       "frivolity"
       "www"
     ];
   in {
+    # DRY'er but less explicit & positional args kinda suck
+
+    # setPackages = category: shared: nixos: {
+    #   sharedCliPackages.${category} = shared;
+    #   nixosCliPackages.${category} = nixos;
+    # };
+    #
+    # usage:
+    #
+    #   (setPackages "example" (with pkgs; [
+    #     ]) (with pkgs; [
+    #     ]))
+
+    #
+    # use props above to build out type safe options
+    #
+
     options.sharedCliPackages = lib.genAttrs props (name:
       lib.mkOption {
         type = lib.types.listOf lib.types.package;
@@ -42,12 +71,10 @@ _: {
 
     ################################################################################
     #
-    # example
+    # template
     #
-    config.sharedCliPackages.example = with pkgs; [
-    ];
-    config.nixosCliPackages.example = with pkgs; [
-    ];
+    # config.sharedCliPackages.template = with pkgs; [];
+    # config.nixosCliPackages.template = with pkgs; [];
 
     ################################################################################
     #
@@ -162,10 +189,7 @@ _: {
     #
     config.sharedCliPackages.system = with pkgs; [
       glances
-      bottom
       btop
-      htop
-      gtop
     ];
     config.nixosCliPackages.system = with pkgs; [
       ## disk & file io
@@ -344,32 +368,9 @@ _: {
     #
     config.sharedCliPackages.dev = with pkgs; [
       just
-      ## database
-      sqlite
-
-      ## prog general
       exercism
-
-      ## lang.go
-      go
-
-      ## lang.ruby
-      ruby
-      bundler
-      # rake
-      # rbenv
-
-      ## lang.python
-      uv
-
-      ## javascript
-      corepack_latest
-      nodejs_latest
-      bun
-      pnpm
     ];
     config.nixosCliPackages.dev = with pkgs; [
-      treefmt
       # ## lang.c
       valgrind
       strace
@@ -517,35 +518,25 @@ _: {
     ];
   };
 
-  # eachSystem =
-  flake.nixosModules.cliPackages = {
-    self,
-    config,
-    lib,
-    ...
-  }: let
-    allSharedPackages = lib.lists.foldl (a: x: a ++ x) [] (lib.attrsets.attrValues config.sharedCliPackages);
-    allNixosPackages = lib.lists.foldl (a: x: a ++ x) [] (lib.attrsets.attrValues config.sharedCliPackages);
-  in {
-    imports = [
-      self.flakeModules.cliPackages
-    ];
-
-    environment.systemPackages = allSharedPackages ++ allNixosPackages;
-  };
-
+  #
+  # import these to pull in all cli packages for a platform
+  # or, just import cliPackages and cherry-pick
+  #
   flake.darwinModules.cliPackages = {
     self,
     config,
-    lib,
     ...
-  }: let
-    allSharedPackages = lib.lists.foldl (a: x: a ++ x) [] (lib.attrsets.attrValues config.sharedCliPackages);
-  in {
-    imports = [
-      self.flakeModules.cliPackages
-    ];
+  }: {
+    imports = [self.flakeModules.cliPackages];
+    environment.systemPackages = collectSharedPackages config;
+  };
 
-    environment.systemPackages = allSharedPackages;
+  flake.nixosModules.cliPackages = {
+    self,
+    config,
+    ...
+  }: {
+    imports = [self.flakeModules.cliPackages];
+    environment.systemPackages = collectNixosPackages config ++ collectSharedPackages config;
   };
 }
