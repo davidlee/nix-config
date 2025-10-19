@@ -1,14 +1,6 @@
 _: let
   secPackages = pkgs:
     with pkgs; [
-      #
-      ## security / crypto / secrets
-      nvdtools
-      seclists
-      git-crypt
-      gpgme
-      gpg-tui
-      oath-toolkit
     ];
 in {
   flake.nixosModules.sec = {pkgs, ...}: {

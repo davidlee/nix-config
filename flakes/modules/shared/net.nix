@@ -1,25 +1,6 @@
 _: let
   netPackages = pkgs:
     with pkgs; [
-      # network / http
-      curl
-      curlie
-      dig
-      ngrok
-      httpie
-      iftop
-      inetutils
-      nmap
-      netcat
-      socat
-      openssl
-      oha
-      sn0int
-      tcpdump
-      trippy
-      wget
-      xh
-      yt-dlp
     ];
 in {
   flake.nixosModules.net = {pkgs, ...}: {

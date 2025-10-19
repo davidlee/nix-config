@@ -1,24 +1,6 @@
 _: let
   scmPackages = pkgs:
     with pkgs; [
-      git
-      delta
-      diffedit3
-      diffnav
-      diffr
-      diffstat
-      difftastic
-      gh
-      gitFull
-      hub
-      jujutsu
-      mergiraf
-      tig
-      debase
-      gh-dash
-      lazygit
-      lazyjj
-      jjui
     ];
 in {
   flake.nixosModules.scm = {pkgs, ...}: {
