@@ -162,7 +162,10 @@ _: {
     #
     config.sharedCliPackages.system = with pkgs; [
       glances
+      bottom
       btop
+      htop
+      gtop
     ];
     config.nixosCliPackages.system = with pkgs; [
       ## disk & file io
