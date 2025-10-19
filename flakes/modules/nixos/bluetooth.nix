@@ -26,6 +26,7 @@ _: {
       blueman
       bluetui
       bluetuith
+      bluez
     ];
   };
 }

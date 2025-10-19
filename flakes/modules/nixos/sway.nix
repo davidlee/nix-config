@@ -32,6 +32,7 @@ _: {
       swayosd
       waybar
       mako
+      cava
     ];
 
     # programs.uwsm = {

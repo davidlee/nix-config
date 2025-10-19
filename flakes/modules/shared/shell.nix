@@ -44,6 +44,11 @@ _: let
       gtop
       cheat
       tldr
+      ast-grep
+      tre
+      pueue
+      grex
+      tealdeer
 
       # session manager
       zellij

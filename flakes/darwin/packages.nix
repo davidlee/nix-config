@@ -1,5 +1,8 @@
-{ pkgs, outputs, ... }:
 {
+  pkgs,
+  outputs,
+  ...
+}: {
   imports = [
     outputs.darwinModules.fileutils
     outputs.darwinModules.build

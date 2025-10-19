@@ -9,7 +9,6 @@ _: let
       gpgme
       gpg-tui
       oath-toolkit
-      _1password-cli
     ];
 in {
   flake.nixosModules.sec = {pkgs, ...}: {

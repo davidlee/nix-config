@@ -1,7 +1,6 @@
-_:
-let
-  tuiPackages =
-    pkgs: with pkgs; [
+_: let
+  tuiPackages = pkgs:
+    with pkgs; [
       ## text utils
       play # playground for sed, grep, awk, ...
 
@@ -27,17 +26,12 @@ let
       browsh
       lynx
     ];
-in
-{
-  flake.nixosModules.tui =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = tuiPackages pkgs;
-    };
+in {
+  flake.nixosModules.tui = {pkgs, ...}: {
+    environment.systemPackages = tuiPackages pkgs;
+  };
 
-  flake.darwinModules.tui =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = tuiPackages pkgs;
-    };
+  flake.darwinModules.tui = {pkgs, ...}: {
+    environment.systemPackages = tuiPackages pkgs;
+  };
 }
