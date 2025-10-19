@@ -1,9 +1,6 @@
 _: let
   tuiPackages = pkgs:
     with pkgs; [
-      ## text utils
-      play # playground for sed, grep, awk, ...
-
       ## feeds, content / social
       russ # RSS
       tuir # reddit
@@ -16,15 +13,6 @@ _: let
       hexpatch
       hextazy
       hexyl
-
-      ## clock
-      clock-rs
-      # ctty-clock # broken
-
-      ## www
-      w3m-full
-      browsh
-      lynx
     ];
 in {
   flake.nixosModules.tui = {pkgs, ...}: {

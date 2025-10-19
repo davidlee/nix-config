@@ -9,6 +9,8 @@ _: {
       hunspellDicts.en_US-large
 
       ### libs
+      ffmpeg
+      glfw
       glib
       libffi
       libiconv

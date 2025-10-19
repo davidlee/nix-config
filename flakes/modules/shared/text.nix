@@ -1,34 +1,13 @@
 _: let
   textPackages = pkgs:
     with pkgs; [
-      ## unix / text
-      coreutils
-      gnused
-      gawk
-      bat
-      emacsclient-commands
-      lsd
-      eza
-      chroma
-      sd
-
-      ## text readers, pagers
-      # fltrdr
-      nvimpager
-      less
-      most
-      moar
-      viddy
-      ov
-
       ## English
-      vale
+      #vale
       # vale-ls
-      aspell
 
       ## typing
-      thokr
-      ngrrram
+      #thokr
+      #ngrrram
     ];
 in {
   flake.nixosModules.text = {pkgs, ...}: {

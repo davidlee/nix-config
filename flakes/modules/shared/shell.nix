@@ -2,54 +2,6 @@ _: let
   # https://github.com/johnalanwoods/maintained-modern-unix
   shellPackages = pkgs:
     with pkgs; [
-      ## zsh config depends on
-      starship
-      carapace
-      eza
-      lsd
-      fzf
-      atuin
-      zoxide
-      yazi
-      broot
-      tmux
-      sesh
-      skim
-      delta
-
-      # also lovely
-      bat
-      jless
-      gdu
-      ncdu
-      hyperfine
-      jq
-      sd
-      jc
-      gron
-      await
-      xh
-      doggo
-      curlie
-      httpie
-      trashy
-      ripgrep-all
-      procs
-      pls
-      findutils
-      dust
-      duf
-      choose
-      glances
-      gtop
-      cheat
-      tldr
-      ast-grep
-      tre
-      pueue
-      grex
-      tealdeer
-
       # session manager
       zellij
 
@@ -58,14 +10,6 @@ _: let
       # oils-for-unix
       # fish
       # xonsh
-
-      ## zsh / posix
-      zsh
-      zstd
-      zsh-autocomplete
-      antidote
-      shellcheck
-      shfmt
 
       ## charmbracelet
       freeze
@@ -79,19 +23,8 @@ _: let
       remind
       taskwarrior3
 
-      ## PDF
-      tdf
-
       ## converters
       pandoc
-
-      ## frivolity
-      neofetch
-      fastfetch
-      figlet
-      fortune
-      cmatrix
-      nms
     ];
 in {
   flake.nixosModules.shell = {pkgs, ...}: {

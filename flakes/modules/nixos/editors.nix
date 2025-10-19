@@ -18,6 +18,7 @@ _: {
       kakoune-cr
       wordgrinder
       micro-with-wl-clipboard
+      emacsclient-commands
       # zed-editor
       # xed-editor
       # zim
