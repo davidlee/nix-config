@@ -5,18 +5,25 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    devshell.url = "github:numtide/devshell";
   };
+
   outputs = inputs @ {
     flake-parts,
     rust-overlay,
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = ["x86_64-linux" "aarch64-darwin" "x86_64-darwin"];
+      imports = [
+        inputs.devshell.flakeModule
+      ];
+
+      systems = ["x86_64-linux" "aarch64-darwin"];
+
       perSystem = {
-        #config,
-        #self',
-        #inputs',
+        config,
+        self',
+        inputs',
         pkgs,
         system,
         ...
@@ -28,20 +35,11 @@
           ];
         };
 
-        devShells.default = pkgs.mkShell {
-          nativeBuildInputs = with pkgs; [
-            rust-bin.beta.latest.default
-            # rust-bin.selectLatestNightlyWith
-            # (toolchain: toolchain.default)
+        devshells.default = {
+          packages = with pkgs; [
+            (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
           ];
         };
-
-        # devShells.default = pkgs.mkShell {
-        #   nativeBuildInputs = with pkgs; [
-        #     rust-bin.selectLatestNightlyWith
-        #     (toolchain: toolchain.default)
-        #   ];
-        # };
       };
     };
 }
