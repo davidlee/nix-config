@@ -1,5 +1,18 @@
 {
   "pins": {
+    "darwin": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "LnL7",
+        "repo": "nix-darwin"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "c3211fcd0c56c11ff110d346d4487b18f7365168",
+      "url": "https://github.com/LnL7/nix-darwin/archive/c3211fcd0c56c11ff110d346d4487b18f7365168.tar.gz",
+      "hash": "0alwzdch11a157v7pc929wizxjx0zi3dhwhlv7dxzxnl0s2yj0b8"
+    },
     "helix": {
       "type": "Git",
       "repository": {
@@ -25,6 +38,19 @@
       "revision": "189c21cf879669008ccf06e78a553f17e88d8ef0",
       "url": "https://github.com/nix-community/home-manager/archive/189c21cf879669008ccf06e78a553f17e88d8ef0.tar.gz",
       "hash": "0fpip2bsacv17wkrarc8ksc2qg4ymh3zpwpzd56pbmivyyx7m64x"
+    },
+    "import-tree": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "vic",
+        "repo": "import-tree"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "6ebb8cb87987b20264c09296166543fd3761d274",
+      "url": "https://github.com/vic/import-tree/archive/6ebb8cb87987b20264c09296166543fd3761d274.tar.gz",
+      "hash": "0ii5vw99klbqbh6n9g3a7d8rfia9ci9la3y3x3vnqb2jm9yvqi0q"
     },
     "lix": {
       "type": "Tarball",
@@ -87,6 +113,19 @@
       "url": "https://github.com/nixos/nixpkgs/archive/5e2a59a5b1a82f89f2c7e598302a9cacebb72a67.tar.gz",
       "hash": "02rf59xj2v1ml7v35x4j64ax1fb7xx96ld7va6rifyxazmwsr4rb"
     },
+    "nixpkgs_3": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nixos",
+        "repo": "nixpkgs"
+      },
+      "branch": "nixos-unstable",
+      "submodules": false,
+      "revision": "5e2a59a5b1a82f89f2c7e598302a9cacebb72a67",
+      "url": "https://github.com/nixos/nixpkgs/archive/5e2a59a5b1a82f89f2c7e598302a9cacebb72a67.tar.gz",
+      "hash": "02rf59xj2v1ml7v35x4j64ax1fb7xx96ld7va6rifyxazmwsr4rb"
+    },
     "rust-overlay": {
       "type": "Git",
       "repository": {
@@ -99,6 +138,32 @@
       "revision": "6b1e691089a62d0852f9d3fd6693ee027bc98ac3",
       "url": "https://github.com/oxalica/rust-overlay/archive/6b1e691089a62d0852f9d3fd6693ee027bc98ac3.tar.gz",
       "hash": "16d5wlabz1fydrh2hsh4vabidysh7ja9agx4d5sf79811j7fwf7r"
+    },
+    "rust-overlay_2": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "oxalica",
+        "repo": "rust-overlay"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "6b1e691089a62d0852f9d3fd6693ee027bc98ac3",
+      "url": "https://github.com/oxalica/rust-overlay/archive/6b1e691089a62d0852f9d3fd6693ee027bc98ac3.tar.gz",
+      "hash": "16d5wlabz1fydrh2hsh4vabidysh7ja9agx4d5sf79811j7fwf7r"
+    },
+    "treefmt-nix_2": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "numtide",
+        "repo": "treefmt-nix"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "f56b1934f5f8fcab8deb5d38d42fd692632b47c2",
+      "url": "https://github.com/numtide/treefmt-nix/archive/f56b1934f5f8fcab8deb5d38d42fd692632b47c2.tar.gz",
+      "hash": "1klcfmqb4q4vvy9kdm5i9ddl26rhlyhf1mrd5aw1d4529bqnq5b5"
     },
     "ucodenix": {
       "type": "GitRelease",
@@ -116,6 +181,19 @@
       "url": "https://api.github.com/repos/e-tho/ucodenix/tarball/v1.3.0",
       "hash": "064iv6s5zx94bk0iwijvwfnjw9l04ssmr0iin3m31x42gwrrz2d2"
     },
+    "zed": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "zed-industries",
+        "repo": "zed"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "37e264ab99c5406269f7dd66572d28ed23c75be7",
+      "url": "https://github.com/zed-industries/zed/archive/37e264ab99c5406269f7dd66572d28ed23c75be7.tar.gz",
+      "hash": "1blqixfs20564lskz79kzix9jmkfqx94822y31qxr8bhyiyf56q8"
+    },
     "zig-overlay": {
       "type": "Git",
       "repository": {
@@ -130,6 +208,19 @@
       "hash": "0vdn1gmrrkjfcr8h2ak98dr8bxg7hz9kqifwfhkbx8kygidpzl60"
     },
     "zls": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "zigtools",
+        "repo": "zls"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "f486e884f479dd816f1c57a4be7f445f3d3b279c",
+      "url": "https://github.com/zigtools/zls/archive/f486e884f479dd816f1c57a4be7f445f3d3b279c.tar.gz",
+      "hash": "1xrsv6n61i8hsyi3qkw9plyik1sn8dfl2kwakx306z66dgdgm31h"
+    },
+    "zls-overlay": {
       "type": "Git",
       "repository": {
         "type": "GitHub",
