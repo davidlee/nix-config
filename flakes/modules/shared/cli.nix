@@ -36,6 +36,7 @@ in {
       "viewers"
       "unix"
       "filetypes"
+      "containers"
       "frivolity"
       "www"
     ];
@@ -227,6 +228,10 @@ in {
       isd # systemd
       lazyjournal # logs & containers
       systemctl-tui
+
+      ## process management
+      pstree
+      killall
     ];
 
     ################################################################################
@@ -295,6 +300,7 @@ in {
       wget
       xh
       yt-dlp
+      unixtools.net-tools
     ];
     config.nixosCliPackages.net = with pkgs; [
       sn0int
@@ -487,6 +493,13 @@ in {
       ## text readers, pagers
       fltrdr
       circumflex
+
+      ## hex editors
+      hexyl
+      unixtools.xxd
+
+      # convert
+      pandoc
     ];
 
     ################################################################################
@@ -504,6 +517,18 @@ in {
 
     ################################################################################
     #
+    # containers
+    #
+    config.sharedCliPackages.containers = with pkgs; [
+    ];
+    config.nixosCliPackages.containers = with pkgs; [
+      distrobox
+      distrobox-tui
+      devcontainer
+    ];
+
+    ################################################################################
+    #
     # frivolity
     #
     config.sharedCliPackages.frivolity = with pkgs; [
@@ -516,6 +541,14 @@ in {
       fortune
       cmatrix
       nms
+
+      ## feeds, content / social
+      russ # RSS
+      tuir # reddit
+      tut # mastodon
+      tuisky # bluesky
+      wiki-tui # wikipedia
+      slack-term
     ];
   };
 
