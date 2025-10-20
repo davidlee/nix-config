@@ -102,6 +102,7 @@ in {
       sesh
       skim
       delta
+      bfs #faster than fd
       ## unix / text
       coreutils
       gnused

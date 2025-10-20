@@ -55,3 +55,32 @@ md.later(function()
   --ft = "d2",
   --})
 end)
+
+md.add({
+  source = "hasansujon786/super-kanban.nvim",
+  depends = {
+    { source = "folke/snacks.nvim" }, -- [required]
+    { source = "nvim-orgmode/orgmode" }, -- [optional]
+  },
+})
+md.later(
+  function()
+    require("super-kanban").setup({
+      markdown = {
+        notes_dir = "~/kanban/",
+        list_heading = "h2",
+        default_template = {
+          "## Backlog\n",
+          "## Todo\n",
+          "## Work in progress\n",
+          "## Completed\n",
+        },
+      },
+      mappings = {
+        ["<cr>"] = "open_note",
+        ["gD"] = "delete_card",
+        ["<C-t>"] = "toggle_complete",
+      },
+    })
+  end
+)

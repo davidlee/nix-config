@@ -4,6 +4,7 @@ alias vm="vice -W meta";
 alias vin="vice -W inlight";
 alias x="vice -i";
 
+alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
 
 
 # single character aliases

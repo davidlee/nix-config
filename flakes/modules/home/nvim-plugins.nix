@@ -90,8 +90,9 @@ _: {
         # navigation
         nvim-window-picker
         # outline-nvim
-        leap-nvim
-        fzf-lua
+        # leap-nvim
+        #fzf-wrapper
+        #fzf-lua
         aerial-nvim
         flash-nvim
 
