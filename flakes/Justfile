@@ -9,3 +9,7 @@ update:
 
 build:
   just run dry-build --show-trace -v
+
+regenerate-hardware:
+   nixos-generate-config --show-hardware-config > hosts/Sleipnir/hardware-configuration.nix
+   nix fmt
