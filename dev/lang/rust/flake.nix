@@ -14,16 +14,9 @@
     ...
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
-      imports = [
-        inputs.devshell.flakeModule
-      ];
-
-      systems = ["x86_64-linux" "aarch64-darwin"];
+      imports = [inputs.devshell.flakeModule];
 
       perSystem = {
-        config,
-        self',
-        inputs',
         pkgs,
         system,
         ...
