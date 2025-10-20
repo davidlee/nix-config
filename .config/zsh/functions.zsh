@@ -112,18 +112,23 @@ colors () {
 #
 # FZF
 #
-# Use fd (https://github.com/sharkdp/fd) for listing path candidates.
-# - The first argument to the function ($1) is the base path to start traversal
-# - See the source code (completion.{bash,zsh}) for the details.
+
+#
+# fzf - use bfs over fd
+#
+my_bfs_excludes="-exclude -name .git -exclude -name result -exclude -name .obsidian"
+
+FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --ansi"
+FZF_CTRL_T_COMMAND="bfs -color -mindepth 1 $my_bfs_excludes -printf '%P\n' 2>/dev/null"
+FZF_ALT_C_COMMAND="bfs -color -mindepth 1 $my_bfs_excludes -type d -printf '%P\n' 2>/dev/null"
+
 _fzf_compgen_path() {
-  fd --hidden --follow --exclude ".git" --exclude "result" --exclude ".obsidian" . "$1"
+    bfs -H "$1" -color $my_bfs_excludes 2>/dev/null
 }
 
-# Use fd to generate the list for directory completion
 _fzf_compgen_dir() {
-  fd --type d --hidden --follow --exclude ".git" --exclude "result" --exclude ".obsidian" . "$1"
+    bfs -H "$1" -color $my_bfs_excludes -type d 2>/dev/null
 }
-
 
 #
 # Sesh https://github.com/joshmedeski/sesh?tab=readme-ov-file

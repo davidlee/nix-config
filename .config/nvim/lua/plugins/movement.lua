@@ -1,4 +1,4 @@
--- local md = require("mini.deps")
+local md = require("mini.deps")
 local lz = require("lze")
 
 -- movement
@@ -22,3 +22,6 @@ lz.load({
     end,
   },
 })
+
+md.add("ibhagwan/fzf-lua")
+md.later(function() require("fzf-lua") end)
