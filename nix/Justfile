@@ -1,0 +1,13 @@
+default: switch
+
+switch:
+  @./nix-up.sh switch
+
+build:
+  @./nix-up.sh build
+
+dry-run:
+  @./nix-up.sh dry-build
+
+boot:
+  @./nix-up.sh boot
