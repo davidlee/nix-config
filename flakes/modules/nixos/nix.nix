@@ -75,6 +75,7 @@
       nvd
       pkg-config
       sd-switch
+      npins
     ];
   };
 }
