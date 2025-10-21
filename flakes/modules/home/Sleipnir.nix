@@ -22,7 +22,7 @@ _: {
 
     services = {
       systembus-notify.enable = true; # notify-send from systemd
-      mpris-proxy.enable = true;
+      # mpris-proxy.enable = true;
     };
   };
 }

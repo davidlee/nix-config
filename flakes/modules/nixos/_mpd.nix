@@ -7,7 +7,7 @@ _: {
     services = {
       mpd = {
         user = username;
-        enable = false;
+        enable = true;
         musicDirectory = "/media/music";
         extraConfig = ''
           audio_output {
