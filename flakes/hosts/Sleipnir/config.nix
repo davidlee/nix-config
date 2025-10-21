@@ -7,49 +7,58 @@
 
   imports = with self; [
     ./hardware-configuration.nix
-    nixosModules.env
-    nixosModules.nix
-    nixosModules.flatpak
-    nixosModules.lib
+    nixosModules._1password
+    nixosModules.ai
+    nixosModules.appimage
+    nixosModules.avahi
+    nixosModules.bluetooth
+    nixosModules.boot
     nixosModules.browsers
     nixosModules.editors
+    nixosModules.env
+    nixosModules.flatpak
     nixosModules.fonts
-    nixosModules.keyboard
-    nixosModules.webserver
-    nixosModules.postgresql
-    nixosModules.mpd
-    nixosModules.media
-    nixosModules.graphics
-    nixosModules.programs
-    nixosModules.util
-    nixosModules.security
-    nixosModules.user
     nixosModules.games
-    nixosModules.boot
+    nixosModules.gamescope
+    nixosModules.graphics
     nixosModules.greeter
-    nixosModules.radeon
-    nixosModules.network
-    nixosModules.wayland
-    nixosModules.sway
-    nixosModules.office
-    nixosModules.ai
-    nixosModules.terminals
-    nixosModules._1password
-    nixosModules.wayland-packages
-    nixosModules.xdg
-    nixosModules.x11
+    nixosModules.kanshi
+    nixosModules.kernel
+    nixosModules.keyboard
     nixosModules.keyring
-    nixosModules.pipewire
-    nixosModules.bluetooth
-    nixosModules.openrgb
+    nixosModules.lib
     nixosModules.locate
-    nixosModules.avahi
+    nixosModules.media
+    nixosModules.network
+    nixosModules.nix
+    nixosModules.office
+    nixosModules.openrgb
+    nixosModules.pipewire
     nixosModules.podman
+    nixosModules.postgresql
+    nixosModules.programs
+    nixosModules.radeon
+    nixosModules.security
+    nixosModules.sshd
+    nixosModules.sway
+    nixosModules.swayidle
+    nixosModules.terminals
+    nixosModules.user
+    nixosModules.util
+    nixosModules.wayland
+    nixosModules.wayland-packages
+    nixosModules.webserver
+    nixosModules.x11
+    nixosModules.xdg
     nixosModules.zed-editor
     # nixosModules.kmscon
+    # nixosModules.mangohud
+    # nixosModules.mpd
     # nixosModules.microcode
+    # nixosModules.virtualisation
 
     # shared:
     nixosModules.cliPackages
+    nixosModules.emacs
   ];
 }

@@ -2,7 +2,7 @@ _: {
   flake.nixosModules.postgresql = {username, ...}: {
     services = {
       postgresql = {
-        enable = false;
+        enable = true;
         ensureUsers = [
           {
             name = username;

@@ -38,6 +38,7 @@ in {
       "filetypes"
       "containers"
       "frivolity"
+      "editors"
       "www"
     ];
   in {
@@ -141,7 +142,7 @@ in {
       tre
       pueue
       grex
-      tree
+      # tree
     ];
     config.nixosCliPackages.zsh = with pkgs; [
     ];
@@ -500,6 +501,30 @@ in {
 
       # convert
       pandoc
+    ];
+
+    ################################################################################
+    #
+    # editors
+    #
+    config.sharedCliPackages.editors = with pkgs; [
+      neovim
+      lapce
+      kakoune
+      kakoune-lsp
+      kakoune-cr
+      wordgrinder
+      emacsclient-commands
+      emacs-nox
+    ];
+
+    config.nixosCliPackages.editors = with pkgs; [
+      micro-with-wl-clipboard
+      kb
+      nb
+      tpnote
+      tui-journal
+      emacs-all-the-icons-fonts
     ];
 
     ################################################################################

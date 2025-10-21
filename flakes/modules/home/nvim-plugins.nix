@@ -20,7 +20,7 @@ _: {
     };
 
     config.nvimPackages = {
-      deps = [];
+      deps = with pkgs; [selene];
       eager = with pkgs.vimPlugins; [
         lze
         vim-startuptime
@@ -47,6 +47,7 @@ _: {
         gruvbox
         gruvbox-material
         tokyonight-nvim
+
         papercolor-theme
         sonokai
         # astrotheme

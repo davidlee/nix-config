@@ -38,20 +38,16 @@
     zls-overlay.url = "github:zigtools/zls";
     ucodenix.url = "github:e-tho/ucodenix";
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
-    # zed-editor-flake.url = "github:Rishabh5321/zed-editor-flake";
     zed.url = "github:zed-industries/zed";
   };
 
   outputs = inputs @ {
     self,
     nixpkgs,
-    nix-stable,
-    flake-parts,
-    darwin,
     ...
   }:
-    flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
-      imports = [
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
+      imports = with inputs; [
         inputs.treefmt-nix.flakeModule
         inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
@@ -69,7 +65,7 @@
           hostname = "Sleipnir";
           username = "david";
           system = "x86_64-linux";
-          stable = import nix-stable {
+          stable = import inputs.nix-stable {
             inherit system;
             config.allowUnfree = true;
           };
@@ -105,7 +101,7 @@
             inherit (self) outputs;
           };
         in {
-          "${hostname}" = darwin.lib.darwinSystem {
+          "${hostname}" = inputs.darwin.lib.darwinSystem {
             inherit pkgs specialArgs;
             modules = [
               {system.configurationRevision = self.rev or self.dirtyRev or null;}
