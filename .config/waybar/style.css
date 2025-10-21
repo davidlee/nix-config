@@ -2,9 +2,11 @@
 @define-color blue #1F2A35;
 @define-color red #F53C3C;
 @define-color green #2ECC71;
+@define-color muted #101010;
 
 window#waybar {
-    background-color: rgba(43, 48, 59, 0.5);
+    /* background-color: rgba(43, 48, 59, 0.5); */
+    background-color: rgba(13, 18, 29, 0.8);
     border-bottom: 3px solid rgba(100, 114, 125, 0.5);
     color: #ffffff;
     transition-property: background-color;
@@ -14,13 +16,6 @@ window#waybar {
 window#waybar.hidden {
     opacity: 0.2;
 }
-
-/*
-window#waybar.floorp {
-    background-color: #007739;
-    border: none;
-}
-*/
 
 button {
     /* Use box-shadow instead of border so the text isn't offset */
@@ -45,7 +40,7 @@ button:hover {
  *  workspaces
 */
 
-#workspaces, #taskbar, #mode {
+#workspaces, #taskbar, #mode, #tray {
     border-right: 2px dashed #333;
 }
 
@@ -53,7 +48,7 @@ button:hover {
     padding: 0 10px;
     background-color: transparent;
     font-family: "Monaspace Argon";
-    font-size: 12px;
+    font-size: 10px;
     color: #ffffff;
 }
 
@@ -96,8 +91,8 @@ button:hover {
 }
 
 #mode {
-    font-family: Inconsolata;
-    font-size: 16px;
+    font-family: Consolas;
+    font-size: 12px;
     font-weight: 400;
     color: #ffffff;
     margin: 0;
@@ -123,7 +118,6 @@ button:hover {
 #mpd,
 #wireplumber,
 #tray,
-/* #mode, */
 #idle_inhibitor,
 #scratchpad,
 #power-profiles-daemon,
@@ -139,16 +133,12 @@ button:hover {
     font-size: 12px;
     padding: 9px 12px;
     color: #ffffff;
-    background-color: @slate;
-    /* box-shadow: inset 0 -3px rgba(1,1,1,0.2); */
+    background-color: @muted;
     border-bottom: 3px solid rgba(100, 114, 125, 0.5);
 }
 
 #window {
-    /* font-family: "Monaspace Argon Frozen", Consolas; */
-    font-family: "Inconsolata", Consolas;
-    font-size: 14px;
-    /* box-shadow: inset 0 -3px #111; */
+    font-size: 16px;
 }
 
 #clock {
@@ -169,6 +159,15 @@ button:hover {
     to {
         background-color: #ffffff;
         color: #000000;
+    }
+}
+
+@keyframes pulse {
+    from {
+        background-color: #000000;
+    }
+    to {
+        background-color: #1c1c1c;
     }
 }
 
@@ -265,11 +264,6 @@ label:focus {
     background-color: #eb4d4b;
 }
 
-#tray {
-    background-color: rgba(0,0,0,0.05);
-
-}
-
 #tray > .passive {
     -gtk-icon-effect: dim;
 }
@@ -337,7 +331,6 @@ label:focus {
 }
 
 #privacy {
-    /* padding: 0; */
 }
 
 #privacy-item {
@@ -356,17 +349,16 @@ label:focus {
 #privacy-item.audio-out {
     background-color: #0069d4;
 }
+
 #custom-weather {
 }
 
 /* break reminder */
 #custom-break-reminder {
-    background-color: #2d3748;
-    color: #e2e8f0;
-    border-radius: 5px;
     padding: 0 10px;
     margin: 0 5px;
     font-weight: bold;
+    animation: pulse 0.3s infinite;
 }
 
 #custom-break-reminder.paused {
@@ -380,9 +372,3 @@ label:focus {
     animation: blink 1s infinite;
 }
 
-/*
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0.3; }
-}
-*/

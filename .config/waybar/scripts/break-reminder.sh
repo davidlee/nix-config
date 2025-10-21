@@ -52,8 +52,7 @@ get_state() {
 # Function to check if screen is locked with swaylock
 is_screen_locked() {
     # Check for swaylock processes
-    pgrep -x "swaylock" >/dev/null || pgrep -x "swaylock-fancy" >/dev/null
-    "locked"
+    (pgrep -x "swaylock" >/dev/null || pgrep -x "swaylock-fancy" >/dev/null) && echo "locked"
 }
 
 # Function to get time remaining
