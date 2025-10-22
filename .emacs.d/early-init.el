@@ -14,6 +14,13 @@
 ;;;   Basic settings for quick startup and convenience
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq package-enable-at-startup nil)
+
+;; use elpaca - https://github.com/progfolio/elpaca
+(load-file (expand-file-name "elpaca.el" user-emacs-directory))
+
+
+
 
 ;; Startup speed, annoyance suppression
 (setq bedrock--initial-gc-threshold gc-cons-threshold)
@@ -40,3 +47,5 @@
                             (foreground-color . "#ffffff")
                             (ns-appearance . dark)
                             (ns-transparent-titlebar . t)))
+
+

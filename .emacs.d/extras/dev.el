@@ -32,8 +32,8 @@
   :config
   ;; Treesitter config
 
-  ;; Tell Emacs to prefer the treesitter mode
-  ;; You'll want to run the command `M-x treesit-install-language-grammar' before editing.
+  ;; Tell Emacs to prefer the treesitter mode You'll want to run the
+  ;; command `M-x treesit-install-language-grammar' before editing.
   (setq major-mode-remap-alist
         '((yaml-mode . yaml-ts-mode)
           (bash-mode . bash-ts-mode)
@@ -61,6 +61,8 @@
 (use-package magit
   :ensure t
   :bind (("C-x g" . magit-status)))
+(use-package transient :ensure t)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -77,6 +79,10 @@
 
 (use-package json-mode
   :ensure t)
+
+(use-package go-mode
+  :ensure t)
+
 
 ;; Emacs ships with a lot of popular programming language modes. If it's not
 ;; built in, you're almost certain to find a mode for the language you're

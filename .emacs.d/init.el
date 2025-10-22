@@ -1,108 +1,9 @@
-;;;  ________                                                _______                 __                            __
-;;; /        |                                              /       \               /  |                          /  |
-;;; $$$$$$$$/ _____  ____   ______   _______  _______       $$$$$$$  | ______   ____$$ | ______   ______   _______$$ |   __
-;;; $$ |__   /     \/    \ /      \ /       |/       |      $$ |__$$ |/      \ /    $$ |/      \ /      \ /       $$ |  /  |
-;;; $$    |  $$$$$$ $$$$  |$$$$$$  /$$$$$$$//$$$$$$$/       $$    $$</$$$$$$  /$$$$$$$ /$$$$$$  /$$$$$$  /$$$$$$$/$$ |_/$$/
-;;; $$$$$/   $$ | $$ | $$ |/    $$ $$ |     $$      \       $$$$$$$  $$    $$ $$ |  $$ $$ |  $$/$$ |  $$ $$ |     $$   $$<
-;;; $$ |_____$$ | $$ | $$ /$$$$$$$ $$ \_____ $$$$$$  |      $$ |__$$ $$$$$$$$/$$ \__$$ $$ |     $$ \__$$ $$ \_____$$$$$$  \
-;;; $$       $$ | $$ | $$ $$    $$ $$       /     $$/       $$    $$/$$       $$    $$ $$ |     $$    $$/$$       $$ | $$  |
-;;; $$$$$$$$/$$/  $$/  $$/ $$$$$$$/ $$$$$$$/$$$$$$$/        $$$$$$$/  $$$$$$$/ $$$$$$$/$$/       $$$$$$/  $$$$$$$/$$/   $$/
-
-;;; Minimal init.el
-
-;;; Contents:
-;;;
-;;;  - Basic settings
-;;;  - Discovery aids
-;;;  - Minibuffer/completion settings
-;;;  - Interface enhancements/defaults
-;;;  - Tab-bar configuration
-;;;  - Theme
-;;;  - Optional extras
-;;;  - Built-in customization framework
-
-;;; Guardrail
-
-(when (< emacs-major-version 29)
-  (error "Emacs Bedrock only works with Emacs 29 and newer; you have version %s" emacs-major-version))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;;   Basic settings
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Package initialization
 ;;
-;; We'll stick to the built-in GNU and non-GNU ELPAs (Emacs Lisp Package
-;; Archive) for the base install, but there are some other ELPAs you could look
-;; at if you want more packages. MELPA in particular is very popular. See
-;; instructions at:
+;; EMACS - a configuration adventure
 ;;
-;;    https://melpa.org/#/getting-started
-;;
-;; You can simply uncomment the following if you'd like to get started with
-;; MELPA packages quickly:
-;;
-;; (with-eval-after-load 'package
-;;   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t))
-
-;; If you want to turn off the welcome screen, uncomment this
-;(setopt inhibit-splash-screen t)
-
-(setopt initial-major-mode 'fundamental-mode)  ; default mode for the *scratch* buffer
-(setopt display-time-default-load-average nil) ; this information is useless for most
-
-;; Automatically reread from disk if the underlying file changes
-(setopt auto-revert-avoid-polling t)
-;; Some systems don't do file notifications well; see
-;; https://todo.sr.ht/~ashton314/emacs-bedrock/11
-(setopt auto-revert-interval 5)
-(setopt auto-revert-check-vc-info t)
-(global-auto-revert-mode)
-
-;; Save history of minibuffer
-(savehist-mode)
-
-;; Move through windows with Ctrl-<arrow keys>
-(windmove-default-keybindings 'control) ; You can use other modifiers here
-
-;; Fix archaic defaults
-(setopt sentence-end-double-space nil)
-
-;; Make right-click do something sensible
-(when (display-graphic-p)
-  (context-menu-mode))
-
-;; Don't litter file system with *~ backup files; put them all inside
-;; ~/.emacs.d/backup or wherever
-(defun bedrock--backup-file-name (fpath)
-  "Return a new file path of a given file path.
-If the new path's directories does not exist, create them."
-  (let* ((backupRootDir (concat user-emacs-directory "emacs-backup/"))
-         (filePath (replace-regexp-in-string "[A-Za-z]:" "" fpath )) ; remove Windows driver letter in path
-         (backupFilePath (replace-regexp-in-string "//" "/" (concat backupRootDir filePath "~") )))
-    (make-directory (file-name-directory backupFilePath) (file-name-directory backupFilePath))
-    backupFilePath))
-(setopt make-backup-file-name-function 'bedrock--backup-file-name)
-
-;; The above creates nested directories in the backup folder. If
-;; instead you would like all backup files in a flat structure, albeit
-;; with their full paths concatenated into a filename, then you can
-;; use the following configuration:
-;; (Run `'M-x describe-variable RET backup-directory-alist RET' for more help)
-;;
-;; (let ((backup-dir (expand-file-name "emacs-backup/" user-emacs-directory)))
-;;   (setopt backup-directory-alist `(("." . ,backup-dir))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;
-;;;   Discovery aids
-;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Show the help buffer after startup
-(add-hook 'after-init-hook 'help-quick)
+; (add-hook 'after-init-hook 'help-quick)
 
 ;; which-key: shows a popup of available keybindings when typing a long key
 ;; sequence (e.g. C-x ...)
@@ -110,6 +11,15 @@ If the new path's directories does not exist, create them."
   :ensure t
   :config
   (which-key-mode))
+
+;;
+;; elpaca setup
+;;
+(elpaca elpaca-use-package (elpaca-use-package-mode))
+
+;; hook for anything which needs to run after all packages are loaded
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -225,13 +135,13 @@ If the new path's directories does not exist, create them."
 
 ;; UI/UX enhancements mostly focused on minibuffer and autocompletion interfaces
 ;; These ones are *strongly* recommended!
-;(load-file (expand-file-name "extras/base.el" user-emacs-directory))
+(load-file (expand-file-name "extras/base.el" user-emacs-directory))
 
 ;; Packages for software development
-;(load-file (expand-file-name "extras/dev.el" user-emacs-directory))
+(load-file (expand-file-name "extras/dev.el" user-emacs-directory))
 
 ;; Vim-bindings in Emacs (evil-mode configuration)
-;(load-file (expand-file-name "extras/vim-like.el" user-emacs-directory))
+; (load-file (expand-file-name "extras/vim-like.el" user-emacs-directory))
 
 ;; Org-mode configuration
 ;; WARNING: need to customize things inside the elisp file before use! See
@@ -257,7 +167,7 @@ If the new path's directories does not exist, create them."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages '(which-key)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
