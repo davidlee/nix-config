@@ -35,6 +35,8 @@ _: {
       wl-mirror
       wlopm
       wlr-layout-ui
+      wl-color-picker
+      hyprpicker
 
       gnome-system-monitor
       gnome-calendar

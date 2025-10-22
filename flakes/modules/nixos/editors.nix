@@ -5,6 +5,7 @@ _: {
     ...
   }: {
     environment.systemPackages = with pkgs; [
+      ed
       inputs.helix.packages.x86_64-linux.default
       # emacs-gtk
       obsidian

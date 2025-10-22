@@ -9,6 +9,8 @@ _: {
       podman-compose
       podman-desktop
       podman-tui
+      distrobox
+      crun # needed for distrobox
     ];
     virtualisation = {
       containers.enable = true;
