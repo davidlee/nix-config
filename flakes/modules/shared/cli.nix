@@ -377,6 +377,8 @@ in {
     config.sharedCliPackages.dev = with pkgs; [
       just
       exercism
+      nodejs_latest # npx
+      uv
     ];
     config.nixosCliPackages.dev = with pkgs; [
       # ## lang.c

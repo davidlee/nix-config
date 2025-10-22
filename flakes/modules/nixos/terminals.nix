@@ -8,6 +8,7 @@ _: {
       ghostty
       kitty
       rio
+      warp-terminal
     ];
   };
 }
