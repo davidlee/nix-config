@@ -23,18 +23,27 @@ unsetopt FLOW_CONTROL
 # plugins=(colored-man-pages extract 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
 # plugins=(colored-man-pages extract 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
 
-zle -N menu-search
-zle -N recent-paths
+# zle -N menu-search
+# zle -N recent-paths
 
+#
+# powerlevel10K
+#
+[[ ! -f ~/.config/zsh/_p10k.zsh ]] || source ~/.config/zsh/_p10k.zsh
+export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
+
+## Antidote
+zstyle ':antidote:bundle' use-friendly-names 'yes'
 antidote load ${ZDOTDIR}/.zsh_plugins.txt
-
-source ${ZDOTDIR}/.zsh_plugins.zsh
+# source ${ZDOTDIR}/.zsh_plugins.zsh
 
 if [[ $OSTYPE = 'linux-gnu' ]]; then
   alias open=xdg-open
 fi
 
 source $HOME/.config/zsh/functions.zsh
+source $HOME/.config/zsh/functions/fzf.zsh
 source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh
 
@@ -43,12 +52,12 @@ source $HOME/.config/zsh/aliases.zsh
 #
 
 # tab & shift-tab
-bindkey              '^I' menu-select
-bindkey "$terminfo[kcbt]" menu-select
-
-# tab + shift-tab cycle listed completions
-bindkey -M menuselect              '^I'         menu-complete
-bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
+#bindkey              '^I' menu-select
+#bindkey "$terminfo[kcbt]" menu-select
+#
+## tab + shift-tab cycle listed completions
+#bindkey -M menuselect              '^I'         menu-complete
+#bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
 #
 # fix word-style
@@ -69,10 +78,6 @@ if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
 
-#
-# atuin
-#
-#eval "$(atuin init zsh)"
 
 #
 # tmux
@@ -98,6 +103,9 @@ source <(sk --shell zsh)
 # fzf
 #
 source <(fzf --zsh)
+export FZF_CTRL_T_COMMAND='bfs -type f'
+export FZF_CTRL_C_COMMAND='bfs -type d'
+export FZF_CTRL_T_OPTS="--bind 'f1:execute(less -f {}),ctrl-y:execute-silent(echo {} | wl-copy),ctrl-o:execute(nvim {})+abort'"
 
 #
 # mcfly
@@ -108,11 +116,6 @@ eval "$(mcfly init zsh)"
 # zoxide - must be AFTER compinit
 #
 eval "$(zoxide init zsh --cmd cd --hook prompt)"
-
-#
-# starship
-#
-eval "$(starship init zsh)"
 
 
 #
