@@ -31,7 +31,6 @@ _: {
 
       ## search
       recoll
-      calendar-cli
 
       # ## docs, notes, productivity
       dnote

@@ -24,6 +24,7 @@ _: {
         clinfo
         rocmPackages.clr.icd
         rocmPackages.rocminfo
+        # rocmPackages.opt-rocm
 
         ## overclocky
         lact

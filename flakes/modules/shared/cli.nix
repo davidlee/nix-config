@@ -90,11 +90,10 @@ in {
       antidote
       shellcheck
       shfmt
+
       ## zsh config depends on
       starship
       carapace
-      eza
-      lsd
       fzf
       atuin
       zoxide
@@ -105,44 +104,35 @@ in {
       skim
       delta
       bfs #faster than fd
+      ## ls is more
+      eza
+      lsd
+      pls
+      tre
+
       ## unix / text
       coreutils
       gnused
+      sd
       gawk
+      play # playground for sed, grep, awk, ...
       bat
       sd
       aspell
-      play # playground for sed, grep, awk, ...
-      # also lovely
-      trash-cli
-      bat
-      jless
-      gdu
-      ncdu
-      hyperfine
-      jq
-      sd
-      gron
-      await
-      xh
-      doggo
-      curlie
-      httpie
-      trashy
-      procs
-      pls
-      dust
-      clock-rs
       choose
-      glances
-      gtop
-      cheat
-      duf
-      tldr
-      tre
-      pueue
-      grex
-      # tree
+      slides
+
+      ## calc
+      bc
+      eva
+      sc-im
+
+      ## clock
+      clock-rs
+
+      ## cal
+      calendar-cli
+      calcure
     ];
     config.nixosCliPackages.zsh = with pkgs; [
     ];
@@ -157,6 +147,7 @@ in {
       tldr
       tealdeer
       zeal
+      cheat
       pinfo
     ];
 
@@ -197,11 +188,11 @@ in {
     config.nixosCliPackages.system = with pkgs; [
       ## disk & file io
       mmtui # mount manager
-      ## disk / io
       hdparm
       smartmontools
       udiskie
 
+      ## sysutil
       ccache
       cpuid
       cpuinfo
@@ -209,15 +200,12 @@ in {
       lshw
       pciutils
       smem
-      stress-ng
       sysprof
       sysstat
       usbutils
       x86info
-      mprocs # parallel command runner
       tray-tui # systray
-      ## download / backup
-      backintime
+
       ## sysmon
       lm_sensors
       atop
@@ -225,6 +213,10 @@ in {
       bottom
       htop
       gtop
+      glances
+      #wth
+      wtf
+
       ## system utils
       isd # systemd
       lazyjournal # logs & containers
@@ -233,6 +225,14 @@ in {
       ## process management
       pstree
       killall
+      await
+      procs
+      pueue
+      mprocs
+
+      ## load test
+      hyperfine
+      stress-ng
     ];
 
     ################################################################################
@@ -256,6 +256,7 @@ in {
       ncdu
       gdu
       duf
+      dust
       pydf
 
       ## compression
@@ -273,17 +274,21 @@ in {
       syncthing
       backblaze-b2
       aria2
-      # backintime
+      backintime
+
+      # trash
+      trash-cli
+      trashy
     ];
     config.nixosCliPackages.fileutils = with pkgs; [
     ];
 
     ################################################################################
     #
-    # net
+    # net / http
     #
     config.sharedCliPackages.net = with pkgs; [
-      # network / http
+      # net / http
       curl
       curlie
       dig
@@ -302,6 +307,8 @@ in {
       xh
       yt-dlp
       unixtools.net-tools
+      doggo
+      curlie
     ];
     config.nixosCliPackages.net = with pkgs; [
       sn0int
@@ -364,6 +371,7 @@ in {
       debase
       gh-dash
       lazygit
+      gitui
       lazyjj
       jjui
     ];
@@ -425,7 +433,7 @@ in {
     #
     config.sharedCliPackages.display = with pkgs; [
       ## text readers, pagers
-      # fltrdr
+      fltrdr
       nvimpager
       less
       most
@@ -479,18 +487,28 @@ in {
 
       ## JSON / YAML
       otree # text object tree viewer
+      gron
       jq
       jqp # jq tui playground
       yq-go # jq for yaml
       jc
+      jless
+
+      ## regex
+      grex
     ];
 
     config.nixosCliPackages.filetypes = with pkgs; [
+      ## csv
       csv-tui
-      ## PDF
+
+      ## pdf
       tdf
-      ### text utils
+
+      ### unicode
       cicero-tui # unicode
+
+      ## translate
       gtt
 
       ## text readers, pagers
@@ -576,6 +594,9 @@ in {
       tuisky # bluesky
       wiki-tui # wikipedia
       slack-term
+
+      ## text to speech
+      espeak-ng
     ];
   };
 

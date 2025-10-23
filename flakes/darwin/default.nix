@@ -24,8 +24,6 @@ in {
     ./brew.nix
     ./packages.nix
 
-    # inputs.lix-module.nixosModules.default
-
     inputs.home-manager.darwinModules.home-manager
     {
       home-manager.useGlobalPkgs = true;
@@ -34,10 +32,8 @@ in {
       home-manager.backupFileExtension = "backup";
       home-manager.users.${username} = import ./home.nix;
     }
-
-    # ../modules/zig.nix
   ];
-  ## USE LIX
+    
   nixpkgs.overlays = [
     (final: prev: {
       inherit
