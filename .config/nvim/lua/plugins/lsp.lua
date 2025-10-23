@@ -81,6 +81,7 @@ vim.lsp.config("lua_ls", {
 -- marksman
 vim.lsp.enable("marksman")
 
+vim.lsp.enable("markdown-oxide")
 -- rust
 vim.lsp.config("rust_analyzer", {
   settings = {
@@ -96,7 +97,7 @@ vim.lsp.config("rust_analyzer", {
 vim.lsp.enable("zls")
 
 -- zk
-vim.lsp.enable("zk")
+-- vim.lsp.enable("zk")
 
 -- tailwindCSS
 vim.lsp.enable("tailwindcss")

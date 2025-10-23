@@ -6,7 +6,7 @@
 ;;; enhancements.
 ;;;
 ;;; The consult package in particular has a vast number of functions that you
-;;; can use as replacements to what Emacs provides by default. Please see the
+;;; can use as replacements to what Emacs providues by default. Please see the
 ;;; consult documentation for more information and help:
 ;;;
 ;;;     https://github.com/minad/consult
@@ -31,38 +31,15 @@
 (use-package avy
   :ensure t
   :demand t
-  :bind (("C-c j" . avy-goto-line)
-         ("s-j"   . avy-goto-char-timer)))
+  :bind (("C-'"   . avy-goto-char-2)
+         ("C-c j" . avy-goto-line)
+         ("C-;"   . avy-goto-char-timer)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;   Power-ups: Embark and Consult
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Consult: Misc. enhanced commands
-(use-package consult
-  :ensure t
-  :bind (
-         ;; Drop-in replacements
-         ("C-x b" . consult-buffer)     ; orig. switch-to-buffer
-         ("M-y"   . consult-yank-pop)   ; orig. yank-pop
-         ;; Searching
-         ("M-s r" . consult-ripgrep)
-         ("M-s l" . consult-line)       ; Alternative: rebind C-s to use
-         ("M-s s" . consult-line)       ; consult-line instead of isearch, bind
-         ("M-s L" . consult-line-multi) ; isearch to M-s s
-         ("M-s o" . consult-outline)
-         ;; Isearch integration
-         :map isearch-mode-map
-         ("M-e" . consult-isearch-history)   ; orig. isearch-edit-string
-         ("M-s e" . consult-isearch-history) ; orig. isearch-edit-string
-         ("M-s l" . consult-line)            ; needed by consult-line to detect isearch
-         ("M-s L" . consult-line-multi)      ; needed by consult-line to detect isearch
-         )
-  :config
-  ;; Narrowing lets you restrict results to certain groups of candidates
-  (setq consult-narrow-key "<"))
 
 (use-package embark-consult
   :ensure t)

@@ -41,10 +41,10 @@
 ;;; Phase 2 variables
 
 ;; Agenda variables
-(setq org-directory "~/Documents/org/") ; Non-absolute paths for agenda and
+(setq org-directory "~/org/") ; Non-absolute paths for agenda and
                                         ; capture templates will look here.
 
-(setq org-agenda-files '("inbox.org" "work.org"))
+(setq org-agenda-files '("inbox.org" "work.org" "tech.org" "self.org" "family.org"))
 
 ;; Default tags
 (setq org-tag-alist '(
@@ -52,7 +52,7 @@
                       (:startgroup)
                       ("home" . ?h)
                       ("work" . ?w)
-                      ("school" . ?s)
+                      ("desk" . ?s)
                       (:endgroup)
                       (:newline)
                       ;; scale
@@ -72,16 +72,16 @@
 ;;; Phase 3 variables
 
 ;; Org-roam variables
-(setq org-roam-directory "~/Documents/org-roam/")
-(setq org-roam-index-file "~/Documents/org-roam/index.org")
+;(setq org-roam-directory "~/Documents/org-roam/")
+;(setq org-roam-index-file "~/Documents/org-roam/index.org")
 
 ;;; Optional variables
 
 ;; Advanced: Custom link types
 ;; This example is for linking a person's 7-character ID to their page on the
 ;; free genealogy website Family Search.
-(setq org-link-abbrev-alist
-      '(("family_search" . "https://www.familysearch.org/tree/person/details/%s")))
+;(setq org-link-abbrev-alist
+;      '(("family_search" . "https://www.familysearch.org/tree/person/details/%s")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;

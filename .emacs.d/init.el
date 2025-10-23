@@ -12,6 +12,9 @@
   :config
   (which-key-mode))
 
+(setq make-backup-files nil)
+
+;; ;;;;;;;;;;;;;;;;;;;;
 ;;
 ;; elpaca setup
 ;;
@@ -20,6 +23,7 @@
 ;; hook for anything which needs to run after all packages are loaded
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file 'noerror)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -71,20 +75,23 @@
 (setopt mouse-wheel-tilt-scroll t)
 (setopt mouse-wheel-flip-direction t)
 
-;; We won't set these, but they're good to know about
-;;
-;; (setopt indent-tabs-mode nil)
-;; (setopt tab-width 4)
+(setopt indent-tabs-mode nil)
+(setopt tab-width 2)
 
+;; ;;;;;;;;;;;;
+;;
 ;; Misc. UI tweaks
+;;
 (blink-cursor-mode -1)                                ; Steady cursor
 (pixel-scroll-precision-mode)                         ; Smooth scrolling
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(setq use-file-dialog nil)
 
 ;; Use common keystrokes by default
 (cua-mode)
 
 ;; For terminal users, make the mouse more useful
-
 (xterm-mouse-mode 1)
 
 ;; Display line numbers in programming mode
@@ -98,6 +105,8 @@
 (let ((hl-line-hooks '(text-mode-hook prog-mode-hook)))
   (mapc (lambda (hook) (add-hook hook 'hl-line-mode)) hl-line-hooks))
 
+(elpaca origami)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 ;;;   Tab-bar configuration
@@ -108,11 +117,16 @@
 (setopt tab-bar-show 1)
 
 ;; Add the time to the tab-bar, if visible
-(add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
-(add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
-(setopt display-time-format "%a %F %T")
-(setopt display-time-interval 1)
-(display-time-mode)
+;(add-to-list 'tab-bar-format 'tab-bar-format-align-right 'append)
+;(add-to-list 'tab-bar-format 'tab-bar-format-global 'append)
+;(setopt display-time-format "%a %F %T")
+;(setopt display-time-interval 1)
+;(display-time-mode)
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1))
+(use-package nerd-icons :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -122,11 +136,43 @@
 
 (use-package emacs
   :config
+  ;(load-theme 'modus-vivendi))          ; for light theme, use modus-operandi
   (load-theme 'modus-vivendi))          ; for light theme, use modus-operandi
+
+(use-package modus-themes
+  :ensure t
+  :init
+
+  :bind
+  :config
+
+ 
+  )
+(use-package ef-themes
+  :ensure t
+  :init
+ (ef-themes-take-over-modus-themes-mode 1)
+  :bind
+  :config
+  (setq modus-themes-mixed-fonts t)
+  (setq modus-themes-italic-constructs t)
+
+  (modus-themes-load-theme 'ef-summer))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;;   Optional extras
+;;;   Custom
+;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(load-file (expand-file-name "custom/keys.el" user-emacs-directory))
+
+;; Vim-bindings in Emacs (evil-mode configuration)
+(load-file (expand-file-name "custom/evil.el" user-emacs-directory))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;;   Extras
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -140,13 +186,11 @@
 ;; Packages for software development
 (load-file (expand-file-name "extras/dev.el" user-emacs-directory))
 
-;; Vim-bindings in Emacs (evil-mode configuration)
-; (load-file (expand-file-name "extras/vim-like.el" user-emacs-directory))
 
 ;; Org-mode configuration
 ;; WARNING: need to customize things inside the elisp file before use! See
 ;; the file extras/org-intro.txt for help.
-;(load-file (expand-file-name "extras/org.el" user-emacs-directory))
+(load-file (expand-file-name "extras/org.el" user-emacs-directory))
 
 ;; Email configuration in Emacs
 ;; WARNING: needs the `mu' program installed; see the elisp file for more
@@ -154,7 +198,7 @@
 ;(load-file (expand-file-name "extras/email.el" user-emacs-directory))
 
 ;; Tools for academic researchers
-;(load-file (expand-file-name "extras/researcher.el" user-emacs-directory))
+(load-file (expand-file-name "extras/researcher.el" user-emacs-directory))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -165,7 +209,7 @@
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
+ ;; Your init file should contain only one such instance. 
  ;; If there is more than one, they won't work right.
  '(package-selected-packages nil))
 (custom-set-faces
@@ -176,3 +220,4 @@
  )
 
 (setq gc-cons-threshold (or bedrock--initial-gc-threshold 800000))
+(add-to-list 'default-frame-alist '(font . "JetBrains Nerd Mono"))

@@ -21,6 +21,13 @@ lz.load({
   },
 })
 
+lz.load({
+  {
+    "tokyonight.nvim",
+    after = function() end,
+  },
+})
+
 require("plugins.snacks")
 
 lz.load({
