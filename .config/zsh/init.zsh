@@ -1,5 +1,6 @@
 autoload zmv
 
+path+=~/.local/bin/scripts
 path+=~/.local/bin
 path+=~/.cargo/bin
 path+=~/.npm-global/bin
