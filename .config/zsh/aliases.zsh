@@ -5,13 +5,15 @@ alias vin="vice -W inlight";
 alias x="vice -i";
 
 alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
+alias ea="distrobox enter --root archlinux"
 
 
 # single character aliases
 alias g=git;
 alias j=just;
-alias jc="just --choose";
+alias jc="just --choose"
 alias _=sudo;
+alias nw="emacs -nw"
 
 alias c="cd $HOME/.config";
 alias cfg="fzd $HOME/.config";

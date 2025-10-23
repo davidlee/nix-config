@@ -1,5 +1,6 @@
 secrets.zsh
 secret*
+completions
 
 \.*
 .zcompdump
