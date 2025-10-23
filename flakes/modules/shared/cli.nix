@@ -274,13 +274,13 @@ in {
       syncthing
       backblaze-b2
       aria2
-      backintime
 
       # trash
       trash-cli
-      trashy
     ];
     config.nixosCliPackages.fileutils = with pkgs; [
+      backintime
+      trashy
     ];
 
     ################################################################################
@@ -371,11 +371,11 @@ in {
       debase
       gh-dash
       lazygit
-      gitui
       lazyjj
       jjui
     ];
     config.nixosCliPackages.scm = with pkgs; [
+      gitui
     ];
 
     ################################################################################
@@ -433,7 +433,6 @@ in {
     #
     config.sharedCliPackages.display = with pkgs; [
       ## text readers, pagers
-      fltrdr
       nvimpager
       less
       most
@@ -463,6 +462,7 @@ in {
       chroma
     ];
     config.nixosCliPackages.display = with pkgs; [
+      fltrdr
     ];
 
     ################################################################################
