@@ -246,6 +246,7 @@ in {
       felix-fm
       ictree
       nnn
+      mc
       ranger
       xplr
       yazi
