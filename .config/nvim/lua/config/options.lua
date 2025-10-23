@@ -16,6 +16,17 @@ vim.cmd("cnoreabbrev WQ! wq")
 vim.cmd("cnoreabbrev Q q")
 vim.cmd("cnoreabbrev Q! q!")
 
+local my_ag = vim.api.nvim_create_augroup("MyAutoGroup", { clear = true })
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+  desc = "turn off invisibles for Go",
+  pattern = "*.go",
+  group = my_ag,
+  -- command = "set nolist",
+  callback = function() 
+	  vim.cmd("set nolist")
+  end,
+})
+
 -- LazyVim auto format
 vim.g.autoformat = true
 

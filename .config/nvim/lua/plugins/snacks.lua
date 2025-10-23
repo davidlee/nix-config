@@ -6,7 +6,7 @@ lz.load({
   {
     "snacks.nvim",
     -- there's prolly a faster loading way to make sure it happens before VimEnter
-    -- lazy = false,
+    lazy = false,
     after = function()
       Snacks.setup({
         dashboard = {
