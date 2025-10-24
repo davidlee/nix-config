@@ -83,8 +83,7 @@ fi
 # tmux
 #
 if [[ -z $TMUX ]]; then
-  # (tmux list-sessions && sesh-sessions) || echo "No tmux session found."
-  (tmux list-sessions 2>/dev/null | grep -v -E '^_') || echo "No tmux sessions."
+  (tmux list-sessions 2>/dev/null | grep -v -E '^_')
 fi
 
 #
