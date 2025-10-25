@@ -44,16 +44,16 @@
 ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package citar
-  :ensure t
-  :bind (("C-c b" . citar-insert-citation)
-         :map minibuffer-local-map
-         ("M-b" . citar-insert-preset))
-  :custom
-  ;; Allows you to customize what citar-open does
-  (citar-file-open-functions '(("html" . citar-file-open-external)
-                               ;; ("pdf" . citar-file-open-external)
-                               (t . find-file))))
+;; (use-package citar
+;;   :ensure t
+;;   :bind (("C-c b" . citar-insert-citation)
+;;          :map minibuffer-local-map
+;;          ("M-b" . citar-insert-preset))
+;;   :custom
+;;   ;; Allows you to customize what citar-open does
+;;   (citar-file-open-functions '(("html" . citar-file-open-external)
+;;                                ;; ("pdf" . citar-file-open-external)
+;;                                (t . find-file))))
 
 ;; Optional: if you have the embark package installed, enable the ability to act
 ;; on citations with Citar by invoking `embark-act'.
@@ -77,23 +77,42 @@
 ;;     https://protesilaos.com/emacs/denote
 ;;
 (use-package denote
+  :ensure t
   :config
-  (denote-rename-buffer-mode)
-  (require 'denote-journal-extras))
+  (denote-rename-buffer-mode))
+
+(use-package denote-journal
+  :ensure t
+  ;; Bind those to some key for your convenience.
+  :commands ( denote-journal-new-entry
+              denote-journal-new-or-existing-entry
+              denote-journal-link-or-create-entry )
+  :hook (calendar-mode . denote-journal-calendar-mode)
+  :config
+  ;; Use the "journal" subdirectory of the `denote-directory'.  Set this
+  ;; to nil to use the `denote-directory' instead.
+  (setq denote-journal-directory
+        (expand-file-name "journal" denote-directory))
+  ;; Default keyword for new journal entries. It can also be a list of
+  ;; strings.
+  (setq denote-journal-keyword "journal")
+  ;; Read the doc string of `denote-journal-title-format'.
+  (setq denote-journal-title-format 'day-date-month-year))
+
 
 ;; Integrate citar and Denote: take notes on bibliographic entries
 ;; through Denote
-(use-package citar-denote
-  :after (:any citar denote)
-  :custom
-  (citar-denote-file-type 'org)
-  (citar-denote-keyword "bib")
-  (citar-denote-signature nil)
-  (citar-denote-subdir "")
-  (citar-denote-template nil)
-  (citar-denote-title-format "title")
-  (citar-denote-title-format-andstr "and")
-  (citar-denote-title-format-authors 1)
-  (citar-denote-use-bib-keywords t)
-  :init
-  (citar-denote-mode))
+;; (use-package citar-denote
+;;   :after (:any citar denote)
+;;   :custom
+;;   (citar-denote-file-type 'org)
+;;   (citar-denote-keyword "bib")
+;;   (citar-denote-signature nil)
+;;   (citar-denote-subdir "")
+;;   (citar-denote-template nil)
+;;   (citar-denote-title-format "title")
+;;   (citar-denote-title-format-andstr "and")
+;;   (citar-denote-title-format-authors 1)
+;;   (citar-denote-use-bib-keywords t)
+;;   :init
+;;   (citar-denote-mode))
