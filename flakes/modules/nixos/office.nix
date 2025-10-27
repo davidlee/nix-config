@@ -12,6 +12,7 @@ _: {
       # gnome-frog
       papers
       scribus
+      zotero
 
       ## messaging / social
       newsflash
