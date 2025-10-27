@@ -3,7 +3,8 @@
   config,
   ...
 }: {
-  imports = [../../pinned.nix];
-
-  
+  imports = [
+    ../../pinned.nix
+  ./hardware-configuration.nix
+  ];
 }
