@@ -8,7 +8,7 @@
   imports = with self; [
     ./hardware-configuration.nix
     nixosModules._1password
-    nixosModules.ai
+    # nixosModules.ai
     nixosModules.appimage
     nixosModules.avahi
     nixosModules.bluetooth

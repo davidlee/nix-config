@@ -29,14 +29,16 @@ _: {
       wl-crosshair
       wl-gammactl
       wl-gammarelay-rs
-      wl-color-picker
       wl-kbptr
       wl-restart
       wl-mirror
       wlopm
       wlr-layout-ui
+
+      ## color pickers
       wl-color-picker
       hyprpicker
+      oklch-color-picker
 
       gnome-system-monitor
       gnome-calendar

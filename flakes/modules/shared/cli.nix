@@ -388,6 +388,8 @@ in {
       exercism
       nodejs_latest # npx
       uv
+      python3
+      mise
     ];
     config.nixosCliPackages.dev = with pkgs; [
       # ## lang.c
@@ -407,6 +409,7 @@ in {
       git-crypt
       gpgme
       gpg-tui
+      gnupg
       oath-toolkit
     ];
     config.nixosCliPackages.security = with pkgs; [
@@ -482,6 +485,8 @@ in {
       glow
       # marked-man
       # md-tui
+
+      typst
 
       ## CSV
       # tidy-viewer
