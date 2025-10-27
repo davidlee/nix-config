@@ -37,10 +37,10 @@
 ;;; Phase 2 variables
 
 ;; Agenda variables
-(setq org-directory "~/org/") ; Non-absolute paths for agenda and
+(setq org-directory "~/tasks/") ; Non-absolute paths for agenda and
                                         ; capture templates will look here.
 
-(setq org-agenda-files '("inbox.org" "work.org" "tech.org" "self.org" "family.org"))
+(setq org-agenda-files '("inbox.org" "home.org" "work.org" "tech.org" "self.org" "family.org"))
 
 ;; Default tags
 (setq org-tag-alist '(
