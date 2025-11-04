@@ -146,7 +146,6 @@ in {
     config.nixosCliPackages.help = with pkgs; [
       tldr
       tealdeer
-      zeal
       cheat
       pinfo
     ];
@@ -233,6 +232,9 @@ in {
       ## load test
       hyperfine
       stress-ng
+
+      ## automation
+      ydotool
     ];
 
     ################################################################################
@@ -440,7 +442,7 @@ in {
       nvimpager
       less
       most
-      moar
+      moor
       viddy
       ov
 
@@ -477,8 +479,8 @@ in {
       ## markdown
       # markdownlint-cli
       # markdownlint-cli2
-      # markdown-oxide
-      # marksman
+      markdown-oxide
+      marksman # serena wants it
 
       ## markdown
       # frogmouth

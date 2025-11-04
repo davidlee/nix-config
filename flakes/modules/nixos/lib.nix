@@ -21,6 +21,7 @@ _: {
       # raylib
       zlib
       pixman
+      icu
       # SDL
       # SDL2
       # SDL2_mixer
