@@ -11,12 +11,12 @@ _: {
     fonts = {
       packages = with pkgs; [
         font-awesome
-        noto-fonts-emoji
+        noto-fonts-color-emoji
         noto-fonts-cjk-sans
-        noto-fonts-emoji
         liberation_ttf
         font-awesome
-        ubuntu_font_family
+        ubuntu-classic
+        ubuntu-sans-mono
         symbola
         material-icons
         mplus-outline-fonts.githubRelease

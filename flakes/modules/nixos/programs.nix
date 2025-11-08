@@ -25,7 +25,12 @@ _: {
 
       thunar = {
         enable = true;
-        plugins = with pkgs.xfce; [thunar-archive-plugin thunar-volman];
+        plugins = with pkgs.xfce; [
+          thunar-archive-plugin
+          thunar-volman
+          thunar-media-tags-plugin
+          thunar-media-tags-plugin
+        ];
       };
 
       foot = {

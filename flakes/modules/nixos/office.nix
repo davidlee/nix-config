@@ -7,7 +7,7 @@ _: {
       # morgen # TODO enable when electron deps fixed
       zotero
       #foliate
-      onlyoffice-bin
+      onlyoffice-desktopeditors
       libreoffice
       # gnome-frog
       papers
