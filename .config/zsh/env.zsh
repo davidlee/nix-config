@@ -11,11 +11,14 @@ export PAGER=ov
 # export MANPAGER='nvim +Man!'
 export MANPAGER='most'
 
-if [[ ! -z "${XDG_RUNTIME_DIR}" ]]; then
-  export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
-else
-  echo "$XDG_RUNTIME_DIR not set, can't set SSH_AUTH_SOCK"
+if [[ "Darwin" != "$(uname -o)" ]]; then
+  if [[ ! -z "${XDG_RUNTIME_DIR}" ]]; then
+    export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
+  else
+    echo "$XDG_RUNTIME_DIR not set, can't set SSH_AUTH_SOCK"
+  fi
 fi
+
 #
 # mcfly
 #
