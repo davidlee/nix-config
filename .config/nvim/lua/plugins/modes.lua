@@ -84,3 +84,11 @@ md.later(
     })
   end
 )
+
+-- You can place this bit in ~/.config/nvim/init.lua
+vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
+  pattern = { "*.slim" },
+  command = "set ft=slim",
+})
+md.add("slim-template/vim-slim")
+md.later()
