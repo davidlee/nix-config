@@ -1,3 +1,6 @@
-COSMIC_DATA_CONTROL_ENABLED=1
-export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
+if [[ "Darwin" == "$(uname -o)" ]]; then
+else
+  COSMIC_DATA_CONTROL_ENABLED=1
+  export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
+fi
 
