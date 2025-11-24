@@ -41,6 +41,7 @@
     nixosModules.security
     nixosModules.sshd
     nixosModules.sway
+    nixosModules.hyprland
     nixosModules.swayidle
     nixosModules.terminals
     nixosModules.user
