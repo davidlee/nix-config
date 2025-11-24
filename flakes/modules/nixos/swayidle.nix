@@ -13,8 +13,9 @@ _: {
       services = {
         swayidle = let
           # screen = "DP-3";
+          # display = status: "${pkgs.sway}/bin/swaymsg 'output * dpms ${status}'";
           lock = "${pkgs.swaylock}/bin/swaylock --daemonize";
-          display = status: "${pkgs.sway}/bin/swaymsg 'output * dpms ${status}'";
+          DISPLAY = "DP-3";
         in {
           enable = true;
           timeouts = [
@@ -28,8 +29,10 @@ _: {
             }
             {
               timeout = 2000;
-              command = display "off";
-              resumeCommand = display "on";
+              # command = display "off";
+              # resumeCommand = display "on";
+              command = "wlopm --off ${DISPLAY}";
+              resumeCommand = "wlopm --on ${DISPLAY}";
             }
             # {
             #   timeout = 30;
@@ -43,16 +46,19 @@ _: {
             #   command = (display "off") + "; " + lock;
             # }
             {
+              # command = display "on";
               event = "after-resume";
-              command = display "on";
+              command = "wlopm --on ${DISPLAY}";
             }
             {
+              # command = (display "off") + "; " + lock;
               event = "lock";
-              command = (display "off") + "; " + lock;
+              command = "wlopm --off ${DISPLAY}; " + lock;
             }
             {
+              # command = display "on";
               event = "unlock";
-              command = display "on";
+              command = "wlopm --on ${DISPLAY}";
             }
           ];
         };

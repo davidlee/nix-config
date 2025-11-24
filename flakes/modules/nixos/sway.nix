@@ -31,7 +31,6 @@ _: {
       waybar
       mako
       cava
-      flameshot
     ];
 
     home-manager.users.${username} = {
