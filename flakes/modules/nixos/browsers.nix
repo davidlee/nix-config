@@ -7,7 +7,7 @@ _: {
       firefox
       firefox-devedition
       firefoxpwa
-      floorp-bin
+      # floorp-bin
       ungoogled-chromium
       tor-browser
       pkgs.firefoxpwa
