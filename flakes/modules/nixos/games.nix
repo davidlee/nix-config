@@ -6,7 +6,7 @@ _: {
   }: {
     hardware = {
       steam-hardware.enable = true;
-      xpadneo.enable = true;
+      # xpadneo.enable = true; # broken
     };
 
     programs = {
