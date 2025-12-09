@@ -23,6 +23,7 @@
     nixosModules.graphics
     nixosModules.greeter
     nixosModules.kanshi
+    # nixosModules.kde
     nixosModules.kernel
     nixosModules.keyboard
     nixosModules.keyring
