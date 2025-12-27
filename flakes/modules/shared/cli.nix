@@ -485,6 +485,7 @@ in {
       ## markdown
       # frogmouth
       glow
+      rich-cli
       # marked-man
       # md-tui
 
