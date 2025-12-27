@@ -19,6 +19,7 @@
     nixosModules.flatpak
     nixosModules.fonts
     nixosModules.games
+    nixosModules.gamedev
     nixosModules.gamescope
     nixosModules.graphics
     nixosModules.greeter
