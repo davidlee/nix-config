@@ -1,13 +1,8 @@
-Think about what you've learnt during your recent activities. 
+Think about what you've learnt during your recent activities, and especially
+anything unexpected or important to the work. 
+
 You're about to forget everything. Add the best guidance you can to help another pick up your work.
 
-In the task card for the [sub]task you've been working on:
-- Add detailed Notes
-- Add references to significant code files, docs to the list. 
-- Suggest any future improvements or refactoring advisable
-- Ensure tracked progress is accurate and up to date.
+Review the available list of Serena memories. They are likely not completely up to date or exhaustive - consider topics which deserve to be added, checked for accuracy or completeness, etc. 
 
-In other recently modified files:
-- Add (or modify) Anchor comments
-
-Then, commit.
+Spend some time now adding or improving 1-2 memories for the next agent.
