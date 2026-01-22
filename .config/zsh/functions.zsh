@@ -23,6 +23,25 @@ tempe () {
     chmod -R 0700 .
   fi
 }
+
+#
+# log - zig/it/am
+#
+
+vilog () {
+  date=$(date +'%Y-%m-%d');
+  file="~/log/$date.md";
+  echo $file
+  echo $(which nvim)
+  nvim ~/log/$date.md;
+}
+
+log () {
+  date=$(date +'%Y-%m-%d');
+  file="~/log/$date.md";
+  glow ~/log/$date.md;
+}
+
 #################
 # compost:
 #

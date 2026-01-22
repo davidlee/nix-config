@@ -16,6 +16,7 @@ lz.load({
           -- You can also customize some of the format options for the filetype
           rust = { "rustfmt", lsp_format = "fallback" },
           -- Use the "*" filetype to run formatters on all filetypes.
+          zig = { "zigfmt", lsp_format = "fallback" },
           ["*"] = { "codespell" },
           -- Use the "_" filetype to run formatters on filetypes that don't
           -- have other formatters configured.

@@ -1,8 +1,1 @@
--- set up leader keys first
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
-require("config.options")
-require("plugins")
-require("local.commands")
-require("config.keymap")
+/nix/store/laz7br3wk53f4pds2cpkh7zad6pnnyij-home-manager-files/.config/nvim/init.lua
