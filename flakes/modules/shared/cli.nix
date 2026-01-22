@@ -334,7 +334,6 @@ in {
       fd
       file
       findutils
-      fzf-zsh
       fzy
       mcfly
       ripgrep
@@ -371,7 +370,7 @@ in {
       jujutsu
       mergiraf
       tig
-      debase
+      # debase # broken
       gh-dash
       lazygit
       lazyjj

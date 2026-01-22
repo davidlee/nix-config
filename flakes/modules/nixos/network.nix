@@ -58,15 +58,17 @@ _: {
 
       resolved = {
         enable = true;
-        dnssec = "allow-downgrade";
-        domains = ["~."];
+        # dnssec = "allow-downgrade";
 
-        extraConfig = ''
+        settings.Resolve = {
           # use stubby for DoT
-          [Resolve]
-          DNS=127.0.0.1:8053
-          DNSOverTLS=no
-        '';
+          # Domains = [];
+          # DNSSEC = false;
+          Domains = ["~."];
+          DNSSEC = "allow-downgrade";
+          DNS = "127.0.0.1:8053";
+          DNSOverTLS = false;
+        };
       };
     };
   };
