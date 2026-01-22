@@ -60,7 +60,7 @@
       nix-diff
       nix-direnv
       nix-du
-      nixfmt-rfc-style
+      nixfmt
       nix-forecast
       nix-health
       nix-index

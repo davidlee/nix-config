@@ -145,8 +145,8 @@ _: {
 
         # treesitter
         nvim-treesitter.withAllGrammars
-        nvim-treesitter-textobjects
-        nvim-treesitter-textsubjects
+        # nvim-treesitter-textobjects  # conflicts with withAllGrammars
+        # nvim-treesitter-textsubjects  # conflicts with withAllGrammars
         nvim-treesitter-context
         nvim-lsp-file-operations
         nvim-ts-autotag
@@ -168,7 +168,7 @@ _: {
         octo-nvim
 
         # modes: other
-        neorg
+        # neorg # bundles nvim-treesitter, conflicts with withAllGrammars
         orgmode
         vimoutliner
         zk-nvim

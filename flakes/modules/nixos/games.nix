@@ -50,6 +50,9 @@ _: {
         lutris
         heroic
         bottles
+
+        # actual game things
+        # blightmud
       ];
     };
   };

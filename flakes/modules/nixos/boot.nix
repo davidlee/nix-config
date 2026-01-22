@@ -9,7 +9,7 @@
         efi.canTouchEfiVariables = true;
 
         systemd-boot = {
-          configurationLimit = 10;
+          configurationLimit = 7;
           consoleMode = "auto";
         };
       };

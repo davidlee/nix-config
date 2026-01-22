@@ -6,6 +6,7 @@
       # gimp-with-plugins
       krita
       inkscape
+      gimp-with-plugins
       # darktable
       # ansel
       # digikam

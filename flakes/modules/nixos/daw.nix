@@ -6,7 +6,7 @@ _: {
       supercollider-with-plugins
       supercollider-with-sc3-plugins
       ghc
-
+      audacity
     ];
   };
 }

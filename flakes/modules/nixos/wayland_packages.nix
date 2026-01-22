@@ -49,8 +49,8 @@ _: {
 
       # file managers
       nemo
-      xfce.thunar
-      xfce.tumbler
+      thunar
+      tumbler
 
       # themes & cursors
       phinger-cursors
