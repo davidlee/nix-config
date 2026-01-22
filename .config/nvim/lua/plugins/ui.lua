@@ -2,7 +2,20 @@ local md = require("mini.deps")
 local lz = require("lze")
 --
 -- UI
+-- md.add({
+--   source = "nvim-lua/plenary.nvim",
+--   name = "plenary",
+-- })
+-- md.later(function() require("plenary") end)
 require("plenary")
+
+-- lz.load({
+--   {
+--     "plenary",
+--     lazy = false,
+--   },
+-- })
+--
 require("mini.icons").setup()
 require("mini.icons").mock_nvim_web_devicons()
 require("mini.git").setup()

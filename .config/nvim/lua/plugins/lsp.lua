@@ -102,7 +102,6 @@ vim.lsp.enable("zls", {
 })
 vim.g.zig_fmt_autosave = 1
 
-
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local opts = { buffer = args.buf }
