@@ -121,7 +121,7 @@
   },
   "autosave": {
     "after_delay": {
-      "milliseconds": 1000
+      "milliseconds": 300
     }
   },
   "load_direnv": "shell_hook",
