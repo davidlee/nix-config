@@ -7,6 +7,7 @@
 
   imports = with self; [
     ./hardware-configuration.nix
+
     nixosModules._1password
     # nixosModules.ai
     nixosModules.appimage

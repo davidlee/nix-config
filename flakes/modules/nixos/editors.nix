@@ -7,10 +7,11 @@ _: {
     environment.systemPackages = with pkgs; [
       ed
       inputs.helix.packages.x86_64-linux.default
+      inputs.antigravity-nix.packages.x86_64-linux.default
       # emacs-gtk
       obsidian
-      code-cursor
-      vscode
+      # code-cursor
+      # vscode
       joplin
       marktext
       apostrophe
