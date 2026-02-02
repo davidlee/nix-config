@@ -3,6 +3,7 @@ _: {
     pkgs,
     inputs,
     config,
+    lib,
     ...
   }: let
     inherit (config.nvimPackages) deps eager lazy;
@@ -12,6 +13,10 @@ _: {
     programs.neovim = {
       enable = true;
       defaultEditor = true;
+
+      extraLuaConfig = ''
+        require("boot");
+      '';
 
       viAlias = true;
       vimAlias = true;
@@ -29,6 +34,15 @@ _: {
       #########################################
 
       extraPackages = deps;
+
+      # put nvim libs before system ones
+      #
+      # extraWrapperArgs = [
+      #   "--prefix"
+      #   "PATH"
+      #   ":"
+      #   "${lib.makeBinPath [pkgs.gcc]}"
+      # ];
 
       #########################################
       # vimPlugins
