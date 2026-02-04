@@ -2,7 +2,7 @@ local md = require("mini.deps")
 local lz = require("lze")
 
 -- markdown checklists
-require("plugins.checkmate")
+-- require("plugins.checkmate")
 require("plugins.render-markdown")
 require("plugins.zk")
 -- require("plugins.neorg")
@@ -18,6 +18,7 @@ md.later(function() require("outline").setup() end)
 
 -- TypeScript auto-closing tags
 -- https://github.com/windwp/nvim-ts-autotag
+
 md.add("windwp/nvim-ts-autotag")
 md.later(function()
   require("nvim-ts-autotag").setup({

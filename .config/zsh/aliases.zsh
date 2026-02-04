@@ -13,6 +13,10 @@ alias g=git;
 alias j=just;
 alias jc="just --choose"
 alias _=sudo;
+alias s='uv run spec-driver';
+
+
+
 alias nw="emacs -nw"
 
 alias c="cd $HOME/.config";
