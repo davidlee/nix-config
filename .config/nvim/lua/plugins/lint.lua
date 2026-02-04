@@ -8,7 +8,7 @@ lz.load({
     local lint = require("lint")
     -- more: https://github.com/mfussenegger/nvim-lint?tab=readme-ov-file
     lint.linters_by_ft = {
-      markdown = { "vale" },
+      --      markdown = { "vale" },
       elixir = { "credo" },
       typescript = { "eslint" },
       javascript = { "eslint" },

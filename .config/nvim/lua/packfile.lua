@@ -60,6 +60,8 @@ vim.pack.add({
   "https://github.com/terrastruct/d2-vim",
   "https://github.com/hasansujon786/super-kanban.nvim",
   "https://github.com/zk-org/zk-nvim",
+  "https://github.com/bngarren/checkmate.nvim",
+  "https://github.com/MeanderingProgrammer/render-markdown.nvim",
 
   -- snippets
   "https://github.com/rafamadriz/friendly-snippets",
