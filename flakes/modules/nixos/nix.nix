@@ -1,8 +1,4 @@
-{
-  inputs,
-  pkgs,
-  ...
-}: {
+{inputs, ...}: {
   flake.nixosModules.nix = {pkgs, ...}: {
     system.stateVersion = "24.11";
     nixpkgs.config.allowUnfree = true;

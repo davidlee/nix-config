@@ -14,7 +14,7 @@ _: {
       enable = true;
       defaultEditor = true;
 
-      extraLuaConfig = ''
+      initLua = ''
         require("boot");
       '';
 
@@ -27,7 +27,7 @@ _: {
       # withRuby = true;
 
       # use bleeding edge nvim
-      package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.neovim;
+      package = inputs.neovim-nightly-overlay.packages.${pkgs.stdenv.hostPlatform.system}.neovim;
 
       #########################################
       # nix packages

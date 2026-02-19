@@ -130,12 +130,12 @@ _: {
       vulkan-loader
       vulkan-tools
       libGL.dev
-      xorg.libX11
-      xorg.libX11.dev
-      xorg.libXcursor
-      xorg.libXi
-      xorg.libXinerama
-      xorg.libXrandr
+      libx11
+      libx11.dev
+      libxcursor
+      libxi
+      libxinerama
+      libxrandr
       libnotify
     ];
 

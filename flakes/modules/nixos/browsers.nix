@@ -1,7 +1,7 @@
 _: {
   flake.nixosModules.browsers = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
-      (callPackage ../../packages/helium.nix {})
+      # (callPackage ../../packages/helium.nix {})
       vivaldi
       librewolf
       firefox
@@ -16,7 +16,7 @@ _: {
       # qutebrowser
       # kdePackages.angelfish
       # palemoon-bin
-      # inputs.zen-browser.packages.${pkgs.system}.default
+      # inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
     programs.firefox = {

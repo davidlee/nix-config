@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{...}: {
   flake.nixosModules.graphics = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ## graphics & 3d

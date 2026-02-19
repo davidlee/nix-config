@@ -39,29 +39,12 @@ _: {
             #   command = "${pkgs.systemd}/bin/systemctl suspend";
             # }
           ];
-          events = [
-            # {
-            #   event = "before-sleep";
-            #   # adding duplicated entries for the same event may not work
-            #   command = (display "off") + "; " + lock;
-            # }
-            {
-              event = "after-resume";
-              command = display "on";
-              # resumeCommand = display "on";
-              # command = "wlopm --on ${DISPLAY}";
-            }
-            {
-              command = (display "off") + "; " + lock;
-              event = "lock";
-              # command = "wlopm --off ${DISPLAY}; " + lock;
-            }
-            {
-              command = display "on";
-              event = "unlock";
-              # command = "wlopm --on ${DISPLAY}";
-            }
-          ];
+          # events = {
+          #   # "before-sleep" = (display "off")  + "; " + lock;
+          #   "after-resume" = "wlopm --on ${DISPLAY}";
+          #   "lock" = "wlopm --off ${DISPLAY}; " + lock;
+          #   "unlock" = "wlopm --on ${DISPLAY}";
+          # };
         };
       }; # user services
     }; # home-manager

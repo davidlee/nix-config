@@ -1,5 +1,5 @@
-{pkgs, ...}: {
-  flake.nixosModules.kde = {
+{...}: {
+  flake.nixosModules.kde = {pkgs, ...}: {
     services = {
       xserver.enable = true;
 
@@ -35,30 +35,30 @@
       kwallet-pam
       kwalletmanager
 
-      kiconthemes
-      kscreenlocker
+      # kiconthemes
+      # kscreenlocker
       kwindowsystem
-      kaccounts-providers
+      # kaccounts-providers
 
       kde-cli-tools
-      calendarsupport
+      # calendarsupport
       bluedevil
       bluez-qt
-      xwaylandvideobridge
+      # xwaylandvideobridge
 
       dolphin
       dolphin-plugins
-      drkonqi
+      # drkonqi
 
-      kate
-      kweather
-      gwenview
-      karchive
-      marknote
+      # kate
+      # kweather
+      # gwenview
+      # karchive
+      # marknote
     ];
 
-    environment.plasma6.excludePackages = with pkgs.kdePackages; [
-      plasma-browser-integration
-    ];
+    # environment.plasma6.excludePackages = with pkgs.kdePackages; [
+    #   plasma-browser-integration
+    # ];
   };
 }

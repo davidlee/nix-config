@@ -45,6 +45,7 @@ _: {
       systemPackages = with pkgs; [
         gamemode
         gamescope
+        gamescope-wsi
       ];
     };
   };
