@@ -1,16 +1,16 @@
 _: {
   flake.nixosModules.browsers = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
-      # (callPackage ../../packages/helium.nix {})
-      vivaldi
-      # librewolf
       firefox
       firefox-devedition
       firefoxpwa
+      # pkgs.firefoxpwa
+      # (callPackage ../../packages/helium.nix {})
+      # vivaldi
+      # librewolf
       # floorp-bin
-      ungoogled-chromium
+      # ungoogled-chromium
       # tor-browser
-      pkgs.firefoxpwa
       # ladybird
       # midori
       # qutebrowser

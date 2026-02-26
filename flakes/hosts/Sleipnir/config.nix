@@ -34,18 +34,18 @@
     nixosModules.media
     nixosModules.network
     nixosModules.nix
-    nixosModules.office
+    # nixosModules.office
     #nixosModules.openrgb
     nixosModules.pipewire
     nixosModules.podman
-    nixosModules.postgresql
+    # nixosModules.postgresql
     nixosModules.programs
     nixosModules.radeon
     nixosModules.security
     nixosModules.sshd
     nixosModules.sway
-    # nixosModules.hyprland
     nixosModules.swayidle
+    # nixosModules.hyprland
     nixosModules.terminals
     nixosModules.user
     nixosModules.util

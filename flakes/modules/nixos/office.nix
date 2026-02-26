@@ -2,39 +2,36 @@ _: {
   flake.nixosModules.office = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ## productivity
-      thunderbird-latest
+      # thunderbird-latest
       #evolution
       # morgen # TODO enable when electron deps fixed
-      zotero
+      # zotero
       #foliate
-      onlyoffice-desktopeditors
-      libreoffice
+      # onlyoffice-desktopeditors
+      # libreoffice
       # gnome-frog
-      papers
-      scribus
-      zotero
+      # papers
+      # scribus
+      # zotero
 
       ## messaging / social
-      newsflash
-      discord # broken, using stable
+      # newsflash
       #stable.discord
-      beeper
-      signal-desktop
-      slack
-      zoom-us
+      # slack
+      # zoom-us
       # rambox
       # telegram-desktop
-      element-desktop
+      # element-desktop
       #whatsie
 
       ## mind map etc
-      freemind
+      # freemind
 
       ## search
-      recoll
+      # recoll
 
       # ## docs, notes, productivity
-      dnote
+      # dnote
 
       ## scanner
       # naps2
