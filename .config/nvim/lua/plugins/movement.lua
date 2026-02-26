@@ -1,4 +1,3 @@
-local md = require("mini.deps")
 local lz = require("lze")
 
 -- movement
@@ -14,14 +13,15 @@ lz.load({
   {
     "aerial.nvim",
     after = function()
-      local aerial = require("aerial")
-
-      aerial.setup({
+      require("aerial").setup({
         on_attach = require("config.keymap").aerial.on_attach,
       })
     end,
   },
-})
 
-md.add("ibhagwan/fzf-lua")
-md.later(function() require("fzf-lua") end)
+  -- fzf-lua
+  {
+    "fzf-lua",
+    after = function() require("fzf-lua") end,
+  },
+})
