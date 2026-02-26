@@ -114,14 +114,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- vim.lsp.enable("zk")
 
 -- tailwindCSS
-vim.lsp.enable("tailwindcss")
+-- vim.lsp.enable("tailwindcss")
 
 -- TOML / taplo
 vim.lsp.enable("taplo")
 
 -- text
-vim.lsp.enable("textlsp")
-vim.lsp.enable("vale_ls")
+-- vim.lsp.enable("textlsp")
+-- vim.lsp.enable("vale_ls")
 
 -- typescript
 vim.lsp.config("ts_ls", {
