@@ -1,4 +1,3 @@
-local md = require("mini.deps")
 local lz = require("lze")
 
 --
@@ -10,14 +9,15 @@ local lz = require("lze")
 lz.load({
   "yazi.nvim",
   after = function()
-    --
     require("plenary")
     require("yazi")
   end,
 })
 
-md.add({ source = "antosha417/nvim-lsp-file-operations" })
-md.later(function() require("lsp-file-operations").setup() end)
+lz.load({
+  "nvim-lsp-file-operations",
+  after = function() require("lsp-file-operations").setup() end,
+})
 
 -- triptych
 lz.load({

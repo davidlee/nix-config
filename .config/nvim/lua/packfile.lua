@@ -10,6 +10,8 @@ vim.pack.add({
   "https://github.com/nvim-mini/mini.icons",
   "https://github.com/nvim-mini/mini.nvim",
   "https://github.com/folke/noice.nvim",
+  "https://github.com/folke/snacks.nvim",
+  "https://github.com/folke/which-key.nvim",
   "https://github.com/folke/edgy.nvim",
   "https://github.com/akinsho/bufferline.nvim",
   "https://github.com/rcarriga/nvim-notify",
@@ -28,7 +30,6 @@ vim.pack.add({
   "https://github.com/pocco81/auto-save.nvim",
 
   -- movement
-  "https://github.com/folke/flash.nvim",
   "https://github.com/stevearc/aerial.nvim",
   "https://github.com/ibhagwan/fzf-lua",
 
@@ -40,6 +41,7 @@ vim.pack.add({
   -- file managers
   "https://github.com/mikavilpas/yazi.nvim",
   "https://github.com/simonmclean/triptych.nvim",
+  "https://github.com/antosha417/nvim-lsp-file-operations",
 
   -- completion
   "https://github.com/folke/LazyDev.nvim",
@@ -59,6 +61,8 @@ vim.pack.add({
   "https://github.com/ray-x/go.nvim",
   "https://github.com/terrastruct/d2-vim",
   "https://github.com/hasansujon786/super-kanban.nvim",
+  "https://github.com/nvim-orgmode/orgmode",
+  "https://github.com/slim-template/vim-slim",
   "https://github.com/zk-org/zk-nvim",
   "https://github.com/bngarren/checkmate.nvim",
   "https://github.com/MeanderingProgrammer/render-markdown.nvim",
@@ -72,12 +76,4 @@ vim.pack.add({
 
   -- diagnostics
   "https://github.com/soulis-1256/eagle.nvim",
-
-  -- {
-  --   src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
-  --   name = "nvim-treesitter-textobjects",
-  --   version = "main",
-  -- },
-
-  -- { src = "https://github.com/", name = "", version = "" },
 })

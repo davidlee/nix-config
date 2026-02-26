@@ -1,4 +1,3 @@
-local md = require("mini.deps")
 local lz = require("lze")
 
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#zls
@@ -20,12 +19,13 @@ lz.load({
       -- require("lspconfig")["lua_ls"].setup({})
     end,
   },
+
+  -- eagle (diagnostics + LSP info on cursor)
+  {
+    "eagle.nvim",
+    after = function() require("eagle").setup({}) end,
+  },
 })
-
--- eagle (diagnostics + LSP info on cursor)
-md.add({ source = "soulis-1256/eagle.nvim" })
-
-md.later(function() require("eagle").setup({}) end)
 
 -- lua
 -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md#lua_ls
