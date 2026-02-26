@@ -49,7 +49,7 @@ _: {
         termsyn
         tamsyn
         terminus_font_ttf
-        jetbrains-mono
+        # jetbrains-mono
         monaspace
         dina-font
         geist-font

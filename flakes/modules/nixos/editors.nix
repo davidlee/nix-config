@@ -12,9 +12,9 @@ _: {
       obsidian
       # code-cursor
       # vscode
-      joplin
-      marktext
-      apostrophe
+      # joplin
+      # marktext
+      # apostrophe
       sublime-merge
     ];
   };

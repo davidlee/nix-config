@@ -3,13 +3,13 @@ _: {
     environment.systemPackages = with pkgs; [
       # (callPackage ../../packages/helium.nix {})
       vivaldi
-      librewolf
+      # librewolf
       firefox
       firefox-devedition
       firefoxpwa
       # floorp-bin
       ungoogled-chromium
-      tor-browser
+      # tor-browser
       pkgs.firefoxpwa
       # ladybird
       # midori

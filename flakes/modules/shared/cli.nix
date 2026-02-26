@@ -275,7 +275,7 @@ in {
 
       ## download / backup
       syncthing
-      backblaze-b2
+      # backblaze-b2
       aria2
 
       # trash
@@ -484,6 +484,7 @@ in {
       ## markdown
       # frogmouth
       glow
+      gum
       rich-cli
       # marked-man
       # md-tui
@@ -577,7 +578,7 @@ in {
     config.nixosCliPackages.containers = with pkgs; [
       distrobox
       distrobox-tui
-      devcontainer
+      #devcontainer
     ];
 
     ################################################################################

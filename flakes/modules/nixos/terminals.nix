@@ -2,13 +2,13 @@ _: {
   flake.nixosModules.terminals = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       ## terminals
-      alacritty
+      # alacritty
       #wezterm
       foot
       ghostty
       kitty
-      rio
-      warp-terminal
+      #rio
+      # warp-terminal
     ];
   };
 }
