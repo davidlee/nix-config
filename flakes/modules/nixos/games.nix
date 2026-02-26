@@ -63,7 +63,7 @@ _: {
         # proton-ge-bin
 
         # minecraft
-        prismlauncher
+        # prismlauncher
 
         # other runners
         lutris

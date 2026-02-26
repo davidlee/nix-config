@@ -22,7 +22,7 @@
     nixosModules.games
     nixosModules.gamedev
     nixosModules.gamescope
-    nixosModules.graphics
+    # nixosModules.graphics
     nixosModules.greeter
     nixosModules.kanshi
     nixosModules.kde
@@ -35,7 +35,7 @@
     nixosModules.network
     nixosModules.nix
     nixosModules.office
-    nixosModules.openrgb
+    #nixosModules.openrgb
     nixosModules.pipewire
     nixosModules.podman
     nixosModules.postgresql

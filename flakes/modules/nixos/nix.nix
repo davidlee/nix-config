@@ -17,6 +17,7 @@
           "https://walker.cachix.org"
           "https://walker-git.cachix.org"
           "https://hyprland.cachix.org"
+          "https://cache.nixos-cuda.org"
         ];
 
         trusted-public-keys = [
@@ -26,6 +27,7 @@
           "walker-git.cachix.org-1:vmC0ocfPWh0S/vRAQGtChuiZBTAe4wiKDeyyXM0/7pM="
           "nixpkgs-wayland.cachix.org-1:3lwxaILxMRkVhehr5StQprHdEo4IrE8sRho9R9HOLYA="
           "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+          "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
         ];
       };
 
