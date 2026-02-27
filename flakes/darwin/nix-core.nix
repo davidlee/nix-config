@@ -13,6 +13,7 @@ _: {
       ];
 
       builders-use-substitutes = true;
+      auto-optimise-store = true;
       show-trace = true;
       log-lines = 50;
     };
@@ -21,7 +22,7 @@ _: {
       interval = [
         {
           Hour = 12;
-          Minute = 15;
+          Minute = 17;
         }
       ];
     };

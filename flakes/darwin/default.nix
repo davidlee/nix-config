@@ -33,7 +33,7 @@ in {
       home-manager.users.${username} = import ./home.nix;
     }
   ];
-    
+
   nixpkgs.overlays = [
     (final: prev: {
       inherit

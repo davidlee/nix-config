@@ -1,9 +1,5 @@
 _: {
-  flake.nixosModules.games = {
-    pkgs,
-    username,
-    ...
-  }: {
+  flake.nixosModules.games = {pkgs, ...}: {
     hardware = {
       steam-hardware.enable = true;
       # xpadneo.enable = true; # broken
@@ -38,12 +34,6 @@ _: {
 
     services = {
       udev.packages = [pkgs.game-devices-udev-rules];
-    };
-
-    home-manager.users.${username} = {
-      programs = {
-        lutris.enable = true;
-      };
     };
 
     environment = {

@@ -15,11 +15,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    home-manager = {
-      url = "github:nix-community/home-manager/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     helix = {
       url = "github:helix-editor/helix/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -53,9 +48,8 @@
     ...
   }:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
-      imports = with inputs; [
+      imports = [
         inputs.treefmt-nix.flakeModule
-        inputs.home-manager.flakeModules.home-manager
         (inputs.import-tree ./modules)
       ];
 
@@ -86,7 +80,6 @@
 
             modules = [
               ./hosts/${hostname}/config.nix
-              self.nixosModules.home-manager
             ];
           };
         };

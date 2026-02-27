@@ -17,8 +17,7 @@
     pkgs = nixpkgs.legacyPackages.${system};
 
     guiApps =
-      []
-      ++ import ./pkg/ai.nix {
+      import ./pkg/ai.nix {
         inherit inputs;
         inherit pkgs;
       }
@@ -38,6 +37,7 @@
             sed -E \
               -e 's|^Exec=([^/])|Exec=${pkg}/bin/\1|' \
               -e 's|^TryExec=([^/])|TryExec=${pkg}/bin/\1|' \
+              -e 's|^Icon=([^/])|Icon=${pkg}/share/icons/\1|' \
               "$f" > "$out/$(basename "$f")"
           done
         '')
