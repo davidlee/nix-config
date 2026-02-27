@@ -42,6 +42,12 @@ log () {
   glow ~/log/$date.md;
 }
 
+logf () {
+  date=$(date +'%Y-%m-%d');
+  file="~/log/$date.md";
+  echo $file
+}
+
 #################
 # compost:
 #
