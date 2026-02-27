@@ -16,6 +16,11 @@ _: {
       homeModules.sway
       homeModules.games
       homeModules.wayland
+      homeModules.ai
+      homeModules.browsers
+      homeModules.editors
+      homeModules.graphics
+      homeModules.office
     ];
 
     home = {

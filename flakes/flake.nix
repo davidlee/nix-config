@@ -25,20 +25,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    antigravity-nix = {
-      url = "github:jacopone/antigravity-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    raise.url = "github:svelterust/raise";
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
     treefmt-nix.url = "github:numtide/treefmt-nix";
+
     nix-search-tv.url = "github:3timeslazy/nix-search-tv";
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
     ucodenix.url = "github:e-tho/ucodenix";
-    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
     zed.url = "github:zed-industries/zed";
   };
 
