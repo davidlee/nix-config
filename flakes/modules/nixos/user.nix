@@ -1,4 +1,4 @@
-{inputs, ...}: {
+_: {
   flake.nixosModules.user = {
     pkgs,
     username,
@@ -15,7 +15,7 @@
         home = "/home/${username}";
         shell = pkgs.zsh;
         packages = [
-          inputs.home-manager.packages.${pkgs.stdenv.hostPlatform.system}.default
+          pkgs.home-manager
         ];
       };
     };

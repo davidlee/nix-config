@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.kde = {pkgs, ...}: {
     services = {
       xserver.enable = true;

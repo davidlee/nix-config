@@ -1,9 +1,5 @@
 _: {
-  flake.nixosModules.wayland-packages = {
-    pkgs,
-    username,
-    ...
-  }: {
+  flake.nixosModules.wayland-packages = {pkgs, ...}: {
     # these are about providing a useful common foundation
     environment.systemPackages = with pkgs; [
       wayland-protocols
@@ -138,28 +134,5 @@ _: {
       libxrandr
       libnotify
     ];
-
-    home-manager.users.${username} = {
-      home.pointerCursor = {
-        name = "phinger-cursors-light";
-        package = pkgs.phinger-cursors;
-        size = 32;
-        # gtk.enable = true;
-        x11 = {
-          enable = true;
-          defaultCursor = "phinger-cursors-light";
-        };
-      };
-
-      home.packages = with pkgs; [
-        # others
-        hyprlock
-        swayosd
-      ];
-
-      services = {
-        swayosd.enable = true;
-      }; # services
-    }; # home-manager
   };
 }

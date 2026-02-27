@@ -5,11 +5,17 @@ _: {
     ...
   }: {
     imports = with self; [
+      # shared
       homeModules.nvim-plugins
       homeModules.nvim
       homeModules.zsh
       homeModules.programs
       # homeModules.break-remind
+
+      # nixos
+      homeModules.sway
+      homeModules.games
+      homeModules.wayland
     ];
 
     home = {

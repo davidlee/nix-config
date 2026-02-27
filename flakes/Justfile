@@ -7,6 +7,12 @@ darwin-switch:
 update:
   nix flake update
 
+home-switch:
+  home-manager switch --flake './home#david'
+
+home-update:
+  nix flake update --flake ./home
+
 build:
   just run dry-build --show-trace -v
 
