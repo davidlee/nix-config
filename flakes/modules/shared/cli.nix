@@ -524,14 +524,11 @@ in {
     # editors
     #
     config.sharedCliPackages.editors = with pkgs; [
-      neovim
       lapce
       kakoune
       kakoune-lsp
       kakoune-cr
       wordgrinder
-      emacsclient-commands
-      emacs-nox
     ];
 
     config.nixosCliPackages.editors = with pkgs; [

@@ -9,12 +9,12 @@
     ./hardware-configuration.nix
 
     nixosModules._1password
-    # nixosModules.ai
     nixosModules.appimage
     nixosModules.avahi
     nixosModules.bluetooth
     nixosModules.boot
     nixosModules.browsers
+    nixosModules.cargo
     nixosModules.env
     nixosModules.flatpak
     nixosModules.fonts
@@ -34,9 +34,10 @@
     # nixosModules.openrgb
     nixosModules.pipewire
     nixosModules.podman
-    # nixosModules.postgresql
+    nixosModules.postgresql
     nixosModules.programs
     nixosModules.radeon
+    # nixosModules.rocm
     nixosModules.security
     nixosModules.sshd
     nixosModules.sway
