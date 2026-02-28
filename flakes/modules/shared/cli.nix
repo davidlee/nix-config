@@ -170,6 +170,7 @@ in {
     config.sharedCliPackages.system = with pkgs; [
       glances
       btop
+      bottom
     ];
     config.nixosCliPackages.system = with pkgs; [
       ## disk & file io
@@ -212,7 +213,7 @@ in {
       pstree
       killall
       await
-      procs
+      procs # ps but better
       pueue
       mprocs
 
@@ -294,11 +295,13 @@ in {
       tcpdump
       trippy
       wget
-      xh
+      xh # http tool
       yt-dlp
       unixtools.net-tools
       doggo
       curlie
+      bandwhich # whats eating the network
+      ddgr # search duckduckgo
     ];
     config.nixosCliPackages.net = with pkgs; [
       sn0int
@@ -437,6 +440,9 @@ in {
       graphviz
       mermaid-cli
       structurizr-cli
+
+      ## dev introspection
+      tokei
 
       ## image / graphics / multimedia
       pastel
