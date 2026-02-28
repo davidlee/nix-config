@@ -8,11 +8,14 @@ _: {
       # shared
       homeModules.nvim-plugins
       homeModules.nvim
+      homeModules.helix
       homeModules.zsh
       homeModules.programs
-      # homeModules.break-remind
 
       # nixos
+      homeModules.media
+      homeModules.terminals
+      homeModules.zed-editor
       homeModules.sway
       homeModules.games
       homeModules.wayland

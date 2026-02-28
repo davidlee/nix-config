@@ -3,7 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nix-stable.url = "github:nixos/nixpkgs/nixos-24.11";
+    nixpkgs-home.url = "github:nixos/nixpkgs/nixos-unstable";
+    stable.url = "github:nixos/nixpkgs/nixos-24.11";
+
+    home-manager = {
+      url = "github:nix-community/home-manager/master";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
 
     lix = {
       url = "https://git.lix.systems/lix-project/lix/archive/main.tar.gz";
@@ -34,6 +40,16 @@
     zls-overlay.url = "github:zigtools/zls";
     ucodenix.url = "github:e-tho/ucodenix";
     zed.url = "github:zed-industries/zed";
+
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
   };
 
   outputs = inputs @ {
@@ -59,7 +75,7 @@
           hostname = "Sleipnir";
           username = "david";
           system = "x86_64-linux";
-          stable = import inputs.nix-stable {
+          stable = import inputs.stable {
             inherit system;
             config.allowUnfree = true;
           };
@@ -102,6 +118,24 @@
             ];
           };
         }; # Darwin
+
+        homeConfigurations = let
+          username = "david";
+          system = "x86_64-linux";
+          pkgs = import inputs.nixpkgs-home {
+            inherit system;
+            config.allowUnfree = true;
+          };
+        in {
+          "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
+            inherit pkgs;
+            modules = [self.homeModules.Sleipnir];
+            extraSpecialArgs = {
+              inherit self inputs;
+              inherit username;
+            };
+          };
+        };
       }; # flake
     });
 }

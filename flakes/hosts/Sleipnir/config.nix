@@ -15,7 +15,6 @@
     nixosModules.bluetooth
     nixosModules.boot
     nixosModules.browsers
-    nixosModules.editors
     nixosModules.env
     nixosModules.flatpak
     nixosModules.fonts
@@ -35,7 +34,7 @@
     nixosModules.network
     nixosModules.nix
     # nixosModules.office
-    #nixosModules.openrgb
+    # nixosModules.openrgb
     nixosModules.pipewire
     nixosModules.podman
     # nixosModules.postgresql
@@ -45,7 +44,7 @@
     nixosModules.sshd
     nixosModules.sway
     # nixosModules.hyprland
-    nixosModules.terminals
+    # terminals: moved to homeModules
     nixosModules.user
     nixosModules.util
     nixosModules.wayland
@@ -53,7 +52,6 @@
     nixosModules.webserver
     nixosModules.x11
     nixosModules.xdg
-    nixosModules.zed-editor
     # nixosModules.kmscon
     # nixosModules.mangohud
     # nixosModules.mpd

@@ -1,17 +1,27 @@
+# rebuild system
 run *args:
   sudo ./run.sh {{args}}
+
+home-switch:
+  home-manager switch --flake '.#david'
 
 darwin-switch:
   darwin-rebuild switch --flake '.#fusillade'
 
-update:
+##
+##
+
+update-system:
+  nix flake update nixpkgs
+
+update-home:
+  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
+
+update-all:
   nix flake update
 
-home-switch:
-  home-manager switch --flake './home#david'
-
-home-update:
-  nix flake update --flake ./home
+##
+##
 
 build:
   just run dry-build --show-trace -v

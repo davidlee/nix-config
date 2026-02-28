@@ -5,14 +5,6 @@ _: {
 
       wlr = {
         enable = true;
-        # FIXME
-        # settings.screencast = {
-        #   output_name = "DP-3";
-        #   chooser_type = "simple";
-        #   chooser_cmd = "${pkgs.slurp}/bin/slurp -f %o -or";
-        #   # chooser_type = "dmenu";
-        #   # chooser_cmd = "${pkgs.wofi}/bin/wofi";
-        # };
       };
 
       xdgOpenUsePortal = true;

@@ -5,7 +5,7 @@ _: {
       firefox-devedition
       firefoxpwa
       # pkgs.firefoxpwa
-      # (callPackage ../../packages/helium.nix {})
+
       # vivaldi
       # librewolf
       # floorp-bin

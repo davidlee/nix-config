@@ -42,19 +42,6 @@ in {
       "www"
     ];
   in {
-    # DRY'er but less explicit & positional args kinda suck
-
-    # setPackages = category: shared: nixos: {
-    #   sharedCliPackages.${category} = shared;
-    #   nixosCliPackages.${category} = nixos;
-    # };
-    #
-    # usage:
-    #
-    #   (setPackages "example" (with pkgs; [
-    #     ]) (with pkgs; [
-    #     ]))
-
     #
     # use props above to build out type safe options
     #
