@@ -95,6 +95,7 @@
      "motion"
      "power-ups"
      "editing"
+     "evil"
      "minibuffer-completion"
      "dev"
      "eglot"

@@ -34,7 +34,14 @@
 
 ;; Default frame configuration: full screen, good-looking title bar on macOS
 (setq frame-resize-pixelwise t)
-(tool-bar-mode -1)                      ; All these tools are in the menu-bar anyway
+(setq tool-bar-mode nil)                      ; All these tools are in the menu-bar anyway
+(setq ido-create-new-buffer 'always)
+(setq inhibit-startup-message t)
+(setq inhibit-startup-echo-area-message t)
+(setq tooltip-use-echo-area t)
+(setq use-short-answers t)
+(setq standard-indent 2)
+(setq confirm-nonexistent-file-or-buffer nil)
 (setq default-frame-alist '((fullscreen . maximized)
 
                             ;; You can turn off scroll bars by uncommenting these lines:

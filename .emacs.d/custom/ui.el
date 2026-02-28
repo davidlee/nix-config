@@ -59,8 +59,8 @@
 
 (blink-cursor-mode -1) ; Steady cursor
 (pixel-scroll-precision-mode) ; Smooth scrolling
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+(setq tool-bar-mode nil)
+(setq scroll-bar-mode nil)
 (setq use-file-dialog nil)
 
 ;; Use common keystrokes by default
@@ -86,7 +86,6 @@
 ;; disable junk UI elems
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(scroll-bar-mode -1)
 
 (global-prettify-symbols-mode t)
 

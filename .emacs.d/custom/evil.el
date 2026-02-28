@@ -21,6 +21,11 @@
   :init
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-redo)
+  (setq evil-want-integration t
+    evil-want-integration t
+    evil-want-keybinding nil
+    evil-want-C-u-scroll t
+    evil-want-C-i-jump nil)
   
   (setq evil-insert-state-cursor '((bar . 5) "red"))
   (setq evil-normal-state-cursor '((bar . 5) "white"))
@@ -33,8 +38,7 @@
   ;(setq evil-want-C-u-scroll t)
 
   :config
-  (evil-mode)
-
+  (evil-mode 1)
  
   ;; If you use Magit, start editing in insert state
   (add-hook 'git-commit-setup-hook 'evil-insert-state)
@@ -47,8 +51,8 @@
   (evil-set-initial-state 'eat-mode 'emacs)
   (evil-set-initial-state 'vterm-mode 'emacs))
 
-;; (use-package evil-leader
-;;   ensure :t
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
 
-;;   :init
-;;   )
