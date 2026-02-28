@@ -126,13 +126,16 @@
             inherit system;
             config.allowUnfree = true;
           };
+          stable = import inputs.stable {
+            inherit system;
+            config.allowUnfree = true;
+          };
         in {
           "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
             inherit pkgs;
             modules = [self.homeModules.Sleipnir];
             extraSpecialArgs = {
-              inherit self inputs;
-              inherit username;
+              inherit self inputs username stable;
             };
           };
         };

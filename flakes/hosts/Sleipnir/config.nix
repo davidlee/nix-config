@@ -19,7 +19,6 @@
     nixosModules.flatpak
     nixosModules.fonts
     nixosModules.games
-    nixosModules.gamedev
     nixosModules.gamescope
     # nixosModules.graphics
     nixosModules.greeter
@@ -30,10 +29,8 @@
     nixosModules.keyring
     nixosModules.lib
     nixosModules.locate
-    nixosModules.media
     nixosModules.network
     nixosModules.nix
-    # nixosModules.office
     # nixosModules.openrgb
     nixosModules.pipewire
     nixosModules.podman
@@ -44,7 +41,6 @@
     nixosModules.sshd
     nixosModules.sway
     # nixosModules.hyprland
-    # terminals: moved to homeModules
     nixosModules.user
     nixosModules.util
     nixosModules.wayland
@@ -53,13 +49,11 @@
     nixosModules.x11
     nixosModules.xdg
     # nixosModules.kmscon
-    # nixosModules.mangohud
     # nixosModules.mpd
     # nixosModules.microcode
-    # nixosModules.virtualisation
 
     # shared:
     nixosModules.cliPackages
-    nixosModules.emacs
+    # emacs: moved to homeModules
   ];
 }
