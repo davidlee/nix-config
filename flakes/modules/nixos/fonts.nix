@@ -1,5 +1,9 @@
 _: {
-  flake.nixosModules.fonts = {pkgs, ...}: {
+  flake.nixosModules.fonts = {
+    pkgs,
+    stable,
+    ...
+  }: {
     console = {
       font = "${pkgs.terminus_font}/share/consolefonts/ter-124n.psf.gz";
       keyMap = "us";
@@ -49,7 +53,7 @@ _: {
         termsyn
         tamsyn
         terminus_font_ttf
-        # jetbrains-mono
+        stable.jetbrains-mono
         monaspace
         dina-font
         geist-font

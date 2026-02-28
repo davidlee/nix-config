@@ -41,7 +41,7 @@ _: {
       # beets
       # fooyin
       # quodlibet
-      spotify
+      # spotify: moved to homeModules.media
       # tauon
       # tokei
       # deadbeef
