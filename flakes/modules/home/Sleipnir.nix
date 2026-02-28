@@ -6,6 +6,7 @@ _: {
   }: {
     imports = with self; [
       # shared
+      homeModules.emacs
       homeModules.nvim-plugins
       homeModules.nvim
       homeModules.helix

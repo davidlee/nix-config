@@ -1,5 +1,13 @@
 _: {
   flake.nixosModules.pipewire = {pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+      ## audio / music
+      pavucontrol
+      alsa-utils
+      pipewire
+      wireplumber
+      ncpamixer
+    ];
     # rtkit (optional, recommended) allows Pipewire to use the realtime scheduler for increased performance.
     security.rtkit.enable = true;
     services = {

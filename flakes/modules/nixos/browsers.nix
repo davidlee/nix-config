@@ -4,19 +4,6 @@ _: {
       firefox
       firefox-devedition
       firefoxpwa
-      # pkgs.firefoxpwa
-
-      # vivaldi
-      # librewolf
-      # floorp-bin
-      # ungoogled-chromium
-      # tor-browser
-      # ladybird
-      # midori
-      # qutebrowser
-      # kdePackages.angelfish
-      # palemoon-bin
-      # inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
     programs.firefox = {
