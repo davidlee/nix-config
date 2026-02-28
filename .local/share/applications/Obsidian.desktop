@@ -1,8 +1,7 @@
 [Desktop Entry]
 Name=Obsidian
-Comment=Must run under X11
-Exec=obsidian --enable-features=UseOzonePlatform --ozone-platform=x11
-Icon=
-Terminal=false
+Exec=appimage-run /home/david/.local/Applications/Obsidian-1.12.4.AppImage --no-sandbox
+Icon=/home/david/.local/share/applications/icons/obsidian.png
 Type=Application
-Categories=Productivity;
+Categories=Utility;
+Terminal=false
