@@ -14,7 +14,10 @@ _: {
             };
           }
         ];
-        ensureDatabases = [username];
+        ensureDatabases = [
+          username
+          "corpus"
+        ];
         enableTCPIP = false;
       };
     };

@@ -2,17 +2,19 @@
 
 [uses this approach](https://www.atlassian.com/git/tutorials/dotfiles) for some things, nix to draw the rest of the owl.
 
-## gui apps
+## Principles
 
-Nix loves having a pretty lean system and per-project flakes.
+- keep a fairly lean core system
+- separate userspace & system build using home-manager
+- prefer dotfiles over nix. Include raw dotfiles (custom config) in generated nix configs.
+- share the things worth sharing (especially cli tooling) across Darwin / macOS
+- minimal but secure secret management (out of version control)
+- use nix-direnv for project-local dev environments.
+- use templates to make this easy
+- prefer unstable; pin to stable as an escape hatch for broken packages
+- use modules for maintainability and easy coarse-grained configuration changes
+  see [design doc](./modules/DESIGN.md`)
 
-but gui apps like to be installed system-wide if we want them to be accessible
-via launcher / xdg application shortcuts.
-
-Here's a cool trick: dynamically create application shortcuts using fully
-qualified paths, and rebuild them using nix-direnv (in ./gui)
-
-keeps core system lean, decouples gui application rebuild from system rebuild.
 
 
 

@@ -9,7 +9,7 @@
 - Stable, slow-moving infrastructure
 
 ### Home-manager (`modules/home/`)
-- Userland packages and config for david's interactive use
+- Userland packages and config for interactive use
 - Must work on both darwin and NixOS (shared across hosts)
 - TUI and GUI apps — these break more often and benefit from
   the faster `just home-switch` cycle (no sudo, separate nixpkgs)
@@ -27,6 +27,7 @@
 - When nix config is unavoidable, keep it slim — use `programs.*.enable`
   and point to static config files from the bare repo (see nvim.nix)
 - Nix is the package manager, not the configuration language
+- Pragmatic exceptions where nix configuration buys us something
 
 ## Update semantics
 - `nixpkgs` — NixOS system, conservative update cycle
