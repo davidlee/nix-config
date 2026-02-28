@@ -1,4 +1,6 @@
 # rebuild system
+fmt:
+  nix fmt
 
 switch *args:
   sudo ./run.sh {{args}}
