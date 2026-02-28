@@ -15,6 +15,7 @@
     nixosModules.boot
     nixosModules.browsers
     nixosModules.cargo
+    nixosModules.cosmic
     nixosModules.env
     nixosModules.flatpak
     nixosModules.fonts

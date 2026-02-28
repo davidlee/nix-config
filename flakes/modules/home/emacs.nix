@@ -4,5 +4,8 @@ _: {
       emacsclient-commands
       emacs-nox
     ];
+    services.emacs = {
+      enable = true;
+    };
   };
 }
