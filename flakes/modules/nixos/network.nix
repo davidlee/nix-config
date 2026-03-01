@@ -18,6 +18,21 @@ _: {
       networkmanager = {
         enable = true;
         dns = "systemd-resolved";
+        ensureProfiles.profiles.wired = {
+          connection = {
+            id = "wired";
+            type = "ethernet";
+            interface-name = "enp8s0";
+          };
+          ipv4 = {
+            method = "auto";
+            ignore-auto-dns = true;
+          };
+          ipv6 = {
+            method = "auto";
+            ignore-auto-dns = true;
+          };
+        };
       };
 
       hostName = hostname;
@@ -42,6 +57,9 @@ _: {
           dns_transport_list = ["GETDNS_TRANSPORT_TLS"];
           tls_authentication = "GETDNS_AUTHENTICATION_REQUIRED";
           listen_addresses = ["127.0.0.1@8053" "0::1@8053"];
+          idle_timeout = 10000;
+          tls_connection_retries = 5;
+          round_robin_upstreams = 1;
 
           upstream_recursive_servers = [
             {
@@ -58,18 +76,21 @@ _: {
 
       resolved = {
         enable = true;
-        # dnssec = "allow-downgrade";
 
         settings.Resolve = {
-          # use stubby for DoT
-          # Domains = [];
-          # DNSSEC = false;
           Domains = ["~."];
-          DNSSEC = "allow-downgrade";
           DNS = "127.0.0.1:8053";
+          FallbackDNS = "76.76.2.22 2606:1a40::22";
+          DNSSEC = false; # stubby is local proxy; ControlD validates upstream
           DNSOverTLS = false;
+          MulticastDNS = false; # avahi handles mDNS
         };
       };
+    };
+
+    systemd.services.stubby.serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = "2s";
     };
   };
 }
