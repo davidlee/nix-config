@@ -11,7 +11,8 @@
       "Bash(ip addr:*)",
       "Bash(systemctl list-units:*)",
       "Bash(ip:*)",
-      "Read(//etc/systemd/**)"
+      "Read(//etc/systemd/**)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

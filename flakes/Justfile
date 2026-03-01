@@ -2,8 +2,10 @@
 fmt:
   nix fmt
 
-switch *args:
+run *args:
   sudo ./run.sh {{args}}
+
+switch: run
 
 home-switch:
   home-manager switch --flake '.#david'
