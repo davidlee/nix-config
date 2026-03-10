@@ -10,12 +10,13 @@
 - leave thorough notes as you make progress
 - 2 space indentation (unless language formatter insists otherwise).
 
-- IMPORTANT: whenever you think you're finished with a (sub)task, BEFORE announcing your success, ensure you have:
+- IMPORTANT: whenever you think you're finished with a (sub)task, BEFORE
+  announcing your success, ensure you have:
   - decent test coverage
   - run all tests
   - formatted (if there is a formatter)
   - satisfied the linter (if there is a linter: zero warning policy)
-  - updated the `kanban` task card thoroughly per project conventions in `kanban/CLAUDE.md` (if there is a `kanban/` folder)
+  - updated the task card thoroughly per project conventions
 
 #  tone
 
