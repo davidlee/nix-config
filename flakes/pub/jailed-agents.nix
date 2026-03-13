@@ -55,13 +55,9 @@ let
     network
     time-zone
     no-new-session
-    # Mount host cwd at /workspace and start there
-    (add-runtime ''
-      bwrap_options+=(
-        --bind "$PWD" /workspace
-        --chdir /workspace
-      )
-    '')
+    # Mount host cwd at /workspace/<project> and start there
+    (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
+    (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
   ];
 
   # Sandbox-originated commits are visually distinct
