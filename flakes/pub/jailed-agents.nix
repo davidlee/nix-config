@@ -9,10 +9,11 @@
 #
 # Or use the pre-built makers:
 #   jailed-agents.lib.${system}.makeJailedCrush { extraPkgs = [...]; }
-
-{ pkgs, jail-nix, llm-agents }:
-
-let
+{
+  pkgs,
+  jail-nix,
+  llm-agents,
+}: let
   lib = pkgs.lib;
   system = pkgs.stdenv.system;
   jail = jail-nix.lib.init pkgs;
@@ -42,12 +43,7 @@ let
     unzip
     gnutar
     tree
-    less
-    ov
-    glow
-    helix
     ps
-    ncurses
   ];
 
   commonJailOptions = with jail.combinators; [
@@ -62,10 +58,10 @@ let
 
   # Sandbox-originated commits are visually distinct
   gitIdentityOptions = with jail.combinators; [
-    (set-env "GIT_AUTHOR_NAME" "pi-mono")
-    (set-env "GIT_AUTHOR_EMAIL" "pi-mono@local")
-    (set-env "GIT_COMMITTER_NAME" "pi-mono")
-    (set-env "GIT_COMMITTER_EMAIL" "pi-mono@local")
+    (set-env "GIT_AUTHOR_NAME" "clanker")
+    (set-env "GIT_AUTHOR_EMAIL" "clanker@local")
+    (set-env "GIT_COMMITTER_NAME" "clanker")
+    (set-env "GIT_COMMITTER_EMAIL" "clanker@local")
   ];
 
   # Block git push over SSH
@@ -91,21 +87,36 @@ let
     blockGitPush ? true,
     sandboxGitIdentity ? true,
   }:
-    jail "jailed-${name}" agent (with jail.combinators;
-      commonJailOptions
-      ++ termOptions
-      ++ lib.optionals blockGitPush gitPushBlockOptions
-      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-      ++ [
-        (add-pkg-deps (commonPkgs ++ extraPkgs))
-      ]
-      ++ extraOptions
+    jail "jailed-${name}" agent (
+      with jail.combinators;
+        commonJailOptions
+        ++ termOptions
+        ++ lib.optionals blockGitPush gitPushBlockOptions
+        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+        ++ [
+          (add-pkg-deps (commonPkgs ++ extraPkgs))
+        ]
+        ++ extraOptions
     );
 
-  makeJailedPi = args: makeJailedAgent ({ name = "pi"; agent = pi; } // args);
-  makeJailedCrush = args: makeJailedAgent ({ name = "crush"; agent = crush; } // args);
-  makeJailedOpencode = args: makeJailedAgent ({ name = "opencode"; agent = opencode; } // args);
-
+  makeJailedPi = args:
+    makeJailedAgent ({
+        name = "pi";
+        agent = pi;
+      }
+      // args);
+  makeJailedCrush = args:
+    makeJailedAgent ({
+        name = "crush";
+        agent = crush;
+      }
+      // args);
+  makeJailedOpencode = args:
+    makeJailedAgent ({
+        name = "opencode";
+        agent = opencode;
+      }
+      // args);
 in {
   inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode;
   inherit commonPkgs;
