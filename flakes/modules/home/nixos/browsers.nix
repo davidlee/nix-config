@@ -1,7 +1,7 @@
 _: {
   flake.homeModules.browsers = {pkgs, ...}: {
     home.packages = with pkgs; [
-      # (callPackage ../../../packages/helium.nix {})
+      # (callPackage ../../../pub/helium.nix {})
       ladybird
       vivaldi
       ungoogled-chromium
