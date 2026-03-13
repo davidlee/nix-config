@@ -51,6 +51,7 @@ let
   ];
 
   commonJailOptions = with jail.combinators; [
+    (persist-home "agent")
     network
     time-zone
     no-new-session
