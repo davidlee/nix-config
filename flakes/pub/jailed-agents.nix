@@ -75,16 +75,19 @@
     specDev = {
       blockGitPush = true;
       sandboxGitIdentity = true;
+      exposePostgres = false;
     };
 
     research = {
       blockGitPush = true;
       sandboxGitIdentity = false;
+      exposePostgres = false;
     };
 
     offline = {
       blockGitPush = true;
       sandboxGitIdentity = false;
+      exposePostgres = false;
     };
   };
 
@@ -116,6 +119,11 @@
     # TODO: npm, pnpm, bun, cargo, ...
   ];
 
+  # Expose host PostgreSQL unix socket
+  postgresOptions = with jail.combinators; [
+    (try-readwrite "/run/postgresql")
+  ];
+
   makeJailedAgent = {
     name,
     agent,
@@ -124,6 +132,7 @@
     extraOptions ? [],
     blockGitPush ? (profileDefaults.${profile}).blockGitPush,
     sandboxGitIdentity ? (profileDefaults.${profile}).sandboxGitIdentity,
+    exposePostgres ? (profileDefaults.${profile}).exposePostgres,
   }:
     assert builtins.hasAttr profile profileOptions
     || throw "Unknown jailed agent profile: ${profile}";
@@ -134,6 +143,7 @@
         ++ packageManagerOptions
         ++ lib.optionals blockGitPush gitPushBlockOptions
         ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+        ++ lib.optionals exposePostgres postgresOptions
         ++ [(jail.combinators.add-pkg-deps (commonPkgs ++ extraPkgs))]
         ++ extraOptions
       );
