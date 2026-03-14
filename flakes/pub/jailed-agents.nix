@@ -111,7 +111,7 @@
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
   ];
 
-  packageManagerOptions = with jain.combinators; [
+  packageManagerOptions = with jail.combinators; [
     (set-env "UV_CACHE_DIR" ".uv-cache")
     # TODO: npm, pnpm, bun, cargo, ...
   ];
