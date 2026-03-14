@@ -42,9 +42,6 @@
     gnutar
     tree
     ps
-    ruff
-    python3Packages.pylint
-    python3Packages.pytest
   ];
 
   # Always applied — not policy-bearing
