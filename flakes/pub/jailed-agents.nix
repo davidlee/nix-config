@@ -111,6 +111,11 @@
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
   ];
 
+  packageManagerOptions = with jain.combinators; [
+    (set-env "UV_CACHE_DIR" ".uv-cache")
+    # TODO: npm, pnpm, bun, cargo, ...
+  ];
+
   makeJailedAgent = {
     name,
     agent,
@@ -121,25 +126,38 @@
     sandboxGitIdentity ? (profileDefaults.${profile}).sandboxGitIdentity,
   }:
     assert builtins.hasAttr profile profileOptions
-      || throw "Unknown jailed agent profile: ${profile}";
-    jail "jailed-${name}" agent (
-      baseJailOptions
-      ++ profileOptions.${profile}
-      ++ termOptions
-      ++ lib.optionals blockGitPush gitPushBlockOptions
-      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-      ++ [(jail.combinators.add-pkg-deps (commonPkgs ++ extraPkgs))]
-      ++ extraOptions
-    );
+    || throw "Unknown jailed agent profile: ${profile}";
+      jail "jailed-${name}" agent (
+        baseJailOptions
+        ++ profileOptions.${profile}
+        ++ termOptions
+        ++ packageManagerOptions
+        ++ lib.optionals blockGitPush gitPushBlockOptions
+        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+        ++ [(jail.combinators.add-pkg-deps (commonPkgs ++ extraPkgs))]
+        ++ extraOptions
+      );
 
   makeJailedPi = args:
-    makeJailedAgent ({name = "pi"; agent = pi;} // args);
+    makeJailedAgent ({
+        name = "pi";
+        agent = pi;
+      }
+      // args);
 
   makeJailedCrush = args:
-    makeJailedAgent ({name = "crush"; agent = crush;} // args);
+    makeJailedAgent ({
+        name = "crush";
+        agent = crush;
+      }
+      // args);
 
   makeJailedOpencode = args:
-    makeJailedAgent ({name = "opencode"; agent = opencode;} // args);
+    makeJailedAgent ({
+        name = "opencode";
+        agent = opencode;
+      }
+      // args);
 in {
   inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode;
   inherit commonPkgs;
