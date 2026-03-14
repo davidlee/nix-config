@@ -1,14 +1,12 @@
 # Centralised jailed LLM agent definitions.
 #
-# Usage from a project flake:
-#   jailed-agents.lib.${system}.makeJailedAgent {
-#     name = "crush";
-#     agent = crush-pkg;
-#     extraPkgs = [ go gopls ];
-#   }
+# Each agent (pi, crush, opencode) can run under any sandbox profile.
+# Profiles control persistence, networking, and policy defaults;
+# agent wrappers remain thin.
 #
-# Or use the pre-built makers:
-#   jailed-agents.lib.${system}.makeJailedCrush { extraPkgs = [...]; }
+# Usage:
+#   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
+#   makeJailedAgent { name = "foo"; agent = foo-pkg; profile = "research"; }
 {
   pkgs,
   jail-nix,
@@ -46,15 +44,49 @@
     ps
   ];
 
-  commonJailOptions = with jail.combinators; [
-    (persist-home "agent")
-    network
+  # Always applied — not policy-bearing
+  baseJailOptions = with jail.combinators; [
     time-zone
     no-new-session
     # Mount host cwd at /workspace/<project> and start there
     (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
     (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
   ];
+
+  # Policy-bearing options keyed by profile name
+  profileOptions = {
+    specDev = with jail.combinators; [
+      (persist-home "agent")
+      network
+    ];
+
+    research = with jail.combinators; [
+      (persist-home "agent-research")
+      network
+    ];
+
+    offline = with jail.combinators; [
+      (persist-home "agent-offline")
+    ];
+  };
+
+  # Per-profile boolean defaults for git controls
+  profileDefaults = {
+    specDev = {
+      blockGitPush = true;
+      sandboxGitIdentity = true;
+    };
+
+    research = {
+      blockGitPush = true;
+      sandboxGitIdentity = false;
+    };
+
+    offline = {
+      blockGitPush = true;
+      sandboxGitIdentity = false;
+    };
+  };
 
   # Sandbox-originated commits are visually distinct
   gitIdentityOptions = with jail.combinators; [
@@ -82,41 +114,32 @@
   makeJailedAgent = {
     name,
     agent,
+    profile ? "specDev",
     extraPkgs ? [],
     extraOptions ? [],
-    blockGitPush ? true,
-    sandboxGitIdentity ? true,
+    blockGitPush ? (profileDefaults.${profile}).blockGitPush,
+    sandboxGitIdentity ? (profileDefaults.${profile}).sandboxGitIdentity,
   }:
+    assert builtins.hasAttr profile profileOptions
+      || throw "Unknown jailed agent profile: ${profile}";
     jail "jailed-${name}" agent (
-      with jail.combinators;
-        commonJailOptions
-        ++ termOptions
-        ++ lib.optionals blockGitPush gitPushBlockOptions
-        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-        ++ [
-          (add-pkg-deps (commonPkgs ++ extraPkgs))
-        ]
-        ++ extraOptions
+      baseJailOptions
+      ++ profileOptions.${profile}
+      ++ termOptions
+      ++ lib.optionals blockGitPush gitPushBlockOptions
+      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+      ++ [(jail.combinators.add-pkg-deps (commonPkgs ++ extraPkgs))]
+      ++ extraOptions
     );
 
   makeJailedPi = args:
-    makeJailedAgent ({
-        name = "pi";
-        agent = pi;
-      }
-      // args);
+    makeJailedAgent ({name = "pi"; agent = pi;} // args);
+
   makeJailedCrush = args:
-    makeJailedAgent ({
-        name = "crush";
-        agent = crush;
-      }
-      // args);
+    makeJailedAgent ({name = "crush"; agent = crush;} // args);
+
   makeJailedOpencode = args:
-    makeJailedAgent ({
-        name = "opencode";
-        agent = opencode;
-      }
-      // args);
+    makeJailedAgent ({name = "opencode"; agent = opencode;} // args);
 in {
   inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode;
   inherit commonPkgs;
