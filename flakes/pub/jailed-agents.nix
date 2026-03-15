@@ -42,6 +42,9 @@
     gnutar
     tree
     ps
+
+    # for spec-driver hook
+    python3
   ];
 
   # Always applied — not policy-bearing
