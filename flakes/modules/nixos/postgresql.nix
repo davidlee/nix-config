@@ -1,7 +1,12 @@
 _: {
-  flake.nixosModules.postgresql = {username, ...}: {
+  flake.nixosModules.postgresql = {
+    username,
+    pkgs,
+    ...
+  }: {
     services = {
       postgresql = {
+        package = pkgs.postgresql_18;
         enable = true;
         ensureUsers = [
           {
@@ -17,6 +22,7 @@ _: {
         ensureDatabases = [
           username
           "corpus"
+          "tasks"
         ];
         enableTCPIP = false;
       };
