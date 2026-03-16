@@ -50,7 +50,7 @@ vim.pack.add({
 
   -- highlight
   "https://github.com/RRethy/vim-illuminate",
-  "https://github.com/HiPhish/rainbow-delimiters.nvim",
+  -- "https://github.com/HiPhish/rainbow-delimiters.nvim",
 
   -- lint
   "https://github.com/mfussenegger/nvim-lint",

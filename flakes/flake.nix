@@ -38,6 +38,7 @@
     nix-search-tv.url = "github:3timeslazy/nix-search-tv";
     zig-overlay.url = "github:mitchellh/zig-overlay";
     zls-overlay.url = "github:zigtools/zls";
+    bough.url = "git@github.com:davidlee/vk.git";
     ucodenix.url = "github:e-tho/ucodenix";
     zed.url = "github:zed-industries/zed";
 
