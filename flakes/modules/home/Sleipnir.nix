@@ -25,6 +25,8 @@ _: {
       homeModules.editors
       homeModules.graphics
       homeModules.office
+
+      homeModules.bough
     ];
 
     home = {
