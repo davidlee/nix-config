@@ -13,6 +13,7 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
 - `commonPkgs` — the shared package set available in every jail
+- `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 
 ### Sandbox defaults
 
@@ -51,6 +52,12 @@ Add this flake as an input and call the makers from your devShell:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs { inherit system; };
       agents = jailed-agents.lib.${system}.jailed-agents;
+
+      # Forward project env into the jail via bwrap --setenv
+      envOptions = with agents.combinators; [
+        (try-fwd-env "DATABASE_URL")  # forward if set on host
+        (set-env "CGO_ENABLED" "0")   # hardcode a value
+      ];
     in {
       devShells.default = pkgs.mkShell {
         packages = [
@@ -59,6 +66,7 @@ Add this flake as an input and call the makers from your devShell:
           (agents.makeJailedPi {
             profile = "specDev";
             extraPkgs = with pkgs; [ go gopls ];
+            extraOptions = envOptions;
           })
           (agents.makeJailedPi {
             profile = "research";
@@ -75,6 +83,20 @@ Then from the project directory:
 $ nix develop
 $ jailed-pi
 ```
+
+### Environment variables
+
+bwrap starts with a clean environment — host env vars do **not** pass through
+automatically. Use `combinators` via `extraOptions` to forward them:
+
+| Combinator | Effect |
+|---|---|
+| `set-env "NAME" "value"` | Set a fixed value inside the jail |
+| `fwd-env "NAME"` | Forward from host (errors if unset) |
+| `try-fwd-env "NAME"` | Forward from host (skipped if unset) |
+
+All combinators are available at `agents.combinators` (re-exported from
+jail.nix). See the usage example above.
 
 ### makeJailedAgent options
 
