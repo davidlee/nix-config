@@ -7,7 +7,7 @@ _: {
     vk = inputs.bough.packages.${pkgs.system};
   in {
     home.packages = [
-      vk.bough
+      vk.bough # not yet exported from remote
       vk.arbourd
       vk.arbour
     ];
