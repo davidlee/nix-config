@@ -174,4 +174,5 @@
 in {
   inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode;
   inherit commonPkgs;
+  combinators = jail.combinators;
 }
