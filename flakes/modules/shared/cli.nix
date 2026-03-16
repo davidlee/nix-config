@@ -580,7 +580,6 @@ in {
     ];
     config.nixosCliPackages.frivolity = with pkgs; [
       ## frivolity
-      neofetch
       fastfetch
       fortune
       cmatrix
