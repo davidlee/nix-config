@@ -89,11 +89,11 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1773657152,
-        "narHash": "sha256-O2XyRU3PMBk9ew8N4yv5EWGoqLQP7KMADpMGeMMaEIc=",
+        "lastModified": 1773657758,
+        "narHash": "sha256-B6nFvJueO8eGYLb79EcAHjyK9Qtnc+6snV0wsWWW0/8=",
         "ref": "refs/heads/main",
-        "rev": "20dde5696dff0ba133af443945e241adeed58f58",
-        "revCount": 214,
+        "rev": "1de9b747c3ea176bf3ac77e4073c77a94d2cfd33",
+        "revCount": 215,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/vk"
       },
