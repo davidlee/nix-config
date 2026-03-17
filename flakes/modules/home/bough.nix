@@ -18,7 +18,7 @@ _: {
         After = ["postgresql.service"];
       };
       Service = {
-        ExecStart = "${vk.arbourd}/bin/arbourd run --database-url \"postgres:///corpus\"";
+        ExecStart = "${vk.arbourd}/bin/arbourd run --database-url \"postgres:///bough_production\"";
         Restart = "on-failure";
         RestartSec = 5;
       };

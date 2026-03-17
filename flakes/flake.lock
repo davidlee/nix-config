@@ -89,11 +89,11 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1773657758,
-        "narHash": "sha256-B6nFvJueO8eGYLb79EcAHjyK9Qtnc+6snV0wsWWW0/8=",
+        "lastModified": 1773758603,
+        "narHash": "sha256-/n3Vj/xO/l61h0EXm1WAy1azRW9r1oAw1/p32S6IkJE=",
         "ref": "refs/heads/main",
-        "rev": "1de9b747c3ea176bf3ac77e4073c77a94d2cfd33",
-        "revCount": 215,
+        "rev": "a33891cf9e1fa1016b345f6ed1a12585f9df7ae9",
+        "revCount": 423,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/vk"
       },
@@ -1147,11 +1147,11 @@
         "nixpkgs": "nixpkgs_7"
       },
       "locked": {
-        "lastModified": 1773652743,
-        "narHash": "sha256-2je+Ep9HbGVzsJ8tthUoQ/P+f3OsU0TJ46rbb4J3lN0=",
+        "lastModified": 1773672284,
+        "narHash": "sha256-zFVTQO2EKIIa4U78U7pIY/80a4NgUIPrA7OO5JWm8EQ=",
         "owner": "davidlee",
         "repo": "spec-driver",
-        "rev": "50833826c675fa57fa86decb66d94720df75400b",
+        "rev": "ca1a97ee15e9b5acbd3ae8e3b17886332c0fa461",
         "type": "github"
       },
       "original": {
