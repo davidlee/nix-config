@@ -491,6 +491,7 @@ in {
       otree # text object tree viewer
       gron
       jq
+      xq
       jqp # jq tui playground
       yq-go # jq for yaml
       jc
