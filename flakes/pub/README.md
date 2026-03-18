@@ -35,6 +35,8 @@ any maker (default: `"specDev"`).
 | `offline` | `agent-offline` (separate) | no | blocked | host |
 
 Override boolean defaults per-call with `blockGitPush` / `sandboxGitIdentity`.
+Enable self-recursive sub-agents with `allowSelfAsSubagent = true;`; nested
+invocations stop once `maxSubagentDepth` is reached (default: `1`).
 
 ### Usage
 
@@ -65,6 +67,8 @@ Add this flake as an input and call the makers from your devShell:
         ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
           (agents.makeJailedPi {
             profile = "specDev";
+            allowSelfAsSubagent = true;
+            maxSubagentDepth = 2;
             extraPkgs = with pkgs; [ go gopls ];
             extraOptions = envOptions;
           })
@@ -107,6 +111,8 @@ jail.nix). See the usage example above.
 | `profile` | `"specDev"` | Sandbox profile (see table above) |
 | `extraPkgs` | `[]` | Additional packages available in the jail |
 | `extraOptions` | `[]` | Additional jail.nix combinators |
+| `allowSelfAsSubagent` | `false` | Expose `jailed-<name>` inside the jail for bounded self-recursive sub-agents |
+| `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth before the helper refuses to recurse |
 | `blockGitPush` | per profile | Disable git push via SSH |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 

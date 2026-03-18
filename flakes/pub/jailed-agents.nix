@@ -133,12 +133,28 @@
     profile ? "specDev",
     extraPkgs ? [],
     extraOptions ? [],
+    allowSelfAsSubagent ? false,
+    maxSubagentDepth ? 1,
     blockGitPush ? (profileDefaults.${profile}).blockGitPush,
     sandboxGitIdentity ? (profileDefaults.${profile}).sandboxGitIdentity,
     exposePostgres ? (profileDefaults.${profile}).exposePostgres,
-  }:
+  }: let
+    selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
+      depth="''${JAILED_AGENT_DEPTH:-0}"
+
+      if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
+        echo "jailed-${name}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
+        exit 1
+      fi
+
+      export JAILED_AGENT_DEPTH="$((depth + 1))"
+      exec ${lib.getExe agent} "$@"
+    '';
+  in
     assert builtins.hasAttr profile profileOptions
     || throw "Unknown jailed agent profile: ${profile}";
+    assert (!allowSelfAsSubagent) || maxSubagentDepth > 0
+    || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
       jail "jailed-${name}" agent (
         baseJailOptions
         ++ profileOptions.${profile}
@@ -147,7 +163,13 @@
         ++ lib.optionals blockGitPush gitPushBlockOptions
         ++ lib.optionals sandboxGitIdentity gitIdentityOptions
         ++ lib.optionals exposePostgres postgresOptions
-        ++ [(jail.combinators.add-pkg-deps (commonPkgs ++ extraPkgs))]
+        ++ [
+          (jail.combinators.add-pkg-deps (
+            commonPkgs
+            ++ extraPkgs
+            ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
+          ))
+        ]
         ++ extraOptions
       );
 
