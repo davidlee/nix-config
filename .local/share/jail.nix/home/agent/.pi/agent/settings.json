@@ -1,0 +1,15 @@
+{
+  "lastChangelogVersion": "0.60.0",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-6",
+  "defaultThinkingLevel": "medium",
+  "hideThinkingBlock": true,
+  "compaction": {
+    "enabled": false
+  },
+  "doubleEscapeAction": "tree",
+  "packages": [
+    "/home/david/.pi/packages/node_modules/pi-subagents",
+    "/home/david/.pi/packages/node_modules/pi-web-access"
+  ]
+}
