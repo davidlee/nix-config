@@ -153,7 +153,8 @@
   in
     assert builtins.hasAttr profile profileOptions
     || throw "Unknown jailed agent profile: ${profile}";
-    assert (!allowSelfAsSubagent) || maxSubagentDepth > 0
+    assert (!allowSelfAsSubagent)
+    || maxSubagentDepth > 0
     || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
       jail "jailed-${name}" agent (
         baseJailOptions
@@ -167,6 +168,7 @@
           (jail.combinators.add-pkg-deps (
             commonPkgs
             ++ extraPkgs
+            ++ [agent] # allow sub-agent invocation
             ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
           ))
         ]
