@@ -42,6 +42,8 @@ vim.pack.add({
   "https://github.com/mikavilpas/yazi.nvim",
   "https://github.com/simonmclean/triptych.nvim",
   "https://github.com/antosha417/nvim-lsp-file-operations",
+  "https://github.com/nvim-neo-tree/neo-tree.nvim",
+  "https://github.com/stevearc/oil.nvim",
 
   -- completion
   "https://github.com/folke/LazyDev.nvim",
@@ -50,7 +52,7 @@ vim.pack.add({
 
   -- highlight
   "https://github.com/RRethy/vim-illuminate",
-  -- "https://github.com/HiPhish/rainbow-delimiters.nvim",
+  "https://github.com/HiPhish/rainbow-delimiters.nvim",
 
   -- lint
   "https://github.com/mfussenegger/nvim-lint",

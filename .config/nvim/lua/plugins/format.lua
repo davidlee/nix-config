@@ -1,44 +1,38 @@
 local lz = require("lze")
 
 lz.load({
-  { -- https://github.com/stevearc/conform.nvim?tab=readme-ov-file#setup
+  {
     "conform.nvim",
     after = function()
       require("conform").setup({
         formatters_by_ft = {
-          lua = { "stylua" }, --  --indent-type Spaces --indent-width 2
+          lua = { "stylua" },
           fish = { "fish_indent" },
           sh = { "shfmt" },
           nix = { "alejandra" },
-          -- Conform will run multiple formatters sequentially
-          go = { "goimports", "gofmt" },
-          -- You can also customize some of the format options for the filetype
-          rust = { "rustfmt", lsp_format = "fallback" },
-          -- Use the "*" filetype to run formatters on all filetypes.
-          zig = { "zigfmt", lsp_format = "fallback" },
+          go = { "goimports", { "gofumpt", "gofmt", stop_after_first = true } },
+          rust = { "rustfmt" },
+          zig = { "zigfmt" },
+          python = { "ruff_format" },
+          javascript = { "prettierd" },
+          typescript = { "prettierd" },
+          typescriptreact = { "prettierd" },
+          javascriptreact = { "prettierd" },
+          css = { "prettierd" },
+          html = { "prettierd" },
+          json = { "prettierd" },
+          yaml = { "prettierd" },
+          markdown = { "prettierd" },
           ["*"] = { "codespell" },
-          -- Use the "_" filetype to run formatters on filetypes that don't
-          -- have other formatters configured.
           ["_"] = { "trim_whitespace" },
         },
         default_format_opts = {
           lsp_format = "fallback",
         },
-        -- log_level = vim.log.levels.ERROR,
         notify_on_error = true,
-        -- Conform will notify you when no formatters are available for the buffer
         notify_no_formatters = true,
         format_on_save = {
-          -- I recommend these options. See :help conform.format for details.
-          async = false,
-          lsp_format = "fallback",
           timeout_ms = 800,
-        },
-        -- If this is set, Conform will run the formatter asynchronously after save.
-        -- It will pass the table to conform.format().
-        -- This can also be a function that returns the table.
-        format_after_save = {
-          lsp_format = "fallback",
         },
       })
     end,

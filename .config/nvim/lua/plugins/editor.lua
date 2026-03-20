@@ -5,6 +5,8 @@ require("mini.surround").setup({
   mappings = require("config.keymap").mini_surround.mappings,
 })
 
+require("plugins.autopairs")
+
 -- editor
 lz.load({
   -- yanky
@@ -21,12 +23,22 @@ lz.load({
 
   {
     "auto-save.nvim",
-    after = function() require("auto-save").setup({}) end,
-    -- enabled = true, -- start auto-save when the plugin is loaded (i.e. when your package manager loads it)
-    -- trigger_events = { -- See :h events
-    --   immediate_save = { "BufLeave", "FocusLost", "QuitPre", "VimSuspend" }, -- vim events that trigger an immediate save
-    --   defer_save = { "InsertLeave", "TextChanged" }, -- vim events that trigger a deferred save (saves after `debounce_delay`)
-    --   cancel_deferred_save = { "InsertEnter" }, -- vim events that cancel a pending deferred save
-    -- },
+    after = function()
+      require("auto-save").setup({
+        trigger_events = {
+          immediate_save = { "BufLeave", "FocusLost", "QuitPre", "VimSuspend" },
+          defer_save = { "InsertLeave", "TextChanged" },
+          cancel_deferred_save = { "InsertEnter" },
+        },
+        debounce_delay = 400,
+        condition = function(buf)
+          -- skip special buffers
+          if vim.fn.getbufvar(buf, "&buftype") ~= "" then return false end
+          return true
+        end,
+        write_all_buffers = false,
+        noautocmd = true, -- prevents BufWritePre/Post firing, avoids undo break
+      })
+    end,
   },
 })

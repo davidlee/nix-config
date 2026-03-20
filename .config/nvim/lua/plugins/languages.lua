@@ -1,11 +1,5 @@
 local lz = require("lze")
 
--- markdown checklists
--- require("plugins.checkmate")
-require("plugins.render-markdown")
-require("plugins.zk")
--- require("plugins.neorg")
-
 lz.load({
   -- outline
   {
@@ -37,28 +31,28 @@ lz.load({
   { "d2-vim" },
 
   -- kanban
-  {
-    "super-kanban.nvim",
-    after = function()
-      require("super-kanban").setup({
-        markdown = {
-          notes_dir = "~/kanban/",
-          list_heading = "h2",
-          default_template = {
-            "## Backlog\n",
-            "## Todo\n",
-            "## Work in progress\n",
-            "## Completed\n",
-          },
-        },
-        mappings = {
-          ["<cr>"] = "open_note",
-          ["gD"] = "delete_card",
-          ["<C-t>"] = "toggle_complete",
-        },
-      })
-    end,
-  },
+  -- {
+  --   "super-kanban.nvim",
+  --   after = function()
+  --     require("super-kanban").setup({
+  --       markdown = {
+  --         notes_dir = "~/kanban/",
+  --         list_heading = "h2",
+  --         default_template = {
+  --           "## Backlog\n",
+  --           "## Todo\n",
+  --           "## Work in progress\n",
+  --           "## Completed\n",
+  --         },
+  --       },
+  --       mappings = {
+  --         ["<cr>"] = "open_note",
+  --         ["gD"] = "delete_card",
+  --         ["<C-t>"] = "toggle_complete",
+  --       },
+  --     })
+  --   end,
+  -- },
 
   -- slim templates
   { "vim-slim" },

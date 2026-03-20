@@ -7,26 +7,30 @@ lz.load({
     after = function() require("illuminate").configure({}) end,
   },
 
-  -- rainbow-delimiters
-  -- {
-  --   "rainbow-delimiters.nvim",
-  --   after = function()
-  --     require("rainbow-delimiters.setup").setup({
-  --       strategy = {
-  --         [""] = "rainbow-delimiters.strategy.global",
-  --         vim = "rainbow-delimiters.strategy.local",
-  --       },
-  --       highlight = {
-  --         "Normal",
-  --         "RainbowDelimiterRed",
-  --         "RainbowDelimiterYellow",
-  --         "RainbowDelimiterBlue",
-  --         "RainbowDelimiterOrange",
-  --         "RainbowDelimiterGreen",
-  --         "RainbowDelimiterViolet",
-  --         "RainbowDelimiterCyan",
-  --       },
-  --     })
-  --   end,
-  -- },
+  -- rainbow-delimiters: config via vim.g (not require)
+  {
+    "rainbow-delimiters.nvim",
+    after = function()
+      local rd = require("rainbow-delimiters")
+      vim.g.rainbow_delimiters = {
+        strategy = {
+          [""] = rd.strategy.global,
+          vim = rd.strategy["local"],
+        },
+        query = {
+          [""] = "rainbow-delimiters",
+          lua = "rainbow-blocks",
+        },
+        highlight = {
+          "RainbowDelimiterRed",
+          "RainbowDelimiterYellow",
+          "RainbowDelimiterBlue",
+          "RainbowDelimiterOrange",
+          "RainbowDelimiterGreen",
+          "RainbowDelimiterViolet",
+          "RainbowDelimiterCyan",
+        },
+      }
+    end,
+  },
 })

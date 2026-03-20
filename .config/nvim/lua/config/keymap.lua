@@ -240,6 +240,8 @@ bind("n", "<leader>fo", "<cmd>Oil<cr>", { silent = true, desc = "Oil (:Oil)" })
 bind("n", "<leader>fE", "<cmd>Ex<cr>", { desc = "NetRW (:Ex)" })
 -- fy: (:Yazi) open in Yazi
 bind("n", "<leader>fy", "<cmd>Yazi<cr>", { desc = "Yazi (:Yazi)" })
+-- fn: (:Neotree) toggle Neo-tree
+bind("n", "<leader>fn", "<cmd>Neotree toggle<cr>", { desc = "Neo-tree" })
 
 -- Aerial --------------------
 -- set a keymap to toggle aerial
