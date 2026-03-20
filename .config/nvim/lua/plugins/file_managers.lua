@@ -29,19 +29,12 @@ lz.load({
   end,
 })
 
--- TODO: get Oil, Neo-Tree loading again
+require("neo-tree").setup({
+  -- prevent neotree from hijacking netrw (snacks.explorer is primary)
+  filesystem = {
+    hijack_netrw_behavior = "disabled",
+  },
+})
 
--- neo-tree: really doesn't want to be lazy loaded
--- require("neo-tree").setup({
---   -- NOTE: without this, tabbing between netrw / snacks.picker will open a bonus neotree
---   -- regardless of whether we've required neo-tree.
---   filesystem = {
---     hijack_netrw_behavior = "disabled",
---   },
--- --- Fix neotree
--- require("neo-tree.setup.netrw")
--- vim.g.neotree_watching_bufenter = 0
--- vim.g.hijack_netrw_behavior = 0- })
-
--- oil: don't wanna lazy load either
--- require("oil").setup()
+-- oil: not lazy loaded
+require("oil").setup()
