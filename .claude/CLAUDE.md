@@ -13,7 +13,7 @@
 
 ## Tests
 
-- TDD
+- red/green TDD
 - That means: red, green, REFACTOR
 - Test behaviour, not (trivial) implementation - reduces brittleness.
 - Build & improve test helpers, fixtures, etc to improve tests.
