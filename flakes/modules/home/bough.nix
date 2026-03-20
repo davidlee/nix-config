@@ -4,27 +4,25 @@ _: {
     pkgs,
     ...
   }: let
-    vk = inputs.bough.packages.${pkgs.system};
+    bh = inputs.bough.packages.${pkgs.system};
   in {
     home.packages = [
-      vk.bough # not yet exported from remote
-      vk.arbourd
-      vk.arbour
+      bh.default
     ];
 
-    systemd.user.services.arbourd = {
-      Unit = {
-        Description = "arbourd — task tree daemon";
-        After = ["postgresql.service"];
-      };
-      Service = {
-        ExecStart = "${vk.arbourd}/bin/arbourd run --database-url \"postgres:///bough_production\"";
-        Restart = "on-failure";
-        RestartSec = 5;
-      };
-      Install = {
-        WantedBy = ["default.target"];
-      };
-    };
+    # systemd.user.services.arbourd = {
+    #   Unit = {
+    #     Description = "arbourd — task tree daemon";
+    #     After = ["postgresql.service"];
+    #   };
+    #   Service = {
+    #     ExecStart = "${vk.arbourd}/bin/arbourd run --database-url \"postgres:///bough_production\"";
+    #     Restart = "on-failure";
+    #     RestartSec = 5;
+    #   };
+    #   Install = {
+    #     WantedBy = ["default.target"];
+    #   };
+    # };
   };
 }

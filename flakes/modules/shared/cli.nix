@@ -569,6 +569,7 @@ in {
     config.nixosCliPackages.containers = with pkgs; [
       distrobox
       distrobox-tui
+      bubblewrap
       #devcontainer
     ];
 
