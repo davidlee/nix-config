@@ -1,6 +1,6 @@
 # Centralised jailed LLM agent definitions.
 #
-# Each agent (pi, crush, opencode) can run under any sandbox profile.
+# Each agent (pi, crush, opencode, claude, codex, gemini) can run under any sandbox profile.
 # Profiles control persistence, networking, and policy defaults;
 # agent wrappers remain thin.
 #
@@ -19,6 +19,9 @@
   pi = llm-agents.packages.${system}.pi;
   crush = llm-agents.packages.${system}.crush;
   opencode = llm-agents.packages.${system}.opencode;
+  claude-code = llm-agents.packages.${system}.claude-code;
+  codex = llm-agents.packages.${system}.codex;
+  gemini-cli = llm-agents.packages.${system}.gemini-cli;
 
   commonPkgs = with pkgs; [
     zsh
@@ -195,8 +198,30 @@
         agent = opencode;
       }
       // args);
+
+  makeJailedClaude = args:
+    makeJailedAgent ({
+        name = "claude";
+        agent = claude-code;
+      }
+      // args);
+
+  makeJailedCodex = args:
+    makeJailedAgent ({
+        name = "codex";
+        agent = codex;
+      }
+      // args);
+
+  makeJailedGemini = args:
+    makeJailedAgent ({
+        name = "gemini";
+        agent = gemini-cli;
+      }
+      // args);
 in {
-  inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode;
+  inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode
+    makeJailedClaude makeJailedCodex makeJailedGemini;
   inherit commonPkgs;
   combinators = jail.combinators;
 }

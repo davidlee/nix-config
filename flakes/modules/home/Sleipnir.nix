@@ -26,7 +26,7 @@ _: {
       homeModules.graphics
       homeModules.office
 
-      homeModules.bough
+      # homeModules.bough
     ];
 
     home = {
