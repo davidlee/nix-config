@@ -1,4 +1,3 @@
--- local md = require("mini.deps")
 local lz = require("lze")
 
 lz.load({

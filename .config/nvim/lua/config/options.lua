@@ -7,6 +7,7 @@ vim.g.maplocalleader = "\\"
 -- colorsheme
 opt.termguicolors = true -- True color support
 vim.cmd("colorscheme gruvbox")
+vim.cmd("colorscheme kanagawa")
 
 -- alias for clumsy fingers
 vim.cmd("cnoreabbrev W w")
@@ -22,9 +23,7 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
   pattern = "*.go",
   group = my_ag,
   -- command = "set nolist",
-  callback = function() 
-	  vim.cmd("set nolist")
-  end,
+  callback = function() vim.cmd("set nolist") end,
 })
 
 -- LazyVim auto format

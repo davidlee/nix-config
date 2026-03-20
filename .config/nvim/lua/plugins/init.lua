@@ -16,19 +16,4 @@ require("plugins.trouble")
 require("plugins.languages")
 require("plugins.render-markdown")
 require("plugins.zk")
--- require("plugins.checkmate")
--- require("plugins.neorg")
 require("plugins.snippets")
-
--- TODO:
---
--- jghauser/kitty-runner.nvim
--- nvim_highlight_colors
--- persistence-nvim
--- resession-nvim
--- overseer-nvim
--- octo-nvim
--- grug-far-nvim
--- stevearc/stickybuf.nvim
--- https://github.com/wurli/visimatch.nvim
--- https://github.com/nvim-pack/nvim-spectre

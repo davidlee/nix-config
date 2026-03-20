@@ -4,11 +4,16 @@ vim.pack.add({
 
   -- treesitter
   { src = "https://github.com/nvim-treesitter/nvim-treesitter", name = "nvim-treesitter", version = "main" },
+  "https://github.com/nvim-treesitter/nvim-treesitter-context",
+
+  -- color scheme
+  "https://github.com/rebelot/kanagawa.nvim",
 
   -- UI
   "https://github.com/nvim-lua/plenary.nvim",
   "https://github.com/nvim-mini/mini.icons",
   "https://github.com/nvim-mini/mini.nvim",
+  "https://github.com/nvim-mini/mini.surround",
   "https://github.com/folke/noice.nvim",
   "https://github.com/folke/snacks.nvim",
   "https://github.com/folke/which-key.nvim",

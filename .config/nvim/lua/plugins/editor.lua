@@ -1,4 +1,3 @@
--- local md = require("mini.deps")
 local lz = require("lze")
 
 require("mini.surround").setup({

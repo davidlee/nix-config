@@ -68,6 +68,10 @@
       "rev": "01a6de99120a3b4abaf589d803631d02c44b4d25",
       "src": "https://github.com/ray-x/go.nvim"
     },
+    "kanagawa.nvim": {
+      "rev": "aef7f5cec0a40dbe7f3304214850c472e2264b10",
+      "src": "https://github.com/rebelot/kanagawa.nvim"
+    },
     "luasnip": {
       "rev": "dae4f5aaa3574bd0c2b9dd20fb9542a02c10471c",
       "src": "https://github.com/L3MON4D3/LuaSnip"
@@ -87,6 +91,10 @@
     "mini.statusline": {
       "rev": "8c3829d4ef02b693f68e43fc131b433f11049b2b",
       "src": "https://github.com/nvim-mini/mini.statusline"
+    },
+    "mini.surround": {
+      "rev": "d205d1741d1fcc1f3117b4e839bf00f74ad72fa2",
+      "src": "https://github.com/nvim-mini/mini.surround"
     },
     "neo-tree.nvim": {
       "rev": "dffde7aaa99bfe19e61bb6a1446db26af6b2c603",
@@ -128,6 +136,10 @@
       "rev": "53f6ce29df5841ce26e5a9f06fb371088b8d8031",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter",
       "version": "'main'"
+    },
+    "nvim-treesitter-context": {
+      "rev": "9a8e39993e3b895601bf8227124a48ea8268149e",
+      "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
     "nvim-treesitter-textobjects": {
       "rev": "7359dfcefa38db632541e1f9b5b5f291626a1d47",
