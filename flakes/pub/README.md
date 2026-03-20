@@ -9,11 +9,15 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 
 ### What it provides
 
-- `makeJailedPi`, `makeJailedCrush`, `makeJailedOpencode` — pre-configured
-  makers for each agent
+- `makeJailedPi`, `makeJailedCrush`, `makeJailedOpencode`, `makeJailedClaude`,
+  `makeJailedCodex`, `makeJailedGemini` — pre-configured makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
 - `commonPkgs` — the shared package set available in every jail
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
+
+Agent packages come from
+[llm-agents.nix](https://github.com/numtide/llm-agents.nix), which callers
+provide as a flake input (see usage below).
 
 ### Sandbox defaults
 
@@ -40,20 +44,22 @@ invocations stop once `maxSubagentDepth` is reached (default: `1`).
 
 ### Usage
 
-Add this flake as an input and call the makers from your devShell:
+Add this flake and `llm-agents.nix` as inputs, then call `mkJailedAgents`
+with your own `llm-agents` pin:
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    jailed-agents.url = "github:davidlee/nix-config?dir=flakes/pub";
+    pub.url = "github:davidlee/nix-config?dir=flakes/pub";
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = { nixpkgs, flake-utils, jailed-agents, ... }:
+  outputs = { nixpkgs, flake-utils, pub, llm-agents, ... }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs { inherit system; };
-      agents = jailed-agents.lib.${system}.jailed-agents;
+      agents = pub.lib.${system}.mkJailedAgents { inherit llm-agents; };
 
       # Forward project env into the jail via bwrap --setenv
       envOptions = with agents.combinators; [
@@ -65,15 +71,21 @@ Add this flake as an input and call the makers from your devShell:
         packages = [
           # your project tools ...
         ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          (agents.makeJailedClaude {
+            profile = "specDev";
+            extraPkgs = with pkgs; [ go gopls ];
+            extraOptions = envOptions;
+          })
+          (agents.makeJailedCodex {
+            profile = "specDev";
+          })
+          (agents.makeJailedGemini {
+            profile = "research";
+          })
           (agents.makeJailedPi {
             profile = "specDev";
             allowSelfAsSubagent = true;
             maxSubagentDepth = 2;
-            extraPkgs = with pkgs; [ go gopls ];
-            extraOptions = envOptions;
-          })
-          (agents.makeJailedPi {
-            profile = "research";
           })
         ];
       };
@@ -81,11 +93,14 @@ Add this flake as an input and call the makers from your devShell:
 }
 ```
 
+Because `llm-agents` is pinned in the calling flake, updating agents is a
+single `nix flake update llm-agents` — no intermediate commit/push needed.
+
 Then from the project directory:
 
 ```
 $ nix develop
-$ jailed-pi
+$ jailed-claude   # or jailed-codex, jailed-gemini, jailed-pi, etc.
 ```
 
 ### Environment variables

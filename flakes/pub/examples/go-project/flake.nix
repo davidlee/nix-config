@@ -4,29 +4,25 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    jailed-agents.url = "github:davidlee/nix-config?dir=flakes/pub";
+    pub.url = "github:davidlee/nix-config?dir=flakes/pub";
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = {nixpkgs, flake-utils, jailed-agents, ...}:
+  outputs = {nixpkgs, flake-utils, pub, llm-agents, ...}:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-      agents = jailed-agents.lib.${system}.jailed-agents;
+      agents = pub.lib.${system}.mkJailedAgents {inherit llm-agents;};
+      goPkgs = with pkgs; [go gopls golangci-lint];
     in {
       devShells.default = pkgs.mkShell {
-        packages = with pkgs;
-          [
-            go
-            gopls
-            golangci-lint
-          ]
+        packages =
+          goPkgs
           ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
             # Jailed agents with project-specific tools injected
-            (agents.makeJailedPi {
-              extraPkgs = with pkgs; [go gopls golangci-lint];
-            })
-            (agents.makeJailedOpencode {
-              extraPkgs = with pkgs; [go gopls golangci-lint];
-            })
+            (agents.makeJailedClaude {extraPkgs = goPkgs;})
+            (agents.makeJailedCodex {extraPkgs = goPkgs;})
+            (agents.makeJailedGemini {extraPkgs = goPkgs;})
+            (agents.makeJailedPi {extraPkgs = goPkgs;})
           ];
       };
     });
