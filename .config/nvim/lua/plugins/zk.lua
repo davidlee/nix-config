@@ -1,9 +1,7 @@
 -- https://github.com/zk-org/zk-nvim
 
 local lz = require("lze")
--- local md = require("mini.deps")
 
--- autopairs
 lz.load({
   "zk-nvim",
   after = function()
