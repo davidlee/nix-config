@@ -93,6 +93,19 @@ with your own `llm-agents` pin:
 }
 ```
 
+If the project has editable dependencies on sibling repos (e.g. a workspace
+symlink), use `workspaceDeps` to bind-mount them into the jail:
+
+```nix
+(agents.makeJailedClaude {
+  profile = "specDev";
+  workspaceDeps = [ "/home/you/dev/some-lib" ];
+})
+```
+
+Each path is mounted at `/workspace/<basename>`, so a symlink like
+`./some-lib → ../some-lib` resolves correctly inside the jail.
+
 Because `llm-agents` is pinned in the calling flake, updating agents is a
 single `nix flake update llm-agents` — no intermediate commit/push needed.
 
@@ -126,6 +139,7 @@ jail.nix). See the usage example above.
 | `profile` | `"specDev"` | Sandbox profile (see table above) |
 | `extraPkgs` | `[]` | Additional packages available in the jail |
 | `extraOptions` | `[]` | Additional jail.nix combinators |
+| `workspaceDeps` | `[]` | Absolute paths to sibling repos; each is bind-mounted at `/workspace/<basename>` |
 | `allowSelfAsSubagent` | `false` | Expose `jailed-<name>` inside the jail for bounded self-recursive sub-agents |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth before the helper refuses to recurse |
 | `blockGitPush` | per profile | Disable git push via SSH |
