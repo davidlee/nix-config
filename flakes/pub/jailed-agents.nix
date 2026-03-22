@@ -117,6 +117,7 @@
 
   termOptions = with jail.combinators; [
     (set-env "TERM" "xterm-256color")
+    (set-env "COLORTERM" "truecolor")
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
   ];
 
@@ -136,6 +137,7 @@
     profile ? "specDev",
     extraPkgs ? [],
     extraOptions ? [],
+    workspaceDeps ? [], # sibling repo paths to bind-mount (for editable deps)
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
     blockGitPush ? (profileDefaults.${profile}).blockGitPush,
@@ -153,6 +155,10 @@
       export JAILED_AGENT_DEPTH="$((depth + 1))"
       exec ${lib.getExe agent} "$@"
     '';
+    workspaceBinds = map (dep:
+      jail.combinators.unsafe-add-raw-args
+        "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
+    ) workspaceDeps;
   in
     assert builtins.hasAttr profile profileOptions
     || throw "Unknown jailed agent profile: ${profile}";
@@ -161,6 +167,7 @@
     || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
       jail "jailed-${name}" agent (
         baseJailOptions
+        ++ workspaceBinds
         ++ profileOptions.${profile}
         ++ termOptions
         ++ packageManagerOptions
