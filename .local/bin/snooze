@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+TIME="${@:-tomorrow 07:30}"
+SEC=$(date -d "${TIME}" +%s)
+
+echo $SEC
+sudo rtcwake -m mem -s $SEC
