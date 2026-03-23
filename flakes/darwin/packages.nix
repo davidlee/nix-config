@@ -10,9 +10,9 @@
   environment.systemPackages = with pkgs; [
     ## mac only
     darwin.trash
-    jankyborders
-    skhd
-    yabai
+    # jankyborders
+    # skhd
+    # yabai
     shortcat
     # emacs-macport # insecure
 
