@@ -12,7 +12,13 @@
       "Bash(systemctl list-units:*)",
       "Bash(ip:*)",
       "Read(//etc/systemd/**)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(sudo darwin-rebuild switch:*)",
+      "Bash(nix log:*)",
+      "Bash(nix why-depends:*)",
+      "Bash(nix show-config:*)",
+      "Bash(nix flake metadata:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

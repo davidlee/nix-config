@@ -1,7 +1,6 @@
 _: {
   homebrew = {
     enable = true;
-    caskArgs.no_quarantine = true;
     global = {
       brewfile = true;
       # lockfiles = true;
@@ -18,6 +17,11 @@ _: {
       # "dnote"
       # "mlx"
       # "surreal"
+      "zig"
+      "zls"
+      "cue"
+      "sdl3"
+      "postgresql@18"
     ];
     casks = [
       # "anaconda"
@@ -48,13 +52,9 @@ _: {
       "sublime-merge"
       "signal"
       "claude"
-      "claude-code"
+      # "claude-code" # conflicts with existing /opt/homebrew/bin/claude
       # "codex"
       "zed"
-      "zig"
-      "zls"
-      "cue"
-      "sdl3"
       # "cursor"
        # "backblaze"
       # "mic-drop"
@@ -86,6 +86,7 @@ _: {
       # "dnote/dnote"
       # "cutzenfriend/homebrew-cmdg"
       # "surrealdb/surreal"
+      "cuelang/tap"
     ];
   };
 }
