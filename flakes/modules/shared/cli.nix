@@ -118,7 +118,7 @@ in {
       clock-rs
 
       ## cal
-      calendar-cli
+      # calendar-cli # disabled: test failures in python3.13-niquests dep
       calcure
     ];
     config.nixosCliPackages.zsh = with pkgs; [
@@ -153,14 +153,15 @@ in {
       bison
 
       ## lang.c
+      gcc
+    ];
+
+    config.nixosCliPackages.build = with pkgs; [
       lldb
       lld
       llvm
-      gcc
       clangStdenv
       libclang
-    ];
-    config.nixosCliPackages.build = with pkgs; [
     ];
 
     ################################################################################
@@ -532,13 +533,13 @@ in {
     #
     config.sharedCliPackages.editors = with pkgs; [
       lapce
-      kakoune
-      kakoune-lsp
-      kakoune-cr
       wordgrinder
     ];
 
     config.nixosCliPackages.editors = with pkgs; [
+      kakoune
+      kakoune-lsp
+      kakoune-cr
       micro-with-wl-clipboard
       kb
       nb
