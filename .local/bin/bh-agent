@@ -1,0 +1,2 @@
+ #!/usr/bin/env bash
+exec env DATABASE_URL="postgres:///bough_agent?host=/run/postgresql" bh "$@"
