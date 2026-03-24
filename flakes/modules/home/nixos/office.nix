@@ -3,6 +3,8 @@ _: {
     home.packages = with pkgs; [
       beeper
       signal-desktop
+      signal-cli
+
       discord
       element-desktop
       zotero

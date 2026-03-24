@@ -25,6 +25,7 @@ _: {
       swayr
       swayrbar
       swayosd
+      sov
       waybar
       mako
       cava
