@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
-TIME="${@:-tomorrow 07:30}"
-SEC=$(date -d "${TIME}" +%s)
+if [[ -n "$*" ]]; then
+  TIME="$*"
+elif [[ $(date +%H) -lt 7 ]]; then
+  TIME="today 07:30"
+else
+  TIME="tomorrow 07:30"
+fi
 
-echo $SEC
+SEC=$(( $(date -d "${TIME}" +%s) - $(date +%s) ))
+
+echo "Waking at $(date -d "${TIME}") (${SEC}s)"
 sudo rtcwake -m mem -s $SEC
