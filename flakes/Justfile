@@ -2,6 +2,9 @@
 fmt:
   nix fmt
 
+nixos-start-docker-daemon:
+  systemctl --user start docker
+
 run *args:
   sudo ./run.sh {{args}}
 

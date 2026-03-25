@@ -8,7 +8,13 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = {nixpkgs, flake-utils, pub, llm-agents, ...}:
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    pub,
+    llm-agents,
+    ...
+  }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
       agents = pub.lib.${system}.mkJailedAgents {inherit llm-agents;};
