@@ -1,0 +1,15 @@
+#!/bin/sh
+# Toggle a scratchpad window: show if stashed, re-stash if escaped, or launch.
+# Usage: scratchpad-toggle <criteria> -- <launch-cmd...>
+criteria=""
+while [ "$1" != "--" ] && [ $# -gt 0 ]; do
+  criteria="$criteria $1"; shift
+done
+shift
+criteria="[${criteria# }]"
+
+try() { swaymsg "$criteria $*" 2>/dev/null | grep -q '"success": true'; }
+
+try scratchpad show && exit 0
+try floating enable, move to scratchpad, scratchpad show && exit 0
+exec "$@"
