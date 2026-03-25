@@ -16,6 +16,7 @@
     nixosModules.browsers
     nixosModules.cargo
     nixosModules.cosmic
+    nixosModules.docker
     nixosModules.env
     nixosModules.flatpak
     nixosModules.fonts
@@ -34,7 +35,7 @@
     nixosModules.nix
     # nixosModules.openrgb
     nixosModules.pipewire
-    nixosModules.podman
+    # nixosModules.podman
     nixosModules.postgresql
     nixosModules.programs
     nixosModules.radeon

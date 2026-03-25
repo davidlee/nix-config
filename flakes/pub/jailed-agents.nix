@@ -12,16 +12,16 @@
   jail-nix,
   llm-agents,
 }: let
-  lib = pkgs.lib;
-  system = pkgs.stdenv.system;
+  inherit (pkgs) lib;
+  inherit (pkgs.stdenv) system;
   jail = jail-nix.lib.init pkgs;
 
-  pi = llm-agents.packages.${system}.pi;
-  crush = llm-agents.packages.${system}.crush;
-  opencode = llm-agents.packages.${system}.opencode;
-  claude-code = llm-agents.packages.${system}.claude-code;
-  codex = llm-agents.packages.${system}.codex;
-  gemini-cli = llm-agents.packages.${system}.gemini-cli;
+  inherit (llm-agents.packages.${system}) pi;
+  inherit (llm-agents.packages.${system}) crush;
+  inherit (llm-agents.packages.${system}) opencode;
+  inherit (llm-agents.packages.${system}) claude-code;
+  inherit (llm-agents.packages.${system}) codex;
+  inherit (llm-agents.packages.${system}) gemini-cli;
 
   commonPkgs = with pkgs; [
     zsh
@@ -140,9 +140,9 @@
     workspaceDeps ? [], # sibling repo paths to bind-mount (for editable deps)
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
-    blockGitPush ? (profileDefaults.${profile}).blockGitPush,
-    sandboxGitIdentity ? (profileDefaults.${profile}).sandboxGitIdentity,
-    exposePostgres ? (profileDefaults.${profile}).exposePostgres,
+    blockGitPush ? profileDefaults.${profile}.blockGitPush,
+    sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
+    exposePostgres ? profileDefaults.${profile}.exposePostgres,
   }: let
     selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
       depth="''${JAILED_AGENT_DEPTH:-0}"
@@ -155,10 +155,13 @@
       export JAILED_AGENT_DEPTH="$((depth + 1))"
       exec ${lib.getExe agent} "$@"
     '';
-    workspaceBinds = map (dep:
-      jail.combinators.unsafe-add-raw-args
-        "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
-    ) workspaceDeps;
+    workspaceBinds =
+      map (
+        dep:
+          jail.combinators.unsafe-add-raw-args
+          "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
+      )
+      workspaceDeps;
   in
     assert builtins.hasAttr profile profileOptions
     || throw "Unknown jailed agent profile: ${profile}";
@@ -227,8 +230,15 @@
       }
       // args);
 in {
-  inherit makeJailedAgent makeJailedPi makeJailedCrush makeJailedOpencode
-    makeJailedClaude makeJailedCodex makeJailedGemini;
+  inherit
+    makeJailedAgent
+    makeJailedPi
+    makeJailedCrush
+    makeJailedOpencode
+    makeJailedClaude
+    makeJailedCodex
+    makeJailedGemini
+    ;
   inherit commonPkgs;
-  combinators = jail.combinators;
+  inherit (jail) combinators;
 }

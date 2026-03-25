@@ -7,7 +7,12 @@
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
   };
 
-  outputs = {nixpkgs, flake-utils, jail-nix, ...}:
+  outputs = {
+    nixpkgs,
+    flake-utils,
+    jail-nix,
+    ...
+  }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;

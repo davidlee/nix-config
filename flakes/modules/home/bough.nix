@@ -9,6 +9,5 @@ _: {
     home.packages = [
       bh.default
     ];
-
   };
 }

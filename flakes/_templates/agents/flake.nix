@@ -36,7 +36,7 @@
         ...
       }: let
         inherit (pkgs) lib stdenv;
-        isLinux = stdenv.isLinux;
+        inherit (stdenv) isLinux;
 
         jailLib =
           if isLinux

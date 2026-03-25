@@ -1,17 +1,22 @@
 _: {
-  flake.nixosModules.virtualisation = {pkgs, ...}: {
+  flake.nixosModules.docker = {
+    pkgs,
+    username,
+    ...
+  }: {
     environment.systemPackages = with pkgs; [
       docker
       docker-compose
       lazydocker
-      gomanagedocker
-      dive # inspect docker image layers
+      # gomanagedocker
+      # dive # inspect docker image layers
     ];
 
     virtualisation = {
       containers.enable = true;
       docker = {
-        enable = true;
+        enable = false; # security yo
+
         # Set up resource limits
         daemon.settings = {
           experimental = true;
@@ -28,6 +33,10 @@ _: {
           setSocketVariable = true;
         };
       };
+    };
+
+    users.users.${username} = {
+      extraGroups = ["docker"];
     };
   };
 }
