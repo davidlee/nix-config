@@ -1,4 +1,4 @@
-{inputs, ...}: {
+{...}: {
   flake.nixosModules.kernel = {pkgs, ...}: {
     boot = {
       #
@@ -16,6 +16,7 @@
       kernelModules = [
         "snd-seq"
         "snd-rawmidi"
+        "v4l2loopback"
       ];
 
       kernelPatches = [
@@ -28,7 +29,7 @@
         }
       ];
 
-      # extraModulePackages = with config.boot.kernelPackages; [xpadneo];
+      extraModulePackages = [pkgs.linuxPackages.v4l2loopback];
 
       blacklistedKernelModules = [
         "ucsi_ccg"

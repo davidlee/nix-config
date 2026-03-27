@@ -25,6 +25,7 @@ _: {
       homeModules.editors
       homeModules.graphics
       homeModules.office
+      homeModules.obs-studio
 
       # homeModules.bough
     ];
