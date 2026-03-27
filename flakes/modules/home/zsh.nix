@@ -46,5 +46,12 @@ _: {
         source $HOME/.config/zsh/login.zsh
       '';
     };
+
+    programs.mcfly = {
+      enable = true;
+      enableZshIntegration = true;
+      fzf.enable = true;
+      interfaceView = "TOP";
+    };
   };
 }
