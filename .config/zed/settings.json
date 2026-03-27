@@ -18,14 +18,16 @@
 
   // MCP Tools
   "agent": {
+    "tool_permissions": {
+      "default": "allow"
+    },
     "default_model": {
       "provider": "zed.dev",
       "model": "claude-opus-4-5"
     },
     "use_modifier_to_send": true,
     "play_sound_when_agent_done": true,
-    "model_parameters": [],
-    "always_allow_tool_actions": true
+    "model_parameters": []
   },
   "context_servers": {
     // NOTE: secrets must be configured per-project in a .gitignored settings.json file until this is resolved//github.com/zed-industries/zed/discussions/26043
@@ -50,6 +52,7 @@
   "use_smartcase_search": true,
   // Editor - Completion
   "edit_predictions": {
+    "provider": "zed",
     "mode": "subtle",
     "copilot": {
       // "proxy": null,
@@ -72,18 +75,15 @@
     "show_parameter_hints": true,
     "show_other_hints": true
   },
-  "features": {
-    "edit_prediction_provider": "zed"
-  },
 
   // UI
   "ui_font_size": 16,
   "buffer_font_size": 16,
 
   "theme": {
-    "mode": "system",
-    "light": "Gruvbox Dark Hard",
-    "dark": "Catppuccin Mocha"
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "Ayu Dark"
   },
   "indent_guides": {
     "enabled": true,
