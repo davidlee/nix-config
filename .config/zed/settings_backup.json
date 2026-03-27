@@ -37,7 +37,6 @@
     //   }
     // }
     "mcp-server-context7": {
-      "source": "extension",
       "enabled": true,
       "settings": {
         "default_minimum_tokens": "10000"
@@ -84,7 +83,7 @@
   "theme": {
     "mode": "system",
     "light": "Gruvbox Dark Hard",
-    "dark": "Catppuccin Mocha"
+    "dark": "Tokyo Night"
   },
   "indent_guides": {
     "enabled": true,
