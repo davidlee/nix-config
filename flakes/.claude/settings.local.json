@@ -18,7 +18,8 @@
       "Bash(nix why-depends:*)",
       "Bash(nix show-config:*)",
       "Bash(nix flake metadata:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

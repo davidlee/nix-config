@@ -29,7 +29,7 @@
         }
       ];
 
-      extraModulePackages = [pkgs.linuxPackages.v4l2loopback];
+      extraModulePackages = [pkgs.linuxPackages_latest.v4l2loopback];
 
       blacklistedKernelModules = [
         "ucsi_ccg"

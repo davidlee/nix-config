@@ -241,6 +241,26 @@
         "type": "github"
       }
     },
+    "hythera-nur": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-home"
+        ]
+      },
+      "locked": {
+        "lastModified": 1770412648,
+        "narHash": "sha256-3CjmwasRNlimUoW0/OsvVzpMoSmrgVDsc81dOGERjnw=",
+        "owner": "Hythera",
+        "repo": "nur-packages",
+        "rev": "cac1a4e0f74a2d329642f0603a6455da2b7a239f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Hythera",
+        "repo": "nur-packages",
+        "type": "github"
+      }
+    },
     "import-tree": {
       "locked": {
         "lastModified": 1773693634,
@@ -476,6 +496,7 @@
         "flake-parts": "flake-parts",
         "helix": "helix",
         "home-manager": "home-manager",
+        "hythera-nur": "hythera-nur",
         "import-tree": "import-tree",
         "lix": "lix",
         "neovim-nightly-overlay": "neovim-nightly-overlay",

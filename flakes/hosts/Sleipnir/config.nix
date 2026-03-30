@@ -31,6 +31,7 @@
     nixosModules.keyring
     nixosModules.lib
     nixosModules.locate
+    nixosModules.llama-cpp
     nixosModules.network
     nixosModules.nix
     # nixosModules.openrgb
@@ -39,7 +40,7 @@
     nixosModules.postgresql
     nixosModules.programs
     nixosModules.radeon
-    # nixosModules.rocm
+    nixosModules.rocm
     nixosModules.security
     nixosModules.sshd
     nixosModules.sway
