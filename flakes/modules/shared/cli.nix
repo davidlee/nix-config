@@ -303,6 +303,7 @@ in {
       curlie
       bandwhich # whats eating the network
       ddgr # search duckduckgo
+      lsof
     ];
     config.nixosCliPackages.net = with pkgs; [
       sn0int

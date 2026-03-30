@@ -17,20 +17,13 @@ _: {
       docker = {
         enable = false; # security yo
 
-        # Set up resource limits
-        daemon.settings = {
-          experimental = true;
-          default-address-pools = [
-            {
-              base = "172.30.0.0/16";
-              size = 24;
-            }
-          ];
-        };
         # Use the rootless mode - run Docker daemon as non-root user
         rootless = {
           enable = true;
           setSocketVariable = true;
+          daemon.settings = {
+            dns = ["76.76.2.22" "2606:1a40::22"];
+          };
         };
       };
     };

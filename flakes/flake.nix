@@ -51,6 +51,11 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
+
+    hythera-nur = {
+      url = "github:Hythera/nur-packages";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
   };
 
   outputs = inputs @ {
