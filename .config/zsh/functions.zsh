@@ -95,52 +95,52 @@ vn() {
 }
 
 # like ij (interstitial writing) but open note in obsidian
-oj() {
-  uri="obsidian://new?vault=workbench&file=`date +$OBS_DAY_NOTE_FORMAT`"
-  echo "opening $uri"
-  open $uri
-}
+# oj() {
+#   uri="obsidian://new?vault=workbench&file=`date +$OBS_DAY_NOTE_FORMAT`"
+#   echo "opening $uri"
+#   open $uri
+# }
 
 #################################################################################
 # periodic files
 #################################################################################
 
-_rel_day_note_path() { date +$OBS_DAY_NOTE_FORMAT }
-_rel_week_note_path() { date +$OBS_WEEK_NOTE_FORMAT }
-_rel_month_note_path() { date +$OBS_MONTH_NOTE_FORMAT }
-_rel_year_note_path() { date +$OBS_YEAR_NOTE_FORMAT }
-
-_day_note_path() { date +$DAY_NOTE_FORMAT }
-_week_note_path() { date +$WEEK_NOTE_FORMAT }
-_month_note_path() { date +$MONTH_NOTE_FORMAT }
-_year_note_path() { date +$YEAR_NOTE_FORMAT }
-
-# $1 = vault-relative path
-_ensure_periodic_note_exists() {
-  abs_path="$OBS_VAULT_PATH/$1"
-  if [ ! -f $abs_path ]; then
-    echo "creating note with Obsidian: $1" # ensure we apply the template
-    uri="obsidian://new?vault=workbench&file=$1"
-    open $uri
-  fi
-}
-
-_obs_uri() {
-  uri="obsidian://new?vault=workbench&file=$1"
-}
-
-# $1 = vault-relative path, $2 = heading
-_edit_periodic_note() {
-  _ensure_periodic_note_exists $1 $2;
-  sleep 1
-  $VISUAL "$OBS_VAULT_PATH/$1"
-}
-
-daily() { _edit_periodic_note $(_rel_day_note_path) `date +"%F"` }
-weekly() { _edit_periodic_note $(_rel_week_note_path) `date +"%Ywk%U"` }
-monthly() { _edit_periodic_note $(_rel_month_note_path) `date +"%m"` }
-yearly() { _edit_periodic_note $(_rel_year_note_path) `date +"%Y"` }
-
+# _rel_day_note_path() { date +$OBS_DAY_NOTE_FORMAT }
+# _rel_week_note_path() { date +$OBS_WEEK_NOTE_FORMAT }
+# _rel_month_note_path() { date +$OBS_MONTH_NOTE_FORMAT }
+# _rel_year_note_path() { date +$OBS_YEAR_NOTE_FORMAT }
+#
+# _day_note_path() { date +$DAY_NOTE_FORMAT }
+# _week_note_path() { date +$WEEK_NOTE_FORMAT }
+# _month_note_path() { date +$MONTH_NOTE_FORMAT }
+# _year_note_path() { date +$YEAR_NOTE_FORMAT }
+#
+# # $1 = vault-relative path
+# _ensure_periodic_note_exists() {
+#   abs_path="$OBS_VAULT_PATH/$1"
+#   if [ ! -f $abs_path ]; then
+#     echo "creating note with Obsidian: $1" # ensure we apply the template
+#     uri="obsidian://new?vault=workbench&file=$1"
+#     open $uri
+#   fi
+# }
+#
+# _obs_uri() {
+#   uri="obsidian://new?vault=workbench&file=$1"
+# }
+#
+# # $1 = vault-relative path, $2 = heading
+# _edit_periodic_note() {
+#   _ensure_periodic_note_exists $1 $2;
+#   sleep 1
+#   $VISUAL "$OBS_VAULT_PATH/$1"
+# }
+#
+# daily() { _edit_periodic_note $(_rel_day_note_path) `date +"%F"` }
+# weekly() { _edit_periodic_note $(_rel_week_note_path) `date +"%Ywk%U"` }
+# monthly() { _edit_periodic_note $(_rel_month_note_path) `date +"%m"` }
+# yearly() { _edit_periodic_note $(_rel_year_note_path) `date +"%Y"` }
+#
 #
 # Color Palette
 #
@@ -202,7 +202,7 @@ function sesh-sessions() {
     zle reset-prompt > /dev/null 2>&1 || true
     [[ -z "$session" ]] && return
     sesh connect $session
-    # sesh-graft $session
+    sesh-graft $session
   }
 }
 
