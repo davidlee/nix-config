@@ -1,5 +1,9 @@
 _: {
   flake.nixosModules.llama-cpp = {pkgs, ...}: {
+    environment.systemPackages = [
+      pkgs.llama-cpp-rocm
+    ];
+
     services = {
       llama-cpp = {
         package = pkgs.llama-cpp-rocm;
@@ -16,7 +20,7 @@ _: {
             batch-size = "1024";
             ubatch-size = "512";
           };
-
+          model = "/srv/models/qwen2.5-coder-14b-instruct-q5_k_m.gguf";
           "qwen-coder-14b" = {
             model = "/srv/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf";
             alias = "qwen-coder-14b";
