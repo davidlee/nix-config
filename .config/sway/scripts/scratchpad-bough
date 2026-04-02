@@ -1,2 +1,3 @@
 #!/bin/sh
-~/.config/sway/scripts/scratchpad-toggle 'app_id=com.mitchellh.ghostty title="bough tui"' -- ghostty --title='bough tui' -e "$HOME/.cargo/bin/bh" tui
+VISUAL=nvim
+~/.config/sway/scripts/scratchpad-toggle 'app_id=com.mitchellh.ghostty title="bough tui"' -- ghostty --title='bough tui' -e "$HOME/.cargo/bin/bough" tui
