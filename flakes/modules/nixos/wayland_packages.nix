@@ -62,7 +62,7 @@ _: {
       # gnome-weather
 
       # wallpapers
-      swww
+      awww
       swaybg
       wbg
 

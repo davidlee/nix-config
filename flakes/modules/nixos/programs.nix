@@ -91,13 +91,13 @@ _: {
           # other issue: (Unity:377230): GLib-GIO-CRITICAL **: 21:09:04.706: g_dbus_proxy_call_sync_internal: assertion 'G_IS_DBUS_PROXY (proxy)' failed
 
           # Verified games requirements
-          xorg.libXt
-          xorg.libXmu
+          libxt
+          libxmu
           libogg
           libvorbis
           SDL
           SDL2_image
-          glew110
+          glew_1_10
           libidn
           tbb
 
@@ -126,7 +126,7 @@ _: {
           libgcrypt
           libvpx
           librsvg
-          xorg.libXft
+          libxft
           libvdpau
           # ...
           # Some more libraries that I needed to run programs

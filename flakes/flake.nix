@@ -31,6 +31,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # To bump: change the tag below, then `nix flake update llama-cpp-src`.
+    # The build number is derived from this ref in modules/overlays/llama-edge.nix.
+    llama-cpp-src = {
+      url = "github:ggml-org/llama.cpp/b8660";
+      flake = false;
+    };
+
     flake-parts.url = "github:hercules-ci/flake-parts";
     import-tree.url = "github:vic/import-tree";
     treefmt-nix.url = "github:numtide/treefmt-nix";
@@ -96,6 +103,7 @@
 
             modules = [
               ./hosts/${hostname}/config.nix
+              {nixpkgs.overlays = [self.overlays.llama-edge];}
             ];
           };
         };

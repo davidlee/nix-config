@@ -19,7 +19,9 @@
       "Bash(nix show-config:*)",
       "Bash(nix flake metadata:*)",
       "Bash(cat:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(nix path-info:*)",
+      "Bash(nix build:*)"
     ],
     "deny": [],
     "ask": []
