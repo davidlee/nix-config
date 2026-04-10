@@ -1,6 +1,8 @@
 _: {
   flake.nixosModules.security = {pkgs, ...}: {
     security = {
+      # required for cursor sandboxing
+      unprivilegedUsernsClone = true;
       rtkit.enable = true;
       polkit.enable = true;
 
