@@ -39,6 +39,7 @@
     # nixosModules.podman
     nixosModules.postgresql
     nixosModules.programs
+    nixosModules.qemu
     nixosModules.radeon
     nixosModules.rocm
     nixosModules.security
