@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Toggle default audio sink between speakers and headphones,
+# and move all active streams to the new sink.
+
+HEADPHONES="alsa_output.usb-SMSL_SMSL_USB_AUDIO-00.analog-stereo"
+SPEAKERS="alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo"
+
+current=$(pactl get-default-sink)
+
+if [[ "$current" == "$SPEAKERS" ]]; then
+  target="$HEADPHONES"
+  label="Headphones"
+else
+  target="$SPEAKERS"
+  label="Speakers"
+fi
+
+pactl set-default-sink "$target"
+
+pactl list short sink-inputs | awk '{print $1}' | while read -r id; do
+  pactl move-sink-input "$id" "$target"
+done
+
+notify-send -u low "Audio output: $label"
