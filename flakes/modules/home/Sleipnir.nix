@@ -26,6 +26,7 @@ _: {
       homeModules.graphics
       homeModules.office
       homeModules.obs-studio
+      homeModules.alarm
 
       # homeModules.bough
     ];
