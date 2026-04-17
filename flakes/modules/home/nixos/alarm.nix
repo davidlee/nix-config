@@ -75,16 +75,6 @@ _: {
         };
       };
 
-      timers.spotify-alarm-test = {
-        Unit.Description = "Spotify alarm (test — remove me)";
-        Install.WantedBy = ["timers.target"];
-        Timer = {
-          Unit = "spotify-alarm.service";
-          OnCalendar = "*:0/5";
-          Persistent = true;
-        };
-      };
-
       timers.spotify-alarm = {
         Unit.Description = "Spotify alarm (weekdays)";
         Install.WantedBy = ["timers.target"];
