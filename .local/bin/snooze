@@ -3,12 +3,12 @@
 if [[ -n "$*" ]]; then
   TIME="$*"
 elif [[ $(date +%H) -lt 7 ]]; then
-  TIME="today 07:30"
+  TIME="today 07:00"
 else
-  TIME="tomorrow 07:30"
+  TIME="tomorrow 07:00"
 fi
 
-SEC=$(( $(date -d "${TIME}" +%s) - $(date +%s) ))
+SEC=$(($(date -d "${TIME}" +%s) - $(date +%s)))
 
 echo "Waking at $(date -d "${TIME}") (${SEC}s)"
 sudo rtcwake -m mem -s $SEC
