@@ -52,6 +52,7 @@
   (evil-set-initial-state 'vterm-mode 'emacs))
 
 (use-package evil-collection
+  :ensure (:host github :repo "emacs-evil/evil-collection")
   :after evil
   :config
   (evil-collection-init))
