@@ -30,6 +30,11 @@ _: {
 
       ## music player & library management
       spotify
+      # spotifycli
+      spotify-cli-linux
+      spotifyd
+      spotify-tray
+      spotify-player
       # beets
       # fooyin
       # quodlibet

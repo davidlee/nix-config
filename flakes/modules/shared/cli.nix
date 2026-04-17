@@ -383,6 +383,7 @@ in {
       uv
       python3
       mise
+      claude-monitor
     ];
     config.nixosCliPackages.dev = with pkgs; [
       # ## lang.c
