@@ -62,12 +62,27 @@ _: {
         Install.WantedBy = ["default.target"];
       };
 
+      # spotify_player daemon — Web API client for playback control
+      services.spotify-player = {
+        Unit = {
+          Description = "spotify_player daemon";
+          After = ["network-online.target"];
+        };
+        Service = {
+          Type = "forking";
+          ExecStart = "${sp} --daemon";
+          Restart = "on-failure";
+          RestartSec = 5;
+        };
+        Install.WantedBy = ["default.target"];
+      };
+
       # Alarm: switch to speakers and start playback
       services.spotify-alarm = {
         Unit = {
           Description = "Spotify alarm";
-          After = ["spotifyd.service"];
-          Wants = ["spotifyd.service"];
+          After = ["spotifyd.service" "spotify-player.service"];
+          Wants = ["spotifyd.service" "spotify-player.service"];
         };
         Service = {
           Type = "oneshot";
