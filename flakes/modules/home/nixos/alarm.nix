@@ -16,73 +16,108 @@ _: {
         *'"is_playing":true'*) exit 0 ;;
       esac
 
-      # Check spotifyd's last log line in the recent window. When the daemon's
-      # websocket to Spotify dies it emits WARNs and then goes silent — the
-      # last line staying as a WARN is the staleness signal. A healthy recovery
-      # leaves an INFO (e.g. "active device is ...") as the most recent line.
+      # Two failure modes to detect:
+      # 1. Websocket died: last recent log line is a WARN
+      # 2. Never connected: started after S3 resume with no network, stuck
+      #    with no "active device is" line since boot. Only act if it's been
+      #    running > 2 min to avoid racing a fresh restart.
+      started=$(${pkgs.systemd}/bin/systemctl --user show spotifyd.service \
+        -p ActiveEnterTimestamp --value)
+      started_epoch=$(${pkgs.coreutils}/bin/date -d "$started" +%s)
+      now_epoch=$(${pkgs.coreutils}/bin/date +%s)
+      uptime=$((now_epoch - started_epoch))
+
+      has_session=$(${pkgs.systemd}/bin/journalctl --user -u spotifyd.service \
+        --since "$started" -o cat -q \
+        | ${pkgs.gnugrep}/bin/grep -c "active device is" || true)
       last=$(${pkgs.systemd}/bin/journalctl --user -u spotifyd.service \
                --since "15 minutes ago" -o cat -q | tail -n 1)
+
+      needs_restart=false
       case "$last" in
         *"[WARN] Websocket"*|*"does not respond"*|*"Error while closing websocket"*)
-          echo "spotifyd stale (last log: $last); restarting"
-          ${pkgs.systemd}/bin/systemctl --user restart spotifyd.service
-          ;;
+          echo "spotifyd stale (last log: $last)"
+          needs_restart=true ;;
       esac
+      if [ "$has_session" = "0" ] && [ "$uptime" -gt 120 ]; then
+        echo "spotifyd never connected in ''${uptime}s since $started"
+        needs_restart=true
+      fi
+
+      if [ "$needs_restart" = "true" ]; then
+        echo "restarting spotifyd"
+        ${pkgs.systemd}/bin/systemctl --user restart spotifyd.service
+      fi
     '';
 
+    py = "${pkgs.python3}/bin/python3";
+
     alarmScript = pkgs.writeShellScript "spotify-alarm" ''
-      set -euo pipefail
+            set -euo pipefail
 
-      retry() {
-        local max=10 delay=3
-        for ((i = 1; i <= max; i++)); do
-          if "$@"; then return 0; fi
-          echo "Attempt $i/$max failed, retrying in ''${delay}s..."
-          sleep "$delay"
-        done
-        echo "All $max attempts failed: $1"
-        return 1
-      }
+            SPEAKERS="${speakers}"
 
-      SPEAKERS="${speakers}"
+            # Route audio to speakers (no network needed)
+            ${pkgs.pulseaudio}/bin/pactl set-default-sink "$SPEAKERS"
+            ${pkgs.pulseaudio}/bin/pactl list short sink-inputs \
+              | awk '{print $1}' \
+              | while read -r id; do
+                  ${pkgs.pulseaudio}/bin/pactl move-sink-input "$id" "$SPEAKERS"
+                done
 
-      # Wait for network after S3 resume — the alarm timer wakes the machine,
-      # but the network stack needs a few seconds to come up.
-      ${pkgs.networkmanager}/bin/nm-online -q --timeout=30
+            # --- Phase 1: get spotifyd connected to Spotify ---
+            # After S3 resume, the network takes 10-30s to stabilize. We restart
+            # spotifyd and poll its log for "active device is" (proof of connection).
+            # nm-online is best-effort (can return stale state after resume).
+            ${pkgs.networkmanager}/bin/nm-online -q --timeout=30 || true
+            for round in 1 2 3; do
+              ${pkgs.systemd}/bin/systemctl --user restart spotifyd.service
+              connected=false
+              for i in $(seq 1 30); do
+                if ${pkgs.systemd}/bin/journalctl --user -u spotifyd.service \
+                     --since "30 seconds ago" -o cat -q \
+                     | ${pkgs.gnugrep}/bin/grep -q "active device is"; then
+                  connected=true; break
+                fi
+                sleep 1
+              done
+              if [ "$connected" = "true" ]; then break; fi
+              echo "Round $round/3: spotifyd didn't connect, retrying..."
+            done
 
-      # Route audio to speakers
-      ${pkgs.pulseaudio}/bin/pactl set-default-sink "$SPEAKERS"
-      ${pkgs.pulseaudio}/bin/pactl list short sink-inputs \
-        | awk '{print $1}' \
-        | while read -r id; do
-            ${pkgs.pulseaudio}/bin/pactl move-sink-input "$id" "$SPEAKERS"
-          done
+            # --- Phase 2: activate the correct device ---
+            # After restart, Spotify's API may list ghost device registrations
+            # alongside the live one, all named "${spotifydDevice}". Both connect
+            # --name and connect --id return exit 0 regardless of success. We must
+            # try each ID and verify activation via the API.
+            IDS=$(${sp} get key devices 2>/dev/null \
+              | ${py} -c "import sys,json
+      for d in json.load(sys.stdin):
+        if d['name'] == '${spotifydDevice}': print(d['id'])" 2>/dev/null || true)
 
-      # Refresh spotifyd with a known-good network connection.
-      ${pkgs.systemd}/bin/systemctl --user restart spotifyd.service
+            activated=false
+            for id in $IDS; do
+              ${sp} connect --id "$id" 2>/dev/null || true
+              sleep 1
+              is_active=$(${sp} get key devices 2>/dev/null \
+                | ${py} -c "import sys,json
+      print(any(d['id']=='$id' and d['is_active'] for d in json.load(sys.stdin)))" 2>/dev/null || echo False)
+              if [ "$is_active" = "True" ]; then
+                echo "Activated device $id"
+                activated=true; break
+              fi
+            done
+            if [ "$activated" != "true" ]; then
+              echo "Failed to activate any ${spotifydDevice} device"
+              exit 1
+            fi
 
-      # Poll for spotifyd's device ID from its log. After restart, the old
-      # device registration lingers as a ghost on Spotify's API — connect by
-      # name silently picks the wrong one. Connect by ID is unambiguous.
-      DEVICE_ID=""
-      for attempt in $(seq 1 15); do
-        DEVICE_ID=$(${pkgs.systemd}/bin/journalctl --user -u spotifyd.service \
-          --since "30 seconds ago" -o cat -q \
-          | ${pkgs.gnugrep}/bin/grep -oP 'active device is <\K[^>]+' | tail -n 1 || true)
-        if [ -n "$DEVICE_ID" ]; then break; fi
-        sleep 1
-      done
-      if [ -z "$DEVICE_ID" ]; then
-        echo "Failed to get spotifyd device ID after 15s"
-        exit 1
-      fi
-      echo "spotifyd device: $DEVICE_ID"
-
-      # Activate spotifyd as the target device, then start playback.
-      retry ${sp} connect --id "$DEVICE_ID"
-      retry ${sp} playback start context \
-        --id "2gs3W3XLA36fK0z3mL7MtJ" playlist --shuffle
-      retry ${sp} playback volume 100
+            # --- Phase 3: start playback ---
+            ${sp} playback start context \
+              --id "2gs3W3XLA36fK0z3mL7MtJ" playlist --shuffle 2>/dev/null || true
+            ${sp} playback play 2>/dev/null || true
+            ${sp} playback volume 100 2>/dev/null || true
+            echo "Alarm started"
     '';
   in {
     # spotifyd config

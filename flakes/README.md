@@ -35,12 +35,12 @@ systemctl --user enable --now spotify-alarm-weekend.timer
 
 **Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/sway/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default.
 
-**Reliability:** three issues conspire to break the alarm:
-- **S3 resume race:** the alarm timer wakes the machine from suspend, but the network isn't ready yet. The script runs `nm-online --timeout=30` before doing anything.
-- **Stale websocket:** spotifyd's websocket to Spotify dies silently overnight (WARNs but doesn't exit, so `Restart=on-failure` never trips). The alarm script does `systemctl --user restart spotifyd` to get a fresh connection.
-- **Ghost devices:** after restart, Spotify's API briefly lists both the old and new device registrations under the same name. `connect --name` silently picks the wrong one. The script polls spotifyd's log for the `active device is <id>` line and uses `connect --id`.
+**Reliability:** the alarm script has three phases, each handling a class of silent failure:
+1. **Connect spotifyd:** `nm-online` (best effort), then restart spotifyd and poll its log for `active device is` (proof it reached Spotify's servers). Retries up to 3 rounds — handles S3 resume where the network takes 10-30s to stabilize.
+2. **Activate device:** query the Spotify API for Sleipnir device IDs and try each with `connect --id`, verifying `is_active` via the API after each attempt. Handles ghost device registrations (old + new both named Sleipnir) where `connect --name` silently fails.
+3. **Start playback:** `playback start context` + `playback play` + `playback volume`.
 
-**Watchdog:** `spotifyd-watchdog.timer` (every 5 min) inspects spotifyd's last 15 min of logs; if the most recent line is a websocket WARN, it restarts spotifyd. Skips when playback is active.
+All three commands (`connect`, `playback start`, `playback volume`) return exit 0 regardless of success — the script verifies actual state changes instead of trusting exit codes.
 
-**Command order matters:** `connect --id` → `playback start context …` → `playback volume`. Activating the device *first* avoids `no active playback found` and 500s.
+**Watchdog:** `spotifyd-watchdog.timer` (every 5 min) restarts spotifyd if: (a) the last log line is a websocket WARN, or (b) spotifyd has been running >2 min with no `active device is` line (stuck after S3 resume with no network). Skips when playback is active.
 
