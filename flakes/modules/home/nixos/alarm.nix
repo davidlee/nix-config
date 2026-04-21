@@ -200,7 +200,7 @@ _: {
         Install.WantedBy = ["timers.target"];
         Timer = {
           Unit = "spotify-alarm.service";
-          OnCalendar = "Mon..Fri 07:00";
+          OnCalendar = "Mon..Fri 07:30";
           Persistent = true;
           AccuracySec = "1s";
         };
