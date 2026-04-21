@@ -35,3 +35,12 @@ systemctl --user enable --now spotify-alarm-weekend.timer
 
 **Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/sway/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default.
 
+**Reliability:** three issues conspire to break the alarm:
+- **S3 resume race:** the alarm timer wakes the machine from suspend, but the network isn't ready yet. The script runs `nm-online --timeout=30` before doing anything.
+- **Stale websocket:** spotifyd's websocket to Spotify dies silently overnight (WARNs but doesn't exit, so `Restart=on-failure` never trips). The alarm script does `systemctl --user restart spotifyd` to get a fresh connection.
+- **Ghost devices:** after restart, Spotify's API briefly lists both the old and new device registrations under the same name. `connect --name` silently picks the wrong one. The script polls spotifyd's log for the `active device is <id>` line and uses `connect --id`.
+
+**Watchdog:** `spotifyd-watchdog.timer` (every 5 min) inspects spotifyd's last 15 min of logs; if the most recent line is a websocket WARN, it restarts spotifyd. Skips when playback is active.
+
+**Command order matters:** `connect --id` → `playback start context …` → `playback volume`. Activating the device *first* avoids `no active playback found` and 500s.
+
