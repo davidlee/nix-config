@@ -1,4 +1,4 @@
-{...}: {
+_: {
   flake.nixosModules.kernel = {pkgs, ...}: {
     boot = {
       #

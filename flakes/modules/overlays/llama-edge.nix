@@ -1,7 +1,7 @@
 {inputs, ...}: let
   # Derive build number from the flake input ref (e.g. "b8660" -> "8660")
   lock = builtins.fromJSON (builtins.readFile ../../flake.lock);
-  ref = lock.nodes.llama-cpp-src.original.ref;
+  inherit (lock.nodes.llama-cpp-src.original) ref;
   version = builtins.replaceStrings ["b"] [""] ref;
 
   edgeAttrs = {

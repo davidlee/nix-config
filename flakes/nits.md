@@ -1,0 +1,1 @@
+swayosd-server zombie processes
