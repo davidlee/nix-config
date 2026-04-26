@@ -25,7 +25,8 @@
 _: {
   flake.nixosModules.llama-cpp = {pkgs, ...}: {
     environment.systemPackages = [
-      pkgs.llama-cpp-edge-rocm
+      # pkgs.llama-cpp-edge-rocm
+      pkgs.llama-cpp-rocm
     ];
 
     # services = {
