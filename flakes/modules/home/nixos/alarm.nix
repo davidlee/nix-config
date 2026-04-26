@@ -57,13 +57,9 @@ _: {
 
             SPEAKERS="${speakers}"
 
-            # Route audio to speakers (no network needed)
+            # Set speakers as default so new streams (including spotifyd
+            # after restart) land there.
             ${pkgs.pulseaudio}/bin/pactl set-default-sink "$SPEAKERS"
-            ${pkgs.pulseaudio}/bin/pactl list short sink-inputs \
-              | awk '{print $1}' \
-              | while read -r id; do
-                  ${pkgs.pulseaudio}/bin/pactl move-sink-input "$id" "$SPEAKERS"
-                done
 
             # --- Phase 1: get spotifyd connected to Spotify ---
             # After S3 resume, the network takes 10-30s to stabilize. We restart
@@ -117,6 +113,16 @@ _: {
               --id "2gs3W3XLA36fK0z3mL7MtJ" playlist --shuffle 2>/dev/null || true
             ${sp} playback play 2>/dev/null || true
             ${sp} playback volume 100 2>/dev/null || true
+
+            # Move all sink inputs (including spotifyd's new one) to speakers.
+            # set-default-sink above covers new streams, but this catches any
+            # that were already routed elsewhere.
+            sleep 1
+            ${pkgs.pulseaudio}/bin/pactl list short sink-inputs \
+              | awk '{print $1}' \
+              | while read -r id; do
+                  ${pkgs.pulseaudio}/bin/pactl move-sink-input "$id" "$SPEAKERS"
+                done
             echo "Alarm started"
     '';
   in {
