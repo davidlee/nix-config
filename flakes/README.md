@@ -17,6 +17,16 @@
 
 ## Notes for myself
 
+### Snooze (sleep/wake timer)
+
+`modules/nixos/snooze.nix` + `modules/home/nixos/snooze.nix` — suspends the machine nightly and wakes it via RTC alarm.
+
+**System timers** (`nixosModules.snooze`): `snooze-suspend` runs `systemctl suspend` at 23:20. `snooze-wake` sets an RTC alarm (`WakeSystem=true`) for 07:00.
+
+**User timer** (`homeModules.snooze`): `snooze-warn` sends a critical notification 5 minutes before suspend (23:15).
+
+Times are configurable in the `let` blocks at the top of each module.
+
 ### Spotify Alarm
 
 `modules/home/nixos/alarm.nix` — plays a playlist through speakers at scheduled times.

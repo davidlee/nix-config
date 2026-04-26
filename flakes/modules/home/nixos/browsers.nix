@@ -1,7 +1,7 @@
 _: {
   flake.homeModules.browsers = {
     pkgs,
-    inputs,
+    # inputs,
     ...
   }: {
     home.packages = with pkgs; [
@@ -9,7 +9,7 @@ _: {
       ladybird
       vivaldi
       ungoogled-chromium
-      inputs.hythera-nur.packages.${pkgs.system}.waterfox
+      # inputs.hythera-nur.packages.${pkgs.system}.waterfox
     ];
   };
 }

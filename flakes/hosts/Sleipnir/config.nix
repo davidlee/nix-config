@@ -43,6 +43,7 @@
     nixosModules.radeon
     nixosModules.rocm
     nixosModules.security
+    nixosModules.snooze
     nixosModules.sshd
     nixosModules.sway
     # nixosModules.hyprland
