@@ -56,9 +56,9 @@ _: {
         # prismlauncher
 
         # other runners
-        lutris
-        heroic
-        bottles
+        # lutris
+        # heroic
+        # bottles
 
         # actual game things
         # blightmud

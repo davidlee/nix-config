@@ -13,7 +13,7 @@ _: {
             groups = ["wheel"];
             commands = [
               {
-                command = "${pkgs.util-linux}/bin/rtcwake *";
+                command = "${pkgs.util-linux}/bin/rtcwake";
                 options = ["NOPASSWD" "SETENV"];
               }
             ];

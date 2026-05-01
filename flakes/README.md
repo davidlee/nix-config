@@ -17,6 +17,18 @@
 
 ## Notes for myself
 
+### OOM resilience
+
+`modules/nixos/oom.nix` — tunes `systemd-oomd` and reserves resources so the desktop stays usable under memory pressure.
+
+**systemd-oomd:** enabled for root, system, and user slices. Kills when swap hits 90%. Default memory pressure duration 20s.
+
+**User session protection:** `user@1000` gets `CPUWeight=200` and `MemoryLow=512M`, guaranteeing the compositor and a rescue terminal get CPU time and memory even when the system is thrashing.
+
+**Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` for manual triage.
+
+**swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service. The `exec_always` workaround in `sway.conf` has been removed — it fought with `Restart=always` and caused a crash loop (107 restarts in 4 minutes) that amplified memory pressure.
+
 ### Snooze (sleep/wake timer)
 
 `modules/nixos/snooze.nix` + `modules/home/nixos/snooze.nix` — suspends the machine nightly and wakes it via RTC alarm.

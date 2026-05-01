@@ -1,7 +1,7 @@
 _: {
   flake.homeModules.games = _: {
     programs = {
-      lutris.enable = true;
+      # lutris.enable = true;
       mangohud.enable = true;
     };
   };

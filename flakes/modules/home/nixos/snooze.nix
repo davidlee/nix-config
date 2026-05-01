@@ -1,6 +1,6 @@
 _: {
   flake.homeModules.snooze = {pkgs, ...}: let
-    sleepTime = "23:15";
+    warnTimes = ["23:15" "23:55" "00:25"];
     leadMinutes = 5;
   in {
     systemd.user = {
@@ -20,7 +20,7 @@ _: {
         Install.WantedBy = ["timers.target"];
         Timer = {
           Unit = "snooze-warn.service";
-          OnCalendar = "*-*-* ${sleepTime}";
+          OnCalendar = map (t: "*-*-* ${t}") warnTimes;
           AccuracySec = "1s";
         };
       };

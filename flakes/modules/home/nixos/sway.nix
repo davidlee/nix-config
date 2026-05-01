@@ -1,5 +1,13 @@
 _: {
-  flake.homeModules.sway = {pkgs, ...}: {
+  flake.homeModules.sway = {pkgs, lib, ...}: {
+    systemd.user.services.swayosd = {
+      Unit = {
+        # more forgiving rate limit so transient crashes don't permanently kill the service
+        StartLimitBurst = lib.mkForce 10;
+        StartLimitIntervalSec = lib.mkForce 60;
+      };
+      Service.RestartSec = lib.mkForce "5s";
+    };
     services = {
       swayosd.enable = true;
 

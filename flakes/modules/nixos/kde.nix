@@ -48,13 +48,13 @@ _: {
 
       dolphin
       dolphin-plugins
-      # drkonqi
+      drkonqi
 
       # kate
       # kweather
       # gwenview
-      # karchive
-      # marknote
+      karchive
+      marknote
     ];
 
     # environment.plasma6.excludePackages = with pkgs.kdePackages; [

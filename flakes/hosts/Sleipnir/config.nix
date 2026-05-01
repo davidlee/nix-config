@@ -34,6 +34,7 @@
     nixosModules.llama-cpp
     nixosModules.network
     nixosModules.nix
+    nixosModules.oom
     # nixosModules.openrgb
     nixosModules.pipewire
     # nixosModules.podman
