@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.62.0",
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "lastChangelogVersion": "0.67.6",
+  "defaultProvider": "google-gemini-cli",
+  "defaultModel": "gemini-3-flash-preview",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": true,
   "compaction": {
@@ -11,5 +11,13 @@
   "packages": [
     "/home/david/.pi/packages/node_modules/pi-subagents",
     "/home/david/.pi/packages/node_modules/pi-web-access"
+  ],
+  "enabledModels": [
+    "anthropic/claude-opus-4-6",
+    "anthropic/claude-sonnet-4-6",
+    "google-gemini-cli/gemini-3-flash-preview",
+    "google-gemini-cli/gemini-3-pro-preview",
+    "anthropic/claude-3-5-haiku-latest",
+    "local-llama/gemma-4-e4b-q5"
   ]
 }

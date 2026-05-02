@@ -118,7 +118,7 @@ button:hover {
 #mpd,
 #wireplumber,
 #tray,
-#idle_inhibitor,
+#custom-idle-inhibitor,
 #scratchpad,
 #power-profiles-daemon,
 #mpris,
@@ -273,10 +273,10 @@ label:focus {
     background-color: #eb4d4b;
 }
 
-#idle_inhibitor {
+#custom-idle-inhibitor {
 }
 
-#idle_inhibitor.activated {
+#custom-idle-inhibitor.activated {
     background-color: #ecf0f1;
     color: #2d3436;
 }

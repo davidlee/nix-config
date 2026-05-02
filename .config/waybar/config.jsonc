@@ -27,7 +27,7 @@
         "cpu",
         "custom/weather",
         "custom/timer",
-        "idle_inhibitor",
+        "custom/idle-inhibitor",
         "custom/break-reminder",
         "power-profiles-daemon",
         "tray",
@@ -88,12 +88,12 @@
     //
     // Shared modules
     //
-    "idle_inhibitor": {
-        "format": "{icon}",
-        "format-icons": {
-            "activated": "",
-            "deactivated": ""
-        }
+    "custom/idle-inhibitor": {
+        "exec": "~/.config/waybar/scripts/idle-inhibitor.sh",
+        "return-type": "json",
+        "interval": 30,
+        "on-click": "~/.config/waybar/scripts/idle-inhibitor.sh toggle",
+        "signal": 8,
     },
     "cpu": {
         "interval": 1,
