@@ -38,6 +38,7 @@
     # nixosModules.openrgb
     nixosModules.pipewire
     # nixosModules.podman
+    nixosModules.printing
     nixosModules.postgresql
     nixosModules.programs
     nixosModules.qemu

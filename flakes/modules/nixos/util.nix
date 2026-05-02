@@ -10,7 +10,6 @@ _: {
       gvfs.enable = true;
       udisks2.enable = true;
       sysprof.enable = true;
-      printing.enable = true;
     };
 
     hardware = {

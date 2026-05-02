@@ -39,6 +39,26 @@
 
 Times are configurable in the `let` blocks at the top of each module.
 
+### Printing
+
+`modules/nixos/printing.nix` — CUPS with drivers for Brother HL-L2445DW (laser) and Canon TR8600 (inkjet via gutenprint).
+
+**Printers:** both discovered via Avahi/mDNS (`avahi.nix`). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
+
+**GUI:** `system-config-printer` for queue management, or `http://localhost:631` for the CUPS web interface.
+
+**Common commands:**
+```bash
+lp file.pdf                   # print to default printer
+lp -d laser file.pdf          # print to specific printer
+cat file | lp                 # pipe to printer
+lpstat -t                     # queue status
+cancel laser-14               # cancel a job
+cancel -a laser               # cancel all jobs on a queue
+lpadmin -d laser              # set default printer
+lpadmin -p laser -v ipp://IP:631/ipp/print  # change printer URI
+```
+
 ### Spotify Alarm
 
 `modules/home/nixos/alarm.nix` — plays a playlist through speakers at scheduled times.
