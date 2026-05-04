@@ -1,11 +1,12 @@
 _: {
   flake.homeModules.graphics = {
     pkgs,
-    stable,
+    # stable,
     ...
   }: {
     home.packages = with pkgs; [
-      stable.krita
+      krita
+      yed
     ];
   };
 }

@@ -1,5 +1,9 @@
 _: {
-  flake.homeModules.sway = {pkgs, lib, ...}: {
+  flake.homeModules.sway = {
+    pkgs,
+    lib,
+    ...
+  }: {
     systemd.user.services.swayosd = {
       Unit = {
         # more forgiving rate limit so transient crashes don't permanently kill the service

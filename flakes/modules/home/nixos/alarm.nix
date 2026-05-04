@@ -86,22 +86,34 @@ _: {
             # alongside the live one, all named "${spotifydDevice}". Both connect
             # --name and connect --id return exit 0 regardless of success. We must
             # try each ID and verify activation via the API.
-            IDS=$(${sp} get key devices 2>/dev/null \
-              | ${py} -c "import sys,json
+            # The API lags behind spotifyd's log by a few seconds, so retry.
+            activated=false
+            for attempt in $(seq 1 6); do
+              IDS=$(${sp} get key devices 2>/dev/null \
+                | ${py} -c "import sys,json
       for d in json.load(sys.stdin):
         if d['name'] == '${spotifydDevice}': print(d['id'])" 2>/dev/null || true)
 
-            activated=false
-            for id in $IDS; do
-              ${sp} connect --id "$id" 2>/dev/null || true
-              sleep 1
-              is_active=$(${sp} get key devices 2>/dev/null \
-                | ${py} -c "import sys,json
-      print(any(d['id']=='$id' and d['is_active'] for d in json.load(sys.stdin)))" 2>/dev/null || echo False)
-              if [ "$is_active" = "True" ]; then
-                echo "Activated device $id"
-                activated=true; break
+              if [ -z "$IDS" ]; then
+                echo "Attempt $attempt/6: no ${spotifydDevice} devices in API yet"
+                sleep 5
+                continue
               fi
+
+              for id in $IDS; do
+                ${sp} connect --id "$id" 2>/dev/null || true
+                sleep 1
+                is_active=$(${sp} get key devices 2>/dev/null \
+                  | ${py} -c "import sys,json
+      print(any(d['id']=='$id' and d['is_active'] for d in json.load(sys.stdin)))" 2>/dev/null || echo False)
+                if [ "$is_active" = "True" ]; then
+                  echo "Activated device $id"
+                  activated=true; break
+                fi
+              done
+              if [ "$activated" = "true" ]; then break; fi
+              echo "Attempt $attempt/6: activation failed, retrying..."
+              sleep 5
             done
             if [ "$activated" != "true" ]; then
               echo "Failed to activate any ${spotifydDevice} device"
