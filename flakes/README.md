@@ -86,3 +86,23 @@ All three commands (`connect`, `playback start`, `playback volume`) return exit 
 
 **Watchdog:** `spotifyd-watchdog.timer` (every 5 min) restarts spotifyd if: (a) the last log line is a websocket WARN, or (b) spotifyd has been running >2 min with no `active device is` line (stuck after S3 resume with no network). Skips when playback is active.
 
+### Emacs
+
+`modules/home/emacs.nix` — emacs-unstable-pgtk with nix-managed packages via [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay).
+
+**How it works:** `emacsWithPackagesFromUsePackage` parses all `.el` files in `~/.emacs.d/{core,apps,lang,lisp,editing,completion}/` for `(use-package ...)` forms and bundles the named packages into the nix derivation. `alwaysEnsure = true` (nix-side) means every `use-package` form is treated as a package to install — no `:ensure t` needed in elisp.
+
+**The same `emacs` derivation** is used for both `home.packages` (PATH) and `services.emacs.package` (daemon). If these diverge, `emacsclient` connects to a daemon with different packages than `emacs --batch`.
+
+**Gotchas:**
+
+- **Path resolution:** `emacsDir` must be a relative nix path (`../../../.emacs.d`), not an absolute path constructed via string interpolation. Flake eval copies the git tree into the store; absolute paths like `/. + "/home/..."` bypass this and resolve to nothing. The `builtins.pathExists` guard silently returns `false`, producing an empty config string and zero packages with no error.
+
+- **Git tracking:** flake eval only sees git-tracked files. New `.el` files must be `git add`ed before `home-manager switch` will pick them up.
+
+- **Runtime package management is disabled.** `dl-package-loader.el` sets `use-package-always-ensure nil` and does not call `package-initialize` or `package-refresh-contents`. Nix owns package installation; emacs should not try to install anything at runtime.
+
+- **`:init` vs `:config`:** with nix-managed packages, autoloads may not be activated when `:init` runs. Any `use-package` block that calls a mode function (e.g. `(vertico-mode)`, `(doom-modeline-mode 1)`) must use `:demand t` + `:config`, not `:init`. Without `:demand t`, `use-package` defers loading until a trigger fires, and the mode function won't exist yet.
+
+- **Built-in packages:** `recentf`, `saveplace`, `savehist` etc. produce harmless `trace:` warnings during build — they ship with emacs and aren't in MELPA/ELPA.
+
