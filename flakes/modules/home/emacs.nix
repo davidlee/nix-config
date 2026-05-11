@@ -16,6 +16,7 @@ _: {
         "editing"
         "completion"
         "org"
+        "dev"
       ];
       elFilesIn =
         dir:
@@ -42,12 +43,7 @@ _: {
 
       home.packages = [
         emacs
-        pkgs.emacsPackages.org-roam
-        pkgs.emacsPackages.org-roam-ui
-        pkgs.emacsPackages.org-roam-ql
-        pkgs.emacsPackages.sqlite3
         pkgs.emacsclient-commands
-        pkgs.sqlite
       ];
 
       services.emacs = {
