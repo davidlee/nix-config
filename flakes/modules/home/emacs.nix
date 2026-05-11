@@ -6,7 +6,7 @@ _: {
     ...
   }: let
     emacsDir = ../../../.emacs.d; # relative to repo root
-    configDirs = ["core" "apps" "lang" "lisp" "editing" "completion"];
+    configDirs = ["core" "apps" "lang" "lisp" "editing" "completion" "org"];
     elFilesIn = dir: let
       path = emacsDir + "/${dir}";
     in
