@@ -31,6 +31,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    emacs-overlay = {
+      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+    };
+
     # To bump: change the tag below, then `nix flake update llama-cpp-src`.
     # The build number is derived from this ref in modules/overlays/llama-edge.nix.
     llama-cpp-src = {
