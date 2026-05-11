@@ -11,6 +11,15 @@
 //
 {
   // ensure access to ENV vars
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "icon_theme": "Colored Zed Icons Theme Dark",
   "file_scan_inclusions": [".env*"],
   "use_system_path_prompts": false,
@@ -18,6 +27,7 @@
 
   // MCP Tools
   "agent": {
+    "dock": "right",
     "tool_permissions": {
       "default": "allow"
     },
@@ -128,6 +138,7 @@
   "file_finder": {
   },
   "project_panel": {
+    "dock": "left",
     "entry_spacing":"standard"
   },
 

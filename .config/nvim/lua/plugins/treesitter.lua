@@ -10,7 +10,7 @@ lz.load({
       })
 
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "zig" },
+        ensure_installed = { "zig", "svelte", "typescript", "javascript", "html", "css" },
         highlight = { enable = true },
       })
     end,

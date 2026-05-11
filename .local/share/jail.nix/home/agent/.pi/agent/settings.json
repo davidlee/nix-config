@@ -1,9 +1,9 @@
 {
-  "lastChangelogVersion": "0.67.6",
-  "defaultProvider": "google-gemini-cli",
-  "defaultModel": "gemini-3-flash-preview",
-  "defaultThinkingLevel": "medium",
-  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.70.2",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-flash",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": false
   },
@@ -13,11 +13,10 @@
     "/home/david/.pi/packages/node_modules/pi-web-access"
   ],
   "enabledModels": [
-    "anthropic/claude-opus-4-6",
-    "anthropic/claude-sonnet-4-6",
     "google-gemini-cli/gemini-3-flash-preview",
     "google-gemini-cli/gemini-3-pro-preview",
-    "anthropic/claude-3-5-haiku-latest",
-    "local-llama/gemma-4-e4b-q5"
+    "local-llama/gemma-4-e4b-q5",
+    "deepseek/deepseek-v4-pro",
+    "deepseek/deepseek-v4-flash"
   ]
 }
