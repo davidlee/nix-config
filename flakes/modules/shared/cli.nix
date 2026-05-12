@@ -357,7 +357,6 @@ in {
       diffstat
       difftastic
       gh
-      gitFull
       hub
       jujutsu
       mergiraf
@@ -369,6 +368,7 @@ in {
       jjui
     ];
     config.nixosCliPackages.scm = with pkgs; [
+      gitFull
       gitui
     ];
 
@@ -439,7 +439,6 @@ in {
       ov
 
       ## graphing
-      d2
       graphviz
       mermaid-cli
       structurizr-cli
@@ -463,6 +462,7 @@ in {
       chroma
     ];
     config.nixosCliPackages.display = with pkgs; [
+      d2
       fltrdr
     ];
 

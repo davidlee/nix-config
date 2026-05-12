@@ -22,6 +22,8 @@ _: {
       "cue"
       "sdl3"
       "postgresql@18"
+      "d2"
+      "git" # gitFull equivalent with svn support
     ];
     casks = [
       # "anaconda"

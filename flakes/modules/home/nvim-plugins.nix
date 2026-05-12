@@ -30,6 +30,7 @@ _: {
         lzextras
         rocks-nvim
         rocks-config-nvim
+        luasnip
 
         # # themes
         gruvbox

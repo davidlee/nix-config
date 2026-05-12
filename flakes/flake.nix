@@ -121,6 +121,13 @@
             inherit system;
             hostPlatform = system;
             config.allowUnfree = true;
+            overlays = [
+              (final: prev: {
+                direnv = prev.direnv.overrideAttrs (old: {
+                  doCheck = false;
+                });
+              })
+            ];
           };
 
           specialArgs = {
