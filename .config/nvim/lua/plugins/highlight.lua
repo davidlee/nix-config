@@ -31,6 +31,10 @@ lz.load({
           "RainbowDelimiterCyan",
         },
         blacklist = { "yazi" },
+        condition = function(bufnr)
+          local ok, parser = pcall(vim.treesitter.get_parser, bufnr)
+          return ok and parser ~= nil
+        end,
       }
     end,
   },
