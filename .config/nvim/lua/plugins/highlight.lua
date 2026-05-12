@@ -30,6 +30,7 @@ lz.load({
           "RainbowDelimiterViolet",
           "RainbowDelimiterCyan",
         },
+        blacklist = { "yazi" },
       }
     end,
   },
