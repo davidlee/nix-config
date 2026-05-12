@@ -160,6 +160,9 @@
           pkgs = import inputs.nixpkgs-home {
             inherit system;
             config.allowUnfree = true;
+            overlays = [
+              inputs.emacs-overlay.overlays.default
+            ];
           };
           stable = import inputs.stable {
             inherit system;
