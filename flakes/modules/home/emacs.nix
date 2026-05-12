@@ -28,14 +28,24 @@ _: {
     allElFiles = builtins.concatLists (map elFilesIn configDirs);
     config = builtins.concatStringsSep "\n" (map builtins.readFile allElFiles);
 
+    emacsPackage = if pkgs.stdenv.isDarwin then pkgs.emacs-macport else pkgs.emacs-unstable-pgtk;
     emacs = pkgs.emacsWithPackagesFromUsePackage {
-      package = pkgs.emacs-unstable-pgtk;
+      package = emacsPackage;
       inherit config;
       alwaysEnsure = true;
+      alwaysTangle = true;
+      extraEmacsPackages = epkgs: with epkgs; [
+        use-package
+        undo-fu
+        undo-fu-session
+        eat
+        git-modes
+        yaml-mode
+        json-mode
+        go-mode
+      ];
     };
   in {
-    nixpkgs.overlays = [inputs.emacs-overlay.overlays.default];
-
     home.packages = [
       emacs
       pkgs.emacsclient-commands

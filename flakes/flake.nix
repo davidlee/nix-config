@@ -122,10 +122,20 @@
             hostPlatform = system;
             config.allowUnfree = true;
             overlays = [
+              inputs.emacs-overlay.overlays.default
               (final: prev: {
                 direnv = prev.direnv.overrideAttrs (old: {
                   doCheck = false;
                 });
+              })
+              (final: prev: {
+                inherit
+                  (prev.lixPackageSets.stable)
+                  nixpkgs-review
+                  nix-eval-jobs
+                  nix-fast-build
+                  colmena
+                  ;
               })
             ];
           };

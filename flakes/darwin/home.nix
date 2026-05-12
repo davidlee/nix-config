@@ -8,6 +8,7 @@
     outputs.homeModules.nvim-plugins
     outputs.homeModules.nvim
     outputs.homeModules.programs
+    outputs.homeModules.emacs
   ];
 
   home = {

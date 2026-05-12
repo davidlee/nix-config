@@ -14,7 +14,6 @@
     # skhd
     # yabai
     shortcat
-    # emacs-macport # insecure
 
     ## not shared for other reasons
     rustup
