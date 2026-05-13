@@ -3,6 +3,7 @@ _: {
     pkgs,
     inputs,
     username,
+    self,
     ...
   }: let
     emacsDir = ../../../.emacs.d; # relative to repo root
@@ -50,6 +51,8 @@ _: {
         ];
     };
   in {
+    imports = [self.homeModules.shpool];
+
     home.packages = [
       emacs
       pkgs.emacsclient-commands
