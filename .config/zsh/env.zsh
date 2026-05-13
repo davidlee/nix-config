@@ -5,8 +5,9 @@
 # don't load system-wide nixos defaults for ZSH from /etc/zprofile and /etc/zshrc:
 setopt no_global_rcs
 
-export EDITOR=emacsclient
-export VISUAL=emacslient
+export EDITOR="emacsclient"
+export VISUAL="emacslient"
+export ALTERNATE_EDITOR=nvim
 export PAGER=ov
 # export MANPAGER='nvim +Man!'
 export MANPAGER='most'
