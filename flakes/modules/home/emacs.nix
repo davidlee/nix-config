@@ -40,6 +40,9 @@ _: {
       alwaysTangle = true;
       extraEmacsPackages = epkgs:
         with epkgs; [
+          meow
+          meow-tree-sitter
+
           # use-package
           # undo-fu
           # undo-fu-session

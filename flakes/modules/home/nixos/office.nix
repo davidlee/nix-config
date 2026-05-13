@@ -4,6 +4,7 @@ _: {
       beeper
       signal-desktop
       signal-cli
+      qrencode # for signal-cli
 
       discord
       element-desktop
