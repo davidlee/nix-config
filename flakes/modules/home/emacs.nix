@@ -28,33 +28,41 @@ _: {
     allElFiles = builtins.concatLists (map elFilesIn configDirs);
     config = builtins.concatStringsSep "\n" (map builtins.readFile allElFiles);
 
-    emacsPackage = if pkgs.stdenv.isDarwin then pkgs.emacs-macport else pkgs.emacs-unstable-pgtk;
+    emacsPackage =
+      if pkgs.stdenv.isDarwin
+      then pkgs.emacs-macport
+      else pkgs.emacs-unstable-pgtk;
     emacs = pkgs.emacsWithPackagesFromUsePackage {
       package = emacsPackage;
       inherit config;
       alwaysEnsure = true;
       alwaysTangle = true;
-      extraEmacsPackages = epkgs: with epkgs; [
-        use-package
-        undo-fu
-        undo-fu-session
-        eat
-        git-modes
-        yaml-mode
-        json-mode
-        go-mode
-      ];
+      extraEmacsPackages = epkgs:
+        with epkgs; [
+          # use-package
+          # undo-fu
+          # undo-fu-session
+          # eat
+          # git-modes
+          # yaml-mode
+          # json-mode
+          # go-mode
+        ];
     };
   in {
     home.packages = [
       emacs
       pkgs.emacsclient-commands
+      pkgs.dict # testing dictd
       # pkgs.emacsPackages.treesit-auto
     ];
 
-    services.emacs = {
-      enable = true;
-      package = emacs;
+    services = {
+      emacs = {
+        # client.enable = true;
+        enable = true;
+        package = emacs;
+      };
     };
   };
 }
