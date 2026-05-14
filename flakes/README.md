@@ -106,3 +106,5 @@ All three commands (`connect`, `playback start`, `playback volume`) return exit 
 
 - **Built-in packages:** `recentf`, `saveplace`, `savehist` etc. produce harmless `trace:` warnings during build — they ship with emacs and aren't in MELPA/ELPA.
 
+- **EAF and other attrset-valued epkgs:** a few entries in `epkgs` are not derivations but factory attrsets — e.g. `epkgs.eaf` is `{ override, overrideDerivation, withApplications }` (you call `.withApplications { enabledApps = [...]; }` to get a derivation). `emacsWithPackagesFromUsePackage` sees the bare `(use-package eaf ...)`, tries to coerce the attrset to a path, and fails with `error: cannot coerce a set to a string`. Add `:ensure nil` to any `use-package` form whose name matches an attrset-valued epkg; nix-side, install the real derivation via `extraEmacsPackages` (see `eaf-with-reinput` in `emacs.nix`).
+
