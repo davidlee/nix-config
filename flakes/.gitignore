@@ -1,4 +1,4 @@
 ./home-manager/result/*
 .claude
 result*
-./emacs-packages.txt
+emacs-packages.txt
