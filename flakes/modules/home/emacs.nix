@@ -108,8 +108,13 @@ _: {
           rainbow-mode
           telephone-line
           nerd-icons-dired
-          # project-treemacs
+          hl-todo
+          vterm-toggle
+          ligature
+          direnv
+          envrc
 
+          # project-treemacs
           # use-package
           # undo-fu
           # undo-fu-session
