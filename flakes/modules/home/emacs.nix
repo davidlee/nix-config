@@ -52,14 +52,16 @@ _: {
               eaf-pdf-viewer
               eaf-image-viewer
             ];
-          })
-          .overrideAttrs (old: {
-            nativeBuildInputs =
-              (old.nativeBuildInputs or [])
-              ++ [pkgs.pkg-config];
+          }).overrideAttrs
+          (old: {
+            nativeBuildInputs = (old.nativeBuildInputs or []) ++ [pkgs.pkg-config];
             buildInputs =
               (old.buildInputs or [])
-              ++ (with pkgs; [libinput libevdev udev]);
+              ++ (with pkgs; [
+                libinput
+                libevdev
+                udev
+              ]);
             preBuild = ''
               ${old.preBuild or ""}
               # Upstream bug in reinput/main.c: it calls
@@ -86,6 +88,27 @@ _: {
           meow
           meow-tree-sitter
           eaf-with-reinput
+          # PREVIEW
+          uniline
+          ob-diagrams
+          markdown-preview-mode
+          treemacs
+          ghostel
+          kirigami
+          org-modern
+          dired-subtree
+          dired-sidebar
+          dired-toggle
+          dired-list
+          dired-collapse
+          elfeed
+          gptel
+          s
+          dash
+          rainbow-mode
+          telephone-line
+          nerd-icons-dired
+          # project-treemacs
 
           # use-package
           # undo-fu

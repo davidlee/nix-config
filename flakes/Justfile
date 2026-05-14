@@ -43,3 +43,6 @@ regenerate-hardware:
 gc:
   sudo nix-collect-garbage --delete-older-than 14d
   nix-store --gc
+
+melpa-list:
+  nix eval --impure --raw --expr 'let f = builtins.getFlake "{{justfile_directory()}}"; pkgs = import f.inputs.nixpkgs { system = builtins.currentSystem; overlays = [ f.inputs.emacs-overlay.overlays.default ]; }; in builtins.concatStringsSep "\n" (builtins.attrNames pkgs.emacsPackages)' > emacs-packages.txt
