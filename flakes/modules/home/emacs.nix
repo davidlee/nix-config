@@ -38,10 +38,54 @@ _: {
       inherit config;
       alwaysEnsure = true;
       alwaysTangle = true;
-      extraEmacsPackages = epkgs:
+      extraEmacsPackages = epkgs: let
+        # nixpkgs' emacs-application-framework derivation omits the
+        # `reinput' Wayland focus-forwarder helper. EAF requires it
+        # whenever Emacs runs natively on Wayland (Sway/Hyprland +
+        # pgtk); without it the python side aborts with SIGABRT as
+        # soon as a buffer takes focus.  See core/view.py around the
+        # `current_desktop in ["sway","Hyprland"]' branch.
+        eaf-with-reinput =
+          (epkgs.emacs-application-framework.override {
+            enabledApps = with epkgs; [
+              eaf-browser
+              eaf-pdf-viewer
+              eaf-image-viewer
+            ];
+          })
+          .overrideAttrs (old: {
+            nativeBuildInputs =
+              (old.nativeBuildInputs or [])
+              ++ [pkgs.pkg-config];
+            buildInputs =
+              (old.buildInputs or [])
+              ++ (with pkgs; [libinput libevdev udev]);
+            preBuild = ''
+              ${old.preBuild or ""}
+              # Upstream bug in reinput/main.c: it calls
+              # `libinput_device_unref(dev)' on a device borrowed from
+              # `libinput_event_get_device()'.  That function returns a
+              # non-owning pointer, so the unref drops the refcount below
+              # zero; libinput_unref(li) then walks freed memory and
+              # SIGSEGVs in evdev_device_remove.  Strip the bogus unref.
+              substituteInPlace reinput/main.c \
+                --replace-fail $'\t\tlibinput_device_unref(dev);' ""
+              echo "Compiling EAF reinput helper..."
+              cc -O2 -o reinput/reinput reinput/main.c \
+                $(pkg-config --cflags --libs libinput libevdev libudev) \
+                -lpthread
+            '';
+            postInstall = ''
+              ${old.postInstall or ""}
+              LISPDIR=$(echo $out/share/emacs/site-lisp/elpa/eaf-*)
+              install -Dm755 reinput/reinput "$LISPDIR/reinput/reinput"
+            '';
+          });
+      in
         with epkgs; [
           meow
           meow-tree-sitter
+          eaf-with-reinput
 
           # use-package
           # undo-fu
@@ -60,13 +104,14 @@ _: {
       emacs
       pkgs.emacsclient-commands
       pkgs.dict # testing dictd
+
       # pkgs.emacsPackages.treesit-auto
     ];
 
     services = {
       emacs = {
         # client.enable = true;
-        enable = true;
+        enable = false;
         package = emacs;
       };
     };

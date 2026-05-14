@@ -92,7 +92,7 @@ _: {
 
           # Verified games requirements
           libxt
-          libxmu
+          xorg.libXmu
           libogg
           libvorbis
           SDL

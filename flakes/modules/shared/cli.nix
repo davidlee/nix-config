@@ -1,639 +1,629 @@
-{ lib, ... }:
-let
+{lib, ...}: let
   #
   # helpers for reducing all of the cli packages
   #
-  collectSharedPackages =
-    config: lib.lists.foldl (a: x: a ++ x) [ ] (lib.attrsets.attrValues config.sharedCliPackages);
+  collectSharedPackages = config: lib.lists.foldl (a: x: a ++ x) [] (lib.attrsets.attrValues config.sharedCliPackages);
 
-  collectNixosPackages =
-    config: lib.lists.foldl (a: x: a ++ x) [ ] (lib.attrsets.attrValues config.nixosCliPackages);
-in
-{
-  flake.flakeModules.cliPackages =
-    {
-      pkgs,
-      lib,
-      ...
-    }:
-    let
-      props = [
-        "shells"
-        "zsh"
-        "pagers"
-        "find"
-        "fileutils"
-        "system"
-        "build"
-        "scm"
-        "security"
-        "supervisors"
-        "help"
-        "display"
-        "net"
-        "dev"
-        "help"
-        "viewers"
-        "unix"
-        "filetypes"
-        "containers"
-        "frivolity"
-        "editors"
-        "www"
-      ];
-    in
-    {
-      #
-      # use props above to build out type safe options
-      #
+  collectNixosPackages = config: lib.lists.foldl (a: x: a ++ x) [] (lib.attrsets.attrValues config.nixosCliPackages);
+in {
+  flake.flakeModules.cliPackages = {
+    pkgs,
+    lib,
+    ...
+  }: let
+    props = [
+      "shells"
+      "zsh"
+      "pagers"
+      "find"
+      "fileutils"
+      "system"
+      "build"
+      "scm"
+      "security"
+      "supervisors"
+      "help"
+      "display"
+      "net"
+      "dev"
+      "help"
+      "viewers"
+      "unix"
+      "filetypes"
+      "containers"
+      "frivolity"
+      "editors"
+      "www"
+    ];
+  in {
+    #
+    # use props above to build out type safe options
+    #
 
-      options.sharedCliPackages = lib.genAttrs props (
-        name:
+    options.sharedCliPackages = lib.genAttrs props (
+      name:
         lib.mkOption {
           type = lib.types.listOf lib.types.package;
-          default = [ ];
+          default = [];
         }
-      );
+    );
 
-      options.nixosCliPackages = lib.genAttrs props (
-        name:
+    options.nixosCliPackages = lib.genAttrs props (
+      name:
         lib.mkOption {
           type = lib.types.listOf lib.types.package;
-          default = [ ];
+          default = [];
         }
-      );
+    );
 
-      ################################################################################
-      #
-      # template
-      #
-      # config.sharedCliPackages.template = with pkgs; [];
-      # config.nixosCliPackages.template = with pkgs; [];
+    ################################################################################
+    #
+    # template
+    #
+    # config.sharedCliPackages.template = with pkgs; [];
+    # config.nixosCliPackages.template = with pkgs; [];
 
-      ################################################################################
-      #
-      # zsh
-      #
-      config.sharedCliPackages.zsh = with pkgs; [
-        ## zsh / posix
-        zsh
-        zstd
-        zsh-autocomplete
-        antidote
-        shellcheck
-        shfmt
+    ################################################################################
+    #
+    # zsh
+    #
+    config.sharedCliPackages.zsh = with pkgs; [
+      ## zsh / posix
+      zsh
+      zstd
+      zsh-autocomplete
+      antidote
+      shellcheck
+      shfmt
 
-        ## zsh config depends on
-        starship
-        carapace
-        fzf
-        atuin
-        zoxide
-        yazi
-        broot
-        tmux
-        abduco # shell persist
-        dvtm # + abduco (suckless)
-        shpool # vs abduco
-        sesh
-        skim
-        delta
-        bfs # faster than fd
-        ## ls is more
-        eza
-        lsd
-        pls
-        tre
+      ## zsh config depends on
+      starship
+      carapace
+      fzf
+      atuin
+      zoxide
+      yazi
+      broot
+      tmux
+      abduco # shell persist
+      dvtm # + abduco (suckless)
+      shpool # vs abduco
+      sesh
+      skim
+      delta
+      bfs # faster than fd
+      ## ls is more
+      eza
+      lsd
+      pls
+      tre
 
-        ## unix / text
-        coreutils
-        gnused
-        sd
-        gawk
-        play # playground for sed, grep, awk, ...
-        bat
-        sd
-        aspell
-        choose
-        slides
+      ## unix / text
+      coreutils
+      gnused
+      sd
+      gawk
+      play # playground for sed, grep, awk, ...
+      bat
+      sd
+      aspell
+      choose
+      slides
 
-        ## calc
-        bc
-        eva
-        sc-im
+      ## calc
+      bc
+      eva
+      sc-im
 
-        ## clock
-        clock-rs
+      ## clock
+      clock-rs
 
-        ## cal
-        # calendar-cli # disabled: test failures in python3.13-niquests dep
-        calcure
-      ];
-      config.nixosCliPackages.zsh = with pkgs; [
-      ];
+      ## cal
+      # calendar-cli # disabled: test failures in python3.13-niquests dep
+      calcure
+    ];
+    config.nixosCliPackages.zsh = with pkgs; [
+    ];
 
-      ################################################################################
-      #
-      # help
-      #
-      config.sharedCliPackages.help = with pkgs; [
-      ];
-      config.nixosCliPackages.help = with pkgs; [
-        tldr
-        tealdeer
-        cheat
-        pinfo
-      ];
+    ################################################################################
+    #
+    # help
+    #
+    config.sharedCliPackages.help = with pkgs; [
+    ];
+    config.nixosCliPackages.help = with pkgs; [
+      tldr
+      tealdeer
+      cheat
+      pinfo
+    ];
 
-      ################################################################################
-      #
-      # build
-      #
-      config.sharedCliPackages.build = with pkgs; [
-        ## build tools
-        gnumake
-        ninja
-        autoconf
-        cmake
-        # redo-apenwarr
+    ################################################################################
+    #
+    # build
+    #
+    config.sharedCliPackages.build = with pkgs; [
+      ## build tools
+      gnumake
+      ninja
+      autoconf
+      cmake
+      # redo-apenwarr
 
-        ## parse / lex
-        bison
+      ## parse / lex
+      bison
 
-        ## lang.c
-        gcc
-      ];
+      ## lang.c
+      gcc
+    ];
 
-      config.nixosCliPackages.build = with pkgs; [
-        lldb
-        lld
-        llvm
-        clangStdenv
-        libclang
-      ];
+    config.nixosCliPackages.build = with pkgs; [
+      lldb
+      lld
+      llvm
+      clangStdenv
+      libclang
+      binutils
+    ];
 
-      ################################################################################
-      #
-      # system
-      #
-      config.sharedCliPackages.system = with pkgs; [
-        glances
-        btop
-        bottom
-      ];
-      config.nixosCliPackages.system = with pkgs; [
-        ## disk & file io
-        mmtui # mount manager
-        hdparm
-        smartmontools
-        udiskie
+    ################################################################################
+    #
+    # system
+    #
+    config.sharedCliPackages.system = with pkgs; [
+      glances
+      btop
+      bottom
+    ];
+    config.nixosCliPackages.system = with pkgs; [
+      ## disk & file io
+      mmtui # mount manager
+      hdparm
+      smartmontools
+      udiskie
 
-        ## sysutil
-        ccache
-        cpuid
-        cpuinfo
-        dmidecode
-        lshw
-        pciutils
-        smem
-        sysprof
-        sysstat
-        usbutils
-        x86info
-        tray-tui # systray
+      ## sysutil
+      ccache
+      cpuid
+      cpuinfo
+      dmidecode
+      lshw
+      pciutils
+      smem
+      sysprof
+      sysstat
+      usbutils
+      x86info
+      tray-tui # systray
 
-        ## sysmon
-        lm_sensors
-        atop
-        iotop
-        bottom
-        htop
-        gtop
-        glances
-        #wth
-        wtf
+      ## sysmon
+      lm_sensors
+      atop
+      iotop
+      bottom
+      htop
+      gtop
+      glances
+      #wth
+      wtf
 
-        ## system utils
-        isd # systemd
-        lazyjournal # logs & containers
-        systemctl-tui
+      ## system utils
+      isd # systemd
+      lazyjournal # logs & containers
+      systemctl-tui
 
-        ## process management
-        pstree
-        killall
-        await
-        procs # ps but better
-        pueue
-        mprocs
+      ## process management
+      pstree
+      killall
+      await
+      procs # ps but better
+      pueue
+      mprocs
 
-        ## load test
-        hyperfine
-        stress-ng
+      ## load test
+      hyperfine
+      stress-ng
 
-        ## automation
-        ydotool
-      ];
+      ## automation
+      ydotool
+    ];
 
-      ################################################################################
-      #
-      # fileutils
-      #
-      config.sharedCliPackages.fileutils = with pkgs; [
-        ## file managers
-        broot
-        cfm
-        felix-fm
-        ictree
-        nnn
-        mc
-        ranger
-        xplr
-        yazi
-        lf
-        superfile
+    ################################################################################
+    #
+    # fileutils
+    #
+    config.sharedCliPackages.fileutils = with pkgs; [
+      ## file managers
+      broot
+      cfm
+      felix-fm
+      ictree
+      nnn
+      mc
+      ranger
+      xplr
+      yazi
+      lf
+      superfile
 
-        ## disk & file io
-        ncdu
-        gdu
-        duf
-        dust
-        pydf
+      ## disk & file io
+      ncdu
+      gdu
+      duf
+      dust
+      pydf
 
-        ## compression
-        xz
-        unar
-        _7zz
-        unrar
-        p7zip
-        unzip
-        gnutar
-        cpio
-        zip
+      ## compression
+      xz
+      unar
+      _7zz
+      unrar
+      p7zip
+      unzip
+      gnutar
+      cpio
+      zip
 
-        ## download / backup
-        syncthing
-        # backblaze-b2
-        aria2
+      ## download / backup
+      syncthing
+      # backblaze-b2
+      aria2
 
-        # trash
-        trash-cli
-      ];
-      config.nixosCliPackages.fileutils = with pkgs; [
-        backintime
-        trashy
-      ];
+      # trash
+      trash-cli
+    ];
+    config.nixosCliPackages.fileutils = with pkgs; [
+      backintime
+      trashy
+    ];
 
-      ################################################################################
-      #
+    ################################################################################
+    #
+    # net / http
+    #
+    config.sharedCliPackages.net = with pkgs; [
       # net / http
+      curl
+      curlie
+      dig
+      ngrok
+      httpie
+      iftop
+      inetutils
+      nmap
+      netcat
+      socat
+      openssl
+      oha
+      tcpdump
+      trippy
+      wget
+      xh # http tool
+      yt-dlp
+      unixtools.net-tools
+      doggo
+      curlie
+      bandwhich # whats eating the network
+      ddgr # search duckduckgo
+      lsof
+    ];
+    config.nixosCliPackages.net = with pkgs; [
+      sn0int
+      iptraf-ng
+      nethogs
+      nmon
+      vnstat
+    ];
+
+    ################################################################################
+    #
+    # find
+    #
+    config.sharedCliPackages.find = with pkgs; [
+      ## file find & search
+      docfd
+      television
+      nix-search-tv
+      nix-search-cli
+      fd
+      file
+      findutils
+      fzy
+      mcfly
+      ripgrep
+      vgrep
+      sad
+      zoxide
+      ast-grep
+      findutils
+      ripgrep-all
+    ];
+    config.nixosCliPackages.find = with pkgs; [
+      semgrep
+      ast-grep
+      fsearch
+      plocate
+      # fsearch
+    ];
+
+    ################################################################################
+    #
+    # scm
+    #
+    config.sharedCliPackages.scm = with pkgs; [
+      git
+      delta
+      diffedit3
+      diffnav
+      diffr
+      diffstat
+      difftastic
+      gh
+      hub
+      jujutsu
+      mergiraf
+      tig
+      # debase # broken
+      gh-dash
+      lazygit
+      lazyjj
+      jjui
+    ];
+    config.nixosCliPackages.scm = with pkgs; [
+      gitFull
+      gitui
+    ];
+
+    ################################################################################
+    #
+    # dev
+    #
+    config.sharedCliPackages.dev = with pkgs; [
+      just
+      exercism
+      nodejs_latest # npx
+      uv
+      python3
+      mise
+      claude-monitor
+    ];
+    config.nixosCliPackages.dev = with pkgs; [
+      # ## lang.c
+      valgrind
+      strace
+    ];
+
+    ################################################################################
+    #
+    # security
+    #
+    config.sharedCliPackages.security = with pkgs; [
       #
-      config.sharedCliPackages.net = with pkgs; [
-        # net / http
-        curl
-        curlie
-        dig
-        ngrok
-        httpie
-        iftop
-        inetutils
-        nmap
-        netcat
-        socat
-        openssl
-        oha
-        tcpdump
-        trippy
-        wget
-        xh # http tool
-        yt-dlp
-        unixtools.net-tools
-        doggo
-        curlie
-        bandwhich # whats eating the network
-        ddgr # search duckduckgo
-        lsof
-      ];
-      config.nixosCliPackages.net = with pkgs; [
-        sn0int
-        iptraf-ng
-        nethogs
-        nmon
-        vnstat
-      ];
+      ## security / crypto / secrets
+      nvdtools
+      seclists
+      git-crypt
+      gpgme
+      gpg-tui
+      gnupg
+      oath-toolkit
+    ];
+    config.nixosCliPackages.security = with pkgs; [
+    ];
 
-      ################################################################################
-      #
-      # find
-      #
-      config.sharedCliPackages.find = with pkgs; [
-        ## file find & search
-        docfd
-        television
-        nix-search-tv
-        nix-search-cli
-        fd
-        file
-        findutils
-        fzy
-        mcfly
-        ripgrep
-        vgrep
-        sad
-        zoxide
-        ast-grep
-        findutils
-        ripgrep-all
-      ];
-      config.nixosCliPackages.find = with pkgs; [
-        semgrep
-        ast-grep
-        fsearch
-        plocate
-        # fsearch
-      ];
+    ################################################################################
+    #
+    # supervisors
+    #
+    config.sharedCliPackages.supervisors = with pkgs; [
+      ## supervisors / runners
+      overmind
+      watch
+      watchman
+      watcher
+      watchexec
+      fswatch
+    ];
+    config.nixosCliPackages.supervisors = with pkgs; [
+    ];
 
-      ################################################################################
-      #
-      # scm
-      #
-      config.sharedCliPackages.scm = with pkgs; [
-        git
-        delta
-        diffedit3
-        diffnav
-        diffr
-        diffstat
-        difftastic
-        gh
-        hub
-        jujutsu
-        mergiraf
-        tig
-        # debase # broken
-        gh-dash
-        lazygit
-        lazyjj
-        jjui
-      ];
-      config.nixosCliPackages.scm = with pkgs; [
-        gitFull
-        gitui
-      ];
+    ################################################################################
+    #
+    # display
+    #
+    config.sharedCliPackages.display = with pkgs; [
+      ## text readers, pagers
+      nvimpager
+      less
+      most
+      moor
+      viddy
+      ov
 
-      ################################################################################
-      #
-      # dev
-      #
-      config.sharedCliPackages.dev = with pkgs; [
-        just
-        exercism
-        nodejs_latest # npx
-        uv
-        python3
-        mise
-        claude-monitor
-      ];
-      config.nixosCliPackages.dev = with pkgs; [
-        # ## lang.c
-        valgrind
-        strace
-      ];
+      ## graphing
+      graphviz
+      mermaid-cli
+      structurizr-cli
 
-      ################################################################################
-      #
-      # security
-      #
-      config.sharedCliPackages.security = with pkgs; [
-        #
-        ## security / crypto / secrets
-        nvdtools
-        seclists
-        git-crypt
-        gpgme
-        gpg-tui
-        gnupg
-        oath-toolkit
-      ];
-      config.nixosCliPackages.security = with pkgs; [
-      ];
+      ## dev introspection
+      tokei
 
-      ################################################################################
-      #
-      # supervisors
-      #
-      config.sharedCliPackages.supervisors = with pkgs; [
-        ## supervisors / runners
-        overmind
-        watch
-        watchman
-        watcher
-        watchexec
-        fswatch
-      ];
-      config.nixosCliPackages.supervisors = with pkgs; [
-      ];
+      ## image / graphics / multimedia
+      pastel
+      chafa
+      ueberzugpp
+      viu
+      ghostscript
+      latex2html
 
-      ################################################################################
-      #
-      # display
-      #
-      config.sharedCliPackages.display = with pkgs; [
-        ## text readers, pagers
-        nvimpager
-        less
-        most
-        moor
-        viddy
-        ov
+      ## fonts
+      nerd-font-patcher
+      fontconfig
 
-        ## graphing
-        graphviz
-        mermaid-cli
-        structurizr-cli
+      ## highlighting
+      chroma
+    ];
+    config.nixosCliPackages.display = with pkgs; [
+      d2
+      fltrdr
+    ];
 
-        ## dev introspection
-        tokei
+    ################################################################################
+    #
+    # filetypes: cli packages for handling specific file formats
+    #
+    config.sharedCliPackages.filetypes = with pkgs; [
+      ## markdown
+      # markdownlint-cli
+      # markdownlint-cli2
+      markdown-oxide
+      marksman # serena wants it
 
-        ## image / graphics / multimedia
-        pastel
-        chafa
-        ueberzugpp
-        viu
-        ghostscript
-        latex2html
+      ## markdown
+      # frogmouth
+      glow
+      gum
+      rich-cli
+      # marked-man
+      # md-tui
 
-        ## fonts
-        nerd-font-patcher
-        fontconfig
+      typst
 
-        ## highlighting
-        chroma
-      ];
-      config.nixosCliPackages.display = with pkgs; [
-        d2
-        fltrdr
-      ];
+      ## CSV
+      # tidy-viewer
 
-      ################################################################################
-      #
-      # filetypes: cli packages for handling specific file formats
-      #
-      config.sharedCliPackages.filetypes = with pkgs; [
-        ## markdown
-        # markdownlint-cli
-        # markdownlint-cli2
-        markdown-oxide
-        marksman # serena wants it
+      ## JSON / YAML
+      otree # text object tree viewer
+      gron
+      jq
+      xq
+      jqp # jq tui playground
+      yq-go # jq for yaml
+      jc
+      jless
 
-        ## markdown
-        # frogmouth
-        glow
-        gum
-        rich-cli
-        # marked-man
-        # md-tui
+      ## regex
+      grex
+    ];
 
-        typst
+    config.nixosCliPackages.filetypes = with pkgs; [
+      ## csv
+      csv-tui
 
-        ## CSV
-        # tidy-viewer
+      ## pdf
+      tdf
 
-        ## JSON / YAML
-        otree # text object tree viewer
-        gron
-        jq
-        xq
-        jqp # jq tui playground
-        yq-go # jq for yaml
-        jc
-        jless
+      ### unicode
+      cicero-tui # unicode
 
-        ## regex
-        grex
-      ];
+      ## translate
+      gtt
 
-      config.nixosCliPackages.filetypes = with pkgs; [
-        ## csv
-        csv-tui
+      ## text readers, pagers
+      fltrdr
+      circumflex
 
-        ## pdf
-        tdf
+      ## hex editors
+      hexyl
+      unixtools.xxd
 
-        ### unicode
-        cicero-tui # unicode
+      # convert
+      pandoc
+    ];
 
-        ## translate
-        gtt
+    ################################################################################
+    #
+    # editors
+    #
+    config.sharedCliPackages.editors = with pkgs; [
+      lapce
+      wordgrinder
+    ];
 
-        ## text readers, pagers
-        fltrdr
-        circumflex
+    config.nixosCliPackages.editors = with pkgs; [
+      kakoune
+      kakoune-lsp
+      kakoune-cr
+      micro-with-wl-clipboard
+      kb
+      nb
+      tpnote
+      tui-journal
+      emacs-all-the-icons-fonts
+    ];
 
-        ## hex editors
-        hexyl
-        unixtools.xxd
+    ################################################################################
+    #
+    # www
+    #
+    config.sharedCliPackages.www = with pkgs; [
+      ## www
+      w3m-full
+      browsh
+      lynx
+    ];
+    config.nixosCliPackages.www = with pkgs; [
+    ];
 
-        # convert
-        pandoc
-      ];
+    ################################################################################
+    #
+    # containers
+    #
+    config.sharedCliPackages.containers = with pkgs; [
+    ];
+    config.nixosCliPackages.containers = with pkgs; [
+      distrobox
+      distrobox-tui
+      bubblewrap
+      #devcontainer
+    ];
 
-      ################################################################################
-      #
-      # editors
-      #
-      config.sharedCliPackages.editors = with pkgs; [
-        lapce
-        wordgrinder
-      ];
+    ################################################################################
+    #
+    # frivolity
+    #
+    config.sharedCliPackages.frivolity = with pkgs; [
+      figlet
+    ];
+    config.nixosCliPackages.frivolity = with pkgs; [
+      ## frivolity
+      fastfetch
+      fortune
+      cmatrix
+      nms
 
-      config.nixosCliPackages.editors = with pkgs; [
-        kakoune
-        kakoune-lsp
-        kakoune-cr
-        micro-with-wl-clipboard
-        kb
-        nb
-        tpnote
-        tui-journal
-        emacs-all-the-icons-fonts
-      ];
+      ## feeds, content / social
+      russ # RSS
+      tuir # reddit
+      tut # mastodon
+      tuisky # bluesky
+      wiki-tui # wikipedia
+      slack-term
 
-      ################################################################################
-      #
-      # www
-      #
-      config.sharedCliPackages.www = with pkgs; [
-        ## www
-        w3m-full
-        browsh
-        lynx
-      ];
-      config.nixosCliPackages.www = with pkgs; [
-      ];
-
-      ################################################################################
-      #
-      # containers
-      #
-      config.sharedCliPackages.containers = with pkgs; [
-      ];
-      config.nixosCliPackages.containers = with pkgs; [
-        distrobox
-        distrobox-tui
-        bubblewrap
-        #devcontainer
-      ];
-
-      ################################################################################
-      #
-      # frivolity
-      #
-      config.sharedCliPackages.frivolity = with pkgs; [
-        figlet
-      ];
-      config.nixosCliPackages.frivolity = with pkgs; [
-        ## frivolity
-        fastfetch
-        fortune
-        cmatrix
-        nms
-
-        ## feeds, content / social
-        russ # RSS
-        tuir # reddit
-        tut # mastodon
-        tuisky # bluesky
-        wiki-tui # wikipedia
-        slack-term
-
-        ## text to speech
-        espeak-ng
-      ];
-    };
+      ## text to speech
+      espeak-ng
+    ];
+  };
 
   #
   # import these to pull in all cli packages for a platform
   # or, just import cliPackages and cherry-pick
   #
-  flake.darwinModules.cliPackages =
-    {
-      self,
-      config,
-      ...
-    }:
-    {
-      imports = [ self.flakeModules.cliPackages ];
-      environment.systemPackages = collectSharedPackages config;
-    };
+  flake.darwinModules.cliPackages = {
+    self,
+    config,
+    ...
+  }: {
+    imports = [self.flakeModules.cliPackages];
+    environment.systemPackages = collectSharedPackages config;
+  };
 
-  flake.nixosModules.cliPackages =
-    {
-      self,
-      config,
-      ...
-    }:
-    {
-      imports = [ self.flakeModules.cliPackages ];
-      environment.systemPackages = collectNixosPackages config ++ collectSharedPackages config;
-    };
+  flake.nixosModules.cliPackages = {
+    self,
+    config,
+    ...
+  }: {
+    imports = [self.flakeModules.cliPackages];
+    environment.systemPackages = collectNixosPackages config ++ collectSharedPackages config;
+  };
 }
