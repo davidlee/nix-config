@@ -26,6 +26,7 @@ _: {
         mplus-outline-fonts.githubRelease
         fira-code
         fira-code-symbols
+        roboto
         proggyfonts
         noto-fonts
         nerd-fonts.noto
@@ -57,6 +58,7 @@ _: {
         monaspace
         dina-font
         geist-font
+        (pkgs.callPackage ../../pub/clockface-font.nix {})
       ];
 
       fontconfig = {
