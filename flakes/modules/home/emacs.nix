@@ -114,6 +114,9 @@ _: {
           ligature
           direnv
           envrc
+          nano-theme
+          nano-modeline
+          nano-agenda
 
           # project-treemacs
           # use-package
