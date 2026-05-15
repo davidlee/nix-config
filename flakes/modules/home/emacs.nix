@@ -93,7 +93,8 @@ _: {
           ob-diagrams
           markdown-preview-mode
           treemacs
-          ghostel
+          # ghostel is installed via package-vc in custom-vars.el so its
+          # directory is writable (it builds/downloads a native .so at runtime).
           kirigami
           org-modern
           dired-subtree
