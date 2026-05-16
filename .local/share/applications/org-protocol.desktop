@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=org-protocol
+Exec=emacsclient --alternate-editor= --create-frame --no-wait %u
+Type=Application
+Terminal=false
+NoDisplay=true
+StartupWMClass=Emacs
+MimeType=x-scheme-handler/org-protocol;
