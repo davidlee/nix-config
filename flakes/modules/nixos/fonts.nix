@@ -68,6 +68,7 @@ _: {
         gelasio
         libertinus
         libertine
+        et-book # org
         dejavu_fonts
 
         (pkgs.callPackage ../../pub/clockface-font.nix {})

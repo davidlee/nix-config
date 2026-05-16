@@ -139,11 +139,14 @@ _: {
 
       home.packages = [
         emacs
-        pkgs.emacsclient-commands
-        pkgs.dict # testing dictd
-
-        # pkgs.emacsPackages.treesit-auto
-      ];
+      ]
+      ++ (with pkgs; [
+        emacsclient-commands
+        dict # testing dictd
+        vips
+        mediainfo
+        poppler-utils
+      ]);
 
       services = {
         emacs = {
