@@ -58,6 +58,18 @@ _: {
         monaspace
         dina-font
         geist-font
+        source-serif
+        source-serif-pro
+        source-code-pro
+        libre-baskerville
+        libre-caslon
+        libre-bodoni
+        eb-garamond
+        gelasio
+        libertinus
+        libertine
+        dejavu_fonts
+
         (pkgs.callPackage ../../pub/clockface-font.nix {})
       ];
 
