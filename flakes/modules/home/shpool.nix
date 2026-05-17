@@ -1,8 +1,5 @@
 _: {
-  flake.homeModules.shpool = {
-    pkgs,
-    ...
-  }: {
+  flake.homeModules.shpool = {pkgs, ...}: {
     systemd.user.services.shpool = {
       Unit = {
         Description = "shpool - shell session pool";
