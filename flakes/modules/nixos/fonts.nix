@@ -14,25 +14,43 @@ _: {
 
     fonts = {
       packages = with pkgs; [
-        font-awesome
-        noto-fonts-color-emoji
-        noto-fonts-cjk-sans
-        liberation_ttf
-        font-awesome
+        # Sans-serif (UI / body)
+        inter
+        ibm-plex
+        roboto
         ubuntu-classic
-        ubuntu-sans-mono
-        symbola
-        material-icons
-        mplus-outline-fonts.githubRelease
+        geist-font
+        dejavu_fonts
+        liberation_ttf
+
+        # Serif (long-form text)
+        source-serif
+        libertinus
+        libertine
+        libre-baskerville
+        libre-caslon
+        libre-bodoni
+        eb-garamond
+        gelasio
+        et-book # org
+
+        # Monospace (code / terminal)
+        stable.jetbrains-mono
+        iosevka
+        cascadia-code
         fira-code
         fira-code-symbols
-        roboto
+        source-code-pro
+        ubuntu-sans-mono
+        victor-mono
+        monaspace
         proggyfonts
-        noto-fonts
+        mplus-outline-fonts.githubRelease
+
+        # Nerd Fonts (patched glyphs for editors/terminals)
         nerd-fonts.noto
         nerd-fonts.hack
         nerd-fonts.tinos
-        # nerd-fonts.mplus
         nerd-fonts.lilex
         nerd-fonts.arimo
         nerd-fonts.agave
@@ -49,37 +67,57 @@ _: {
         nerd-fonts.cousine
         nerd-fonts.zed-mono
         nerd-fonts.overpass
-        victor-mono
+
+        # CJK
+        noto-fonts
+        noto-fonts-cjk-sans
+        noto-fonts-cjk-serif
+
+        # Emoji & symbols
+        noto-fonts-color-emoji
+        symbola
+
+        # Icon fonts
+        font-awesome
+        material-icons
+
+        # Console / bitmap
         terminus_font
+        terminus_font_ttf
         termsyn
         tamsyn
-        terminus_font_ttf
-        stable.jetbrains-mono
-        monaspace
         dina-font
-        geist-font
-        source-serif
-        source-serif-pro
-        source-code-pro
-        libre-baskerville
-        libre-caslon
-        libre-bodoni
-        eb-garamond
-        gelasio
-        libertinus
-        libertine
-        et-book # org
-        dejavu_fonts
 
+        # Display / specialty
         (pkgs.callPackage ../../pub/clockface-font.nix {})
       ];
 
       fontconfig = {
         enable = true;
-        defaultFonts.monospace = ["JetBrainsMono Nerd Font"];
-        defaultFonts.sansSerif = ["Noto Sans"];
-        defaultFonts.serif = ["Noto Serif"];
-        defaultFonts.emoji = ["Noto Color Emoji"];
+        defaultFonts = {
+          sansSerif = [
+            "Inter"
+            "IBM Plex Sans"
+            "Noto Sans"
+            "Noto Sans CJK SC"
+            "Noto Color Emoji"
+          ];
+          serif = [
+            "Source Serif 4"
+            "Libertinus Serif"
+            "Noto Serif"
+            "Noto Serif CJK SC"
+            "Noto Color Emoji"
+          ];
+          monospace = [
+            "JetBrainsMono Nerd Font"
+            "JetBrains Mono"
+            "Iosevka"
+            "Noto Sans Mono CJK SC"
+            "Noto Color Emoji"
+          ];
+          emoji = ["Noto Color Emoji"];
+        };
       };
 
       fontDir.enable = true;
