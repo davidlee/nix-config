@@ -14,6 +14,7 @@ _: {
       "completion"
       "org"
       "dev"
+      "satan"
     ];
     elFilesIn = dir: let
       path = emacsDir + "/${dir}";

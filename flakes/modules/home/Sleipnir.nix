@@ -28,6 +28,7 @@ _: {
       homeModules.obs-studio
       homeModules.alarm
       homeModules.snooze
+      homeModules.satan
 
       # homeModules.bough
     ];
