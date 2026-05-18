@@ -22,6 +22,7 @@
   inherit (llm-agents.packages.${system}) claude-code;
   inherit (llm-agents.packages.${system}) codex;
   inherit (llm-agents.packages.${system}) gemini-cli;
+  zerostack = pkgs.callPackage ./zerostack.nix {};
 
   commonPkgs = with pkgs; [
     zsh
@@ -229,6 +230,13 @@
         agent = gemini-cli;
       }
       // args);
+
+  makeJailedZerostack = args:
+    makeJailedAgent ({
+        name = "zerostack";
+        agent = zerostack;
+      }
+      // args);
 in {
   inherit
     makeJailedAgent
@@ -238,6 +246,7 @@ in {
     makeJailedClaude
     makeJailedCodex
     makeJailedGemini
+    makeJailedZerostack
     ;
   inherit commonPkgs;
   inherit (jail) combinators;

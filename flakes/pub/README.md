@@ -10,14 +10,20 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 ### What it provides
 
 - `makeJailedPi`, `makeJailedCrush`, `makeJailedOpencode`, `makeJailedClaude`,
-  `makeJailedCodex`, `makeJailedGemini` — pre-configured makers for each agent
+  `makeJailedCodex`, `makeJailedGemini`, `makeJailedZerostack` — pre-configured
+  makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
 - `commonPkgs` — the shared package set available in every jail
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 
 Agent packages come from
 [llm-agents.nix](https://github.com/numtide/llm-agents.nix), which callers
-provide as a flake input (see usage below).
+provide as a flake input (see usage below). One exception:
+[`zerostack`](https://github.com/gi-dellav/zerostack) is built in-tree
+(`./zerostack.nix`, `rustPlatform.buildRustPackage`) because it is not yet in
+`llm-agents.nix`. The derivation is also exported as `packages.zerostack`.
+Evaluation stays lazy — clients that don't call `makeJailedZerostack` never
+import the file or fetch the source.
 
 ### Sandbox defaults
 

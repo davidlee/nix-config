@@ -25,5 +25,6 @@
         };
 
       packages.helium = pkgs.callPackage ./helium.nix {};
+      packages.zerostack = pkgs.callPackage ./zerostack.nix {};
     });
 }

@@ -2,6 +2,13 @@
 .env
 .envrc
 result
+.env.production
+.env.staging
+.env.development
+claude/settings.local.json
+
+*.local.*
+*.temp.*
 
 .idea
 .vscode

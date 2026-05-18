@@ -27,27 +27,26 @@
   # https://spin.atomicobject.com/fuzzy-find-git-add/
   fza = "!git ls-files -m -o --exclude-standard | fzf --print0 -m | xargs -0 -t -o git add"
 [core]
-	# editor = nvim
+  # editor = nvim
+  editor = /home/david/.nix-profile/bin/emacsclient
   excludesFile = ~/.gitignore_global
-	pager = delta
+  pager = delta
 [color]
   ui = true
 [interactive]
-	diffFilter = delta --color-only
+  diffFilter = delta --color-only
 [delta]
-	navigate = true
+  navigate = true
 [merge]
   # conflictstyle = diff3
   tool = nvimdiff
-	conflictStyle = zdiff3
+  conflictStyle = zdiff3
 [diff]
   colorMoved = default
 [diff "lockb"]
   textconv = bun
   binary = true
 [credential "https://github.com"]
-	helper = 
-	helper = !/run/current-system/sw/bin/gh auth git-credential
+  helper = !/run/current-system/sw/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
-	helper = !/run/current-system/sw/bin/gh auth git-credential
+  helper = !/run/current-system/sw/bin/gh auth git-credential
