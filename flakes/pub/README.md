@@ -136,6 +136,49 @@ automatically. Use `combinators` via `extraOptions` to forward them:
 All combinators are available at `agents.combinators` (re-exported from
 jail.nix). See the usage example above.
 
+### Secrets via 1Password (`useOpEnv`)
+
+For online profiles (`specDev`, `research`), `makeJailedAgent` wraps the
+sandbox in `op run --env-file=<refs> -- <inner-jail>` by default. The flow:
+
+1. `apiKeyOpRefs` (defaulted in `jailed-agents.nix`, overridable at import
+   time) maps env-var names to `op://vault/item/field` references.
+2. A nix-store text file is generated from that attrset — refs only, no
+   secrets, so world-readable in `/nix/store` is fine.
+3. The outer wrapper script execs `op run --env-file=<that-file> -- ...`.
+   `op` is resolved from `PATH` so NixOS's setuid wrapper at
+   `/run/wrappers/bin/op` is used (the raw store binary can't reach the
+   desktop integration socket).
+4. `op run` resolves each ref via the 1Password desktop app
+   (biometric/CLI unlock) and injects plaintext into the wrapper's env.
+5. The bwrap launch then forwards each var into the sandbox via
+   `--setenv NAME "${NAME:-}"` raw args.
+
+Result: secrets live only in the bwrap process env for the agent's
+lifetime — never on disk, never in the store, never in the host shell
+history. The offline profile sets `useOpEnv = false` (no network, no
+need).
+
+Override the ref map at import time:
+
+```nix
+agents = inputs.pub.lib.${system}.mkJailedAgents {
+  inherit (inputs) llm-agents;
+  apiKeyOpRefs = {
+    OPENROUTER_API_KEY = "op://Work/OpenRouter/credential";
+    OPENAI_API_KEY     = "op://Work/OpenAI/credential";
+  };
+};
+```
+
+If `op` is missing from `PATH`, the wrapper bails with a clear message —
+build the agent with `useOpEnv = false` to bypass, or install
+`_1password-cli` / `_1password-gui` on the host.
+
+Tradeoffs already baked in: `op run --no-masking` is set because masking
+corrupts streamed agent output. Agents shouldn't print key values to
+stdout regardless.
+
 ### makeJailedAgent options
 
 | Option | Default | Description |
@@ -150,6 +193,7 @@ jail.nix). See the usage example above.
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth before the helper refuses to recurse |
 | `blockGitPush` | per profile | Disable git push via SSH |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
+| `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 
 ### Full example
 
