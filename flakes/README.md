@@ -1,14 +1,26 @@
-# Dotfiles & NixOS, nix-darwin & home-manager system config
+# NixOS, nix-darwin & home-manager system config
 
-[uses this approach](https://www.atlassian.com/git/tutorials/dotfiles) for some things, nix to draw the rest of the owl.
+Declarative config for my development and thought crime workstation, Sleipnir,
+plus laptop.
+
+NixOS / MacOS (Nix-Darwin), home-manager, zsh, emacs / neovim, wayland + sway.
+
+It's modular Nix, and there's a decent amount of it, but I actively prefer
+plain old dotfiles for application config.
+
+Nix is amazing, but it's tag line should be:
+
+> An awful implementation of the only thing that makes sense.
+
+So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for what makes sense, Nix to draw the rest of the owl.
 
 ## Principles
 
 - keep a fairly lean core system
 - separate userspace & system build using home-manager
-- prefer dotfiles over nix. Include raw dotfiles (custom config) in generated nix configs.
+- don't rewrite dotfiles in nix. Load raw custom config from generated nix stubs.
 - share the things worth sharing (especially cli tooling) across Darwin / macOS
-- minimal but secure secret management (out of version control)
+- minimal but secure secret management (1password-cli)
 - use nix-direnv for project-local dev environments.
 - use templates to make this easy
 - prefer unstable; pin to stable as an escape hatch for broken packages
@@ -27,7 +39,7 @@
 
 **Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` for manual triage.
 
-**swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service. The `exec_always` workaround in `sway.conf` has been removed — it fought with `Restart=always` and caused a crash loop (107 restarts in 4 minutes) that amplified memory pressure.
+**swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service.
 
 ### Snooze (sleep/wake timer)
 
@@ -86,6 +98,13 @@ See [ALARM.md](./ALARM.md). `modules/home/nixos/alarm.nix` — plays a playlist 
 - **EAF and other attrset-valued epkgs:** a few entries in `epkgs` are not derivations but factory attrsets — e.g. `epkgs.eaf` is `{ override, overrideDerivation, withApplications }` (you call `.withApplications { enabledApps = [...]; }` to get a derivation). `emacsWithPackagesFromUsePackage` sees the bare `(use-package eaf ...)`, tries to coerce the attrset to a path, and fails with `error: cannot coerce a set to a string`. Add `:ensure nil` to any `use-package` form whose name matches an attrset-valued epkg; nix-side, install the real derivation via `extraEmacsPackages` (see `eaf-with-reinput` in `emacs.nix`).
 
 ## Jailed Agents 
+
+template setup for bubblewrap-jailed agents, with secure 1password-managed API keys, assuming some conventions:
+
+```zsh
+nix flake init -t /home/david/flakes#agents                    # local
+nix flake init -t github:davidlee/nix-config?dir=flakes#agents # anywhere
+```
 
 See [README](./pub/README.md) 
 

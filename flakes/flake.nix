@@ -88,6 +88,14 @@
       };
 
       flake = {
+        templates = {
+          agents = {
+            path = ./_templates/agents;
+            description = "Dev shell with jailed LLM agents";
+          };
+          default = self.templates.agents;
+        };
+
         nixosConfigurations = let
           hostname = "Sleipnir";
           username = "david";
