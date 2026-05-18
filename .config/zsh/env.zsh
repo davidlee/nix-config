@@ -31,24 +31,12 @@ export MCFLY_RESULTS_SORT=LAST_RUN
 export MCFLY_INTERFACE_VIEW=BOTTOM
 
 #
-# Obsidian: periodic files, etc
+# Secrets
 #
 
-export OBS_VAULT=workbench
-export OBS_VAULT_PATH=$HOME/$OBS_VAULT
-
-export OBS_DAY_NOTE_FORMAT="%Y/dd/%F.md"
-export OBS_WEEK_NOTE_FORMAT="%Y/wk/%Y-W%U.md"
-export OBS_MONTH_NOTE_FORMAT="%Y/mo/%m.md"
-export OBS_YEAR_NOTE_FORMAT="%Y.md"
-
-export DAY_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_DAY_NOTE_FORMAT"
-export WEEK_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_WEEK_NOTE_FORMAT"
-export MONTH_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_MONTH_NOTE_FORMAT"
-export YEAR_NOTE_FORMAT="$OBS_VAULT_PATH/$OBS_YEAR_NOTE_FORMAT"
-
-#
-# Secrets - private bare repo (non-critical only; use 1password encryption where we really care)
-#
-
-source ~/.config/zsh/secrets.zsh
+export DEEPSEEK_API_KEY="op://API_KEYS/DEEPSEEK_API_KEY/credential"
+export OPENROUTER_API_KEY="op://API_KEYS/OPENROUTER_API_KEY/credential"
+export MISTRAL_API_KEY="op://API_KEYS/MISTRAL_API_KEY/credential"
+export VOYAGE_API_KEY="op://API_KEYS/VOYAGE_API_KEY/credential"
+export OPENAI_API_KEY="op://API_KEYS/OPENAI_API_KEY/credential"
+export GEMINI_API_KEY="op://API_KEYS/GEMINI_API_KEY/credential"

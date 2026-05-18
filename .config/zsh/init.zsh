@@ -2,19 +2,20 @@ export PNPM_HOME="$HOME/.pnpm-global/bin"
 
 autoload zmv
 
-path+=$HOME/.local/bin/scripts
-path+=$HOME/.local/bin
-path+=$HOME/.cargo/bin
+typeset -U PATH path
+typeset -U fpath
+
+path=(~/bin
+      ~/.local/bin
+      ~/.local/bin/scripts
+      ~/.cargo/bin $path)
+
 path+=$HOME/.npm-global/bin
 path+=$PNPM_HOME
 path+=$HOME/go/bin
 path+=$PWD/bin
 
-typeset -U path
-typeset -U fpath
-
 fpath+=$HOME/.config/zsh/completions
-
 
 setopt extended_glob
 setopt glob_dots
