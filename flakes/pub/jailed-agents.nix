@@ -4,6 +4,15 @@
 # Profiles control persistence, networking, and policy defaults;
 # agent wrappers remain thin.
 #
+# Secret injection:
+#   When `useOpEnv = true` (default for online profiles), the resulting
+#   binary wraps the bwrap launch in `op run --env-file=<refs>` so
+#   1Password resolves API key op:// refs on the host (with biometric /
+#   desktop unlock) and injects the plaintext values into the bwrap
+#   process env. The values are then forwarded through bwrap into the
+#   agent via `--setenv VAR "$VAR"`. Secrets never sit on disk; they
+#   live only in the bwrap process env for the agent's lifetime.
+#
 # Usage:
 #   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
 #   makeJailedAgent { name = "foo"; agent = foo-pkg; profile = "research"; }
@@ -11,10 +20,34 @@
   pkgs,
   jail-nix,
   llm-agents,
+  apiKeyOpRefs ? {
+    DEEPSEEK_API_KEY   = "op://API_KEYS/DEEPSEEK_API_KEY/credential";
+    OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential";
+    MISTRAL_API_KEY    = "op://API_KEYS/MISTRAL_API_KEY/credential";
+    VOYAGE_API_KEY     = "op://API_KEYS/VOYAGE_API_KEY/credential";
+    OPENAI_API_KEY     = "op://API_KEYS/OPENAI_API_KEY/credential";
+    GEMINI_API_KEY     = "op://API_KEYS/GEMINI_API_KEY/credential";
+  },
 }: let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   jail = jail-nix.lib.init pkgs;
+
+  # File of op:// refs that `op run` reads. Contents are not secret
+  # (just pointers); the resolved values never land in the store.
+  apiKeyEnvFile = pkgs.writeText "llm-api-keys.env"
+    (lib.concatStringsSep "\n"
+      (lib.mapAttrsToList (k: v: "${k}=${v}") apiKeyOpRefs));
+
+  # bwrap raw args forwarding each API key from the wrapper's env into
+  # the jailed agent. `$VAR` is left for runtime shell expansion; the
+  # `:-` guard keeps empty/unset vars from breaking set -u callers.
+  apiKeyPassThrough =
+    lib.mapAttrsToList
+      (var: _:
+        jail.combinators.unsafe-add-raw-args
+          ''--setenv ${var} "''${${var}:-}"'')
+      apiKeyOpRefs;
 
   inherit (llm-agents.packages.${system}) pi;
   inherit (llm-agents.packages.${system}) crush;
@@ -77,24 +110,28 @@
     ];
   };
 
-  # Per-profile boolean defaults for git controls
+  # Per-profile boolean defaults for git controls + op env injection.
+  # useOpEnv is off for offline (no network = no API calls = no secrets).
   profileDefaults = {
     specDev = {
       blockGitPush = true;
       sandboxGitIdentity = true;
       exposePostgres = false;
+      useOpEnv = true;
     };
 
     research = {
       blockGitPush = true;
       sandboxGitIdentity = false;
       exposePostgres = false;
+      useOpEnv = true;
     };
 
     offline = {
       blockGitPush = true;
       sandboxGitIdentity = false;
       exposePostgres = false;
+      useOpEnv = false;
     };
   };
 
@@ -144,6 +181,7 @@
     blockGitPush ? profileDefaults.${profile}.blockGitPush,
     sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
+    useOpEnv ? profileDefaults.${profile}.useOpEnv,
   }: let
     selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
       depth="''${JAILED_AGENT_DEPTH:-0}"
@@ -163,12 +201,8 @@
           "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
       )
       workspaceDeps;
-  in
-    assert builtins.hasAttr profile profileOptions
-    || throw "Unknown jailed agent profile: ${profile}";
-    assert (!allowSelfAsSubagent)
-    || maxSubagentDepth > 0
-    || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
+
+    inner =
       jail "jailed-${name}" agent (
         baseJailOptions
         ++ workspaceBinds
@@ -178,6 +212,7 @@
         ++ lib.optionals blockGitPush gitPushBlockOptions
         ++ lib.optionals sandboxGitIdentity gitIdentityOptions
         ++ lib.optionals exposePostgres postgresOptions
+        ++ lib.optionals useOpEnv apiKeyPassThrough
         ++ [
           (jail.combinators.add-pkg-deps (
             commonPkgs
@@ -188,6 +223,29 @@
         ]
         ++ extraOptions
       );
+
+    # Outer wrapper: resolve op:// refs on the host (uses the 1Password
+    # desktop app + biometric unlock via the user's PATH `op'), inject
+    # plaintext into the wrapper's env, then exec the bwrap'd agent.
+    # `op' is taken from PATH so the setuid wrapper at
+    # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
+    # binary, which can't reach the desktop integration socket.
+    outer = pkgs.writeShellScriptBin "jailed-${name}" ''
+      if ! command -v op >/dev/null 2>&1; then
+        echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
+        echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
+        exit 127
+      fi
+      exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
+        ${inner}/bin/jailed-${name} "$@"
+    '';
+  in
+    assert builtins.hasAttr profile profileOptions
+    || throw "Unknown jailed agent profile: ${profile}";
+    assert (!allowSelfAsSubagent)
+    || maxSubagentDepth > 0
+    || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
+      if useOpEnv then outer else inner;
 
   makeJailedPi = args:
     makeJailedAgent ({
