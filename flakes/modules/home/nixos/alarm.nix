@@ -82,20 +82,33 @@ _: {
             done
 
             # --- Phase 2: activate the correct device ---
+            # Refresh spotify-player first: the long-lived daemon's cached
+            # Web API view can miss devices that (re)registered while it was
+            # idle across S3 cycles. Cheap, ~2-3s.
+            ${pkgs.systemd}/bin/systemctl --user restart spotify-player.service
+            for i in $(seq 1 15); do
+              ${sp} get key devices >/dev/null 2>&1 && break
+              sleep 1
+            done
+
             # After restart, Spotify's API may list ghost device registrations
             # alongside the live one, all named "${spotifydDevice}". Both connect
             # --name and connect --id return exit 0 regardless of success. We must
             # try each ID and verify activation via the API.
             # The API lags behind spotifyd's log by a few seconds, so retry.
             activated=false
-            for attempt in $(seq 1 6); do
-              IDS=$(${sp} get key devices 2>/dev/null \
-                | ${py} -c "import sys,json
+            for attempt in $(seq 1 12); do
+              RAW=$(${sp} get key devices 2>&1) || {
+                echo "Attempt $attempt/12: sp get key devices failed: $RAW"
+                sleep 5
+                continue
+              }
+              IDS=$(printf '%s' "$RAW" | ${py} -c "import sys,json
       for d in json.load(sys.stdin):
-        if d['name'] == '${spotifydDevice}': print(d['id'])" 2>/dev/null || true)
+        if d['name'] == '${spotifydDevice}': print(d['id'])" 2>&1 || true)
 
               if [ -z "$IDS" ]; then
-                echo "Attempt $attempt/6: no ${spotifydDevice} devices in API yet"
+                echo "Attempt $attempt/12: no ${spotifydDevice} devices in API yet (raw: $RAW)"
                 sleep 5
                 continue
               fi
@@ -103,16 +116,19 @@ _: {
               for id in $IDS; do
                 ${sp} connect --id "$id" 2>/dev/null || true
                 sleep 1
-                is_active=$(${sp} get key devices 2>/dev/null \
-                  | ${py} -c "import sys,json
-      print(any(d['id']=='$id' and d['is_active'] for d in json.load(sys.stdin)))" 2>/dev/null || echo False)
+                RAW2=$(${sp} get key devices 2>&1) || {
+                  echo "Attempt $attempt/12: sp get key devices (verify) failed: $RAW2"
+                  continue
+                }
+                is_active=$(printf '%s' "$RAW2" | ${py} -c "import sys,json
+      print(any(d['id']=='$id' and d['is_active'] for d in json.load(sys.stdin)))" 2>&1 || echo False)
                 if [ "$is_active" = "True" ]; then
                   echo "Activated device $id"
                   activated=true; break
                 fi
               done
               if [ "$activated" = "true" ]; then break; fi
-              echo "Attempt $attempt/6: activation failed, retrying..."
+              echo "Attempt $attempt/12: activation failed, retrying..."
               sleep 5
             done
             if [ "$activated" != "true" ]; then

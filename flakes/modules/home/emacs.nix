@@ -1,8 +1,6 @@
 _: {
   flake.homeModules.emacs = {
     pkgs,
-    inputs,
-    username,
     self,
     ...
   }: let
@@ -142,6 +140,18 @@ _: {
         vips
         mediainfo
         poppler-utils
+        # gnumake
+        (texlive.combine {
+          inherit
+            (texlive)
+            scheme-basic
+            latexmk
+            wrapfig
+            ulem
+            capt-of
+            collection-fontsrecommended
+            ;
+        })
       ]);
 
     services = {
