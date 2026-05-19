@@ -67,6 +67,11 @@
       url = "github:Hythera/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
+
+    panopticon = {
+      url = "path:/home/david/dev/panopticon";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
   };
 
   outputs = inputs @ {

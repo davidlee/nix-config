@@ -32,5 +32,24 @@ _: {
       };
       Install.WantedBy = ["graphical-session.target"];
     };
+
+    systemd.user.services.panopticon-segmentize = {
+      Unit.Description = "panopticon — derive segments + enforce retention";
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${panopticon}/bin/panopticon-segmentize";
+      };
+    };
+
+    systemd.user.timers.panopticon-segmentize = {
+      Unit.Description = "panopticon — nightly segment + retention job";
+      Timer = {
+        Unit = "panopticon-segmentize.service";
+        OnCalendar = "*-*-* 03:30:00";
+        Persistent = true;
+        RandomizedDelaySec = "15min";
+      };
+      Install.WantedBy = ["timers.target"];
+    };
   };
 }
