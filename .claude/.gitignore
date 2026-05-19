@@ -1,5 +1,10 @@
-/logs/
-/projects/
-/statsig/
-/todos/
-.credentials.json
+# Deny-by-default: nothing in .claude/ is tracked unless explicitly allowed
+# below. This is intentional — Claude Code writes auth tokens, session
+# transcripts, hook scripts, and per-project caches into this directory.
+# An accidental `git add .` previously published .credentials.json
+# (commit 59fb21de, 2025-07-29). Keep this list narrow.
+*
+
+# Explicit allowlist
+!.gitignore
+!CLAUDE.md
