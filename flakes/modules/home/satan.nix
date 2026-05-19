@@ -49,5 +49,31 @@ _: {
       };
       Install.WantedBy = ["timers.target"];
     };
+
+    # Tick: short, frequent, lightly-budgeted run.  The broker picks a
+    # mode from `dl-satan-tick-pool' by weight and skips during quiet
+    # hours (default 22:00..07:00).  The daily token ceiling
+    # (`dl-satan-budget-daily-tokens', default 400000) caps spend.
+    systemd.user.services.satan-tick = {
+      Unit.Description = "SATAN tick";
+      Service = {
+        Type = "oneshot";
+        ExecStart = "%h/.emacs.d/satan/bin/satan-run-tick";
+      };
+    };
+
+    systemd.user.timers.satan-tick = {
+      Unit.Description = "SATAN tick timer";
+      Timer = {
+        # Fire 5 minutes after boot, then every 30 minutes with up to
+        # 5 minutes of jitter so multiple machines (or restarts) do not
+        # converge on the same instant.
+        OnBootSec = "5min";
+        OnUnitActiveSec = "30min";
+        RandomizedDelaySec = "5min";
+        Persistent = false;
+      };
+      Install.WantedBy = ["timers.target"];
+    };
   };
 }

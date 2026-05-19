@@ -158,6 +158,5 @@ fi
 ## END
 
 ## SATAN MOTD
-[[ -f ~/notes/satan/motd.txt ]] && echo "A short message from SATAN:\n" && cat ~/notes/satan/motd.txt
-
+[[ -f ~/notes/satan/motd.txt ]] && echo -ne "\e[31m$(cat ~/notes/satan/motd.txt)\e[0m\n"
 

@@ -17,19 +17,22 @@
         "hyprland/window",
     ],
     "modules-right": [
-        "custom/agenda",
-        "cava",
-        "gamemode",
-        "privacy",
+
+        "gamemode",        
         "mpris",
         "pulseaudio",
         // "pulseaudio/slider",
+        "cava",         
         "cpu",
+        "memory",
         "custom/weather",
+        "custom/agenda",
+        "custom/satan-inbox",
         "custom/timer",
         "custom/idle-inhibitor",
         "custom/break-reminder",
         "power-profiles-daemon",
+        "privacy",  
         "tray",
         "clock",
     ],
@@ -73,7 +76,7 @@
         "show-empty": false,
         "format-icons": ["?", ""],
         "tooltip": true,
-        "tooltip-format": "{app}: {title}"
+        "tooltip-format": "{app} :: {title}"
     },
     "sway/window": {
       "icon": true,
@@ -145,8 +148,12 @@
         "format-icons" : ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" ]
     },
     "mpris": {
-      "format": " {player_icon} {artist} » {title} ",
+      "format": " {player_icon} {artist} — {title}",
       "format-paused": "{status_icon} <i>{artist} » {title}</i> ",
+      // no wobble
+      "min-length": 40,
+      "max-length": 40,
+      "justify": "center",
       "player-icons": {
         "default": "▶",
         "mpv": "»",
@@ -183,8 +190,9 @@
         "on-click": "activate",
         "on-click-right": "maximise",
         "on-click-middle": "close",
-        "tooltip-format": "{title}",
+        "tooltip-format": "{state} {title}",
         "active-first": true,
+        "tooltip": true,
     },
     "tray": {
       "spacing": 10,
@@ -252,6 +260,13 @@
         "interval": 59,
         "return-type": "json",
         "tooltip": "true"
+    },
+    "custom/satan-inbox": {
+        "exec": "~/.config/waybar/scripts/satan-inbox.sh",
+        "return-type": "json",
+        "interval": 60,
+        "on-click": "emacsclient -ne '(my/satan-inbox)'",
+        "tooltip": true,
     },
     "custom/break-reminder": {
         "exec": "~/.config/waybar/scripts/break-reminder.sh display",

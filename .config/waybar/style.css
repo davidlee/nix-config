@@ -127,6 +127,7 @@ button:hover {
 #custom-timer,
 #custom-weather,
 #custom-agenda,
+#custom-satan-inbox,
 #privacy-item
 {
     font-family: FontAwesome;
@@ -135,6 +136,13 @@ button:hover {
     color: #ffffff;
     background-color: @muted;
     border-bottom: 3px solid rgba(100, 114, 125, 0.5);
+}
+
+#custom-satan-inbox.empty {
+    padding: 0;
+    margin: 0;
+    border: none;
+    min-width: 0;
 }
 
 #window {
