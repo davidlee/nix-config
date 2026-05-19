@@ -18,6 +18,12 @@
 - Test behaviour, not (trivial) implementation - reduces brittleness.
 - Build & improve test helpers, fixtures, etc to improve tests.
 
+## Git 
+
+- never create or pop a git stash without explicit user agreement.
+- wondering if the build was green before your changes is not a good 
+  enough reason to ask. You probably need to just fix the build.
+
 ## Behaviours
 
 - If there's a linter: lint after changes to every file. lint as you go.
