@@ -156,3 +156,8 @@ if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
     alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
 fi
 ## END
+
+## SATAN MOTD
+[[ -f ~/notes/satan/motd.txt ]] && echo "A short message from SATAN:\n" && cat ~/notes/satan/motd.txt
+
+

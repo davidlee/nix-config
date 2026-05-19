@@ -487,6 +487,9 @@ in {
       # marked-man
       # md-tui
 
+      ### google cal
+      gcalcli
+
       typst
 
       ## CSV

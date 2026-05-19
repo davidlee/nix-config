@@ -8,7 +8,7 @@ alias em="emacsclient";
 
 alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
 alias ea="distrobox enter --root archlinux"
-
+alias gcal="gcalcli agenda --calendar $WORK_EMAIL"
 
 # single character aliases
 alias g=git;
