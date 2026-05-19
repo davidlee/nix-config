@@ -27,7 +27,7 @@ _: {
     systemd.user.timers.satan-morning = {
       Unit.Description = "SATAN morning timer";
       Timer = {
-        OnCalendar = "Mon..Sun 07:30";
+        OnCalendar = "Mon..Sun 09:00";
         Persistent = true;
       };
       Install.WantedBy = ["timers.target"];
