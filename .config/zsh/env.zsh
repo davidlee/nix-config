@@ -1,7 +1,7 @@
 #
 # ENV
 #
-[[ -f work.identity.zsh ]] && source work.identity.zsh
+[[ -f $HOME/.config/zsh/work.identity.zsh ]] && source $HOME/.config/zsh/work.identity.zsh
 
 # don't load system-wide nixos defaults for ZSH from /etc/zprofile and /etc/zshrc:
 setopt no_global_rcs

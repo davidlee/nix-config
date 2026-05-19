@@ -1,7 +1,10 @@
 # manage dotfiles with bare repo:
 #
-gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
+# gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }
 
+gcal() {
+  gcalcli agenda --calendar $WORK_EMAIL
+}
 # and non-public files, using the same approach w. a private repo
 #
 prv() { git --work-tree=$HOME --git-dir=$HOME/.private $* }
