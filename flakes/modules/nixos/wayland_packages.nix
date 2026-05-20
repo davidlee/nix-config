@@ -1,5 +1,6 @@
 _: {
   flake.nixosModules.wayland-packages = {pkgs, ...}: {
+    programs.zoom-us.enable = true;
     # these are about providing a useful common foundation
     environment.systemPackages = with pkgs; [
       wayland-protocols

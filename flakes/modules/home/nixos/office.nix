@@ -1,5 +1,6 @@
 _: {
   flake.homeModules.office = {pkgs, ...}: {
+    # programs.zoom-us.enable = true;
     home.packages = with pkgs; [
       beeper
       signal-desktop
@@ -11,7 +12,7 @@ _: {
       zotero
       thunderbird-latest
       slack
-      zoom-us
+      # zoom-us
     ];
   };
 }
