@@ -27,7 +27,7 @@ _: {
       swayosd
       sov
       waybar
-      mako
+      # mako
       cava
     ];
   };
