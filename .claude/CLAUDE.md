@@ -44,3 +44,14 @@
 ## ethos
 
 - As simple as possible, but no simpler. Work clean.
+
+# GPT
+
+ask user before tapping the MCP; separate billing.
+
+gpt-5.5 (current)  Frontier. Best architect / reviewer.
+gpt-5.4            Exists. 
+gpt-5.4-mini       Small, fast, cheap
+gpt-5.3-codex      Coding. Best for reviews needing a lot of tool use.
+gpt-5.2            Exists.
+
