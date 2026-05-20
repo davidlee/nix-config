@@ -72,6 +72,11 @@
       url = "path:/home/david/dev/panopticon";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
+
+    satan-patcher = {
+      url = "path:/home/david/dev/satan-patcher";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
   };
 
   outputs = inputs @ {

@@ -29,6 +29,7 @@ _: {
       homeModules.alarm
       homeModules.snooze
       homeModules.satan
+      homeModules.satan-patcher
       homeModules.behaviour
 
       # homeModules.bough
