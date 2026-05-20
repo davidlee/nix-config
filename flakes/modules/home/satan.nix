@@ -12,7 +12,7 @@
 # or by entering the .emacs.d devshell from the shell that launches the
 # user session).
 _: {
-  flake.homeModules.satan = {...}: {
+  flake.homeModules.satan = _: {
     systemd.user.services.satan-morning = {
       Unit = {
         Description = "SATAN morning run";

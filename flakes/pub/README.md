@@ -179,6 +179,43 @@ Tradeoffs already baked in: `op run --no-masking` is set because masking
 corrupts streamed agent output. Agents shouldn't print key values to
 stdout regardless.
 
+#### Pre-resolved secrets: `passApiKeysFromEnv`
+
+`op run` resolves refs on every launch. For one-shot interactive use
+that's fine — one biometric tap per session is unobtrusive. For an
+agent that spawns the jail on a timer (e.g. a 30-minute heartbeat from
+Emacs), the biometric prompt becomes per-tick noise.
+
+If the calling process already holds resolved plaintext in memory
+(a long-lived Emacs broker, a daemon with its own credential cache,
+etc.), drop the outer wrapper and let the caller's env feed the jail:
+
+```nix
+satan-jailed-gptel-harness = jailLib.makeJailedAgent {
+  name    = "satan-gptel-harness";
+  agent   = satanGptelHarness;
+  profile = "specDev";
+  useOpEnv           = false;  # skip the outer `op run` wrapper
+  passApiKeysFromEnv = true;   # keep the bwrap `--setenv VAR "$VAR"` forwarding
+};
+```
+
+Effect:
+
+- The outer `op run` wrapper is omitted, so launching the jail does not
+  call `op` and never prompts 1Password.
+- The inner bwrap launcher still ships `--setenv VAR "$VAR"` raw args
+  for each entry in `apiKeyOpRefs`, so whatever plaintext the caller has
+  set in `process-environment` (or its equivalent) for those names is
+  forwarded into the sandbox.
+- If the caller fails to set a key, `${VAR:-}` expands to empty and the
+  agent simply sees an unset key — same failure mode as a missing env
+  var anywhere else, no special handling required.
+
+The caller now owns the credential-cache policy: TTL, clearing on
+suspend/lock, refreshing after rotation. The defaults (`useOpEnv =
+passApiKeysFromEnv = per-profile`) keep the simple case simple.
+
 ### makeJailedAgent options
 
 | Option | Default | Description |
@@ -194,6 +231,7 @@ stdout regardless.
 | `blockGitPush` | per profile | Disable git push via SSH |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
+| `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail via `--setenv VAR "$VAR"`. Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
 
 ### Full example
 

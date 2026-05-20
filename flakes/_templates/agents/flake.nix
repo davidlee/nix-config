@@ -10,6 +10,13 @@
 # API keys from 1Password. Override the ref map at mkJailedAgents time
 # if your vault layout differs (see pub/README.md).
 #
+# If the caller already holds resolved plaintext (e.g. a long-lived
+# broker with a session credential cache), set:
+#   useOpEnv = false; passApiKeysFromEnv = true;
+# to skip the outer `op run` wrapper while keeping the bwrap
+# `--setenv VAR "$VAR"` forwarding. See pub/README.md > "Pre-resolved
+# secrets" for the full rationale.
+#
 # Usage:
 #   nix develop
 #   jailed-claude   # or jailed-pi, jailed-codex, jailed-gemini, ...
@@ -89,6 +96,10 @@
         #   allowSelfAsSubagent  = true;   # let agent recursively spawn itself
         #   maxSubagentDepth     = 2;      # cap recursion depth (default 1)
         #   useOpEnv             = false;  # opt out of 1Password injection
+        #   passApiKeysFromEnv   = true;   # forward pre-resolved API keys from
+        #                                  # the caller's env (use with
+        #                                  # useOpEnv = false when a broker
+        #                                  # already caches plaintext)
         jailPkgs = lib.optionalAttrs isLinux {
           jailed-pi = jailLib.makeJailedPi {
             profile = "specDev";
@@ -135,7 +146,7 @@
           #   extraOptions = jailEnvOptions;
           #   inherit workspaceDeps;
           # };
-          bubblewrap = pkgs.bubblewrap;
+          inherit (pkgs) bubblewrap;
         };
       in {
         packages = jailPkgs;

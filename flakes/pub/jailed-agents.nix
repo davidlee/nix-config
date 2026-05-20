@@ -13,6 +13,12 @@
 #   agent via `--setenv VAR "$VAR"`. Secrets never sit on disk; they
 #   live only in the bwrap process env for the agent's lifetime.
 #
+#   Callers that already cache resolved secrets in their own process
+#   (e.g. an Emacs broker with a per-session cache) should set
+#   `useOpEnv = false; passApiKeysFromEnv = true;` — the outer `op run`
+#   is skipped, but `--setenv` forwarding still copies plaintext from
+#   the caller's env into the jail.
+#
 # Usage:
 #   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
 #   makeJailedAgent { name = "foo"; agent = foo-pkg; profile = "research"; }
@@ -21,12 +27,12 @@
   jail-nix,
   llm-agents,
   apiKeyOpRefs ? {
-    DEEPSEEK_API_KEY   = "op://API_KEYS/DEEPSEEK_API_KEY/credential";
+    DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential";
     OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential";
-    MISTRAL_API_KEY    = "op://API_KEYS/MISTRAL_API_KEY/credential";
-    VOYAGE_API_KEY     = "op://API_KEYS/VOYAGE_API_KEY/credential";
-    OPENAI_API_KEY     = "op://API_KEYS/OPENAI_API_KEY/credential";
-    GEMINI_API_KEY     = "op://API_KEYS/GEMINI_API_KEY/credential";
+    MISTRAL_API_KEY = "op://API_KEYS/MISTRAL_API_KEY/credential";
+    VOYAGE_API_KEY = "op://API_KEYS/VOYAGE_API_KEY/credential";
+    OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential";
+    GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential";
   },
 }: let
   inherit (pkgs) lib;
@@ -35,7 +41,8 @@
 
   # File of op:// refs that `op run` reads. Contents are not secret
   # (just pointers); the resolved values never land in the store.
-  apiKeyEnvFile = pkgs.writeText "llm-api-keys.env"
+  apiKeyEnvFile =
+    pkgs.writeText "llm-api-keys.env"
     (lib.concatStringsSep "\n"
       (lib.mapAttrsToList (k: v: "${k}=${v}") apiKeyOpRefs));
 
@@ -44,10 +51,10 @@
   # `:-` guard keeps empty/unset vars from breaking set -u callers.
   apiKeyPassThrough =
     lib.mapAttrsToList
-      (var: _:
-        jail.combinators.unsafe-add-raw-args
-          ''--setenv ${var} "''${${var}:-}"'')
-      apiKeyOpRefs;
+    (var: _:
+      jail.combinators.unsafe-add-raw-args
+      ''--setenv ${var} "''${${var}:-}"'')
+    apiKeyOpRefs;
 
   inherit (llm-agents.packages.${system}) pi;
   inherit (llm-agents.packages.${system}) crush;
@@ -182,6 +189,11 @@
     sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
     useOpEnv ? profileDefaults.${profile}.useOpEnv,
+    # When the caller pre-resolves op:// refs and exports plaintext into
+    # the wrapper's env (e.g. Emacs broker with a per-session cache),
+    # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
+    # bwrap `--setenv VAR "$VAR"` forwarding still runs.
+    passApiKeysFromEnv ? useOpEnv,
   }: let
     selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
       depth="''${JAILED_AGENT_DEPTH:-0}"
@@ -202,27 +214,26 @@
       )
       workspaceDeps;
 
-    inner =
-      jail "jailed-${name}" agent (
-        baseJailOptions
-        ++ workspaceBinds
-        ++ profileOptions.${profile}
-        ++ termOptions
-        ++ packageManagerOptions
-        ++ lib.optionals blockGitPush gitPushBlockOptions
-        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-        ++ lib.optionals exposePostgres postgresOptions
-        ++ lib.optionals useOpEnv apiKeyPassThrough
-        ++ [
-          (jail.combinators.add-pkg-deps (
-            commonPkgs
-            ++ extraPkgs
-            ++ [agent] # allow sub-agent invocation
-            ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
-          ))
-        ]
-        ++ extraOptions
-      );
+    inner = jail "jailed-${name}" agent (
+      baseJailOptions
+      ++ workspaceBinds
+      ++ profileOptions.${profile}
+      ++ termOptions
+      ++ packageManagerOptions
+      ++ lib.optionals blockGitPush gitPushBlockOptions
+      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+      ++ lib.optionals exposePostgres postgresOptions
+      ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
+      ++ [
+        (jail.combinators.add-pkg-deps (
+          commonPkgs
+          ++ extraPkgs
+          ++ [agent] # allow sub-agent invocation
+          ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
+        ))
+      ]
+      ++ extraOptions
+    );
 
     # Outer wrapper: resolve op:// refs on the host (uses the 1Password
     # desktop app + biometric unlock via the user's PATH `op'), inject
@@ -245,7 +256,9 @@
     assert (!allowSelfAsSubagent)
     || maxSubagentDepth > 0
     || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
-      if useOpEnv then outer else inner;
+      if useOpEnv
+      then outer
+      else inner;
 
   makeJailedPi = args:
     makeJailedAgent ({
