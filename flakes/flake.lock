@@ -689,8 +689,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1779289554,
-        "narHash": "sha256-o4vDYDWelfpPJfnXKQR7y/6gleOWbjtOq9AOmIv6rpA=",
+        "lastModified": 1779294959,
+        "narHash": "sha256-3GbfTErJytz6nTVj9eT2pTbPIiE1AVIwuIa0dd9EysU=",
         "path": "/home/david/dev/satan-patcher",
         "type": "path"
       },

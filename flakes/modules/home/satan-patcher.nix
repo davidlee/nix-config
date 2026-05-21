@@ -13,10 +13,9 @@
 #   journalctl --user -u satan-patcher -f
 #   psql -d satan_memory -c '\d patch_jobs'    # 0006 must be applied
 #
-# jailed-pi is NOT bundled here; the daemon needs to find it on PATH.
-# Set `services.satan-patcher.extraPathPackages` to a list containing
-# whichever project's jailed-pi build should be used at daemon spawn
-# time, OR set `services.satan-patcher.program` to an absolute path.
+# jailed-pi resolved per-job via `nix build <repo>#<flake_attr>`.
+# No PATH injection needed — the jail resolver shells out to nix
+# directly (nix is on the service PATH via the module).
 _: {
   flake.homeModules.satan-patcher = {
     inputs,
@@ -28,10 +27,12 @@ _: {
     services.satan-patcher = {
       enable = true;
       package = inputs.satan-patcher.packages.${pkgs.system}.satan-patcher;
-      # jailed-pi is project-specific; leave program = "jailed-pi" and
-      # add the binary's package here when ready.  Until then the unit
-      # will fail jobs with `adapter_failed: executable file not found`.
-      extraPathPackages = [];
+      opBin = "/run/wrappers/bin/op";
+      opAccount = "my.1password.com";
+      apiKeyRefs = {
+        OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential";
+        DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential";
+      };
     };
   };
 }
