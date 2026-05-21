@@ -128,6 +128,7 @@ button:hover {
 #custom-weather,
 #custom-agenda,
 #custom-satan-inbox,
+#custom-satan-timer,
 #privacy-item
 {
     font-family: FontAwesome;
@@ -136,6 +137,17 @@ button:hover {
     color: #ffffff;
     background-color: @muted;
     border-bottom: 3px solid rgba(100, 114, 125, 0.5);
+}
+#custom-satan-timer.running {
+    background-color: darkred;
+}
+#custom-satan-timer.warn {
+    background-color: red;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 #custom-satan-inbox.empty {
