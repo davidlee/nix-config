@@ -27,7 +27,7 @@ _: {
     systemd.user.timers.satan-morning = {
       Unit.Description = "SATAN morning timer";
       Timer = {
-        OnCalendar = "Mon..Sun 09:00";
+        OnCalendar = "Mon..Sun 09:15";
         Persistent = true;
       };
       Install.WantedBy = ["timers.target"];
@@ -44,7 +44,7 @@ _: {
     systemd.user.timers.satan-motd = {
       Unit.Description = "SATAN motd timer";
       Timer = {
-        OnCalendar = "*-*-* 07:00";
+        OnCalendar = "*-*-* 08:15";
         Persistent = true;
       };
       Install.WantedBy = ["timers.target"];
@@ -69,8 +69,8 @@ _: {
         # 5 minutes of jitter so multiple machines (or restarts) do not
         # converge on the same instant.
         OnBootSec = "5min";
-        OnUnitActiveSec = "30min";
-        RandomizedDelaySec = "5min";
+        # OnUnitActiveSec = "30min";
+        # RandomizedDelaySec = "5min";
         Persistent = false;
       };
       Install.WantedBy = ["timers.target"];
