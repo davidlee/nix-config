@@ -13,10 +13,17 @@
     "/home/david/.pi/packages/node_modules/pi-web-access"
   ],
   "enabledModels": [
-    "google-gemini-cli/gemini-3-flash-preview",
-    "google-gemini-cli/gemini-3-pro-preview",
     "local-llama/gemma-4-e4b-q5",
     "deepseek/deepseek-v4-pro",
-    "deepseek/deepseek-v4-flash"
+    "deepseek/deepseek-v4-flash",
+    "google/gemini-flash-latest",
+    "openai-codex/gpt-5.2",
+    "openai-codex/gpt-5.3-codex",
+    "openai-codex/gpt-5.3-codex-spark",
+    "openai-codex/gpt-5.4",
+    "openai-codex/gpt-5.4-mini",
+    "openai-codex/gpt-5.5",
+    "openrouter/openrouter/free",
+    "openrouter/qwen/qwen3.6-max-preview"
   ]
 }

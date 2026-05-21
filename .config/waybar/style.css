@@ -162,6 +162,15 @@ button:hover {
     color: #ffffff;
     background-color: #26A65B;
 }
+#cpu,
+#memory,
+#custom-wpm { 
+    font-size: 14px;
+    padding:4px;
+    margin: 0 2px;
+    font-family: JetBrainsMono;
+}
+#custom-wpm {  margin-bottom: 3px; }
 
 @keyframes blink {
     to {
