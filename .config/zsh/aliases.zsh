@@ -17,7 +17,7 @@ alias jc="just --choose"
 alias _=sudo;
 alias s='uv run spec-driver';
 
-
+alias dr="sleipnir-doctor"
 
 alias nw="emacs -nw"
 
