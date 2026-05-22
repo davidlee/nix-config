@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# spotifyd health check — restart spotifyd when its websocket has gone
+# stale or it never connected after S3 resume. Runs every 5 minutes from
+# spotifyd-watchdog.timer (see alarm.nix).
+#
+# Safe to invoke directly: `spotifyd-watchdog` or `bash -x` for tracing.
+
+set -eu
+
+# Be explicit about PATH so behaviour matches whether invoked from a user
+# shell, a systemd user unit, or cron-style automation. The script needs
+# spotify_player (~/.nix-profile or /etc/profiles), and systemctl /
+# journalctl / date / grep / tail from /run/current-system/sw/bin.
+export PATH="/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:$HOME/.nix-profile/bin:$PATH"
+
+# Don't disturb active playback: if something is streaming, spotifyd is
+# functional enough — let any transient blip recover on its own.
+playback=$(spotify_player get key playback 2>/dev/null || echo null)
+case "$playback" in
+  *'"is_playing":true'*) exit 0 ;;
+esac
+
+# Two failure modes to detect:
+# 1. Websocket died: last recent log line is a WARN
+# 2. Never connected: started after S3 resume with no network, stuck
+#    with no "active device is" line since boot. Only act if it's been
+#    running > 2 min to avoid racing a fresh restart.
+started=$(systemctl --user show spotifyd.service -p ActiveEnterTimestamp --value)
+started_epoch=$(date -d "$started" +%s)
+now_epoch=$(date +%s)
+uptime=$((now_epoch - started_epoch))
+
+has_session=$(journalctl --user -u spotifyd.service \
+  --since "$started" -o cat -q \
+  | grep -c "active device is" || true)
+last=$(journalctl --user -u spotifyd.service \
+         --since "15 minutes ago" -o cat -q | tail -n 1)
+
+needs_restart=false
+case "$last" in
+  *"[WARN] Websocket"*|*"does not respond"*|*"Error while closing websocket"*)
+    echo "spotifyd stale (last log: $last)"
+    needs_restart=true ;;
+esac
+if [ "$has_session" = "0" ] && [ "$uptime" -gt 120 ]; then
+  echo "spotifyd never connected in ${uptime}s since $started"
+  needs_restart=true
+fi
+
+if [ "$needs_restart" = "true" ]; then
+  echo "restarting spotifyd"
+  systemctl --user restart spotifyd.service
+fi

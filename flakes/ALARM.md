@@ -4,6 +4,8 @@
 
 **Stack:** `spotifyd` (headless Spotify Connect device) + `spotify_player` (CLI control) + systemd user timers.
 
+**Scripts:** the alarm and watchdog logic live as plain shell scripts in `modules/home/nixos/bin/` and are installed via `home.file` to `~/.local/bin/{spotify-alarm,spotifyd-watchdog}`. Edit there, `home-manager switch`, or invoke directly (`spotify-alarm`, `spotifyd-watchdog`) for ad-hoc testing.
+
 **Timers:** `spotify-alarm` (weekdays 07:30) and `spotify-alarm-weekend` (Sat/Sun 08:30). Change times in `alarm.nix`, then `home-manager switch` — no manual systemctl needed.
 
 **First-time setup** (after a rebuild or re-install):
@@ -51,7 +53,9 @@ Skips entirely when playback is active — don't disturb a working stream.
 ```bash
 journalctl --user -u spotify-alarm.service -b       # this-boot alarm log
 journalctl --user -u spotifyd.service --since "07:29" --until "07:32"
-systemctl --user start spotify-alarm.service        # manual dry-run, any time of day
+systemctl --user start spotify-alarm.service        # manual dry-run via systemd, any time of day
+spotify-alarm                                       # same, but stdout goes to your terminal
+spotifyd-watchdog                                   # one-shot health check
 ```
 
 If Phase 2 logs `no Sleipnir devices in API yet (raw: …)` repeatedly, the `raw:` payload tells you whether the API is genuinely returning an empty list or `spotify_player` is hitting an error.
