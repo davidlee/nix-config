@@ -3,3 +3,5 @@
 result*
 emacs-packages.txt
 TODO.md
+__pycache__/
+*.pyc

@@ -1,4 +1,14 @@
 # rebuild system
+
+default: fmt doctor choose
+
+noop:
+  @echo ''
+
+choose:
+ #@$(gum choose "noop" "system-switch" "home-switch" "flake-update-all" "everything") | xargs just
+ @sel=$(gum choose "noop" "system-switch" "home-switch" "flake-update-all" "everything") && [ -n "$sel" ] && just "$sel"
+
 fmt:
   nix fmt
 
@@ -8,15 +18,18 @@ nixos-start-docker-daemon:
 run *args:
   sudo ./run.sh {{args}}
 
-switch: run
+system-switch: run
 
 home-switch:
   home-manager switch --flake '.#david'
 
+doctor:
+  sleipnir-doctor
+
 darwin-switch:
   darwin-rebuild switch --flake '.#fusillade'
 
-all: update-system update-home switch home-switch
+everything: update-system update-home system-switch home-switch
 
 ##
 ##

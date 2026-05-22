@@ -582,8 +582,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1779232423,
-        "narHash": "sha256-N57uKYhlJWRoGmN2Vggkupq04/oIqDyBXl4EbVeOH8M=",
+        "lastModified": 1779240381,
+        "narHash": "sha256-IuldOOnhe11Z8uqm6Ng6l2uNQTaLJS4bS91J35TNIzw=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
@@ -689,8 +689,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1779294959,
-        "narHash": "sha256-3GbfTErJytz6nTVj9eT2pTbPIiE1AVIwuIa0dd9EysU=",
+        "lastModified": 1779406400,
+        "narHash": "sha256-NUYKOI3nqDJenFOF6tR2N3mYACGaeESEZf80yi6M9Dc=",
         "path": "/home/david/dev/satan-patcher",
         "type": "path"
       },

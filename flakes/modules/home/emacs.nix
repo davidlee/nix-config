@@ -155,12 +155,13 @@ _: {
         })
       ]);
 
-    services = {
-      emacs = {
-        # client.enable = true;
-        enable = false;
-        package = emacs;
-      };
-    };
+    # DISABLED while I'm still rebooting all the time
+    # services = {
+    #   emacs = {
+    #     client.enable = true;
+    #     enable = false;
+    #     package = emacs;
+    #   };
+    # };
   };
 }

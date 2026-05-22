@@ -1,0 +1,459 @@
+#!/usr/bin/env python3
+"""sleipnir-doctor — at-a-glance system health check.
+
+Add a check: write a function decorated with @check("Category", "Name") that
+returns Result(status, detail). Status is one of OK / WARN / CRIT.
+Registry preserves declaration order, which is also display order.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+import shutil
+import socket
+import subprocess
+import sys
+import time
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable
+
+# ── ANSI ──────────────────────────────────────────────────────────────────────
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+ORANGE = "\033[38;5;208m"
+CYAN = "\033[36m"
+
+USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
+if not USE_COLOR:
+    RESET = BOLD = DIM = GREEN = YELLOW = ORANGE = CYAN = ""
+
+OK, WARN, CRIT = "OK", "WARN", "CRIT"
+GLYPH = {
+    OK: f"{GREEN}●{RESET}",
+    WARN: f"{YELLOW}●{RESET}",
+    CRIT: f"{ORANGE}●{RESET}",
+}
+
+# ── Configurable lists ────────────────────────────────────────────────────────
+DAEMONS_USER = ["spotifyd", "emacs", "swayidle", "swayosd"]
+DAEMONS_SYSTEM = ["cups"]
+
+HOME = Path.home()
+FLAKES = HOME / "flakes"
+
+
+# ── Registry ──────────────────────────────────────────────────────────────────
+@dataclass
+class Result:
+    status: str
+    detail: str = ""
+
+
+CHECKS: list[tuple[str, str, Callable[[], Result]]] = []
+
+
+def check(category: str, name: str):
+    def deco(fn):
+        CHECKS.append((category, name, fn))
+        return fn
+
+    return deco
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+def sh(cmd: list[str], timeout: float = 5.0) -> tuple[int, str, str]:
+    """Run command, return (rc, stdout, stderr). rc=127 if binary missing."""
+    try:
+        r = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, check=False
+        )
+        return r.returncode, r.stdout.strip(), r.stderr.strip()
+    except FileNotFoundError:
+        return 127, "", f"not found: {cmd[0]}"
+    except subprocess.TimeoutExpired:
+        return 124, "", f"timeout: {' '.join(cmd)}"
+
+
+def need(tool: str) -> Result | None:
+    """Return a WARN Result if tool missing on PATH, else None."""
+    if shutil.which(tool) is None:
+        return Result(WARN, f"tool not found: {tool}")
+    return None
+
+
+def gib(nbytes: int) -> str:
+    return f"{nbytes / 1024**3:.0f} GiB"
+
+
+def pct_status(free_pct: float, warn_below: float, crit_below: float) -> str:
+    if free_pct < crit_below:
+        return CRIT
+    if free_pct < warn_below:
+        return WARN
+    return OK
+
+
+def read_meminfo() -> dict[str, int]:
+    """Parse /proc/meminfo into a dict of kB ints."""
+    out = {}
+    with open("/proc/meminfo") as f:
+        for line in f:
+            k, _, rest = line.partition(":")
+            num = rest.strip().split()
+            if num:
+                try:
+                    out[k] = int(num[0])
+                except ValueError:
+                    pass
+    return out
+
+
+# ── System ────────────────────────────────────────────────────────────────────
+def _disk_check(path: str) -> Result:
+    try:
+        u = shutil.disk_usage(path)
+    except FileNotFoundError:
+        return Result(WARN, f"{path} missing")
+    pct = u.free / u.total * 100
+    return Result(
+        pct_status(pct, 15, 5),
+        f"{gib(u.free)} free ({pct:.0f}%)",
+    )
+
+
+@check("System", "Disk: /")
+def _():
+    return _disk_check("/")
+
+
+@check("System", "Disk: /home")
+def _():
+    try:
+        if os.stat("/home").st_dev == os.stat("/").st_dev:
+            return Result(OK, "same fs as /")
+    except FileNotFoundError:
+        return Result(WARN, "/home missing")
+    return _disk_check("/home")
+
+
+@check("System", "Memory")
+def _():
+    m = read_meminfo()
+    total = m.get("MemTotal", 0)
+    avail = m.get("MemAvailable", 0)
+    if not total:
+        return Result(WARN, "meminfo unreadable")
+    pct = avail / total * 100
+    gib_avail = avail * 1024 / 1024**3
+    return Result(
+        pct_status(pct, 15, 5),
+        f"{gib_avail:.1f} GiB available ({pct:.0f}%)",
+    )
+
+
+@check("System", "Swap")
+def _():
+    m = read_meminfo()
+    total = m.get("SwapTotal", 0)
+    free = m.get("SwapFree", 0)
+    if total == 0:
+        return Result(OK, "no swap configured")
+    pct = free / total * 100
+    return Result(
+        pct_status(pct, 50, 20),
+        f"{free * 1024 / 1024**3:.1f} GiB free ({pct:.0f}%)",
+    )
+
+
+@check("System", "Thermal")
+def _():
+    temps = []
+    base = Path("/sys/class/thermal")
+    if not base.exists():
+        return Result(OK, "no thermal zones")
+    for zone in base.glob("thermal_zone*/temp"):
+        try:
+            temps.append(int(zone.read_text().strip()) / 1000.0)
+        except (OSError, ValueError):
+            continue
+    if not temps:
+        return Result(OK, "no readings")
+    hi = max(temps)
+    status = OK
+    if hi > 95:
+        status = CRIT
+    elif hi > 80:
+        status = WARN
+    return Result(status, f"{hi:.0f}°C (max of {len(temps)} zones)")
+
+
+@check("System", "OOM (24h)")
+def _():
+    miss = need("journalctl")
+    if miss:
+        return miss
+    rc, out, _ = sh(
+        ["journalctl", "-k", "--since", "24 hours ago", "--no-pager"], timeout=10
+    )
+    if rc != 0:
+        return Result(WARN, "journalctl failed")
+    n = sum(1 for line in out.splitlines() if "killed process" in line.lower())
+    if n >= 5:
+        return Result(CRIT, f"{n} events")
+    if n >= 1:
+        return Result(WARN, f"{n} events")
+    return Result(OK, "0 events")
+
+
+# ── Services ──────────────────────────────────────────────────────────────────
+def _failed_units(user: bool) -> Result:
+    miss = need("systemctl")
+    if miss:
+        return miss
+    cmd = ["systemctl"]
+    if user:
+        cmd.append("--user")
+    cmd += ["--failed", "--no-legend", "--plain"]
+    rc, out, _ = sh(cmd)
+    if rc != 0:
+        return Result(WARN, "systemctl failed")
+    units = [line.split()[0] for line in out.splitlines() if line.strip()]
+    if not units:
+        return Result(OK, "0")
+    sample = ", ".join(units[:3])
+    if len(units) > 3:
+        sample += f", +{len(units) - 3}"
+    return Result(WARN, f"{len(units)} ({sample})")
+
+
+@check("Services", "systemd failed (system)")
+def _():
+    return _failed_units(user=False)
+
+
+@check("Services", "systemd failed (user)")
+def _():
+    return _failed_units(user=True)
+
+
+def _is_active(unit: str, user: bool) -> Result:
+    miss = need("systemctl")
+    if miss:
+        return miss
+    cmd = ["systemctl"]
+    if user:
+        cmd.append("--user")
+    cmd += ["is-active", unit]
+    rc, out, _ = sh(cmd)
+    state = out or "unknown"
+    if state == "active":
+        return Result(OK, state)
+    if state == "inactive":
+        return Result(WARN, state)
+    return Result(WARN, state)
+
+
+for _u in DAEMONS_USER:
+    def _make(u=_u):
+        @check("Services", f"daemon: {u}")
+        def _():
+            return _is_active(u, user=True)
+        return _
+    _make()
+
+for _u in DAEMONS_SYSTEM:
+    def _make(u=_u):
+        @check("Services", f"daemon: {u} (system)")
+        def _():
+            return _is_active(u, user=False)
+        return _
+    _make()
+
+
+# ── Nix ───────────────────────────────────────────────────────────────────────
+@check("Nix", "/nix/store free")
+def _():
+    return _disk_check("/nix/store" if Path("/nix/store").exists() else "/")
+
+
+@check("Nix", "System generations")
+def _():
+    profiles = Path("/nix/var/nix/profiles")
+    if not profiles.exists():
+        return Result(WARN, "no profiles dir")
+    pat = re.compile(r"^system-\d+-link$")
+    n = sum(1 for p in profiles.iterdir() if pat.match(p.name))
+    status = OK
+    if n > 80:
+        status = CRIT
+    elif n > 40:
+        status = WARN
+    return Result(status, f"{n} generations")
+
+
+@check("Nix", "Home-manager generations")
+def _():
+    miss = need("home-manager")
+    if miss:
+        return miss
+    rc, out, _ = sh(["home-manager", "generations"], timeout=15)
+    if rc != 0:
+        return Result(WARN, "home-manager failed")
+    n = len([ln for ln in out.splitlines() if ln.strip()])
+    status = OK
+    if n > 80:
+        status = CRIT
+    elif n > 40:
+        status = WARN
+    return Result(status, f"{n} generations")
+
+
+@check("Nix", "GC roots (auto)")
+def _():
+    p = Path("/nix/var/nix/gcroots/auto")
+    if not p.exists():
+        return Result(OK, "no auto roots dir")
+    try:
+        n = sum(1 for _ in p.iterdir())
+    except PermissionError:
+        return Result(WARN, "permission denied")
+    return Result(OK, f"{n} roots")
+
+
+# ── Network + Git ─────────────────────────────────────────────────────────────
+@check("Network + Git", "Default route")
+def _():
+    try:
+        with open("/proc/net/route") as f:
+            next(f)  # header
+            for line in f:
+                parts = line.split()
+                if len(parts) >= 3 and parts[1] == "00000000":
+                    # gateway is little-endian hex
+                    gw = parts[2]
+                    octets = [int(gw[i : i + 2], 16) for i in range(0, 8, 2)]
+                    ip = ".".join(str(o) for o in reversed(octets))
+                    return Result(OK, f"via {ip} ({parts[0]})")
+    except OSError:
+        pass
+    return Result(CRIT, "no default route")
+
+
+@check("Network + Git", "DNS")
+def _():
+    socket.setdefaulttimeout(3)
+    try:
+        ip = socket.gethostbyname("one.one.one.one")
+        return Result(OK, f"one.one.one.one → {ip}")
+    except OSError as e:
+        return Result(CRIT, f"resolve failed: {e}")
+    finally:
+        socket.setdefaulttimeout(None)
+
+
+@check("Network + Git", "Internet")
+def _():
+    try:
+        with socket.create_connection(("1.1.1.1", 443), timeout=3):
+            return Result(OK, "1.1.1.1:443 reachable")
+    except OSError as e:
+        return Result(CRIT, f"unreachable: {e}")
+
+
+def _git_dirty(repo: Path, pathspec: str | None = None) -> Result:
+    """Count dirty tracked entries (no untracked scan — $HOME is sparse).
+
+    If pathspec is set, restrict to that subtree. Ahead/behind only reported
+    for the whole-repo case.
+    """
+    miss = need("git")
+    if miss:
+        return miss
+    cmd = ["git", "-C", str(repo), "status", "--porcelain", "-uno"]
+    if pathspec:
+        cmd += ["--", pathspec]
+    rc, out, err = sh(cmd)
+    if rc != 0:
+        return Result(WARN, f"git failed: {err or out}")
+    dirty = len([ln for ln in out.splitlines() if ln.strip()])
+
+    bits = []
+    if dirty:
+        bits.append(f"{dirty} modified")
+
+    if pathspec is None:
+        rc2, out2, _ = sh(
+            ["git", "-C", str(repo), "rev-list", "--left-right", "--count",
+             "@{u}...HEAD"]
+        )
+        if rc2 == 0 and out2:
+            parts = out2.split()
+            if len(parts) == 2:
+                behind, ahead = int(parts[0]), int(parts[1])
+                if ahead:
+                    bits.append(f"ahead {ahead}")
+                if behind:
+                    bits.append(f"behind {behind}")
+
+    if not bits:
+        return Result(OK, "clean")
+    return Result(WARN, ", ".join(bits))
+
+
+@check("Network + Git", "Git ~")
+def _():
+    return _git_dirty(HOME)
+
+
+@check("Network + Git", "Git ~/flakes (tracked)")
+def _():
+    if not FLAKES.exists():
+        return Result(OK, "no ~/flakes")
+    return _git_dirty(HOME, pathspec="flakes")
+
+
+# ── Render ────────────────────────────────────────────────────────────────────
+NAME_WIDTH = 28
+
+
+def main() -> int:
+    t0 = time.time()
+    results: list[Result] = []
+    current_cat: str | None = None
+
+    for category, name, fn in CHECKS:
+        if category != current_cat:
+            if current_cat is not None:
+                print()
+            print(f"{BOLD}{CYAN}── {category} ──{RESET}")
+            current_cat = category
+        try:
+            r = fn()
+        except Exception as e:
+            r = Result(CRIT, f"check raised: {type(e).__name__}: {e}")
+        results.append(r)
+        print(f"  {GLYPH[r.status]}  {name:<{NAME_WIDTH}} {DIM}{r.detail}{RESET}")
+
+    n_ok = sum(1 for r in results if r.status == OK)
+    n_warn = sum(1 for r in results if r.status == WARN)
+    n_crit = sum(1 for r in results if r.status == CRIT)
+    dt = time.time() - t0
+
+    print()
+    print(f"{BOLD}── Summary ──{RESET}")
+    print(
+        f"  {GREEN}{n_ok} ok{RESET}  "
+        f"{YELLOW}{n_warn} warn{RESET}  "
+        f"{ORANGE}{n_crit} crit{RESET}    "
+        f"{DIM}{dt:.2f}s{RESET}"
+    )
+    return 0 if n_crit == 0 else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
