@@ -77,6 +77,11 @@
       url = "path:/home/david/dev/satan-patcher";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
+
+    emacs-config = {
+      url = "path:/home/david/.emacs.d";
+      flake = false;
+    };
   };
 
   outputs = inputs @ {

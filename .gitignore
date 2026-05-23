@@ -12,3 +12,6 @@ result
 \#*\#
 backup/
 
+
+# Split out into its own repo (github.com/davidlee/emacs-config) on 2026-05-23
+.emacs.d/

@@ -2,9 +2,10 @@ _: {
   flake.homeModules.emacs = {
     pkgs,
     self,
+    inputs,
     ...
   }: let
-    emacsDir = ../../../.emacs.d; # relative to repo root
+    emacsDir = inputs.emacs-config;
     configDirs = [
       "core"
       "apps"
