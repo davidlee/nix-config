@@ -64,6 +64,7 @@
           # e.g. go, gopls, rust-bin.stable.latest.default, uv, python3, nodejs_latest
           uv
           python3
+          codex # for mcp server slave
         ];
 
         # Sibling repos to bind-mount (for editable deps / source inspection).
