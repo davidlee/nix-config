@@ -78,6 +78,11 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
+    satan-attrd = {
+      url = "path:/home/david/dev/satan-attrd";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     emacs-config = {
       url = "path:/home/david/.emacs.d";
       flake = false;

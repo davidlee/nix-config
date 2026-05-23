@@ -31,6 +31,7 @@ _: {
       homeModules.sleipnir-doctor
       homeModules.satan
       homeModules.satan-patcher
+      homeModules.satan-attrd
       homeModules.behaviour
 
       # homeModules.bough
