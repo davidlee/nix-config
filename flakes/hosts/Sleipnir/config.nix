@@ -32,6 +32,7 @@
     nixosModules.lib
     nixosModules.locate
     nixosModules.llama-cpp
+    nixosModules.maintenance
     nixosModules.network
     nixosModules.nix
     nixosModules.oom

@@ -98,6 +98,7 @@ spotify_player playback start context \
   --id "$PLAYLIST_ID" playlist --shuffle 2>/dev/null || true
 spotify_player playback play 2>/dev/null || true
 spotify_player playback volume 100 2>/dev/null || true
+pactl set-sink-volume "$SPEAKERS" 90%
 
 # Move all sink inputs (including spotifyd's new one) to speakers.
 # set-default-sink above covers new streams, but this catches any

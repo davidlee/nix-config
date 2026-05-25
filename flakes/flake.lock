@@ -248,8 +248,8 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1779511259,
-        "narHash": "sha256-dg61JKGOrbHn+ehE3wCMaHpEAyfrs7S8W6mJgYmvHTc=",
+        "lastModified": 1779746997,
+        "narHash": "sha256-XVKSgloRvNkFAeD4jaZIj1GGlWiw3U8MxD9BvZ6FyNk=",
         "path": "/home/david/.emacs.d",
         "type": "path"
       },
@@ -1304,8 +1304,8 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1779611729,
-        "narHash": "sha256-OnZn3N7GlvGBl/183qqXZ1kkPa61f/8R6lbH2pZs/Bs=",
+        "lastModified": 1779689870,
+        "narHash": "sha256-4otWMPw0HikPLexxoDWzPJHYFV4bYObcgcfyoIahTHg=",
         "path": "/home/david/dev/satan-attrd",
         "type": "path"
       },
