@@ -170,6 +170,64 @@ def _():
     )
 
 
+@check("System", "Kernel mismatch")
+def _():
+    try:
+        running = Path("/proc/version").read_text().split()[2]
+    except (OSError, IndexError):
+        return Result(WARN, "can't read /proc/version")
+    booted = Path("/run/current-system/kernel-modules/lib/modules")
+    if not booted.exists():
+        return Result(OK, running)
+    installed = [d.name for d in booted.iterdir() if d.is_dir()]
+    if not installed:
+        return Result(OK, running)
+    if running in installed:
+        return Result(OK, running)
+    return Result(WARN, f"running {running}, installed {installed[0]} — reboot needed")
+
+
+@check("System", "Time sync")
+def _():
+    rc, out, _ = sh(["timedatectl", "show", "--property=NTPSynchronized", "--value"])
+    if rc != 0:
+        return Result(WARN, "timedatectl failed")
+    if out == "yes":
+        return Result(OK, "NTP synchronized")
+    return Result(WARN, "NTP not synchronized")
+
+
+@check("System", "Load average")
+def _():
+    try:
+        parts = Path("/proc/loadavg").read_text().split()
+        load1, load5, load15 = float(parts[0]), float(parts[1]), float(parts[2])
+    except (OSError, IndexError, ValueError):
+        return Result(WARN, "can't read /proc/loadavg")
+    ncpu = os.cpu_count() or 1
+    status = OK
+    if load5 > ncpu * 2:
+        status = CRIT
+    elif load5 > ncpu:
+        status = WARN
+    return Result(status, f"{load1:.1f} {load5:.1f} {load15:.1f} ({ncpu} cores)")
+
+
+@check("System", "Zombies")
+def _():
+    try:
+        n = sum(
+            1 for p in Path("/proc").iterdir()
+            if p.name.isdigit()
+            and "Z (zombie)" in (p / "status").read_text(errors="replace")
+        )
+    except OSError:
+        return Result(WARN, "can't scan /proc")
+    if n == 0:
+        return Result(OK, "0")
+    return Result(WARN if n < 10 else CRIT, f"{n} zombie processes")
+
+
 @check("System", "Thermal")
 def _():
     temps = []
@@ -311,6 +369,26 @@ def _():
     elif n > 40:
         status = WARN
     return Result(status, f"{n} generations")
+
+
+@check("Nix", "Journal disk usage")
+def _():
+    rc, out, _ = sh(["journalctl", "--disk-usage"], timeout=10)
+    if rc != 0:
+        return Result(WARN, "journalctl failed")
+    m = re.search(r"([\d.]+[KMGT])", out)
+    if not m:
+        return Result(OK, out)
+    size_str = m.group(1)
+    multipliers = {"K": 1024, "M": 1024**2, "G": 1024**3, "T": 1024**4}
+    num = float(size_str[:-1])
+    nbytes = num * multipliers.get(size_str[-1], 1)
+    status = OK
+    if nbytes > 4 * 1024**3:
+        status = CRIT
+    elif nbytes > 2 * 1024**3:
+        status = WARN
+    return Result(status, size_str)
 
 
 @check("Nix", "GC roots (auto)")

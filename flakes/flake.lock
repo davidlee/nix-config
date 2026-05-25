@@ -1304,8 +1304,8 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1779552324,
-        "narHash": "sha256-FzFHokm9H8hdIF1CUS/krnVdL75YToHwP49KP4FYMSs=",
+        "lastModified": 1779600976,
+        "narHash": "sha256-OnZn3N7GlvGBl/183qqXZ1kkPa61f/8R6lbH2pZs/Bs=",
         "path": "/home/david/dev/satan-attrd",
         "type": "path"
       },
