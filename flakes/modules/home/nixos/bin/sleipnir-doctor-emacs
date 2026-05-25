@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# External health check provider for sleipnir-doctor.
+# Outputs JSON array of check results from Emacs server.
+set -euo pipefail
+
+if ! command -v emacsclient &>/dev/null; then
+  echo '[{"category":"Emacs","name":"server","status":"WARN","detail":"emacsclient not found"}]'
+  exit 0
+fi
+
+if ! emacsclient -e '(emacs-pid)' &>/dev/null; then
+  echo '[{"category":"Emacs","name":"server","status":"WARN","detail":"not running"}]'
+  exit 0
+fi
+
+emacsclient -e '(sleipnir-doctor-checks)' 2>/dev/null \
+  | sed 's/^"//;s/"$//' \
+  | sed 's/\\"/"/g'

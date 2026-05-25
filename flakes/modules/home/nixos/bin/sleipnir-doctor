@@ -8,6 +8,7 @@ Registry preserves declaration order, which is also display order.
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -40,11 +41,12 @@ GLYPH = {
 }
 
 # ── Configurable lists ────────────────────────────────────────────────────────
-DAEMONS_USER = ["spotifyd", "emacs", "swayidle", "swayosd"]
+DAEMONS_USER = ["spotifyd", "swayidle", "swayosd"]
 DAEMONS_SYSTEM = ["cups"]
 
 HOME = Path.home()
 FLAKES = HOME / "flakes"
+CHECKS_DIR = HOME / ".config" / "sleipnir-doctor" / "checks.d"
 
 
 # ── Registry ──────────────────────────────────────────────────────────────────
@@ -215,14 +217,15 @@ def _():
 
 @check("System", "Zombies")
 def _():
-    try:
-        n = sum(
-            1 for p in Path("/proc").iterdir()
-            if p.name.isdigit()
-            and "Z (zombie)" in (p / "status").read_text(errors="replace")
-        )
-    except OSError:
-        return Result(WARN, "can't scan /proc")
+    n = 0
+    for p in Path("/proc").iterdir():
+        if not p.name.isdigit():
+            continue
+        try:
+            if "Z (zombie)" in (p / "status").read_text(errors="replace"):
+                n += 1
+        except OSError:
+            continue
     if n == 0:
         return Result(OK, "0")
     return Result(WARN if n < 10 else CRIT, f"{n} zombie processes")
@@ -331,6 +334,7 @@ for _u in DAEMONS_SYSTEM:
             return _is_active(u, user=False)
         return _
     _make()
+
 
 
 # ── Nix ───────────────────────────────────────────────────────────────────────
@@ -495,27 +499,71 @@ def _():
     return _git_dirty(HOME, pathspec="flakes")
 
 
+# ── External checks ──────────────────────────────────────────────────────────
+VALID_STATUSES = {OK, WARN, CRIT}
+
+
+def run_external_checks() -> list[tuple[str, str, Result]]:
+    """Run executables in checks.d/, parse JSON, return (category, name, Result) triples."""
+    if not CHECKS_DIR.is_dir():
+        return []
+    results = []
+    for script in sorted(CHECKS_DIR.iterdir()):
+        if not os.access(script, os.X_OK):
+            continue
+        rc, out, err = sh([str(script)], timeout=10)
+        if rc != 0:
+            results.append((script.name, "error", Result(WARN, err or f"exit {rc}")))
+            continue
+        try:
+            entries = json.loads(out)
+        except json.JSONDecodeError as e:
+            results.append((script.name, "error", Result(WARN, f"bad JSON: {e}")))
+            continue
+        if not isinstance(entries, list):
+            entries = [entries]
+        for entry in entries:
+            cat = entry.get("category", script.name)
+            name = entry.get("name", "?")
+            status = entry.get("status", "WARN").upper()
+            if status not in VALID_STATUSES:
+                status = WARN
+            detail = entry.get("detail", "")
+            results.append((cat, name, Result(status, detail)))
+    return results
+
+
 # ── Render ────────────────────────────────────────────────────────────────────
 NAME_WIDTH = 28
 
 
-def main() -> int:
-    t0 = time.time()
-    results: list[Result] = []
+def render_checks(checks: list[tuple[str, str, Result]]) -> list[Result]:
+    results = []
     current_cat: str | None = None
-
-    for category, name, fn in CHECKS:
+    for category, name, r in checks:
         if category != current_cat:
             if current_cat is not None:
                 print()
             print(f"{BOLD}{CYAN}── {category} ──{RESET}")
             current_cat = category
+        results.append(r)
+        print(f"  {GLYPH[r.status]}  {name:<{NAME_WIDTH}} {DIM}{r.detail}{RESET}")
+    return results
+
+
+def main() -> int:
+    t0 = time.time()
+
+    builtin = []
+    for category, name, fn in CHECKS:
         try:
             r = fn()
         except Exception as e:
             r = Result(CRIT, f"check raised: {type(e).__name__}: {e}")
-        results.append(r)
-        print(f"  {GLYPH[r.status]}  {name:<{NAME_WIDTH}} {DIM}{r.detail}{RESET}")
+        builtin.append((category, name, r))
+
+    external = run_external_checks()
+    results = render_checks(builtin + external)
 
     n_ok = sum(1 for r in results if r.status == OK)
     n_warn = sum(1 for r in results if r.status == WARN)

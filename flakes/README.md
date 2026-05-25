@@ -29,6 +29,34 @@ So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for w
 
 ## Notes 
 
+### Sleipnir Doctor
+
+`modules/home/nixos/sleipnir-doctor.nix` — at-a-glance system health check. Run `sleipnir-doctor`.
+
+Built-in checks cover disk, memory, swap, thermals, OOM kills, kernel mismatch, time sync, load, zombies, systemd failed units, daemon liveness, nix store/generations/GC roots/journal, network, and git status.
+
+**External checks:** drop an executable in `~/.config/sleipnir-doctor/checks.d/`. Doctor runs each one (10s timeout), parses stdout as JSON, and renders the results alongside built-in checks.
+
+**Protocol:** stdout must be a JSON array of check objects:
+
+```json
+[
+  {"category": "Emacs", "name": "server", "status": "OK",   "detail": "pid 1234, uptime 3:42"},
+  {"category": "Emacs", "name": "LSP",    "status": "WARN", "detail": "1/3 servers dead"}
+]
+```
+
+| Field      | Required | Values                        |
+|------------|----------|-------------------------------|
+| `category` | no       | group heading (defaults to script name) |
+| `name`     | yes      | check label                   |
+| `status`   | yes      | `OK`, `WARN`, or `CRIT`       |
+| `detail`   | no       | free text                     |
+
+Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single object instead of an array is accepted.
+
+**Shipped provider:** `sleipnir-doctor-emacs` calls `emacsclient -e '(sleipnir-doctor-checks)'` for server uptime and eglot/LSP health. Elisp side lives in `~/.emacs.d/lisp/dl-sleipnir-doctor.el`.
+
 ### OOM resilience
 
 `modules/nixos/oom.nix` — tunes `systemd-oomd` and reserves resources so the desktop stays usable under memory pressure.

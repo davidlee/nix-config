@@ -1,7 +1,7 @@
 {
   "lastChangelogVersion": "0.75.3",
   "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-v4-flash",
+  "defaultModel": "deepseek-v4-pro",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
   "compaction": {
@@ -24,6 +24,12 @@
     "openai-codex/gpt-5.4-mini",
     "openai-codex/gpt-5.5",
     "openrouter/openrouter/free",
-    "openrouter/qwen/qwen3.6-max-preview"
+    "openrouter/qwen/qwen3.6-max-preview",
+    "openrouter/qwen/qwen3.6-plus",
+    "openrouter/qwen/qwen3.6-flash",
+    "mistral/mistral-large-latest",
+    "openrouter/google/gemma-4-31b-it:free",
+    "openrouter/google/gemma-4-31b-it",
+    "openrouter/google/gemma-3-27b-it"
   ]
 }

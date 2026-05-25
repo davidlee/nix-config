@@ -5,5 +5,9 @@ _: {
       source = ./bin/sleipnir-doctor;
       executable = true;
     };
+    home.file.".config/sleipnir-doctor/checks.d/emacs" = {
+      source = ./bin/sleipnir-doctor-emacs;
+      executable = true;
+    };
   };
 }
