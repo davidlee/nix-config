@@ -83,6 +83,11 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
+    slk = {
+      url = "github:davidlee/slk";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     emacs-config = {
       url = "path:/home/david/.emacs.d";
       flake = false;

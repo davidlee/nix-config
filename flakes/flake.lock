@@ -536,6 +536,24 @@
         "type": "github"
       }
     },
+    "flake-utils_7": {
+      "inputs": {
+        "systems": "systems_9"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "helix": {
       "inputs": {
         "nixpkgs": [
@@ -1203,6 +1221,7 @@
         "rust-overlay": "rust-overlay_2",
         "satan-attrd": "satan-attrd",
         "satan-patcher": "satan-patcher",
+        "slk": "slk",
         "stable": "stable",
         "treefmt-nix": "treefmt-nix_3",
         "ucodenix": "ucodenix",
@@ -1332,6 +1351,27 @@
         "type": "path"
       }
     },
+    "slk": {
+      "inputs": {
+        "flake-utils": "flake-utils_7",
+        "nixpkgs": [
+          "nixpkgs-home"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779778342,
+        "narHash": "sha256-8kkz/U3xOCSqiq34j7BG2c5pf4EffBfBy7I/dIvHi7U=",
+        "owner": "davidlee",
+        "repo": "slk",
+        "rev": "a76e74746fbb613cde5f59f634637354b8564bc0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "repo": "slk",
+        "type": "github"
+      }
+    },
     "spec-driver": {
       "inputs": {
         "devshell": "devshell_2",
@@ -1371,6 +1411,22 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_10": {
+      "flake": false,
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -1491,7 +1547,6 @@
       }
     },
     "systems_9": {
-      "flake": false,
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
@@ -1633,7 +1688,7 @@
       "inputs": {
         "flake-compat": "flake-compat",
         "nixpkgs": "nixpkgs_14",
-        "systems": "systems_9"
+        "systems": "systems_10"
       },
       "locked": {
         "lastModified": 1778980206,
