@@ -248,8 +248,8 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1779746997,
-        "narHash": "sha256-XVKSgloRvNkFAeD4jaZIj1GGlWiw3U8MxD9BvZ6FyNk=",
+        "lastModified": 1779880658,
+        "narHash": "sha256-7usw/rzqgR1pnaZkj2ix2fzS86Fpqp5EoHgmV/Xq1Ag=",
         "path": "/home/david/.emacs.d",
         "type": "path"
       },
@@ -1151,8 +1151,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1779537922,
-        "narHash": "sha256-ZAPpd80AMbtXMgPHcsGQjnvwIO22MULM8EU4cXWbfCg=",
+        "lastModified": 1779880129,
+        "narHash": "sha256-qUj/8dHeYD9vC7izUiFsx2FfL7x2XW9r0WI7nKx2jJ4=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
@@ -1341,7 +1341,7 @@
         ]
       },
       "locked": {
-        "lastModified": 1779540145,
+        "lastModified": 1779776350,
         "narHash": "sha256-MtjYF1VcHMBIvcx5LV0WwV4PavSRppgR3moHUlcdrRI=",
         "path": "/home/david/dev/satan-patcher",
         "type": "path"

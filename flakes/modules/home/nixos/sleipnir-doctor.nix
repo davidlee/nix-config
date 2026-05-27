@@ -9,5 +9,9 @@ _: {
       source = ./bin/sleipnir-doctor-emacs;
       executable = true;
     };
+    home.file.".config/sleipnir-doctor/checks.d/panopticon" = {
+      source = ./bin/sleipnir-doctor-panopticon;
+      executable = true;
+    };
   };
 }

@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+"""Panopticon health checks for sleipnir-doctor.
+
+Checks service health, raw event freshness (catches dead producers),
+and segment/histogram currency (catches broken segmentizer).
+"""
+
+import json
+import os
+import subprocess
+import time
+from datetime import date, timedelta
+from pathlib import Path
+
+STATE = Path.home() / ".local" / "state" / "behaviour"
+RAW = STATE / "raw"
+SEGMENTS = STATE / "segments"
+HISTOGRAMS = STATE / "histograms"
+
+OK, WARN = "OK", "WARN"
+CAT = "Panopticon"
+
+SOURCES = {
+  "sway": {"warn_minutes": 30, "prefix": "focus"},
+  "firefox": {"warn_minutes": 240, "prefix": "browser"},
+}
+
+
+def service_active(unit):
+  try:
+    r = subprocess.run(
+      ["systemctl", "--user", "is-active", unit],
+      capture_output=True, text=True, timeout=5,
+    )
+    return r.stdout.strip() == "active"
+  except (FileNotFoundError, subprocess.TimeoutExpired):
+    return False
+
+
+def file_age_minutes(path):
+  try:
+    return (time.time() - os.path.getmtime(path)) / 60
+  except OSError:
+    return None
+
+
+def fmt_age(minutes):
+  if minutes is None:
+    return "no file"
+  if minutes < 1:
+    return "<1 min ago"
+  if minutes < 60:
+    return f"{minutes:.0f} min ago"
+  return f"{minutes / 60:.1f} h ago"
+
+
+def check_services():
+  results = []
+  for unit in ("panopticon-sway.service", "panopticon-segmentize.timer"):
+    active = service_active(unit)
+    results.append({
+      "category": CAT, "name": unit,
+      "status": OK if active else WARN,
+      "detail": "active" if active else "not running",
+    })
+  return results
+
+
+def check_raw_freshness():
+  today = date.today().isoformat()
+  ages = {}
+  for source in SOURCES:
+    ages[source] = file_age_minutes(RAW / f"{source}-{today}.jsonl")
+
+  sway_fresh = ages.get("sway") is not None and ages["sway"] < 30
+
+  results = []
+  for source, cfg in SOURCES.items():
+    age = ages[source]
+    if age is None:
+      status = WARN
+      detail = "no events today"
+    elif age > cfg["warn_minutes"]:
+      status = WARN
+      detail = fmt_age(age)
+    else:
+      status = OK
+      detail = fmt_age(age)
+
+    if status == WARN and source != "sway" and not sway_fresh:
+      detail += " (sway also stale)"
+
+    results.append({
+      "category": CAT,
+      "name": f"raw/{source} freshness",
+      "status": status, "detail": detail,
+    })
+  return results
+
+
+def check_segments():
+  yesterday = (date.today() - timedelta(days=1)).isoformat()
+  results = []
+  for source, cfg in SOURCES.items():
+    prefix = cfg["prefix"]
+    path = SEGMENTS / f"{prefix}-{yesterday}.jsonl"
+    exists = path.exists()
+    results.append({
+      "category": CAT,
+      "name": f"segments/{prefix} (yesterday)",
+      "status": OK if exists else WARN,
+      "detail": "present" if exists else "missing",
+    })
+  return results
+
+
+def dir_size_mb(path):
+  if not path.is_dir():
+    return 0
+  total = sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
+  return total / 1024 / 1024
+
+
+def check_storage():
+  tiers = {"raw": RAW, "segments": SEGMENTS, "histograms": HISTOGRAMS}
+  parts = []
+  total = 0
+  for name, path in tiers.items():
+    mb = dir_size_mb(path)
+    total += mb
+    parts.append(f"{name} {mb:.0f}")
+  detail = f"{total:.0f} MB ({', '.join(parts)})"
+  status = OK
+  if total > 1024:
+    status = WARN
+  return {
+    "category": CAT, "name": "storage",
+    "status": status, "detail": detail,
+  }
+
+
+def check_sway_journal():
+  try:
+    r = subprocess.run(
+      ["journalctl", "--user-unit=panopticon-sway.service",
+       "--since", "24 hours ago", "--no-pager", "-q"],
+      capture_output=True, text=True, timeout=10,
+    )
+    if r.returncode != 0:
+      return {"category": CAT, "name": "sway journal (24h)",
+              "status": WARN, "detail": "journalctl failed"}
+    lines = r.stdout.strip().splitlines()
+    errors = [l for l in lines if "ERROR" in l or "error" in l.lower()]
+    reconnects = [l for l in lines if "reconnect" in l.lower()]
+    parts = []
+    if reconnects:
+      parts.append(f"{len(reconnects)} reconnects")
+    if errors:
+      parts.append(f"{len(errors)} errors")
+    if not parts:
+      return {"category": CAT, "name": "sway journal (24h)",
+              "status": OK, "detail": f"{len(lines)} lines, clean"}
+    status = WARN if errors or len(reconnects) > 3 else OK
+    return {"category": CAT, "name": "sway journal (24h)",
+            "status": status, "detail": ", ".join(parts)}
+  except (FileNotFoundError, subprocess.TimeoutExpired):
+    return {"category": CAT, "name": "sway journal (24h)",
+            "status": OK, "detail": "journalctl unavailable"}
+
+
+def main():
+  results = check_services()
+  results.extend(check_raw_freshness())
+  results.extend(check_segments())
+  results.append(check_storage())
+  results.append(check_sway_journal())
+  print(json.dumps(results))
+
+
+if __name__ == "__main__":
+  main()

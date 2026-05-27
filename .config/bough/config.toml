@@ -1,0 +1,15 @@
+# bough configuration
+database_url = "postgres:///bough_production" #?host=/run/postgresql"
+workspace = "default"
+# theme = "gruvbox"
+default_provider = "org"
+
+[openers.org-id]
+command = ["emacsclient", "-e", "(org-id-open \"{identity}\" nil)"]
+
+[openers.denote]
+command = ["emacsclient", "-e", "(find-file (denote-get-path-by-id \"{identity}\"))"]
+
+[notifications.sound]
+enabled = true
+default_file = "/home/david/dev/vk/assets/alert.wav"
