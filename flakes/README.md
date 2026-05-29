@@ -125,6 +125,23 @@ See [ALARM.md](./ALARM.md). `modules/home/nixos/alarm.nix` — plays a playlist 
 
 - **EAF and other attrset-valued epkgs:** a few entries in `epkgs` are not derivations but factory attrsets — e.g. `epkgs.eaf` is `{ override, overrideDerivation, withApplications }` (you call `.withApplications { enabledApps = [...]; }` to get a derivation). `emacsWithPackagesFromUsePackage` sees the bare `(use-package eaf ...)`, tries to coerce the attrset to a path, and fails with `error: cannot coerce a set to a string`. Add `:ensure nil` to any `use-package` form whose name matches an attrset-valued epkg; nix-side, install the real derivation via `extraEmacsPackages` (see `eaf-with-reinput` in `emacs.nix`).
 
+### crates.io fetch workaround (temporary)
+
+`modules/nixos/nix.nix` — sets `systemd.services.nix-daemon.environment.NIX_CURL_FLAGS = "-A nixpkgs-fetchurl"`.
+
+**Why:** crates.io rate-limits (1 req/sec) and `403`s the `curl/*` User-Agent on its `/api/v1/crates/.../download` endpoint. nixpkgs `importCargoLock` (used by any `cargoLock.lockFile` build, e.g. `pub/zerostack.nix`) fetches every crate from there, so `home-switch`/`system-switch` fail with `curl: (22) ... 403` once a rust dep enters the closure. A non-`curl` UA gets the `302` to `static.crates.io`, which `curl` then follows. `fetchurl` honours `NIX_CURL_FLAGS` via `impureEnvVars`, and the env is read from the **daemon**, not your shell — hence the systemd service env (a daemon restart, i.e. `system-switch`, is required before it takes effect).
+
+**Upstream fix:** [nixpkgs#524985](https://github.com/NixOS/nixpkgs/pull/524985) (commit `c0a89c3`, merged to master 2026-05-27) switches the `importCargoLock` registry to `static.crates.io` directly. `fetchurl` is content-addressed, so the workaround and the fix produce identical crate store paths — swapping is a no-op rebuild-wise.
+
+**Removal:** the merge date is *not* the trigger — the nixpkgs input tracks the unstable channel, which lags master by days. Check whether your pin actually contains the fix:
+
+```bash
+rev=$(nix flake metadata --json | jq -r '.locks.nodes.nixpkgs.locked.rev')
+gh api repos/NixOS/nixpkgs/compare/c0a89c3...$rev --jq '.status'
+```
+
+When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `system-switch`. Until then it is load-bearing.
+
 ## Jailed Agents 
 
 template setup for bubblewrap-jailed agents, with secure 1password-managed API keys, assuming some conventions:

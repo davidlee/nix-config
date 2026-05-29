@@ -42,12 +42,22 @@ _: {
     };
 
     systemd.user.timers.panopticon-segmentize = {
-      Unit.Description = "panopticon — nightly segment + retention job";
+      # Was nightly (03:30) — but SATAN's observer classifies an
+      # intervention against the focus/browser SEGMENTS in the 30-min
+      # window after it fired, and ticks run intraday (~30 min).  A
+      # once-a-day derivation left segments stale all day, so the focus
+      # sensor read `stale-Nm' and the P1–P4 predicates (which gate on
+      # `sensor_status :focus = ok') could never confirm a positive
+      # outcome.  The job is idempotent (atomic full rewrite of each
+      # day's segments from raw) and cheap (~640 ms), and retention is a
+      # no-op until its horizon, so running it every 10 min is safe and
+      # keeps segments fresh for every tick's window.
+      Unit.Description = "panopticon — derive segments + retention (intraday)";
       Timer = {
         Unit = "panopticon-segmentize.service";
-        OnCalendar = "*-*-* 03:30:00";
+        OnBootSec = "2min";
+        OnUnitActiveSec = "10min";
         Persistent = true;
-        RandomizedDelaySec = "15min";
       };
       Install.WantedBy = ["timers.target"];
     };

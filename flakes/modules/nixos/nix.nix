@@ -38,9 +38,13 @@
       };
     };
 
-    # crates.io 403s the curl/* User-Agent on /api/v1/.../download (used by
-    # importCargoLock). fetchurl honours NIX_CURL_FLAGS (impureEnvVars); a
+    # WORKAROUND (remove after nixpkgs bump past 2026-05-27): crates.io rate-limits
+    # and 403s the curl/* User-Agent on /api/v1/.../download, used by importCargoLock
+    # (e.g. pub/zerostack.nix). fetchurl honours NIX_CURL_FLAGS (impureEnvVars); a
     # non-curl UA gets the 302 to static.crates.io, which curl then follows.
+    # Upstream fix nixpkgs#524985 (commit c0a89c3) switches the registry to
+    # static.crates.io directly — once the nixpkgs pin includes it, delete this line.
+    # fetchurl is content-addressed, so workaround and fix share crate store paths.
     systemd.services.nix-daemon.environment.NIX_CURL_FLAGS = "-A nixpkgs-fetchurl";
 
     environment.systemPackages = with pkgs; [

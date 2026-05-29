@@ -103,3 +103,4 @@ alias waybar-reload='pkill waybar --signal SIGUSR2'
 
 alias cl="clock-rs -Bbt --fmt '%Y-%m-%d'";
 alias arch="distrobox enter archlinux";
+alias supabase-kill="docker ps -q --filter "name=supabase_" | xargs -r docker stop"

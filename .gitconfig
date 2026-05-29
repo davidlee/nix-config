@@ -31,6 +31,7 @@
   editor = /home/david/.nix-profile/bin/emacsclient
   excludesFile = ~/.gitignore_global
   pager = delta
+	hooksPath = /home/david/.config/git/hooks
 [color]
   ui = true
 [interactive]
