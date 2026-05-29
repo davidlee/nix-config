@@ -144,10 +144,10 @@
 
   # Sandbox-originated commits are visually distinct
   gitIdentityOptions = with jail.combinators; [
-    (set-env "GIT_AUTHOR_NAME" "clanker")
-    (set-env "GIT_AUTHOR_EMAIL" "clanker@local")
-    (set-env "GIT_COMMITTER_NAME" "clanker")
-    (set-env "GIT_COMMITTER_EMAIL" "clanker@local")
+    (set-env "GIT_AUTHOR_NAME" "David Lee's clanker")
+    (set-env "GIT_AUTHOR_EMAIL" "clanker+dav@davlee.com")
+    (set-env "GIT_COMMITTER_NAME" "David Lee")
+    (set-env "GIT_COMMITTER_EMAIL" "dav@davlee.com")
   ];
 
   # Block git push over SSH

@@ -41,7 +41,19 @@ update-home:
   nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
 
 update-local:
-  nix flake update emacs-config satan-attrd panopticon pub satan-patcher slk
+  nix flake update emacs-config satan-attrd panopticon satan-patcher slk
+
+# bump pub/zerostack.nix to its github default-branch HEAD; commit+push to ship
+update-zerostack:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  f=pub/zerostack.nix
+  json=$(nix run nixpkgs#nix-prefetch-git -- --url https://github.com/gi-dellav/zerostack --rev refs/heads/main --quiet)
+  rev=$(echo "$json"  | nix run nixpkgs#jq -- -r .rev)
+  hash=$(echo "$json" | nix run nixpkgs#jq -- -r .hash)
+  date=$(echo "$json" | nix run nixpkgs#jq -- -r '.date[:10]')
+  sed -i -E "s|-unstable-[0-9-]+\"|-unstable-${date}\"|; s|rev = \"[0-9a-f]+\"|rev = \"${rev}\"|; s|hash = \"sha256-[^\"]+\"|hash = \"${hash}\"|" "$f"
+  echo "zerostack -> ${rev} (${date})  — commit so downstream agent flakes can re-lock pub"
 
 update-all:
   nix flake update
