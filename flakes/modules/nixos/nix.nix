@@ -38,6 +38,11 @@
       };
     };
 
+    # crates.io 403s the curl/* User-Agent on /api/v1/.../download (used by
+    # importCargoLock). fetchurl honours NIX_CURL_FLAGS (impureEnvVars); a
+    # non-curl UA gets the 302 to static.crates.io, which curl then follows.
+    systemd.services.nix-daemon.environment.NIX_CURL_FLAGS = "-A nixpkgs-fetchurl";
+
     environment.systemPackages = with pkgs; [
       inputs.nix-search-tv.packages.x86_64-linux.default
       alejandra

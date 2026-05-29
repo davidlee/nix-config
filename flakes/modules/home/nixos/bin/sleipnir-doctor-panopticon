@@ -9,7 +9,7 @@ import json
 import os
 import subprocess
 import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 STATE = Path.home() / ".local" / "state" / "behaviour"
@@ -54,6 +54,21 @@ def fmt_age(minutes):
   return f"{minutes / 60:.1f} h ago"
 
 
+def freshest_today(source):
+  """Age of the freshest raw file dated *today*, local or UTC.
+
+  Raw files are bucketed on the day as the producer stamped it. Sway stamps
+  local-offset, firefox stamps local-offset post-fix — but a producer stamping
+  UTC `Z` buckets on the UTC day, which lags the local day by the offset (e.g.
+  until 10:00 in AEST). Checking both dates means a wrong-tz producer reports
+  its real freshness instead of a phantom "no events today" each morning.
+  """
+  days = {date.today().isoformat(), datetime.now(timezone.utc).date().isoformat()}
+  ages = [a for a in (file_age_minutes(RAW / f"{source}-{d}.jsonl") for d in days)
+          if a is not None]
+  return min(ages) if ages else None
+
+
 def check_services():
   results = []
   for unit in ("panopticon-sway.service", "panopticon-segmentize.timer"):
@@ -67,10 +82,9 @@ def check_services():
 
 
 def check_raw_freshness():
-  today = date.today().isoformat()
   ages = {}
   for source in SOURCES:
-    ages[source] = file_age_minutes(RAW / f"{source}-{today}.jsonl")
+    ages[source] = freshest_today(source)
 
   sway_fresh = ages.get("sway") is not None and ages["sway"] < 30
 

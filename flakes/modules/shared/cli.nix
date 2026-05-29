@@ -352,6 +352,7 @@ in {
     #
     config.sharedCliPackages.scm = with pkgs; [
       git
+      git-revise
       delta
       diffedit3
       diffnav
