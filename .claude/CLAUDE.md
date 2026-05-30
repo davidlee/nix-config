@@ -23,6 +23,7 @@
 - never create or pop a git stash without explicit user agreement.
 - wondering if the build was green before your changes is not a good 
   enough reason to ask. You probably need to just fix the build.
+- DO NOT USE GIT STASH
 
 ## Behaviours
 
