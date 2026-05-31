@@ -92,6 +92,13 @@
       url = "path:/home/david/.emacs.d";
       flake = false;
     };
+
+    pub = {
+      url = "path:/home/david/flakes/pub";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+      inputs.emacs-overlay.follows = "emacs-overlay";
+      inputs.emacs-config.follows = "emacs-config";
+    };
   };
 
   outputs = inputs @ {

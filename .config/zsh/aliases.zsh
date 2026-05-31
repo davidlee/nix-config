@@ -5,7 +5,8 @@ alias vin="vice -W inlight";
 alias x="vice -i";
 
 alias em="emacsclient";
-alias emn="emacsclient -nw";
+alias emt="emacsclient --tty";
+alias emn="emacsclient --tty --no-wait";
 
 alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
 alias ea="distrobox enter --root archlinux"

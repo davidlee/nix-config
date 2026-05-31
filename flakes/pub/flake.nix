@@ -5,18 +5,26 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
+    emacs-overlay.url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+    emacs-config = {
+      url = "path:/home/david/.emacs.d";
+      flake = false;
+    };
   };
 
   outputs = {
     nixpkgs,
     flake-utils,
     jail-nix,
+    emacs-overlay,
+    emacs-config,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
+        overlays = [emacs-overlay.overlays.default];
       };
     in {
       lib.mkJailedAgents = {llm-agents}:
@@ -24,6 +32,10 @@
           inherit pkgs jail-nix llm-agents;
         };
 
+      packages.emacs = import ./emacs.nix {
+        inherit pkgs;
+        emacsConfig = emacs-config;
+      };
       packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
     });
