@@ -328,8 +328,8 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1780202436,
-        "narHash": "sha256-WeJIqCBrWWSy0c/y5Jkxt9UWGaxXDKXXB35u6eOb6AE=",
+        "lastModified": 1780238263,
+        "narHash": "sha256-nSpnf2+jABFX/9P2zKTydM91gt5DlTTDlmVXT2Pi/as=",
         "path": "/home/david/.emacs.d",
         "type": "path"
       },
@@ -1439,8 +1439,8 @@
         "pub": "pub"
       },
       "locked": {
-        "lastModified": 1780203845,
-        "narHash": "sha256-rcam3e1uDXTBLAbGRT+Gpee4xq24Zd/2KEQWN07JX8c=",
+        "lastModified": 1780205862,
+        "narHash": "sha256-a8C9T7d5fs5ijGvGlU7SGojDM4LE5bjE+wJgdlUBe38=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
