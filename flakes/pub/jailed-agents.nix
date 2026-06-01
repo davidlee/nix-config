@@ -77,6 +77,7 @@
     findutils
     which
     gnugrep
+    pulseaudio # provides paplay; talks to PULSE_SERVER (pipewire-pulse)
     gawkInteractive
     gnused
     sd
@@ -98,6 +99,11 @@
     # Mount host cwd at /workspace/<project> and start there
     (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
     (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
+    # Host audio (PipeWire pulse-compat socket) so notification / stop-hook
+    # sounds play from inside the jail. Global, applied once; not per-repo.
+    (try-readwrite "/run/user/1000/pulse")
+    (set-env "PULSE_SERVER" "unix:/run/user/1000/pulse/native")
+    (try-readonly "/mnt/500G/home/david/.local/share/Steam/friends/voice_hang_up.wav")
   ];
 
   # Policy-bearing options keyed by profile name

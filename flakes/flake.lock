@@ -328,8 +328,8 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1780238263,
-        "narHash": "sha256-nSpnf2+jABFX/9P2zKTydM91gt5DlTTDlmVXT2Pi/as=",
+        "lastModified": 1780245043,
+        "narHash": "sha256-4fJPVXajCX2tnmhUz4Me0t3i2DH2UXjG/tB0TU2Mvhk=",
         "path": "/home/david/.emacs.d",
         "type": "path"
       },
@@ -357,8 +357,8 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1779993298,
-        "narHash": "sha256-eV2NaJnpxKDw71o0SPDdC0ZXtiQawwsqWo3SAfCR+NY=",
+        "lastModified": 1780225646,
+        "narHash": "sha256-AzRTDqAXaUtmD3aVrGXeMQWHtwSBlFE3KUdjvX6oNBI=",
         "type": "tarball",
         "url": "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz"
       },
