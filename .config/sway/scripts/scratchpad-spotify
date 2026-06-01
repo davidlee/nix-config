@@ -1,2 +1,2 @@
 #!/bin/sh
-~/.config/sway/scripts/scratchpad-toggle app_id=spotify -- spotify
+~/.config/sway/scripts/scratchpad-toggle instance=spotify -- spotify
