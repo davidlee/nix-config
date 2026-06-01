@@ -87,6 +87,7 @@
     gnutar
     tree
     ps
+    libnotify
 
     # for spec-driver hook
     python3
