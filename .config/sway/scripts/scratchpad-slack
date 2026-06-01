@@ -1,2 +1,2 @@
 #!/bin/sh
-~/.config/sway/scripts/scratchpad-toggle 'app_id=Slack' -- slack
+~/.config/sway/scripts/scratchpad-toggle 'app_id=slack' -- slack
