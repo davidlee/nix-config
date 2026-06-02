@@ -7,13 +7,13 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "zerostack";
-  version = "1.1.0-unstable-2026-06-01";
+  version = "1.1.0-unstable-2026-06-02";
 
   src = fetchFromGitHub {
     owner = "gi-dellav";
     repo = "zerostack";
-    rev = "88d001238936c879ffd3b9a6934c4a6ce7bbbed6";
-    hash = "sha256-9068StNCZN/G2rlZfbiDpkVmwqPbBoharhlxs0gxGvc=";
+    rev = "f0cc5fc0f2a0716b1e8881dc86ae65fc89085ff5";
+    hash = "sha256-+TIJTxaiqPUaY3bq/JZDdpMkmpg1YiB+Dr2DL+Vc/Fk=";
   };
 
   cargoLock.lockFile = src + "/Cargo.lock";
