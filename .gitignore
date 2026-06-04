@@ -1,6 +1,7 @@
 # avoid recursion!
 .cfg
 result
+.direnv
 .cache
 .DS_Store
 
