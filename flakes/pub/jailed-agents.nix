@@ -189,7 +189,9 @@ let
       profile ? "specDev",
       extraPkgs ? [ ],
       extraOptions ? [ ],
-      workspaceDeps ? [ ], # sibling repo paths to bind-mount (for editable deps)
+      workspaceDeps ? [ ], # sibling repo paths to bind-mount (editable deps);
+      # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
+      # env var (impure eval only). See envWorkspaceDeps below.
       allowSelfAsSubagent ? false,
       maxSubagentDepth ? 1,
       blockGitPush ? profileDefaults.${profile}.blockGitPush,
@@ -214,9 +216,21 @@ let
         export JAILED_AGENT_DEPTH="$((depth + 1))"
         exec ${lib.getExe agent} "$@"
       '';
+      # Machine-local editable deps can be supplied at eval time via the
+      # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
+      # paths). Requires impure eval (`--impure`); under pure eval getEnv
+      # returns "" -> empty -> no-op. Merged with and deduped against the
+      # static `workspaceDeps` arg, so a flake can ship portable defaults
+      # while each machine adds its own paths via .envrc.
+      envWorkspaceDeps = lib.filter (s: s != "") (
+        lib.splitString ":" (
+          builtins.replaceStrings [ "\n" ] [ ":" ] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+        )
+      );
+      allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
       workspaceBinds = map (
         dep: jail.combinators.unsafe-add-raw-args "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
-      ) workspaceDeps;
+      ) allWorkspaceDeps;
 
       inner = jail "jailed-${name}" agent (
         baseJailOptions

@@ -328,8 +328,8 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1780245043,
-        "narHash": "sha256-4fJPVXajCX2tnmhUz4Me0t3i2DH2UXjG/tB0TU2Mvhk=",
+        "lastModified": 1780450321,
+        "narHash": "sha256-YAveBLO13Mi8+g7nwXZAHJ3TdhCgVlH/b26t84Q32wc=",
         "path": "/home/david/.emacs.d",
         "type": "path"
       },
@@ -1488,8 +1488,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1780282227,
-        "narHash": "sha256-XKV+RAL+0NKLAYt1hlGgDDKiiTi/SK9TKwz9YRMFyTE=",
+        "lastModified": 1780405095,
+        "narHash": "sha256-kwVPseBaeUI2Zc/fvh7aYzLMwqUQmx9wRWxusX3HRCs=",
         "path": "/home/david/flakes/pub",
         "type": "path"
       },
