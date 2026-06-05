@@ -41,6 +41,32 @@ _: {
       };
     };
 
+    systemd.user.services.panopticon-git = {
+      Unit.Description = "panopticon — host-side git-commit poller (SATAN git sensor)";
+      Service = {
+        Type = "oneshot";
+        # Absolute store path: a --user oneshot has a thin PATH and would not
+        # resolve a bare `panopticon-git`.  Defaults suffice — dev_root=~/dev,
+        # state under ~/.local/state/behaviour, 7-day committer-date horizon.
+        ExecStart = "${panopticon}/bin/panopticon-git";
+      };
+    };
+
+    systemd.user.timers.panopticon-git = {
+      # Captures commits made anywhere under ~/dev — including inside bwrap
+      # jails where the post-commit hook never fires.  Idempotent: stateless
+      # (repo, sha) dedup against the day-file, so re-polls are no-ops.  A
+      # flock guards poller-vs-poller overlap, so a slow poll can't stack.
+      Unit.Description = "panopticon — poll ~/dev git repos for new commits";
+      Timer = {
+        Unit = "panopticon-git.service";
+        OnBootSec = "2min";
+        OnUnitActiveSec = "5min";
+        Persistent = true;
+      };
+      Install.WantedBy = ["timers.target"];
+    };
+
     systemd.user.timers.panopticon-segmentize = {
       # Was nightly (03:30) — but SATAN's observer classifies an
       # intervention against the focus/browser SEGMENTS in the 30-min

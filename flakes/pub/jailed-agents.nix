@@ -34,8 +34,7 @@
     OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential";
     GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential";
   },
-}:
-let
+}: let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   jail = jail-nix.lib.init pkgs;
@@ -49,9 +48,11 @@ let
   # bwrap raw args forwarding each API key from the wrapper's env into
   # the jailed agent. `$VAR` is left for runtime shell expansion; the
   # `:-` guard keeps empty/unset vars from breaking set -u callers.
-  apiKeyPassThrough = lib.mapAttrsToList (
-    var: _: jail.combinators.unsafe-add-raw-args ''--setenv ${var} "''${${var}:-}"''
-  ) apiKeyOpRefs;
+  apiKeyPassThrough =
+    lib.mapAttrsToList (
+      var: _: jail.combinators.unsafe-add-raw-args ''--setenv ${var} "''${${var}:-}"''
+    )
+    apiKeyOpRefs;
 
   inherit (llm-agents.packages.${system}) pi;
   inherit (llm-agents.packages.${system}) crush;
@@ -59,7 +60,7 @@ let
   inherit (llm-agents.packages.${system}) claude-code;
   inherit (llm-agents.packages.${system}) codex;
   inherit (llm-agents.packages.${system}) gemini-cli;
-  zerostack = pkgs.callPackage ./zerostack.nix { };
+  zerostack = pkgs.callPackage ./zerostack.nix {};
 
   commonPkgs = with pkgs; [
     zsh
@@ -182,102 +183,102 @@ let
     (try-readwrite "/run/postgresql")
   ];
 
-  makeJailedAgent =
-    {
-      name,
-      agent,
-      profile ? "specDev",
-      extraPkgs ? [ ],
-      extraOptions ? [ ],
-      workspaceDeps ? [ ], # sibling repo paths to bind-mount (editable deps);
-      # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
-      # env var (impure eval only). See envWorkspaceDeps below.
-      allowSelfAsSubagent ? false,
-      maxSubagentDepth ? 1,
-      blockGitPush ? profileDefaults.${profile}.blockGitPush,
-      sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
-      exposePostgres ? profileDefaults.${profile}.exposePostgres,
-      useOpEnv ? profileDefaults.${profile}.useOpEnv,
-      # When the caller pre-resolves op:// refs and exports plaintext into
-      # the wrapper's env (e.g. Emacs broker with a per-session cache),
-      # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
-      # bwrap `--setenv VAR "$VAR"` forwarding still runs.
-      passApiKeysFromEnv ? useOpEnv,
-    }:
-    let
-      selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
-        depth="''${JAILED_AGENT_DEPTH:-0}"
+  makeJailedAgent = {
+    name,
+    agent,
+    profile ? "specDev",
+    extraPkgs ? [],
+    extraOptions ? [],
+    workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
+    # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
+    # env var (impure eval only). See envWorkspaceDeps below.
+    allowSelfAsSubagent ? false,
+    maxSubagentDepth ? 1,
+    blockGitPush ? profileDefaults.${profile}.blockGitPush,
+    sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
+    exposePostgres ? profileDefaults.${profile}.exposePostgres,
+    useOpEnv ? profileDefaults.${profile}.useOpEnv,
+    # When the caller pre-resolves op:// refs and exports plaintext into
+    # the wrapper's env (e.g. Emacs broker with a per-session cache),
+    # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
+    # bwrap `--setenv VAR "$VAR"` forwarding still runs.
+    passApiKeysFromEnv ? useOpEnv,
+  }: let
+    selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
+      depth="''${JAILED_AGENT_DEPTH:-0}"
 
-        if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
-          echo "jailed-${name}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
-          exit 1
-        fi
+      if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
+        echo "jailed-${name}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
+        exit 1
+      fi
 
-        export JAILED_AGENT_DEPTH="$((depth + 1))"
-        exec ${lib.getExe agent} "$@"
-      '';
-      # Machine-local editable deps can be supplied at eval time via the
-      # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
-      # paths). Requires impure eval (`--impure`); under pure eval getEnv
-      # returns "" -> empty -> no-op. Merged with and deduped against the
-      # static `workspaceDeps` arg, so a flake can ship portable defaults
-      # while each machine adds its own paths via .envrc.
-      envWorkspaceDeps = lib.filter (s: s != "") (
-        lib.splitString ":" (
-          builtins.replaceStrings [ "\n" ] [ ":" ] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
-        )
-      );
-      allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
-      workspaceBinds = map (
+      export JAILED_AGENT_DEPTH="$((depth + 1))"
+      exec ${lib.getExe agent} "$@"
+    '';
+    # Machine-local editable deps can be supplied at eval time via the
+    # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
+    # paths). Requires impure eval (`--impure`); under pure eval getEnv
+    # returns "" -> empty -> no-op. Merged with and deduped against the
+    # static `workspaceDeps` arg, so a flake can ship portable defaults
+    # while each machine adds its own paths via .envrc.
+    envWorkspaceDeps = lib.filter (s: s != "") (
+      lib.splitString ":" (
+        builtins.replaceStrings ["\n"] [":"] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+      )
+    );
+    allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
+    workspaceBinds =
+      map (
         dep: jail.combinators.unsafe-add-raw-args "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
-      ) allWorkspaceDeps;
+      )
+      allWorkspaceDeps;
 
-      inner = jail "jailed-${name}" agent (
-        baseJailOptions
-        ++ workspaceBinds
-        ++ profileOptions.${profile}
-        ++ termOptions
-        ++ packageManagerOptions
-        ++ lib.optionals blockGitPush gitPushBlockOptions
-        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-        ++ lib.optionals exposePostgres postgresOptions
-        ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
-        ++ [
-          (jail.combinators.add-pkg-deps (
-            commonPkgs
-            ++ extraPkgs
-            ++ [ agent ] # allow sub-agent invocation
-            ++ lib.optionals allowSelfAsSubagent [ selfSubagentPkg ]
-          ))
-        ]
-        ++ extraOptions
-      );
+    inner = jail "jailed-${name}" agent (
+      baseJailOptions
+      ++ workspaceBinds
+      ++ profileOptions.${profile}
+      ++ termOptions
+      ++ packageManagerOptions
+      ++ lib.optionals blockGitPush gitPushBlockOptions
+      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+      ++ lib.optionals exposePostgres postgresOptions
+      ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
+      ++ [
+        (jail.combinators.add-pkg-deps (
+          commonPkgs
+          ++ extraPkgs
+          ++ [agent] # allow sub-agent invocation
+          ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
+        ))
+      ]
+      ++ extraOptions
+    );
 
-      # Outer wrapper: resolve op:// refs on the host (uses the 1Password
-      # desktop app + biometric unlock via the user's PATH `op'), inject
-      # plaintext into the wrapper's env, then exec the bwrap'd agent.
-      # `op' is taken from PATH so the setuid wrapper at
-      # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
-      # binary, which can't reach the desktop integration socket.
-      outer = pkgs.writeShellScriptBin "jailed-${name}" ''
-        if ! command -v op >/dev/null 2>&1; then
-          echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
-          echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
-          exit 127
-        fi
-        exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
-          ${inner}/bin/jailed-${name} "$@"
-      '';
-    in
+    # Outer wrapper: resolve op:// refs on the host (uses the 1Password
+    # desktop app + biometric unlock via the user's PATH `op'), inject
+    # plaintext into the wrapper's env, then exec the bwrap'd agent.
+    # `op' is taken from PATH so the setuid wrapper at
+    # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
+    # binary, which can't reach the desktop integration socket.
+    outer = pkgs.writeShellScriptBin "jailed-${name}" ''
+      if ! command -v op >/dev/null 2>&1; then
+        echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
+        echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
+        exit 127
+      fi
+      exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
+        ${inner}/bin/jailed-${name} "$@"
+    '';
+  in
     assert builtins.hasAttr profile profileOptions || throw "Unknown jailed agent profile: ${profile}";
-    assert
-      (!allowSelfAsSubagent)
-      || maxSubagentDepth > 0
-      || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
-    if useOpEnv then outer else inner;
+    assert (!allowSelfAsSubagent)
+    || maxSubagentDepth > 0
+    || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
+      if useOpEnv
+      then outer
+      else inner;
 
-  makeJailedPi =
-    args:
+  makeJailedPi = args:
     makeJailedAgent (
       {
         name = "pi";
@@ -286,8 +287,7 @@ let
       // args
     );
 
-  makeJailedCrush =
-    args:
+  makeJailedCrush = args:
     makeJailedAgent (
       {
         name = "crush";
@@ -296,8 +296,7 @@ let
       // args
     );
 
-  makeJailedOpencode =
-    args:
+  makeJailedOpencode = args:
     makeJailedAgent (
       {
         name = "opencode";
@@ -306,8 +305,7 @@ let
       // args
     );
 
-  makeJailedClaude =
-    args:
+  makeJailedClaude = args:
     makeJailedAgent (
       {
         name = "claude";
@@ -316,8 +314,7 @@ let
       // args
     );
 
-  makeJailedCodex =
-    args:
+  makeJailedCodex = args:
     makeJailedAgent (
       {
         name = "codex";
@@ -326,8 +323,7 @@ let
       // args
     );
 
-  makeJailedGemini =
-    args:
+  makeJailedGemini = args:
     makeJailedAgent (
       {
         name = "gemini";
@@ -336,8 +332,7 @@ let
       // args
     );
 
-  makeJailedZerostack =
-    args:
+  makeJailedZerostack = args:
     makeJailedAgent (
       {
         name = "zerostack";
@@ -345,8 +340,7 @@ let
       }
       // args
     );
-in
-{
+in {
   inherit
     makeJailedAgent
     makeJailedPi
