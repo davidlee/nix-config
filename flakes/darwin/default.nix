@@ -1,4 +1,5 @@
 {
+  self,
   inputs,
   outputs,
   pkgs,
@@ -9,6 +10,7 @@
 }: let
   specialArgs = {
     inherit
+      self
       inputs
       outputs
       pkgs

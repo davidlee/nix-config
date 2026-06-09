@@ -420,12 +420,14 @@ in {
       ## supervisors / runners
       overmind
       watch
-      watchman
       watcher
       watchexec
       fswatch
     ];
     config.nixosCliPackages.supervisors = with pkgs; [
+      # watchman pulls the folly/fbthrift C++ tower, which currently
+      # fails to build on aarch64-darwin; keep it Linux-only.
+      watchman
     ];
 
     ################################################################################

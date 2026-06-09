@@ -89,12 +89,12 @@
     };
 
     emacs-config = {
-      url = "path:/home/david/.emacs.d";
+      url = "github:davidlee/emacs-config";
       flake = false;
     };
 
     pub = {
-      url = "path:/home/david/flakes/pub";
+      url = "path:./pub";
       inputs.nixpkgs.follows = "nixpkgs-home";
       inputs.emacs-overlay.follows = "emacs-overlay";
       inputs.emacs-config.follows = "emacs-config";

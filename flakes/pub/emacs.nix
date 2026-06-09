@@ -36,6 +36,9 @@ in
     alwaysEnsure = true;
     alwaysTangle = true;
     extraEmacsPackages = epkgs: let
+      # EAF embeds X11/Wayland GUI apps; it is Linux-only (its build
+      # pulls libinput/libevdev/udev). Skip it entirely on Darwin.
+      #
       # nixpkgs' emacs-application-framework derivation omits the
       # `reinput' Wayland focus-forwarder helper. EAF requires it
       # whenever Emacs runs natively on Wayland (Sway/Hyprland +
@@ -81,48 +84,49 @@ in
           '';
         });
     in
-      with epkgs; [
-        meow
-        meow-tree-sitter
-        eaf-with-reinput
-        # PREVIEW
-        uniline
-        ob-diagrams
-        markdown-preview-mode
-        treemacs
-        # ghostel is installed via package-vc in custom-vars.el so its
-        # directory is writable (it builds/downloads a native .so at runtime).
-        kirigami
-        org-modern
-        dired-subtree
-        dired-sidebar
-        dired-toggle
-        dired-list
-        dired-collapse
-        elfeed
-        gptel
-        s
-        dash
-        rainbow-mode
-        telephone-line
-        nerd-icons-dired
-        hl-todo
-        vterm-toggle
-        ligature
-        direnv
-        envrc
-        nano-theme
-        nano-modeline
-        nano-agenda
+      with epkgs;
+        [
+          meow
+          meow-tree-sitter
+          # PREVIEW
+          uniline
+          ob-diagrams
+          markdown-preview-mode
+          treemacs
+          # ghostel is installed via package-vc in custom-vars.el so its
+          # directory is writable (it builds/downloads a native .so at runtime).
+          kirigami
+          org-modern
+          dired-subtree
+          dired-sidebar
+          dired-toggle
+          dired-list
+          dired-collapse
+          elfeed
+          gptel
+          s
+          dash
+          rainbow-mode
+          telephone-line
+          nerd-icons-dired
+          hl-todo
+          vterm-toggle
+          ligature
+          direnv
+          envrc
+          nano-theme
+          nano-modeline
+          nano-agenda
 
-        # project-treemacs
-        # use-package
-        # undo-fu
-        # undo-fu-session
-        # eat
-        # git-modes
-        # yaml-mode
-        # json-mode
-        # go-mode
-      ];
+          # project-treemacs
+          # use-package
+          # undo-fu
+          # undo-fu-session
+          # eat
+          # git-modes
+          # yaml-mode
+          # json-mode
+          # go-mode
+        ]
+        ++ pkgs.lib.optionals (!pkgs.stdenv.isDarwin) [eaf-with-reinput];
   }

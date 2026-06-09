@@ -7,7 +7,7 @@
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
     emacs-overlay.url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
     emacs-config = {
-      url = "path:/home/david/.emacs.d";
+      url = "github:davidlee/emacs-config";
       flake = false;
     };
   };

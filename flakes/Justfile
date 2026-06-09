@@ -1,5 +1,11 @@
 # rebuild system
 
+# Bundle the live ~/.emacs.d (a separate git repo, github:davidlee/emacs-config)
+# on NixOS builds so local elisp edits land in the emacs package set without a
+# push. The committed flake pins the GitHub source for portability (darwin has
+# no local checkout to override against); these NixOS-only targets override it.
+emacs_override := "--override-input emacs-config path:/home/david/.emacs.d"
+
 default: update-local fmt doctor choose
 
 noop:
@@ -18,10 +24,10 @@ nixos-start-docker-daemon:
 run *args:
   sudo ./run.sh {{args}}
 
-system-switch: run
+system-switch: (run emacs_override)
 
 home-switch:
-  home-manager switch --flake '.#david'
+  home-manager switch --flake '.#david' {{emacs_override}}
 
 doctor:
   sleipnir-doctor
