@@ -77,7 +77,7 @@ select-word-style normal
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # fffff
-eval "$(pay-respects zsh --alias)"
+# eval "$(pay-respects zsh --alias)"
 
 
 #
