@@ -18,6 +18,20 @@ rustPlatform.buildRustPackage rec {
 
   cargoLock.lockFile = src + "/Cargo.lock";
 
+  # Upstream pins clang+mold on Linux purely for faster incremental dev
+  # links (their own comment: "the user can comment them out"). Neither is
+  # in the build sandbox, so drop the override and use the stdenv linker.
+  postPatch = ''
+    substituteInPlace .cargo/config.toml \
+      --replace-fail 'linker = "clang"' "" \
+      --replace-fail 'rustflags = ["-C", "link-arg=-fuse-ld=mold"]' ""
+  '';
+
+  # Upstream's test suite couples to a live git repo and provider APIs
+  # (find_git_root_in_this_repo, git_worktree merges, provider::client) —
+  # ~37 of 2771 fail in the network-/repo-less build sandbox. Binary only.
+  doCheck = false;
+
   # Default features build only the `dirge` binary; `dirge-microvm-runner`
   # sits behind the opt-in `sandbox-microvm` feature (libkrun) and is skipped.
   nativeBuildInputs = [
