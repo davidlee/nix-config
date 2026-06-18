@@ -128,6 +128,7 @@ button:hover {
 #custom-weather,
 #custom-agenda,
 #custom-satan-inbox,
+#custom-satan-backlog,
 #custom-satan-timer,
 #privacy-item
 {
@@ -150,7 +151,8 @@ button:hover {
     animation-direction: alternate;
 }
 
-#custom-satan-inbox.empty {
+#custom-satan-inbox.empty,
+#custom-satan-backlog.empty {
     padding: 0;
     margin: 0;
     border: none;

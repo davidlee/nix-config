@@ -147,6 +147,12 @@
           #   extraOptions = jailEnvOptions;
           #   inherit workspaceDeps;
           # };
+          # jailed-dirge = jailLib.makeJailedDirge {
+          #   profile = "specDev";
+          #   extraPkgs = projectPkgs;
+          #   extraOptions = jailEnvOptions;
+          #   inherit workspaceDeps;
+          # };
           inherit (pkgs) bubblewrap;
         };
       in {

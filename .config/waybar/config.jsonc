@@ -29,6 +29,7 @@
         "custom/weather",
         "custom/agenda",
         "custom/satan-inbox",
+        "custom/satan-backlog",
         "custom/satan-timer",
         "custom/timer",
         "custom/idle-inhibitor",
@@ -268,6 +269,12 @@
         "return-type": "json",
         "interval": 60,
         "on-click": "emacsclient -ne '(my/satan-inbox)'",
+        "tooltip": true,
+    },
+    "custom/satan-backlog": {
+        "exec": "~/.config/waybar/scripts/satan-backlog.sh",
+        "return-type": "json",
+        "interval": 60,
         "tooltip": true,
     },
     "custom/satan-timer": {

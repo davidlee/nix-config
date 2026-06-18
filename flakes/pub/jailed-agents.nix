@@ -1,6 +1,6 @@
 # Centralised jailed LLM agent definitions.
 #
-# Each agent (pi, crush, opencode, claude, codex, gemini) can run under any sandbox profile.
+# Each agent (pi, crush, opencode, claude, codex, gemini, zerostack, dirge) can run under any sandbox profile.
 # Profiles control persistence, networking, and policy defaults;
 # agent wrappers remain thin.
 #
@@ -61,6 +61,7 @@
   inherit (llm-agents.packages.${system}) codex;
   inherit (llm-agents.packages.${system}) gemini-cli;
   zerostack = pkgs.callPackage ./zerostack.nix {};
+  dirge = pkgs.callPackage ./dirge.nix {};
 
   commonPkgs = with pkgs; [
     zsh
@@ -340,6 +341,15 @@
       }
       // args
     );
+
+  makeJailedDirge = args:
+    makeJailedAgent (
+      {
+        name = "dirge";
+        agent = dirge;
+      }
+      // args
+    );
 in {
   inherit
     makeJailedAgent
@@ -350,6 +360,7 @@ in {
     makeJailedCodex
     makeJailedGemini
     makeJailedZerostack
+    makeJailedDirge
     ;
   inherit commonPkgs;
   inherit (jail) combinators;
