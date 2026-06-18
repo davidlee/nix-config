@@ -94,7 +94,7 @@
     };
 
     pub = {
-      url = "path:./pub";
+      url = "path:pub";
       inputs.nixpkgs.follows = "nixpkgs-home";
       inputs.emacs-overlay.follows = "emacs-overlay";
       inputs.emacs-config.follows = "emacs-config";

@@ -38,5 +38,6 @@
       };
       packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
+      packages.dirge = pkgs.callPackage ./dirge.nix {};
     });
 }

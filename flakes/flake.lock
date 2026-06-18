@@ -328,11 +328,11 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1780929204,
-        "narHash": "sha256-wOxdcFuuemGjj5sPymS5kVAu+yZuVNeUOU77qszdJz0=",
+        "lastModified": 1780980424,
+        "narHash": "sha256-BOWS7h66WTYvCv9Iy6pr7c1B5QCBSJ5pdpbSViLZDiY=",
         "owner": "davidlee",
         "repo": "emacs-config",
-        "rev": "e0ab450edca10248c1e88842a823b7070dfdb492",
+        "rev": "8b1f136426f2736461275782ab156a134cb519ed",
         "type": "github"
       },
       "original": {
@@ -819,11 +819,11 @@
     },
     "jail-nix_2": {
       "locked": {
-        "lastModified": 1772137954,
-        "narHash": "sha256-h4MGNbOo7L3RHi4uNFmsg5g17/DHXEfnv/xiG6BrNFQ=",
+        "lastModified": 1776230864,
+        "narHash": "sha256-YsEjjdOsGEzTeD+iT7ONh071BqWAOQWpzYVei3okAXE=",
         "owner": "~alexdavid",
         "repo": "jail.nix",
-        "rev": "42b355c38ca63dab4904acc5c0d95f17954a8c9b",
+        "rev": "404e7da9da5ab9aa643666682b2ba1312fa5fbe8",
         "type": "sourcehut"
       },
       "original": {
@@ -1442,8 +1442,8 @@
         "pub": "pub"
       },
       "locked": {
-        "lastModified": 1780625547,
-        "narHash": "sha256-/+Gn0VUVOJC73beSaR8hdc8fDSjr6anbj/TULQNC1g8=",
+        "lastModified": 1780637806,
+        "narHash": "sha256-p7veD6oOYdfXW4X2CRN6DvLJelzIfdFx3Pqv8/rnsNs=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
@@ -1493,11 +1493,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-+/DP2ZIQBRTH74AZxuY58rmy9tKR3yZKfArea/2Ipqg=",
-        "path": "./pub",
+        "path": "pub",
         "type": "path"
       },
       "original": {
-        "path": "./pub",
+        "path": "pub",
         "type": "path"
       }
     },
