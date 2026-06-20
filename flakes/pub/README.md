@@ -15,6 +15,10 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `makeJailedAgent` — generic maker for custom agents
 - `commonPkgs` — the shared package set available in every jail
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
+- `unjailed` — name→package map of the **bare** (un-jailed) agents, resolved
+  from the same eval as the jails. Use it to put agents on the host devShell
+  PATH (`with agents.unjailed; [ pi dirge ]`) without separately wiring
+  `llm-agents`. Same drvs the jails bundle, so no extra rebuild.
 
 Agent packages come from
 [llm-agents.nix](https://github.com/numtide/llm-agents.nix), which callers

@@ -414,4 +414,8 @@ in {
     ;
   inherit commonPkgs;
   inherit (jail) combinators;
+  # Bare (unjailed) agent packages, resolved from the same eval as the
+  # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
+  # `unjailed.pi` etc. without separately wiring llm-agents.
+  unjailed = agentsByName;
 }
