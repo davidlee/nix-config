@@ -63,6 +63,21 @@
   zerostack = pkgs.callPackage ./zerostack.nix {};
   dirge = pkgs.callPackage ./dirge.nix {};
 
+  # Name -> agent package. Keys match maker `name` values so a jail can
+  # expose sibling agents as depth-guarded sub-agents (see `subagents`).
+  # Values are lazy: `attrNames` (used for `subagents = "all"` resolution)
+  # does not force them, so an unreferenced zerostack/dirge never builds.
+  agentsByName = {
+    pi = pi;
+    crush = crush;
+    opencode = opencode;
+    claude = claude-code;
+    codex = codex;
+    gemini = gemini-cli;
+    zerostack = zerostack;
+    dirge = dirge;
+  };
+
   commonPkgs = with pkgs; [
     zsh
     coreutils
@@ -193,6 +208,12 @@
     workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
     # env var (impure eval only). See envWorkspaceDeps below.
+    # Sibling agents to expose inside the jail as depth-guarded
+    # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
+    # (e.g. [ "pi" "codex" ]) or the string "all". A nested agent runs
+    # inside the existing bwrap sandbox (inherits the jail, not re-jailed).
+    subagents ? [],
+    # Back-compat sugar: adds this agent's own `name` to `subagents`.
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
     blockGitPush ? profileDefaults.${profile}.blockGitPush,
@@ -205,17 +226,45 @@
     # bwrap `--setenv VAR "$VAR"` forwarding still runs.
     passApiKeysFromEnv ? useOpEnv,
   }: let
-    selfSubagentPkg = pkgs.writeShellScriptBin "jailed-${name}" ''
-      depth="''${JAILED_AGENT_DEPTH:-0}"
+    # Resolve a subagent name to its package. The current agent is
+    # reachable under its own `name` even for custom (non-map) agents.
+    resolveAgent = n:
+      if n == name
+      then agent
+      else agentsByName.${n} or (throw "Unknown subagent for jailed-${name}: ${n}");
 
-      if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
-        echo "jailed-${name}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
-        exit 1
-      fi
+    # Names of sibling agents to expose, deduped. "all" => every entry in
+    # agentsByName; allowSelfAsSubagent folds the agent's own name in.
+    subagentNames = lib.unique (
+      (
+        if subagents == "all"
+        then lib.attrNames agentsByName
+        else subagents
+      )
+      ++ lib.optional allowSelfAsSubagent name
+    );
 
-      export JAILED_AGENT_DEPTH="$((depth + 1))"
-      exec ${lib.getExe agent} "$@"
-    '';
+    # Depth-guarded entrypoint for one sub-agent. Shares a single
+    # JAILED_AGENT_DEPTH counter across all agents, so total nesting depth
+    # (claude -> pi -> codex -> ...) is bounded regardless of which agents
+    # are chained.
+    mkSubagentPkg = subName:
+      pkgs.writeShellScriptBin "jailed-${subName}" ''
+        depth="''${JAILED_AGENT_DEPTH:-0}"
+
+        if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
+          echo "jailed-${subName}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
+          exit 1
+        fi
+
+        export JAILED_AGENT_DEPTH="$((depth + 1))"
+        exec ${lib.getExe (resolveAgent subName)} "$@"
+      '';
+
+    subagentPkgs = map mkSubagentPkg subagentNames;
+    # Bare binaries for sibling agents (the wrapper execs them); the
+    # current agent is already added below, so exclude it here.
+    subagentAgents = map resolveAgent (lib.filter (n: n != name) subagentNames);
     # Machine-local editable deps can be supplied at eval time via the
     # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
     # paths). Requires impure eval (`--impure`); under pure eval getEnv
@@ -249,7 +298,8 @@
           commonPkgs
           ++ extraPkgs
           ++ [agent] # allow sub-agent invocation
-          ++ lib.optionals allowSelfAsSubagent [selfSubagentPkg]
+          ++ subagentAgents # bare binaries the subagent wrappers exec
+          ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
         ))
       ]
       ++ extraOptions
@@ -272,9 +322,9 @@
     '';
   in
     assert builtins.hasAttr profile profileOptions || throw "Unknown jailed agent profile: ${profile}";
-    assert (!allowSelfAsSubagent)
+    assert (subagentNames == [])
     || maxSubagentDepth > 0
-    || throw "maxSubagentDepth must be > 0 when allowSelfAsSubagent = true";
+    || throw "maxSubagentDepth must be > 0 when subagents are exposed";
       if useOpEnv
       then outer
       else inner;

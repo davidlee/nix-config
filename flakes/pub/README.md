@@ -45,8 +45,27 @@ any maker (default: `"specDev"`).
 | `offline` | `agent-offline` (separate) | no | blocked | host |
 
 Override boolean defaults per-call with `blockGitPush` / `sandboxGitIdentity`.
-Enable self-recursive sub-agents with `allowSelfAsSubagent = true;`; nested
-invocations stop once `maxSubagentDepth` is reached (default: `1`).
+
+#### Sub-agents
+
+Expose sibling agents inside a jail with `subagents` — a list of names
+(`[ "pi" "dirge" ]`) or the string `"all"`. Each becomes a depth-guarded
+`jailed-<name>` wrapper on the jail's PATH. A nested agent runs inside the
+existing bwrap sandbox (it inherits the jail; it is **not** re-jailed), so it
+sees the same workspace, network policy, and forwarded API keys.
+
+```nix
+(agents.makeJailedClaude {
+  profile = "specDev";
+  subagents = [ "pi" "dirge" ];   # claude can spawn jailed-pi / jailed-dirge
+  maxSubagentDepth = 2;
+})
+```
+
+`allowSelfAsSubagent = true;` is sugar that folds the agent's own name into
+`subagents`. A single `JAILED_AGENT_DEPTH` counter is shared across all
+agents, so total nesting depth (e.g. `claude → pi → dirge`) stops once
+`maxSubagentDepth` is reached (default: `1`).
 
 ### Usage
 
@@ -226,8 +245,9 @@ passApiKeysFromEnv = per-profile`) keep the simple case simple.
 | `extraPkgs` | `[]` | Additional packages available in the jail |
 | `extraOptions` | `[]` | Additional jail.nix combinators |
 | `workspaceDeps` | `[]` | Absolute paths to sibling repos; each is bind-mounted at `/workspace/<basename>` |
-| `allowSelfAsSubagent` | `false` | Expose `jailed-<name>` inside the jail for bounded self-recursive sub-agents |
-| `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth before the helper refuses to recurse |
+| `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |
+| `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
+| `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |
 | `blockGitPush` | per profile | Disable git push via SSH |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
