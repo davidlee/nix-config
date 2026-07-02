@@ -63,10 +63,10 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
-    hythera-nur = {
-      url = "github:Hythera/nur-packages";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-    };
+    # hythera-nur = {
+    #   url = "github:Hythera/nur-packages";
+    #   inputs.nixpkgs.follows = "nixpkgs-home";
+    # };
 
     panopticon = {
       url = "path:/home/david/dev/panopticon";
@@ -188,7 +188,7 @@
           "${hostname}" = inputs.darwin.lib.darwinSystem {
             inherit pkgs specialArgs;
             modules = [
-              {system.configurationRevision = self.rev or self.dirtyRev or null;}
+              {stdenv.hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null;}
               ./darwin
             ];
           };

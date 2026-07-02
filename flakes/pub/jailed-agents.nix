@@ -68,14 +68,14 @@
   # Values are lazy: `attrNames` (used for `subagents = "all"` resolution)
   # does not force them, so an unreferenced zerostack/dirge never builds.
   agentsByName = {
-    pi = pi;
-    crush = crush;
-    opencode = opencode;
+    inherit pi;
+    inherit crush;
+    inherit opencode;
     claude = claude-code;
-    codex = codex;
+    inherit codex;
     gemini = gemini-cli;
-    zerostack = zerostack;
-    dirge = dirge;
+    inherit zerostack;
+    inherit dirge;
   };
 
   commonPkgs = with pkgs; [

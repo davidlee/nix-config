@@ -1,14 +1,14 @@
 {inputs, ...}: {
   flake.nixosModules.nix = {pkgs, ...}: {
-    system.stateVersion = "24.11";
+    stdenv.hostPlatform.system.stateVersion = "24.11";
     nixpkgs.config.allowUnfree = true;
 
     nix = {
       settings = {
         trusted-users = ["root" "@wheel"];
         experimental-features = ["nix-command" "flakes"];
-        max-jobs = 12;
-        cores = 12;
+        max-jobs = 4;
+        cores = 4;
         auto-optimise-store = true;
         substituters = [
           "https://cache.nixos.org"

@@ -89,7 +89,7 @@ in
           meow
           meow-tree-sitter
           # PREVIEW
-          uniline
+          # uniline
           ob-diagrams
           markdown-preview-mode
           treemacs

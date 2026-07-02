@@ -29,7 +29,18 @@ _: {
       }
     ];
 
+    # zswap too
+    zramSwap = {
+      enable = true;
+      memoryPercent = 50;
+      priority = 100;
+      algorithm = "zstd";
+    };
+
     # zswap: compress swap pages in RAM before writing to disk
     boot.kernelParams = ["zswap.enabled=1" "zswap.compressor=zstd" "zswap.zpool=zsmalloc"];
+    boot.kernel.sysctl = {
+      "vm.swappiness" = 60;
+    };
   };
 }
