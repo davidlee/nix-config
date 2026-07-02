@@ -90,7 +90,7 @@ in
           meow-tree-sitter
           # PREVIEW
           # uniline
-          ob-diagrams
+          # ob-diagrams
           markdown-preview-mode
           treemacs
           # ghostel is installed via package-vc in custom-vars.el so its

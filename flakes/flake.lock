@@ -327,11 +327,11 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1782107061,
-        "narHash": "sha256-w1FiSZo3rxn1mftS72s3rPV/SA92gOgATeqq1AfEXfI=",
+        "lastModified": 1782999713,
+        "narHash": "sha256-zdoSm3n1OjNtPzkQ/BPKTsgQwFOy+6lX27+DTne68mU=",
         "owner": "davidlee",
         "repo": "emacs-config",
-        "rev": "b555ed89366d534b3e9bba8bd9304a58f349147b",
+        "rev": "397c67f5ade47716f5ec6aa47ad1aeecadb733e9",
         "type": "github"
       },
       "original": {
@@ -1471,7 +1471,7 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-1DJwR64DZeoGAFUBVRaaNGPUcHVaFPooMOGNOXM/TO4=",
+        "narHash": "sha256-f9gAmLF543Ue4XOWZjUJTv+67fC+2i/JHorSrcvogLQ=",
         "path": "pub",
         "type": "path"
       },
