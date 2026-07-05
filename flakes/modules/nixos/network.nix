@@ -2,6 +2,7 @@ _: {
   flake.nixosModules.network = {
     hostname,
     options,
+    lib,
     ...
   }: {
     systemd.network.networks.enp8s0 = {
@@ -48,6 +49,17 @@ _: {
 
       nftables.enable = true;
     };
+
+    # Prefer IPv4 in getaddrinfo source/dest selection (RFC 6724 default
+    # prefers v6). ISP v6 egress has been intermittently dead — the router
+    # still advertises a v6 default + hands out a global prefix, so apps dial
+    # the dead v6 first and stall ~3s per attempt (wedged bun install in a nix
+    # FOD). Interface-agnostic and self-healing: when v6 egress recovers, apps
+    # still work, just preferring v4. mkForce overrides the stock gai.conf.
+    environment.etc."gai.conf".text = lib.mkForce ''
+      reload no
+      precedence ::ffff:0:0/96  100
+    '';
 
     services = {
       stubby = {

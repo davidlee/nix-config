@@ -142,6 +142,18 @@ gh api repos/NixOS/nixpkgs/compare/c0a89c3...$rev --jq '.status'
 
 When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `system-switch`. Until then it is load-bearing.
 
+### Prefer IPv4 (gai.conf)
+
+`modules/nixos/network.nix` — `environment.etc."gai.conf"` sets `precedence ::ffff:0:0/96 100`, flipping getaddrinfo to prefer IPv4 over the RFC 6724 default (which prefers v6).
+
+**Why:** the ISP's v6 egress goes intermittently dead — the router keeps advertising a v6 default route and delegating a global prefix (`2403:5802:…`), but outbound v6 `connect()` blackholes ~3s then fails. Because a global v6 address exists, RFC 6724 makes apps dial the dead v6 first on every dual-stack name, so everything stalls seconds per attempt. It surfaced as a nix FOD hanging forever in `bun install --frozen-lockfile` (fresh `HOME` cache → full download, each dep dialling dead v6 first).
+
+**Why this fix and not others:** interface-agnostic (covers wired + wifi + future, one place — no per-NM-profile duplication) and **self-healing** — when the ISP's v6 recovers, apps just work again, still preferring v4. The alternative (`ipv6.ignore-auto-routes` per NM profile) hard-kills the v6 default route and has to be reverted by hand once v6 is back.
+
+**Diagnosing:** `curl -sS -o /dev/null -w '%{remote_ip}\n' https://registry.npmjs.org/` should connect via a v4 addr. If v6 is truly dead, `curl -6 https://…` fails after a few seconds while `curl -4 …` returns instantly.
+
+**Removal:** harmless to leave (v4 preference costs nothing when v6 works). Drop it only if you want strict RFC 6724 v6-preference back once the ISP is reliably dual-stack.
+
 ## Jailed Agents 
 
 template setup for bubblewrap-jailed agents, with secure 1password-managed API keys, assuming some conventions:

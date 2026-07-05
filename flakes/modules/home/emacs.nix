@@ -5,7 +5,10 @@ _: {
     inputs,
     ...
   }: let
-    emacs = inputs.pub.packages.${pkgs.stdenv.hostPlatform.system}.emacs;
+    emacs = import ../../pub/emacs.nix {
+      inherit pkgs;
+      emacsConfig = inputs.emacs-config;
+    };
   in {
     imports = [self.homeModules.shpool];
 

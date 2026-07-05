@@ -1,6 +1,6 @@
 {inputs, ...}: {
   flake.nixosModules.nix = {pkgs, ...}: {
-    stdenv.hostPlatform.system.stateVersion = "24.11";
+    system.stateVersion = "24.11";
     nixpkgs.config.allowUnfree = true;
 
     nix = {

@@ -92,13 +92,6 @@
       url = "github:davidlee/emacs-config";
       flake = false;
     };
-
-    pub = {
-      url = "path:pub";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.emacs-overlay.follows = "emacs-overlay";
-      inputs.emacs-config.follows = "emacs-config";
-    };
   };
 
   outputs = inputs @ {
@@ -188,7 +181,7 @@
           "${hostname}" = inputs.darwin.lib.darwinSystem {
             inherit pkgs specialArgs;
             modules = [
-              {stdenv.hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null;}
+              {hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null;}
               ./darwin
             ];
           };
