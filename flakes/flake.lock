@@ -327,22 +327,6 @@
     "emacs-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1782999713,
-        "narHash": "sha256-zdoSm3n1OjNtPzkQ/BPKTsgQwFOy+6lX27+DTne68mU=",
-        "owner": "davidlee",
-        "repo": "emacs-config",
-        "rev": "397c67f5ade47716f5ec6aa47ad1aeecadb733e9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "davidlee",
-        "repo": "emacs-config",
-        "type": "github"
-      }
-    },
-    "emacs-config_2": {
-      "flake": false,
-      "locked": {
         "lastModified": 1780187363,
         "narHash": "sha256-m1h34GsjzHZMOfE9Q2KHW+j7mX5c+nUorBlEyfCvZ9Y=",
         "path": "/home/david/.emacs.d",
@@ -359,8 +343,8 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1782991601,
-        "narHash": "sha256-AyzeMluR5O3NplsS8XfKCh1EeKwTMbHAvszOGd0QxzI=",
+        "lastModified": 1783311194,
+        "narHash": "sha256-OrKRs2PhC4vMNmSRnIyMdAsmc3WyrBOJ13M8Sjv9jiI=",
         "type": "tarball",
         "url": "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz"
       },
@@ -967,11 +951,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1782723713,
-        "narHash": "sha256-oPXCU/SSUokcGaJREHibG1CBX3+s/W7orDWQOZDsEeQ=",
+        "lastModified": 1783224372,
+        "narHash": "sha256-8i/87eeoqiGE4yOTjwSA3Eh/ziJRQEmd/unYU+K27sk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "b5aa0fbd538984f6e3d201be0005b4463d8b09f8",
+        "rev": "d407951447dcd00442e97087bf374aad70c04cea",
         "type": "github"
       },
       "original": {
@@ -1059,11 +1043,11 @@
     },
     "nixpkgs-stable": {
       "locked": {
-        "lastModified": 1782847225,
-        "narHash": "sha256-JC9PjqKYG9ve5U8aDOLQipp3+KLANBHUvGdLZlxzdKI=",
+        "lastModified": 1783148766,
+        "narHash": "sha256-uslt2pqShTIXDdAHRHv2QkYLsVdY8Oqwz0EA48/RSM8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "95ca1e203c0750115fd4a6f17d5a245dfe6b1edd",
+        "rev": "a50de1b7d8a586adc18d2395c19de7d6058e6030",
         "type": "github"
       },
       "original": {
@@ -1400,7 +1384,7 @@
     },
     "pub": {
       "inputs": {
-        "emacs-config": "emacs-config_2",
+        "emacs-config": "emacs-config",
         "emacs-overlay": "emacs-overlay_2",
         "flake-utils": "flake-utils_4",
         "jail-nix": "jail-nix",
@@ -1465,7 +1449,6 @@
       "inputs": {
         "antigravity-nix": "antigravity-nix",
         "darwin": "darwin",
-        "emacs-config": "emacs-config",
         "emacs-overlay": "emacs-overlay",
         "flake-parts": "flake-parts",
         "helix": "helix",

@@ -6,10 +6,6 @@
     flake-utils.url = "github:numtide/flake-utils";
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
     emacs-overlay.url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-    emacs-config = {
-      url = "github:davidlee/emacs-config";
-      flake = false;
-    };
   };
 
   outputs = {
@@ -17,7 +13,6 @@
     flake-utils,
     jail-nix,
     emacs-overlay,
-    emacs-config,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
@@ -32,10 +27,7 @@
           inherit pkgs jail-nix llm-agents;
         };
 
-      packages.emacs = import ./emacs.nix {
-        inherit pkgs;
-        emacsConfig = emacs-config;
-      };
+      packages.emacs = import ./emacs.nix {inherit pkgs;};
       packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
       packages.dirge = pkgs.callPackage ./dirge.nix {};

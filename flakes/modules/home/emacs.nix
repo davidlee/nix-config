@@ -2,13 +2,9 @@ _: {
   flake.homeModules.emacs = {
     pkgs,
     self,
-    inputs,
     ...
   }: let
-    emacs = import ../../pub/emacs.nix {
-      inherit pkgs;
-      emacsConfig = inputs.emacs-config;
-    };
+    emacs = import ../../pub/emacs.nix {inherit pkgs;};
   in {
     imports = [self.homeModules.shpool];
 
