@@ -18,3 +18,5 @@ claude/settings.local.json
 _archive
 _trash
 .git
+
+**/.claude/settings.local.json

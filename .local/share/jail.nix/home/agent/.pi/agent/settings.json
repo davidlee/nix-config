@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.1",
+  "lastChangelogVersion": "0.80.3",
   "defaultProjectTrust": "always",
   "defaultProvider": "deepseek",
   "defaultModel": "deepseek-v4-pro",
@@ -25,6 +25,15 @@
     "mistral/mistral-large-latest",
     "openrouter/google/gemma-4-31b-it:free",
     "openrouter/google/gemma-4-31b-it",
-    "openrouter/google/gemma-3-27b-it"
-  ]
+    "openrouter/google/gemma-3-27b-it",
+    "openrouter/z-ai/glm-5.2"
+  ],
+  "theme": "dark",
+  "retry": {
+    "enabled": false
+  },
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "followUpMode": "all"
 }
