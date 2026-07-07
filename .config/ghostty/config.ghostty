@@ -32,10 +32,10 @@ faint-opacity = 0.2
 linux-cgroup = always
 
 custom-shader-animation = always
-custom-shader = ./ghostty-shaders/in-game-crt-cursor.glsl
 custom-shader = ./ghostty-shaders/cursor_blaze.glsl
+custom-shader = ./ghostty-shaders/in-game-crt-cursor.glsl
 custom-shader = ./ghostty-cursor-shaders/cursor_tail.glsl
-custom-shader = ./ghostty-shaders/smoke-and-ghost.glsl
+custom-shader = ./ghostty-cursor-shaders/ripple_cursor.glsl
 # custom-shader = ./ghostty-shaders/cubes.glsl
 
 # font-family="MonoLisa Nerd Font Mono"

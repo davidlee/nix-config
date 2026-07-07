@@ -86,8 +86,7 @@ _: {
       shotman
       slurp
       sway-contrib.grimshot
-
-      # img editor
+      satty
       swappy
 
       # bluetooth
