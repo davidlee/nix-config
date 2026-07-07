@@ -1,0 +1,59 @@
+# ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
+
+# theme = catppuccin-latte
+# theme = GitHub Dark
+theme = Framer
+background-opacity = 0.85
+background-blur = true
+
+window-decoration = none
+window-padding-x = 5
+window-padding-y = 5
+window-title-font-family="Hack"
+
+# keybind = control+m>t=toggle_quick_terminal
+keybind = global:control+grave_accent=toggle_quick_terminal
+
+quick-terminal-keyboard-interactivity = exclusive
+quick-terminal-autohide = false
+quick-terminal-animation-duration = 0.15
+quick-terminal-size = 1000px, 500px
+quick-terminal-position = bottom
+# quick-terminal-screen = all
+
+shell-integration = zsh
+shell-integration-features = cursor
+
+bell-features = system
+
+gtk-titlebar-style = native
+faint-opacity = 0.2
+
+linux-cgroup = always
+
+custom-shader-animation = always
+custom-shader = ./ghostty-shaders/in-game-crt-cursor.glsl
+custom-shader = ./ghostty-shaders/cursor_blaze.glsl
+#custom-shader = ./ghostty-cursor-shaders/cursor_sweep.glsl
+custom-shader = ./ghostty-cursor-shaders/cursor_tail.glsl
+#custom-shader = ./ghostty-cursor-shaders/cursor_warp.glsl
+#catppuccin-lattecustom-shader = ./ghostty-cursor-shaders/sonic_boom_cursor.glsl
+
+
+
+# font-family="MonoLisa Nerd Font Mono"
+# font-family="SauceCodePro Nerd Font Mono"
+# font-family="VictorMono Nerd Font Mono"
+# font-family="Terminess Nerd Font Mono"
+# font-family="IMWritingDuo Nerd Font Mono"
+# font-family="MesloLGS Nerd Font Mono"
+# font-family="Inconsolata Nerd Font Propo"
+# font-family="LiterationMono Nerd Font"
+# font-family="IncolataGo Nerd Font"
+# font-family="Hurmit Nerd Font"
+
+font-family="Hasklug Nerd Font"
+font-size=14
+font-feature=-liga
+
+# keybind = shift+enter=text:\x1b\r

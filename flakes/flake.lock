@@ -1388,7 +1388,7 @@
         "pub": "pub"
       },
       "locked": {
-        "lastModified": 1780637806,
+        "lastModified": 1783315981,
         "narHash": "sha256-p7veD6oOYdfXW4X2CRN6DvLJelzIfdFx3Pqv8/rnsNs=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
@@ -1583,8 +1583,8 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1782110579,
-        "narHash": "sha256-sgw5aj1dPfWgG/VczJOxSEPAUXrz4FlcH6ViAHLWAMg=",
+        "lastModified": 1783316250,
+        "narHash": "sha256-GigO0wquHU8BvZqA2Ocz/Ep73DDAGuCNgUumCNtjmmM=",
         "path": "/home/david/dev/satan-attrd",
         "type": "path"
       },
@@ -1601,7 +1601,7 @@
         ]
       },
       "locked": {
-        "lastModified": 1779776350,
+        "lastModified": 1783308263,
         "narHash": "sha256-MtjYF1VcHMBIvcx5LV0WwV4PavSRppgR3moHUlcdrRI=",
         "path": "/home/david/dev/satan-patcher",
         "type": "path"

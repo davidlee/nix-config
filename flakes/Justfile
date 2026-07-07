@@ -25,27 +25,27 @@ nixos-start-docker-daemon:
 run *args:
   sudo ./run.sh {{args}}
 
-check-no-root-pub:
-  @state=$(nix eval --impure --raw --expr 'let f = builtins.getFlake "{{flake}}"; in if builtins.hasAttr "pub" f.inputs then "has-pub" else "no-pub"'); if [ "$state" != no-pub ]; then echo "root flake must not depend on inputs.pub"; exit 1; fi
+#check-no-root-pub:
+#  @state=$(nix eval --impure --raw --expr 'let f = builtins.getFlake "."; in if builtins.hasAttr "pub" f.inputs then "has-pub" else "no-pub"'); if [ "$state" != no-pub ]; then echo "root flake must not depend on inputs.pub"; exit 1; fi
 
 check-flake-root:
   @if [ -d .git ] && [ ! -e .git/HEAD ]; then echo "invalid .git directory at flake root shadows parent git repo: remove ./.git or move it aside"; exit 1; fi
 
-system-switch: check-flake-root check-no-root-pub
+system-switch: check-flake-root #check-no-root-pub
   sudo ./run.sh switch {{emacs_override}}
 
-home-switch: check-flake-root check-no-root-pub
-  home-manager switch --flake '{{flake}}#david' {{emacs_override}}
+home-switch: check-flake-root #check-no-root-pub
+  home-manager switch --flake '.#david'
 
 
-home-build: check-flake-root check-no-root-pub
-  home-manager build --flake '{{flake}}#david' {{emacs_override}}
+home-build: check-flake-root #check-no-root-pub
+  home-manager build --flake '.#david'
 
 doctor:
   sleipnir-doctor
 
 darwin-switch:
-  darwin-rebuild switch --flake '{{flake}}#fusillade'
+  darwin-rebuild switch --flake '.#fusillade'
 
 everything: update-system update-home system-switch home-switch
 
@@ -88,6 +88,7 @@ regenerate-hardware:
 
 gc:
   sudo nix-collect-garbage --delete-older-than 14d
+  home-manager expire-generations "-7 days"
   nix-store --gc
 
 melpa-list:
