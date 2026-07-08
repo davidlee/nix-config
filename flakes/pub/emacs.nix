@@ -68,6 +68,7 @@ in
         aggressive-indent
         apheleia
         atomic-chrome
+        all-the-icons
         avy
         beacon
         breadcrumb
@@ -154,6 +155,7 @@ in
         package-lint
         package-lint-flymake
         persp-mode
+        pi-coding-agent
         popper
         posframe
         prescient

@@ -12,14 +12,14 @@ window-padding-y = 5
 window-title-font-family="Hack"
 
 # keybind = control+m>t=toggle_quick_terminal
+
 keybind = global:control+grave_accent=toggle_quick_terminal
 
 quick-terminal-keyboard-interactivity = exclusive
 quick-terminal-autohide = false
 quick-terminal-animation-duration = 0.15
-quick-terminal-size = 1000px, 500px
-quick-terminal-position = bottom
-# quick-terminal-screen = all
+quick-terminal-size = 80%
+# quick-terminal-position = bottom
 
 shell-integration = zsh
 shell-integration-features = cursor
@@ -35,7 +35,7 @@ custom-shader-animation = always
 custom-shader = ./ghostty-shaders/cursor_blaze.glsl
 custom-shader = ./ghostty-shaders/in-game-crt-cursor.glsl
 custom-shader = ./ghostty-cursor-shaders/cursor_tail.glsl
-custom-shader = ./ghostty-cursor-shaders/ripple_cursor.glsl
+# custom-shader = ./ghostty-cursor-shaders/ripple_cursor.glsl
 # custom-shader = ./ghostty-shaders/cubes.glsl
 
 # font-family="MonoLisa Nerd Font Mono"
