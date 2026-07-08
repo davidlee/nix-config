@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+voice="${KOKORO_VOICE:-bf_emma}"
+speed="${KOKORO_SPEED:-1.0}"
+player="${KOKORO_PLAYER:-pw-play}"
+
+tmp="${XDG_RUNTIME_DIR:-/tmp}/kokoro-say-$$.wav"
+
+cleanup() {
+  rm -f "$tmp"
+}
+trap cleanup EXIT INT TERM
+
+if [ "$#" -gt 0 ]; then
+  text="$*"
+else
+  text="$(cat)"
+fi
+
+# Trim empty input.
+if [ -z "$(printf '%s' "$text" | tr -d '[:space:]')" ]; then
+  exit 0
+fi
+
+printf '%s\n' "$text" |
+  ~/.local/share/kokoro-env/.venv/bin/python -m kokoro \
+    --voice "$voice" \
+    --speed "$speed" \
+    --output-file "$tmp"
+
+"$player" "$tmp"

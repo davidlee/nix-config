@@ -4,6 +4,12 @@ _: {
 
     boot.kernelModules = ["amdgpu"];
 
+    # GPU hang recovery: a wedged context is reset (seconds) instead of
+    # locking the whole display to 0fps for minutes. gpu_recovery=1 forces
+    # reset on hang; reset_method is left at auto so amdgpu picks the mode
+    # supported by Navi 48 (RDNA4).
+    boot.kernelParams = ["amdgpu.gpu_recovery=1"];
+
     hardware = {
       graphics = {
         enable = true;

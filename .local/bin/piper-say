@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+model="${PIPER_MODEL:-$HOME/models/piper/en_GB-cori-high.onnx}"
+
+text="$(cat)"
+
+[ -n "$text" ] || exit 0
+
+tmp="${XDG_RUNTIME_DIR:-/tmp}/tts-$$.wav"
+
+printf '%s\n' "$text" |
+  piper --model "$model" --output_file "$tmp" >/dev/null 2>&1
+pw-play "$tmp"
+rm -f "$tmp"

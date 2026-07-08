@@ -605,9 +605,6 @@ in {
       tuisky # bluesky
       wiki-tui # wikipedia
       slack-term
-
-      ## text to speech
-      espeak-ng
     ];
   };
 

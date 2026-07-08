@@ -49,6 +49,7 @@
     nixosModules.snooze
     nixosModules.sshd
     nixosModules.sway
+    nixosModules.speech
     # nixosModules.hyprland
     nixosModules.user
     nixosModules.util

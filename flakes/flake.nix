@@ -135,7 +135,7 @@
 
             modules = [
               ./hosts/${hostname}/config.nix
-              {nixpkgs.overlays = [self.overlays.llama-edge];}
+              {nixpkgs.overlays = [self.overlays.llama-edge self.overlays.whisper-rocm];}
             ];
           };
         };

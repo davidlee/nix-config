@@ -32,6 +32,9 @@ _: {
       wlopm
       wlr-layout-ui
 
+      wf-recorder
+      wf-config
+
       ## color pickers
       wl-color-picker
       hyprpicker
