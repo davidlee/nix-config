@@ -17,13 +17,7 @@ _: {
         XDG_SESSION_TYPE = "wayland";
         XDG_SESSION_DESKTOP = "sway";
         XDG_CURRENT_DESKTOP = "sway";
-        # QT_QPA_PLATFORM = "wayland";
         SDL_VIDEODRIVER = "wayland";
-
-        #_JAVA_AWT_WM_NONREPARENTING = 1;
-        #GTK_IM_MODULE = "wayland";
-        #QT_IM_MODULE = "wayland";
-        #XMODIFIERS = "@im=wayland";
       };
 
       # initialized through PAM

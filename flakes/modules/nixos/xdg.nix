@@ -5,6 +5,18 @@ _: {
 
       wlr = {
         enable = true;
+        # xdpw's service PATH lacks /run/current-system/sw/bin, so its built-in
+        # chooser chain (wmenu/wofi/rofi/...) all hit "command not found" and it
+        # logs the misleading "no output found". Pin an absolute-path chooser.
+        settings.screencast = {
+          chooser_type = "dmenu";
+          chooser_cmd = "${pkgs.fuzzel}/bin/fuzzel --dmenu --prompt='Share source: '";
+          # Cap capture fps: Zoom's PipeWire consumer recycles the tiny dmabuf
+          # pool too slowly for full-screen 4K at 60fps, starving it after ~2
+          # frames ("out of buffers") → frozen share. 20fps keeps the pool fed
+          # under heavy motion; 30 crashed Zoom, 20 is the tested ceiling.
+          max_fps = 20;
+        };
       };
 
       xdgOpenUsePortal = true;
