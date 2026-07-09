@@ -12,6 +12,7 @@ _: {
       homeModules.helix
       homeModules.zsh
       homeModules.programs
+      homeModules.cliPackages
 
       # nixos
       homeModules.media

@@ -1,12 +1,4 @@
-{
-  pkgs,
-  outputs,
-  ...
-}: {
-  imports = [
-    outputs.darwinModules.cliPackages
-  ];
-
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     ## mac only
     darwin.trash

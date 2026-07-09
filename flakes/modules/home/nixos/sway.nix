@@ -74,7 +74,9 @@ _: {
       };
     };
 
-    home.packages = [wpmPython];
+    # hiPrio: this evdev-bundled env must win the buildEnv collision against
+    # the plain `python3` from cliPackages (both ship bin/python3-config).
+    home.packages = [(lib.hiPrio wpmPython)];
     systemd.user.services.wpm-daemon = {
       Unit = {
         Description = "Keypress counter for Waybar WPM";

@@ -9,6 +9,7 @@
     outputs.homeModules.nvim
     outputs.homeModules.programs
     outputs.homeModules.emacs
+    outputs.homeModules.cliPackages
   ];
 
   home = {
