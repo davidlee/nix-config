@@ -33,7 +33,7 @@ _: {
       homeModules.satan-patcher
       homeModules.satan-attrd
       homeModules.behaviour
-      homeModules.slk
+      # homeModules.slk
 
       # homeModules.bough
     ];

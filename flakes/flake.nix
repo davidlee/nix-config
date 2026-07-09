@@ -58,16 +58,6 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
-    antigravity-nix = {
-      url = "github:jacopone/antigravity-nix";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-    };
-
-    # hythera-nur = {
-    #   url = "github:Hythera/nur-packages";
-    #   inputs.nixpkgs.follows = "nixpkgs-home";
-    # };
-
     panopticon = {
       url = "path:/home/david/dev/panopticon";
       inputs.nixpkgs.follows = "nixpkgs-home";
@@ -83,8 +73,8 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
-    slk = {
-      url = "github:davidlee/slk";
+    lem = {
+      url = "github:lem-project/lem";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
   };
