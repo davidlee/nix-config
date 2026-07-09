@@ -63,9 +63,9 @@ git_count=""
 if [ -n "$cwd" ] && git -C "$cwd" rev-parse --git-dir >/dev/null 2>&1; then
   unstaged=$(git -C "$cwd" diff --name-only 2>/dev/null | wc -l | tr -d ' ')
   untracked=$(git -C "$cwd" ls-files --others --exclude-standard 2>/dev/null | wc -l | tr -d ' ')
-  # changed (tracked, modified) green ✏; new (untracked) red ✚. Each member hidden at 0.
+  # changed (tracked, modified) green ∆; new (untracked) red ✚. Each member hidden at 0.
   seg=""
-  [ "$unstaged" -gt 0 ] && seg=$(printf '\033[32m\342\234\217 %d\033[0m' "$unstaged")
+  [ "$unstaged" -gt 0 ] && seg=$(printf '\033[32m\342\210\206 %d\033[0m' "$unstaged")
   if [ "$untracked" -gt 0 ]; then
     new=$(printf '\033[31m\342\234\232 %d\033[0m' "$untracked")
     if [ -n "$seg" ]; then seg="$seg $new"; else seg="$new"; fi
