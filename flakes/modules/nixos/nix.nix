@@ -54,6 +54,11 @@
     systemd.services.nix-daemon.environment.NIX_CURL_FLAGS = "-A nixpkgs-fetchurl";
 
     environment.systemPackages = with pkgs; [
+      # root needs git on PATH: `nixos-rebuild` runs nix as root, and the
+      # git+file flake fetch of a dirty tree shells out to `git`. The user's
+      # full git lives in home.packages, which root can't see. (gitMinimal
+      # is enough for nix's fetch; no gui/svn needed.)
+      gitMinimal
       inputs.nix-search-tv.packages.x86_64-linux.default
       alejandra
       appimage-run

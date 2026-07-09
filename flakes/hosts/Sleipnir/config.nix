@@ -2,7 +2,8 @@
   pkgs,
   self,
   ...
-}: {
+}:
+{
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = with self; [
@@ -16,7 +17,7 @@
     nixosModules.browsers
     nixosModules.cargo
     nixosModules.cosmic
-    nixosModules.docker
+    # nixosModules.docker
     nixosModules.env
     nixosModules.flatpak
     nixosModules.fonts
@@ -38,7 +39,7 @@
     nixosModules.oom
     # nixosModules.openrgb
     nixosModules.pipewire
-    # nixosModules.podman
+    nixosModules.podman
     nixosModules.printing
     nixosModules.postgresql
     nixosModules.programs
