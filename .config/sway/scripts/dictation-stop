@@ -1,0 +1,54 @@
+#!/bin/sh
+set -eu
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/dictation"
+audio="$dir/input.wav"
+pidfile="$dir/record.pid"
+outbase="$dir/out"
+txt="$outbase.txt"
+
+. "$(dirname "$0")/dictation.env"
+
+if [ ! -f "$pidfile" ]; then
+  exit 0
+fi
+
+if ! command -v "$whisper" >/dev/null 2>&1; then
+  notify-send -t 2000 "Dictation" "$whisper not on PATH — run a system-switch"
+  rm -f "$pidfile"
+  exit 1
+fi
+
+pid="$(cat "$pidfile")"
+rm -f "$pidfile"
+
+kill -INT "$pid" 2>/dev/null || true
+
+# Give recorder a moment to flush the WAV.
+sleep 0.2
+
+if [ ! -s "$audio" ]; then
+  notify-send -t 1200 "Dictation" "No audio captured"
+  exit 1
+fi
+
+notify-send -t 800 "Dictation" "Transcribing"
+
+"$whisper" \
+  -m "$model" \
+  -f "$audio" \
+  -l "$lang" \
+  -otxt \
+  -of "$outbase" \
+  --no-timestamps \
+  >/dev/null 2>&1
+
+text="$(cat "$txt" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+
+if [ -n "$text" ]; then
+  printf '%s' "$text" | wl-copy    # also leave on clipboard for manual re-paste
+  wtype "$text"                    # type directly: app-agnostic (terminals + GUI)
+  notify-send -t 800 "Dictation" "Inserted"
+else
+  notify-send -t 1200 "Dictation" "No transcript"
+fi

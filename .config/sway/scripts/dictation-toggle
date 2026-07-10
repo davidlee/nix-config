@@ -1,0 +1,54 @@
+#!/bin/sh
+set -eu
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/dictation"
+audio="$dir/input.wav"
+pidfile="$dir/record.pid"
+outbase="$dir/out"
+txt="$outbase.txt"
+
+. "$(dirname "$0")/dictation.env"
+
+mkdir -p "$dir"
+
+if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+  pid="$(cat "$pidfile")"
+  rm -f "$pidfile"
+
+  kill -INT "$pid" 2>/dev/null || true
+  sleep 0.2
+
+  if [ ! -s "$audio" ]; then
+    notify-send -t 1200 "Dictation" "No audio captured"
+    exit 1
+  fi
+
+  notify-send -t 800 "Dictation" "Transcribing"
+
+  "$whisper" \
+    -m "$model" \
+    -f "$audio" \
+    -l "$lang" \
+    -otxt \
+    -of "$outbase" \
+    --no-timestamps \
+    >/dev/null 2>&1
+
+  text="$(cat "$txt" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+
+  if [ -n "$text" ]; then
+    printf '%s' "$text" | wl-copy    # also leave on clipboard for manual re-paste
+    wtype "$text"                    # type directly: app-agnostic (terminals + GUI)
+    notify-send -t 800 "Dictation" "Inserted"
+  else
+    notify-send -t 1200 "Dictation" "No transcript"
+  fi
+
+else
+  rm -f "$audio" "$txt" "$outbase.wav"
+
+  pw-record --rate 16000 --channels 1 --format s16 "$audio" >/dev/null 2>&1 &
+  echo "$!" > "$pidfile"
+
+  notify-send -t 800 "Dictation" "Recording"
+fi

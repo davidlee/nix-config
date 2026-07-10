@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+
+dir="${XDG_RUNTIME_DIR:-/tmp}/dictation"
+audio="$dir/input.wav"
+pidfile="$dir/record.pid"
+
+mkdir -p "$dir"
+
+if [ -f "$pidfile" ] && kill -0 "$(cat "$pidfile")" 2>/dev/null; then
+  exit 0
+fi
+
+rm -f "$audio" "$dir/out.txt" "$dir/out.wav"
+
+# PipeWire audio capture — 16kHz mono s16 WAV, exactly what whisper wants.
+pw-record --rate 16000 --channels 1 --format s16 "$audio" >/dev/null 2>&1 &
+
+echo "$!" >"$pidfile"
+
+notify-send -t 800 "Dictation" "Recording"
