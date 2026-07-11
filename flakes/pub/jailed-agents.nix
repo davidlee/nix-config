@@ -400,6 +400,16 @@
       }
       // args
     );
+
+  # for testing & installation
+  makeJailedZsh = args:
+    makeJailedAgent (
+      {
+        name = "zsh";
+        agent = pkgs.zsh;
+      }
+      // args
+    );
 in {
   inherit
     makeJailedAgent
@@ -411,6 +421,7 @@ in {
     makeJailedGemini
     makeJailedZerostack
     makeJailedDirge
+    makeJailedZsh
     ;
   inherit commonPkgs;
   inherit (jail) combinators;
