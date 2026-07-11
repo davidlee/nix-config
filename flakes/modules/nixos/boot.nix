@@ -14,9 +14,9 @@
         };
       };
 
-      plymouth = {
-        enable = true;
-      };
+      # plymouth = {
+      #   enable = true;
+      # };
     }; # /boot
   };
 }

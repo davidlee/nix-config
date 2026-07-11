@@ -4,14 +4,35 @@
   "defaultProvider": "deepseek",
   "defaultModel": "deepseek-v4-pro",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": false
   },
   "doubleEscapeAction": "tree",
   "packages": [
+    "npm:@juanibiapina/pi-extension-settings",
     "/home/david/.pi/packages/node_modules/pi-subagents",
-    "/home/david/.pi/packages/node_modules/pi-web-access"
+    "/home/david/.pi/packages/node_modules/pi-web-access",
+    "npm:pi-subagents",
+    "npm:pi-ask-user",
+    "npm:pi-mcp-adapter",
+    "npm:pi-web-access",
+    "npm:@devkade/pi-plan",
+    "npm:pi-simplify",
+    "npm:pi-add-dir",
+    "npm:pi-prompt-template-model",
+    "npm:pi-claude-cli",
+    "npm:pi-slopchop",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:@tmustier/pi-usage-extension",
+    "npm:@tmustier/pi-raw-paste",
+    "npm:pi-btw",
+    "npm:pi-interactive-shell",
+    "git:github.com/davebcn87/pi-autoresearch",
+    "npm:@tmustier/pi-ralph-wiggum",
+    "git:github.com/javierportillo/pi-hackerman@63b0a3ef2c7b14985ffeb6cac44614ba59cd5693",
+    "npm:@victor-software-house/pi-curated-themes",
+    "npm:pi-terminal-theme"
   ],
   "enabledModels": [
     "deepseek/deepseek-v4-pro",
@@ -28,12 +49,34 @@
     "openrouter/google/gemma-3-27b-it",
     "openrouter/z-ai/glm-5.2"
   ],
-  "theme": "dark",
+  "theme": "adwaita-dark",
   "retry": {
     "enabled": false
   },
   "terminal": {
     "showTerminalProgress": true
   },
-  "followUpMode": "all"
+  "followUpMode": "all",
+  "subagents": {
+    "agentOverrides": {
+      "context-builder": {
+        "model": ""
+      },
+      "planner": {
+        "model": ""
+      },
+      "researcher": {
+        "model": ""
+      },
+      "reviewer": {
+        "model": ""
+      },
+      "scout": {
+        "model": ""
+      },
+      "worker": {
+        "model": ""
+      }
+    }
+  }
 }

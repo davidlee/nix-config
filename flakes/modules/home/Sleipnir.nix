@@ -35,6 +35,7 @@ _: {
       homeModules.satan-patcher
       homeModules.satan-attrd
       homeModules.behaviour
+      homeModules.danksearch
       # homeModules.slk
 
       # homeModules.bough

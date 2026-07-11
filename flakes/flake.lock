@@ -229,6 +229,26 @@
         "type": "github"
       }
     },
+    "danksearch": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782736090,
+        "narHash": "sha256-TnoKATODjWk4e1w3VhRYLWGMdXMJzDyvQF8mtD6WRGA=",
+        "owner": "AvengeMedia",
+        "repo": "danksearch",
+        "rev": "1269b4688cc94cbd271e1cbbf19a6e7caa2293de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "danksearch",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -1444,6 +1464,7 @@
     },
     "root": {
       "inputs": {
+        "danksearch": "danksearch",
         "darwin": "darwin",
         "emacs-overlay": "emacs-overlay",
         "flake-parts": "flake-parts",

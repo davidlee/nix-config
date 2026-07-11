@@ -29,30 +29,40 @@
       enable = true;
     };
 
+    services.displayManager.dms-greeter = {
+      enable = true;
+      compositor.name = "niri";
+      configHome = "/home/david";
+    };
+
     services = {
       greetd = {
         enable = true;
         settings = {
-          default_session = let
-            tuigreet = "${lib.getExe pkgs.tuigreet}";
-            baseSessionsDir = "${config.services.displayManager.sessionData.desktops}";
-            xSessions = "${baseSessionsDir}/share/xsessions";
-            waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
-            theme = "'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'";
-            tuigreetOptions = [
-              "--cmd sway"
-              "--remember"
-              "--remember-session"
-              "--sessions ${waylandSessions}:${xSessions}"
-              "--xsession-wrapper startx /usr/bin/env"
-              "--time"
-              "--theme ${theme}"
-            ];
-            flags = lib.concatStringsSep " " tuigreetOptions;
-          in {
-            command = "${tuigreet} ${flags}";
-            user = "greeter";
-          };
+          # default_session = {
+          #   command = "dms-greeter";
+          #   user = "greeter";
+          # };
+          # default_session = let
+          #   tuigreet = "${lib.getExe pkgs.tuigreet}";
+          #   baseSessionsDir = "${config.services.displayManager.sessionData.desktops}";
+          #   xSessions = "${baseSessionsDir}/share/xsessions";
+          #   waylandSessions = "${baseSessionsDir}/share/wayland-sessions";
+          #   theme = "'border=magenta;text=cyan;prompt=green;time=red;action=green;button=white;container=black;input=red'";
+          #   tuigreetOptions = [
+          #     "--cmd sway"
+          #     "--remember"
+          #     "--remember-session"
+          #     "--sessions ${waylandSessions}:${xSessions}"
+          #     "--xsession-wrapper startx /usr/bin/env"
+          #     "--time"
+          #     "--theme ${theme}"
+          #   ];
+          #   flags = lib.concatStringsSep " " tuigreetOptions;
+          # in {
+          #   command = "${tuigreet} ${flags}";
+          #   user = "greeter";
+          # };
         };
       };
     };

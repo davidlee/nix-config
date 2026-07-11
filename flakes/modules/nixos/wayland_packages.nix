@@ -44,9 +44,6 @@ _: {
       gnome-calendar
       gnomeExtensions.appindicator
 
-      # notifications
-      mako
-
       # file managers
       nemo
       thunar

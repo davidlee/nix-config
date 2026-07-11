@@ -77,6 +77,11 @@
       url = "github:lem-project/lem";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
+
+    danksearch = {
+      url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {
@@ -125,7 +130,7 @@
 
             modules = [
               ./hosts/${hostname}/config.nix
-              {nixpkgs.overlays = [self.overlays.llama-edge self.overlays.whisper-rocm];}
+              {nixpkgs.overlays = [self.overlays.llama-edge self.overlays.whisper-rocm self.overlays.click-threading-fix];}
             ];
           };
         };

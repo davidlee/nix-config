@@ -8,8 +8,12 @@ _: {
       dms-shell = {
         enable = true;
         # plugins
-        # enableDynamicTheming = true;
-        # enableSystemMonitoring = true;
+        enableDynamicTheming = true;
+        enableCalendarEvents = true;
+        enableAudioWavelength = true;
+        enableClipboardPaste = true;
+
+        systemd.enable = true;
       };
     }; # programs
     environment.systemPackages = with pkgs; [niriswitcher xwayland-satellite];
