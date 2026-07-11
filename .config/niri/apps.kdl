@@ -1,0 +1,17 @@
+spawn-at-startup "1password --silent"
+spawn-at-startup "slack --silent -u"
+spawn-at-startup "udiskie"
+spawn-at-startup "copyq --start-server"
+spawn-at-startup "signal-desktop"
+spawn-at-startup "firefox"
+
+binds {
+    Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
+    Mod+Shift+Return hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
+    Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+
+
+    Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
+}
+

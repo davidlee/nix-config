@@ -9,7 +9,7 @@ _: {
       # globals set on init
       variables = {
         XCURSOR_SIZE = 24;
-        # ELECTRON_OZONE_PLATFORM_HINT = "x11";
+        ELECTRON_OZONE_PLATFORM_HINT = "auto";
         MOZ_ENABLE_WAYLAND = 1;
         GTK_USE_PORTAL = 1;
 
@@ -22,7 +22,7 @@ _: {
 
       # initialized through PAM
       sessionVariables = {
-        HYPRCURSOR_SIZE = "24";
+        # HYPRCURSOR_SIZE = "24";
         XDG_SCREENSHOTS_DIR = "/home/${username}/Pictures/Screenshots";
       };
     };

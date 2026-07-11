@@ -19,6 +19,7 @@ _: {
       homeModules.terminals
       homeModules.zed-editor
       homeModules.sway
+      homeModules.niri
       homeModules.games
       homeModules.wayland
       homeModules.ai
