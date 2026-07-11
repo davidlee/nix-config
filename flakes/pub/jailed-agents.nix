@@ -112,7 +112,7 @@
     time-zone
     no-new-session
     # make shebangs work
-    (ro-bind "${pgks.coreutils}/bin/env" "/usr/bin/env")
+    (ro-bind "${pkgs.coreutils}/bin/env" "/usr/bin/env")
     # Mount host cwd at /workspace/<project> and start there
     (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
     (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
