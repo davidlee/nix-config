@@ -1,3 +1,6 @@
+# undef oh-my-zsh lib/directories.zsh function for
+# directory management so i can use it for doctrine
+unfunction d
 
 alias v="vice";
 alias vm="vice -W meta";
