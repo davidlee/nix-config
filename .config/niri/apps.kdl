@@ -6,12 +6,25 @@ spawn-at-startup "signal-desktop"
 spawn-at-startup "firefox"
 
 binds {
-    Mod+Return hotkey-overlay-title="Open a Terminal: ghostty" { spawn "ghostty"; }
-    Mod+Shift+Return hotkey-overlay-title="Open a Browser: firefox" { spawn "firefox"; }
-    Mod+Space hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
-    Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
+    Mod+Return hotkey-overlay-title="Launch Terminal (ghostty)" { spawn "ghostty"; }
+    Mod+Shift+Return hotkey-overlay-title="Launch Browser (Firefox)" { spawn "firefox"; }
+    //Mod+Apostrophe hotkey-overlay-title="Launch Terminal (kitty)" { spawn "kitty"; }
 
+    // Term
+    Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"     { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
+    Ctrl+Alt+Shift+Apostrophe hotkey-overlay-title="Launch kitty" { spawn-sh "~/.local/bin/raise-cycle-spawn kitty kitty"; }
+    Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }
 
-    Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
+    // Meh
+    Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/raise-cycle-spawn slack slack"; }
+    Ctrl+Alt+Shift+O hotkey-overlay-title="-> Obsidian"    { spawn-sh "~/.local/bin/raise-cycle-spawn obsidian ~/.local/bin/obsidian"; }
+    Ctrl+Alt+Shift+T hotkey-overlay-title="-> Thunderbird" { spawn-sh "~/.local/bin/raise-cycle-spawn thunderbird thunderbird"; }
+    Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/raise-cycle-spawn 1password 1password "; }
+    Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
+    Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/raise-cycle-spawn signal-desktop signal-desktop"; }
+    // Ctrl+Alt+Shift+Q hotkey-overlay-title="-> CopyQ"       { spawn-sh "~/.local/bin/raise-cycle-spawn "; }
+    // Ctrl+Alt+Shift+Z hotkey-overlay-title="-> Zoom"        { spawn-sh "~/.local/bin/raise-cycle-spawn zoom zoom"; }
+
+    // Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
 }
 
