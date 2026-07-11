@@ -4,6 +4,7 @@ spawn-at-startup "udiskie"
 spawn-at-startup "copyq --start-server"
 spawn-at-startup "signal-desktop"
 spawn-at-startup "firefox"
+spawn-at-startup "spotify"
 
 binds {
     Mod+Return hotkey-overlay-title="Launch Terminal (ghostty)" { spawn "ghostty"; }
@@ -22,6 +23,7 @@ binds {
     Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/raise-cycle-spawn 1password 1password "; }
     Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
     Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/raise-cycle-spawn signal-desktop signal-desktop"; }
+    Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/raise-cycle-spawn Spotify spotify"; }
     // Ctrl+Alt+Shift+Q hotkey-overlay-title="-> CopyQ"       { spawn-sh "~/.local/bin/raise-cycle-spawn "; }
     // Ctrl+Alt+Shift+Z hotkey-overlay-title="-> Zoom"        { spawn-sh "~/.local/bin/raise-cycle-spawn zoom zoom"; }
 
