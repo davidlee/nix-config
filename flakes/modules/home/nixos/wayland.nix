@@ -17,6 +17,7 @@ _: {
         "${config.home.homeDirectory}/.config/swaync/style.local.css");
 
     home.pointerCursor = {
+      enable = true;
       name = "phinger-cursors-light";
       package = pkgs.phinger-cursors;
       size = 32;

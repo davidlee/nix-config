@@ -2,7 +2,7 @@ _: {
   flake.nixosModules.browsers = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
       firefox
-      firefox-devedition
+      # firefox-devedition BROKEN
       firefoxpwa
     ];
 

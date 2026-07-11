@@ -8,7 +8,9 @@ _: {
       ## text to speech
       espeak-ng
       piper-tts
-      python313Packages.kokoro
+
+      # BROKEN - transient python dep issue
+      # python313Packages.kokoro
 
       ## speech to text — ROCm/gfx1201 build (overlays/whisper-rocm.nix)
       whisper-cpp-rocm

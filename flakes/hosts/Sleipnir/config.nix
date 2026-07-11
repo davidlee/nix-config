@@ -2,8 +2,7 @@
   pkgs,
   self,
   ...
-}:
-{
+}: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = with self; [
@@ -36,6 +35,7 @@
     nixosModules.maintenance
     nixosModules.network
     nixosModules.nix
+    nixosModules.niri
     nixosModules.oom
     # nixosModules.openrgb
     nixosModules.pipewire

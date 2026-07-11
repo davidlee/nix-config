@@ -10,7 +10,7 @@
 
     ## feeds, content / social
     russ # RSS
-    tuir # reddit
+    # tuir # reddit - BROKEN
     tut # mastodon
     tuisky # bluesky
     wiki-tui # wikipedia
