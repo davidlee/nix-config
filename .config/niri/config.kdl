@@ -1,4 +1,8 @@
 
+// spawn-at-startup "niri-float-sticky"
+
+spawn-at-startup "niriusd"
+spawn-at-startup "vicinae server"
 
 // This config is in the KDL format: https://kdl.dev
 // "/-" comments out the following node.
@@ -119,8 +123,8 @@ layout {
     }
     struts {
         top 1
+        left 10
     }
-
 }
 layer-rule {
     match namespace="^quickshell$"

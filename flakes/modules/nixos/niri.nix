@@ -20,6 +20,9 @@ _: {
         systemd.enable = true;
       };
     }; # programs
-    environment.systemPackages = with pkgs; [xwayland-satellite inputs.niri-float-sticky.packages.${system}.niri-float-sticky];
+    environment.systemPackages = with pkgs; [
+      xwayland-satellite
+      # inputs.niri-float-sticky.packages.${system}.niri-float-sticky
+    ];
   };
 }

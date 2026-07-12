@@ -2,9 +2,13 @@ _: {
   flake.homeModules.niri = {
     pkgs,
     username,
+    inputs,
     ...
   }: {
-    home.packages = with pkgs; [stasis nirius];
+    home.packages = with pkgs; [stasis nirius vicinae];
+    imports = [
+      inputs.vicinae.homeManagerModules.default
+    ];
 
     systemd.user.services.stasis = {
       Unit = {

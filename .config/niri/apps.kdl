@@ -1,3 +1,5 @@
+// https://sr.ht/~tsdh/nirius/
+//
 spawn-at-startup "1password --silent"
 spawn-at-startup "slack --silent -u"
 spawn-at-startup "udiskie"
@@ -24,8 +26,6 @@ binds {
     Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
     Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/raise-cycle-spawn signal-desktop signal-desktop"; }
     Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/raise-cycle-spawn Spotify spotify"; }
-    // Ctrl+Alt+Shift+Q hotkey-overlay-title="-> CopyQ"       { spawn-sh "~/.local/bin/raise-cycle-spawn "; }
-    // Ctrl+Alt+Shift+Z hotkey-overlay-title="-> Zoom"        { spawn-sh "~/.local/bin/raise-cycle-spawn zoom zoom"; }
 
     // Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
 }

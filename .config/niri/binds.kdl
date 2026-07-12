@@ -1,10 +1,45 @@
+
+recent-windows {
+    // off
+    debounce-ms 750
+
+    open-delay-ms 150
+
+    highlight {
+        active-color "#999999ff"
+        urgent-color "#ff9999ff"
+        padding 30
+        corner-radius 0
+    }
+
+    previews {
+        max-height 880
+        max-scale 0.7
+    }
+
+    binds {
+        Mod+Tab         { next-window; }
+        Mod+Shift+Tab   { previous-window; }
+        Mod+grave       { next-window     filter="app-id"; }
+        Mod+Shift+grave { previous-window filter="app-id"; }
+
+        // Mod+Tab         { next-window; }
+        // Mod+Shift+Tab   { previous-window; }
+        // Mod+grave       { next-window     filter="app-id"; }
+        // Mod+Shift+grave { previous-window filter="app-id"; }
+    }
+}
 binds {
+
     // shows a list of important hotkeys.
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // launcher
-    Mod+Space hotkey-overlay-title="Application Launcher" {
+    Ctrl+Space hotkey-overlay-title="Application Launcher (dms)" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";
+    }
+    Mod+Space hotkey-overlay-title="Application Launcher (Vicinae)" {
+        spawn "vicinae" "open"
     }
     Mod+Z hotkey-overlay-title="Clipboard Manager" {
         spawn "dms" "ipc" "call" "clipboard" "toggle";
@@ -23,7 +58,7 @@ binds {
     }
     Mod+Shift+P { power-off-monitors; }
 
-    Super+X hotkey-overlay-title="Power Menu: Toggle" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    Mod+Shift+X hotkey-overlay-title="Power Menu: Toggle" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     Mod+Shift+Comma hotkey-overlay-title="Settings" {
         spawn "dms" "ipc" "call" "settings" "focusOrToggle";
     }
@@ -80,8 +115,15 @@ binds {
 
     Mod+Q repeat=false { close-window; }
 
+    // bindsym $mod+a exec ~/.config/sway/scripts/toggle-audio-sink
+    Mod+Backslash allow-when-locked=true {
+        spawn-sh "~/.config/sway/scripts/toggle-audio-sink"
+    }
+
     // === Window Management ===
     Mod+Shift+W hotkey-overlay-title="Create window rule" { spawn "dms" "ipc" "call" "window-rules" "toggle"; }
+
+    Mod+X hotkey-overlay-title="Toggle Follow Mode" { spawn "nirius" "toggle-follow-mode"; }
 
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }

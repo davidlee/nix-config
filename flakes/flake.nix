@@ -89,10 +89,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    niri-float-sticky = {
-      url = "github:probeldev/niri-float-sticky";
+    # niri-float-sticky = {
+    #   url = "github:probeldev/niri-float-sticky";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+
+    niri = {
+      url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    vicinae.url = "github:vicinaehq/vicinae";
   };
 
   outputs = inputs @ {
