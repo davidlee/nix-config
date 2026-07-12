@@ -1,18 +1,26 @@
 # SATAN — local agent runtime systemd wiring.
 #
-# NOT imported by hosts/Sleipnir.nix in phase 1.  Manual smoke test:
+# Imported by modules/home/Sleipnir.nix.  Manual smoke test:
 #   systemctl --user start satan-morning.service
 #   systemctl --user status satan-morning.service
 #   journalctl --user -u satan-morning.service
 #
-# Once trusted, import this module from the host's home-manager block.
-# Wrapper at $HOME/.emacs.d/satan/bin/satan-run needs `emacsclient` and
-# `jailed-satan-fake-harness` on PATH (the latter ships via
-# `home.packages = [ inputs.emacsFlake.packages.x86_64-linux.satan-jailed-fake-harness ];`
-# or by entering the .emacs.d devshell from the shell that launches the
-# user session).
+# Since SL-012 the package lives in the standalone satan repo
+# (~/dev/satan, flake input `satan`).  The wrapper at
+# $HOME/dev/satan/satan/bin/satan-run needs `emacsclient` and the jailed
+# harness `jailed-satan-gptel-harness` on PATH; the latter is provisioned
+# via `home.packages` below (lands in ~/.nix-profile/bin, on the broker's
+# exec-path independent of any devshell/direnv).
 _: {
-  flake.homeModules.satan = _: {
+  flake.homeModules.satan = {
+    inputs,
+    pkgs,
+    ...
+  }: {
+    home.packages = [
+      inputs.satan.packages.${pkgs.system}.satan-jailed-gptel-harness
+    ];
+
     systemd.user.services.satan-morning = {
       Unit = {
         Description = "SATAN morning run";
@@ -20,7 +28,7 @@ _: {
       };
       Service = {
         Type = "oneshot";
-        ExecStart = "%h/.emacs.d/satan/bin/satan-run morning";
+        ExecStart = "%h/dev/satan/satan/bin/satan-run morning";
       };
     };
 
@@ -37,7 +45,7 @@ _: {
       Unit.Description = "SATAN motd refresh";
       Service = {
         Type = "oneshot";
-        ExecStart = "%h/.emacs.d/satan/bin/satan-run motd";
+        ExecStart = "%h/dev/satan/satan/bin/satan-run motd";
       };
     };
 
@@ -58,7 +66,7 @@ _: {
       Unit.Description = "SATAN tick";
       Service = {
         Type = "oneshot";
-        ExecStart = "%h/.emacs.d/satan/bin/satan-run-tick";
+        ExecStart = "%h/dev/satan/satan/bin/satan-run-tick";
       };
     };
 

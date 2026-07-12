@@ -63,6 +63,11 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
+    satan = {
+      url = "path:/home/david/dev/satan";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     satan-patcher = {
       url = "path:/home/david/dev/satan-patcher";
       inputs.nixpkgs.follows = "nixpkgs-home";
