@@ -8,6 +8,11 @@
     cmatrix
     nms
 
+    honeyfetch
+    nerdfetch
+    mufetch
+    meowfetch
+
     ## feeds, content / social
     russ # RSS
     # tuir # reddit - BROKEN

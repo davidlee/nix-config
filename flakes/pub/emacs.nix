@@ -86,6 +86,7 @@ in
         deadgrep
         denote
         denote-explore
+        denote-org
         diminish
         dired-collapse
         dired-list

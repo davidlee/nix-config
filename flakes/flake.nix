@@ -64,7 +64,8 @@
     };
 
     satan = {
-      url = "path:/home/david/dev/satan";
+      # url = "path:/home/david/dev/satan";
+      url = "github:davidlee/satan";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
@@ -85,6 +86,11 @@
 
     danksearch = {
       url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    niri-float-sticky = {
+      url = "github:probeldev/niri-float-sticky";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

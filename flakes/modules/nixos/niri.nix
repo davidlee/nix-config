@@ -1,5 +1,9 @@
 _: {
-  flake.nixosModules.niri = {pkgs, ...}: {
+  flake.nixosModules.niri = {
+    pkgs,
+    inputs,
+    ...
+  }: {
     programs = {
       niri = {
         enable = true;
@@ -16,6 +20,6 @@ _: {
         systemd.enable = true;
       };
     }; # programs
-    environment.systemPackages = with pkgs; [niriswitcher xwayland-satellite];
+    environment.systemPackages = with pkgs; [xwayland-satellite inputs.niri-float-sticky.packages.${system}.niri-float-sticky];
   };
 }
