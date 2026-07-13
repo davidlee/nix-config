@@ -112,7 +112,6 @@
         ./overlays.nix
         ./modules/home-modules.nix
         ./modules/darwin-modules.nix
-        (inputs.import-tree ./modules/home)
         (inputs.import-tree ./modules/nixos)
         (inputs.import-tree ./modules/shared)
       ];
@@ -216,7 +215,7 @@
         in {
           "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
             inherit pkgs;
-            modules = [self.homeModules.Sleipnir];
+            modules = [./hosts/Sleipnir/home.nix];
             extraSpecialArgs = {
               inherit self inputs username stable;
             };
