@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = [
@@ -18,7 +18,6 @@
     ../../modules/nixos/fonts.nix
     ../../modules/nixos/games.nix
     ../../modules/nixos/gamescope.nix
-    # ../../modules/nixos/graphics.nix
     ../../modules/nixos/greeter.nix
     ../../modules/nixos/kanshi.nix
     ../../modules/nixos/kde.nix
