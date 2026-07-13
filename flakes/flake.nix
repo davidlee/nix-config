@@ -109,8 +109,6 @@
       imports = [
         inputs.treefmt-nix.flakeModule
         ./overlays.nix
-        ./modules/home-modules.nix
-        ./modules/darwin-modules.nix
       ];
 
       systems = ["x86_64-linux" "aarch64-darwin"];
@@ -139,8 +137,7 @@
           };
 
           specialArgs = {
-            inherit self inputs username hostname system stable;
-            inherit (self) outputs;
+            inherit inputs username hostname stable;
           };
         in {
           "${hostname}" = nixpkgs.lib.nixosSystem {
@@ -182,8 +179,7 @@
           };
 
           specialArgs = {
-            inherit self inputs pkgs username hostname system;
-            inherit (self) outputs;
+            inherit inputs pkgs username hostname;
           };
         in {
           "${hostname}" = inputs.darwin.lib.darwinSystem {
@@ -205,16 +201,12 @@
               inputs.emacs-overlay.overlays.default
             ];
           };
-          stable = import inputs.stable {
-            inherit system;
-            config.allowUnfree = true;
-          };
         in {
           "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
             inherit pkgs;
             modules = [./hosts/Sleipnir/home.nix];
             extraSpecialArgs = {
-              inherit self inputs username stable;
+              inherit inputs username;
             };
           };
         };

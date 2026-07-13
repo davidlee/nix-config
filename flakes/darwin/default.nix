@@ -1,22 +1,16 @@
 {
-  self,
   inputs,
-  outputs,
   pkgs,
   username,
   hostname,
-  system,
   ...
 }: let
   specialArgs = {
     inherit
-      self
       inputs
-      outputs
       pkgs
       username
       hostname
-      system
       ;
   };
 in {
