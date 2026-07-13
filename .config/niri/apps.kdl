@@ -1,9 +1,9 @@
 // https://sr.ht/~tsdh/nirius/
 //
-spawn-at-startup "1password --silent"
-spawn-at-startup "slack --silent -u"
-spawn-at-startup "udiskie"
-spawn-at-startup "copyq --start-server"
+spawn-at-startup "1password" "--silent"
+spawn-at-startup "slack" "--silent" "-u"
+// spawn-at-startup "udiskie"
+// spawn-at-startup "copyq --start-server"
 spawn-at-startup "signal-desktop"
 spawn-at-startup "firefox"
 spawn-at-startup "spotify"
@@ -16,16 +16,17 @@ binds {
     // Term
     Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"     { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
     Ctrl+Alt+Shift+Apostrophe hotkey-overlay-title="Launch kitty" { spawn-sh "~/.local/bin/raise-cycle-spawn kitty kitty"; }
-    Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }
 
     // Meh
-    Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/raise-cycle-spawn slack slack"; }
+    Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/niri-scratch-spawn signal-desktop signal-desktop"; }
+    Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/niri-scratch-spawn slack slack"; }
+    Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/niri-scratch-spawn Spotify spotify"; }
+    Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/niri-scratch-spawn 1password 1password "; }
+
+    Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }
     Ctrl+Alt+Shift+O hotkey-overlay-title="-> Obsidian"    { spawn-sh "~/.local/bin/raise-cycle-spawn obsidian ~/.local/bin/obsidian"; }
     Ctrl+Alt+Shift+T hotkey-overlay-title="-> Thunderbird" { spawn-sh "~/.local/bin/raise-cycle-spawn thunderbird thunderbird"; }
-    Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/raise-cycle-spawn 1password 1password "; }
     Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
-    Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/raise-cycle-spawn signal-desktop signal-desktop"; }
-    Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/raise-cycle-spawn Spotify spotify"; }
 
     // Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
 }

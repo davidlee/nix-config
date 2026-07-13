@@ -1,14 +1,6 @@
 // https://niri-wm.github.io/niri/Configuration:-Window-Rules
 
-// Work around WezTerms initial configure bug
-// by setting an empty default-column-width.
-window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
-}
+
 
 // Open the Firefox picture-in-picture player as floating by default.
 window-rule {
@@ -19,17 +11,17 @@ window-rule {
     open-floating true
 }
 
-// Example: block out two password managers from screen capture.
-// (This example rule is commented out with a "/-" in front.)
-/-window-rule {
-    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-    match app-id=r#"^org\.gnome\.World\.Secrets$"#
-
-    block-out-from "screen-capture"
-
-    // Use this instead if you want them visible on third-party screenshot tools.
-    // block-out-from "screencast"
-}
+// // Example: block out two password managers from screen capture.
+// // (This example rule is commented out with a "/-" in front.)
+// /-window-rule {
+//     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+//     match app-id=r#"^org\.gnome\.World\.Secrets$"#
+//
+//     block-out-from "screen-capture"
+//
+//     // Use this instead if you want them visible on third-party screenshot tools.
+//     // block-out-from "screencast"
+// }
 
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
@@ -48,22 +40,34 @@ layer-rule {
 
 // https://github.com/Drakulix/cosmic-ext-extra-sessions/tree/main/niri
 
-// Open the Firefox picture-in-picture window at the bottom-left corner of the screen
-// with a small gap.
+// window-rule {
+//     match app-id="ghostty"
+// }
+
 window-rule {
-    match app-id="firefox$" title="^Picture-in-Picture$"
-    default-floating-position x=32 y=32 relative-to="bottom-left"
+    match app-id="slack"
+    open-floating true
 }
 
 window-rule {
-    match app-id="ghostty"
+    match app-id="signal"
+    open-floating true
 }
 
+window-rule {
+    match app-id="zoom"
+    open-floating true
+}
+window-rule {
+    match app-id="Spotify"
+    open-floating true
+}
+// ?
 // Enable blur behind the fuzzel launcher.
 layer-rule {
     match namespace="^launcher$"
-
     background-effect {
         blur true
     }
 }
+

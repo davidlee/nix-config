@@ -1,4 +1,7 @@
 
+spawn-at-startup "niriusd"
+spawn-at-startup "vicinae" "server"
+
 recent-windows {
     // off
     debounce-ms 750
@@ -57,6 +60,13 @@ binds {
         spawn "dms" "ipc" "call" "processlist" "focusOrToggle";
     }
     Mod+Shift+P { power-off-monitors; }
+    Ctrl+Mod+M {
+        spawn "dms" "ipc" "call" "mic" "setvolume" "100";
+    }
+    // toggle bar auto hide
+    Ctrl+Mod+B {
+        spawn "dms" "ipc" "call" "bar" "toggleAutoHide" "index" "0";
+    }
 
     Mod+Shift+X hotkey-overlay-title="Power Menu: Toggle" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
     Mod+Shift+Comma hotkey-overlay-title="Settings" {
@@ -66,6 +76,7 @@ binds {
         spawn "dms" "ipc" "call" "dankdash" "wallpaper";
     }
     Mod+N hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
+    Mod+Ctrl+N hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggleDoNotDisturb"; }
     Mod+Shift+N hotkey-overlay-title="Notepad" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
 
 
@@ -195,6 +206,7 @@ binds {
     Mod+Shift+WheelScrollUp        { focus-column-left; }
     Mod+Ctrl+Shift+WheelScrollDown { move-column-right; }
     Mod+Ctrl+Shift+WheelScrollUp   { move-column-left; }
+
 
     // Similarly, you can bind touchpad scroll "ticks".
     // Touchpad scrolling is continuous, so for these binds it is split into

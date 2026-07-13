@@ -1,8 +1,6 @@
 
 // spawn-at-startup "niri-float-sticky"
 
-spawn-at-startup "niriusd"
-spawn-at-startup "vicinae server"
 
 // This config is in the KDL format: https://kdl.dev
 // "/-" comments out the following node.
@@ -241,6 +239,12 @@ window-rule {
 }
 debug {
     honor-xdg-activation-with-invalid-serial
+    // Dual-GPU (dGPU Navi 48 drives the display, iGPU is card0/default render
+    // node). Per-window screencast offered dGPU explicit dmabuf modifiers the
+    // consumer couldn't import → "no more input formats" (res=-32) → black share,
+    // while full-output worked. Force the implicit/invalid modifier so any
+    // consumer imports the buffer. See zoom-sucks.md.
+    force-pipewire-invalid-modifier
 }
 
 // Override to disable super+tab
