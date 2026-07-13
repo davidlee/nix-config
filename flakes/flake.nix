@@ -82,7 +82,7 @@
     #   url = "github:sodiboo/niri-flake";
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
-    # vicinae.url = "github:vicinaehq/vicinae";
+    vicinae.url = "github:vicinaehq/vicinae";
 
   };
 
