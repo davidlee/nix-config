@@ -15,8 +15,8 @@ _: {
 
         ## try for zoom:
         XDG_SESSION_TYPE = "wayland";
-        XDG_SESSION_DESKTOP = "sway";
-        XDG_CURRENT_DESKTOP = "sway";
+        XDG_SESSION_DESKTOP = "niri";
+        XDG_CURRENT_DESKTOP = "niri";
         SDL_VIDEODRIVER = "wayland";
       };
 
