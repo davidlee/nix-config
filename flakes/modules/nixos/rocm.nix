@@ -1,5 +1,3 @@
 _: {
-  flake.nixosModules.rocm = _: {
-    nixpkgs.config.rocmSupport = true;
-  };
+  nixpkgs.config.rocmSupport = true;
 }

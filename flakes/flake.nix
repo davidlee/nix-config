@@ -112,7 +112,6 @@
         ./overlays.nix
         ./modules/home-modules.nix
         ./modules/darwin-modules.nix
-        (inputs.import-tree ./modules/nixos)
         (inputs.import-tree ./modules/shared)
       ];
 

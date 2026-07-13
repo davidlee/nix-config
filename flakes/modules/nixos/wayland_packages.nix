@@ -1,138 +1,136 @@
-_: {
-  flake.nixosModules.wayland-packages = {pkgs, ...}: {
-    programs.zoom-us.enable = true;
-    # these are about providing a useful common foundation
-    environment.systemPackages = with pkgs; [
-      wayland-protocols
-      wayland-utils
-      wayland-logout
-      wayland-pipewire-idle-inhibit
-      wlroots
-      xwayland
-      dconf
-      waypipe
+{pkgs, ...}: {
+  programs.zoom-us.enable = true;
+  # these are about providing a useful common foundation
+  environment.systemPackages = with pkgs; [
+    wayland-protocols
+    wayland-utils
+    wayland-logout
+    wayland-pipewire-idle-inhibit
+    wlroots
+    xwayland
+    dconf
+    waypipe
 
-      # util
-      gammastep
-      kanshi
-      wtype
-      wlclock
-      wlock
-      wlinhibit
-      wleave
-      wlprop
-      wl-screenrec
-      wl-clicker
-      wl-crosshair
-      wl-gammactl
-      wl-gammarelay-rs
-      wl-kbptr
-      wl-restart
-      wl-mirror
-      wlopm
-      wlr-layout-ui
+    # util
+    gammastep
+    kanshi
+    wtype
+    wlclock
+    wlock
+    wlinhibit
+    wleave
+    wlprop
+    wl-screenrec
+    wl-clicker
+    wl-crosshair
+    wl-gammactl
+    wl-gammarelay-rs
+    wl-kbptr
+    wl-restart
+    wl-mirror
+    wlopm
+    wlr-layout-ui
 
-      wf-recorder
-      wf-config
+    wf-recorder
+    wf-config
 
-      ## color pickers
-      wl-color-picker
-      hyprpicker
-      oklch-color-picker
+    ## color pickers
+    wl-color-picker
+    hyprpicker
+    oklch-color-picker
 
-      gnome-system-monitor
-      gnome-calendar
-      gnomeExtensions.appindicator
+    gnome-system-monitor
+    gnome-calendar
+    gnomeExtensions.appindicator
 
-      # file managers
-      nemo
-      thunar
-      tumbler
+    # file managers
+    nemo
+    thunar
+    tumbler
 
-      # themes & cursors
-      phinger-cursors
-      adwaita-icon-theme
-      bibata-cursors
-      marble-shell-theme
+    # themes & cursors
+    phinger-cursors
+    adwaita-icon-theme
+    bibata-cursors
+    marble-shell-theme
 
-      # bars & widgets
-      waybar
-      wob
-      i3status
-      wttrbar
-      # gnome-weather
+    # bars & widgets
+    waybar
+    wob
+    i3status
+    wttrbar
+    # gnome-weather
 
-      # wallpapers
-      awww
-      swaybg
-      wbg
+    # wallpapers
+    awww
+    swaybg
+    wbg
 
-      # keyboard / input
-      wev
-      wshowkeys
-      showmethekey
-      # kmonad
+    # keyboard / input
+    wev
+    wshowkeys
+    showmethekey
+    # kmonad
 
-      # viewers
-      swayimg
-      zathura
-      imv
-      cava
-      tuba
+    # viewers
+    swayimg
+    zathura
+    imv
+    cava
+    tuba
 
-      # screenshots
-      (flameshot.override {enableWlrSupport = true;})
-      grim
-      shotman
-      slurp
-      sway-contrib.grimshot
-      satty
-      swappy
+    # screenshots
+    (flameshot.override {enableWlrSupport = true;})
+    grim
+    shotman
+    slurp
+    sway-contrib.grimshot
+    satty
+    swappy
 
-      # bluetooth
-      blueman
-      bluez-tools
-      bluez-experimental
+    # bluetooth
+    blueman
+    bluez-tools
+    bluez-experimental
 
-      # clipboard managers
-      cliphist
-      clipman
-      clipse
-      wl-clip-persist
-      wl-clipboard-rs
-      # stable.copyq
-      copyq
+    # clipboard managers
+    cliphist
+    clipman
+    clipse
+    wl-clip-persist
+    wl-clipboard-rs
+    # stable.copyq
+    copyq
 
-      # launchers
-      wofi
-      wmenu
-      rofi
-      wofi-emoji
-      kando
-      wofi-power-menu
-      wldash
-      fuzzel
-      dmenu
-      sirula
+    # launchers
+    wofi
+    wmenu
+    rofi
+    wofi-emoji
+    kando
+    wofi-power-menu
+    wldash
+    fuzzel
+    dmenu
+    sirula
 
-      # askme
-      yad
-      zenity
+    # askme
+    yad
+    zenity
 
-      ## libs
-      libxkbcommon
-      directx-headers
-      vulkan-headers
-      vulkan-loader
-      vulkan-tools
-      libGL.dev
-      libx11
-      libx11.dev
-      libxcursor
-      libxi
-      libxinerama
-      libxrandr
-      libnotify
-    ];
-  };
+    ## libs
+    libxkbcommon
+    directx-headers
+    vulkan-headers
+    vulkan-loader
+    vulkan-tools
+    libGL.dev
+    libx11
+    libx11.dev
+    libxcursor
+    libxi
+    libxinerama
+    libxrandr
+    libnotify
+  ];
 }

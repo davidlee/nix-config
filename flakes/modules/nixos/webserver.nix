@@ -1,19 +1,17 @@
-_: {
-  flake.nixosModules.webserver = {pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
-      caddy
-    ];
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [
+    caddy
+  ];
 
-    services = {
-      static-web-server = {
-        enable = true;
-        root = "/var/www";
-        listen = "[::]:80";
+  services = {
+    static-web-server = {
+      enable = true;
+      root = "/var/www";
+      listen = "[::]:80";
 
-        configuration = {
-          general = {
-            directory-listing = true;
-          };
+      configuration = {
+        general = {
+          directory-listing = true;
         };
       };
     };

@@ -1,22 +1,20 @@
-{inputs, ...}: {
-  flake.nixosModules.boot = {pkgs, ...}: {
-    boot = {
-      #
-      # loader
-      #
-      loader = {
-        systemd-boot.enable = true;
-        efi.canTouchEfiVariables = true;
+{pkgs, ...}: {
+  boot = {
+    #
+    # loader
+    #
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
 
-        systemd-boot = {
-          configurationLimit = 7;
-          consoleMode = "auto";
-        };
+      systemd-boot = {
+        configurationLimit = 7;
+        consoleMode = "auto";
       };
+    };
 
-      # plymouth = {
-      #   enable = true;
-      # };
-    }; # /boot
-  };
+    # plymouth = {
+    #   enable = true;
+    # };
+  }; # /boot
 }

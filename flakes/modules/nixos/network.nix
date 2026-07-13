@@ -1,108 +1,106 @@
-_: {
-  flake.nixosModules.network = {
-    hostname,
-    options,
-    lib,
-    ...
-  }: {
-    systemd.network.networks.enp8s0 = {
-      defaultGateway = "192.168.0.1";
-      addresses = [
-        {
-          Address = "192.168.0.9/24";
-        }
-      ];
+{
+  hostname,
+  options,
+  lib,
+  ...
+}: {
+  systemd.network.networks.enp8s0 = {
+    defaultGateway = "192.168.0.1";
+    addresses = [
+      {
+        Address = "192.168.0.9/24";
+      }
+    ];
+    enable = true;
+  };
+
+  networking = {
+    networkmanager = {
       enable = true;
-    };
-
-    networking = {
-      networkmanager = {
-        enable = true;
-        dns = "systemd-resolved";
-        ensureProfiles.profiles.wired = {
-          connection = {
-            id = "wired";
-            type = "ethernet";
-            interface-name = "enp8s0";
-          };
-          ipv4 = {
-            method = "auto";
-            ignore-auto-dns = true;
-          };
-          ipv6 = {
-            method = "auto";
-            ignore-auto-dns = true;
-          };
+      dns = "systemd-resolved";
+      ensureProfiles.profiles.wired = {
+        connection = {
+          id = "wired";
+          type = "ethernet";
+          interface-name = "enp8s0";
         };
-      };
-
-      hostName = hostname;
-      timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
-
-      useDHCP = false;
-      dhcpcd.enable = false;
-
-      firewall = {
-        enable = true;
-        allowedTCPPorts = [22 80 443];
-      };
-
-      nftables.enable = true;
-    };
-
-    # Prefer IPv4 in getaddrinfo source/dest selection (RFC 6724 default
-    # prefers v6). ISP v6 egress has been intermittently dead — the router
-    # still advertises a v6 default + hands out a global prefix, so apps dial
-    # the dead v6 first and stall ~3s per attempt (wedged bun install in a nix
-    # FOD). Interface-agnostic and self-healing: when v6 egress recovers, apps
-    # still work, just preferring v4. mkForce overrides the stock gai.conf.
-    environment.etc."gai.conf".text = lib.mkForce ''
-      reload no
-      precedence ::ffff:0:0/96  100
-    '';
-
-    services = {
-      stubby = {
-        enable = true;
-        settings = {
-          resolution_type = "GETDNS_RESOLUTION_STUB";
-          dns_transport_list = ["GETDNS_TRANSPORT_TLS"];
-          tls_authentication = "GETDNS_AUTHENTICATION_REQUIRED";
-          listen_addresses = ["127.0.0.1@8053" "0::1@8053"];
-          idle_timeout = 10000;
-          tls_connection_retries = 5;
-          round_robin_upstreams = 1;
-
-          upstream_recursive_servers = [
-            {
-              address_data = "76.76.2.22";
-              tls_auth_name = "1qncxpyinu9.dns.controld.com";
-            }
-            {
-              address_data = "2606:1a40::22";
-              tls_auth_name = "1qncxpyinu9.dns.controld.com";
-            }
-          ];
+        ipv4 = {
+          method = "auto";
+          ignore-auto-dns = true;
         };
-      };
-
-      resolved = {
-        enable = true;
-
-        settings.Resolve = {
-          Domains = ["~."];
-          DNS = "127.0.0.1:8053";
-          FallbackDNS = "76.76.2.22 2606:1a40::22";
-          DNSSEC = false; # stubby is local proxy; ControlD validates upstream
-          DNSOverTLS = false;
-          MulticastDNS = false; # avahi handles mDNS
+        ipv6 = {
+          method = "auto";
+          ignore-auto-dns = true;
         };
       };
     };
 
-    systemd.services.stubby.serviceConfig = {
-      Restart = "on-failure";
-      RestartSec = "2s";
+    hostName = hostname;
+    timeServers = options.networking.timeServers.default ++ ["pool.ntp.org"];
+
+    useDHCP = false;
+    dhcpcd.enable = false;
+
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [22 80 443];
     };
+
+    nftables.enable = true;
+  };
+
+  # Prefer IPv4 in getaddrinfo source/dest selection (RFC 6724 default
+  # prefers v6). ISP v6 egress has been intermittently dead — the router
+  # still advertises a v6 default + hands out a global prefix, so apps dial
+  # the dead v6 first and stall ~3s per attempt (wedged bun install in a nix
+  # FOD). Interface-agnostic and self-healing: when v6 egress recovers, apps
+  # still work, just preferring v4. mkForce overrides the stock gai.conf.
+  environment.etc."gai.conf".text = lib.mkForce ''
+    reload no
+    precedence ::ffff:0:0/96  100
+  '';
+
+  services = {
+    stubby = {
+      enable = true;
+      settings = {
+        resolution_type = "GETDNS_RESOLUTION_STUB";
+        dns_transport_list = ["GETDNS_TRANSPORT_TLS"];
+        tls_authentication = "GETDNS_AUTHENTICATION_REQUIRED";
+        listen_addresses = ["127.0.0.1@8053" "0::1@8053"];
+        idle_timeout = 10000;
+        tls_connection_retries = 5;
+        round_robin_upstreams = 1;
+
+        upstream_recursive_servers = [
+          {
+            address_data = "76.76.2.22";
+            tls_auth_name = "1qncxpyinu9.dns.controld.com";
+          }
+          {
+            address_data = "2606:1a40::22";
+            tls_auth_name = "1qncxpyinu9.dns.controld.com";
+          }
+        ];
+      };
+    };
+
+    resolved = {
+      enable = true;
+
+      settings.Resolve = {
+        Domains = ["~."];
+        DNS = "127.0.0.1:8053";
+        FallbackDNS = "76.76.2.22 2606:1a40::22";
+        DNSSEC = false; # stubby is local proxy; ControlD validates upstream
+        DNSOverTLS = false;
+        MulticastDNS = false; # avahi handles mDNS
+      };
+    };
+  };
+
+  systemd.services.stubby.serviceConfig = {
+    Restart = "on-failure";
+    RestartSec = "2s";
   };
 }

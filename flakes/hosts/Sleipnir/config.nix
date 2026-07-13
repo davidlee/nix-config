@@ -5,66 +5,66 @@
 }: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
-  imports = with self; [
+  imports = [
     ./hardware-configuration.nix
 
-    nixosModules._1password
-    nixosModules.appimage
-    nixosModules.avahi
-    nixosModules.bluetooth
-    nixosModules.boot
-    nixosModules.browsers
-    nixosModules.cargo
-    nixosModules.cosmic
-    # nixosModules.docker
-    nixosModules.env
-    nixosModules.flatpak
-    nixosModules.fonts
-    nixosModules.games
-    nixosModules.gamescope
-    # nixosModules.graphics
-    nixosModules.greeter
-    nixosModules.kanshi
-    nixosModules.kde
-    nixosModules.kernel
-    nixosModules.keyboard
-    nixosModules.keyring
-    nixosModules.lib
-    nixosModules.locate
-    nixosModules.llama-cpp
-    nixosModules.maintenance
-    nixosModules.network
-    nixosModules.nix
-    nixosModules.niri
-    nixosModules.oom
-    # nixosModules.openrgb
-    nixosModules.pipewire
-    nixosModules.podman
-    nixosModules.printing
-    nixosModules.postgresql
-    nixosModules.programs
-    nixosModules.qemu
-    nixosModules.radeon
-    nixosModules.rocm
-    nixosModules.security
-    nixosModules.snooze
-    nixosModules.sshd
-    nixosModules.sway
-    nixosModules.speech
-    # nixosModules.hyprland
-    nixosModules.user
-    nixosModules.util
-    nixosModules.wayland
-    nixosModules.wayland-packages
-    nixosModules.webserver
-    nixosModules.x11
-    nixosModules.xdg
-    # nixosModules.kmscon
-    # nixosModules.mpd
-    # nixosModules.microcode
+    ../../modules/nixos/1password.nix
+    ../../modules/nixos/appimage.nix
+    ../../modules/nixos/avahi.nix
+    ../../modules/nixos/bluetooth.nix
+    ../../modules/nixos/boot.nix
+    ../../modules/nixos/browsers.nix
+    ../../modules/nixos/cargo.nix
+    ../../modules/nixos/cosmic.nix
+    # ../../modules/nixos/docker.nix
+    ../../modules/nixos/env.nix
+    ../../modules/nixos/flatpak.nix
+    ../../modules/nixos/fonts.nix
+    ../../modules/nixos/games.nix
+    ../../modules/nixos/gamescope.nix
+    # ../../modules/nixos/graphics.nix
+    ../../modules/nixos/greeter.nix
+    ../../modules/nixos/kanshi.nix
+    ../../modules/nixos/kde.nix
+    ../../modules/nixos/kernel.nix
+    ../../modules/nixos/keyboard.nix
+    ../../modules/nixos/keyring.nix
+    ../../modules/nixos/lib.nix
+    ../../modules/nixos/locate.nix
+    ../../modules/nixos/llama-cpp.nix
+    ../../modules/nixos/maintenance.nix
+    ../../modules/nixos/network.nix
+    ../../modules/nixos/nix.nix
+    ../../modules/nixos/niri.nix
+    ../../modules/nixos/oom.nix
+    # ../../modules/nixos/openrgb.nix
+    ../../modules/nixos/audio.nix
+    ../../modules/nixos/podman.nix
+    ../../modules/nixos/printing.nix
+    ../../modules/nixos/postgresql.nix
+    ../../modules/nixos/programs.nix
+    ../../modules/nixos/qemu.nix
+    ../../modules/nixos/radeon.nix
+    ../../modules/nixos/rocm.nix
+    ../../modules/nixos/security.nix
+    ../../modules/nixos/snooze.nix
+    ../../modules/nixos/ssh.nix
+    ../../modules/nixos/sway.nix
+    ../../modules/nixos/speech.nix
+    # ../../modules/nixos/hyprland.nix
+    ../../modules/nixos/user.nix
+    ../../modules/nixos/util.nix
+    ../../modules/nixos/wayland.nix
+    ../../modules/nixos/wayland_packages.nix
+    ../../modules/nixos/webserver.nix
+    ../../modules/nixos/x11.nix
+    ../../modules/nixos/xdg.nix
+    # ../../modules/nixos/kmscon.nix
+    # ../../modules/nixos/mpd.nix
+    # ../../modules/nixos/microcode.nix
 
     # shared:
-    nixosModules.cliPackages
+    self.nixosModules.cliPackages
     # emacs: moved to homeModules
   ];
 }
