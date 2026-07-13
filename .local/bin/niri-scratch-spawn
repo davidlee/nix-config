@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# for: NIRI WM
+#
+# assumes niriusd is running
+
+RESULT=$(niri msg -j focused-window | jq '.app_id')
+
+# argv:
+match=$1 # 1. app-id
+app=$2   # 2. command to run
+
+if [[ "$RESULT" == "\"$match\"" ]]; then
+  nirius scratchpad-show -a "$match"
+  if [[ $? != 0 ]]; then
+    nirius scratchpad-toggle -a "$match"
+  fi
+else
+  shown=$(nirius scratchpad-show -a "$match" >/dev/null)
+  if [[ ! "$shown" ]]; then
+    niri msg action spawn -- "$2"
+  fi
+fi
