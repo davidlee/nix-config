@@ -109,7 +109,12 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} ({...}: {
       imports = [
         inputs.treefmt-nix.flakeModule
-        (inputs.import-tree ./modules)
+        ./overlays.nix
+        ./modules/home-modules.nix
+        ./modules/darwin-modules.nix
+        (inputs.import-tree ./modules/home)
+        (inputs.import-tree ./modules/nixos)
+        (inputs.import-tree ./modules/shared)
       ];
 
       systems = ["x86_64-linux" "aarch64-darwin"];
