@@ -43,7 +43,6 @@
     };
 
     flake-parts.url = "github:hercules-ci/flake-parts";
-    import-tree.url = "github:vic/import-tree";
     treefmt-nix.url = "github:numtide/treefmt-nix";
 
     nix-search-tv.url = "github:3timeslazy/nix-search-tv";
@@ -112,7 +111,6 @@
         ./overlays.nix
         ./modules/home-modules.nix
         ./modules/darwin-modules.nix
-        (inputs.import-tree ./modules/shared)
       ];
 
       systems = ["x86_64-linux" "aarch64-darwin"];

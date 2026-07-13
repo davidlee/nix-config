@@ -1,8 +1,4 @@
-{
-  pkgs,
-  self,
-  ...
-}: {
+{pkgs, ...}: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = [
@@ -64,7 +60,7 @@
     # ../../modules/nixos/microcode.nix
 
     # shared:
-    self.nixosModules.cliPackages
+    ../../modules/nixos/cli.nix
     # emacs: moved to homeModules
   ];
 }

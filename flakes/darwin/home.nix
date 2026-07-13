@@ -1,15 +1,11 @@
-{
-  username,
-  outputs,
-  ...
-}: {
+{username, ...}: {
   imports = [
     ../modules/home/shared/zsh.nix
     ../modules/home/shared/nvim-plugins.nix
     ../modules/home/shared/nvim.nix
     ../modules/home/shared/programs.nix
     ../modules/home/shared/emacs.nix
-    outputs.homeModules.cliPackages # export until slice D
+    ../modules/home/shared/cli.nix
   ];
 
   home = {

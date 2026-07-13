@@ -1,8 +1,4 @@
-{
-  self,
-  username,
-  ...
-}: {
+{username, ...}: {
   imports = [
     ../../profiles/linux-desktop.nix
 
@@ -13,7 +9,7 @@
     ../../modules/home/linux/satan-attrd.nix
     ../../modules/home/linux/behaviour.nix
 
-    self.homeModules.cliPackages # STILL an export until slice D
+    ../../modules/home/shared/cli.nix
   ];
 
   home = {
