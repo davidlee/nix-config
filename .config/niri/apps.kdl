@@ -14,11 +14,11 @@ binds {
     //Mod+Apostrophe hotkey-overlay-title="Launch Terminal (kitty)" { spawn "kitty"; }
 
     // Term
-    Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"     { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
+    Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"        { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
     Ctrl+Alt+Shift+Apostrophe hotkey-overlay-title="Launch kitty" { spawn-sh "~/.local/bin/raise-cycle-spawn kitty kitty"; }
 
     // Meh
-    Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/niri-scratch-spawn signal-desktop signal-desktop"; }
+    Ctrl+Alt+Shift+G hotkey-overlay-title="-> Signal"      { spawn-sh "~/.local/bin/niri-scratch-spawn signal signal-desktop"; }
     Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/niri-scratch-spawn slack slack"; }
     Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/niri-scratch-spawn Spotify spotify"; }
     Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/niri-scratch-spawn 1password 1password "; }
