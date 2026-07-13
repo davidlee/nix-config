@@ -622,11 +622,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1783783353,
-        "narHash": "sha256-gynaNE88Rht9L9GiaNZzt9wINK1guL0YEcOOdFtq3tA=",
+        "lastModified": 1783851472,
+        "narHash": "sha256-1GbBR2s2WNGeH1dKFJKNNIMxdHC4Go+rOCbL5EWG4+Q=",
         "owner": "davidlee",
         "repo": "doctrine",
-        "rev": "d7bd70e261f76f5247428559dc163444f8501643",
+        "rev": "9e1b7a787c2020afad954fdacfdfc30688a40420",
         "type": "github"
       },
       "original": {
@@ -2554,8 +2554,8 @@
         "pub": "pub_2"
       },
       "locked": {
-        "lastModified": 1783829409,
-        "narHash": "sha256-nXJoAmztOoia76XksW66vIrQ7kE8eWj5JVuRzLq339s=",
+        "lastModified": 1783940270,
+        "narHash": "sha256-Nr1QWwY1MtV6LV1uL64bmv/3BwfF08GyrGBo4VG53cc=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
