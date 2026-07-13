@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
   imports = [
@@ -57,6 +57,8 @@
     # ../../modules/nixos/kmscon.nix
     # ../../modules/nixos/mpd.nix
     # ../../modules/nixos/microcode.nix
+    # ../../modules/nixos/ssd.nix
+    # ../../modules/nixos/sunshine.nix
 
     # shared:
     ../../modules/nixos/cli.nix

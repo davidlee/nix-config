@@ -1,4 +1,5 @@
-# parked
+# parked — rewire before re-enabling: body uses bare `system` (dropped from
+# nixos specialArgs) and `inputs.raise` (no such input in flake.nix).
 {
   pkgs,
   username,

@@ -1,3 +1,4 @@
+# parked — `inputs.bough` is commented out in flake.nix; restore it before enabling.
 {
   inputs,
   pkgs,
