@@ -5,3 +5,5 @@ emacs-packages.txt
 TODO.md
 __pycache__/
 *.pyc
+REFACTOR.md
+EXECUTION.md

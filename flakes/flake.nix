@@ -83,17 +83,15 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
     vicinae.url = "github:vicinaehq/vicinae";
-
   };
 
-  outputs =
-    inputs@{
-      self,
-      nixpkgs,
-      ...
-    }:
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } (
-      { ... }: {
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    ...
+  }:
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} (
+      {...}: {
         imports = [
           inputs.treefmt-nix.flakeModule
           ./overlays.nix
@@ -118,110 +116,105 @@
             default = self.templates.agents;
           };
 
-          nixosConfigurations =
-            let
-              hostname = "Sleipnir";
-              username = "david";
-              system = "x86_64-linux";
-              stable = import inputs.stable {
-                inherit system;
-                config.allowUnfree = true;
-              };
-
-              specialArgs = {
-                inherit
-                  inputs
-                  username
-                  hostname
-                  stable
-                  ;
-              };
-            in
-            {
-              "${hostname}" = nixpkgs.lib.nixosSystem {
-                inherit specialArgs;
-
-                modules = [
-                  ./hosts/${hostname}/config.nix
-                  {
-                    nixpkgs.overlays = [
-                      self.overlays.llama-edge
-                      self.overlays.whisper-rocm
-                      self.overlays.click-threading-fix
-                    ];
-                  }
-                ];
-              };
+          nixosConfigurations = let
+            hostname = "Sleipnir";
+            username = "david";
+            system = "x86_64-linux";
+            stable = import inputs.stable {
+              inherit system;
+              config.allowUnfree = true;
             };
 
-          darwinConfigurations =
-            let
-              username = "davidlee";
-              hostname = "fusillade";
-              system = "aarch64-darwin";
+            specialArgs = {
+              inherit
+                inputs
+                username
+                hostname
+                stable
+                ;
+            };
+          in {
+            "${hostname}" = nixpkgs.lib.nixosSystem {
+              inherit specialArgs;
 
-              pkgs = import nixpkgs {
-                inherit system;
-                hostPlatform = system;
-                config.allowUnfree = true;
-                overlays = [
-                  inputs.emacs-overlay.overlays.default
-                  (final: prev: {
-                    direnv = prev.direnv.overrideAttrs (old: {
-                      doCheck = false;
-                    });
-                  })
-                  (final: prev: {
-                    inherit (prev.lixPackageSets.stable)
-                      nixpkgs-review
-                      nix-eval-jobs
-                      nix-fast-build
-                      colmena
-                      ;
-                  })
-                ];
-              };
+              modules = [
+                ./hosts/${hostname}/config.nix
+                {
+                  nixpkgs.overlays = [
+                    self.overlays.llama-edge
+                    self.overlays.whisper-rocm
+                    self.overlays.click-threading-fix
+                  ];
+                }
+              ];
+            };
+          };
 
-              specialArgs = {
-                inherit
-                  inputs
-                  pkgs
-                  username
-                  hostname
-                  ;
-              };
-            in
-            {
-              "${hostname}" = inputs.darwin.lib.darwinSystem {
-                inherit pkgs specialArgs;
-                modules = [
-                  { hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null; }
-                  ./darwin
-                ];
-              };
-            }; # Darwin
+          darwinConfigurations = let
+            username = "davidlee";
+            hostname = "fusillade";
+            system = "aarch64-darwin";
 
-          homeConfigurations =
-            let
-              username = "david";
-              system = "x86_64-linux";
-              pkgs = import inputs.nixpkgs-home {
-                inherit system;
-                config.allowUnfree = true;
-                overlays = [
-                  inputs.emacs-overlay.overlays.default
-                ];
-              };
-            in
-            {
-              "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
-                inherit pkgs;
-                modules = [ ./hosts/Sleipnir/home.nix ];
-                extraSpecialArgs = {
-                  inherit inputs username;
-                };
+            pkgs = import nixpkgs {
+              inherit system;
+              hostPlatform = system;
+              config.allowUnfree = true;
+              overlays = [
+                inputs.emacs-overlay.overlays.default
+                (final: prev: {
+                  direnv = prev.direnv.overrideAttrs (old: {
+                    doCheck = false;
+                  });
+                })
+                (final: prev: {
+                  inherit
+                    (prev.lixPackageSets.stable)
+                    nixpkgs-review
+                    nix-eval-jobs
+                    nix-fast-build
+                    colmena
+                    ;
+                })
+              ];
+            };
+
+            specialArgs = {
+              inherit
+                inputs
+                pkgs
+                username
+                hostname
+                ;
+            };
+          in {
+            "${hostname}" = inputs.darwin.lib.darwinSystem {
+              inherit pkgs specialArgs;
+              modules = [
+                {hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null;}
+                ./darwin
+              ];
+            };
+          }; # Darwin
+
+          homeConfigurations = let
+            username = "david";
+            system = "x86_64-linux";
+            pkgs = import inputs.nixpkgs-home {
+              inherit system;
+              config.allowUnfree = true;
+              overlays = [
+                inputs.emacs-overlay.overlays.default
+              ];
+            };
+          in {
+            "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
+              inherit pkgs;
+              modules = [./hosts/Sleipnir/home.nix];
+              extraSpecialArgs = {
+                inherit inputs username;
               };
             };
+          };
         }; # flake
       }
     );

@@ -1,45 +1,43 @@
 {
-  description = "A rust flake-parts shell";
+  description = "A Rust development shell";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    devshell.url = "github:numtide/devshell";
+
+    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs @ {
-    flake-parts,
+  outputs = {
+    nixpkgs,
     rust-overlay,
     ...
-  }:
-    flake-parts.lib.mkFlake {inherit inputs;} {
-      imports = [
-        inputs.devshell.flakeModule
-      ];
+  }: let
+    systems = [
+      "x86_64-linux"
+      "aarch64-darwin"
+    ];
 
-      systems = ["x86_64-linux" "aarch64-darwin"];
-
-      perSystem = {
-        config,
-        self',
-        inputs',
-        pkgs,
-        system,
-        ...
-      }: {
-        _module.args.pkgs = import inputs.nixpkgs {
-          inherit system rust-overlay;
+    forAllSystems = nixpkgs.lib.genAttrs systems;
+  in {
+    devShells = forAllSystems (
+      system: let
+        pkgs = import nixpkgs {
+          inherit system;
           overlays = [
             rust-overlay.overlays.default
           ];
         };
-
-        devshells.default = {
-          packages = with pkgs; [
-            (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
+      in {
+        default = pkgs.mkShell {
+          packages = [
+            (
+              pkgs.rust-bin.selectLatestNightlyWith
+              (toolchain: toolchain.default)
+            )
           ];
         };
-      };
-    };
+      }
+    );
+  };
 }
