@@ -2,6 +2,9 @@
 # directory management so i can use it for doctrine
 unfunction d
 
+alias s=z
+alias si=zi
+
 alias v="vice";
 alias vm="vice -W meta";
 alias vin="vice -W inlight";
@@ -22,7 +25,6 @@ alias g=git;
 alias j=just;
 alias jc="just --choose"
 alias _=sudo;
-alias s='uv run spec-driver';
 
 alias dr="sleipnir-doctor"
 

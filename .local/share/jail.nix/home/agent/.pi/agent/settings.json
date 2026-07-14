@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.80.3",
+  "lastChangelogVersion": "0.80.6",
   "defaultProjectTrust": "always",
   "defaultProvider": "deepseek",
   "defaultModel": "deepseek-v4-flash",

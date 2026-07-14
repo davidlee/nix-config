@@ -6,5 +6,6 @@
     ./programs.nix
     ./shpool.nix
     ./zsh.nix
+    ./nushell.nix
   ];
 }

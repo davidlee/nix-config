@@ -7,9 +7,10 @@
 setopt no_global_rcs
 
 export EDITOR="emacsclient"
-export VISUAL="emacslient"
+export VISUAL="emacsclient"
 export ALTERNATE_EDITOR=nvim
 export PAGER=ov
+export GOHOME="~/go"
 # export MANPAGER='nvim +Man!'
 export MANPAGER='most'
 
