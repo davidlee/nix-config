@@ -1,0 +1,30 @@
+#!/usr/bin/env zsh
+
+# reads .env socket (1password environment secrets) 
+# and sets them as Vercel sensitive environment vars.
+# takes the environment name as argument:
+#
+#  ./sync-env.zsh production
+#  ./sync-env.zsh staging
+#  ./sync-env.zsh development 
+
+set -euo pipefail
+
+target_env=${1:-production}
+
+typeset -A seen
+env_blob=$(<.env)
+
+for line in ${(f)env_blob}; do
+  [[ -z $line || $line = \#* ]] && continue
+
+  key=${line%%=*}
+  value=${line#*=}
+
+  [[ -n ${seen[$key]:-} ]] && continue
+  seen[$key]=1
+
+  printf %s "$value" |
+    pnpx vercel env add "$key" "$target_env" --sensitive --force
+done
+

@@ -1,0 +1,3 @@
+#!/usr/bin/env zsh
+
+docker ps -q --filter "name=supabase_" | xargs -r docker stop

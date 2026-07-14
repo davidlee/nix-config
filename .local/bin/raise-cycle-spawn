@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+#######################################################################################
+## Raise, Cycle, or Spawn                                                            ##
+##                                                                                   ##
+## A helper script for the niri window manager that implements                       ##
+## “raise-or-run” behavior with window cycling.                                      ##
+##                                                                                   ##
+## Based on and improved from presto8’s script:                                      ##
+## https://github.com/YaLTeR/niri/discussions/2602#discussioncomment-14721738        ##
+#######################################################################################
+## Installation                                                                      ##
+## ------------                                                                      ##
+## 1. Place this script somewhere in your $PATH (e.g. ~/.local/bin),                 ##
+##    make it executable, and remove the .sh extension:                              ##
+##                                                                                   ##
+##      chmod +x raise-cycle-or-spawn                                                ##
+##                                                                                   ##
+## Usage                                                                             ##
+## -----                                                                             ##
+## 2. Create a bind in your niri config with spawn-sh to run the script with the     ## 
+##    two arguments. (1) niri app_id, (2) app executable name this way it will       ##
+##    work for both scenarios.                                                       ##
+##                                                                                   ##
+##    Exmaple 1, where app_id and executable name are NOT the same:                  ##
+##      Mod+E { spawn-sh "raise-cycle-or-spawn org.gnome.Nautilus nautilus"; }       ##
+##                                                                                   ##
+##    Exmaple 2, where app_id and executable name are the same:                      ## 
+##      Mod+B { spawn-sh "raise-cycle-or-spawn brave-browser brave-browser"; }       ##
+##                                                                                   ##
+## Behavior                                                                          ##
+## --------                                                                          ##
+##   • If no matching window exists → spawn the application                          ##
+##   • If one matching window exists → focus (raise) it                              ##
+##   • If multiple matching windows exist → cycle focus between them                 ##
+#######################################################################################
+
+set -euo pipefail
+
+raise_or_cycle() {
+  local app_id="$1"
+
+  local tmp
+  tmp="$(mktemp)"
+  trap 'rm -f "$tmp"' EXIT
+
+  niri msg --json windows >"$tmp"
+
+  mapfile -t ids < <(jq -r --arg app "$app_id" \
+    '.[] | select(.app_id == $app) | .id' <"$tmp")
+
+  ((${#ids[@]})) || return 1
+
+  local focused
+  focused="$(jq -r '.[] | select(.is_focused) | .id' <"$tmp")"
+
+  local next_idx=0
+  for ((i = 0; i < ${#ids[@]} - 1; i++)); do
+    if [[ "${ids[$i]}" == "$focused" ]]; then
+      next_idx=$((i + 1))
+      break
+    fi
+  done
+
+  niri msg action focus-window --id "${ids[$next_idx]}"
+  exit 0
+}
+
+# Usage: script <app_id> <command> [args...]
+app_id="${1:-}"
+shift || true
+
+if [[ -z "$app_id" || $# -lt 1 ]]; then
+  echo "Usage: $0 <app_id> <command...>" >&2
+  exit 2
+fi
+
+# If a window exists, focus/cycle and exit.
+if raise_or_cycle "$app_id"; then
+  exit 0
+fi
+
+# Otherwise launch via niri, so it behaves like a compositor spawn.
+niri msg action spawn -- "$@"

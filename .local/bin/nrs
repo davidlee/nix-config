@@ -1,0 +1,7 @@
+#!/usr/bin/env zsh
+sudo zsh -c 'nixos-rebuild \
+  --log-format internal-json \
+  -v \
+  switch \
+  --flake /home/david/flakes/\#Sleipnir |&
+  nom --json'
