@@ -8,10 +8,13 @@ spawn-at-startup "signal-desktop"
 spawn-at-startup "firefox"
 spawn-at-startup "spotify"
 
+// TODO: bind a clock command
+
 binds {
     Mod+Return hotkey-overlay-title="Launch Terminal (ghostty)" { spawn "ghostty"; }
+    Mod+K hotkey-overlay-title="Launch Terminal (Kitty)" { spawn "kitty"; }
     Mod+Shift+Return hotkey-overlay-title="Launch Browser (Firefox)" { spawn "firefox"; }
-    //Mod+Apostrophe hotkey-overlay-title="Launch Terminal (kitty)" { spawn "kitty"; }
+
 
     // Term
     Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"        { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
@@ -22,6 +25,7 @@ binds {
     Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/niri-scratch-spawn slack slack"; }
     Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/niri-scratch-spawn Spotify spotify"; }
     Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/niri-scratch-spawn 1password 1password "; }
+    Ctrl+Alt+Shift+C hotkey-overlay-title="-> Clock"       { spawn-sh "ghostty --title=CLOCK -e clock-rs --fmt \"%d %b\" -c blue"; }
 
     Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }
     Ctrl+Alt+Shift+O hotkey-overlay-title="-> Obsidian"    { spawn-sh "~/.local/bin/raise-cycle-spawn obsidian ~/.local/bin/obsidian"; }
