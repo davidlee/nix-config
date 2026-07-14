@@ -54,3 +54,5 @@ font-size=14
 font-feature=-liga
 
 # keybind = shift+enter=text:\x1b\r
+
+keybind = control+t=unbind
