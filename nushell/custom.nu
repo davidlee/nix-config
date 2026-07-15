@@ -19,6 +19,17 @@ $env.MANPAGER = "most"
 $env.CARGO_HOME = "~/.cargo"
 $env.PRIVATE_GIT_DIR = ($env.HOME | path join ".private")
 
+
+$env.DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential"
+$env.OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential"
+$env.MISTRAL_API_KEY = "op://API_KEYS/MISTRAL_API_KEY/credential"
+$env.VOYAGE_API_KEY = "op://API_KEYS/VOYAGE_API_KEY/credential"
+$env.OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential"
+$env.GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential"
+$env.ANTHROPIC_API_KEY = "op://API_KEYS/ANTHROPIC_API_KEY/credential"
+
+$env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = 1
+
 path add "~/.local/bin"
 path add "~/.local/bin/scripts"
 path add ($env.CARGO_HOME | path join "bin")
