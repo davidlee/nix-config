@@ -44,7 +44,7 @@
     };
     eza = {
       enable = true;
-      enableNushellIntegration = true;
+      # enableNushellIntegration = true;
     };
     fzf = {
       enable = true;

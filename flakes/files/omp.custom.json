@@ -58,7 +58,7 @@
           "foreground": "p:white",
           "powerline_symbol": "",
           "options": {
-            "style": "folder"
+            "style": "agnoster"
           },
           "style": "powerline",
           "template": " {{ .Path }} ",

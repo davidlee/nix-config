@@ -9,13 +9,13 @@ source private.local.nu
 #
 
 $env.config.show_banner = false
-$env.config.buffer_editor = ["emacs", "--tty"]
+$env.config.buffer_editor = ["nvim"]
 
-$env.EDITOR = "emacs --tty"
-$env.VISUAL = "emacs --tty"
+$env.EDITOR = "nvim"
+$env.VISUAL = "nvim"
 $env.ALTERNATE_EDITOR = "nvim"
 $env.PAGER = "ov"
-$env.MANPAGER = "most"
+$env.MANPAGER = "nvim +Man!"
 $env.CARGO_HOME = "~/.cargo"
 $env.PRIVATE_GIT_DIR = ($env.HOME | path join ".private")
 
@@ -51,15 +51,30 @@ export alias g = dirs goto
 export alias n = dirs next
 export alias p = dirs prev
 
-export alias em = emacs --tty
-export alias emn = emacs --tty --no-wait
-export alias emc = emacsclient
+export alias e = emacs -nw
+export alias ee = emacsclient -e
+export alias em = emacs
+export alias en = emacs -nw --no-wait
+export alias ec = emacsclient
 
 export alias dev = cd ~/dev
+export alias cfg = cd ~/.config
+export alias fl = cd ~/flakes
+export alias nuc = vi ~/nushell/custom.nu
+export alias notes = cd ~/notes
 
 export alias zed = zeditor
 export alias lg = lazygit
 export alias st = git status
+
+export alias la = eza -a
+export alias ll = eza -l
+export alias lla = eza -la
+export alias lls = ls
+export alias lt = eza --tree
+export alias tree = eza --tree
+
+export alias ch = cd (gum choose ~/dev/doctrine ~/dev/.emacs.d ~/dev/notes ~/flakes ~/Downloads ~/.local/src/ ~/.local/bin)
 
 if (uname | get operating-system ) == 'GNU/Linux' {
   export alias open = xdg-open
@@ -83,9 +98,6 @@ def clock [] {
   clock-rs -Bbt --fmt '%d %b' -c blue
 }
 
-def tree [...eza_params: string] {
-  eza --tree $...eza_params
-}
 
 #
 # Init

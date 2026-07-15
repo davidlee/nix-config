@@ -23,6 +23,8 @@
     viu
     ghostscript
     latex2html
+    resvg
+    ffmpeg-full
 
     ## fonts
     nerd-font-patcher

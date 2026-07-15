@@ -18,6 +18,10 @@ export def git-root [] {
   (git rev-parse --show-toplevel)
 }
 
+export def _zf [] {
+  (zoxide query -l | fzf)
+}
+
 #
 # Aliases
 #
@@ -25,4 +29,4 @@ export def git-root [] {
 export alias cz = cd (_fd_fzf)
 export alias czh = cd (_fd_fzf '--hidden')
 export alias cgr = cd (git-root)
-
+export alias zf = cd (_zf)

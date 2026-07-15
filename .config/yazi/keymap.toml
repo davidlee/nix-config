@@ -1,0 +1,4 @@
+[mgr]
+append_keymap = [
+	{on = ["e"], run = "nvim %e"}
+]
