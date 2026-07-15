@@ -6,7 +6,9 @@
         show_banner = false;
       };
       extraConfig = ''
-        source ~/.config/nushell/custom.nu
+        use std/util "path add"
+        path add "~/nushell"
+        source ~/nushell/custom.nu
       '';
       shellAliases = {
         s = "z";
@@ -28,8 +30,10 @@
     zoxide = {
       enableNushellIntegration = true;
       enable = true;
-      # options = ["--cmd cd"];
     };
+    # this was a piece of shit to get working
+    # should do something neater than a hacked version of M365Princess theme
+    # but I lost enthusiasm
     oh-my-posh = {
       enable = true;
       enableNushellIntegration = true;
@@ -37,9 +41,10 @@
       settings = builtins.fromJSON (
         builtins.readFile ../../../files/omp.custom.json
       );
-      # useTheme = "/home/david/.config/custom";
-      # useTheme = "M365Princess";
-      # enableZshIntegration = true;
+    };
+    eza = {
+      enable = true;
+      enableNushellIntegration = true;
     };
     fzf = {
       enable = true;
@@ -52,15 +57,21 @@
       enableNushellIntegration = true;
       flags = ["--disable-up-arrow"];
     };
-    eza.enableNushellIntegration = true;
+
+    television = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
+    yazi = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
+    lazygit = {
+      enable = true;
+      enableNushellIntegration = true;
+    };
+
+    # mise.enableNushellIntegration = true;
     keychain.enableNushellIntegration = true;
-    mise.enableNushellIntegration = true;
-    lazygit.enableNushellIntegration = true;
-    # starship = {
-    #   enableNushellIntegration = true;
-    #   enable = true;
-    # };
-    television.enableNushellIntegration = true;
-    yazi.enableNushellIntegration = true;
   };
 }
