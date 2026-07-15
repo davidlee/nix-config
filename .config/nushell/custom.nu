@@ -2,9 +2,10 @@ use std/dirs
 use std/util "path add"
 
 source ~/.config/nushell/fzf.nu
+source ~/.config/nushell/private.local.nu
 
-export alias s = z
-export alias si = zi
+export alias c = z
+export alias ci = zi
 
 export alias j = just
 export alias d = doctrine
@@ -46,8 +47,40 @@ $env.VISUAL = "emacs --tty"
 $env.ALTERNATE_EDITOR = "nvim"
 $env.PAGER = "ov"
 $env.MANPAGER = "most"
+$env.PRIVATE_GIT_DIR = ($env.HOME | path join ".private")
 
 ## satan motd
 if ("~/notes/satan/motd.txt" | path exists) {
   print $"\e[31m(cat ~/notes/satan/motd.txt)\e[0m\n"
+}
+
+def gcal () {
+  gcalcli agenda --calendar $env.WORK_EMAIL
+}
+
+def prv [...args: string] {
+  git --work-tree=($env.HOME) --git-dir=($env.PRIVATE_GIT_DIR) ...$args
+}
+
+def _cz [dir=""] {
+  _fd_fzf
+}
+export alias cz = cd (_cz)
+
+def _czi [dir=""] {
+  _fd_fzf '-I'
+}
+export alias czi = cd (_cz)
+
+## helpers
+
+def _dir_fd_fzf [base: string, ...fd_args: string] {
+  echo ($base |
+    path join (fd . ...$fd_args -t d --base-directory $base --strip-cwd-prefix=always | fzf)
+  )
+}
+
+def _fd_fzf [...fd_args: string] {
+  let base = (git rev-parse --show-toplevel)
+  _dir_fd_fzf $base ...$fd_args
 }
