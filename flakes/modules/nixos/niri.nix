@@ -9,6 +9,7 @@
       useNautilus = true;
     };
 
+    # DMS
     # dms-shell = {
     #   enable = true;
     #   # plugins
@@ -23,7 +24,7 @@
   environment.systemPackages = with pkgs; [
     xwayland-satellite
     stasis
-    # inputs.niri-float-sticky.packages.${system}.niri-float-sticky
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
   security.pam.services.swaylock = {};
 }

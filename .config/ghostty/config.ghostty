@@ -2,7 +2,7 @@
 
 # theme = catppuccin-latte
 # theme = GitHub Dark
-theme = Framer
+theme = noctalia
 background-opacity = 0.85
 background-blur = true
 

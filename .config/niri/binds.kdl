@@ -33,34 +33,34 @@ binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
 
     // launcher
-    Ctrl+Alt+Space hotkey-overlay-title="Application Launcher (dms)" {
-        spawn "dms" "ipc" "call" "spotlight" "toggle";
+    Ctrl+Alt+Space hotkey-overlay-title="Application Launcher (Noctalia)" {
+        spawn "noctalia" "msg" "panel-toggle" "launcher";
     }
     Mod+Space hotkey-overlay-title="Application Launcher (Vicinae)" {
         spawn "vicinae" "open"
     }
     Mod+Z hotkey-overlay-title="Clipboard Manager" {
-        spawn "dms" "ipc" "call" "clipboard" "toggle";
+        spawn "noctalia" "msg" "panel-toggle" "clipboard";
     }
-    Super+Alt+Escape hotkey-overlay-title="Task Manager" {
-        spawn "dms" "ipc" "call" "processlist" "focusOrToggle";
-    }
+    // Super+Alt+Escape hotkey-overlay-title="Task Manager" {
+    //     spawn "noctalia" "msg" "panel-open" "session";
+    // }
 
     // === System ===
     Mod+Alt+L hotkey-overlay-title="Lock Screen" {
-        spawn "dms" "ipc" "call" "lock" "lock";
+        spawn "noctalia" "msg" "session" "lock";
     }
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete hotkey-overlay-title="Task Manager" {
-        spawn "dms" "ipc" "call" "processlist" "focusOrToggle";
+        spawn "noctalia" "msg" "panel-open" "session";
     }
     Mod+Shift+P { power-off-monitors; }
     Ctrl+Mod+M {
-        spawn "dms" "ipc" "call" "mic" "setvolume" "100";
+        spawn "noctalia" "msg" "mic-volume-set" "100";
     }
-    // toggle bar auto hide
+    // toggle bar visibility (noctalia has no auto-hide toggle, only visibility)
     Ctrl+Mod+B {
-        spawn "dms" "ipc" "call" "bar" "toggleAutoHide" "index" "0";
+        spawn "noctalia" "msg" "bar-toggle";
     }
 
     // Scratchpad
@@ -71,42 +71,41 @@ binds {
        spawn "nirius" "scratchpad-toggle"
     }
 
-    Mod+Shift+X hotkey-overlay-title="Power Menu: Toggle" { spawn "dms" "ipc" "call" "powermenu" "toggle"; }
+    // Mod+Shift+X hotkey-overlay-title="Power Menu: Toggle" { spawn "noctalia" "msg" "panel-toggle" "session"; }
     Mod+Ctrl+Comma hotkey-overlay-title="Settings" {
-        spawn "dms" "ipc" "call" "settings" "focusOrToggle";
+        spawn "noctalia" "msg" "settings-toggle";
     }
     Mod+Y hotkey-overlay-title="Browse Wallpapers" {
-        spawn "dms" "ipc" "call" "dankdash" "wallpaper";
+        spawn "noctalia" "msg" "panel-toggle" "wallpaper";
     }
-    Mod+U hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggle"; }
-    Mod+Shift+U hotkey-overlay-title="Notification Center" { spawn "dms" "ipc" "call" "notifications" "toggleDoNotDisturb"; }
+    Mod+U hotkey-overlay-title="Notification Center" { spawn "noctalia" "msg" "panel-toggle" "control-center" "notifications"; }
+    Mod+Shift+U hotkey-overlay-title="Toggle Do Not Disturb" { spawn "noctalia" "msg" "notification-dnd-toggle"; }
     Mod+G hotkey-overlay-title="Notepad" { spawn "dms" "ipc" "call" "notepad" "toggle"; }
-
 
     // === Audio Controls ===
     XF86AudioRaiseVolume allow-when-locked=true {
-        spawn "dms" "ipc" "call" "audio" "increment" "3";
+        spawn "noctalia" "msg" "volume-up" "3";
     }
     XF86AudioLowerVolume allow-when-locked=true {
-        spawn "dms" "ipc" "call" "audio" "decrement" "3";
+        spawn "noctalia" "msg" "volume-down" "3";
     }
     XF86AudioMute allow-when-locked=true {
-        spawn "dms" "ipc" "call" "audio" "mute";
+        spawn "noctalia" "msg" "volume-mute";
     }
     XF86AudioMicMute allow-when-locked=true {
-        spawn "dms" "ipc" "call" "audio" "micmute";
+        spawn "noctalia" "msg" "mic-mute";
     }
     XF86AudioPause allow-when-locked=true {
-        spawn "dms" "ipc" "call" "mpris" "playPause";
+        spawn "noctalia" "msg" "media" "toggle";
     }
     XF86AudioPlay allow-when-locked=true {
-        spawn "dms" "ipc" "call" "mpris" "playPause";
+        spawn "noctalia" "msg" "media" "toggle";
     }
     XF86AudioPrev allow-when-locked=true {
-        spawn "dms" "ipc" "call" "mpris" "previous";
+        spawn "noctalia" "msg" "media" "previous";
     }
     XF86AudioNext allow-when-locked=true {
-        spawn "dms" "ipc" "call" "mpris" "next";
+        spawn "noctalia" "msg" "media" "next";
     }
     Ctrl+XF86AudioRaiseVolume allow-when-locked=true {
         spawn "dms" "ipc" "call" "mpris" "increment" "3";
@@ -117,10 +116,10 @@ binds {
 
     // === Brightness Controls ===
     XF86MonBrightnessUp allow-when-locked=true {
-       spawn "dms" "ipc" "call" "brightness" "increment" "5" "";
+       spawn "noctalia" "msg" "brightness-up" "5";
     }
     XF86MonBrightnessDown allow-when-locked=true {
-       spawn "dms" "ipc" "call" "brightness" "decrement" "5" "";
+       spawn "noctalia" "msg" "brightness-down" "5";
     }
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -135,7 +134,7 @@ binds {
     }
 
     // === Window Management ===
-    Mod+Shift+W hotkey-overlay-title="Create window rule" { spawn "dms" "ipc" "call" "window-rules" "toggle"; }
+    // Mod+Shift+W hotkey-overlay-title="Create window rule" { spawn "dms" "ipc" "call" "window-rules" "toggle"; }
 
     Mod+X hotkey-overlay-title="Toggle Follow Mode" { spawn "nirius" "toggle-follow-mode"; }
 
