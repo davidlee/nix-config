@@ -1,22 +1,6 @@
 {
   "nodes": {
-    "emacs-config": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1781598503,
-        "narHash": "sha256-5wVyss/YDGRgXSmbUpDFEXKHXR5zSQz8shVc2VOBsHI=",
-        "owner": "davidlee",
-        "repo": "emacs-config",
-        "rev": "860b7b1f700654b8e724acabca78b875cb80d400",
-        "type": "github"
-      },
-      "original": {
-        "owner": "davidlee",
-        "repo": "emacs-config",
-        "type": "github"
-      }
-    },
-    "emacs-overlay": {
+       "emacs-overlay": {
       "inputs": {
         "nixpkgs": "nixpkgs",
         "nixpkgs-stable": "nixpkgs-stable"
