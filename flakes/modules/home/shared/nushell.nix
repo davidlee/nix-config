@@ -5,19 +5,20 @@
       settings = {
         show_banner = false;
       };
+
+      # this is loaded pretty early in proceedings ...
       extraConfig = ''
-        use std/util "path add"
-        path add "~/nushell"
-        source ~/nushell/custom.nu
+        source ~/nushell/config.nu
       '';
+
+      extraLogin = ''
+        source ~/nushell/login.nu
+      '';
+
       shellAliases = {
         s = "z";
         si = "zi";
       };
-
-      extraLogin = ''
-        # login
-      '';
     };
     carapace = {
       enableNushellIntegration = true;

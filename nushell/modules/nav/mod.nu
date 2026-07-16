@@ -28,5 +28,5 @@ export def _zf [] {
 
 export alias cz = cd (_fd_fzf)
 export alias czh = cd (_fd_fzf '--hidden')
-export alias cgr = cd (git-root)
+export alias gr = cd (git-root)
 export alias zf = cd (_zf)
