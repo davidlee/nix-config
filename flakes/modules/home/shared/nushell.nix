@@ -16,8 +16,9 @@
       '';
 
       shellAliases = {
-        s = "z";
-        si = "zi";
+        _builtin_cd = "cd";
+        cd = "z";
+        ci = "zi";
       };
     };
     carapace = {
