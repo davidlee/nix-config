@@ -8,6 +8,8 @@ workspace "dev"
 workspace "work"
 workspace "util"
 
+spawn-at-startup "stasis"
+spawn-at-startup "stasis tray"
 // ================================================================
 
 window-rule {

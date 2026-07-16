@@ -99,7 +99,6 @@
     },
     "root": {
       "inputs": {
-        "emacs-config": "emacs-config",
         "emacs-overlay": "emacs-overlay",
         "flake-utils": "flake-utils",
         "jail-nix": "jail-nix",
