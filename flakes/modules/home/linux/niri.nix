@@ -5,8 +5,10 @@
   ...
 }: {
   home.packages = with pkgs; [stasis nirius vicinae];
+
   imports = [
     inputs.vicinae.homeManagerModules.default
+    inputs.noctalia.homeModules.default
   ];
 
   systemd.user.services.stasis = {

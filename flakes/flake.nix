@@ -73,6 +73,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # lem = {
     #    url = "github:lem-project/lem";
     #    inputs.nixpkgs.follows = "nixpkgs-home";

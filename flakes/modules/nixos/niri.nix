@@ -9,16 +9,16 @@
       useNautilus = true;
     };
 
-    dms-shell = {
-      enable = true;
-      # plugins
-      enableDynamicTheming = true;
-      enableCalendarEvents = true;
-      enableAudioWavelength = true;
-      enableClipboardPaste = true;
-
-      systemd.enable = true;
-    };
+    # dms-shell = {
+    #   enable = true;
+    #   # plugins
+    #   enableDynamicTheming = true;
+    #   enableCalendarEvents = true;
+    #   enableAudioWavelength = true;
+    #   enableClipboardPaste = true;
+    #
+    #   systemd.enable = true;
+    # };
   }; # programs
   environment.systemPackages = with pkgs; [
     xwayland-satellite
