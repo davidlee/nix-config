@@ -3,59 +3,24 @@
 // https://niri-wm.github.io/niri/Configuration:-Input
 input {
     keyboard {
-        xkb {
-            options "compose:menu"
-        }
+        xkb { options "compose:menu" }
         numlock
     }
-
-    touchpad {
-        // off
-        tap
-        // dwt
-        // dwtp
-        // drag false
-        // drag-lock
-        natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "two-finger"
-        // disabled-on-external-mouse
-    }
+    touchpad { tap natural-scroll }
 
     mouse {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
+        accel-speed 0.2
         // accel-profile "flat"
         // scroll-method "no-scroll"
     }
-
-    trackpoint {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "on-button-down"
-        // scroll-button 273
-        // scroll-button-lock
-        // middle-emulation
-    }
-
-    // Uncomment this to make the mouse warp to the center of newly focused windows.
-    // warp-mouse-to-focus
-
-    // Focus windows and outputs automatically when moving the mouse into them.
+    trackpoint { }
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    focus-follows-mouse // max-scroll-amount="0%"
+    // warp-mouse-to-focus
+    focus-follows-mouse  max-scroll-amount="0%"
 }
 
-// You can configure outputs by their name, which you can find
-// by running `niri msg outputs` while inside a niri instance.
-// The built-in laptop monitor is usually called "eDP-1".
-// Find more information on the wiki:
+
 // https://niri-wm.github.io/niri/Configuration:-Outputs
-// Remember to uncomment the node by removing "/-"!
 output "DP-3" {
     // Uncomment this line to disable this output.
     // off
@@ -68,11 +33,9 @@ output "DP-3" {
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
     // mode "1920x1080@120.030"
 
-    // You can use integer or fractional scale, for example use 1.5 for 150% scale.
     scale 1.2
 
-    // Transform allows to rotate the output counter-clockwise, valid values are:
-    // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
+
     transform "normal"
 
     // Position of the output in the global coordinate space.

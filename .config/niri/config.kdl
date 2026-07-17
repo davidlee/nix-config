@@ -1,132 +1,28 @@
-
-// spawn-at-startup "niri-float-sticky"
+// ================================================================
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
 
 workspace "browser"
 workspace "emacs"
-workspace "chat"
 workspace "dev"
+workspace "project"
 workspace "work"
 workspace "util"
+workspace "chat"
+workspace "media"
 
 spawn-at-startup "noctalia"
 spawn-at-startup "stasis"
 spawn-at-startup "stasis tray"
-// ================================================================
 
-window-rule {
-    match at-startup=true app-id=r#"^emacs$"#
-    open-on-workspace "emacs"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^firefox$"#
-    open-on-workspace "browser"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^slack$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^slack$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^signal$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^1password$"#
-    open-on-workspace "util"
-}
 
 // ================================================================
-//
-// This config is in the KDL format: https://kdl.dev
-// "/-" comments out the following node.
-// Check the wiki for a full description of the configuration:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
-config-notification {
-    disable-failed
-}
+
+config-notification { disable-failed }
 
 gestures {
-    hot-corners {
-        off
-    }
+    hot-corners { off }
 }
 
-// Input device configuration.
-// Find the full list of options on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Input
-input {
-    keyboard {
-        xkb {
-            options "compose:menu"
-        }
-        // Enable numlock on startup, omitting this setting disables it.
-        numlock
-    }
-
-    // Next sections include libinput settings.
-    // Omitting settings disables them, or leaves them at their default values.
-    // All commented-out settings here are examples, not defaults.
-    touchpad {
-        // off
-        tap
-        // dwt
-        // dwtp
-        // drag false
-        // drag-lock
-        natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "two-finger"
-        // disabled-on-external-mouse
-    }
-
-    mouse {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "no-scroll"
-    }
-
-    trackpoint {
-        // off
-        // natural-scroll
-        // accel-speed 0.2
-        // accel-profile "flat"
-        // scroll-method "on-button-down"
-        // scroll-button 273
-        // scroll-button-lock
-        // middle-emulation
-    }
-
-    // Uncomment this to make the mouse warp to the center of newly focused windows.
-    // warp-mouse-to-focus
-
-    // Focus windows and outputs automatically when moving the mouse into them.
-    // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    // focus-follows-mouse max-scroll-amount="0%"
-}
-// You can configure outputs by their name, which you can find
-// by running `niri msg outputs` while inside a niri instance.
-// The built-in laptop monitor is usually called "eDP-1".
-// Find more information on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Outputs
-// Remember to uncomment the node by removing "/-"!
-/-output "eDP-2" {
-    mode "2560x1600@239.998993"
-    position x=2560 y=0
-    variable-refresh-rate
-}
-// Settings that influence how windows are positioned and sized.
-// Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
     // Set gaps around windows in logical pixels.
@@ -168,37 +64,20 @@ layout {
     }
 }
 
-layer-rule {
-    match namespace="^quickshell$"
-    place-within-backdrop true
-}
-layer-rule {
-    // This is for swaybg; change for other wallpaper tools.
-    // Find the right namespace by running niri msg layers.
-    match namespace="wallpaper"
-    place-within-backdrop true
-}
-
-layout {
-    background-color "transparent"
-}
-
 overview {
-    backdrop-color "#00011"
+    backdrop-color "#000011"
 }
+
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
 // This line starts waybar, a commonly used bar for Wayland compositors.
-environment {
-  XDG_CURRENT_DESKTOP "niri"
-}
-hotkey-overlay {
-    skip-at-startup
-}
+environment { XDG_CURRENT_DESKTOP "niri" }
+hotkey-overlay { skip-at-startup }
 prefer-no-csd
 screenshot-path "~/Pictures/Screenshots/shot_%Y-%m-%d_%H-%M-%S.png"
+
 animations {
     slowdown 0.7
     workspace-switch {
@@ -232,64 +111,7 @@ animations {
         spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
     }
 }
-// Window rules let you adjust behavior for individual windows.
-// Find more information on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
-// Work around WezTerm's initial configure bug
-// by setting an empty default-column-width.
-window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
-}
-window-rule {
-    match app-id=r#"^org\.gnome\."#
-    draw-border-with-background false
-    geometry-corner-radius 12
-    clip-to-geometry true
-}
-window-rule {
-    match app-id=r#"^gnome-control-center$"#
-    match app-id=r#"^pavucontrol$"#
-    match app-id=r#"^nm-connection-editor$"#
-    default-column-width { proportion 0.5; }
-    open-floating false
-}
-window-rule {
-    match app-id=r#"^org\.gnome\.Calculator$"#
-    match app-id=r#"^gnome-calculator$"#
-    match app-id=r#"^galculator$"#
-    match app-id=r#"^blueman-manager$"#
-    match app-id=r#"^org\.gnome\.Nautilus$"#
-    match app-id=r#"^xdg-desktop-portal$"#
-    open-floating true
-}
-window-rule {
-    match app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
-    default-floating-position x=10 y=10 relative-to="bottom-right"
-    open-focused false
-}
-window-rule {
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    match app-id="Alacritty"
-    match app-id="zen"
-    match app-id="com.mitchellh.ghostty"
-    match app-id="kitty"
-    draw-border-with-background false
-}
-window-rule {
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    match app-id="zoom"
-    open-floating true
-}
-// Open dms windows as floating by default
-window-rule {
-    match app-id=r#"org.quickshell$"#
-    match app-id=r#"com.danklinux.dms$"#
-    open-floating true
-}
+
 debug {
     honor-xdg-activation-with-invalid-serial
     // Dual-GPU (dGPU Navi 48 drives the display, iGPU is card0/default render
@@ -300,25 +122,9 @@ debug {
     force-pipewire-invalid-modifier
 }
 
-// Override to disable super+tab
-recent-windows {
-    binds {
-        Alt+Tab         { next-window scope="output"; }
-        Alt+Shift+Tab   { previous-window scope="output"; }
-        Alt+grave       { next-window filter="app-id"; }
-        Alt+Shift+grave { previous-window filter="app-id"; }
-    }
-}
 include "io.kdl"
 include "binds.kdl"
 include "apps.kdl"
 include "rules.kdl"
-// Include dms files
-include "dms/colors.kdl"
-include "dms/layout.kdl"
-include "dms/alttab.kdl"
-// include "dms/binds.kdl"
-include "dms/outputs.kdl"
-include "dms/cursor.kdl"
 
 include "noctalia.kdl"

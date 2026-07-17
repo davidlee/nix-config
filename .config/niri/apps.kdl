@@ -15,7 +15,6 @@ binds {
     Mod+K hotkey-overlay-title="Launch Terminal (Kitty)" { spawn "kitty"; }
     Mod+Shift+Return hotkey-overlay-title="Launch Browser (Firefox)" { spawn "firefox"; }
 
-
     // Term
     Mod+Apostrophe   hotkey-overlay-title="Launch ghostty"        { spawn-sh "~/.local/bin/raise-cycle-spawn com.mitchellh.ghostty ghostty"; }
     Ctrl+Alt+Shift+Apostrophe hotkey-overlay-title="Launch kitty" { spawn-sh "~/.local/bin/raise-cycle-spawn kitty kitty"; }
@@ -32,6 +31,5 @@ binds {
     Ctrl+Alt+Shift+T hotkey-overlay-title="-> Thunderbird" { spawn-sh "~/.local/bin/raise-cycle-spawn thunderbird thunderbird"; }
     Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
 
-    // Mod+S hotkey-overlay-title=null { spawn-sh "paplay /home/david/dev/notify.mp3"; }
 }
 

@@ -1,13 +1,70 @@
 // https://niri-wm.github.io/niri/Configuration:-Window-Rules
 
+// ================================================================
 
-
-// Open the Firefox picture-in-picture player as floating by default.
 window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
+    match at-startup=true app-id=r#"^emacs$"#
+    open-on-workspace "emacs"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^firefox$"#
+    open-on-workspace "browser"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^slack$"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^slack$"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^signal$"#
+    open-on-workspace "chat"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^1password$"#
+    open-on-workspace "util"
+}
+
+// ================================================================
+
+window-rule {
+    match app-id=r#"^org\.gnome\."#
+    draw-border-with-background false
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+window-rule {
+    match app-id=r#"^gnome-control-center$"#
+    match app-id=r#"^pavucontrol$"#
+    match app-id=r#"^nm-connection-editor$"#
+    default-column-width { proportion 0.5; }
+    open-floating false
+}
+window-rule {
+    match app-id=r#"^org\.gnome\.Calculator$"#
+    match app-id=r#"^gnome-calculator$"#
+    match app-id=r#"^galculator$"#
+    match app-id=r#"^blueman-manager$"#
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    match app-id=r#"^xdg-desktop-portal$"#
+    open-floating true
+}
+window-rule {
+    match app-id=r#"^steam$"# title=r#"^notificationtoasts_\d+_desktop$"#
+    default-floating-position x=10 y=10 relative-to="bottom-right"
+    open-focused false
+}
+
+window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id="zoom"
     open-floating true
 }
 
@@ -26,7 +83,7 @@ window-rule {
 // Example: enable rounded corners for all windows.
 // (This example rule is commented out with a "/-" in front.)
 window-rule {
-    geometry-corner-radius 12
+    geometry-corner-radius 2
     clip-to-geometry true
 }
 
@@ -34,7 +91,6 @@ window-rule {
 // Block out mako notifications from screencasts.
 layer-rule {
     match namespace="^notifications$"
-
     block-out-from "screencast"
 }
 
@@ -62,12 +118,26 @@ window-rule {
     match app-id="Spotify"
     open-floating true
 }
-// ?
+
+// ================================================================
 // Enable blur behind the fuzzel launcher.
+
 layer-rule {
     match namespace="^launcher$"
     background-effect {
         blur true
     }
+}
+
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+layer-rule {
+    // This is for swaybg; change for other wallpaper tools.
+    // Find the right namespace by running niri msg layers.
+    match namespace="wallpaper"
+    place-within-backdrop true
 }
 
