@@ -71,7 +71,7 @@
         # Each path appears at /workspace/<basename> inside the jail; a host
         # symlink like ./some-lib -> ../some-lib resolves correctly.
         workspaceDeps = [
-          # "/home/david/dev/some-lib"
+          # "/home/you/dev/some-lib"
         ];
 
         # bwrap starts with a clean env. Forward / set what agents need.
@@ -79,21 +79,25 @@
         # try-readwrite (bind a host path rw if it exists).
         jailEnvOptions = lib.optionals isLinux (with jailLib.combinators; [
           (try-fwd-env "OPENROUTER_API_KEY")
+          # pulse # opt-in host audio; uses $XDG_RUNTIME_DIR
+          # (try-readonly "/path/on-this-host/notification.wav")
           # (try-fwd-env "DATABASE_URL")
           # (try-fwd-env "DOCKER_HOST")
-          # (try-readwrite "/run/user/1000/docker.sock")
+          # (try-readwrite "/path/to/docker.sock")
           # (set-env "CGO_ENABLED" "0")
         ]);
 
         # -- Agents --
         #
         # Profiles:
-        #   specDev   — shared persistent home, network on, git push blocked, sandboxed identity
-        #   research  — separate persistent home, network on, host git identity
+        #   specDev   — shared persistent home, network on, SSH push blocked, sandboxed identity
+        #   research  — separate persistent home, network on, SSH push blocked, host identity
         #   offline   — separate persistent home, no network, no op env injection
         #
         # Extra per-agent knobs (all optional):
         #   exposePostgres       = true;   # bind /run/postgresql into the jail
+        #   blockSshGitPush      = false;  # SSH only; HTTPS remains available
+        #   apiKeys              = [ "OPENROUTER_API_KEY" ]; # narrow secrets
         #   allowSelfAsSubagent  = true;   # let agent recursively spawn itself
         #   maxSubagentDepth     = 2;      # cap recursion depth (default 1)
         #   useOpEnv             = false;  # opt out of 1Password injection

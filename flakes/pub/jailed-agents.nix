@@ -34,25 +34,16 @@
     OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential";
     GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential";
   },
+  gitIdentity ? {
+    authorName = "Jailed agent";
+    authorEmail = "jailed-agent@localhost";
+    committerName = "Jailed agent";
+    committerEmail = "jailed-agent@localhost";
+  },
 }: let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   jail = jail-nix.lib.init pkgs;
-
-  # File of op:// refs that `op run` reads. Contents are not secret
-  # (just pointers); the resolved values never land in the store.
-  apiKeyEnvFile = pkgs.writeText "llm-api-keys.env" (
-    lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "${k}=${v}") apiKeyOpRefs)
-  );
-
-  # bwrap raw args forwarding each API key from the wrapper's env into
-  # the jailed agent. `$VAR` is left for runtime shell expansion; the
-  # `:-` guard keeps empty/unset vars from breaking set -u callers.
-  apiKeyPassThrough =
-    lib.mapAttrsToList (
-      var: _: jail.combinators.unsafe-add-raw-args ''--setenv ${var} "''${${var}:-}"''
-    )
-    apiKeyOpRefs;
 
   inherit (llm-agents.packages.${system}) pi;
   inherit (llm-agents.packages.${system}) crush;
@@ -116,11 +107,6 @@
     # Mount host cwd at /workspace/<project> and start there
     (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
     (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
-    # Host audio (PipeWire pulse-compat socket) so notification / stop-hook
-    # sounds play from inside the jail. Global, applied once; not per-repo.
-    (try-readwrite "/run/user/1000/pulse")
-    (set-env "PULSE_SERVER" "unix:/run/user/1000/pulse/native")
-    (try-readonly "/mnt/500G/home/david/.local/share/Steam/friends/voice_hang_up.wav")
   ];
 
   # Policy-bearing options keyed by profile name
@@ -144,21 +130,21 @@
   # useOpEnv is off for offline (no network = no API calls = no secrets).
   profileDefaults = {
     specDev = {
-      blockGitPush = true;
+      blockSshGitPush = true;
       sandboxGitIdentity = true;
       exposePostgres = false;
       useOpEnv = true;
     };
 
     research = {
-      blockGitPush = true;
+      blockSshGitPush = true;
       sandboxGitIdentity = false;
       exposePostgres = false;
       useOpEnv = true;
     };
 
     offline = {
-      blockGitPush = true;
+      blockSshGitPush = true;
       sandboxGitIdentity = false;
       exposePostgres = false;
       useOpEnv = false;
@@ -167,14 +153,14 @@
 
   # Sandbox-originated commits are visually distinct
   gitIdentityOptions = with jail.combinators; [
-    (set-env "GIT_AUTHOR_NAME" "David Lee's clanker")
-    (set-env "GIT_AUTHOR_EMAIL" "clanker+dav@davlee.com")
-    (set-env "GIT_COMMITTER_NAME" "David Lee")
-    (set-env "GIT_COMMITTER_EMAIL" "dav@davlee.com")
+    (set-env "GIT_AUTHOR_NAME" gitIdentity.authorName)
+    (set-env "GIT_AUTHOR_EMAIL" gitIdentity.authorEmail)
+    (set-env "GIT_COMMITTER_NAME" gitIdentity.committerName)
+    (set-env "GIT_COMMITTER_EMAIL" gitIdentity.committerEmail)
   ];
 
   # Block git push over SSH
-  gitPushBlockOptions = with jail.combinators; [
+  sshGitPushBlockOptions = with jail.combinators; [
     (set-env "GIT_SSH_COMMAND" "${pkgs.writeShellScript "git-ssh-disabled" ''
       echo "git push over SSH is disabled in this sandbox" >&2
       exit 1
@@ -216,7 +202,10 @@
     # Back-compat sugar: adds this agent's own `name` to `subagents`.
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
-    blockGitPush ? profileDefaults.${profile}.blockGitPush,
+    blockSshGitPush ? null,
+    # Deprecated compatibility alias. Remove after external callers have
+    # migrated to blockSshGitPush.
+    blockGitPush ? null,
     sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
     useOpEnv ? profileDefaults.${profile}.useOpEnv,
@@ -225,7 +214,41 @@
     # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
     # bwrap `--setenv VAR "$VAR"` forwarding still runs.
     passApiKeysFromEnv ? useOpEnv,
+    # Names from apiKeyOpRefs to resolve and/or forward for this jail.
+    # The compatibility default remains every configured key.
+    apiKeys ? lib.attrNames apiKeyOpRefs,
   }: let
+    resolvedBlockSshGitPush =
+      if blockSshGitPush != null
+      then
+        if blockGitPush != null
+        then lib.warn "jailed-${name}: blockGitPush is deprecated and ignored because blockSshGitPush is set" blockSshGitPush
+        else blockSshGitPush
+      else if blockGitPush != null
+      then lib.warn "jailed-${name}: blockGitPush is deprecated; use blockSshGitPush" blockGitPush
+      else profileDefaults.${profile}.blockSshGitPush;
+
+    selectedApiKeys = lib.unique apiKeys;
+    unknownApiKeys = lib.filter (key: !(builtins.hasAttr key apiKeyOpRefs)) selectedApiKeys;
+    selectedApiKeyOpRefs = lib.genAttrs selectedApiKeys (key: apiKeyOpRefs.${key});
+
+    # File of selected op:// refs that `op run` reads. Contents are not
+    # secret (just pointers); resolved values never land in the store.
+    apiKeyEnvFile = pkgs.writeText "jailed-${name}-api-keys.env" (
+      lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (key: value: "${key}=${value}") selectedApiKeyOpRefs
+      )
+    );
+
+    # bwrap raw args forwarding each selected API key from the wrapper's
+    # env. `$VAR` is left for runtime shell expansion; the `:-` guard keeps
+    # empty/unset vars from breaking set -u callers.
+    apiKeyPassThrough =
+      lib.mapAttrsToList (
+        var: _: jail.combinators.unsafe-add-raw-args ''--setenv ${var} "''${${var}:-}"''
+      )
+      selectedApiKeyOpRefs;
+
     # Resolve a subagent name to its package. The current agent is
     # reachable under its own `name` even for custom (non-map) agents.
     resolveAgent = n:
@@ -277,11 +300,41 @@
       )
     );
     allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
+    stripTrailingSlashes = dep:
+      if dep != "/" && lib.hasSuffix "/" dep
+      then stripTrailingSlashes (lib.removeSuffix "/" dep)
+      else dep;
+    normalizedWorkspaceDeps = map stripTrailingSlashes allWorkspaceDeps;
+    relativeWorkspaceDeps = lib.filter (dep: !(lib.hasPrefix "/" dep)) normalizedWorkspaceDeps;
+    workspaceBindSpecs =
+      map (dep: {
+        source = dep;
+        destination = "/workspace/${builtins.baseNameOf dep}";
+      })
+      normalizedWorkspaceDeps;
+    workspaceBindsByDestination = lib.groupBy (bind: bind.destination) workspaceBindSpecs;
+    duplicateWorkspaceBinds = lib.filterAttrs (_: binds: builtins.length binds > 1) workspaceBindsByDestination;
+    duplicateWorkspaceBindMessage = lib.concatStringsSep "; " (
+      lib.mapAttrsToList (
+        destination: binds: "${destination} <- ${lib.concatStringsSep ", " (map (bind: bind.source) binds)}"
+      )
+      duplicateWorkspaceBinds
+    );
+    # jail.nix builds launchers with ShellCheck enabled. Its SC2016 check
+    # rejects a dollar followed by a name inside the single quotes emitted
+    # by escapeShellArgs, even though that is precisely what keeps it
+    # literal. Split dollars into an adjacent, isolated quoted segment:
+    # 'foo$dollar' becomes 'foo'"$"'dollar' with the same argv value.
+    escapeWorkspaceBindArgs = args:
+      builtins.replaceStrings ["$"] ["'\"$\"'"] (lib.escapeShellArgs args);
     workspaceBinds =
       map (
-        dep: jail.combinators.unsafe-add-raw-args "--bind \"${dep}\" \"/workspace/$(basename \"${dep}\")\""
+        bind:
+          jail.combinators.unsafe-add-raw-args (
+            escapeWorkspaceBindArgs ["--bind" bind.source bind.destination]
+          )
       )
-      allWorkspaceDeps;
+      workspaceBindSpecs;
 
     inner = jail "jailed-${name}" agent (
       baseJailOptions
@@ -289,7 +342,7 @@
       ++ profileOptions.${profile}
       ++ termOptions
       ++ packageManagerOptions
-      ++ lib.optionals blockGitPush gitPushBlockOptions
+      ++ lib.optionals resolvedBlockSshGitPush sshGitPushBlockOptions
       ++ lib.optionals sandboxGitIdentity gitIdentityOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
@@ -322,10 +375,13 @@
     '';
   in
     assert builtins.hasAttr profile profileOptions || throw "Unknown jailed agent profile: ${profile}";
+    assert unknownApiKeys == [] || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
+    assert relativeWorkspaceDeps == [] || throw "Workspace dependencies for jailed-${name} must be absolute paths: ${lib.concatStringsSep ", " relativeWorkspaceDeps}";
+    assert duplicateWorkspaceBinds == {} || throw "Workspace dependencies for jailed-${name} have duplicate destinations: ${duplicateWorkspaceBindMessage}";
     assert (subagentNames == [])
     || maxSubagentDepth > 0
     || throw "maxSubagentDepth must be > 0 when subagents are exposed";
-      if useOpEnv
+      if useOpEnv && selectedApiKeys != []
       then outer
       else inner;
 

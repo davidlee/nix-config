@@ -77,6 +77,8 @@
       url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    claude-desktop.url = "github:aaddrick/claude-desktop-debian";
     # lem = {
     #    url = "github:lem-project/lem";
     #    inputs.nixpkgs.follows = "nixpkgs-home";

@@ -37,18 +37,54 @@ Every jail gets these **base** options regardless of profile:
 - **Timezone**, terminfo, `no-new-session`.
 - **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc.
 
+Host audio is intentionally not part of the portable defaults. Opt in from a
+machine-specific composition root with jail.nix's `$XDG_RUNTIME_DIR`-aware
+`pulse` combinator, plus any host sound file the agent needs:
+
+```nix
+audioOptions = with agents.combinators; [
+  pulse
+  (try-readonly "/path/on/this/host/notification.wav")
+];
+
+(agents.makeJailedClaude {
+  extraOptions = audioOptions;
+})
+```
+
 ### Profiles
 
 Profiles control persistence, networking, and git policy. Pass `profile` to
 any maker (default: `"specDev"`).
 
-| Profile | Home | Network | Git push | Git identity |
+| Profile | Home | Network | SSH push | Git identity |
 |---|---|---|---|---|
-| `specDev` | `agent` (shared, persistent) | yes | blocked | sandboxed (`clanker`) |
+| `specDev` | `agent` (shared, persistent) | yes | blocked | sandboxed (generic) |
 | `research` | `agent-research` (separate) | yes | blocked | host |
 | `offline` | `agent-offline` (separate) | no | blocked | host |
 
-Override boolean defaults per-call with `blockGitPush` / `sandboxGitIdentity`.
+Override boolean defaults per-call with `blockSshGitPush` /
+`sandboxGitIdentity`. The SSH guard sets `GIT_SSH_COMMAND` to a failing helper
+and clears SSH helpers. It does **not** block HTTPS pushes in networked
+profiles, and is a guardrail rather than a security boundary. The old
+`blockGitPush` spelling remains as a warning-producing compatibility alias for
+one transition.
+
+The reusable sandbox identity defaults to `Jailed agent
+<jailed-agent@localhost>`. Override all four fields when constructing the
+library if a composition root wants a host-specific identity:
+
+```nix
+agents = inputs.pub.lib.${system}.mkJailedAgents {
+  inherit (inputs) llm-agents;
+  gitIdentity = {
+    authorName = "Project agent";
+    authorEmail = "agent@example.test";
+    committerName = "Project agent";
+    committerEmail = "agent@example.test";
+  };
+};
+```
 
 #### Sub-agents
 
@@ -134,6 +170,15 @@ symlink), use `workspaceDeps` to bind-mount them into the jail:
 
 Each path is mounted at `/workspace/<basename>`, so a symlink like
 `./some-lib → ../some-lib` resolves correctly inside the jail.
+Paths must be absolute but do not need to exist at pure evaluation time.
+Trailing slashes are normalized, shell metacharacters remain literal, and two
+different sources with the same basename fail evaluation instead of silently
+shadowing one another.
+
+For machine-local dependencies, `JAIL_WORKSPACE_DEPS` may contain newline- or
+colon-separated absolute paths. It is read only during impure evaluation and
+merged with `workspaceDeps`; under pure evaluation an unset/inaccessible value
+is simply ignored.
 
 Because `llm-agents` is pinned in the calling flake, updating agents is a
 single `nix flake update llm-agents` — no intermediate commit/push needed.
@@ -194,6 +239,20 @@ agents = inputs.pub.lib.${system}.mkJailedAgents {
 };
 ```
 
+By default each jail receives every configured key for compatibility. Narrow
+an individual jail with `apiKeys`; unknown names fail evaluation with the jail
+name in the diagnostic:
+
+```nix
+(agents.makeJailedPi {
+  apiKeys = [ "OPENROUTER_API_KEY" ];
+})
+```
+
+The selected subset controls both the outer `op run` env file and bwrap's
+environment forwarding. `apiKeys = [];` skips the secret wrapper entirely.
+`useOpEnv` and `passApiKeysFromEnv` otherwise remain independent.
+
 If `op` is missing from `PATH`, the wrapper bails with a clear message —
 build the agent with `useOpEnv = false` to bypass, or install
 `_1password-cli` / `_1password-gui` on the host.
@@ -252,8 +311,10 @@ passApiKeysFromEnv = per-profile`) keep the simple case simple.
 | `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |
 | `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |
-| `blockGitPush` | per profile | Disable git push via SSH |
+| `blockSshGitPush` | per profile | Disable Git pushes over SSH. HTTPS is unaffected. |
+| `blockGitPush` | deprecated | Compatibility alias for `blockSshGitPush`; emits a warning |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
+| `apiKeys` | all configured names | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail via `--setenv VAR "$VAR"`. Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
 

@@ -27,6 +27,7 @@
     ../../modules/nixos/lib.nix
     ../../modules/nixos/locate.nix
     ../../modules/nixos/llama-cpp.nix
+    ../../modules/nixos/llms.nix
     ../../modules/nixos/maintenance.nix
     ../../modules/nixos/network.nix
     ../../modules/nixos/nix.nix

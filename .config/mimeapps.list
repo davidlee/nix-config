@@ -115,3 +115,4 @@ image/openraster=org.kde.gwenview.desktop
 image/svg+xml=org.kde.gwenview.desktop
 image/svg+xml-compressed=org.kde.gwenview.desktop
 x-scheme-handler/net.thunderbird=userapp-Thunderbird-HIEBS3.desktop
+x-scheme-handler/claude=com.anthropic.Claude.desktop

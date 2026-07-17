@@ -22,13 +22,22 @@
         overlays = [emacs-overlay.overlays.default];
       };
     in {
-      lib.mkJailedAgents = {llm-agents}:
-        import ./jailed-agents.nix {
-          inherit pkgs jail-nix llm-agents;
+      lib.mkJailedAgents = args @ {llm-agents, ...}:
+        import ./jailed-agents.nix (
+          {
+            inherit pkgs jail-nix llm-agents;
+          }
+          // builtins.removeAttrs args ["llm-agents"]
+        );
+
+      checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+        jailed-agents = import ./jailed-agents-test.nix {
+          inherit pkgs jail-nix;
         };
+      };
 
       packages.emacs = import ./emacs.nix {inherit pkgs;};
-      packages.helium = pkgs.callPackage ./helium.nix {};
+      # packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
       packages.dirge = pkgs.callPackage ./dirge.nix {};
     });
