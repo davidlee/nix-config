@@ -1,7 +1,7 @@
 # ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
 
 # theme = catppuccin-latte
-theme = GitHub Dark
+theme = noctalia
 # theme = noctalia
 background-opacity = 0.95
 background-blur = true
