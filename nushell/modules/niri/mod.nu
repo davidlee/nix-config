@@ -14,3 +14,5 @@ export def ws [n?: string] {
 }
 
 export alias pw = ^niri msg pick-window
+export alias sw = ^niri msg action set-workspace-name
+export alias usw = ^niri msg action unset-workspace-name

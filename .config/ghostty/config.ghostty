@@ -1,9 +1,9 @@
 # ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
 
 # theme = catppuccin-latte
-# theme = GitHub Dark
-theme = noctalia
-background-opacity = 0.85
+theme = GitHub Dark
+# theme = noctalia
+background-opacity = 0.95
 background-blur = true
 
 window-decoration = none
@@ -56,3 +56,5 @@ font-feature=-liga
 # keybind = shift+enter=text:\x1b\r
 
 keybind = control+t=unbind
+
+config-file = ?auto/theme.ghostty

@@ -423,7 +423,7 @@ in {
     makeJailedDirge
     makeJailedZsh
     ;
-  inherit agentsByName; # unjailed
+  inherit agentsByName; # unjailed binaries
   inherit commonPkgs;
   inherit (jail) combinators;
   # Bare (unjailed) agent packages, resolved from the same eval as the

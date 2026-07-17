@@ -3,38 +3,6 @@
 // ================================================================
 
 window-rule {
-    match at-startup=true app-id=r#"^emacs$"#
-    open-on-workspace "emacs"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^firefox$"#
-    open-on-workspace "browser"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^slack$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^slack$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^signal$"#
-    open-on-workspace "chat"
-}
-
-window-rule {
-    match at-startup=true app-id=r#"^1password$"#
-    open-on-workspace "util"
-}
-
-// ================================================================
-
-window-rule {
     match app-id=r#"^org\.gnome\."#
     draw-border-with-background false
     geometry-corner-radius 12

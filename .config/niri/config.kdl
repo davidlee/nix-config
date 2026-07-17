@@ -7,7 +7,7 @@ workspace "dev"
 workspace "project"
 workspace "work"
 workspace "util"
-workspace "chat"
+workspace "comms"
 workspace "media"
 
 spawn-at-startup "noctalia"

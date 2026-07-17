@@ -1,14 +1,53 @@
 // https://sr.ht/~tsdh/nirius/
-//
+
+spawn-at-startup "emacs"
+spawn-at-startup "firefox"
+spawn-at-startup "ghostty"
+spawn-at-startup "spotify"
+spawn-at-startup "fastmail"
+
 spawn-at-startup "1password" "--silent"
 spawn-at-startup "slack" "--silent" "-u"
-// spawn-at-startup "udiskie"
-// spawn-at-startup "copyq --start-server"
 spawn-at-startup "signal-desktop"
-spawn-at-startup "firefox"
-spawn-at-startup "spotify"
 
-// TODO: bind a clock command
+// ================================================================
+
+window-rule {
+    match at-startup=true app-id=r#"^emacs$"#
+    open-on-workspace "emacs"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^firefox$"#
+    open-on-workspace "browser"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^com.mitchellh.ghostty$"#
+    open-on-workspace "util"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^com-fastmail-fastmail$"#
+    open-on-workspace "util"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^slack$"#
+    open-on-workspace "comms"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^signal$"#
+    open-on-workspace "comms"
+}
+
+window-rule {
+    match at-startup=true app-id=r#"^1password$"#
+    open-on-workspace "util"
+}
+
+// ================================================================
 
 binds {
     Mod+Return hotkey-overlay-title="Launch Terminal (ghostty)" { spawn "ghostty"; }
