@@ -5,7 +5,7 @@ use std/formats *
 use std/iter *
 use std/log *
 use std/random *
-use std/assert *
+# use std/assert *
 
 motd
 
