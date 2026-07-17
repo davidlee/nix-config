@@ -7,11 +7,8 @@
 # for nagging / encouraging an interstitial journalling habit.
 
 # we expect this to be exported into the execution ENV
-#
-# OBS_VAULT_PATH=~/workbench
-
 # the trailing slash is significant here if the target is a symlink!
-NOTE_DIR=${OBS_VAULT_PATH:-~/notes}/
+NOTE_DIR=${NOTE_DIR:-~/notes}/
 
 # file age thresholds for the different badges
 MINS_NOTICE=12

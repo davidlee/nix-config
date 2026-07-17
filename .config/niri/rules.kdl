@@ -99,7 +99,7 @@ layer-rule {
 
 layer-rule {
     match namespace="^quickshell$"
-    place-within-backdrop true
+    // place-within-backdrop true
 }
 
 layer-rule {

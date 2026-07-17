@@ -1,7 +1,7 @@
 #!/usr/bin/env nu
 use std/dirs
 use modules/nav *
-use modules/niri *
+use modules/niri-wm *
 
 use std/util "path add"
 

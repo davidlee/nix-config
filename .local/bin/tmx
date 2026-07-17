@@ -5,11 +5,6 @@
 # Works because bash automatically trims by assigning to variables and by passing arguments
 trim() { echo $1; }
 
-# if [[ -z "$NVIM" ]]; then
-#   echo "running in a neovim terminal; let's avoid a tmux matryoshka scene."
-#   # exit
-# fi
-
 base_session="$1"
 if [[ -z $base_session ]]; then
   base_session="default"
