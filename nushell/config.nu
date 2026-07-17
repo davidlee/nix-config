@@ -84,6 +84,8 @@ export alias ch = cd (gum choose ~/dev/doctrine ~/dev/.emacs.d ~/dev/notes ~/fla
 
 export alias arch = distrobox enter archlinux;
 
+export alias fg = job unfreeze
+
 if (uname | get operating-system ) == 'GNU/Linux' {
   export alias open = xdg-open
 }
