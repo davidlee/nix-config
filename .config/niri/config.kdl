@@ -167,14 +167,24 @@ layout {
         left 10
     }
 }
+
 layer-rule {
     match namespace="^quickshell$"
     place-within-backdrop true
 }
+layer-rule {
+    // This is for swaybg; change for other wallpaper tools.
+    // Find the right namespace by running niri msg layers.
+    match namespace="wallpaper"
+    place-within-backdrop true
+}
+
+layout {
+    background-color "transparent"
+}
+
 overview {
-    workspace-shadow {
-        off
-    }
+    backdrop-color "#00011"
 }
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
