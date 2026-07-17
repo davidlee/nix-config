@@ -296,8 +296,8 @@ binds {
 
     // Center all fully visible columns on screen.
     Super+Shift+C { center-visible-columns; }
-    Super+D { center-visible-columns; }
-    Super+Shift+D { center-window; }
+    Super+I { center-visible-columns; }
+    Super+Shift+I { center-window; }
 
     // Finer width adjustments.
     // This command can also:
