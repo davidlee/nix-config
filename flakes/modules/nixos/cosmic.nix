@@ -4,6 +4,7 @@ _: {
     # displayManager.cosmic-greeter.enable = true;
     # system76-scheduler.enable = true;
   };
+
   programs.firefox.preferences = {
     # disable libadwaita theming for Firefox
     "widget.gtk.libadwaita-colors.enabled" = false;

@@ -11,7 +11,8 @@
     ../../modules/nixos/boot.nix
     ../../modules/nixos/browsers.nix
     ../../modules/nixos/cargo.nix
-    ../../modules/nixos/cosmic.nix
+    ../../modules/nixos/cad-3d.nix
+    # ../../modules/nixos/cosmic.nix
     # ../../modules/nixos/docker.nix
     ../../modules/nixos/env.nix
     ../../modules/nixos/flatpak.nix
