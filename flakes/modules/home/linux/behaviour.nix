@@ -1,12 +1,12 @@
 # panopticon — local desktop-behaviour capture daemon.
 #
 # Source: ~/dev/panopticon (path: input — switch to git+file:// once stable).
-# Writes JSONL to ~/.local/state/behaviour/{raw,current}.
+# Writes ~/.local/state/behaviour/raw/desktop-*.jsonl + current/desktop.json.
 #
 # Smoke:
 #   systemctl --user status panopticon-sway
 #   journalctl --user -u panopticon-sway -f
-#   tail -f ~/.local/state/behaviour/raw/sway-$(date +%F).jsonl
+#   tail -f ~/.local/state/behaviour/raw/desktop-$(date +%F).jsonl
 {
   inputs,
   pkgs,
@@ -17,9 +17,11 @@
 in {
   home.packages = [panopticon];
 
+  # Unit NAME kept as `panopticon-sway` — a deliberately retained stable alias
+  #  (SL-004 design D4). ExecStart runs panopticon-desktop via lib.getExe.
   systemd.user.services.panopticon-sway = {
     Unit = {
-      Description = "panopticon — Sway behaviour event watcher";
+      Description = "panopticon — desktop behaviour event watcher (compositor-neutral: sway|niri)";
       After = ["graphical-session.target"];
       PartOf = ["graphical-session.target"];
     };
