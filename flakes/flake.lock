@@ -2044,8 +2044,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1784540329,
-        "narHash": "sha256-1p3FfN/V3SchBQSrJhRigZ8HrVNT9fnJJ3d1fzgg59U=",
+        "lastModified": 1784549123,
+        "narHash": "sha256-N2UVc+OIHwmEiqUltxVUQu+eN9QY6oe4MR/jOcQBSqQ=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
