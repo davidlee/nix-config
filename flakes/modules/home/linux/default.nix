@@ -16,6 +16,7 @@
     ./helix.nix
     ./alarm.nix
     ./snooze.nix
-    ./danksearch.nix
+    ./cad-3d.nix
+    # ./danksearch.nix
   ];
 }

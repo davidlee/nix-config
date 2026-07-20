@@ -21,7 +21,6 @@
       ensureDatabases = [
         username
         "corpus"
-        "tasks"
       ];
       enableTCPIP = false;
     };

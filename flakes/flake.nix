@@ -221,6 +221,7 @@
               config.allowUnfree = true;
               overlays = [
                 inputs.emacs-overlay.overlays.default
+                inputs.claude-desktop.overlays.default
               ];
             };
           in {
