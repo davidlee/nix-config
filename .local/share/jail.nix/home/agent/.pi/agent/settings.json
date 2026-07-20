@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.80.10",
   "defaultProjectTrust": "always",
   "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-v4-flash",
+  "defaultModel": "deepseek-v4-pro",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
   "compaction": {

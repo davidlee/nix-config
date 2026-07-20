@@ -11,7 +11,7 @@
     ../../modules/nixos/boot.nix
     ../../modules/nixos/browsers.nix
     ../../modules/nixos/cargo.nix
-    ../../modules/nixos/cad-3d.nix
+    # ../../modules/nixos/cad-3d.nix
     # ../../modules/nixos/cosmic.nix
     # ../../modules/nixos/docker.nix
     ../../modules/nixos/env.nix
@@ -20,7 +20,7 @@
     ../../modules/nixos/games.nix
     ../../modules/nixos/gamescope.nix
     ../../modules/nixos/greeter.nix
-    ../../modules/nixos/kanshi.nix
+    # ../../modules/nixos/kanshi.nix
     ../../modules/nixos/kde.nix
     ../../modules/nixos/kernel.nix
     ../../modules/nixos/keyboard.nix

@@ -1,3 +1,5 @@
 {pkgs, ...}: {
-  environment.systemPackages = with pkgs; [openscad-unstable];
+  environment.systemPackages = with pkgs; [
+    openscad # openscad-unstable
+  ];
 }
