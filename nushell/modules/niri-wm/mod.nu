@@ -19,30 +19,24 @@ export alias usw = ^niri msg action unset-workspace-name
 
 # completions
 export def __niri_msg_cmp [context: string] {
-  let ctx = $context | split words | str join ' '
-  match ($ctx | split words | str join ' ') {
+  let words = $context | split words
+  let trailing_space = $context | str ends-with ' '
+  let prefix = if $trailing_space { '' } else { $words | last }
+  let stem = if $trailing_space { $words } else { $words | drop 1 }
+
+  let candidates = match ($stem | str join ' ') {
     'niri msg action' => (^niri msg action -h | grep -E '^  \w' | split row "\n" | str trim)
     'niri msg' => (^niri msg -j e>| grep '\[subcommands:' | str replace --regex '\[subcommands:' '' | split words)
     'niri' => ["msg"]
-    _ => [$ctx]
+    _ => []
   }
+
+  $candidates | where ($it | str starts-with $prefix)
 }
 
+# declare niri as a command with completion
 export extern "niri" [...cmd: string@__niri_msg_cmp] {
   # print $cmd
 }
 
 
-export def __cmp [ctx: string] {
-  let context = $ctx | split words | str join ' '
-  match ($context) {
-    'pie' => ["x", "a"]
-    'pie x' => ["y", "b"]
-    'pie x y' => ["z"]
-    _ => [$context]
-  }
-}
-
-export extern "pie" [...cmd: string@__cmp] {
-  # print $cmd
-}
