@@ -61,8 +61,14 @@ in {
     Unit.Description = "panopticon — poll ~/dev git repos for new commits";
     Timer = {
       Unit = "panopticon-git.service";
+      # Wall-clock, not OnUnitActiveSec: the interval-since-last-active anchor
+      # goes stale across a user-manager restart (session change) and never
+      # rearms — the timer sits `elapsed` with NEXT=-. OnCalendar reschedules
+      # off the clock, so a restart can't strand it. Persistent catches a
+      # missed tick after downtime.
       OnBootSec = "2min";
-      OnUnitActiveSec = "5min";
+      OnCalendar = "*:0/5";
+      AccuracySec = "30s";
       Persistent = true;
     };
     Install.WantedBy = ["timers.target"];
@@ -82,8 +88,12 @@ in {
     Unit.Description = "panopticon — derive segments + retention (intraday)";
     Timer = {
       Unit = "panopticon-segmentize.service";
+      # Wall-clock, not OnUnitActiveSec — see panopticon-git.timer above: the
+      # last-active anchor stranded this timer across a session change (NEXT=-)
+      # and the focus/browser pipeline went stale for days.
       OnBootSec = "2min";
-      OnUnitActiveSec = "10min";
+      OnCalendar = "*:0/10";
+      AccuracySec = "1min";
       Persistent = true;
     };
     Install.WantedBy = ["timers.target"];
