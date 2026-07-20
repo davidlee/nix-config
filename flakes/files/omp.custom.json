@@ -58,7 +58,17 @@
           "foreground": "p:white",
           "powerline_symbol": "",
           "options": {
-            "style": "agnoster"
+            "style": "powerlevel",
+            "max_depth": 3,
+            "dir_length": 3,
+            "full_length_dirs": 3,
+            "mapped_locations": {
+              "~/dev": " ",
+              "~/flakes": " ",
+              "~/Downloads": "󰇚",
+              "~/.emacs.d": "",
+              "~/notes": "󱇗"
+            }
           },
           "style": "powerline",
           "template": " {{ .Path }} ",
