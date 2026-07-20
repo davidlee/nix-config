@@ -20,8 +20,12 @@ HISTOGRAMS = STATE / "histograms"
 OK, WARN = "OK", "WARN"
 CAT = "Panopticon"
 
+# Keys are RAW filename stems (freshest_today reads raw/<key>-*.jsonl);
+# `prefix` is the SEGMENT stem (check_segments reads segments/<prefix>-*.jsonl).
+# The two namespaces differ: the compositor-neutral watcher writes
+# raw/desktop-*.jsonl but its segments are still named focus-* (SL-004).
 SOURCES = {
-  "sway": {"warn_minutes": 30, "prefix": "focus"},
+  "desktop": {"warn_minutes": 30, "prefix": "focus"},
   "firefox": {"warn_minutes": 240, "prefix": "browser"},
 }
 
@@ -57,8 +61,8 @@ def fmt_age(minutes):
 def freshest_today(source):
   """Age of the freshest raw file dated *today*, local or UTC.
 
-  Raw files are bucketed on the day as the producer stamped it. Sway stamps
-  local-offset, firefox stamps local-offset post-fix — but a producer stamping
+  Raw files are bucketed on the day as the producer stamped it. The desktop
+  watcher stamps local-offset, firefox likewise post-fix — but a producer stamping
   UTC `Z` buckets on the UTC day, which lags the local day by the offset (e.g.
   until 10:00 in AEST). Checking both dates means a wrong-tz producer reports
   its real freshness instead of a phantom "no events today" each morning.
@@ -71,7 +75,10 @@ def freshest_today(source):
 
 def check_services():
   results = []
-  for unit in ("panopticon-sway.service", "panopticon-segmentize.timer"):
+  # Timers (not the oneshot .services — those sit inactive between runs and
+  # would false-WARN). panopticon-sway.service is the long-running watcher.
+  for unit in ("panopticon-sway.service", "panopticon-segmentize.timer",
+               "panopticon-git.timer"):
     active = service_active(unit)
     results.append({
       "category": CAT, "name": unit,
@@ -86,7 +93,8 @@ def check_raw_freshness():
   for source in SOURCES:
     ages[source] = freshest_today(source)
 
-  sway_fresh = ages.get("sway") is not None and ages["sway"] < 30
+  # Primary "is the machine even in use" signal — the compositor watcher.
+  desktop_fresh = ages.get("desktop") is not None and ages["desktop"] < 30
 
   results = []
   for source, cfg in SOURCES.items():
@@ -101,8 +109,8 @@ def check_raw_freshness():
       status = OK
       detail = fmt_age(age)
 
-    if status == WARN and source != "sway" and not sway_fresh:
-      detail += " (sway also stale)"
+    if status == WARN and source != "desktop" and not desktop_fresh:
+      detail += " (desktop also stale)"
 
     results.append({
       "category": CAT,
@@ -153,7 +161,10 @@ def check_storage():
   }
 
 
-def check_sway_journal():
+def check_watcher_journal():
+  # journalctl target stays panopticon-sway.service — the unit name is a
+  # retained stable alias (SL-004 D4); it runs the compositor-neutral watcher.
+  name = "watcher journal (24h)"
   try:
     r = subprocess.run(
       ["journalctl", "--user-unit=panopticon-sway.service",
@@ -161,33 +172,61 @@ def check_sway_journal():
       capture_output=True, text=True, timeout=10,
     )
     if r.returncode != 0:
-      return {"category": CAT, "name": "sway journal (24h)",
+      return {"category": CAT, "name": name,
               "status": WARN, "detail": "journalctl failed"}
     lines = r.stdout.strip().splitlines()
-    errors = [l for l in lines if "ERROR" in l or "error" in l.lower()]
-    reconnects = [l for l in lines if "reconnect" in l.lower()]
+    low = [l.lower() for l in lines]
+    errors = [l for l in low if "error" in l]
+    reconnects = [l for l in low if "reconnect" in l]
+    # A connected-but-broken watcher logs WARNING-level disconnects — e.g.
+    # "sway disconnected: Failed to retrieve the i3 or sway IPC socket path" —
+    # which carry no ERROR/reconnect token. The real outage we hit slipped
+    # through as `clean` while service-active + raw-freshness also read green.
+    # Match the actual failure vocabulary so a broken watcher trips a WARN.
+    disconnects = [l for l in low
+                   if "disconnect" in l or "failed to" in l or "ipc socket" in l]
+    warnings = [l for l in low if "warning" in l]
     parts = []
     if reconnects:
       parts.append(f"{len(reconnects)} reconnects")
+    if disconnects:
+      parts.append(f"{len(disconnects)} disconnects")
     if errors:
       parts.append(f"{len(errors)} errors")
+    if warnings and not (errors or disconnects):
+      parts.append(f"{len(warnings)} warnings")
     if not parts:
-      return {"category": CAT, "name": "sway journal (24h)",
+      return {"category": CAT, "name": name,
               "status": OK, "detail": f"{len(lines)} lines, clean"}
-    status = WARN if errors or len(reconnects) > 3 else OK
-    return {"category": CAT, "name": "sway journal (24h)",
+    status = WARN if errors or disconnects or len(reconnects) > 3 else OK
+    return {"category": CAT, "name": name,
             "status": status, "detail": ", ".join(parts)}
   except (FileNotFoundError, subprocess.TimeoutExpired):
-    return {"category": CAT, "name": "sway journal (24h)",
+    return {"category": CAT, "name": name,
             "status": OK, "detail": "journalctl unavailable"}
+
+
+def check_git_segments():
+  # git segments are commit-driven, not clock-driven: absent on a quiet day is
+  # normal, so WARN only when the freshest one is old enough to suggest a dead
+  # poller (48h), not merely missing today. Timer liveness is check_services.
+  files = list(SEGMENTS.glob("git-*.jsonl"))
+  if not files:
+    return {"category": CAT, "name": "segments/git", "status": WARN,
+            "detail": "none"}
+  age = file_age_minutes(max(files, key=lambda p: p.stat().st_mtime))
+  status = WARN if age is not None and age > 48 * 60 else OK
+  return {"category": CAT, "name": "segments/git freshness",
+          "status": status, "detail": fmt_age(age)}
 
 
 def main():
   results = check_services()
   results.extend(check_raw_freshness())
   results.extend(check_segments())
+  results.append(check_git_segments())
   results.append(check_storage())
-  results.append(check_sway_journal())
+  results.append(check_watcher_journal())
   print(json.dumps(results))
 
 
