@@ -3,13 +3,13 @@
     "blueprint": {
       "inputs": {
         "nixpkgs": [
-          "panopticon",
+          "satan",
           "doctrine",
           "llm-agents",
           "nixpkgs"
         ],
         "systems": [
-          "panopticon",
+          "satan",
           "doctrine",
           "llm-agents",
           "systems"
@@ -32,12 +32,12 @@
     "blueprint_2": {
       "inputs": {
         "nixpkgs": [
-          "panopticon",
+          "satan",
           "llm-agents",
           "nixpkgs"
         ],
         "systems": [
-          "panopticon",
+          "satan",
           "llm-agents",
           "systems"
         ]
@@ -59,14 +59,12 @@
     "blueprint_3": {
       "inputs": {
         "nixpkgs": [
-          "satan",
-          "doctrine",
+          "satan-attrd",
           "llm-agents",
           "nixpkgs"
         ],
         "systems": [
-          "satan",
-          "doctrine",
+          "satan-attrd",
           "llm-agents",
           "systems"
         ]
@@ -86,60 +84,6 @@
       }
     },
     "blueprint_4": {
-      "inputs": {
-        "nixpkgs": [
-          "satan",
-          "llm-agents",
-          "nixpkgs"
-        ],
-        "systems": [
-          "satan",
-          "llm-agents",
-          "systems"
-        ]
-      },
-      "locked": {
-        "lastModified": 1776249299,
-        "narHash": "sha256-Dt9t1TGRmJFc0xVYhttNBD6QsAgHOHCArqGa0AyjrJY=",
-        "owner": "numtide",
-        "repo": "blueprint",
-        "rev": "56131e8628f173d24a27f6d27c0215eff57e40dd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "blueprint",
-        "type": "github"
-      }
-    },
-    "blueprint_5": {
-      "inputs": {
-        "nixpkgs": [
-          "satan-attrd",
-          "llm-agents",
-          "nixpkgs"
-        ],
-        "systems": [
-          "satan-attrd",
-          "llm-agents",
-          "systems"
-        ]
-      },
-      "locked": {
-        "lastModified": 1776249299,
-        "narHash": "sha256-Dt9t1TGRmJFc0xVYhttNBD6QsAgHOHCArqGa0AyjrJY=",
-        "owner": "numtide",
-        "repo": "blueprint",
-        "rev": "56131e8628f173d24a27f6d27c0215eff57e40dd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "blueprint",
-        "type": "github"
-      }
-    },
-    "blueprint_6": {
       "inputs": {
         "nixpkgs": [
           "satan-attrd",
@@ -641,11 +585,11 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1783851472,
-        "narHash": "sha256-1GbBR2s2WNGeH1dKFJKNNIMxdHC4Go+rOCbL5EWG4+Q=",
+        "lastModified": 1784277729,
+        "narHash": "sha256-oDIKNnrCIHLkFkGqaIkfj0WfSiQZBPSFkrfMR5U6Z/k=",
         "owner": "davidlee",
         "repo": "doctrine",
-        "rev": "9e1b7a787c2020afad954fdacfdfc30688a40420",
+        "rev": "9a3f8ec6f9799bde50bd3a956dd3bdb33df00c72",
         "type": "github"
       },
       "original": {
@@ -1404,7 +1348,6 @@
     },
     "llm-agents": {
       "inputs": {
-        "blueprint": "blueprint",
         "bun2nix": "bun2nix",
         "flake-parts": "flake-parts_5",
         "nixpkgs": "nixpkgs_7",
@@ -1412,11 +1355,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1783377272,
-        "narHash": "sha256-VVHMM2lwAodNzy6QGj3CyOJ+E3Esw17YTSRIl4e6UIs=",
+        "lastModified": 1783928733,
+        "narHash": "sha256-GyD/+HkC7/hpG40H5vR/qhAuBVUOxy8uTbW5mdYHKsA=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "818cb058e7a80ec569ed91038badeaba1c4be4ff",
+        "rev": "3860609253abda8ef63068b45064be31b50d1ab1",
         "type": "github"
       },
       "original": {
@@ -1427,7 +1370,6 @@
     },
     "llm-agents_2": {
       "inputs": {
-        "blueprint": "blueprint_2",
         "bun2nix": "bun2nix_2",
         "flake-parts": "flake-parts_6",
         "nixpkgs": "nixpkgs_12",
@@ -1435,11 +1377,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1783752748,
-        "narHash": "sha256-4+COAESx5tOc3gqKV2gjXUtviRohjO4RL3cPBACIVEw=",
+        "lastModified": 1784269728,
+        "narHash": "sha256-y6VXjRhFxOvlZRk6dd5rWhSKV4s6X6k6Fas7Up4o9DI=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "a9de839fad56718bafd75a6267d2b5a6fc45d8fe",
+        "rev": "dd58861b6a18526539120523960ab0ac3b455b8d",
         "type": "github"
       },
       "original": {
@@ -1450,7 +1392,7 @@
     },
     "llm-agents_3": {
       "inputs": {
-        "blueprint": "blueprint_3",
+        "blueprint": "blueprint",
         "bun2nix": "bun2nix_3",
         "flake-parts": "flake-parts_8",
         "nixpkgs": "nixpkgs_17",
@@ -1473,7 +1415,7 @@
     },
     "llm-agents_4": {
       "inputs": {
-        "blueprint": "blueprint_4",
+        "blueprint": "blueprint_2",
         "bun2nix": "bun2nix_4",
         "flake-parts": "flake-parts_10",
         "nixpkgs": "nixpkgs_23",
@@ -1496,7 +1438,7 @@
     },
     "llm-agents_5": {
       "inputs": {
-        "blueprint": "blueprint_5",
+        "blueprint": "blueprint_3",
         "bun2nix": "bun2nix_5",
         "flake-parts": "flake-parts_12",
         "nixpkgs": "nixpkgs_26",
@@ -1519,7 +1461,7 @@
     },
     "llm-agents_6": {
       "inputs": {
-        "blueprint": "blueprint_6",
+        "blueprint": "blueprint_4",
         "bun2nix": "bun2nix_6",
         "flake-parts": "flake-parts_14",
         "nixpkgs": "nixpkgs_30",
@@ -1879,11 +1821,11 @@
     },
     "nixpkgs_12": {
       "locked": {
-        "lastModified": 1783475452,
-        "narHash": "sha256-3S92fSuv32mjJz2Qb2F4405c21J55F4NIphz5K6hxco=",
+        "lastModified": 1784210874,
+        "narHash": "sha256-x8i+HYAulduMlM63oxWJj5tAm+Sc/W756wUzcV5p24w=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "05988b07fb05cbcb50be6bce197b4b5f75b5e61b",
+        "rev": "59682e0069f0ed0a452e2179a7f4c1f247027b9e",
         "type": "github"
       },
       "original": {
@@ -2359,11 +2301,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1783187857,
-        "narHash": "sha256-CoKGv2FwkvFwzsVLB/N89eFjr40puk/p51IMvIp+ddo=",
+        "lastModified": 1783816212,
+        "narHash": "sha256-2aZisVTVGSFEk3MYcOiWQp3zvwyzbqpktB69Rcfp150=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "19a8a1e6d8b7315b6fd84e5a51977ce6f69d5a5b",
+        "rev": "3b32825de172d0bc85664f495edb096b10862524",
         "type": "github"
       },
       "original": {
@@ -2375,11 +2317,11 @@
     },
     "nixpkgs_8": {
       "locked": {
-        "lastModified": 1783224372,
-        "narHash": "sha256-8i/87eeoqiGE4yOTjwSA3Eh/ziJRQEmd/unYU+K27sk=",
+        "lastModified": 1783776592,
+        "narHash": "sha256-UgCQzxeWI75XM8G+hPrPh+MKzEPjG3SpAj7dtqSbksA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d407951447dcd00442e97087bf374aad70c04cea",
+        "rev": "e7a3ca8092b61ff85b6a45bf863ea2b2d6a661b3",
         "type": "github"
       },
       "original": {
@@ -2437,8 +2379,8 @@
         "pub": "pub_2"
       },
       "locked": {
-        "lastModified": 1783940270,
-        "narHash": "sha256-Nr1QWwY1MtV6LV1uL64bmv/3BwfF08GyrGBo4VG53cc=",
+        "lastModified": 1784538626,
+        "narHash": "sha256-DfJ0jb05GYPFNqerYFVK0TJhyGu2zqKta//FxsW6ADo=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
@@ -2456,11 +2398,11 @@
       },
       "locked": {
         "dir": "flakes/pub",
-        "lastModified": 1783783175,
-        "narHash": "sha256-ds8uUrXSfOYz4XHlZ3KNftnsP4R7SIRUbFaVK+um5Fo=",
+        "lastModified": 1784259864,
+        "narHash": "sha256-ZgU+cXxRgqPxIzxgl6PzJWZTV9Qg9ntKK18HczVx8Cs=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "0983775d239eecadace903b179ea0269dd24129e",
+        "rev": "88a0702f640ad1b6eb29107a9cf5bdc64a83f091",
         "type": "github"
       },
       "original": {
@@ -2479,11 +2421,11 @@
       },
       "locked": {
         "dir": "flakes/pub",
-        "lastModified": 1783784308,
-        "narHash": "sha256-lk7Q/8TlJrez8KO3EdLryNxNogII+pYx5k6MRoAuaes=",
+        "lastModified": 1784278510,
+        "narHash": "sha256-ePGRLFJpvlVnhZN7zYwnegfYQkyv4zaRxBpJtlyNYTk=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "9b5effd2cbde813e6d2a32eff043c00e9cb4edc0",
+        "rev": "31fd95e3270f42581295314205c9074aec0ab56c",
         "type": "github"
       },
       "original": {
@@ -2632,11 +2574,11 @@
         "nixpkgs": "nixpkgs_11"
       },
       "locked": {
-        "lastModified": 1783320166,
-        "narHash": "sha256-l7C/OsjcnWDOk2K3ssj+SBduwL67LashjBqis9+t468=",
+        "lastModified": 1783921439,
+        "narHash": "sha256-DsSIQSRMrLOz40LrGZ03sp2RlJ9sz3wKpd8XPTOzXnw=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "20ee15370c9256669d66968b89ee20a4b0a4e673",
+        "rev": "e013376c32a8fcf07ddb6ec71739552bc118b7bd",
         "type": "github"
       },
       "original": {
