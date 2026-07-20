@@ -6,6 +6,11 @@
     nixpkgs-home.url = "github:nixos/nixpkgs/nixos-unstable";
     stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
+    # follows-anchor: not consumed by this flake's outputs directly, exists
+    # so panopticon/satan/satan-attrd's (nested) pub inputs can all follow
+    # this one copy instead of vendoring their own.
+    pub.url = "path:./pub";
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-home";
@@ -50,12 +55,16 @@
     panopticon = {
       url = "path:/home/david/dev/panopticon";
       inputs.nixpkgs.follows = "nixpkgs-home";
+      inputs.pub.follows = "pub";
+      inputs.doctrine.inputs.pub.follows = "pub";
     };
 
     satan = {
       # url = "path:/home/david/dev/satan";
       url = "github:davidlee/satan";
       inputs.nixpkgs.follows = "nixpkgs-home";
+      inputs.pub.follows = "pub";
+      inputs.doctrine.inputs.pub.follows = "pub";
     };
 
     satan-patcher = {
@@ -66,6 +75,8 @@
     satan-attrd = {
       url = "path:/home/david/dev/satan-attrd";
       inputs.nixpkgs.follows = "nixpkgs-home";
+      inputs.pub.follows = "pub";
+      inputs.spec-driver.inputs.pub.follows = "pub";
     };
 
     danksearch = {

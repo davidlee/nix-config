@@ -2,7 +2,7 @@
   ## file find & search
   common = with pkgs; [
     docfd
-    television
+    #    television
     nix-search-tv
     nix-search-cli
     fd
