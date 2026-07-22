@@ -21,14 +21,34 @@
         config.allowUnfree = true;
         overlays = [emacs-overlay.overlays.default];
       };
-    in {
-      lib.mkJailedAgents = args @ {llm-agents, ...}:
+
+      mkJailedAgents = args @ {llm-agents, ...}:
         import ./jailed-agents.nix (
           {
             inherit pkgs jail-nix llm-agents;
           }
           // builtins.removeAttrs args ["llm-agents"]
         );
+
+      # Ready-made nixpkgs overlay injecting the unjailed agent CLIs under
+      # their short names (codex, claude, gemini, ...). Consumers apply it
+      # to their own nixpkgs so `pkgs.codex` is the llm-agents build:
+      #   overlays = [ (pub.lib.${system}.agentsOverlay {inherit (inputs) llm-agents;}) ];
+      # `agents` narrows which names to inject; pass their own llm-agents so
+      # each consumer keeps control of the pin (numtide cache stays warm).
+      agentsOverlay = {
+        llm-agents,
+        agents ? null, # null => every agentsByName entry
+      }: _final: _prev: let
+        byName = (mkJailedAgents {inherit llm-agents;}).agentsByName;
+        names =
+          if agents == null
+          then builtins.attrNames byName
+          else agents;
+      in
+        pkgs.lib.genAttrs names (n: byName.${n});
+    in {
+      lib = {inherit mkJailedAgents agentsOverlay;};
 
       checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
         jailed-agents = import ./jailed-agents-test.nix {

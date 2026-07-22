@@ -11,6 +11,11 @@
     # this one copy instead of vendoring their own.
     pub.url = "path:./pub";
 
+    # Agent CLIs (codex, claude, gemini, ...). Deliberately NOT following
+    # nixpkgs: keep llm-agents' own pin so its numtide binary cache
+    # (cache.numtide.com) applies. Injected via overlays/agents.nix.
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs-home";
@@ -125,6 +130,32 @@
         };
 
         flake = {
+          # Overlaid full nixpkgs surfaced so the `nixpkgs` registry alias
+          # (pinned to self in modules/nixos/nix.nix) resolves `nix shell
+          # nixpkgs#codex` etc. to the llm-agents builds. Everything else
+          # under nixpkgs#… still works — this is a superset.
+          legacyPackages."x86_64-linux" = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+            overlays = [self.overlays.agents];
+          };
+
+          # Every llm-agents CLI, surfaced as this flake's own packages so
+          # the `agents` registry alias resolves `nix shell agents#<any>`
+          # (amp, droid, goose-cli, grok, …) — the full roster, not just the
+          # curated overlay set. Kept OUT of the nixpkgs overlay on purpose:
+          # ~200 names, many colliding with real nixpkgs attrs (dolt, code,
+          # handy, omp, but, ck), so blanket-injecting would shadow them
+          # system-wide. tryEval guards attrs that throw on eval; drop
+          # non-derivations (buildNpmPackage, hooks, default, …).
+          packages."x86_64-linux" = let
+            inherit (nixpkgs) lib;
+            llm = inputs.llm-agents.packages."x86_64-linux";
+            keep = n: v:
+              n != "default" && (builtins.tryEval (lib.isDerivation v)).value or false;
+          in
+            lib.filterAttrs keep llm;
+
           templates = {
             agents = {
               path = ./_templates/agents;
@@ -161,6 +192,7 @@
                     self.overlays.llama-edge
                     self.overlays.whisper-rocm
                     self.overlays.click-threading-fix
+                    self.overlays.agents
                   ];
                 }
               ];
@@ -222,6 +254,7 @@
               overlays = [
                 inputs.emacs-overlay.overlays.default
                 inputs.claude-desktop.overlays.default
+                self.overlays.agents
               ];
             };
           in {

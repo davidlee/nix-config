@@ -57,6 +57,15 @@
           then inputs.pub.lib.${system}.mkJailedAgents {inherit (inputs) llm-agents;}
           else {};
 
+        # Unjailed agent CLIs (llm-agents builds) under short names. Linux
+        # only; on Darwin fall back to nixpkgs. To get them on `pkgs`
+        # directly instead, apply the overlay at the top of perSystem:
+        #   _module.args.pkgs = import inputs.nixpkgs {
+        #     inherit system; config.allowUnfree = true;
+        #     overlays = [ (inputs.pub.lib.${system}.agentsOverlay {inherit (inputs) llm-agents;}) ];
+        #   };
+        agents = lib.optionalAttrs isLinux jailLib.agentsByName;
+
         # -- Customise these for the project --
 
         projectPkgs = with pkgs; [
@@ -64,7 +73,7 @@
           # e.g. go, gopls, rust-bin.stable.latest.default, uv, python3, nodejs_latest
           uv
           python3
-          codex # for mcp server slave
+          (agents.codex or codex) # mcp server slave — llm-agents build on linux
         ];
 
         # Sibling repos to bind-mount (for editable deps / source inspection).
