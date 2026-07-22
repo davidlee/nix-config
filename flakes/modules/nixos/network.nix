@@ -2,17 +2,10 @@
   hostname,
   options,
   lib,
+  pkgs,
   ...
 }: {
-  systemd.network.networks.enp8s0 = {
-    defaultGateway = "192.168.0.1";
-    addresses = [
-      {
-        Address = "192.168.0.9/24";
-      }
-    ];
-    enable = true;
-  };
+  services.tailscale.enable = true;
 
   networking = {
     networkmanager = {
@@ -24,8 +17,11 @@
           type = "ethernet";
           interface-name = "enp8s0";
         };
+        # Static IP owned declaratively by this profile (not a router DHCP
+        # reservation). keyfile format: address1 = "IP/prefix,gateway".
         ipv4 = {
-          method = "auto";
+          method = "manual";
+          address1 = "192.168.0.9/24,192.168.0.1";
           ignore-auto-dns = true;
         };
         ipv6 = {

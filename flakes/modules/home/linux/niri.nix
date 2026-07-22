@@ -11,6 +11,8 @@
     # inputs.noctalia.homeModules.default
   ];
 
+  services.tailscale-systray.enable = true;
+
   systemd.user.services.stasis = {
     Unit = {
       Description = "stasis (idle manager)";
