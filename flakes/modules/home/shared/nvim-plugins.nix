@@ -19,7 +19,9 @@
   };
 
   config.nvimPackages = {
-    deps = with pkgs; [selene];
+    # tree-sitter CLI + gcc: nvim-treesitter (`main`) compiles parsers at
+    # runtime into stdpath('data')/site against nightly's own tree-sitter.
+    deps = with pkgs; [selene tree-sitter gcc];
     eager = with pkgs.vimPlugins; [
       lze
       vim-startuptime
