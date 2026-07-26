@@ -6,10 +6,17 @@
     nixpkgs-home.url = "github:nixos/nixpkgs/nixos-unstable";
     stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
-    # follows-anchor: not consumed by this flake's outputs directly, exists
-    # so panopticon/satan/satan-attrd's (nested) pub inputs can all follow
-    # this one copy instead of vendoring their own.
-    pub.url = "path:./pub";
+    # follows-anchor for panopticon/satan/satan-attrd's (nested) pub inputs,
+    # so they share this one copy instead of vendoring their own. Also
+    # consumed directly by overlays/agents.nix (linux only).
+    #
+    # Absolute, not `path:./pub`: a relative path input can be resolved while
+    # *locking* (parent flake known) but not while *evaluating* — call-flake
+    # hands fetchTree the locked attrs alone, which for a relative path is
+    # unfetchable ("cannot fetch input 'path:./pub' because it uses a
+    # relative path"). It only appears to work while the fetcher cache is
+    # warm. Sleipnir-only path; nothing on darwin forces this input.
+    pub.url = "path:/home/david/flakes/pub";
 
     # Agent CLIs (codex, claude, gemini, ...). Deliberately NOT following
     # nixpkgs: keep llm-agents' own pin so its numtide binary cache

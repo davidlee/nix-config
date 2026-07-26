@@ -36,3 +36,59 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 require("treesitter-context").setup({})
+
+-- syntax-aware text objects, motions, and swaps (nvim-treesitter-textobjects)
+require("nvim-treesitter-textobjects").setup({
+  select = {
+    lookahead = true,
+    selection_modes = {
+      ["@parameter.outer"] = "v",
+      ["@function.outer"] = "V",
+    },
+  },
+})
+
+local ts_select = require("nvim-treesitter-textobjects.select")
+local ts_move = require("nvim-treesitter-textobjects.move")
+local ts_swap = require("nvim-treesitter-textobjects.swap")
+
+-- select: a=around / i=inside, over function / class / parameter / loop
+for lhs, obj in pairs({
+  ["af"] = "@function.outer",
+  ["if"] = "@function.inner",
+  ["ac"] = "@class.outer",
+  ["ic"] = "@class.inner",
+  ["aa"] = "@parameter.outer",
+  ["ia"] = "@parameter.inner",
+  ["al"] = "@loop.outer",
+  ["il"] = "@loop.inner",
+}) do
+  vim.keymap.set({ "x", "o" }, lhs, function()
+    ts_select.select_textobject(obj, "textobjects")
+  end, { desc = "TS select " .. obj })
+end
+
+-- move: ]/[ to next/prev node start; ]F/[F for function end
+for lhs, spec in pairs({
+  ["]f"] = { ts_move.goto_next_start, "@function.outer", "next function" },
+  ["[f"] = { ts_move.goto_previous_start, "@function.outer", "prev function" },
+  ["]F"] = { ts_move.goto_next_end, "@function.outer", "next function end" },
+  ["[F"] = { ts_move.goto_previous_end, "@function.outer", "prev function end" },
+  ["]c"] = { ts_move.goto_next_start, "@class.outer", "next class" },
+  ["[c"] = { ts_move.goto_previous_start, "@class.outer", "prev class" },
+  ["]a"] = { ts_move.goto_next_start, "@parameter.inner", "next parameter" },
+  ["[a"] = { ts_move.goto_previous_start, "@parameter.inner", "prev parameter" },
+}) do
+  local fn, obj, desc = spec[1], spec[2], spec[3]
+  vim.keymap.set({ "n", "x", "o" }, lhs, function()
+    fn(obj, "textobjects")
+  end, { desc = "TS " .. desc })
+end
+
+-- swap: node under cursor with its next/prev sibling parameter
+vim.keymap.set("n", "<leader>a", function()
+  ts_swap.swap_next("@parameter.inner")
+end, { desc = "TS swap next parameter" })
+vim.keymap.set("n", "<leader>A", function()
+  ts_swap.swap_previous("@parameter.inner")
+end, { desc = "TS swap prev parameter" })
