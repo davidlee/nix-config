@@ -19,6 +19,9 @@
     chafa
     viu
 
+    ## screen rec
+    asciinema
+
     ## fonts
     fontconfig
 
