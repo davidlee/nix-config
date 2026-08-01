@@ -3,10 +3,16 @@
 // https://niri-wm.github.io/niri/Configuration:-Input
 input {
     keyboard {
-        xkb { options "compose:menu" }
+        xkb {
+            options "compose:menu"
+        }
         numlock
     }
-    touchpad { tap natural-scroll }
+
+    touchpad {
+        tap
+        natural-scroll
+    }
 
     mouse {
         accel-speed 0.2

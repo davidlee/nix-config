@@ -17,11 +17,21 @@ spawn-at-startup "stasis tray"
 
 // ================================================================
 
-config-notification { disable-failed }
+config-notification {
+    disable-failed
+}
 
 gestures {
-    hot-corners { off }
+    hot-corners {
+        off
+    }
 }
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+prefer-no-csd
 
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
@@ -73,9 +83,10 @@ overview {
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
 // This line starts waybar, a commonly used bar for Wayland compositors.
-environment { XDG_CURRENT_DESKTOP "niri" }
-hotkey-overlay { skip-at-startup }
-prefer-no-csd
+environment {
+    XDG_CURRENT_DESKTOP "niri"
+}
+
 screenshot-path "~/Pictures/Screenshots/shot_%Y-%m-%d_%H-%M-%S.png"
 
 animations {
