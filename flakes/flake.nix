@@ -124,7 +124,6 @@
           "aarch64-darwin"
         ];
 
-<<<<<<< HEAD
         perSystem = {
           config,
           pkgs,
@@ -142,15 +141,6 @@
             ];
           };
         };
-
-        flake = {
-          templates = {
-            agents = {
-              path = ./_templates/agents;
-              description = "Dev shell with jailed LLM agents";
-            };
-            default = self.templates.agents;
-          };
 
         flake = {
           # Overlaid full nixpkgs surfaced so the `nixpkgs` registry alias
