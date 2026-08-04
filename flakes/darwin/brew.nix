@@ -27,7 +27,7 @@ _: {
     ];
     casks = [
       # "anaconda"
-      "obs"
+      # "obs"
       # "iina"
       # "jordanbaird-ice"
       "google-chrome"
@@ -69,7 +69,7 @@ _: {
       "miro"
       # "syncthing"
       # "element"
-      "obsidian"
+      # "obsidian"
       # "sengi"
       # "stashpad"
       "orion"
