@@ -252,7 +252,7 @@
             "${hostname}" = inputs.darwin.lib.darwinSystem {
               inherit pkgs specialArgs;
               modules = [
-                {hostPlatform.system.configurationRevision = self.rev or self.dirtyRev or null;}
+                {system.configurationRevision = self.rev or self.dirtyRev or null;}
                 ./darwin
               ];
             };
