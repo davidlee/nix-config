@@ -1,13 +1,29 @@
 // https://niri-wm.github.io/niri/Configuration:-Window-Rules
 
 // ================================================================
+// WINDOW RULES
+// ================================================================
 
 window-rule {
-    match app-id=r#"^org\.gnome\."#
     draw-border-with-background false
     geometry-corner-radius 12
     clip-to-geometry true
+
 }
+window-rule {
+    match app-id=r#"^com.mitchellh.ghostty$"#;
+    opacity 0.90
+    background-effect {
+        blur true
+        xray true
+        noise 0.1
+    }
+}
+
+window-rule {
+    opacity 0.9
+}
+
 window-rule {
     match app-id=r#"^gnome-control-center$"#
     match app-id=r#"^pavucontrol$"#
@@ -15,6 +31,7 @@ window-rule {
     default-column-width { proportion 0.5; }
     open-floating false
 }
+
 window-rule {
     match app-id=r#"^org\.gnome\.Calculator$"#
     match app-id=r#"^gnome-calculator$"#
@@ -32,41 +49,11 @@ window-rule {
 
 window-rule {
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    match app-id="zoom"
     open-floating true
-}
-
-// // Example: block out two password managers from screen capture.
-// // (This example rule is commented out with a "/-" in front.)
-// /-window-rule {
-//     match app-id=r#"^org\.keepassxc\.KeePassXC$"#
-//     match app-id=r#"^org\.gnome\.World\.Secrets$"#
-//
-//     block-out-from "screen-capture"
-//
-//     // Use this instead if you want them visible on third-party screenshot tools.
-//     // block-out-from "screencast"
-// }
-
-// Example: enable rounded corners for all windows.
-// (This example rule is commented out with a "/-" in front.)
-window-rule {
-    geometry-corner-radius 2
-    clip-to-geometry true
-}
-
-
-// Block out mako notifications from screencasts.
-layer-rule {
-    match namespace="^notifications$"
-    block-out-from "screencast"
+    open-focused true
 }
 
 // https://github.com/Drakulix/cosmic-ext-extra-sessions/tree/main/niri
-
-// window-rule {
-//     match app-id="ghostty"
-// }
 
 window-rule {
     match app-id="slack"
@@ -78,9 +65,11 @@ window-rule {
     open-floating true
 }
 
+// App ID is "Zoom" (capitalised) — a lowercase match never fires.
 window-rule {
-    match app-id="zoom"
+    match app-id=r#"^Zoom$"#
     open-floating true
+    open-focused true
 }
 window-rule {
     match app-id="Spotify"
@@ -88,8 +77,17 @@ window-rule {
 }
 
 // ================================================================
-// Enable blur behind the fuzzel launcher.
+// LAYERS
 
+
+// ================================================================
+// Block out notifications from screencasts.
+layer-rule {
+    match namespace="^notifications$"
+    block-out-from "screencast"
+}
+
+// Enable blur behind the fuzzel launcher.
 layer-rule {
     match namespace="^launcher$"
     background-effect {
@@ -99,7 +97,7 @@ layer-rule {
 
 layer-rule {
     match namespace="^quickshell$"
-    // place-within-backdrop true
+    place-within-backdrop true
 }
 
 layer-rule {
@@ -108,4 +106,3 @@ layer-rule {
     match namespace="wallpaper"
     place-within-backdrop true
 }
-//

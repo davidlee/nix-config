@@ -1,0 +1,53 @@
+//
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
+layout {
+    //   never | always | on-overflow
+    center-focused-column "on-overflow"
+    background-color "transparent"
+    preset-column-widths {
+        proportion 0.2
+        proportion 0.25
+        proportion 0.33333
+        proportion 0.4
+        proportion 0.66667
+        proportion 0.8
+    }
+    default-column-width {
+        proportion 0.25;
+    }
+    focus-ring {
+        on
+        width 2
+        active-color "#5f7700"
+        inactive-color "#505050"
+        active-gradient from="#907033" to="#5f7700" angle=-45 in="oklch longer hue" relative-to="workspace-view"
+    }
+    shadow {
+        on
+        softness 30
+        spread 2
+        offset x=0 y=3
+        color "#000000ff"
+        draw-behind-window false
+    }
+    struts {
+        top 1
+        left 10
+    }
+    tab-indicator {
+        active-color   "#7aa2f7"
+        inactive-color "#003dbf"
+        urgent-color   "#f7768e"
+    }
+    insert-hint {
+        color "#7aa2f780"
+    }
+}
+
+recent-windows {
+    highlight {
+        active-color "#7aa2f7"
+        urgent-color "#f7768e"
+    }
+}
+

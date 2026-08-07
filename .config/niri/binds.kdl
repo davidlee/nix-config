@@ -257,6 +257,8 @@ binds {
     Mod+Alt+8 { move-window-to-workspace 8; }
     Mod+Alt+9 { move-window-to-workspace 9; }
 
+    Mod+Alt+R { spawn-sh "~/.local/bin/rename-niri-workspace"; }
+
     // Switches focus between the current and the previous workspace.
     Alt+Tab { focus-workspace-previous; }
 

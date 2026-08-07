@@ -14,6 +14,12 @@ spawn-at-startup "noctalia"
 spawn-at-startup "stasis"
 spawn-at-startup "stasis tray"
 
+include "layout.kdl"
+include "binds.kdl"
+include "rules.kdl"
+include "io.kdl"
+include "apps.kdl"
+include "animation.kdl"
 
 // ================================================================
 
@@ -22,9 +28,7 @@ config-notification {
 }
 
 gestures {
-    hot-corners {
-        off
-    }
+    hot-corners { off; }
 }
 
 hotkey-overlay {
@@ -33,95 +37,15 @@ hotkey-overlay {
 
 prefer-no-csd
 
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
-layout {
-    // Set gaps around windows in logical pixels.
-    background-color "transparent"
-    // When to center a column when changing focus, options are:
-    // - "never", default behavior, focusing an off-screen column will keep at the left
-    //   or right edge of the screen.
-    // - "always", the focused column will always be centered.
-    // - "on-overflow", focusing a column will center it if it doesn't fit
-    //   together with the previously focused column.
-    center-focused-column "never"
-    // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
-    preset-column-widths {
-        proportion 0.2
-        proportion 0.25
-        proportion 0.33333
-        proportion 0.5
-        proportion 0.66667
-        proportion 0.8
-    }
-    default-column-width {}
-    focus-ring {
-        on
-        width 2
-        active-color "#5f7700"
-        inactive-color "#505050"
-        active-gradient from="#907033" to="#5f7700" angle=-45 in="oklch longer hue" relative-to="workspace-view"
-    }
-    shadow {
-        on
-        softness 30
-        spread 5
-        offset x=0 y=3
-        color "#000"
-    }
-    struts {
-        top 1
-        left 10
-    }
-}
-
 overview {
     backdrop-color "#000011"
 }
 
-// Add lines like this to spawn processes at startup.
-// Note that running niri as a session supports xdg-desktop-autostart,
-// which may be more convenient to use.
-// See the binds section below for more spawn examples.
-// This line starts waybar, a commonly used bar for Wayland compositors.
 environment {
     XDG_CURRENT_DESKTOP "niri"
 }
 
 screenshot-path "~/Pictures/Screenshots/shot_%Y-%m-%d_%H-%M-%S.png"
-
-animations {
-    slowdown 0.7
-    workspace-switch {
-        spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
-    }
-    window-open {
-        duration-ms 150
-        curve "ease-out-expo"
-    }
-    window-close {
-        duration-ms 150
-        curve "ease-out-quad"
-    }
-    horizontal-view-movement {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
-    }
-    window-movement {
-        spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
-    }
-    window-resize {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
-    }
-    config-notification-open-close {
-        spring damping-ratio=0.65 stiffness=923 epsilon=0.001
-    }
-    screenshot-ui-open {
-        duration-ms 200
-        curve "ease-out-quad"
-    }
-    overview-open-close {
-        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
-    }
-}
 
 debug {
     honor-xdg-activation-with-invalid-serial
@@ -133,9 +57,3 @@ debug {
     force-pipewire-invalid-modifier
 }
 
-include "io.kdl"
-include "binds.kdl"
-include "apps.kdl"
-include "rules.kdl"
-
-include "noctalia.kdl"
