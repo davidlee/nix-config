@@ -19,6 +19,8 @@
   ];
   security.pam.services.swaylock = {};
 
+  services.gvfs.enable = true; # Enables Trash, network mounts, and storage detection
+  services.tumbler.enable = true; # Enables image/video thumbnails in file managers
   programs.firefox.preferences = {
     # disable libadwaita theming for Firefox
     # "widget.gtk.libadwaita-colors.enabled" = false;

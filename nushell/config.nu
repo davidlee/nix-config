@@ -86,9 +86,7 @@ export alias arch = distrobox enter archlinux;
 
 export alias fg = job unfreeze
 
-if (uname | get operating-system ) == 'GNU/Linux' {
-  export alias open = xdg-open
-}
+alias o = start
 
 #
 # Functions
