@@ -13,6 +13,10 @@ workspace "media"
 spawn-at-startup "noctalia"
 spawn-at-startup "stasis"
 spawn-at-startup "stasis tray"
+spawn-at-startup "niriusd"
+spawn-at-startup "vicinae" "server"
+
+
 
 include "layout.kdl"
 include "binds.kdl"
@@ -23,30 +27,28 @@ include "animation.kdl"
 
 // ================================================================
 
-config-notification {
-    disable-failed
-}
+// config-notification { disable-failed; }
 
+screenshot-path "~/Pictures/Screenshots/shot_%Y-%m-%d_%H-%M-%S.png"
+hotkey-overlay { skip-at-startup; }
 gestures {
     hot-corners { off; }
 }
-
-hotkey-overlay {
-    skip-at-startup
+cursor {
+    xcursor-theme "breeze_cursors"
+    xcursor-size 48
+    hide-when-typing
+    hide-after-inactive-ms 800
 }
-
-prefer-no-csd
-
-overview {
-    backdrop-color "#000011"
-}
-
 environment {
     XDG_CURRENT_DESKTOP "niri"
 }
-
-screenshot-path "~/Pictures/Screenshots/shot_%Y-%m-%d_%H-%M-%S.png"
-
+blur {
+    passes 3
+    offset 3.0
+    noise 0.02
+    saturation 1.2
+}
 debug {
     honor-xdg-activation-with-invalid-serial
     // Dual-GPU (dGPU Navi 48 drives the display, iGPU is card0/default render

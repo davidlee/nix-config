@@ -1,34 +1,40 @@
 animations {
-    slowdown 0.7
+    slowdown 1.0
     workspace-switch {
-        spring damping-ratio=0.80 stiffness=523 epsilon=0.0001
+        // spring damping-ratio=0.95 stiffness=423 epsilon=0.0001
+        duration-ms 180
+        curve "ease-out-cubic"
     }
     window-open {
-        duration-ms 150
-        curve "ease-out-expo"
+        duration-ms 140;
+        curve "ease-out-quad";
     }
     window-close {
-        duration-ms 150
-        curve "ease-out-quad"
+        duration-ms 100;
+         curve "ease-out-cubic";
     }
     horizontal-view-movement {
-        spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
+        // spring damping-ratio=0.85 stiffness=223 epsilon=0.0001
+        duration-ms 180;
+        curve "ease-out-quad";
     }
     window-movement {
-        spring damping-ratio=0.75 stiffness=323 epsilon=0.0001
+        // spring damping-ratio=0.95 stiffness=123 epsilon=0.0001
+        duration-ms 220;
+        curve "ease-out-expo";
     }
     window-resize {
         spring damping-ratio=0.85 stiffness=423 epsilon=0.0001
     }
     config-notification-open-close {
-        spring damping-ratio=0.65 stiffness=923 epsilon=0.001
+        spring damping-ratio=0.65 stiffness=523 epsilon=0.001
     }
     screenshot-ui-open {
-        duration-ms 200
-        curve "ease-out-quad"
+        // duration-ms 200
+        // curve "ease-out-quad"
     }
     overview-open-close {
-        spring damping-ratio=0.85 stiffness=800 epsilon=0.0001
+        spring damping-ratio=0.85 stiffness=500 epsilon=0.0001
     }
 }
 

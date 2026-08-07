@@ -1,9 +1,11 @@
 //
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
+prefer-no-csd
 layout {
     //   never | always | on-overflow
     center-focused-column "on-overflow"
     background-color "transparent"
+    // background-color "00000020"
     preset-column-widths {
         proportion 0.2
         proportion 0.25
@@ -44,10 +46,33 @@ layout {
     }
 }
 
-recent-windows {
-    highlight {
-        active-color "#7aa2f7"
-        urgent-color "#f7768e"
+overview {
+    backdrop-color "transparent"
+    workspace-shadow {
+        on
+        softness 40
+        spread 7
+        color "000000ff"
+        offset x=1 y=6
     }
 }
-
+recent-windows {
+    // debounce-ms 750
+    // open-delay-ms 150
+    highlight {
+        active-color "#7aa2f7ff"
+        urgent-color "#f7768eff"
+        padding 20
+        corner-radius 12
+    }
+    previews {
+        max-height 990
+        max-scale 0.7
+    }
+    binds {
+        Mod+Tab         { next-window; }
+        Mod+Shift+Tab   { previous-window; }
+        Mod+grave       { next-window     filter="app-id"; }
+        Mod+Shift+grave { previous-window filter="app-id"; }
+    }
+}

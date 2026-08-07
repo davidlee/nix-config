@@ -8,20 +8,33 @@ window-rule {
     draw-border-with-background false
     geometry-corner-radius 12
     clip-to-geometry true
+    background-effect {
+        blur true
+        xray true
+    }
 
 }
 window-rule {
     match app-id=r#"^com.mitchellh.ghostty$"#;
-    opacity 0.90
-    background-effect {
-        blur true
-        xray true
-        noise 0.1
+    opacity 0.85
+}
+// highlight screencast
+window-rule {
+    match is-window-cast-target=true
+    border {
+        inactive-color "#ff0000"
+    }
+    tab-indicator {
+        active-color "#f38ba8"
+        inactive-color "7d0d2d"
     }
 }
-
 window-rule {
-    opacity 0.9
+    match is-urgent=true
+    match is-active=false
+    border {
+        inactive-color "#ff0000"
+    }
 }
 
 window-rule {
@@ -101,8 +114,6 @@ layer-rule {
 }
 
 layer-rule {
-    // This is for swaybg; change for other wallpaper tools.
-    // Find the right namespace by running niri msg layers.
-    match namespace="wallpaper"
+    match namespace=r#"^wallpaper$"#
     place-within-backdrop true
 }
