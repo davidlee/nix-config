@@ -173,6 +173,7 @@ in
           spacious-padding
           suggest
           super-save
+          slim-mode
           telephone-line
           tempel
           transient

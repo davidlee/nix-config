@@ -40,6 +40,13 @@
     firewall = {
       enable = true;
       allowedTCPPorts = [22 80 443];
+      # ~/dev/microvm-spike/ — the capsule's point-to-point tap, scoped to the
+      # two services the guest is meant to reach (egress proxy, git daemon).
+      # NOT trustedInterfaces: that accepts everything on the iface, which put
+      # every 0.0.0.0-bound host service (sshd, caddy on 80/8080, …) inside the
+      # jail's reach. Interface-scoped rather than allowedTCPPorts, which would
+      # also open these on enp8s0 and tailscale0.
+      interfaces."vm-capsule".allowedTCPPorts = [3128 9418];
     };
 
     nftables.enable = true;
