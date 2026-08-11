@@ -41,12 +41,15 @@
       enable = true;
       allowedTCPPorts = [22 80 443];
       # ~/dev/microvm-spike/ — the capsule's point-to-point tap, scoped to the
-      # two services the guest is meant to reach (egress proxy, git daemon).
+      # one service the guest is meant to reach: the egress proxy. 9418 was the
+      # second, a git daemon the guest pushed to; the host initiates git in both
+      # directions over ssh now, so there is no service behind that port and
+      # nothing to allow (microvm-spike NOTES item 18).
       # NOT trustedInterfaces: that accepts everything on the iface, which put
       # every 0.0.0.0-bound host service (sshd, caddy on 80/8080, …) inside the
       # jail's reach. Interface-scoped rather than allowedTCPPorts, which would
-      # also open these on enp8s0 and tailscale0.
-      interfaces."vm-capsule".allowedTCPPorts = [3128 9418];
+      # also open this on enp8s0 and tailscale0.
+      interfaces."vm-capsule".allowedTCPPorts = [3128];
     };
 
     nftables.enable = true;
