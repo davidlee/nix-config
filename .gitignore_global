@@ -20,3 +20,5 @@ _trash
 .git
 
 **/.claude/settings.local.json
+
+**/.claude/.cc-writes/
