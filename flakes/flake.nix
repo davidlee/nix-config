@@ -96,15 +96,16 @@
     # The VM itself is still built from the local checkout by `vm capsule`;
     # this input carries the host half only.
     #
-    # `doctrine.follows` is a fetchability shim, not a version choice.
-    # microvm-spike takes doctrine as `git+file:///home/david/dev/doctrine`,
-    # a path that exists on Sleipnir and nowhere else, so locking or updating
-    # this input from darwin would try to fetch something that isn't there —
-    # same class of problem as `pub` above. Nothing here reads doctrine: it
-    # feeds microvm-spike's nixosConfigurations.capsule (the guest's
-    # dev-tools), which this flake never evaluates. Undo it if the VMM is ever
-    # run from microvm.nix's host module (microvm-spike NOTES item 11) —
-    # that path *does* evaluate the guest through this input.
+    # `target.follows` is a fetchability shim, not a version choice.
+    # `target` is the repo microvm-spike confines — doctrine, as
+    # `git+file:///home/david/dev/doctrine`, a path that exists on Sleipnir and
+    # nowhere else, so locking or updating this input from darwin would try to
+    # fetch something that isn't there — same class of problem as `pub` above.
+    # Nothing here reads it: it feeds microvm-spike's
+    # nixosConfigurations.capsule (the guest's tool set), which this flake never
+    # evaluates. Undo it if the VMM is ever run from microvm.nix's host module
+    # (microvm-spike NOTES item 11) — that path *does* evaluate the guest
+    # through this input.
     #
     # A dependency's nixConfig is ignored, so microvm-spike's
     # microvm.cachix.org substituter does not apply here. Only matters if this
@@ -112,7 +113,7 @@
     microvm-spike = {
       url = "github:davidlee/microvm-spike";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.doctrine.follows = "nixpkgs";
+      inputs.target.follows = "nixpkgs";
     };
 
     danksearch = {

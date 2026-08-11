@@ -1315,20 +1315,20 @@
     },
     "microvm-spike": {
       "inputs": {
-        "doctrine": [
-          "nixpkgs"
-        ],
         "microvm": "microvm",
         "nixpkgs": [
+          "nixpkgs"
+        ],
+        "target": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1786442762,
-        "narHash": "sha256-dHVTF9dAMnii8gOVY65OpmyI26zhfPbsSM9/YnqOsgw=",
+        "lastModified": 1786460796,
+        "narHash": "sha256-KVhjYYFe0iSne0hIB0KWJHTh67wF3YOTtXRkkNeJL+o=",
         "owner": "davidlee",
         "repo": "microvm-spike",
-        "rev": "f8b6eed379d7b99e5a9ed1d9de88f34836a9e19e",
+        "rev": "d1b1d314aa6416abb6d89ae918bb927637f2d2cc",
         "type": "github"
       },
       "original": {
