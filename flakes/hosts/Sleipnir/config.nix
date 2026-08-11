@@ -10,6 +10,7 @@
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/boot.nix
     ../../modules/nixos/browsers.nix
+    ../../modules/nixos/capsule.nix
     ../../modules/nixos/cargo.nix
     # ../../modules/nixos/cad-3d.nix
     # ../../modules/nixos/cosmic.nix

@@ -1291,6 +1291,52 @@
         "type": "github"
       }
     },
+    "microvm": {
+      "inputs": {
+        "nixpkgs": [
+          "microvm-spike",
+          "nixpkgs"
+        ],
+        "spectrum": "spectrum"
+      },
+      "locked": {
+        "lastModified": 1786300091,
+        "narHash": "sha256-4UFJOVGpaYtHW5yasSv80MaJxTBYdk2zyf3jhKtt0wA=",
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "rev": "71beea0076cd46dafcee97a5a2e7d00cbba5bd2f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microvm-nix",
+        "repo": "microvm.nix",
+        "type": "github"
+      }
+    },
+    "microvm-spike": {
+      "inputs": {
+        "doctrine": [
+          "nixpkgs"
+        ],
+        "microvm": "microvm",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786442762,
+        "narHash": "sha256-dHVTF9dAMnii8gOVY65OpmyI26zhfPbsSM9/YnqOsgw=",
+        "owner": "davidlee",
+        "repo": "microvm-spike",
+        "rev": "f8b6eed379d7b99e5a9ed1d9de88f34836a9e19e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "repo": "microvm-spike",
+        "type": "github"
+      }
+    },
     "neovim-nightly-overlay": {
       "inputs": {
         "flake-parts": "flake-parts_4",
@@ -2117,6 +2163,7 @@
         "home-manager": "home-manager",
         "llama-cpp-src": "llama-cpp-src",
         "llm-agents": "llm-agents",
+        "microvm-spike": "microvm-spike",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-search-tv": "nix-search-tv",
         "nixpkgs": "nixpkgs_5",
@@ -2343,6 +2390,22 @@
         "owner": "davidlee",
         "repo": "spec-driver",
         "type": "github"
+      }
+    },
+    "spectrum": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785761586,
+        "narHash": "sha256-MWOMVqJJERwjQGgRIv8d6rlEBqbLM3VZWxHkNKIIZNw=",
+        "ref": "refs/heads/main",
+        "rev": "a7762d6f54b40560dd5255ce902e6e6a5d980fe9",
+        "revCount": 1416,
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://spectrum-os.org/git/spectrum"
       }
     },
     "stable": {
