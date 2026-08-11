@@ -176,6 +176,16 @@ in
       grep -Fq -- 'OPENROUTER_API_KEY' "$forwarded"
       ! grep -Fq -- 'OPENAI_API_KEY' "$forwarded"
 
+      # Keys reach the jail over `--args FD`, never over bwrap's argv:
+      # /proc/<pid>/cmdline is mode 444 and /proc is routinely mounted with
+      # no hidepid, so an argv-borne secret is readable by every process on
+      # the host for the jail's lifetime. Both forms are textually on the
+      # same physical line, so assert structurally: strip every process
+      # substitution, and no key name may survive into the command line.
+      grep -Fq -- '--args 21 21< <(printf' "$forwarded"
+      sed 's/<(printf[^)]*)//g' "$forwarded" > "$TMPDIR/argv-only"
+      ! grep -Fq -- 'API_KEY' "$TMPDIR/argv-only"
+
       no_keys=${noKeys}/bin/jailed-pi
       ! grep -Fq -- 'op run' "$no_keys"
       ! grep -Fq -- 'API_KEY' "$no_keys"

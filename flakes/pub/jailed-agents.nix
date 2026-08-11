@@ -8,16 +8,23 @@
 #   When `useOpEnv = true` (default for online profiles), the resulting
 #   binary wraps the bwrap launch in `op run --env-file=<refs>` so
 #   1Password resolves API key op:// refs on the host (with biometric /
-#   desktop unlock) and injects the plaintext values into the bwrap
-#   process env. The values are then forwarded through bwrap into the
-#   agent via `--setenv VAR "$VAR"`. Secrets never sit on disk; they
-#   live only in the bwrap process env for the agent's lifetime.
+#   desktop unlock) and injects the plaintext values into the launcher's
+#   own process env, where `/proc/<pid>/environ` keeps them 0600 and
+#   owner-only. The values are then forwarded through bwrap into the
+#   agent over `--args FD` (see apiKeyPassThrough).
+#
+#   Secrets never sit on disk, and — since the FD rework — never sit in
+#   argv either. The two are NOT the same guarantee: this code forwarded
+#   keys as `--setenv VAR "$VAR"` on the bwrap command line until
+#   2026-08-11, which put every configured key in plaintext into
+#   world-readable `/proc/<pid>/cmdline` for the jail's whole lifetime.
+#   Off-disk is not off-limits; treat argv as public.
 #
 #   Callers that already cache resolved secrets in their own process
 #   (e.g. an Emacs broker with a per-session cache) should set
 #   `useOpEnv = false; passApiKeysFromEnv = true;` — the outer `op run`
-#   is skipped, but `--setenv` forwarding still copies plaintext from
-#   the caller's env into the jail.
+#   is skipped, but the FD forwarding still copies plaintext from the
+#   caller's env into the jail.
 #
 # Usage:
 #   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
@@ -212,7 +219,7 @@
     # When the caller pre-resolves op:// refs and exports plaintext into
     # the wrapper's env (e.g. Emacs broker with a per-session cache),
     # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
-    # bwrap `--setenv VAR "$VAR"` forwarding still runs.
+    # bwrap `--args FD` forwarding still runs.
     passApiKeysFromEnv ? useOpEnv,
     # Names from apiKeyOpRefs to resolve and/or forward for this jail.
     # The compatibility default remains every configured key.
@@ -243,11 +250,37 @@
     # bwrap raw args forwarding each selected API key from the wrapper's
     # env. `$VAR` is left for runtime shell expansion; the `:-` guard keeps
     # empty/unset vars from breaking set -u callers.
-    apiKeyPassThrough =
-      lib.mapAttrsToList (
-        var: _: jail.combinators.unsafe-add-raw-args ''--setenv ${var} "''${${var}:-}"''
+    #
+    # The keys travel over `--args FD`, NOT as `--setenv VAR "$VAR"` on the
+    # bwrap command line. `/proc/<pid>/cmdline` is mode 444 and /proc is
+    # routinely mounted without hidepid, so an argv-borne secret is readable
+    # by EVERY process on the host for as long as the jail runs — including
+    # uids that execute untrusted code, such as `nixbld*` running an upstream
+    # package's build script during any `nix build`. bwrap's `--args FD`
+    # parses NUL-separated arguments from a descriptor instead, so the
+    # plaintext travels down an anonymous pipe: absent from argv, never
+    # written to disk. jail.nix already relies on the same mechanism for its
+    # runtime-closure bind args, and bwrap accepts more than one `--args`.
+    #
+    # The descriptor is a literal rather than `{FD}<`-allocated because bash
+    # expands a command's words BEFORE performing its redirections: an
+    # `--args "$FD"` sharing a line with `{FD}< <(…)` expands to the empty
+    # string. 21 sits clear of bash's auto-allocation floor of 10, which
+    # jail.nix's own runtime-closure `--args` already holds.
+    #
+    # Guarded on a non-empty selection: `printf '%s\0'` with no arguments
+    # emits a single empty NUL-terminated string, which bwrap would read back
+    # as an empty option and reject.
+    apiKeyArgsFd = "21";
+    apiKeyPassThrough = lib.optional (selectedApiKeys != []) (
+      jail.combinators.unsafe-add-raw-args (
+        "--args ${apiKeyArgsFd} ${apiKeyArgsFd}< <(printf '%s\\0'"
+        + lib.concatMapStrings
+        (var: " --setenv ${var} \"\${${var}:-}\"")
+        (lib.attrNames selectedApiKeyOpRefs)
+        + ")"
       )
-      selectedApiKeyOpRefs;
+    );
 
     # Resolve a subagent name to its package. The current agent is
     # reachable under its own `name` even for custom (non-map) agents.
