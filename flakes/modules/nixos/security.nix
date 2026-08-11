@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  username,
+  ...
+}: {
   security = {
     # required for cursor sandboxing
     unprivilegedUsernsClone = true;
@@ -7,7 +11,15 @@
 
     sudo = {
       enable = true;
+      # ORDER IS LOAD-BEARING: sudoers is last-match-wins, so the broad
+      # wheel/ALL rule has to come first or it clobbers every NOPASSWD rule
+      # after it. (It is also redundant — the NixOS sudo module emits
+      # `%wheel ALL=(ALL:ALL) ALL` itself at mkOrder 600.)
       extraRules = [
+        {
+          groups = ["wheel"];
+          commands = ["ALL"];
+        }
         {
           groups = ["wheel"];
           commands = [
@@ -17,9 +29,24 @@
             }
           ];
         }
+        # Read-only, and it is what lets ~/dev/microvm-spike's capsule-host
+        # verify that the FORWARD drop on the tap (network.nix) is actually
+        # loaded, rather than trusting that the host config still says so.
+        # Without this the check degrades to "unverifiable", which is
+        # fail-closed once forwarding goes live.
+        #
+        # /run/current-system/sw/bin, not a store path: the checking script
+        # lives in another flake with its own nixpkgs pin and has to name the
+        # same string this rule does. sudo matches the command literally,
+        # arguments included, so this grants exactly this one read.
         {
-          groups = ["wheel"];
-          commands = ["ALL"];
+          users = [username];
+          commands = [
+            {
+              command = "/run/current-system/sw/bin/nft list table inet capsule-forward";
+              options = ["NOPASSWD"];
+            }
+          ];
         }
       ];
     };

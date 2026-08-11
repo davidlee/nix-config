@@ -50,6 +50,31 @@
     };
 
     nftables.enable = true;
+
+    # The tap is an endpoint, never a transit path. The guest has no default
+    # route, but a guest that gains root can add one, and then the only thing
+    # between it and the LAN is whether this host forwards —
+    # `net.ipv4.ip_forward` is global and both docker and tailscale turn it on
+    # for their own reasons, so it cannot be left to inspection.
+    #
+    # Its own table, not `networking.firewall.filterForward`: that switches the
+    # whole host's forward policy to drop and would take those same daemons
+    # out. A `drop` verdict is terminal in any chain, so a separate table needs
+    # no cooperation from the firewall's.
+    #
+    # `capsule-host` and `capsule-net` verify this table is present and refuse
+    # to run without it once forwarding is live (see the sudo read rule in
+    # security.nix). Renaming the table or the rules breaks that check.
+    nftables.tables.capsule-forward = {
+      family = "inet";
+      content = ''
+        chain forward {
+          type filter hook forward priority filter - 10; policy accept;
+          iifname "vm-capsule" drop
+          oifname "vm-capsule" drop
+        }
+      '';
+    };
   };
 
   # Prefer IPv4 in getaddrinfo source/dest selection (RFC 6724 default
