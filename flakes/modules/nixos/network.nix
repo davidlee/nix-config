@@ -44,7 +44,7 @@
       # one service the guest is meant to reach: the egress proxy. 9418 was the
       # second, a git daemon the guest pushed to; the host initiates git in both
       # directions over ssh now, so there is no service behind that port and
-      # nothing to allow (microvm-spike NOTES item 18).
+      # nothing to allow (oubliette NOTES item 18).
       # NOT trustedInterfaces: that accepts everything on the iface, which put
       # every 0.0.0.0-bound host service (sshd, caddy on 80/8080, …) inside the
       # jail's reach. Interface-scoped rather than allowedTCPPorts, which would

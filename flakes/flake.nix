@@ -92,26 +92,28 @@
     };
 
     # The capsule's host-side perimeter as systemd units under dedicated uids
-    # (nixosModules.capsule-perimeter, wired in modules/nixos/capsule.nix).
-    # The VM itself is still built from the local checkout by `vm capsule`;
-    # this input carries the host half only.
+    # (nixosModules.capsule-perimeter, wired in modules/nixos/capsule.nix, which
+    # also takes microvm.nix's host module through this input rather than locking
+    # a second copy). The VM itself is still built from the local checkout by
+    # `vm capsule` or created imperatively with `microvm -c`; this input carries
+    # the host half only. Was github:davidlee/microvm-spike.
     #
     # `target.follows` is a fetchability shim, not a version choice.
-    # `target` is the repo microvm-spike confines — doctrine, as
+    # `target` is the repo oubliette confines — doctrine, as
     # `git+file:///home/david/dev/doctrine`, a path that exists on Sleipnir and
     # nowhere else, so locking or updating this input from darwin would try to
     # fetch something that isn't there — same class of problem as `pub` above.
-    # Nothing here reads it: it feeds microvm-spike's
+    # Nothing here reads it: it feeds oubliette's
     # nixosConfigurations.capsule (the guest's tool set), which this flake never
-    # evaluates. Undo it if the VMM is ever run from microvm.nix's host module
-    # (microvm-spike NOTES item 11) — that path *does* evaluate the guest
-    # through this input.
+    # evaluates. Importing microvm.nix's *host* module does not change that;
+    # declaring a `microvm.vms.<name>` would, which is why the VMs stay
+    # imperative (oubliette NOTES item 11).
     #
-    # A dependency's nixConfig is ignored, so microvm-spike's
+    # A dependency's nixConfig is ignored, so oubliette's
     # microvm.cachix.org substituter does not apply here. Only matters if this
     # config ever builds the VM.
-    microvm-spike = {
-      url = "github:davidlee/microvm-spike";
+    oubliette = {
+      url = "github:davidlee/oubliette";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.target.follows = "nixpkgs";
     };
