@@ -4,7 +4,9 @@
 # on NixOS builds so local elisp edits land in the emacs package set without a
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
-emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
+# emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
+system_override := "--override-input oubliette git+file:///home/david/dev/microvm-spike"
+
 flake := "."
 
 default: update-local fmt doctor choose
@@ -23,6 +25,7 @@ nixos-start-docker-daemon:
   systemctl --user start docker
 
 run *args:
+  export SYSTEM_OVERRIDE="{{system_override}}"
   sudo ./run.sh {{args}}
 
 #check-no-root-pub:
@@ -32,11 +35,10 @@ check-flake-root:
   @if [ -d .git ] && [ ! -e .git/HEAD ]; then echo "invalid .git directory at flake root shadows parent git repo: remove ./.git or move it aside"; exit 1; fi
 
 system-switch: check-flake-root #check-no-root-pub
-  sudo ./run.sh switch {{emacs_override}}
+  sudo ./run.sh switch {{system_override}}
 
 home-switch: check-flake-root #check-no-root-pub
   home-manager switch --flake '.#david'
-
 
 home-build: check-flake-root #check-no-root-pub
   home-manager build --flake '.#david'
@@ -53,13 +55,13 @@ everything: update-system update-home system-switch home-switch
 ##
 
 update-system:
-  nix flake update nixpkgs
+  nix flake update nixpkgs {{system_override}}
 
 update-home:
   nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
 
 update-local:
-  nix flake update emacs-config satan-attrd panopticon satan-patcher slk
+  nix flake update satan-attrd panopticon satan-patcher slk {{system_override}}
 
 # bump pub/zerostack.nix to its github default-branch HEAD; commit+push to ship
 update-zerostack:

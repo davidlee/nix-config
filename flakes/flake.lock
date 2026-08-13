@@ -1988,11 +1988,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1785828668,
-        "narHash": "sha256-8fsyqeO+mJqvIzeO4xIpgJe/f7MTbbVTEC6RT6WSXNs=",
+        "lastModified": 1786514691,
+        "narHash": "sha256-9dkt1i5JNbEfPb+EjLcSDNs8zqEHQ/1JlSaKgj0SBAg=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "e72e4f299401a3689d4b3d5fc6496b11db7064eb",
+        "rev": "867dcbc30bafe3c862ef88620f2e7a109d7d3be5",
         "type": "github"
       },
       "original": {
@@ -2097,12 +2097,13 @@
         ]
       },
       "locked": {
-        "lastModified": 1786520786,
-        "narHash": "sha256-LA8MZG17ksMvSvEe4AbDaRde6kOIMj+ayuVomo0ilLo=",
-        "owner": "davidlee",
-        "repo": "oubliette",
-        "rev": "d4d98c745e2569f32d4490fa6fcd703217436cf5",
-        "type": "github"
+        "lastModified": 1786604503,
+        "narHash": "sha256-BfPyKHsJ+XPQArkrgf3cKRKUOYm+SCjZkZKcOeKEQpQ=",
+        "ref": "refs/heads/main",
+        "rev": "0e33f00b7c1efa01c3019f128b1fb590e3c0b66b",
+        "revCount": 69,
+        "type": "git",
+        "url": "file:///home/david/dev/microvm-spike"
       },
       "original": {
         "owner": "davidlee",
@@ -2124,8 +2125,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1784846740,
-        "narHash": "sha256-C5XHUQet9R5xtDASBZ1Up56u/iyHX4AV/VXQpBZwVtw=",
+        "lastModified": 1786574233,
+        "narHash": "sha256-aB9GBTM8kmTMjXdZj+Yej7JjIpWhGqhCN7XIgUqKt54=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
