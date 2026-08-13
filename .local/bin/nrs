@@ -1,7 +1,6 @@
-#!/usr/bin/env zsh
-sudo zsh -c 'nixos-rebuild \
-  --log-format internal-json \
-  -v \
-  switch \
-  --flake /home/david/flakes/\#Sleipnir |&
-  nom --json'
+#!/usr/bin/env bash
+
+# sudo bash -c /home/david/flakes/run.sh $@
+cd ~/flakes
+just update-local
+just system-switch
