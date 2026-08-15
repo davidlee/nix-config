@@ -1,10 +1,10 @@
 // ================================================================
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
 
-workspace "browser"
-workspace "emacs"
-workspace "dev"
 workspace "project"
+workspace "emacs"
+workspace "browser"
+workspace "dev"
 workspace "work"
 workspace "util"
 workspace "comms"
@@ -15,8 +15,6 @@ spawn-at-startup "stasis"
 spawn-at-startup "stasis tray"
 spawn-at-startup "niriusd"
 spawn-at-startup "vicinae" "server"
-
-
 
 include "layout.kdl"
 include "binds.kdl"
@@ -59,3 +57,5 @@ debug {
     force-pipewire-invalid-modifier
 }
 
+
+include "noctalia.kdl"
