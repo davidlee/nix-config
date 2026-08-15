@@ -11,20 +11,17 @@
 
     sudo = {
       enable = true;
-      # ORDER IS LOAD-BEARING: sudoers is last-match-wins, so the broad
-      # wheel/ALL rule has to come first or it clobbers every NOPASSWD rule
-      # after it. (It is also redundant — the NixOS sudo module emits
-      # `%wheel ALL=(ALL:ALL) ALL` itself at mkOrder 600.)
+      # ORDER IS SIGNIFICANT: sudoers is last-match-wins
       extraRules = [
-        {
-          groups = ["wheel"];
-          commands = ["ALL"];
-        }
         {
           groups = ["wheel"];
           commands = [
             {
               command = "${pkgs.util-linux}/bin/rtcwake";
+              options = ["NOPASSWD" "SETENV"];
+            }
+            {
+              command = "/run/current-system/sw/bin/rtcwake";
               options = ["NOPASSWD" "SETENV"];
             }
           ];
