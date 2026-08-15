@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  stable,
+  ...
+}: {
   programs.zoom-us.enable = true;
   # these are about providing a useful common foundation
   environment.systemPackages = with pkgs; [
@@ -9,7 +13,7 @@
     wlroots
     xwayland
     dconf
-    waypipe
+    stable.waypipe
 
     # util
     gammastep
@@ -31,7 +35,8 @@
     wlopm
     wlr-layout-ui
 
-    wf-recorder
+    # broken
+    stable.wf-recorder
     wf-config
 
     ## color pickers

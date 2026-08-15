@@ -5,7 +5,7 @@
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
 # emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
-system_override := "--override-input oubliette git+file:///home/david/dev/microvm-spike"
+system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/"
 
 flake := "."
 
@@ -27,9 +27,6 @@ nixos-start-docker-daemon:
 run *args:
   export SYSTEM_OVERRIDE="{{system_override}}"
   sudo ./run.sh {{args}}
-
-#check-no-root-pub:
-#  @state=$(nix eval --impure --raw --expr 'let f = builtins.getFlake "."; in if builtins.hasAttr "pub" f.inputs then "has-pub" else "no-pub"'); if [ "$state" != no-pub ]; then echo "root flake must not depend on inputs.pub"; exit 1; fi
 
 check-flake-root:
   @if [ -d .git ] && [ ! -e .git/HEAD ]; then echo "invalid .git directory at flake root shadows parent git repo: remove ./.git or move it aside"; exit 1; fi

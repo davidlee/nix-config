@@ -27,17 +27,19 @@
   services = {
     udev.packages = [pkgs.game-devices-udev-rules];
 
-    ananicy = {
-      enable = true;
-      package = pkgs.ananicy-cpp;
-      rulesProvider = pkgs.ananicy-cpp;
-      extraRules = [
-        {
-          "name" = "gamescope";
-          "nice" = -20;
-        }
-      ];
-    };
+    # BRONKEN - try me later eh? remind me to build a cool auto-gc'd overlay thing
+    #
+    # ananicy = {
+    #   enable = true;
+    #   package = pkgs.ananicy-cpp;
+    #   rulesProvider = pkgs.ananicy-cpp;
+    #   extraRules = [
+    #     {
+    #       "name" = "gamescope";
+    #       "nice" = -20;
+    #     }
+    #   ];
+    # };
   };
 
   environment = {
