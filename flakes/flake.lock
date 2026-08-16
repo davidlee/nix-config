@@ -1225,11 +1225,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1786617177,
-        "narHash": "sha256-D5SkdgA3aR5MHgsFtznbKqB+LzesTgcehK/d5XjYSXI=",
+        "lastModified": 1786773797,
+        "narHash": "sha256-PCWimmaAPzsjCMcruup2A047brH+on+ZFjg358qvn9o=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "9525ff2fd218b7f174f236632364c67e84c36580",
+        "rev": "b4a645976fff76ef94dd60b7d4f9deaa216f40bd",
         "type": "github"
       },
       "original": {
@@ -2101,11 +2101,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1786410043,
-        "narHash": "sha256-JTbODJPDcd3d8U7lO4MVUU3Yo0jz2KQSAHXka+IWBEo=",
+        "lastModified": 1786593342,
+        "narHash": "sha256-smTKQXMLLStzc8zJevMCckbk3My7SvbbLmPYZUJJKW4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "8e2eeb9477c9d40009a5bd51cd3eef2f5abb26f1",
+        "rev": "6b5e5b7a6631f065bf6908986990b37d845f847f",
         "type": "github"
       },
       "original": {
@@ -2195,12 +2195,12 @@
         ]
       },
       "locked": {
-        "dirtyRev": "7203aa81249fad4876d29f9cb7b3de2f3bcdd2f8-dirty",
-        "dirtyShortRev": "7203aa8-dirty",
-        "lastModified": 1786787664,
-        "narHash": "sha256-ttxNZDLEGAfrJscUdoAFxurnnh3n1JAiIAhBoxjIHww=",
-        "type": "git",
-        "url": "file:///home/david/dev/oubliette/"
+        "lastModified": 1786854762,
+        "narHash": "sha256-sadLl0WiE6iOPhITaE0zhyXtPy603zKLI1twANL3uus=",
+        "owner": "davidlee",
+        "repo": "oubliette",
+        "rev": "54a8c0a67dec1efc4c5bab513942914b7397ded5",
+        "type": "github"
       },
       "original": {
         "owner": "davidlee",
