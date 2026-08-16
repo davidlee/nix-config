@@ -2195,11 +2195,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786854762,
-        "narHash": "sha256-sadLl0WiE6iOPhITaE0zhyXtPy603zKLI1twANL3uus=",
+        "lastModified": 1786883576,
+        "narHash": "sha256-/F7/dCxfrTB5nIoY6FFksFxa5DKH8PJBfjnZ70LJ3zA=",
         "owner": "davidlee",
         "repo": "oubliette",
-        "rev": "54a8c0a67dec1efc4c5bab513942914b7397ded5",
+        "rev": "d256185c1dc89e975854fd267ff6c7493416b498",
         "type": "github"
       },
       "original": {
