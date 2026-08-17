@@ -2195,12 +2195,13 @@
         ]
       },
       "locked": {
-        "lastModified": 1786883576,
-        "narHash": "sha256-/F7/dCxfrTB5nIoY6FFksFxa5DKH8PJBfjnZ70LJ3zA=",
-        "owner": "davidlee",
-        "repo": "oubliette",
-        "rev": "d256185c1dc89e975854fd267ff6c7493416b498",
-        "type": "github"
+        "lastModified": 1786978191,
+        "narHash": "sha256-ow5vojML7i9XR4gLJGtPD2MkGi7sMnqNORAG+HKwL0w=",
+        "ref": "refs/heads/main",
+        "rev": "767cefe94bc953ad1317ac5f5e9b38c8459795c7",
+        "revCount": 174,
+        "type": "git",
+        "url": "file:///home/david/dev/oubliette/"
       },
       "original": {
         "owner": "davidlee",

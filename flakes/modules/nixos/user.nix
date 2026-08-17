@@ -20,5 +20,9 @@
         pkgs.home-manager
       ];
     };
+    # extra unprivileged user for oubliette
+    assigner = {
+      isNormalUser = true;
+    };
   };
 }
