@@ -67,7 +67,8 @@ binds {
 
     Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }
     Ctrl+Alt+Shift+O hotkey-overlay-title="-> Obsidian"    { spawn-sh "~/.local/bin/raise-cycle-spawn obsidian ~/.local/bin/obsidian"; }
-    Ctrl+Alt+Shift+T hotkey-overlay-title="-> Thunderbird" { spawn-sh "~/.local/bin/raise-cycle-spawn thunderbird thunderbird"; }
+    // Ctrl+Alt+Shift+T hotkey-overlay-title="-> Thunderbird"    { spawn-sh "~/.local/bin/raise-cycle-spawn thunderbird thunderbird"; }
+    Ctrl+Alt+Shift+T hotkey-overlay-title="-> Fastmail"    { spawn-sh "~/.local/bin/raise-cycle-spawn com-fastmail-fastmail fastmail"; }
     Ctrl+Alt+Shift+B hotkey-overlay-title="-> Firefox"     { spawn-sh "~/.local/bin/raise-cycle-spawn firefox firefox"; }
 
 }

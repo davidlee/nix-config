@@ -17,14 +17,14 @@
 ##                                                                                   ##
 ## Usage                                                                             ##
 ## -----                                                                             ##
-## 2. Create a bind in your niri config with spawn-sh to run the script with the     ## 
+## 2. Create a bind in your niri config with spawn-sh to run the script with the     ##
 ##    two arguments. (1) niri app_id, (2) app executable name this way it will       ##
 ##    work for both scenarios.                                                       ##
 ##                                                                                   ##
 ##    Exmaple 1, where app_id and executable name are NOT the same:                  ##
 ##      Mod+E { spawn-sh "raise-cycle-or-spawn org.gnome.Nautilus nautilus"; }       ##
 ##                                                                                   ##
-##    Exmaple 2, where app_id and executable name are the same:                      ## 
+##    Exmaple 2, where app_id and executable name are the same:                      ##
 ##      Mod+B { spawn-sh "raise-cycle-or-spawn brave-browser brave-browser"; }       ##
 ##                                                                                   ##
 ## Behavior                                                                          ##
