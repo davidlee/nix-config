@@ -25,6 +25,6 @@
       gcr-ssh-agent.enable = true;
     };
 
-    dbus.packages = [pkgs.gcr];
+    dbus.packages = [pkgs.gcr_4];
   }; # services
 }

@@ -1,13 +1,13 @@
 // https://sr.ht/~tsdh/nirius/
 
-spawn-at-startup "emacs"
-spawn-at-startup "firefox"
-spawn-at-startup "ghostty"
-spawn-at-startup "spotify"
-spawn-at-startup "fastmail"
+// spawn-at-startup "emacs"
+// spawn-at-startup "firefox"
+// spawn-at-startup "ghostty"
+// spawn-at-startup "spotify"
+// spawn-at-startup "fastmail"
 
+// spawn-at-startup "slack" "--silent" "-u"
 spawn-at-startup "1password" "--silent"
-spawn-at-startup "slack" "--silent" "-u"
 spawn-at-startup "signal-desktop"
 
 // ================================================================
@@ -24,12 +24,12 @@ window-rule {
 
 window-rule {
     match at-startup=true app-id=r#"^com.mitchellh.ghostty$"#
-    open-on-workspace "util"
+    open-on-workspace "dev"
 }
 
 window-rule {
     match at-startup=true app-id=r#"^com-fastmail-fastmail$"#
-    open-on-workspace "util"
+    open-on-workspace "dev"
 }
 
 window-rule {
@@ -42,10 +42,10 @@ window-rule {
     open-on-workspace "comms"
 }
 
-window-rule {
-    match at-startup=true app-id=r#"^1password$"#
-    open-on-workspace "util"
-}
+// window-rule {
+//     match at-startup=true app-id=r#"^1password$"#
+//     open-on-workspace "browser"
+// }
 
 // ================================================================
 

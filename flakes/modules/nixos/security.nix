@@ -5,7 +5,7 @@
 }: {
   security = {
     # required for cursor sandboxing
-    unprivilegedUsernsClone = true;
+    # unprivilegedUsernsClone = true;
     rtkit.enable = true;
     polkit.enable = true;
 

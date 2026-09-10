@@ -157,7 +157,7 @@ in
           package-lint
           package-lint-flymake
           persp-mode
-          pi-coding-agent
+          # pi-coding-agent
           popper
           posframe
           prescient

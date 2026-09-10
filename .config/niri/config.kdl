@@ -1,14 +1,10 @@
 // ================================================================
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
 
-workspace "project"
 workspace "emacs"
 workspace "browser"
 workspace "dev"
-workspace "work"
-workspace "util"
 workspace "comms"
-workspace "media"
 
 spawn-at-startup "noctalia"
 spawn-at-startup "stasis"

@@ -11,6 +11,14 @@
 - OBSESS over coupling and cohesion.
 - Find and suggest opportunities to improve the design as you work.
 
+## Communication
+
+- Use clear, simple, idiomatic language. Aim for clarity in *communicating essential information* above all else - not for emotional impact, sounding useful, or anything else.
+- Be as concise as possible without degrading clarity.
+- Write like a considerate technical writer.
+- If using acronyms or referencing identifiers or terms of art (e.g. from a document), YOU MUST introduce each of them briefly with an intelligible description. Do not assume I have read the same documents you have and memorised every reference.
+- Use diagrams liberally - plain text in the console, or graphical (e.g. mermaid) in design documents.
+
 ## Tests
 
 - red/green TDD
@@ -50,11 +58,6 @@
 
 # GPT
 
-ask user before tapping the MCP; separate billing.
+separate billing. Use (judiciously) for design reviews, etc.
 
-gpt-5.5 (current)  Frontier. Best architect / reviewer.
-gpt-5.4            Exists. 
-gpt-5.4-mini       Small, fast, cheap
-gpt-5.3-codex      Coding. Best for reviews needing a lot of tool use.
-gpt-5.2            Exists.
-
+gpt-5.6-sol (current) - Frontier. Best architect / reviewer.
