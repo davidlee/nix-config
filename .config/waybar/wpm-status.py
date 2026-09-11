@@ -4,7 +4,8 @@
 Daemon (--daemon):
   Watches every keyboard via evdev, writes a JSON snapshot to
   $XDG_RUNTIME_DIR/wpm.json once per second, and appends one
-  per-minute aggregate row to ~/notes/satan/log/wpm/YYYY-MM-DD.tsv.
+  per-minute aggregate row to $XDG_STATE_HOME/satan/log/wpm/YYYY-MM-DD.tsv
+  (default ~/.local/state).
 
   TSV columns: <iso8601_local> <keys> <peak_5s_wpm> <active_seconds>
 
@@ -40,7 +41,7 @@ MINUTE_S = 60
 RUNTIME = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}")
 SNAP = RUNTIME / "wpm.json"
 SNAP_TMP = RUNTIME / "wpm.json.tmp"
-LOG_DIR = Path.home() / "notes/satan/log/wpm"
+LOG_DIR = Path(os.environ.get("XDG_STATE_HOME") or Path.home() / ".local/state") / "satan/log/wpm"
 
 
 def log(msg: str) -> None:
