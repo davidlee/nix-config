@@ -9,7 +9,7 @@
   wpmArchiveYesterday = pkgs.writeShellScript "wpm-archive-yesterday" ''
     set -euo pipefail
     yesterday=$(${pkgs.coreutils}/bin/date -d yesterday +%F)
-    file=/home/${username}/notes/satan/log/wpm/"$yesterday".tsv
+    file="''${XDG_STATE_HOME:-/home/${username}/.local/state}"/satan/log/wpm/"$yesterday".tsv
     if [ ! -f "$file" ]; then
       echo "no log for $yesterday at $file; nothing to archive"
       exit 0
