@@ -110,8 +110,8 @@ def clock [] {
 
 def motd [] {
   # satan motd
-  if ("~/notes/satan/motd.txt" | path exists) {
-    print $"\e[31m(cat ~/notes/satan/motd.txt)\e[0m\n"
+  if ("~/satan/motd.txt" | path exists) {
+    print $"\e[31m(cat ~/satan/motd.txt)\e[0m\n"
   }
 }
 
