@@ -2399,11 +2399,11 @@
         "zig-overlay": "zig-overlay"
       },
       "locked": {
-        "lastModified": 1784699534,
-        "narHash": "sha256-1l379H2EF5yUIIlAccdLOh5qcKUTPuiX9Pgg3hHqe6g=",
+        "lastModified": 1789346364,
+        "narHash": "sha256-PgkjYbwb+MEqtva830PSIEq2cQCaBwpfu+aU+zMJk8s=",
         "owner": "davidlee",
         "repo": "satan",
-        "rev": "4ecc7410091df1a00ac1e07f9670076330468c08",
+        "rev": "8a49d1666cf373728e0886d5a77e10975b7c154a",
         "type": "github"
       },
       "original": {
