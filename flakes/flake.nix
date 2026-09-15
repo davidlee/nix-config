@@ -118,10 +118,10 @@
       inputs.target.follows = "nixpkgs";
     };
 
-    danksearch = {
-      url = "github:AvengeMedia/danksearch";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # danksearch = {
+    #   url = "github:AvengeMedia/danksearch";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     noctalia = {
       url = "github:noctalia-dev/noctalia";
@@ -129,6 +129,12 @@
     };
 
     claude-desktop.url = "github:aaddrick/claude-desktop-debian";
+
+    mangowm = {
+      url = "github:mangowm/mango";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # lem = {
     #    url = "github:lem-project/lem";
     #    inputs.nixpkgs.follows = "nixpkgs-home";

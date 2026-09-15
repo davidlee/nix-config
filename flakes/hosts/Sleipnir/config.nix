@@ -13,7 +13,7 @@
     ../../modules/nixos/capsule.nix
     ../../modules/nixos/cargo.nix
     # ../../modules/nixos/cad-3d.nix
-    # ../../modules/nixos/cosmic.nix
+    ../../modules/nixos/cosmic.nix
     # ../../modules/nixos/docker.nix
     ../../modules/nixos/env.nix
     ../../modules/nixos/flatpak.nix
@@ -29,6 +29,7 @@
     ../../modules/nixos/locate.nix
     ../../modules/nixos/llama-cpp.nix
     ../../modules/nixos/maintenance.nix
+    ../../modules/nixos/mango.nix
     ../../modules/nixos/network.nix
     ../../modules/nixos/nix.nix
     ../../modules/nixos/niri.nix

@@ -18,7 +18,7 @@
         "-w 1920" # game dimensions
         "-h 1440"
         "-f" # fullscreen
-        # "-e" # steam integration
+        "-e" # steam integration
         "--force-grab-cursor"
       ];
     };
