@@ -103,7 +103,7 @@ binds {
 
     // bindsym $mod+a exec ~/.config/sway/scripts/toggle-audio-sink
     Mod+Backslash allow-when-locked=true {
-        spawn-sh "~/.config/sway/scripts/toggle-audio-sink"
+        spawn-sh "~/.local/bin/toggle-audio-sink"
     }
 
     // === Window Management ===
