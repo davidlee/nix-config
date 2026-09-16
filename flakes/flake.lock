@@ -2259,11 +2259,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786981719,
-        "narHash": "sha256-qGa2WoDF9lNClYCYRFJXvtQCo6dZDzSHKiYVGCbvaPo=",
+        "lastModified": 1789480325,
+        "narHash": "sha256-Du+jzxLtc26byiNI4Tmi+6EJiT12Q5/CPGdViyvFMTo=",
         "ref": "refs/heads/main",
-        "rev": "9687b83ed4a8f9240adc98f4706c12cf43fa737d",
-        "revCount": 177,
+        "rev": "0d4449b41679fd16a1ade9e23059761cdb31c7a1",
+        "revCount": 212,
         "type": "git",
         "url": "file:///home/david/dev/oubliette/"
       },
