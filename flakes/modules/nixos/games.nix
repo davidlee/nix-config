@@ -1,86 +1,79 @@
-{
-  pkgs,
-  lib,
-  features,
-  ...
-}: {
-  config = lib.mkIf features.games {
-    hardware = {
-      steam-hardware.enable = true;
-      # xpadneo.enable = true; # broken
-    };
+{pkgs, ...}: {
+  hardware = {
+    steam-hardware.enable = true;
+    # xpadneo.enable = true; # broken
+  };
 
-    programs = {
-      steam = {
-        enable = true;
-        remotePlay.openFirewall = true;
-        dedicatedServer.openFirewall = true;
-        localNetworkGameTransfers.openFirewall = true;
-        protontricks.enable = true;
+  programs = {
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+      localNetworkGameTransfers.openFirewall = true;
+      protontricks.enable = true;
 
-        package = pkgs.steam.override {
-          extraPkgs = pkgs':
-            with pkgs'; [
-              libxcursor
-              libxi
-              libxinerama
-              libxscrnsaver
-              libpng
-              libpulseaudio
-              libvorbis
-              stdenv.cc.cc.lib # Provides libstdc++.so.6
-              libkrb5
-              keyutils
-              # Add other libraries as needed
-            ];
-        };
+      package = pkgs.steam.override {
+        extraPkgs = pkgs':
+          with pkgs'; [
+            libxcursor
+            libxi
+            libxinerama
+            libxscrnsaver
+            libpng
+            libpulseaudio
+            libvorbis
+            stdenv.cc.cc.lib # Provides libstdc++.so.6
+            libkrb5
+            keyutils
+            # Add other libraries as needed
+          ];
       };
-
-      # Merged into the base set in programs.nix. Verified games requirements —
-      # unpatched game binaries dlopen these.
-      nix-ld.libraries = with pkgs; [
-        libxt
-        libxmu
-        libogg
-        libvorbis
-        SDL
-        SDL2_image
-        glew_1_10
-        libidn
-        tbb
-      ];
     };
 
-    services = {
-      udev.packages = [pkgs.game-devices-udev-rules];
-    };
+    # Merged into the base set in programs.nix. Verified games requirements —
+    # unpatched game binaries dlopen these.
+    nix-ld.libraries = with pkgs; [
+      libxt
+      libxmu
+      libogg
+      libvorbis
+      SDL
+      SDL2_image
+      glew_1_10
+      libidn
+      tbb
+    ];
+  };
 
-    environment = {
-      systemPackages = with pkgs; [
-        # steam
-        steamcmd
-        steam-tui
-        steam-run
+  services = {
+    udev.packages = [pkgs.game-devices-udev-rules];
+  };
 
-        # wine
-        wine
-        winePackages.staging
-        winetricks
-        protontricks
-        protonup-qt
-        # proton-ge-bin
+  environment = {
+    systemPackages = with pkgs; [
+      # steam
+      steamcmd
+      steam-tui
+      steam-run
 
-        # minecraft
-        # prismlauncher
+      # wine
+      wine
+      winePackages.staging
+      winetricks
+      protontricks
+      protonup-qt
+      # proton-ge-bin
 
-        # other runners
-        # lutris
-        # heroic
-        # bottles
+      # minecraft
+      # prismlauncher
 
-        # actual game things
-        # blightmud
-      ];
-    };
+      # other runners
+      # lutris
+      # heroic
+      # bottles
+
+      # actual game things
+      # blightmud
+    ];
   };
 }

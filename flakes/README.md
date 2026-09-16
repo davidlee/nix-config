@@ -31,29 +31,78 @@ So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for w
 
 ### Feature flags
 
-`hosts/Sleipnir/features.nix` — a plain attrset of coarse on/off switches, threaded
-into **both** module systems by `flake.nix` (`specialArgs` for NixOS,
-`extraSpecialArgs` for home-manager).
+Coarse on/off switches, resolved per host and threaded into **all three**
+configs: `specialArgs` for NixOS and darwin, `extraSpecialArgs` for standalone
+home-manager. (Darwin runs home-manager as a darwin module and reuses
+`specialArgs` as its `extraSpecialArgs`, so one entry covers both its halves.)
 
-It is deliberately not a NixOS option. The two configs evaluate independently —
+| file | role |
+|------|------|
+| `modules/features.nix` | option declarations and defaults |
+| `features.nix` | resolver — `lib.evalModules`, once, per host |
+| `hosts/<hostname>/features.nix` | that host's overrides (optional) |
+
+Deliberately **not** a NixOS option. The three configs evaluate independently —
 separate nixpkgs (`nixpkgs` vs `nixpkgs-home`), separate `switch` — so an option
-declared on one side is invisible to the other. A specialArg crosses that boundary
-and keeps one edit point per feature.
+declared in one is invisible to the others. Evaluating the option set once,
+outside all of them, and injecting the result keeps one source of truth.
 
-Consumers take `features` as a module argument and gate on it:
+Being a specialArg is also what lets `features` gate `imports`: imports are
+resolved before `config` exists, so a real option could not do this.
 
 ```nix
-{lib, features, ...}: {
-  config = lib.mkIf features.games { ... };
+# hosts/Sleipnir/config.nix
+imports =
+  [ ...unconditional... ]
+  ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix
+  ++ lib.optional features.games.enable ../../modules/nixos/games.nix;
+```
+
+Import-gating is the mechanism, not in-module `mkIf`: it reads as the direct
+replacement for commenting out an import, the import list shows what is on, and
+it works even for modules that cannot evaluate.
+
+**Defaults and nesting.** A flag may default to another flag —
+`games.gamescope` and `games.mangohud` follow `games.enable` unless a host pins
+them. Overrides go in `hosts/<hostname>/features.nix`, which is an ordinary
+module, so `mkForce` and friends work:
+
+```nix
+{
+  games.enable = true;
+  games.gamescope = false;   # steam, but no gamescope session
 }
 ```
 
-Note the module-system rule: once a module has a top-level `config` (or `options`),
-*every* config attribute must live under it.
+A missing host file means the host takes every default unchanged.
 
-| flag | gates |
-|------|-------|
-| `games` | `modules/nixos/games.nix` (steam, wine, its `nix-ld` libraries), `modules/nixos/gamescope.nix` (gamescope, gamemode), `modules/home/linux/games.nix` (mangohud) |
+| flag | default | gates |
+|------|---------|-------|
+| `desktop.{sway,niri}` | `true` | `modules/nixos/<wm>.nix` + `modules/home/linux/<wm>.nix` |
+| `desktop.{cosmic,kde,mango}` | `true` | `modules/nixos/<wm>.nix` |
+| `games.enable` | `false` | `modules/nixos/games.nix` (steam, wine, its `nix-ld` libraries) |
+| `games.gamescope` | ← `games.enable` | `modules/nixos/gamescope.nix` |
+| `games.mangohud` | ← `games.enable` | `modules/home/linux/games.nix` |
+| `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
+| `hardware.{openrgb,microcode,ssd}` | `false` | `modules/nixos/<name>.nix` |
+| `virt.qemu` | `true` | `modules/nixos/qemu.nix` |
+| `virt.docker` | `false` | `modules/nixos/docker.nix` (rootless; podman is unconditional) |
+| `apps.{appimage,flatpak}` | `true` | `modules/nixos/<name>.nix` |
+| `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
+| `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
+| `snooze` | `true` | `modules/nixos/snooze.nix` + `modules/home/linux/snooze.nix` |
+| `mpd` | `false` | `modules/nixos/mpd.nix` |
+| `sunshine` | `false` | `modules/nixos/sunshine.nix` |
+
+**Parked is not a feature.** `modules/nixos/{hyprland,kmscon}.nix` and
+`modules/home/linux/danksearch.nix` stay commented out in their import lists.
+They do not evaluate — `hyprlandPlugins.hyprexpo` is gone, `services.kmscon.fonts`
+was removed upstream, danksearch's flake input is commented out — so a flag
+would promise a switch that breaks the build when flipped. Repair first, then
+promote to a flag.
+
+`homeConfigurations` is keyed by user (`.#david`) with the host pinned inside it.
+A second linux host means keying it `david@<hostname>` and updating `home-switch`.
 
 ### Sleipnir Doctor
 

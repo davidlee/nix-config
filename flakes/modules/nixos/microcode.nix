@@ -1,4 +1,3 @@
-# parked
 {inputs, ...}: {
   imports = [inputs.ucodenix.nixosModules.default];
 

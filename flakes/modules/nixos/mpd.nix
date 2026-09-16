@@ -1,4 +1,3 @@
-# parked
 {username, ...}: {
   systemd.services.mpd.environment = {
     # https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/609
@@ -9,12 +8,15 @@
       user = username;
       enable = true;
       musicDirectory = "/media/music";
-      extraConfig = ''
-        audio_output {
-           type "pipewire"
-           name "My PipeWire Output"
-         }
-      '';
+      # `extraConfig` was removed upstream in favour of RFC42-style settings.
+      settings = {
+        audio_output = [
+          {
+            type = "pipewire";
+            name = "My PipeWire Output";
+          }
+        ];
+      };
     };
   };
 }

@@ -7,8 +7,8 @@ in {
       description = "Nightly suspend";
       script = ''
         if [ -f /tmp/idle-inhibitor-active ]; then
-          echo "Idle inhibitor active, skipping suspend" >&2
-          exit 0
+          # echo "Idle inhibitor active, skipping suspend" >&2
+          # exit 0
         fi
         exec /run/current-system/sw/bin/systemctl suspend
       '';

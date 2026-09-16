@@ -182,7 +182,11 @@
           };
         };
 
-        flake = {
+        flake = let
+          # Per-host feature flags, resolved once and threaded into all three
+          # configs below. See ./features.nix.
+          mkFeatures = import ./features.nix nixpkgs.lib;
+        in {
           # Overlaid full nixpkgs surfaced so the `nixpkgs` registry alias
           # (pinned to self in modules/nixos/nix.nix) resolves `nix shell
           # nixpkgs#codex` etc. to the llm-agents builds. Everything else
@@ -225,7 +229,7 @@
               inherit system;
               config.allowUnfree = true;
             };
-            features = import ./hosts/${hostname}/features.nix;
+            features = mkFeatures hostname;
 
             specialArgs = {
               inherit
@@ -258,6 +262,7 @@
             username = "davidlee";
             hostname = "fusillade";
             system = "aarch64-darwin";
+            features = mkFeatures hostname;
 
             pkgs = import nixpkgs {
               inherit system;
@@ -288,6 +293,7 @@
                 pkgs
                 username
                 hostname
+                features
                 ;
             };
           in {
@@ -304,7 +310,7 @@
             username = "david";
             hostname = "Sleipnir";
             system = "x86_64-linux";
-            features = import ./hosts/${hostname}/features.nix;
+            features = mkFeatures hostname;
             pkgs = import inputs.nixpkgs-home {
               inherit system;
               config.allowUnfree = true;
