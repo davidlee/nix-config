@@ -225,6 +225,7 @@
               inherit system;
               config.allowUnfree = true;
             };
+            features = import ./hosts/${hostname}/features.nix;
 
             specialArgs = {
               inherit
@@ -232,6 +233,7 @@
                 username
                 hostname
                 stable
+                features
                 ;
             };
           in {
@@ -300,7 +302,9 @@
 
           homeConfigurations = let
             username = "david";
+            hostname = "Sleipnir";
             system = "x86_64-linux";
+            features = import ./hosts/${hostname}/features.nix;
             pkgs = import inputs.nixpkgs-home {
               inherit system;
               config.allowUnfree = true;
@@ -313,9 +317,9 @@
           in {
             "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
-              modules = [./hosts/Sleipnir/home.nix];
+              modules = [./hosts/${hostname}/home.nix];
               extraSpecialArgs = {
-                inherit inputs username;
+                inherit inputs username features;
               };
             };
           };

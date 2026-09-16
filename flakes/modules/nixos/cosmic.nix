@@ -1,8 +1,6 @@
 _: {
   services = {
     desktopManager.cosmic.enable = true;
-    # displayManager.cosmic-greeter.enable = true;
-    # system76-scheduler.enable = true;
   };
 
   programs.firefox.preferences = {
@@ -10,5 +8,4 @@ _: {
     "widget.gtk.libadwaita-colors.enabled" = false;
   };
   environment.sessionVariables = {COSMIC_DATA_CONTROL_ENABLED = 1;};
-  # environment.systemPackages = with pkgs; [];
 }

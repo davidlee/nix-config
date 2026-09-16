@@ -29,6 +29,32 @@ So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for w
 
 ## Notes 
 
+### Feature flags
+
+`hosts/Sleipnir/features.nix` — a plain attrset of coarse on/off switches, threaded
+into **both** module systems by `flake.nix` (`specialArgs` for NixOS,
+`extraSpecialArgs` for home-manager).
+
+It is deliberately not a NixOS option. The two configs evaluate independently —
+separate nixpkgs (`nixpkgs` vs `nixpkgs-home`), separate `switch` — so an option
+declared on one side is invisible to the other. A specialArg crosses that boundary
+and keeps one edit point per feature.
+
+Consumers take `features` as a module argument and gate on it:
+
+```nix
+{lib, features, ...}: {
+  config = lib.mkIf features.games { ... };
+}
+```
+
+Note the module-system rule: once a module has a top-level `config` (or `options`),
+*every* config attribute must live under it.
+
+| flag | gates |
+|------|-------|
+| `games` | `modules/nixos/games.nix` (steam, wine, its `nix-ld` libraries), `modules/nixos/gamescope.nix` (gamescope, gamemode), `modules/home/linux/games.nix` (mangohud) |
+
 ### Sleipnir Doctor
 
 `modules/home/nixos/sleipnir-doctor.nix` — at-a-glance system health check. Run `sleipnir-doctor`.
