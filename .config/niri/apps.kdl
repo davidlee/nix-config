@@ -63,6 +63,8 @@ binds {
     Ctrl+Alt+Shift+S hotkey-overlay-title="-> Slack"       { spawn-sh "~/.local/bin/niri-scratch-spawn slack slack"; }
     Ctrl+Alt+Shift+Y hotkey-overlay-title="-> Spotify"     { spawn-sh "~/.local/bin/niri-scratch-spawn Spotify spotify"; }
     Ctrl+Alt+Shift+1 hotkey-overlay-title="-> 1Password"   { spawn-sh "~/.local/bin/niri-scratch-spawn 1password 1password "; }
+    Ctrl+Alt+Shift+E hotkey-overlay-title="-> Cosmic Edit" { spawn-sh "~/.local/bin/niri-scratch-spawn com.system76.CosmicEdit cosmic-edit"; }
+
     Ctrl+Alt+Shift+C hotkey-overlay-title="-> Clock"       { spawn-sh "ghostty --title=CLOCK -e clock-rs --fmt \"%d %b\" -c blue"; }
 
     Ctrl+Alt+Shift+Grave hotkey-overlay-title="Launch emacs" { spawn-sh "~/.local/bin/raise-cycle-spawn emacs emacs"; }

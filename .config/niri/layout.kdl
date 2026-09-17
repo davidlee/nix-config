@@ -19,14 +19,23 @@ layout {
     }
     focus-ring {
         on
-        width 2
-        active-color "#5f7700"
-        inactive-color "#505050"
+        width 3
+        // active-color "#5f7700"
+        // inactive-color "#505050"
         active-gradient from="#907033" to="#5f7700" angle=-45 in="oklch longer hue" relative-to="workspace-view"
+        inactive-gradient from="#507033" to="#0f7700" angle=-45 in="oklch longer hue" relative-to="workspace-view"
+        urgent-gradient from="#800" to="#000" angle=45
+    }
+    border {
+        off
+        width 1
+        inactive-color "#300"
+        urgent-color "#900"
+        active-color "#00000000"
     }
     shadow {
         on
-        softness 30
+        softness 20
         spread 2
         offset x=0 y=3
         color "#000000ff"

@@ -5,11 +5,12 @@
 # assumes niriusd is running
 
 RESULT=$(niri msg -j focused-window | jq '.app_id')
-
+echo "RESULT=$RESULT"
 # argv:
 match=$1 # 1. app-id
 app=$2   # 2. command to run
 
+# IS IT FOCUSED?
 if [[ "$RESULT" == "\"$match\"" ]]; then
   nirius scratchpad-show -a "$match"
   if [[ $? != 0 ]]; then
