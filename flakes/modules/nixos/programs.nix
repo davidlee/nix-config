@@ -132,6 +132,10 @@
         # for blender
         libxkbcommon
 
+        # Wayland-native binaries (e.g. gpui/Zed apps) dlopen
+        # libwayland-client.so.0 at runtime.
+        wayland
+
         libxcrypt-legacy # For natron
         libGLU # For natron
 

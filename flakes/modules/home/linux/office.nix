@@ -11,6 +11,8 @@
     zotero
     thunderbird-latest
     slack
+
+    rssguard
     # zoom-us
   ];
 }

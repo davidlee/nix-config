@@ -51,7 +51,6 @@
 
       # shared:
       ../../modules/nixos/cli.nix
-      # emacs: moved to homeModules
     ]
     ++ lib.optional features.apps.appimage ../../modules/nixos/appimage.nix
     ++ lib.optional features.desktop.cosmic ../../modules/nixos/cosmic.nix
