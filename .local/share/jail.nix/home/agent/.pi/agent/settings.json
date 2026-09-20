@@ -32,10 +32,10 @@
     "npm:@tmustier/pi-ralph-wiggum",
     "git:github.com/javierportillo/pi-hackerman@63b0a3ef2c7b14985ffeb6cac44614ba59cd5693",
     "npm:@victor-software-house/pi-curated-themes",
-    "npm:pi-terminal-theme"
+    "npm:pi-terminal-theme",
+    "https://github.com/cathrynlavery/diagram-design"
   ],
   "enabledModels": [
-    "google/gemini-flash-latest",
     "openrouter/openrouter/free",
     "deepseek/deepseek-flash"
   ],

@@ -28,10 +28,9 @@
 
 ## Git 
 
-- never create or pop a git stash without explicit user agreement.
-- wondering if the build was green before your changes is not a good 
-  enough reason to ask. You probably need to just fix the build.
-- DO NOT USE GIT STASH
+- DO NOT EVER USE git stash || git checkout. EVER.
+- Wondering if the build was green before your changes?
+  You should probably just fix the build.
 
 ## Behaviours
 

@@ -54,3 +54,5 @@ debug {
     force-pipewire-invalid-modifier
 }
 
+
+include "noctalia.kdl"
