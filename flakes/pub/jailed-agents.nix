@@ -180,6 +180,16 @@
     (set-env "TERM" "xterm-256color")
     (set-env "COLORTERM" "truecolor")
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
+    # Claude Code runs Bash-tool commands under `bash` or `zsh` ONLY. Its
+    # auto-detection reads $SHELL and falls back to "first working zsh, then
+    # bash on PATH" when $SHELL is neither — so a jailed agent lands on zsh
+    # (the jail login shell) and gets non-bash semantics it does not expect.
+    # The usual bite is zsh globbing: `grep --include=*.md` dies with "no
+    # matches found". Pin the store path: bashInteractive is in commonPkgs,
+    # but `/run/current-system` and `/bin/bash` are not jail-visible, so a
+    # host-stable path would be silently ignored. Inert for non-claude agents,
+    # and a bad value only falls back to auto-detection — it cannot hard-break.
+    (set-env "CLAUDE_CODE_SHELL" "${pkgs.bashInteractive}/bin/bash")
   ];
 
   packageManagerOptions = with jail.combinators; [
