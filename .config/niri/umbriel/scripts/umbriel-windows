@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Normalise `umbriel windows --json` to one line per window:
+#
+#   <id>\t<app_id>\t<focused>\t<x>\t<y>\t<w>\t<h>
+#
+# Umbriel 0.1.0 ships no schema documentation, and the payload may be either a
+# bare array or an object wrapping one, with `focused` or `is_focused`. The jq
+# filter below accepts every shape rather than pinning one. If a new release
+# renames a field, this is the only file to fix.
+set -euo pipefail
+
+umbriel windows --json | jq -r '
+  (if type == "array" then . else (.windows // .data // []) end)
+  | .[]
+  | [ (.id // .window_id),
+      (.app_id // .appid // ""),
+      ((.focused // .is_focused // .is_focus // false) | tostring),
+      (.x // .geometry.x // 0),
+      (.y // .geometry.y // 0),
+      (.w // .width // .geometry.w // .geometry.width // 0),
+      (.h // .height // .geometry.h // .geometry.height // 0) ]
+  | @tsv'

@@ -1,0 +1,139 @@
+# ======================================================================
+# rules.toml — port of ~/.config/niri/rules.kdl
+# https://docs.noctalia.dev/umbriel/window-rules/
+# https://docs.noctalia.dev/umbriel/layer-rules/
+# https://docs.noctalia.dev/umbriel/scratchpads/
+#
+# One niri window-rule could carry several `match` lines, ORed together.
+# An Umbriel rule has a single `match`, so those become alternation regexes.
+# ======================================================================
+
+# --- scratchpads ------------------------------------------------------
+# Replaces nirius + ~/.local/bin/niri-scratch-spawn. Naming any scratchpad
+# disables the implicit `default` one, so `main` stands in for the generic
+# Mod+N / Mod+Shift+N binds that niri gave to `nirius scratchpad-show-all`.
+[[scratchpad]]
+name = "main"
+
+[[scratchpad]]
+name = "signal"
+
+[[scratchpad]]
+name = "slack"
+
+[[scratchpad]]
+name = "spotify"
+
+[[scratchpad]]
+name = "onepassword"
+
+[[scratchpad]]
+name = "edit"
+
+# --- window rules -----------------------------------------------------
+# Blur everything, as niri's selectorless rule did. Keep it first so later
+# rules can turn blur off per window.
+# niri also set draw-border-with-background false, geometry-corner-radius 12
+# and clip-to-geometry true here; in Umbriel the radius is global
+# (appearance.corner_radius) and clipping is implicit.
+[[window_rule]]
+blur = true
+blur_optimized = true # niri: background-effect { xray true }
+
+[[window_rule]]
+match.app_id = "^com[.]mitchellh[.]ghostty$"
+opacity = 0.85
+
+# Noctalia's own windows.
+[[window_rule]]
+match.app_id = "^dev[.]noctalia[.]Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1020, height = 900 }
+
+[[window_rule]]
+match.app_id = "^dev[.]noctalia[.]UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+# Settings-style windows: tiled, half width.
+[[window_rule]]
+match.app_id = "^(gnome-control-center|pavucontrol|nm-connection-editor)$"
+default_floating = false
+default_scrolling_extent = 0.5
+
+# Small utilities float.
+[[window_rule]]
+match.app_id = "^(org[.]gnome[.]Calculator|gnome-calculator|galculator|blueman-manager|org[.]gnome[.]Nautilus|xdg-desktop-portal)$"
+default_floating = true
+
+# Steam notification toasts: bottom-right, no focus steal.
+[[window_rule]]
+match.title = "^notificationtoasts_\\d+_desktop$"
+default_position = { x = 10, y = 10, anchor = "bottom_right" }
+default_focused = false
+default_pinned = true
+
+# Firefox picture-in-picture.
+[[window_rule]]
+match.title = "^Picture-in-Picture$"
+default_floating = true
+default_focused = true
+
+# App ID is "Zoom" (capitalised) — a lowercase match never fires.
+[[window_rule]]
+match.app_id = "^Zoom$"
+default_floating = true
+default_focused = true
+
+# The apps niri kept floating and reached through nirius scratchpads. Here
+# they are real scratchpad members; see the Ctrl+Alt+Shift binds in apps.toml.
+[[window_rule]]
+match.app_id = "^signal$"
+default_scratchpad = "signal"
+default_floating = true
+
+[[window_rule]]
+match.app_id = "^slack$"
+default_scratchpad = "slack"
+default_floating = true
+
+[[window_rule]]
+match.app_id = "^Spotify$"
+default_scratchpad = "spotify"
+default_floating = true
+
+[[window_rule]]
+match.app_id = "^1password$"
+default_scratchpad = "onepassword"
+default_floating = true
+
+[[window_rule]]
+match.app_id = "^com[.]system76[.]CosmicEdit$"
+default_scratchpad = "edit"
+default_floating = true
+
+# Not portable, and left out deliberately:
+#   niri: match is-window-cast-target=true { border/tab-indicator red }
+#   niri: match is-urgent=true            { border red }
+# Umbriel window rules cannot set border colours, and have no cast-target or
+# urgent selector. See MAPPING.md.
+
+# --- layer rules ------------------------------------------------------
+# Noctalia's bar, panels, OSD and notifications.
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd|desktop-widget-[^\"]*)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+blur_optimized = false
+
+# niri: blur behind the fuzzel/vicinae launcher.
+[[layer_rule]]
+match.namespace = "^launcher$"
+blur = true
+
+# Not portable, and left out deliberately:
+#   niri: namespace "^notifications$"  block-out-from "screencast"
+#   niri: namespace "^quickshell$"     place-within-backdrop true
+#   niri: namespace "^wallpaper$"      place-within-backdrop true
+# Umbriel layer rules only control blur. See MAPPING.md.

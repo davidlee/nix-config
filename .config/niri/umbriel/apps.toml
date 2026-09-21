@@ -1,0 +1,49 @@
+# ======================================================================
+# apps.toml — port of ~/.config/niri/apps.kdl
+#
+# Startup commands moved to general.autostart in config.toml, since Umbriel
+# has no per-file autostart.
+#
+# Two scripts stand in for what niri did over its own IPC:
+#   scripts/raise-cycle-spawn  — ~/.local/bin/raise-cycle-spawn
+#   scripts/scratchpad-spawn   — ~/.local/bin/niri-scratch-spawn + nirius
+# Both are thin: scratchpad show/hide is native, and only the
+# launch-it-if-it-is-not-running half needs a script.
+# ======================================================================
+
+[keybinds]
+
+# --- terminals and browser --------------------------------------------
+"Mod+Return" = "spawn:ghostty"
+"Mod+K" = "spawn:kitty"
+"Mod+Shift+Return" = "spawn:firefox"
+
+"Mod+Apostrophe" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
+"Ctrl+Alt+Shift+Apostrophe" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn kitty kitty"
+
+# --- meh-key scratchpads ----------------------------------------------
+# Scratchpad membership comes from the default_scratchpad window rules in
+# rules.toml, so these only have to toggle or launch.
+"Ctrl+Alt+Shift+G" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn signal signal signal-desktop"
+"Ctrl+Alt+Shift+S" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn slack slack slack"
+"Ctrl+Alt+Shift+Y" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn Spotify spotify spotify"
+"Ctrl+Alt+Shift+1" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn 1password onepassword 1password"
+"Ctrl+Alt+Shift+E" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
+
+# --- meh-key raise-or-run ---------------------------------------------
+"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn emacs emacs"
+"Ctrl+Alt+Shift+O" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn obsidian ~/.local/bin/obsidian"
+"Ctrl+Alt+Shift+T" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn thunderbird thunderbird"
+"Ctrl+Alt+Shift+F" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
+"Ctrl+Alt+Shift+B" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn firefox firefox"
+
+"Ctrl+Alt+Shift+C" = 'spawn:ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
+
+# --- open-on-workspace ------------------------------------------------
+# niri kept these commented out; the Umbriel form is a window rule with
+# default_workspace, matching the [[workspace]] names in config.toml.
+#
+# [[window_rule]]
+# match.app_id = "^emacs$"
+# match.at_startup = true
+# default_workspace = "emacs"

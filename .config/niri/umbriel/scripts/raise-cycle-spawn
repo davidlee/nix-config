@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Raise, cycle, or spawn — Umbriel port of ~/.local/bin/raise-cycle-spawn.
+#
+#   raise-cycle-spawn <app-id> <command...>
+#
+#   no window matching <app-id>  -> spawn <command...>
+#   one window                   -> focus it
+#   several                      -> focus the next one after the focused window
+#
+# Umbriel has `window-focus:<id>` but no focus-by-app-id action, so this walks
+# the window list over IPC.
+set -euo pipefail
+
+here="$(dirname "$(readlink -f "$0")")"
+
+app_id="${1:-}"
+shift || true
+if [[ -z "$app_id" || $# -lt 1 ]]; then
+  echo "usage: ${0##*/} <app-id> <command...>" >&2
+  exit 2
+fi
+
+windows="$("$here/umbriel-windows")"
+
+mapfile -t ids < <(awk -F'\t' -v a="$app_id" '$2 == a { print $1 }' <<<"$windows")
+((${#ids[@]})) || exec "$@"
+
+focused="$(awk -F'\t' '$3 == "true" { print $1 }' <<<"$windows")"
+
+next=0
+for i in "${!ids[@]}"; do
+  if [[ "${ids[i]}" == "$focused" ]]; then
+    next=$(((i + 1) % ${#ids[@]}))
+    break
+  fi
+done
+
+umbriel msg "window-focus:${ids[next]}"

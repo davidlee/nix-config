@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Show, hide, or spawn — Umbriel port of ~/.local/bin/niri-scratch-spawn.
+#
+#   scratchpad-spawn <app-id> <scratchpad> <command...>
+#
+#   no window matching <app-id>  -> spawn <command...>; the matching
+#                                   `default_scratchpad` window rule in
+#                                   rules.toml puts it in <scratchpad>
+#   otherwise                    -> scratchpad-toggle:<scratchpad>
+#
+# Umbriel toggles scratchpads natively; only the launch-on-demand half of
+# nirius is missing.
+set -euo pipefail
+
+here="$(dirname "$(readlink -f "$0")")"
+
+app_id="${1:-}"
+scratchpad="${2:-}"
+shift 2 || true
+if [[ -z "$app_id" || -z "$scratchpad" || $# -lt 1 ]]; then
+  echo "usage: ${0##*/} <app-id> <scratchpad> <command...>" >&2
+  exit 2
+fi
+
+if "$here/umbriel-windows" | awk -F'\t' -v a="$app_id" '$2 == a { found = 1 } END { exit !found }'; then
+  umbriel msg "scratchpad-toggle:$scratchpad"
+else
+  exec "$@"
+fi

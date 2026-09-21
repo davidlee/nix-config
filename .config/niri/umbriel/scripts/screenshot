@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# niri's built-in screenshot actions, rebuilt on grim/slurp/satty.
+#
+#   screenshot area | screen | window
+#
+# Saves where niri's screenshot-path pointed, and copies to the clipboard.
+set -euo pipefail
+
+here="$(dirname "$(readlink -f "$0")")"
+
+dir="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+mkdir -p "$dir"
+out="$dir/shot_$(date +%Y-%m-%d_%H-%M-%S).png"
+
+case "${1:-area}" in
+  area) region=$(slurp -d) ;;
+  screen) region="" ;;
+  window)
+    region=$("$here/umbriel-windows" |
+      awk -F'\t' '$3 == "true" { printf "%d,%d %dx%d", $4, $5, $6, $7 }')
+    ;;
+  *)
+    echo "usage: ${0##*/} area|screen|window" >&2
+    exit 2
+    ;;
+esac
+
+grim ${region:+-g "$region"} - |
+  satty --filename - --output-filename "$out" \
+    --copy-command wl-copy --early-exit

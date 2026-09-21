@@ -1,0 +1,40 @@
+# ======================================================================
+# io.toml — port of ~/.config/niri/io.kdl
+# https://docs.noctalia.dev/umbriel/input/
+# https://docs.noctalia.dev/umbriel/outputs/
+# ======================================================================
+
+[input]
+middle_click_paste = true
+
+[input.keyboard]
+options = "compose:menu"
+numlock_toggle = true # niri: keyboard { numlock }
+
+[input.mouse]
+sensitivity = 0.4 # niri: mouse { accel-speed 0.4 }
+
+[input.cursor]
+theme = "breeze_cursors"
+size = 48
+hide_when_typing = true
+hide_timeout_ms = 800 # niri: hide-after-inactive-ms 800
+
+# niri: focus-follows-mouse max-scroll-amount="30%"
+[input.focus]
+follows_mouse = true
+follows_mouse_max_scroll = 0.3
+
+# niri had a device-class `trackball` block (accel-speed 0.2,
+# scroll-button-lock). Umbriel overrides per device name only, so fill in
+# the exact name from `libinput list-devices` and uncomment. No trackball is
+# attached right now, so this stays commented rather than guessing a name.
+# [[input.device]]
+# name = "<trackball name from libinput list-devices>"
+# sensitivity = 0.2
+# scroll_button = "MouseMiddle"
+# scroll_button_lock = true
+
+# --- outputs ----------------------------------------------------------
+[output.DP-3]
+scale = 1.1

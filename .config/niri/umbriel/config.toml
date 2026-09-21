@@ -1,0 +1,86 @@
+# ======================================================================
+# config.toml — port of ~/.config/niri/config.kdl
+#
+# Umbriel merges required includes in list order, then optional includes,
+# then this file. So this file wins over every include, and the optional
+# Noctalia palette wins over the required layout.toml. Rule lists
+# ([[window_rule]], [[layer_rule]], [[workspace]], [[scratchpad]])
+# accumulate across all files.
+#
+# Validate: umbriel validate -c ~/.config/niri/umbriel/config.toml
+# See MAPPING.md for what niri does that Umbriel cannot, and vice versa.
+# ======================================================================
+
+[include]
+files = [
+  "io.toml",        # niri: io.kdl
+  "layout.toml",    # niri: layout.kdl
+  "rules.toml",     # niri: rules.kdl
+  "binds.toml",     # niri: binds.kdl
+  "apps.toml",      # niri: apps.kdl
+  "animation.toml", # niri: animation.kdl
+]
+
+[include.optional]
+files = ["noctalia.toml"] # niri: noctalia.kdl, included last so it wins
+
+# --- general ----------------------------------------------------------
+[general]
+autostart = [
+  "noctalia",
+  "stasis",
+  "stasis tray",
+  "vicinae server",
+  "1password --silent",
+  "signal-desktop",
+  # niri also ran `niriusd`; Umbriel has native scratchpads, so it is gone.
+]
+xwayland = true
+show_cheatsheet = false # niri: hotkey-overlay { skip-at-startup; }
+focus_on_activate = false
+
+# niri: environment { XDG_CURRENT_DESKTOP "niri" }. The Umbriel session file
+# already sets DesktopNames=Umbriel, so nothing is needed here.
+[environment]
+
+# --- workspaces -------------------------------------------------------
+# niri: workspace "emacs" / "browser" / "dev" / "comms".
+# A named entry materializes a persistent workspace on every dynamic output.
+[workspaces]
+back_and_forth = true # niri: input { workspace-auto-back-and-forth }
+empty_above = false
+
+[[workspace]]
+name = "emacs"
+
+[[workspace]]
+name = "browser"
+
+[[workspace]]
+name = "dev"
+
+[[workspace]]
+name = "comms"
+
+# --- overview ---------------------------------------------------------
+# niri: overview { backdrop-color "transparent"; workspace-shadow {...} }.
+# Umbriel has no per-workspace shadow in overview; colors live in colors.overview.
+[overview]
+zoom = 0.5
+background_blur = true
+workspace_wallpaper = true
+shortcuts = true
+
+# --- hot corners ------------------------------------------------------
+# niri: gestures { hot-corners { off; } }
+[hot_corners.top_left]
+enabled = false
+
+[hot_corners.top_right]
+enabled = false
+
+[hot_corners.bottom_left]
+enabled = false
+
+[hot_corners.bottom_right]
+enabled = false

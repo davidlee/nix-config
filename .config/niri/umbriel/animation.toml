@@ -1,0 +1,76 @@
+# ======================================================================
+# animation.toml — port of ~/.config/niri/animation.kdl
+# https://docs.noctalia.dev/umbriel/animation/
+#
+# niri curve names map onto Umbriel's built-ins as:
+#   ease-out-quad / -cubic / -expo  ->  easeout
+#   spring damping-ratio=D stiffness=S  ->  "spring:D,S"
+# niri's `slowdown` has no equivalent; durations are absolute here.
+# ======================================================================
+
+[animation]
+enabled = true
+duration_ms = 200
+curve = "easeout"
+
+# niri: window-open { duration-ms 140; curve "ease-out-quad" }
+[animation.windows_in]
+enabled = true
+duration_ms = 140
+curve = "easeout"
+style = "popin"
+scale = 0.9
+
+# niri: window-close { duration-ms 100; curve "ease-out-cubic" }
+[animation.windows_out]
+enabled = true
+duration_ms = 100
+curve = "easeout"
+style = "fade"
+
+# One event covers what niri split across window-movement (220ms ease-out-expo)
+# and window-resize (spring 0.85/423). The spring wins, since it is the one
+# that fires on every width change.
+[animation.windows_move]
+enabled = true
+duration_ms = 220
+curve = "spring:0.85,423"
+
+# niri: workspace-switch { duration-ms 180; curve "ease-out-cubic" }
+[animation.workspaces]
+enabled = true
+duration_ms = 180
+curve = "easeout"
+
+# niri: overview-open-close { spring damping-ratio=0.85 stiffness=500 }
+# workspace_curve is the filmstrip scroll inside overview; niri's nearest was
+# horizontal-view-movement (180ms ease-out-quad).
+[animation.overview]
+enabled = true
+duration_ms = 250
+curve = "spring:0.85,500"
+workspace_curve = "spring:1,1000"
+
+# No niri counterpart: nirius scratchpads appeared instantly. A short fade with
+# no dim or blur keeps them looking like the floating windows they were.
+[animation.scratchpad]
+enabled = true
+duration_ms = 150
+curve = "easeout"
+dim = 0.0
+blur = false
+scale = 0.0
+
+[animation.border]
+enabled = false
+
+[animation.dim_unfocused]
+enabled = false
+dim = 0.0
+
+[animation.layers]
+enabled = false
+
+# Dropped: niri's config-notification-open-close (Umbriel reloads silently and
+# reports errors through `umbriel validate`) and screenshot-ui-open (no
+# built-in screenshot UI — see scripts/screenshot).

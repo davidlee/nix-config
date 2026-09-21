@@ -1,0 +1,64 @@
+# ======================================================================
+# layout.toml — port of ~/.config/niri/layout.kdl
+# https://docs.noctalia.dev/umbriel/layout/
+# https://docs.noctalia.dev/umbriel/appearance/
+#
+# Colors here are the structural ones niri did not take from Noctalia.
+# The palette lives in noctalia.toml, an optional include, which Umbriel
+# merges after this file and so wins — the same ordering niri gets by
+# including noctalia.kdl last.
+# ======================================================================
+
+[appearance]
+prefer_no_csd = true
+border_width = 3      # niri: focus-ring { width 3 }
+outer_border_width = 0 # niri: border { off }
+corner_radius = 12    # niri: window-rule { geometry-corner-radius 12 }
+drag_opacity = 0.75
+
+# niri: blur { passes 3; offset 3.0; noise 0.02; saturation 1.2 }
+# `optimized` is niri's window-rule background-effect xray.
+[appearance.blur]
+enabled = true
+optimized = true
+passes = 3
+radius = 3
+noise = 0.02
+brightness = 1.0
+contrast = 1.0
+saturation = 1.2
+
+# niri: shadow { softness 20; spread 2; offset x=0 y=3; draw-behind-window false }
+# Umbriel has no spread and no draw-behind toggle.
+[appearance.shadow]
+enabled = true
+softness = 20
+offset_x = 0
+offset_y = 3
+
+# --- layout -----------------------------------------------------------
+[layout]
+mode = "scrolling"
+gap = 16 # niri's default `gaps`, which the niri config left unset
+# niri: preset-column-widths. Umbriel uses one preset list for both the
+# primary (column width) and secondary (window height) extent.
+extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8]
+
+[layout.struts]
+top = 1
+left = 10
+right = 10
+bottom = 10
+
+[layout.scrolling]
+default_extent_fraction = 0.2 # niri: default-column-width { proportion 0.2 }
+center_underfull_strip = true
+center_focused = "on_overflow"
+
+# --- structural colors ------------------------------------------------
+[colors]
+backdrop = "#00000000"  # niri: layout { background-color "transparent" }
+shadow = "#000000FF"
+
+[colors.overview]
+background_tint = "#00000000" # niri: overview { backdrop-color "transparent" }
