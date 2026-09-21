@@ -1,19 +1,20 @@
 # niri -> umbriel
 
-How `~/.config/niri/umbriel` tracks `~/.config/niri`, and where it cannot.
+How `~/.config/umbriel` tracks `~/.config/niri`, and where it cannot.
 
-Validate after editing: `umbriel validate -c ~/.config/niri/umbriel/config.toml`
+Validate after editing: `umbriel validate`
 Reload:                 automatic — Umbriel watches the config and its includes.
 
-Umbriel's default config path is `~/.config/umbriel/config.toml`. Either run
-`umbriel -c ~/.config/niri/umbriel/config.toml`, or symlink the directory:
+The session launcher (`start-umbriel`) takes no config argument, so Umbriel
+reads `~/.config/umbriel/config.toml` and nothing else. If that path is
+missing it silently runs on built-in defaults — no autostart, no binds, no
+rules. That is the first thing to check when the session comes up bare.
 
-```
-ln -s ~/.config/niri/umbriel ~/.config/umbriel
-```
-
-The script paths inside `binds.toml` and `apps.toml` are spelled
-`~/.config/niri/umbriel/scripts/...`, so they keep working either way.
+The `spawn:` binds in `binds.toml` and `apps.toml` name `scripts/` by
+absolute path (`~/.config/umbriel/scripts/...`), because `/bin/sh` inherits no
+useful working directory from the compositor. Moving this directory means
+re-pointing those paths; a stale one fails silently apart from a
+`No such file or directory` line in `journalctl --user -u umbriel.service`.
 
 ## Files
 
@@ -129,13 +130,14 @@ stands in. They talk to the compositor over `umbriel msg` and
 |---|---|
 | `~/.local/bin/raise-cycle-spawn` (niri IPC) | `scripts/raise-cycle-spawn` |
 | `~/.local/bin/niri-scratch-spawn` (nirius) | `scripts/scratchpad-spawn` — only the launch-if-absent half |
+| `~/.local/bin/rename-niri-workspace` | `scripts/named-workspace add\|drop` — creates and removes, never renames |
 | built-in `screenshot`, `screenshot-screen`, `screenshot-window` | `scripts/screenshot area\|screen\|window` (grim/slurp/satty) |
 
-`scripts/umbriel-windows` normalises the window list for the other three.
-Umbriel 0.1.0 ships no IPC schema documentation and the compositor was not
-running when this was written, so its jq filter accepts several plausible
-field spellings. **Check it against real `umbriel windows --json` output on
-first run** — it is the only place a schema change bites.
+`scripts/umbriel-windows` normalises the window list for the other three, and
+is the only place an IPC schema change bites. Verified against umbriel 0.1.0:
+`umbriel windows --json` returns a bare array of objects carrying `id`,
+`app_id`, `focused`, `x`/`y`/`w`/`h`, `floating`, `scratchpad` and `workspace`.
+Window ids are 32-hex strings, not integers.
 
 `~/.local/bin/toggle-audio-sink` is compositor-agnostic and is used as-is.
 
@@ -150,7 +152,6 @@ line-comparable.
 | `expand-column-to-available-width` (`Mod+Ctrl+F`) | no fill-the-remaining-space action; `Mod+F` takes the whole viewport |
 | `center-visible-columns` (`Mod+Shift+C`, `Mod+I`) | centring the strip is a setting (`layout.scrolling.center_underfull_strip`), not an action |
 | `reset-window-height` (`Mod+Ctrl+R`) | no reset; the key reverse-cycles the secondary extent instead |
-| `set-workspace-name` / `unset-workspace-name` (`Mod+Ctrl+X`, `Mod+Alt+R`) | workspace names come from `[[workspace]]` config only |
 | `toggle-column-tabbed-display` (`Mod+W`) | no tabbed columns; the key changes the workspace layout mode instead |
 | `switch-layout "prev"` (`Mod+MouseBack`) | `keyboard-layout-next` only cycles forward |
 | `nirius toggle-follow-mode` (`Mod+X`) | nirius is niri-only, and `input.cursor.follows_focus` has no runtime toggle |
@@ -188,6 +189,36 @@ Approximations, where Umbriel is close but not identical:
 - **named workspaces.** niri's four `workspace "…"` declarations land on the
   first monitor. Umbriel's `[[workspace]] name = …` materialises one on *every*
   dynamic output unless scoped with `output = "…"`.
+- **naming is declaration, not labelling**, which is why
+  `~/.local/bin/rename-niri-workspace` has no port. A `[[workspace]] name`
+  entry says *"a workspace called X exists"*; it never attaches a name to the
+  workspace you are standing on. There is no rename action in
+  `umbriel msg --help`, and editing the config does not stand in for one —
+  tested on 0.1.0:
+
+  ```
+  # before: DP-3:11 is named TESTNAME and holds a window
+  #   config: name = "TESTNAME"  ->  name = "RENAMED"
+  # after:
+  #   index 1  DP-3:12  RENAMED  named=true   occupied=false   <- new, empty
+  #   index 2  DP-3:11  "2"      named=false  occupied=true    <- window kept,
+  #                                                               name lost
+  ```
+
+  The rename destroys the named workspace, orphans its windows onto an
+  unnamed dynamic one, and builds a fresh empty workspace for the new name.
+  Position is not preserved either: a newly named workspace appears at the
+  front of the output's list, not in declaration order.
+
+  What *is* programmatic is creation. `[[workspace]]` is a rule array, so
+  entries accumulate across includes, and Umbriel watches includes as well as
+  the main file. `scripts/named-workspace` uses that: it appends to the
+  generated `workspaces.toml` (optional include, absent until first use), waits
+  for the name to appear — about 300ms — and switches there. `Mod+Alt+R` adds,
+  `Mod+Ctrl+X` drops the focused one. It refuses to touch the four names
+  declared in `config.toml`, refuses all-digit names because those collide with
+  positional workspace selectors, and never moves a window: the new workspace
+  is empty, which is the part niri's script did differently.
 
 ## Deliberate additions
 

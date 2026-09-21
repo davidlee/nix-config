@@ -18,24 +18,24 @@
 "Mod+K" = "spawn:kitty"
 "Mod+Shift+Return" = "spawn:firefox"
 
-"Mod+Apostrophe" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
-"Ctrl+Alt+Shift+Apostrophe" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn kitty kitty"
+"Mod+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
+"Ctrl+Alt+Shift+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn kitty kitty"
 
 # --- meh-key scratchpads ----------------------------------------------
 # Scratchpad membership comes from the default_scratchpad window rules in
 # rules.toml, so these only have to toggle or launch.
-"Ctrl+Alt+Shift+G" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn signal signal signal-desktop"
-"Ctrl+Alt+Shift+S" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn slack slack slack"
-"Ctrl+Alt+Shift+Y" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn Spotify spotify spotify"
-"Ctrl+Alt+Shift+1" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn 1password onepassword 1password"
-"Ctrl+Alt+Shift+E" = "spawn:~/.config/niri/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
+"Ctrl+Alt+Shift+G" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn signal signal signal-desktop"
+"Ctrl+Alt+Shift+S" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn slack slack slack"
+"Ctrl+Alt+Shift+Y" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn Spotify spotify spotify"
+"Ctrl+Alt+Shift+1" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn 1password onepassword 1password"
+"Ctrl+Alt+Shift+E" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
 
 # --- meh-key raise-or-run ---------------------------------------------
-"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn emacs emacs"
-"Ctrl+Alt+Shift+O" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn obsidian ~/.local/bin/obsidian"
-"Ctrl+Alt+Shift+T" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn thunderbird thunderbird"
-"Ctrl+Alt+Shift+F" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
-"Ctrl+Alt+Shift+B" = "spawn:~/.config/niri/umbriel/scripts/raise-cycle-spawn firefox firefox"
+"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn emacs emacs"
+"Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn obsidian ~/.local/bin/obsidian"
+"Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn thunderbird thunderbird"
+"Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
+"Ctrl+Alt+Shift+B" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn firefox firefox"
 
 "Ctrl+Alt+Shift+C" = 'spawn:ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
 

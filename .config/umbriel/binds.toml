@@ -157,7 +157,11 @@
 "Mod+Alt+9" = "window-move-to-workspace:9"
 
 # niri: Mod+Ctrl+X unset-workspace-name, Mod+Alt+R rename-niri-workspace.
-# Umbriel workspace names come from config only; there is no rename action.
+# Umbriel cannot rename the workspace you are on — a name is a config
+# declaration. scripts/named-workspace creates and removes them instead, by
+# writing workspaces.toml and letting the config watcher apply it.
+"Mod+Alt+R" = "spawn:~/.config/umbriel/scripts/named-workspace add"
+"Mod+Ctrl+X" = "spawn:~/.config/umbriel/scripts/named-workspace drop"
 
 # --- mouse wheel ------------------------------------------------------
 "Mod+WheelDown" = { action = "workspace-next", cooldown_ms = 150 }
@@ -232,9 +236,9 @@
 # --- screenshots ------------------------------------------------------
 # Umbriel has no built-in screenshot; scripts/screenshot rebuilds niri's three
 # actions on grim/slurp/satty and saves to niri's screenshot-path.
-"Print" = "spawn:~/.config/niri/umbriel/scripts/screenshot area"
-"Ctrl+Print" = "spawn:~/.config/niri/umbriel/scripts/screenshot screen"
-"Alt+Print" = "spawn:~/.config/niri/umbriel/scripts/screenshot window"
-"F10" = "spawn:~/.config/niri/umbriel/scripts/screenshot area"
-"Ctrl+F10" = "spawn:~/.config/niri/umbriel/scripts/screenshot screen"
-"Alt+F10" = "spawn:~/.config/niri/umbriel/scripts/screenshot window"
+"Print" = "spawn:~/.config/umbriel/scripts/screenshot area"
+"Ctrl+Print" = "spawn:~/.config/umbriel/scripts/screenshot screen"
+"Alt+Print" = "spawn:~/.config/umbriel/scripts/screenshot window"
+"F10" = "spawn:~/.config/umbriel/scripts/screenshot area"
+"Ctrl+F10" = "spawn:~/.config/umbriel/scripts/screenshot screen"
+"Alt+F10" = "spawn:~/.config/umbriel/scripts/screenshot window"
