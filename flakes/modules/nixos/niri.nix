@@ -16,6 +16,8 @@
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     cosmic-edit
     cosmic-wallpapers
+    nautilus
+    nautilus-open-any-terminal
   ];
   security.pam.services.swaylock = {};
 

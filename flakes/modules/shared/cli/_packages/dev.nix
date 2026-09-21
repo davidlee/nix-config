@@ -14,6 +14,10 @@
     watcher
     watchexec
     fswatch
+    entr
+
+    ## assorted qol
+    moreutils
   ];
   linuxHome = with pkgs; [
     ccache

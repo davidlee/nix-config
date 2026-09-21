@@ -1,4 +1,26 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: let
+  # Portal config lookup is first-file-wins: `<desktop>-portals.conf` shadows
+  # `portals.conf` outright — there is no key-level merging between the two.
+  # So a preference that should hold *everywhere* has to be written into every
+  # desktop's own section; in `common` alone it stays inert in every session
+  # that has a section of its own.
+  #
+  # We own `common`, `kde` and `sway` below. `niri` and `mango` define their
+  # sections in their upstream flake modules and `umbriel` in ./umbriel.nix;
+  # mkMerge adds the key to those without disturbing what they set.
+  desktops = ["common" "kde" "niri" "sway" "mango" "umbriel"];
+
+  # Plasma's file dialog (KIO/KFileWidget), not Dolphin — but it reads
+  # ~/.local/share/user-places.xbel, so Dolphin's places and bookmarks carry
+  # over. GTK apps get the Qt dialog too; that is the intent.
+  kdeFileChooser =
+    lib.genAttrs desktops
+    (_: {"org.freedesktop.impl.portal.FileChooser" = ["kde"];});
+in {
   xdg.portal = {
     enable = true;
 
@@ -23,28 +45,29 @@
     extraPortals = with pkgs; [
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
-      #xdg-desktop-portal-hyprland
       xdg-desktop-portal-gnome
-      #kdePackages.xdg-desktop-portal-kde
+      kdePackages.xdg-desktop-portal-kde
     ];
 
-    config = {
-      common = {
-        default = ["wlr" "gtk" "gnome" "hyprland"];
-        "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
-        "org.freedesktop.impl.portal.FileChooser" = ["kde"];
-        "org.freedesktop.impl.portal.ScreenCast" = "wlr";
-        "org.freedesktop.impl.portal.Screenshot" = "wlr";
-      };
-      kde = {
-        "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
-      };
-      sway = {
-        default = ["gtk"];
-        # wlr interfaces
-        # Source: https://gitlab.archlinux.org/archlinux/packaging/packages/sway/-/commit/87acbcfcc8ea6a75e69ba7b0c976108d8e54855b
-        "org.freedesktop.impl.portal.Inhibit" = "none";
-      };
-    };
+    config = lib.mkMerge [
+      kdeFileChooser
+      {
+        common = {
+          default = ["wlr" "gtk" "gnome" "kde"];
+          "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
+          "org.freedesktop.impl.portal.ScreenCast" = "wlr";
+          "org.freedesktop.impl.portal.Screenshot" = "wlr";
+        };
+        kde = {
+          "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
+        };
+        sway = {
+          default = ["gtk"];
+          # wlr interfaces
+          # Source: https://gitlab.archlinux.org/archlinux/packaging/packages/sway/-/commit/87acbcfcc8ea6a75e69ba7b0c976108d8e54855b
+          "org.freedesktop.impl.portal.Inhibit" = "none";
+        };
+      }
+    ];
   }; # XDG portal
 }

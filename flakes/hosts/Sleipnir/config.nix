@@ -34,10 +34,12 @@
       ../../modules/nixos/podman.nix
       ../../modules/nixos/postgresql.nix
       ../../modules/nixos/programs.nix
+      ../../modules/nixos/qt.nix
       ../../modules/nixos/radeon.nix
       ../../modules/nixos/security.nix
       ../../modules/nixos/ssh.nix
       ../../modules/nixos/user.nix
+      ../../modules/nixos/umbriel.nix
       ../../modules/nixos/util.nix
       ../../modules/nixos/wayland.nix
       ../../modules/nixos/wayland_packages.nix

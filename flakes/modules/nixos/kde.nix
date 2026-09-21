@@ -15,12 +15,14 @@
 
   environment.systemPackages = with pkgs.kdePackages; [
     # kdeplasma-addons
-    # plasma-desktop
+    plasma-desktop
+
+    pkgs.qt6Packages.qt6ct
     # plasma-systemmonitor
     # plasma-browser-integration
     # plasma-thunderbolt
     # plasma-vault
-    # plasma-workspace
+    plasma-workspace
     # plasma-workspace-wallpapers
 
     breeze
@@ -34,12 +36,12 @@
     # kwallet-pam
     # kwalletmanager
 
-    # kiconthemes
+    kiconthemes
     # kscreenlocker
-    # kwindowsystem
-    # kaccounts-providers
+    kwindowsystem
+    kaccounts-providers
 
-    # kde-cli-tools
+    kde-cli-tools
     # calendarsupport
     bluedevil
     bluez-qt
@@ -49,7 +51,7 @@
     dolphin-plugins
     drkonqi
 
-    # kate
+    #kate
     # kweather
     # gwenview
     # karchive

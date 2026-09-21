@@ -118,15 +118,12 @@
       inputs.target.follows = "nixpkgs";
     };
 
-    # danksearch = {
-    #   url = "github:AvengeMedia/danksearch";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
-
     noctalia = {
       url = "github:noctalia-dev/noctalia";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    umbriel.url = "git+https://github.com/noctalia-dev/umbriel";
 
     claude-desktop.url = "github:aaddrick/claude-desktop-debian";
 
@@ -140,10 +137,11 @@
     #    inputs.nixpkgs.follows = "nixpkgs-home";
     #  };
 
-    # niri = {
-    #   url = "github:sodiboo/niri-flake";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     vicinae.url = "github:vicinaehq/vicinae";
   };
 
