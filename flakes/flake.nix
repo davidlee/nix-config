@@ -91,6 +91,10 @@
       inputs.spec-driver.inputs.pub.follows = "pub";
     };
 
+    goad = {
+      url = "git+file:///home/david/dev/goad";
+    };
+
     # The capsule's host-side perimeter as systemd units under dedicated uids
     # (nixosModules.capsule-perimeter, wired in modules/nixos/capsule.nix, which
     # also takes microvm.nix's host module through this input rather than locking
