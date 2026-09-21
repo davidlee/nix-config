@@ -6,6 +6,7 @@
 
 [input]
 middle_click_paste = true
+window_drag_toggle = "floating"
 
 [input.keyboard]
 options = "compose:menu"
@@ -17,8 +18,9 @@ sensitivity = 0.4 # niri: mouse { accel-speed 0.4 }
 [input.cursor]
 theme = "breeze_cursors"
 size = 48
+hardware_cursor = true
 hide_when_typing = true
-hide_timeout_ms = 800 # niri: hide-after-inactive-ms 800
+hide_timeout_ms = 2400 # niri: hide-after-inactive-ms 800
 
 # niri: focus-follows-mouse max-scroll-amount="30%"
 [input.focus]
@@ -37,4 +39,4 @@ follows_mouse_max_scroll = 0.3
 
 # --- outputs ----------------------------------------------------------
 [output.DP-3]
-scale = 1.1
+scale = 1.2

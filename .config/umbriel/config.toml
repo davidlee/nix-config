@@ -56,20 +56,20 @@ empty_above = false
 [[workspace]]
 name = "emacs"
 
-[[workspace]]
-name = "browser"
-
-[[workspace]]
-name = "dev"
-
-[[workspace]]
-name = "comms"
+# [[workspace]]
+# name = "browser"
+#
+# [[workspace]]
+# name = "dev"
+#
+# [[workspace]]
+# name = "comms"
 
 # --- overview ---------------------------------------------------------
 # niri: overview { backdrop-color "transparent"; workspace-shadow {...} }.
 # Umbriel has no per-workspace shadow in overview; colors live in colors.overview.
 [overview]
-zoom = 0.5
+zoom = 0.4
 background_blur = true
 workspace_wallpaper = true
 shortcuts = true

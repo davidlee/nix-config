@@ -10,7 +10,7 @@
 
 [animation]
 enabled = true
-duration_ms = 200
+duration_ms = 150
 curve = "easeout"
 
 # niri: window-open { duration-ms 140; curve "ease-out-quad" }
@@ -34,7 +34,8 @@ style = "fade"
 [animation.windows_move]
 enabled = true
 duration_ms = 220
-curve = "spring:0.85,423"
+# curve = "spring:0.85,423"
+curve = "easeinout"
 
 # niri: workspace-switch { duration-ms 180; curve "ease-out-cubic" }
 [animation.workspaces]
@@ -62,11 +63,12 @@ blur = false
 scale = 0.0
 
 [animation.border]
-enabled = false
+duration_ms = 160
+enabled = true
 
 [animation.dim_unfocused]
-enabled = false
-dim = 0.0
+enabled = true
+dim = 0.1
 
 [animation.layers]
 enabled = false

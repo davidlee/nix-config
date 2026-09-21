@@ -38,12 +38,11 @@
 "Ctrl+Alt+Delete" = "spawn:noctalia msg panel-open session"
 "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
 "Mod+Ctrl+M" = "spawn:noctalia msg mic-volume-set 100"
-"Mod+Ctrl+B" = "spawn:noctalia msg bar-toggle"
+"Mod+B" = "spawn:noctalia msg bar-toggle"
 "Mod+Ctrl+Comma" = "spawn:noctalia msg settings-toggle"
 "Mod+Y" = "spawn:noctalia msg panel-toggle wallpaper"
 "Mod+U" = "spawn:noctalia msg panel-toggle control-center notifications"
 "Mod+Shift+U" = "spawn:noctalia msg notification-dnd-toggle"
-"Mod+G" = "spawn:dms ipc call notepad toggle"
 
 # Applications that inhibit shortcuts (remote desktop, software KVM) still
 # leave this one way out.
@@ -57,16 +56,14 @@
 "Mod+Ctrl+N" = "window-restore-from-scratchpad:main"
 
 # --- audio ------------------------------------------------------------
-"XF86AudioRaiseVolume" = { action = "spawn:noctalia msg volume-up 3", allow_when_locked = true }
-"XF86AudioLowerVolume" = { action = "spawn:noctalia msg volume-down 3", allow_when_locked = true }
+"XF86AudioRaiseVolume" = { action = "spawn:noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn:noctalia msg volume-down", allow_when_locked = true }
 "XF86AudioMute" = { action = "spawn:noctalia msg volume-mute", allow_when_locked = true }
 "XF86AudioMicMute" = { action = "spawn:noctalia msg mic-mute", allow_when_locked = true }
 "XF86AudioPause" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true }
 "XF86AudioPlay" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true }
 "XF86AudioPrev" = { action = "spawn:noctalia msg media previous", allow_when_locked = true }
 "XF86AudioNext" = { action = "spawn:noctalia msg media next", allow_when_locked = true }
-"Ctrl+XF86AudioRaiseVolume" = { action = "spawn:dms ipc call mpris increment 3", allow_when_locked = true }
-"Ctrl+XF86AudioLowerVolume" = { action = "spawn:dms ipc call mpris decrement 3", allow_when_locked = true }
 "Mod+Backslash" = { action = "spawn:~/.local/bin/toggle-audio-sink", allow_when_locked = true }
 
 # --- brightness -------------------------------------------------------
@@ -196,6 +193,8 @@
 # Umbriel only stacks the focused window into the column beside it.
 "Mod+Comma" = "window-consume-left"
 "Mod+Period" = "window-consume-right"
+"Mod+Shift+Comma" = "window-consume-or-expel-left"
+"Mod+Shift+Period" = "window-consume-or-expel-right"
 
 # --- sizing -----------------------------------------------------------
 "Mod+R" = "window-cycle-primary-extent"       # niri: switch-preset-column-width
@@ -215,7 +214,7 @@
 # fill-the-remaining-space action; Mod+F takes the whole viewport instead.
 
 "Mod+C" = "column-center"
-"Mod+Shift+I" = "window-center" # floating windows only
+"Mod+Shift+C" = "window-center" # floating windows only
 # niri: Mod+Shift+C and Mod+I center-visible-columns. In Umbriel centring the
 # strip is a setting (layout.scrolling.center_underfull_strip), not an action.
 
@@ -228,6 +227,9 @@
 # the nearest "restack this workspace" is a layout-mode change.
 "Mod+W" = "workspace-set-layout:toggle"
 "Mod+Shift+W" = "workspace-set-layout:scrolling"
+
+"Mod+X" = "layout-master-count-increase"
+"Mod+Shift+X" = "layout-master-count-decrease"
 
 # --- keyboard layout --------------------------------------------------
 "Mod+MouseForward" = "keyboard-layout-next" # niri: switch-layout "next"

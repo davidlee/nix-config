@@ -42,7 +42,7 @@ blur_optimized = true # niri: background-effect { xray true }
 
 [[window_rule]]
 match.app_id = "^com[.]mitchellh[.]ghostty$"
-opacity = 0.85
+opacity = 0.95
 
 # Noctalia's own windows.
 [[window_rule]]

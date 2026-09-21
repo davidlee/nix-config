@@ -14,7 +14,7 @@ prefer_no_csd = true
 border_width = 3      # niri: focus-ring { width 3 }
 outer_border_width = 0 # niri: border { off }
 corner_radius = 12    # niri: window-rule { geometry-corner-radius 12 }
-drag_opacity = 0.75
+drag_opacity = 0.9
 
 # niri: blur { passes 3; offset 3.0; noise 0.02; saturation 1.2 }
 # `optimized` is niri's window-rule background-effect xray.
@@ -32,23 +32,23 @@ saturation = 1.2
 # Umbriel has no spread and no draw-behind toggle.
 [appearance.shadow]
 enabled = true
-softness = 20
+softness = 30
 offset_x = 0
 offset_y = 3
 
 # --- layout -----------------------------------------------------------
 [layout]
 mode = "scrolling"
-gap = 16 # niri's default `gaps`, which the niri config left unset
+gap = 5 # niri's default `gaps`, which the niri config left unset
 # niri: preset-column-widths. Umbriel uses one preset list for both the
 # primary (column width) and secondary (window height) extent.
 extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8]
 
 [layout.struts]
-top = 1
-left = 10
-right = 10
-bottom = 10
+top = 0
+left = 0
+right = 0
+bottom = 0
 
 [layout.scrolling]
 default_extent_fraction = 0.2 # niri: default-column-width { proportion 0.2 }
