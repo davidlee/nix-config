@@ -1,3 +1,4 @@
+
 #!/usr/bin/env nu
 use std/dirs
 use modules/nav *
@@ -10,6 +11,7 @@ path add "~/nushell"
 source fzf.nu
 source private.local.nu
 source just.nu
+source "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
 #
 # Environment
 #

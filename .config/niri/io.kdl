@@ -9,50 +9,26 @@ input {
         numlock
     }
 
-    touchpad {
-        tap
-        natural-scroll
-    }
-
     mouse {
-        accel-speed 0.2
+        accel-speed 0.4
         // accel-profile "flat"
         // scroll-method "no-scroll"
     }
-    trackpoint { }
+    trackball {
+        accel-speed 0.2
+        scroll-button-lock
+    }
+
     // Setting max-scroll-amount="0%" makes it work only on windows already fully on screen.
-    // warp-mouse-to-focus
     focus-follows-mouse  max-scroll-amount="30%"
+    // warp-mouse-to-focus
+    workspace-auto-back-and-forth
 }
 
 
 // https://niri-wm.github.io/niri/Configuration:-Outputs
 output "DP-3" {
-    // Uncomment this line to disable this output.
-    // off
-
-    // Resolution and, optionally, refresh rate of the output.
-    // The format is "<width>x<height>" or "<width>x<height>@<refresh rate>".
-    // If the refresh rate is omitted, niri will pick the highest refresh rate
-    // for the resolution.
-    // If the mode is omitted altogether or is invalid, niri will pick one automatically.
-    // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    // mode "1920x1080@120.030"
-
-    scale 1.2
-
-    transform "normal"
-
-    // Position of the output in the global coordinate space.
-    // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
-    // The cursor can only move between directly adjacent outputs.
-    // Output scale and rotation has to be taken into account for positioning:
-    // outputs are sized in logical, or scaled, pixels.
-    // For example, a 3840×2160 output with scale 2.0 will have a logical size of 1920×1080,
-    // so to put another output directly adjacent to it on the right, set its x to 1920.
-    // If the position is unset or results in an overlap, the output is instead placed
-    // automatically.
-    // position x=1280 y=0
+    scale 1.1
 }
 
 

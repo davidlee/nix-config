@@ -36,7 +36,6 @@
     "https://github.com/cathrynlavery/diagram-design"
   ],
   "enabledModels": [
-    "openrouter/openrouter/free",
     "deepseek/deepseek-flash"
   ],
   "theme": "adwaita-dark",
