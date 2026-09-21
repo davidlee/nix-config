@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Raise, cycle, or spawn — mango port of ~/.local/bin/raise-cycle-spawn.
+#
+#   raise-cycle-spawn <appid> <command...>
+#
+#   no window matching <appid>  -> spawn <command...>
+#   one window                  -> focus it
+#   several                     -> focus the next one after the focused window
+#
+# mango has no built-in raise-or-run, so this drives it over mmsg(1).
+set -euo pipefail
+
+appid="${1:-}"
+shift || true
+if [[ -z "$appid" || $# -lt 1 ]]; then
+  echo "usage: ${0##*/} <appid> <command...>" >&2
+  exit 2
+fi
+
+mapfile -t ids < <(
+  mmsg get all-clients |
+    jq -r --arg a "$appid" '.clients[] | select(.appid == $a) | .id'
+)
+
+((${#ids[@]})) || exec "$@"
+
+focused=$(mmsg get focusing-client | jq -r '.id // empty')
+
+next=0
+for i in "${!ids[@]}"; do
+  if [[ "${ids[i]}" == "$focused" ]]; then
+    next=$(((i + 1) % ${#ids[@]}))
+    break
+  fi
+done
+
+mmsg dispatch "focusid" "client,${ids[next]}"

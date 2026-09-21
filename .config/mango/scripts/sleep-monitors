@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# niri's power-off-monitors. mango's sleep_monitor takes one monitor spec at a
+# time, so fan it out over every connected output.
+set -euo pipefail
+
+mmsg get all-monitors | jq -r '.monitors[].name' | while read -r mon; do
+  mmsg dispatch "sleep_monitor,$mon"
+done
