@@ -21,6 +21,10 @@ choose:
 fmt: check-flake-root
   nix fmt
 
+# behaviour tests for the plain scripts under modules/home/linux/bin/
+test:
+  modules/home/linux/bin/snooze-nag-test
+
 nixos-start-docker-daemon:
   systemctl --user start docker
 

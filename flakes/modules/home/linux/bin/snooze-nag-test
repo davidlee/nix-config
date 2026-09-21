@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# Behaviour tests for snooze-nag. No display, no notification daemon, and no
+# waiting: notify-send, systemctl, sleep and date are stubbed onto PATH, so
+# each case asserts the sequence the loop actually produced.
+#
+#   ./snooze-nag-test
+#
+# `snooze-nag` appends to PATH rather than prepending, which is what lets the
+# stubs below win.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/snooze-nag
+real_sleep=$(command -v sleep)
+
+stubs=$(mktemp -d)
+trap 'rm -rf "$stubs"' EXIT
+
+# ------------------------------------------------------------------ stubs
+
+# One line per call, consumed in order; the last line repeats once the script
+# runs out, so a case only has to write the lines that differ.
+cat >"$stubs/take" <<'EOF'
+#!/usr/bin/env bash
+n=$(cat "$SNOOZE_TEST_DIR/$1.n" 2>/dev/null || echo 1)
+echo $((n + 1)) >"$SNOOZE_TEST_DIR/$1.n"
+line=$(sed -n "${n}p" "$SNOOZE_TEST_DIR/$1")
+[ -n "$line" ] || line=$(tail -n 1 "$SNOOZE_TEST_DIR/$1")
+printf '%s\n' "$line"
+EOF
+
+# Logs the snooze label it was asked to draw, then answers from the script.
+# `absent` outlasts the caller's timeout, which is how a prompt nobody
+# answers is spelled; `dismiss` is the toast being closed with no action.
+cat >"$stubs/notify-send" <<EOF
+#!/usr/bin/env bash
+printf '%s\n' "\$*" | grep -o 'Snooze [0-9]*m' >>"\$SNOOZE_TEST_DIR/notify.log"
+answer=\$("$stubs/take" answers)
+case \$answer in
+  absent)  exec $real_sleep 30 ;;
+  dismiss) exit 0 ;;
+  fail)    exit 1 ;;
+  *)       printf '%s\n' "\$answer" ;;
+esac
+EOF
+
+cat >"$stubs/systemctl" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >>"$SNOOZE_TEST_DIR/systemctl.log"
+EOF
+
+# Returns at once: what matters is how long it was asked for.
+cat >"$stubs/sleep" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$1" >>"$SNOOZE_TEST_DIR/sleep.log"
+EOF
+
+# `+%-H` drives the night window and is scripted per case; everything else is
+# the clock the prompt prints, which no case asserts on.
+cat >"$stubs/date" <<EOF
+#!/usr/bin/env bash
+case \$1 in
+  +%-H) exec "$stubs/take" hours ;;
+  *)    printf '23:45\n' ;;
+esac
+EOF
+
+chmod +x "$stubs"/*
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+# run <answers> <hours> — comma-separated scripts for the two stubs above.
+# Leaves the three logs in $notify, $sleeps and $suspends.
+run() {
+  local work
+  work=$(mktemp -d)
+  tr ',' '\n' <<<"$1" >"$work/answers"
+  tr ',' '\n' <<<"$2" >"$work/hours"
+  : >"$work/notify.log"
+  : >"$work/sleep.log"
+  : >"$work/systemctl.log"
+
+  SNOOZE_TEST_DIR=$work PATH="$stubs:$PATH" SNOOZE_UNIT=1 SNOOZE_ABSENT=1 \
+    "$script"
+
+  notify=$(paste -sd, "$work/notify.log")
+  sleeps=$(paste -sd, "$work/sleep.log")
+  suspends=$(paste -sd, "$work/systemctl.log")
+  rm -rf "$work"
+}
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# ------------------------------------------------------------------ cases
+
+# The ladder shortens and then holds at its last rung for as long as you keep
+# pressing it. Six prompts, because the sixth answer is the one that isn't a
+# snooze.
+run 'snooze,snooze,snooze,snooze,snooze,bed' '23,23,23,23,23,23,7'
+check 'ladder: 20, 15, 10, then 5 forever' \
+  'Snooze 20m,Snooze 15m,Snooze 10m,Snooze 5m,Snooze 5m,Snooze 5m' "$notify"
+check 'ladder: waits out each grant' '20,15,10,5,5,5' "$sleeps"
+check 'ladder: suspends once, on Bed now' 'suspend' "$suspends"
+
+# Closing the toast without pressing anything is evasion, not absence: it
+# costs a rung and does not put the machine to sleep.
+run 'dismiss,snooze,bed' '23,23,23,7'
+check 'dismissal costs a rung' 'Snooze 20m,Snooze 15m,Snooze 10m' "$notify"
+check 'dismissal does not suspend' 'suspend' "$suspends"
+
+# A prompt nobody answers at all means nobody is at the machine.
+run 'absent' '23,7'
+check 'absence: asks once' 'Snooze 20m' "$notify"
+check 'absence: suspends' 'suspend' "$suspends"
+
+# A prompt that cannot be drawn at all — no session, no daemon — is a prompt
+# nobody answered. Looping silently without suspending is the failure the whole
+# thing replaces.
+run 'fail' '23,7'
+check 'unanswerable: suspends' 'suspend' "$suspends"
+
+# Whoever wakes the machine at 3am does not get twenty minutes back.
+run 'bed,snooze' '23,23,7'
+check 'after a suspend the ladder stays at its floor' \
+  'Snooze 20m,Snooze 5m' "$notify"
+
+# Outside the night window there is nothing to ask about.
+run 'snooze' '7'
+check 'morning: asks nothing' '' "$notify"
+check 'morning: suspends nothing' '' "$suspends"
+
+exit "$failed"

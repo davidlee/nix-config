@@ -1,29 +1,13 @@
+# The system half of snooze: the RTC wake alarm, and nothing else.
+#
+# Suspending is the user half's job (modules/home/linux/snooze.nix) — an
+# active session may `systemctl suspend` unprivileged, and the decision now
+# follows an answer to a prompt rather than a clock. Waking cannot move: only
+# a system timer may set `WakeSystem`.
 _: let
-  sleepTimes = ["23:20" "00:00" "00:30"]; # 23:20 is 5 min after user warning at 23:15
   wakeTime = "07:00";
 in {
   systemd = {
-    services.snooze-suspend = {
-      description = "Nightly suspend";
-      script = ''
-        # if [ -f /tmp/idle-inhibitor-active ]; then
-        #   echo "Idle inhibitor active, skipping suspend" >&2
-        #   exit 0
-        # fi
-        exec /run/current-system/sw/bin/systemctl suspend
-      '';
-      serviceConfig.Type = "oneshot";
-    };
-
-    timers.snooze-suspend = {
-      description = "Nightly suspend";
-      wantedBy = ["timers.target"];
-      timerConfig = {
-        OnCalendar = map (t: "*-*-* ${t}") sleepTimes;
-        AccuracySec = "1s";
-      };
-    };
-
     services.snooze-wake = {
       description = "RTC wake target (no-op)";
       serviceConfig.Type = "oneshot";

@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# snooze-nag — the bedtime ratchet. Started by snooze-nag.timer at 23:20.
+#
+# It asks whether to go to bed, and keeps asking. Each snooze is shorter than
+# the last — 20, 15, 10, then 5 minutes for as long as you keep pressing it.
+# There is deliberately no "off": turning the old fixed-time suspend off is
+# what this exists to make unnecessary.
+#
+# Three answers, three meanings:
+#
+#   Bed now             suspend.
+#   Snooze, or the toast closed with nothing pressed
+#                       you are at the machine and evading. Costs a rung.
+#   no answer at all    you are not at the machine. Suspend.
+#
+# The last is what makes walking away safe, and it is why closing the toast is
+# *not* read as absence: a careless swipe must not suspend the machine
+# mid-sentence. Only silence for the whole window means nobody is here.
+#
+# The ladder survives an actual suspend. `systemctl suspend` returns as soon
+# as the suspend is initiated, so the loop lives on; wake the machine at 3am
+# and it asks again within five minutes, at the bottom of the ladder. The
+# fixed 00:00 and 00:30 retries this replaces existed to patch that hole.
+#
+# It stops once it is morning, and the timer starts it again the next night.
+#
+# Dry-run it, with the ladder in seconds:
+#   SNOOZE_GRANTS='2 1' SNOOZE_UNIT=1 SNOOZE_ABSENT=1 snooze-nag
+# `snooze-nag-test`, alongside, holds the behaviour above without a display.
+
+set -euo pipefail
+
+# Appended rather than prepended: under systemd the user PATH is sparse and
+# these supply everything, while a shell that brought its own — yours, or the
+# test's stubs — keeps precedence.
+export PATH="$PATH:/etc/profiles/per-user/$USER/bin:/run/current-system/sw/bin:$HOME/.nix-profile/bin"
+
+# The ladder, in minutes. Its last rung repeats for as long as you keep
+# pressing snooze, so "five minutes forever" is written by ending on 5.
+read -ra grants <<<"${SNOOZE_GRANTS:-20 15 10 5}"
+floor=${grants[-1]}
+
+absent=${SNOOZE_ABSENT:-5}  # minutes of silence that mean nobody is here
+unit=${SNOOZE_UNIT:-60}     # seconds to a "minute"; a dry run compresses it
+night=${SNOOZE_NIGHT:-22}   # nagging hours are [night, 24) and [0, morning)
+morning=${SNOOZE_MORNING:-5}
+
+bedtime() {
+  local hour
+  hour=$(date +%-H)
+  [ "$hour" -ge "$night" ] || [ "$hour" -lt "$morning" ]
+}
+
+# What the prompt says about how long this has been going on. This is the
+# nagging; the buttons are only the mechanism.
+tally() { # <snoozes> <minutes>
+  local now
+  now=$(date +%H:%M)
+  if [ "$1" -eq 0 ]; then
+    printf '%s. Enough.' "$now"
+  else
+    printf '%s · %d snoozes · %d min past bedtime' "$now" "$1" "$2"
+  fi
+}
+
+rung=0
+snoozed=0
+
+while bedtime; do
+  grant=${grants[rung]:-$floor}
+
+  # --wait blocks until an action is pressed or the toast is closed, and
+  # --expire-time=0 keeps it up until one of those happens. `timeout` is
+  # therefore the only thing that can end this without a human, and its
+  # exit 124 is how absence is told apart from a dismissal.
+  if answer=$(timeout "$((absent * unit))" \
+    notify-send --urgency=critical --expire-time=0 --wait \
+    --action=bed="Bed now" --action=snooze="Snooze ${grant}m" \
+    "Go to bed" "$(tally "$rung" "$snoozed")"); then
+    rc=0
+  else
+    rc=$?
+  fi
+  [ "$rc" -eq 0 ] || [ "$rc" -eq 124 ] || echo "notify-send failed (rc $rc)" >&2
+
+  # Anything but a button coming back means nobody answered: the window ran
+  # out (124), or the prompt could not be drawn at all — no graphical
+  # session, no notification daemon. An unanswerable prompt is an unanswered
+  # one, and a nag that loops silently without ever suspending is precisely
+  # the failure this replaces.
+  if [ "$rc" -ne 0 ] || [ "$answer" = bed ]; then
+    systemctl suspend
+    # Pin to the floor. Whoever wakes this machine at 3am does not get
+    # twenty minutes back.
+    rung=${#grants[@]}
+    grant=$floor
+  else
+    # Anything else — the snooze button, a dismissal, an action id this
+    # script does not know — is a snooze. Nothing unexpected suspends.
+    snoozed=$((snoozed + grant))
+    rung=$((rung + 1))
+  fi
+
+  sleep "$((grant * unit))"
+done

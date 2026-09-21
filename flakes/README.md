@@ -144,15 +144,60 @@ Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single ob
 
 **swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service.
 
-### Snooze (sleep/wake timer)
+### Snooze (bedtime ratchet)
 
-`modules/nixos/snooze.nix` + `modules/home/nixos/snooze.nix` — suspends the machine nightly and wakes it via RTC alarm.
+`modules/home/linux/snooze.nix` + `modules/nixos/snooze.nix` — nags the machine
+to bed each night, and wakes it via RTC alarm.
 
-**System timers** (`nixosModules.snooze`): `snooze-suspend` runs `systemctl suspend` at 23:20. `snooze-wake` sets an RTC alarm (`WakeSystem=true`) for 07:00.
+A fixed-time suspend has one failure mode: you turn it off, and then you stay
+up. So nothing suspends on a clock any more. At 23:20 `snooze-nag.timer` starts
+`~/.local/bin/snooze-nag`, which asks, and keeps asking on a shortening leash.
 
-**User timer** (`homeModules.snooze`): `snooze-warn` sends a critical notification 5 minutes before suspend (23:15).
+```
+23:20  ┌─ morning yet? (05:00–21:59) ──> stop; the timer starts it again tonight
+       │
+       ├─ toast: "Go to bed"   [Bed now]  [Snooze 20m]
+       │    │
+       │    ├─ Bed now                    ──> suspend
+       │    ├─ no answer for 5 min        ──> nobody's here ──> suspend
+       │    └─ Snooze, or toast dismissed ──> costs a rung ──┐
+       └──────────────────────────────────────────────────── ┘
+            grants: 20, 15, 10, 5, 5, 5, … the last rung repeats
+```
 
-Times are configurable in the `let` blocks at the top of each module.
+Three properties it is built around:
+
+- **Dismissing is not an escape.** Swiping the toast away costs a rung like any
+  other answer. Only *Bed now*, or your absence, ends it.
+- **Absence suspends.** Silence for the whole five-minute window means you are
+  not at the machine — which is what the old fixed-time suspend assumed. So
+  does a prompt that cannot be drawn at all (no session, no notification
+  daemon): unanswerable is unanswered, and it says so in the journal. A nag
+  that loops silently without ever suspending would be the failure this
+  replaces, wearing a different hat.
+- **The ladder survives the suspend.** `systemctl suspend` returns as soon as
+  the suspend begins, so the loop lives on and is pinned to its floor. Wake the
+  machine at 3am and it asks again within five minutes. The old 00:00 and 00:30
+  retries existed to patch exactly that hole, and are gone.
+
+The nag is a `notify-send --wait --action=…` toast; noctalia renders the
+buttons and prints the pressed action on stdout. `timeout` is the only thing
+that can end a prompt without a human, and that is how absence is told apart
+from a dismissal.
+
+**System half** is now only `snooze-wake`: an RTC alarm (`WakeSystem=true`) for
+07:00, which needs a system timer. Suspending does not — an active session may
+`systemctl suspend` unprivileged — so it lives next to the person being asked.
+
+Bedtime and the wake time are in the `let` blocks at the top of each module;
+the ladder, the absence window and the night window are `SNOOZE_*` defaults at
+the top of the script.
+
+```bash
+just test                                              # behaviour tests, no display needed
+SNOOZE_GRANTS='2 1' SNOOZE_UNIT=1 SNOOZE_ABSENT=1 snooze-nag   # the whole ladder in seconds
+journalctl --user -u snooze-nag -f
+```
 
 ### Printing
 
