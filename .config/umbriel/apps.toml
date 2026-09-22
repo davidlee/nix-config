@@ -31,7 +31,7 @@
 "Ctrl+Alt+Shift+E" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
 
 # --- meh-key raise-or-run ---------------------------------------------
-"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn emacs emacs"
+"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn emacs emacsclient -n -c --alternate-editor="
 "Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn obsidian ~/.local/bin/obsidian"
 "Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn thunderbird thunderbird"
 "Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
