@@ -7,8 +7,6 @@ workspace "dev"
 workspace "comms"
 
 spawn-at-startup "noctalia"
-spawn-at-startup "stasis"
-spawn-at-startup "stasis tray"
 spawn-at-startup "niriusd"
 spawn-at-startup "vicinae" "server"
 

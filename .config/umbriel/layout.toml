@@ -52,7 +52,7 @@ bottom = 0
 
 [layout.scrolling]
 default_extent_fraction = 0.2 # niri: default-column-width { proportion 0.2 }
-center_underfull_strip = true
+center_underfull_strip = false
 center_focused = "on_overflow"
 
 # --- structural colors ------------------------------------------------

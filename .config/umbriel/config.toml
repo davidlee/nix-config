@@ -31,8 +31,6 @@ files = [
 [general]
 autostart = [
   "noctalia",
-  "stasis",
-  "stasis tray",
   "vicinae server",
   "1password --silent",
   "signal-desktop",

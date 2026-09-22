@@ -12,7 +12,6 @@
 
   environment.systemPackages = with pkgs; [
     xwayland-satellite
-    stasis
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     cosmic-edit
     cosmic-wallpapers
