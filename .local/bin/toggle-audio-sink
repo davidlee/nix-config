@@ -3,7 +3,7 @@
 # and move all active streams to the new sink.
 
 HEADPHONES="alsa_output.usb-SMSL_SMSL_USB_AUDIO-00.analog-stereo"
-SPEAKERS="alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.pro-output-0"
+SPEAKERS="alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo"
 
 current=$(pactl get-default-sink)
 

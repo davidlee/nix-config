@@ -11,3 +11,7 @@ export def path [id] {
 export def read [id] {
   op read (path $id)
 }
+
+export def seed [name] {
+
+}
