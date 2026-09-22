@@ -17,7 +17,6 @@
       ../../modules/nixos/avahi.nix
       ../../modules/nixos/bluetooth.nix
       ../../modules/nixos/boot.nix
-      ../../modules/nixos/browsers.nix
       ../../modules/nixos/capsule.nix
       ../../modules/nixos/cargo.nix
       ../../modules/nixos/env.nix
