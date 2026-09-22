@@ -32,6 +32,7 @@ $env.DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential"
 # $env.MISTRAL_API_KEY = "op://API_KEYS/MISTRAL_API_KEY/credential"
 # $env.VOYAGE_API_KEY = "op://API_KEYS/VOYAGE_API_KEY/credential"
 # $env.OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential"
+# $env.OPENAI_ALT_API_KEY = "op://API_KEYS/OPENAI_ALT_API_KEY/credential"
 # $env.GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential"
 # $env.ANTHROPIC_API_KEY = "op://API_KEYS/ANTHROPIC_API_KEY/credential"
 
