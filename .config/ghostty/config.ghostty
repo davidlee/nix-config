@@ -1,14 +1,12 @@
 # ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
 
 theme = noctalia
-# theme = noctalia
-# theme = noctalia
 background-opacity = 0.95
 background-blur = true
 
 window-decoration = none
-window-padding-x = 5
-window-padding-y = 5
+window-padding-x = 0
+window-padding-y = 0
 window-title-font-family="Hack"
 
 # keybind = control+m>t=toggle_quick_terminal
@@ -56,5 +54,8 @@ font-feature=-liga
 # keybind = shift+enter=text:\x1b\r
 
 keybind = control+t=unbind
+
+# more widespread support if we impersonate kitty
+term = xterm-kitty
 
 config-file = ?auto/theme.ghostty

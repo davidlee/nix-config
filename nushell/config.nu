@@ -11,6 +11,7 @@ path add "~/nushell"
 source fzf.nu
 source private.local.nu
 source just.nu
+use ./keys.nu
 source "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
 #
 # Environment
@@ -38,12 +39,8 @@ $env.DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential"
 
 $env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = 1
 
-path add "~/.local/bin"
-path add "~/.local/bin/scripts"
-path add ($env.CARGO_HOME | path join "bin")
-path add "~/go/bin"
-path add "~/.pnpm-global/bin"
-path add "~/.npm-global/bin"
+# the rest of these live in flakes/modules/nixos/env.nix, so pam_env puts them
+# on PATH for GUI apps and systemd --user units too, not just shells.
 path add "~/nushell"
 
 #
@@ -60,9 +57,8 @@ export alias g = dirs goto
 export alias n = dirs next
 export alias p = dirs prev
 
-export alias e = emacs -nw
+export alias e  = emacsclient -tty
 export alias ee = emacsclient -e
-export alias em = emacs
 export alias en = emacs -nw --no-wait
 export alias ec = emacsclient
 

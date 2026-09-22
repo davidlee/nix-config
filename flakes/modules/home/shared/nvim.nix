@@ -11,7 +11,7 @@ in {
 
   programs.neovim = {
     enable = true;
-    defaultEditor = true;
+    defaultEditor = false;
 
     withRuby = true;
     withPython3 = true;

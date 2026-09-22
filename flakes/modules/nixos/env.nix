@@ -5,6 +5,18 @@ _: {
       VISUAL = "hx";
       SSH_ASKPASS_REQUIRE = "prefer";
     };
+
+    # pam_env sets these at login, before the compositor starts, so GUI apps
+    # and systemd --user units inherit them - not just login shells.
+    # Prepended ahead of the nix profiles; see /etc/pam/environment.
+    sessionVariables.PATH = [
+      "$HOME/.local/bin"
+      "$HOME/.local/bin/scripts"
+      "$HOME/.cargo/bin"
+      "$HOME/go/bin"
+      "$HOME/.pnpm-global/bin"
+      "$HOME/.npm-global/bin"
+    ];
     pathsToLink = ["/share/zsh"]; # for autocompletion
   };
 

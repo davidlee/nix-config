@@ -17,7 +17,11 @@
       cursor.size = 24;
       keyboard.layout = "us";
       default = "niri";
-      default_session = username;
+      # default_session = username;
+      user.default = username;
+      appearance = {
+        scheme = "Synced";
+      };
     };
     cursorTheme = {
       package = pkgs.bibata-cursors;

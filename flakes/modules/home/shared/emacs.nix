@@ -27,12 +27,12 @@ in {
       })
     ]);
 
-  # DISABLED while I'm still rebooting all the time
-  # services = {
-  #   emacs = {
-  #     client.enable = true;
-  #     enable = false;
-  #     package = emacs;
-  #   };
-  # };
+  services = {
+    emacs = {
+      client.enable = true;
+      enable = true;
+      package = emacs;
+      defaultEditor = true;
+    };
+  };
 }
