@@ -44,6 +44,12 @@ blur_optimized = true # niri: background-effect { xray true }
 match.app_id = "^com[.]mitchellh[.]ghostty$"
 opacity = 0.95
 
+[[window_rule]]
+match.app_id = "^emergency-htop$"
+default_pinned = true
+default_floating = true
+default_focused = true
+
 # Noctalia's own windows.
 [[window_rule]]
 match.app_id = "^dev[.]noctalia[.]Noctalia$"

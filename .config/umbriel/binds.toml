@@ -44,6 +44,7 @@
 "Mod+U" = "spawn:noctalia msg panel-toggle control-center notifications"
 "Mod+L" = "spawn:noctalia msg panel-toggle control-center"
 "Mod+Shift+U" = "spawn:noctalia msg notification-dnd-toggle"
+"Mod+Ctrl+Delete" = "spawn:kitty --class emergency-htop -o initial_window_width=120c -o initial_window_height=40c -e htop"
 
 # Applications that inhibit shortcuts (remote desktop, software KVM) still
 # leave this one way out.
