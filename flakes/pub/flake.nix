@@ -8,7 +8,6 @@
     # The one agent pin for every consumer. Deliberately NOT following
     # nixpkgs, so the numtide binary cache (cache.numtide.com) applies.
     llm-agents.url = "github:numtide/llm-agents.nix";
-    emacs-overlay.url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
   };
 
   outputs = {
@@ -16,14 +15,12 @@
     flake-utils,
     jail-nix,
     llm-agents,
-    emacs-overlay,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
-        overlays = [emacs-overlay.overlays.default];
       };
 
       # `llm-agents` defaults to pub's own pin; pass one only to diverge.
@@ -56,7 +53,6 @@
         };
       };
 
-      packages.emacs = import ./emacs.nix {inherit pkgs;};
       # packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
       packages.dirge = pkgs.callPackage ./dirge.nix {};

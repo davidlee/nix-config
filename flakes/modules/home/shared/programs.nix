@@ -13,20 +13,28 @@
       enableBashIntegration = true;
       enableNushellIntegration = true;
       nix-direnv.enable = true;
-      # `use flake_pub [args]`: `use flake .`, but read ~/flakes/pub live
-      # instead of from the project's flake.lock, so bumping pub's
-      # llm-agents pin reaches every project on its next reload. Falls
-      # back to the lock where ~/flakes/pub is absent. Template:
-      # ~/flakes/_templates/agents/_envrc.
+      # `use flake_local <input>... [args]`: `use flake .`, but each named
+      # input is read live from ~/flakes/<input> rather than the project's
+      # flake.lock, so a bump there reaches every project on its next reload.
+      # Leading words name inputs; the rest pass to `use flake`. An input
+      # whose checkout is absent keeps its lock. `use flake_pub` is the
+      # common case. Template: ~/flakes/_templates/agents/_envrc.
       stdlib = ''
-        use_flake_pub() {
-          local pub="$HOME/flakes/pub" args=()
-          if [[ -d $pub ]]; then
-            args=(--override-input pub "path:$pub")
-            watch_file "$pub/flake.lock" "$pub"/*.nix
-          fi
+        use_flake_local() {
+          local args=() dir
+          while [[ $# -gt 0 && $1 != -* ]]; do
+            dir="$HOME/flakes/$1"
+            if [[ -d $dir ]]; then
+              args+=(--override-input "$1" "path:$dir")
+              watch_file "$dir/flake.lock" "$dir"/*.nix
+            else
+              log_status "flake_local: no $dir; $1 from lock"
+            fi
+            shift
+          done
           use flake . "''${args[@]}" "$@"
         }
+        use_flake_pub() { use_flake_local pub "$@"; }
       '';
     };
 

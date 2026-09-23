@@ -1,5 +1,5 @@
 {pkgs, ...}: let
-  emacs = import ../../../pub/emacs.nix {inherit pkgs;};
+  emacs = import ../../../emacs/emacs.nix {inherit pkgs;};
 in {
   imports = [./shpool.nix];
 
