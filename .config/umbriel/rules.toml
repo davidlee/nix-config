@@ -104,8 +104,16 @@ default_floating = true
 
 [[window_rule]]
 match.app_id = "^1password$"
+match.title = "^.* .*$" # not a popup if it's got a space
 default_scratchpad = "onepassword"
 default_floating = true
+
+[[window_rule]]
+# popup credential prompt
+match.title = "^1Password"
+default_floating = true
+default_focused = true
+default_pinned = true
 
 [[window_rule]]
 match.app_id = "^com[.]system76[.]CosmicEdit$"
