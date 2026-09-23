@@ -142,10 +142,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # lem = {
-    #    url = "github:lem-project/lem";
-    #    inputs.nixpkgs.follows = "nixpkgs-home";
-    #  };
+    lem = {
+      url = "github:lem-project/lem";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
 
     niri = {
       url = "github:sodiboo/niri-flake";
@@ -329,7 +329,10 @@
           in {
             "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
-              modules = [./hosts/${hostname}/home.nix];
+              modules = [
+                ./hosts/${hostname}/home.nix
+                {nixpkgs.overlays = [inputs.lem.overlays.default];}
+              ];
               extraSpecialArgs = {
                 inherit inputs username features;
               };

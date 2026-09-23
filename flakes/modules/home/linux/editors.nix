@@ -3,5 +3,6 @@
     # obsidian
     sublime-merge
     joplin
+    lem-ncurses
   ];
 }
