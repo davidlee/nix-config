@@ -7,6 +7,10 @@
 # emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
 system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/"
 
+# flakes/emacs is locked from GitHub (portable); switch from the checkout so an
+# emacs.nix edit lands without push + `nix flake update emacs`.
+home_override := "--override-input emacs path:" + justfile_directory() + "/emacs"
+
 flake := "."
 
 default: update-local fmt doctor choose
@@ -39,16 +43,16 @@ system-switch: check-flake-root #check-no-root-pub
   sudo ./run.sh switch {{system_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  home-manager switch --flake '.#david'
+  home-manager switch --flake '.#david' {{home_override}}
 
 home-build: check-flake-root #check-no-root-pub
-  home-manager build --flake '.#david'
+  home-manager build --flake '.#david' {{home_override}}
 
 doctor:
   sleipnir-doctor
 
 darwin-switch:
-  darwin-rebuild switch --flake '.#fusillade'
+  darwin-rebuild switch --flake '.#fusillade' {{home_override}}
 
 everything: update-system update-home system-switch home-switch
 

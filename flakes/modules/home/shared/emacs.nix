@@ -1,5 +1,11 @@
-{pkgs, ...}: let
-  emacs = import ../../../emacs/emacs.nix {inherit pkgs;};
+{
+  pkgs,
+  inputs,
+  ...
+}: let
+  # From flakes/emacs, not built against this host's pkgs: the same
+  # derivation the ~/.emacs.d devshell runs.
+  emacs = inputs.emacs.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in {
   imports = [./shpool.nix];
 

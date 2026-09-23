@@ -40,9 +40,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    emacs-overlay = {
-      url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
-    };
+    # Wrapped Emacs (the manual package list), shared with the ~/.emacs.d and
+    # satan devshells — one derivation, one set of pins (its own nixpkgs and
+    # overlay). GitHub for portability: darwin has no /home/david. The
+    # justfile's switch targets override it with the local checkout, so an
+    # emacs.nix edit lands without a push.
+    emacs.url = "github:davidlee/nix-config?dir=flakes/emacs";
 
     # To bump: change the tag below, then `nix flake update llama-cpp-src`.
     # The build number is derived from this ref in modules/overlays/llama-edge.nix.
@@ -273,7 +276,6 @@
               hostPlatform = system;
               config.allowUnfree = true;
               overlays = [
-                inputs.emacs-overlay.overlays.default
                 (final: prev: {
                   direnv = prev.direnv.overrideAttrs (old: {
                     doCheck = false;
@@ -319,7 +321,6 @@
               inherit system;
               config.allowUnfree = true;
               overlays = [
-                inputs.emacs-overlay.overlays.default
                 inputs.claude-desktop.overlays.default
                 self.overlays.agents
               ];
