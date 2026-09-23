@@ -66,7 +66,7 @@ update-home:
   nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
 
 update-local:
-  nix flake update satan-attrd panopticon satan-patcher {{system_override}}
+  nix flake update satan satan-attrd panopticon satan-patcher {{system_override}}
 
 # bump agents/zerostack.nix to its github default-branch HEAD; commit+push to ship
 update-zerostack:
