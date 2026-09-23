@@ -8,17 +8,17 @@
 #
 # Online profiles (specDev, research) auto-wrap with `op run` to inject
 # API keys from 1Password. Override the ref map at mkJailedAgents time
-# if your vault layout differs (see pub/README.md).
+# if your vault layout differs (see agents/README.md).
 #
 # If the caller already holds resolved plaintext (e.g. a long-lived
 # broker with a session credential cache), set:
 #   useOpEnv = false; passApiKeysFromEnv = true;
 # to skip the outer `op run` wrapper while keeping the bwrap
-# `--setenv VAR "$VAR"` forwarding. See pub/README.md > "Pre-resolved
+# `--setenv VAR "$VAR"` forwarding. See agents/README.md > "Pre-resolved
 # secrets" for the full rationale.
 #
 # Usage:
-#   mv _envrc .envrc && direnv allow   # live pub: agent bumps need no lock update
+#   mv _envrc .envrc && direnv allow   # live agents: agent bumps need no lock update
 #   nix develop
 #   jailed-claude   # or jailed-pi, jailed-codex, jailed-gemini, ...
 #   jcl             # shorthand: jailed-claude --dangerously-skip-permissions
@@ -29,7 +29,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
-    pub.url = "github:davidlee/nix-config?dir=flakes/pub";
+    agents.url = "github:davidlee/nix-config?dir=flakes/agents";
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -54,7 +54,7 @@
         # jail.nix is Linux-only (bubblewrap). Darwin gets a plain devshell.
         jailLib =
           if isLinux
-          then inputs.pub.lib.${system}.mkJailedAgents {}
+          then inputs.agents.lib.${system}.mkJailedAgents {}
           else {};
 
         # Unjailed agent CLIs (llm-agents builds) under short names. Linux
@@ -62,7 +62,7 @@
         # directly instead, apply the overlay at the top of perSystem:
         #   _module.args.pkgs = import inputs.nixpkgs {
         #     inherit system; config.allowUnfree = true;
-        #     overlays = [ (inputs.pub.lib.${system}.agentsOverlay {}) ];
+        #     overlays = [ (inputs.agents.lib.${system}.agentsOverlay {}) ];
         #   };
         agents = lib.optionalAttrs isLinux jailLib.agentsByName;
 

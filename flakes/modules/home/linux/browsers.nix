@@ -5,7 +5,7 @@
   ...
 }: {
   home.packages = with pkgs; [
-    # (callPackage ../../../pub/helium.nix {})
+    # (callPackage ../../../packages/helium.nix {})
     # ladybird
     vivaldi
     ungoogled-chromium

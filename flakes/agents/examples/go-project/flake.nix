@@ -4,18 +4,17 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    pub.url = "github:davidlee/nix-config?dir=flakes/pub";
+    agents.url = "github:davidlee/nix-config?dir=flakes/agents";
   };
 
-  outputs = {
+  outputs = inputs @ {
     nixpkgs,
     flake-utils,
-    pub,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-      agents = pub.lib.${system}.mkJailedAgents {};
+      agents = inputs.agents.lib.${system}.mkJailedAgents {};
       goPkgs = with pkgs; [go gopls golangci-lint];
     in {
       devShells.default = pkgs.mkShell {

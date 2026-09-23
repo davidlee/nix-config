@@ -68,17 +68,17 @@ update-home:
 update-local:
   nix flake update satan-attrd panopticon satan-patcher {{system_override}}
 
-# bump pub/zerostack.nix to its github default-branch HEAD; commit+push to ship
+# bump agents/zerostack.nix to its github default-branch HEAD; commit+push to ship
 update-zerostack:
   #!/usr/bin/env bash
   set -euo pipefail
-  f=pub/zerostack.nix
+  f=agents/zerostack.nix
   json=$(nix run nixpkgs#nix-prefetch-git -- --url https://github.com/gi-dellav/zerostack --rev refs/heads/main --quiet)
   rev=$(echo "$json"  | nix run nixpkgs#jq -- -r .rev)
   hash=$(echo "$json" | nix run nixpkgs#jq -- -r .hash)
   date=$(echo "$json" | nix run nixpkgs#jq -- -r '.date[:10]')
   sed -i -E "s|-unstable-[0-9-]+\"|-unstable-${date}\"|; s|rev = \"[0-9a-f]+\"|rev = \"${rev}\"|; s|hash = \"sha256-[^\"]+\"|hash = \"${hash}\"|" "$f"
-  echo "zerostack -> ${rev} (${date})  — commit so downstream agent flakes can re-lock pub"
+  echo "zerostack -> ${rev} (${date})  — commit so downstream agent flakes can re-lock agents"
 
 update-all:
   nix flake update

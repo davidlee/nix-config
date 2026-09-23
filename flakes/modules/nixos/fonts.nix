@@ -88,7 +88,7 @@
       dina-font
 
       # Display / specialty
-      (pkgs.callPackage ../../pub/clockface-font.nix {})
+      (pkgs.callPackage ../../packages/clockface-font.nix {})
     ];
 
     fontconfig = {

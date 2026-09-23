@@ -6,24 +6,25 @@
     nixpkgs-home.url = "github:nixos/nixpkgs/nixos-unstable";
     stable.url = "github:nixos/nixpkgs/nixos-24.11";
 
-    # follows-anchor for panopticon/satan/satan-attrd's (nested) pub inputs,
-    # so they share this one copy instead of vendoring their own. Also
-    # consumed directly by overlays/agents.nix (linux only).
+    # Jailed agents (formerly `pub`). Follows-anchor for panopticon/satan/
+    # satan-attrd's (nested) `pub` inputs, so they share this one copy
+    # instead of vendoring their own. Also consumed directly by
+    # overlays/agents.nix (linux only).
     #
-    # Absolute, not `path:./pub`: a relative path input can be resolved while
-    # *locking* (parent flake known) but not while *evaluating* — call-flake
-    # hands fetchTree the locked attrs alone, which for a relative path is
-    # unfetchable ("cannot fetch input 'path:./pub' because it uses a
-    # relative path"). It only appears to work while the fetcher cache is
+    # Absolute, not `path:./agents`: a relative path input can be resolved
+    # while *locking* (parent flake known) but not while *evaluating* —
+    # call-flake hands fetchTree the locked attrs alone, which for a relative
+    # path is unfetchable ("cannot fetch input 'path:./agents' because it uses
+    # a relative path"). It only appears to work while the fetcher cache is
     # warm. Sleipnir-only path; nothing on darwin forces this input.
-    pub.url = "path:/home/david/flakes/pub";
+    agents.url = "path:/home/david/flakes/agents";
 
-    # Agent CLIs (codex, claude, gemini, ...). Follows pub's pin, so host
-    # and every project jail share one agent version: bump it in pub
-    # (`nix flake update llm-agents`), then `nix flake update pub` here.
-    # pub keeps llm-agents off our nixpkgs so the numtide binary cache
+    # Agent CLIs (codex, claude, gemini, ...). Follows agents' pin, so host
+    # and every project jail share one agent version: bump it in agents
+    # (`nix flake update llm-agents`), then `nix flake update agents` here.
+    # agents keeps llm-agents off our nixpkgs so the numtide binary cache
     # (cache.numtide.com) applies. Injected via overlays/agents.nix.
-    llm-agents.follows = "pub/llm-agents";
+    llm-agents.follows = "agents/llm-agents";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -72,16 +73,16 @@
     panopticon = {
       url = "path:/home/david/dev/panopticon";
       inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "pub";
-      inputs.doctrine.inputs.pub.follows = "pub";
+      inputs.pub.follows = "agents";
+      inputs.doctrine.inputs.pub.follows = "agents";
     };
 
     satan = {
       # url = "path:/home/david/dev/satan";
       url = "github:davidlee/satan";
       inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "pub";
-      inputs.doctrine.inputs.pub.follows = "pub";
+      inputs.pub.follows = "agents";
+      inputs.doctrine.inputs.pub.follows = "agents";
     };
 
     satan-patcher = {
@@ -92,8 +93,8 @@
     satan-attrd = {
       url = "path:/home/david/dev/satan-attrd";
       inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "pub";
-      inputs.spec-driver.inputs.pub.follows = "pub";
+      inputs.pub.follows = "agents";
+      inputs.spec-driver.inputs.pub.follows = "agents";
     };
 
     goad = {
@@ -111,7 +112,7 @@
     # `target` is the repo oubliette confines — doctrine, as
     # `git+file:///home/david/dev/doctrine`, a path that exists on Sleipnir and
     # nowhere else, so locking or updating this input from darwin would try to
-    # fetch something that isn't there — same class of problem as `pub` above.
+    # fetch something that isn't there — same class of problem as `agents` above.
     # Nothing here reads it: it feeds oubliette's
     # nixosConfigurations.capsule (the guest's tool set), which this flake never
     # evaluates. Importing microvm.nix's *host* module does not change that;
