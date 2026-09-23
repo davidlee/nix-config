@@ -18,10 +18,12 @@
     # warm. Sleipnir-only path; nothing on darwin forces this input.
     pub.url = "path:/home/david/flakes/pub";
 
-    # Agent CLIs (codex, claude, gemini, ...). Deliberately NOT following
-    # nixpkgs: keep llm-agents' own pin so its numtide binary cache
+    # Agent CLIs (codex, claude, gemini, ...). Follows pub's pin, so host
+    # and every project jail share one agent version: bump it in pub
+    # (`nix flake update llm-agents`), then `nix flake update pub` here.
+    # pub keeps llm-agents off our nixpkgs so the numtide binary cache
     # (cache.numtide.com) applies. Injected via overlays/agents.nix.
-    llm-agents.url = "github:numtide/llm-agents.nix";
+    llm-agents.follows = "pub/llm-agents";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";

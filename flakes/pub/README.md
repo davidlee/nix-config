@@ -17,12 +17,12 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 - `unjailed` — name→package map of the **bare** (un-jailed) agents, resolved
   from the same eval as the jails. Use it to put agents on the host devShell
-  PATH (`with agents.unjailed; [ pi dirge ]`) without separately wiring
-  `llm-agents`. Same drvs the jails bundle, so no extra rebuild.
+  PATH (`with agents.unjailed; [ pi dirge ]`). Same drvs the jails bundle, so no extra rebuild.
 
 Agent packages come from
-[llm-agents.nix](https://github.com/numtide/llm-agents.nix), which callers
-provide as a flake input (see usage below). One exception:
+[llm-agents.nix](https://github.com/numtide/llm-agents.nix), pinned **once, in
+this flake** — every consumer (and the host) shares that pin. A caller may pass
+its own `llm-agents` to `mkJailedAgents` / `agentsOverlay` to diverge. One exception:
 [`zerostack`](https://github.com/gi-dellav/zerostack) is built in-tree
 (`./zerostack.nix`, `rustPlatform.buildRustPackage`) because it is not yet in
 `llm-agents.nix`. The derivation is also exported as `packages.zerostack`.
@@ -76,7 +76,6 @@ library if a composition root wants a host-specific identity:
 
 ```nix
 agents = inputs.pub.lib.${system}.mkJailedAgents {
-  inherit (inputs) llm-agents;
   gitIdentity = {
     authorName = "Project agent";
     authorEmail = "agent@example.test";
@@ -109,8 +108,7 @@ agents, so total nesting depth (e.g. `claude → pi → dirge`) stops once
 
 ### Usage
 
-Add this flake and `llm-agents.nix` as inputs, then call `mkJailedAgents`
-with your own `llm-agents` pin:
+Add this flake as an input, then call `mkJailedAgents`:
 
 ```nix
 {
@@ -118,13 +116,12 @@ with your own `llm-agents` pin:
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     pub.url = "github:davidlee/nix-config?dir=flakes/pub";
-    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
-  outputs = { nixpkgs, flake-utils, pub, llm-agents, ... }:
+  outputs = { nixpkgs, flake-utils, pub, ... }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs { inherit system; };
-      agents = pub.lib.${system}.mkJailedAgents { inherit llm-agents; };
+      agents = pub.lib.${system}.mkJailedAgents { };
 
       # Forward project env into the jail via bwrap --setenv
       envOptions = with agents.combinators; [
@@ -180,8 +177,21 @@ colon-separated absolute paths. It is read only during impure evaluation and
 merged with `workspaceDeps`; under pure evaluation an unset/inaccessible value
 is simply ignored.
 
-Because `llm-agents` is pinned in the calling flake, updating agents is a
-single `nix flake update llm-agents` — no intermediate commit/push needed.
+### Updating agents
+
+The pin lives in `pub/flake.lock`. Bump it once:
+
+```
+cd ~/flakes/pub && nix flake update llm-agents
+```
+
+Projects whose `.envrc` uses `use flake_pub` (template:
+`_templates/agents/_envrc`; helper: direnv stdlib in
+`modules/home/shared/programs.nix`) read pub live via `--override-input`, so
+the bump lands on their next direnv reload — no per-project lock update. The
+host picks it up on `just home-switch` (which runs `nix flake update pub`).
+Plain `nix develop`, CI, and other machines use the project's committed lock;
+refresh that with `nix flake update pub`.
 
 Then from the project directory:
 
@@ -231,7 +241,6 @@ Override the ref map at import time:
 
 ```nix
 agents = inputs.pub.lib.${system}.mkJailedAgents {
-  inherit (inputs) llm-agents;
   apiKeyOpRefs = {
     OPENROUTER_API_KEY = "op://Work/OpenRouter/credential";
     OPENAI_API_KEY     = "op://Work/OpenAI/credential";

@@ -13,6 +13,21 @@
       enableBashIntegration = true;
       enableNushellIntegration = true;
       nix-direnv.enable = true;
+      # `use flake_pub [args]`: `use flake .`, but read ~/flakes/pub live
+      # instead of from the project's flake.lock, so bumping pub's
+      # llm-agents pin reaches every project on its next reload. Falls
+      # back to the lock where ~/flakes/pub is absent. Template:
+      # ~/flakes/_templates/agents/_envrc.
+      stdlib = ''
+        use_flake_pub() {
+          local pub="$HOME/flakes/pub" args=()
+          if [[ -d $pub ]]; then
+            args=(--override-input pub "path:$pub")
+            watch_file "$pub/flake.lock" "$pub"/*.nix
+          fi
+          use flake . "''${args[@]}" "$@"
+        }
+      '';
     };
 
     yazi = {

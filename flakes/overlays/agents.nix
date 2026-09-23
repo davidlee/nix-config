@@ -7,4 +7,4 @@
 # to). Reading `prev.system` instead would force the target pkgs fixpoint
 # from inside the overlay, recursing through stdenv bootstrap. The agent
 # packages come from pub's own pkgs and are independent of final/prev.
-{inputs}: inputs.pub.lib.x86_64-linux.agentsOverlay {inherit (inputs) llm-agents;}
+{inputs}: inputs.pub.lib.x86_64-linux.agentsOverlay {}

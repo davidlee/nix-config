@@ -18,6 +18,7 @@
 # secrets" for the full rationale.
 #
 # Usage:
+#   mv _envrc .envrc && direnv allow   # live pub: agent bumps need no lock update
 #   nix develop
 #   jailed-claude   # or jailed-pi, jailed-codex, jailed-gemini, ...
 #   jcl             # shorthand: jailed-claude --dangerously-skip-permissions
@@ -28,8 +29,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
-    pub.url = "github:davidlee/nix-config?dir=/flakes/pub";
-    llm-agents.url = "github:numtide/llm-agents.nix";
+    pub.url = "github:davidlee/nix-config?dir=flakes/pub";
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -54,7 +54,7 @@
         # jail.nix is Linux-only (bubblewrap). Darwin gets a plain devshell.
         jailLib =
           if isLinux
-          then inputs.pub.lib.${system}.mkJailedAgents {inherit (inputs) llm-agents;}
+          then inputs.pub.lib.${system}.mkJailedAgents {}
           else {};
 
         # Unjailed agent CLIs (llm-agents builds) under short names. Linux
@@ -62,7 +62,7 @@
         # directly instead, apply the overlay at the top of perSystem:
         #   _module.args.pkgs = import inputs.nixpkgs {
         #     inherit system; config.allowUnfree = true;
-        #     overlays = [ (inputs.pub.lib.${system}.agentsOverlay {inherit (inputs) llm-agents;}) ];
+        #     overlays = [ (inputs.pub.lib.${system}.agentsOverlay {}) ];
         #   };
         agents = lib.optionalAttrs isLinux jailLib.agentsByName;
 
