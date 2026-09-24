@@ -140,7 +140,7 @@ Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single ob
 
 **User session protection:** `user@1000` gets `CPUWeight=200` and `MemoryLow=512M`, guaranteeing the compositor and a rescue terminal get CPU time and memory even when the system is thrashing.
 
-**Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` for manual triage.
+*Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` for manual triage.
 
 **swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service.
 

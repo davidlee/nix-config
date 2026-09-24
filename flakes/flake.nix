@@ -81,8 +81,8 @@
       # url = "path:/home/david/dev/satan";
       url = "github:davidlee/satan";
       inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "agents";
-      inputs.doctrine.inputs.pub.follows = "agents";
+      inputs.agents.follows = "agents";
+      inputs.doctrine.inputs.agents.follows = "agents";
     };
 
     satan-patcher = {
