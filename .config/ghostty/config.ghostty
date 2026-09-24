@@ -5,8 +5,8 @@ theme = noctalia
 background-blur = true
 
 window-decoration = none
-window-padding-x = 0
-window-padding-y = 0
+window-padding-x = 5
+window-padding-y = 5
 window-title-font-family="Hack"
 
 # keybind = control+m>t=toggle_quick_terminal

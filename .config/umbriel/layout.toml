@@ -42,7 +42,7 @@ mode = "scrolling"
 gap = 5 # niri's default `gaps`, which the niri config left unset
 # niri: preset-column-widths. Umbriel uses one preset list for both the
 # primary (column width) and secondary (window height) extent.
-extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8]
+extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8, 1]
 
 [layout.struts]
 top = 0

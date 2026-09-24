@@ -59,4 +59,4 @@
 
 separate billing. Use (judiciously) for design reviews, etc.
 
-gpt-5.6-sol (current) - Frontier. Best architect / reviewer.
+gpt-6-sol unless instructed otherwise - frontier, best day to day architect / reviewer.
