@@ -5,7 +5,7 @@
 #
 # State + artefacts:
 #   ~/.config/satan-patcher/policy.toml           ← runner policy
-#   ~/satan/patch-agent/prompt.md                 ← adapter system prompt
+#   ~/satan-corpus/patch-agent/prompt.md                 ← adapter system prompt
 #   ~/.local/state/satan/patch-agent/{logs,worktrees}/
 #
 # Smoke:
@@ -30,7 +30,7 @@
     opAccount = "my.1password.com";
     # The module's own default still names ~/notes/satan (CHR-003); the
     # corpus lives in its own repo since SL-015.
-    systemPromptFile = "%h/satan/patch-agent/prompt.md";
+    systemPromptFile = "%h/satan-corpus/patch-agent/prompt.md";
     apiKeyRefs = {
       OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential";
       DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential";

@@ -10,13 +10,13 @@
 # State + artefacts:
 #   Config at ~/.config/goad/config.toml — the path `goad` with no argument
 #   reads.  It names the backend command and the ingress socket.
-#   Backend and its per-day records: ~/satan/goad/ (backend.py, data/).
+#   Backend and its per-day records: ~/satan-corpus/goad/ (backend.py, data/).
 #   ~/.config/goad/env belongs to the *cargo* install path (`just install`)
 #   and is NOT read by this unit: the packaged binary is wrapped and carries
 #   LD_LIBRARY_PATH and FONTCONFIG_FILE itself, so there is no second file
 #   to drift against the build the unit runs.
 #
-# Replaces the hand-written unit at ~/satan/goad/goad.service.
+# Replaces the hand-written unit at ~/satan-corpus/goad/goad.service.
 #
 # A refusal is exit 2 and the unit's RestartPreventExitStatus stops rather
 # than loops; the diagnostic naming the configuration file is on stderr.

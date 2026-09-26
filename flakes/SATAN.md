@@ -15,7 +15,7 @@ relying on a line number.
 | Part | Path | Flake input here | Deployed by |
 |---|---|---|---|
 | broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.emacs.d/apps/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`modules/home/linux/satan.nix:19-21`) |
-| corpus | `~/satan` | — | own repo; `just commit` there |
+| corpus | `~/satan-corpus` | — | own repo; `just commit` there |
 | editor config | `~/.emacs.d` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`modules/home/shared/emacs.nix:36-43`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `modules/home/linux/satan-attrd.nix` |
 | satan-patcher (= `~/dev/sloptower` symlink) | `~/dev/satan-patcher` | `path:` (`flake.nix:88-91`) | `modules/home/linux/satan-patcher.nix` |
@@ -67,10 +67,10 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | Root | Path |
 |---|---|
 | notes (user's; SATAN read-only) | `~/notes` |
-| corpus | `~/satan` |
+| corpus | `~/satan-corpus` |
 | state | `~/.local/state/satan` (`runs/`, sensor JSON, `goad/queue.json`, `patch-agent/{logs,worktrees}`, `log/wpm/`) |
 | perception | `~/.local/state/behaviour` (panopticon) |
-| goad day records | `~/satan/goad/data/` (written by `~/satan/goad/backend.py`) |
+| goad day records | `~/satan-corpus/goad/data/` (written by `~/satan-corpus/goad/backend.py`) |
 | MCP socket | `/run/user/1000/satan/mcp/mcp.sock` |
 | Emacs server socket | `/run/user/1000/emacs/server` |
 | goad ingress | `/run/user/1000/goad.sock` |
@@ -99,18 +99,18 @@ persists `$HOME` from `~/.local/share/jail.nix/home/<profile-home>` (`specDev`
 
 ### Host path → in-jail path
 
-| Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan` flake) | patcher job (`jailed-pi`) |
+| Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan-corpus` flake) | patcher job (`jailed-pi`) |
 |---|---|---|---|---|
-| launcher cwd | `/workspace/<basename>` rw — Emacs cwd, probably `~` | `/workspace/satan` | `/workspace/satan` | `/workspace/<job-id>` (job clone) |
-| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan-src` ro | — |
+| launcher cwd | `/workspace/<basename>` rw — Emacs cwd, probably `~` | `/workspace/satan` | `/workspace/satan-corpus` | `/workspace/<job-id>` (job clone) |
+| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` rw (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) | — |
 | `~/notes` | `/satan/notes` ro | `/workspace/notes` **rw** | `/workspace/notes` rw | `/workspace/notes` rw |
-| `~/satan` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/corpus` rw | cwd | `/workspace/corpus` rw |
+| `~/satan-corpus` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/satan-corpus` rw | cwd (`/workspace/satan-corpus`) | `/workspace/satan-corpus` rw |
 | run dir | `/satan/run` | — | — | — |
 | `~/.local/state/behaviour` | — | `/workspace/behaviour` rw | — | `/workspace/behaviour` rw |
 | `~/flakes`, attrd, patcher, panopticon repos | — | `/workspace/<name>` rw | — | same as dev |
 | MCP socket, Emacs server socket | — | same path, rw | MCP only | — |
 
-Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan/flake.nix:55-66`;
+Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan-corpus/flake.nix:55-66`;
 `~/dev/satan-patcher/internal/worktree/worktree.go:42-70`. Other repos' dev
 jails differ again: satan-attrd adds `/run/postgresql` + the docker socket;
 goad adds `~/.local/src/slint` → `/workspace/slint` ro; panopticon adds the
