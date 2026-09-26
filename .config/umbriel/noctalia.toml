@@ -20,8 +20,8 @@ insert_hint = "#7AA2F780"     # niri: insert-hint { color "#7aa2f780" }
 [colors.border]
 focused = "#7AA2F7FF"         # niri: focus-ring { active-color }
 unfocused = "#1A1B26FF"       # niri: focus-ring { inactive-color }
-scratchpad_focused = "#E0AF68FF"
-scratchpad_unfocused = "#3D2F14FF"
+#scratchpad_focused = "#E0AF68FF"
+#scratchpad_unfocused = "#3D2F14FF"
 outer = "#1A1B26FF"
 
 [colors.overview]

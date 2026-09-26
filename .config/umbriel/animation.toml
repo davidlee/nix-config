@@ -48,7 +48,6 @@ curve = "easeout"
 # horizontal-view-movement (180ms ease-out-quad).
 [animation.overview]
 enabled = true
-duration_ms = 250
 curve = "spring:0.85,500"
 workspace_curve = "spring:1,1000"
 

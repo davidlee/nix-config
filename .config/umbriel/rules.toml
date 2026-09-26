@@ -41,6 +41,11 @@ blur = true
 blur_optimized = true # niri: background-effect { xray true }
 
 [[window_rule]]
+match.is_scratchpad = true
+border_color_focused = "#E5C07BFF"
+border_color_unfocused = "#5C4A2AFF"
+
+[[window_rule]]
 match.app_id = "^com[.]mitchellh[.]ghostty$"
 opacity = 0.95
 
@@ -109,7 +114,7 @@ default_scratchpad = "spotify"
 default_floating = true
 
 [[window_rule]]
-match.app_id = "^1password$"
+match.app_id = "^com.onepassword.OnePassword$"
 match.title = "^.* .*$" # not a popup if it's got a space
 default_scratchpad = "onepassword"
 default_floating = true
