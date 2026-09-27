@@ -1,4 +1,4 @@
-{...}: {
+{ ... }: {
   imports = [
     ./emacs.nix
     ./nvim.nix
@@ -8,4 +8,8 @@
     ./zsh.nix
     ./nushell.nix
   ];
+  home.sessionVariables = {
+    EDITOR = "emacsclient";
+    VISUAL = "emacsclient";
+  };
 }

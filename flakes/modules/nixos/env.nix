@@ -2,7 +2,6 @@ _: {
   environment = {
     variables = {
       NIXOS = "true";
-      VISUAL = "hx";
       SSH_ASKPASS_REQUIRE = "prefer";
     };
 

@@ -2,7 +2,8 @@
   pkgs,
   username,
   ...
-}: {
+}:
+{
   programs = {
     nix-ld = {
       enable = true;
@@ -146,6 +147,9 @@
 
         # macos remote
         # nomachine-client
+
+        # root's editor
+        helix
       ];
     };
     dconf.enable = true;
@@ -156,7 +160,7 @@
 
     _1password-gui = {
       enable = true;
-      polkitPolicyOwners = [username];
+      polkitPolicyOwners = [ username ];
     };
 
     rust-motd = {
@@ -187,5 +191,5 @@
     };
   };
 
-  environment.pathsToLink = ["/share/zsh"];
+  environment.pathsToLink = [ "/share/zsh" ];
 }
