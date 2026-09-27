@@ -47,7 +47,7 @@ border_color_unfocused = "#5C4A2AFF"
 
 [[window_rule]]
 match.app_id = "^com[.]mitchellh[.]ghostty$"
-opacity = 0.95
+# opacity = 0.95 # handle this in config.ghostty
 
 [[window_rule]]
 match.app_id = "^emergency-htop$"
