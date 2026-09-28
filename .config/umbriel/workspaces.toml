@@ -2,3 +2,5 @@
 # [[workspace]] entry per name. Included from config.toml as an optional file,
 # so deleting it just removes every workspace declared here.
 
+#[[workspace]]
+#name = "emacs"
