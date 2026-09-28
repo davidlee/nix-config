@@ -9,7 +9,8 @@
     tmux
     abduco # shell persist
     dvtm # + abduco (suckless)
-    shpool # vs abduco
+    shpool # vs abduco . has a service too
+    zmx # or this
     sesh
     skim
   ];

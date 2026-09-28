@@ -42,6 +42,9 @@ check-flake-root:
 system-switch: check-flake-root #check-no-root-pub
   sudo ./run.sh switch {{system_override}}
 
+system-build: check-flake-root
+  sudo ./run.sh build {{system_override}}
+
 home-switch: check-flake-root #check-no-root-pub
   home-manager switch --flake '.#david' {{home_override}}
 

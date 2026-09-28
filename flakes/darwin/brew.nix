@@ -27,7 +27,6 @@ _: {
     ];
     casks = [
       # "anaconda"
-      "zoom"
       "obs"
       # "iina"
       # "jordanbaird-ice"
