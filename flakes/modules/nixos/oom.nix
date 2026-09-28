@@ -14,7 +14,9 @@
 
   # earlyoom: hard backstop below oomd. Reacts to absolute free memory,
   # so it fires in a true crunch even if PSI hasn't tripped. Prefers to
-  # kill browser/electron hogs; refuses to touch the compositor/session.
+  # kill browser/electron hogs; steers away from the compositor/session.
+  # Regexes match /proc/PID/comm, truncated to 15 chars — nix-wrapped
+  # binaries appear as `.umbriel-wrappe`, `.noctalia-wrapp`.
   services.earlyoom = {
     enable = true;
     freeMemThreshold = 5; # SIGTERM the biggest scored proc under 5% free RAM
@@ -24,17 +26,22 @@
       "--prefer"
       "(^|/)(electron|chrome|chromium|firefox|node|.*-app)$"
       "--avoid"
-      "(^|/)(sway|Xwayland|waybar|systemd|systemd-oomd|pipewire|wireplumber|dbus)$"
+      "(^|/)(sway|\\.umbriel-wrappe|\\.noctalia-wrapp|Xwayland|waybar|htop|systemd|systemd-oomd|pipewire|wireplumber|dbus)$"
     ];
   };
 
-  # reserve resources for the compositor and login session
-  # ensures sway + a rescue terminal always get CPU time and memory
-  systemd.slices."user-1000" = {
-    sliceConfig = {
-      CPUWeight = 200;
-      MemoryLow = "512M";
-    };
+  # reserve resources for the compositor and login session.
+  # user-1000 is protected against the system; session.slice (compositor
+  # service, pipewire, dbus, portals, rescue term) against the user's own
+  # apps in app.slice. A child's MemoryLow is capped by its parent's, so
+  # the parent must cover it.
+  systemd.slices."user-1000".sliceConfig = {
+    CPUWeight = 200;
+    MemoryLow = "1536M";
+  };
+  systemd.user.slices.session.sliceConfig = {
+    CPUWeight = 200;
+    MemoryLow = "1G";
   };
 
   # `leash CMD ARGS…` — run an untrusted app in a transient, resource-capped

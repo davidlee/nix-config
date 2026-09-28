@@ -138,9 +138,23 @@ Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single ob
 
 **systemd-oomd:** enabled for root, system, and user slices. Kills when swap hits 90%. Default memory pressure duration 20s.
 
-**User session protection:** `user@1000` gets `CPUWeight=200` and `MemoryLow=512M`, guaranteeing the compositor and a rescue terminal get CPU time and memory even when the system is thrashing.
+**Session protection:** two layers of `CPUWeight=200` + `MemoryLow`:
 
-*Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` for manual triage.
+```
+user-1000.slice           1536M  ← vs system services
+└─ user@1000.service
+   ├─ session.slice       1G     ← vs your own apps
+   │   ├─ umbriel.service
+   │   ├─ pipewire, wireplumber, dbus, portals
+   │   └─ emergency-htop (rescue term)
+   └─ app.slice           —      browsers, electron, terminals, noctalia
+```
+
+A child's `MemoryLow` is capped by its parent's, so `user-1000` must cover `session.slice`.
+
+**earlyoom:** `--avoid` biases away from (does not exempt) the compositor, shell and session daemons. Patterns match `/proc/PID/comm`, truncated to 15 chars, so nix-wrapped binaries appear as `.umbriel-wrappe` / `.noctalia-wrapp`. Children have their own comm — a runaway `rustc` in kitty is not shielded.
+
+**Emergency kill:** `Super+Ctrl+Delete` opens a floating sticky `htop` (kitty, class `emergency-htop`). The bind (`~/.config/umbriel/binds.toml`) launches it via `systemd-run --user --scope --slice=session.slice` so it lands in the protected slice rather than `app.slice`.
 
 **swayosd:** rate limits relaxed (`StartLimitBurst=10`, `StartLimitIntervalSec=60`, `RestartSec=5s`) so transient crashes don't permanently kill the service.
 
