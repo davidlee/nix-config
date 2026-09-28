@@ -14,21 +14,14 @@ source ./fzf.nu
 source ./private.local.nu
 source ./just.nu
 source ./env.nu
+source ./completion.nu
 source "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
 
 # the rest of these live in flakes/modules/nixos/env.nix, so pam_env puts them
 # on PATH for GUI apps and systemd --user units too, not just shells.
 path add "~/nushell"
 
-let carapace_completer = {|spans|
-  carapace $spans.0 nushell ...$spans | from json
-}
 
-$env.config.completions.external = {
-  enable: true
-  max_results: 100
-  completer: $carapace_completer
-}
 
 #
 # Functions

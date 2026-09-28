@@ -72,6 +72,7 @@
       enable = true;
       enableNushellIntegration = true;
     };
+    fish.enable = true; # for nu completions
 
     # mise.enableNushellIntegration = true;
     keychain.enableNushellIntegration = true;
