@@ -11,7 +11,7 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 ### What it provides
 
 - `makeJailedPi`, `makeJailedCrush`, `makeJailedOpencode`, `makeJailedClaude`,
-  `makeJailedCodex`, `makeJailedGemini`, `makeJailedZerostack` — pre-configured
+  `makeJailedCodex`, `makeJailedGemini`, `makeJailedEca`, `makeJailedZerostack` — pre-configured
   makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
 - `commonPkgs` — the shared package set available in every jail
@@ -227,9 +227,9 @@ sandbox in `op run --env-file=<refs> -- <inner-jail>` by default. The flow:
 2. A nix-store text file is generated from that attrset — refs only, no
    secrets, so world-readable in `/nix/store` is fine.
 3. The outer wrapper script execs `op run --env-file=<that-file> -- ...`.
-   `op` is resolved from `PATH` so NixOS's setuid wrapper at
-   `/run/wrappers/bin/op` is used (the raw store binary can't reach the
-   desktop integration socket).
+   NixOS's setgid wrapper `/run/wrappers/bin/op` is used when present,
+   regardless of `PATH` order (the raw binary can't reach the desktop
+   integration socket); otherwise `op` is resolved from `PATH`.
 4. `op run` resolves each ref via the 1Password desktop app
    (biometric/CLI unlock) and injects plaintext into the wrapper's env.
 5. The bwrap launch then forwards each var into the sandbox via

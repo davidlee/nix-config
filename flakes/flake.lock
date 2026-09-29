@@ -8,8 +8,8 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1790125814,
-        "narHash": "sha256-B3CRHl/HG1169mfvuVwrQtD6GTuUZv6ToBVx8sxoC1E=",
+        "lastModified": 1790658025,
+        "narHash": "sha256-JtAYlYUx4cE4iNfv34ACpQ6qqyhzg+EmssifFwJguIg=",
         "path": "/home/david/flakes/agents",
         "type": "path"
       },

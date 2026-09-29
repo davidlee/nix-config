@@ -1,6 +1,6 @@
 # Centralised jailed LLM agent definitions.
 #
-# Each agent (pi, crush, opencode, claude, codex, gemini, zerostack, dirge) can run under any sandbox profile.
+# Each agent (pi, crush, opencode, claude, codex, gemini, eca, zerostack, dirge) can run under any sandbox profile.
 # Profiles control persistence, networking, and policy defaults;
 # agent wrappers remain thin.
 #
@@ -59,6 +59,7 @@
   inherit (llm-agents.packages.${system}) claude-code;
   inherit (llm-agents.packages.${system}) codex;
   inherit (llm-agents.packages.${system}) gemini-cli;
+  inherit (llm-agents.packages.${system}) eca;
   zerostack = pkgs.callPackage ./zerostack.nix {};
   dirge = pkgs.callPackage ./dirge.nix {};
 
@@ -73,6 +74,7 @@
     claude = claude-code;
     inherit codex;
     gemini = gemini-cli;
+    inherit eca;
     inherit zerostack;
     inherit dirge;
   };
@@ -408,16 +410,19 @@
     # Outer wrapper: resolve op:// refs on the host (uses the 1Password
     # desktop app + biometric unlock via the user's PATH `op'), inject
     # plaintext into the wrapper's env, then exec the bwrap'd agent.
-    # `op' is taken from PATH so the setuid wrapper at
-    # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
-    # binary, which can't reach the desktop integration socket.
+    # The setgid NixOS wrapper /run/wrappers/bin/op is used when present:
+    # the raw binary (e.g. /run/current-system/sw/bin/op) can't reach the
+    # desktop integration socket, and PATH order can't be trusted to
+    # prefer the wrapper (Emacs' inherited PATH lists sw/bin first).
+    # Elsewhere (darwin), `op' comes from PATH.
     outer = pkgs.writeShellScriptBin "jailed-${name}" ''
-      if ! command -v op >/dev/null 2>&1; then
+      op=/run/wrappers/bin/op
+      [ -x "$op" ] || op=$(command -v op) || {
         echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
         echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
         exit 127
-      fi
-      exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
+      }
+      exec "$op" run --no-masking --env-file=${apiKeyEnvFile} -- \
         ${inner}/bin/jailed-${name} "$@"
     '';
   in
@@ -492,6 +497,15 @@
       // args
     );
 
+  makeJailedEca = args:
+    makeJailedAgent (
+      {
+        name = "eca";
+        agent = eca;
+      }
+      // args
+    );
+
   makeJailedZerostack = args:
     makeJailedAgent (
       {
@@ -528,6 +542,7 @@ in {
     makeJailedClaude
     makeJailedCodex
     makeJailedGemini
+    makeJailedEca
     makeJailedZerostack
     makeJailedDirge
     makeJailedZsh

@@ -7,6 +7,7 @@
     ../../modules/home/linux/satan.nix
     ../../modules/home/linux/satan-patcher.nix
     ../../modules/home/linux/satan-attrd.nix
+    ../../modules/home/linux/eca.nix
     ../../modules/home/linux/behaviour.nix
     ../../modules/home/linux/goad.nix
     ../../modules/home/shared/cli.nix

@@ -162,7 +162,8 @@ in
       ! grep -Fq -- '/run/user/1000' "$spec"
 
       outer=${selectedKeyOuter}/bin/jailed-pi
-      grep -Fq -- 'exec op run --no-masking --env-file=' "$outer"
+      grep -Fqx -- 'op=/run/wrappers/bin/op' "$outer"
+      grep -Fq -- 'exec "$op" run --no-masking --env-file=' "$outer"
       env_file="$(sed -n 's/.*--env-file=\([^ ]*\).*/\1/p' "$outer")"
       test -n "$env_file"
       grep -Fqx -- 'OPENROUTER_API_KEY=op://Test/OpenRouter/credential' "$env_file"
