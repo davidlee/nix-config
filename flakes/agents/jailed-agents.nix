@@ -48,8 +48,7 @@
     committerName = "Jailed agent";
     committerEmail = "jailed-agent@localhost";
   },
-}:
-let
+}: let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
   jail = jail-nix.lib.init pkgs;
@@ -60,8 +59,8 @@ let
   inherit (llm-agents.packages.${system}) claude-code;
   inherit (llm-agents.packages.${system}) codex;
   inherit (llm-agents.packages.${system}) gemini-cli;
-  zerostack = pkgs.callPackage ./zerostack.nix { };
-  dirge = pkgs.callPackage ./dirge.nix { };
+  zerostack = pkgs.callPackage ./zerostack.nix {};
+  dirge = pkgs.callPackage ./dirge.nix {};
 
   # Name -> agent package. Keys match maker `name` values so a jail can
   # expose sibling agents as depth-guarded sub-agents (see `subagents`).
@@ -204,240 +203,242 @@ let
     (try-readwrite "/run/postgresql")
   ];
 
-  makeJailedAgent =
-    {
-      name,
-      agent,
-      profile ? "specDev",
-      extraPkgs ? [ ],
-      extraOptions ? [ ],
-      workspaceDeps ? [ ], # sibling repo paths to bind-mount (editable deps);
-      # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
-      # env var (impure eval only). See envWorkspaceDeps below.
-      # Sibling agents to expose inside the jail as depth-guarded
-      # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
-      # (e.g. [ "pi" "codex" ]) or the string "all". A nested agent runs
-      # inside the existing bwrap sandbox (inherits the jail, not re-jailed).
-      subagents ? [ ],
-      # Back-compat sugar: adds this agent's own `name` to `subagents`.
-      allowSelfAsSubagent ? false,
-      maxSubagentDepth ? 1,
-      blockSshGitPush ? null,
-      # Deprecated compatibility alias. Remove after external callers have
-      # migrated to blockSshGitPush.
-      blockGitPush ? null,
-      sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
-      exposePostgres ? profileDefaults.${profile}.exposePostgres,
-      useOpEnv ? profileDefaults.${profile}.useOpEnv,
-      # When the caller pre-resolves op:// refs and exports plaintext into
-      # the wrapper's env (e.g. Emacs broker with a per-session cache),
-      # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
-      # bwrap `--args FD` forwarding still runs.
-      passApiKeysFromEnv ? useOpEnv,
-      # Names from apiKeyOpRefs to resolve and/or forward for this jail.
-      # The compatibility default remains every configured key.
-      apiKeys ? lib.attrNames apiKeyOpRefs,
-    }:
-    let
-      resolvedBlockSshGitPush =
-        if blockSshGitPush != null then
-          if blockGitPush != null then
-            lib.warn "jailed-${name}: blockGitPush is deprecated and ignored because blockSshGitPush is set" blockSshGitPush
-          else
-            blockSshGitPush
-        else if blockGitPush != null then
-          lib.warn "jailed-${name}: blockGitPush is deprecated; use blockSshGitPush" blockGitPush
-        else
-          profileDefaults.${profile}.blockSshGitPush;
+  makeJailedAgent = {
+    name,
+    agent,
+    profile ? "specDev",
+    extraPkgs ? [],
+    extraOptions ? [],
+    workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
+    # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
+    # env var (impure eval only). See envWorkspaceDeps below.
+    # Sibling agents to expose inside the jail as depth-guarded
+    # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
+    # (e.g. [ "pi" "codex" ]) or the string "all". A nested agent runs
+    # inside the existing bwrap sandbox (inherits the jail, not re-jailed).
+    subagents ? [],
+    # Back-compat sugar: adds this agent's own `name` to `subagents`.
+    allowSelfAsSubagent ? false,
+    maxSubagentDepth ? 1,
+    blockSshGitPush ? null,
+    # Deprecated compatibility alias. Remove after external callers have
+    # migrated to blockSshGitPush.
+    blockGitPush ? null,
+    sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
+    exposePostgres ? profileDefaults.${profile}.exposePostgres,
+    useOpEnv ? profileDefaults.${profile}.useOpEnv,
+    # When the caller pre-resolves op:// refs and exports plaintext into
+    # the wrapper's env (e.g. Emacs broker with a per-session cache),
+    # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
+    # bwrap `--args FD` forwarding still runs.
+    passApiKeysFromEnv ? useOpEnv,
+    # Names from apiKeyOpRefs to resolve and/or forward for this jail.
+    # The compatibility default remains every configured key.
+    apiKeys ? lib.attrNames apiKeyOpRefs,
+  }: let
+    resolvedBlockSshGitPush =
+      if blockSshGitPush != null
+      then
+        if blockGitPush != null
+        then lib.warn "jailed-${name}: blockGitPush is deprecated and ignored because blockSshGitPush is set" blockSshGitPush
+        else blockSshGitPush
+      else if blockGitPush != null
+      then lib.warn "jailed-${name}: blockGitPush is deprecated; use blockSshGitPush" blockGitPush
+      else profileDefaults.${profile}.blockSshGitPush;
 
-      selectedApiKeys = lib.unique apiKeys;
-      unknownApiKeys = lib.filter (key: !(builtins.hasAttr key apiKeyOpRefs)) selectedApiKeys;
-      selectedApiKeyOpRefs = lib.genAttrs selectedApiKeys (key: apiKeyOpRefs.${key});
+    selectedApiKeys = lib.unique apiKeys;
+    unknownApiKeys = lib.filter (key: !(builtins.hasAttr key apiKeyOpRefs)) selectedApiKeys;
+    selectedApiKeyOpRefs = lib.genAttrs selectedApiKeys (key: apiKeyOpRefs.${key});
 
-      # File of selected op:// refs that `op run` reads. Contents are not
-      # secret (just pointers); resolved values never land in the store.
-      apiKeyEnvFile = pkgs.writeText "jailed-${name}-api-keys.env" (
-        lib.concatStringsSep "\n" (lib.mapAttrsToList (key: value: "${key}=${value}") selectedApiKeyOpRefs)
-      );
+    # File of selected op:// refs that `op run` reads. Contents are not
+    # secret (just pointers); resolved values never land in the store.
+    apiKeyEnvFile = pkgs.writeText "jailed-${name}-api-keys.env" (
+      lib.concatStringsSep "\n" (lib.mapAttrsToList (key: value: "${key}=${value}") selectedApiKeyOpRefs)
+    );
 
-      # bwrap raw args forwarding each selected API key from the wrapper's
-      # env. `$VAR` is left for runtime shell expansion; the `:-` guard keeps
-      # empty/unset vars from breaking set -u callers.
-      #
-      # The keys travel over `--args FD`, NOT as `--setenv VAR "$VAR"` on the
-      # bwrap command line. `/proc/<pid>/cmdline` is mode 444 and /proc is
-      # routinely mounted without hidepid, so an argv-borne secret is readable
-      # by EVERY process on the host for as long as the jail runs — including
-      # uids that execute untrusted code, such as `nixbld*` running an upstream
-      # package's build script during any `nix build`. bwrap's `--args FD`
-      # parses NUL-separated arguments from a descriptor instead, so the
-      # plaintext travels down an anonymous pipe: absent from argv, never
-      # written to disk. jail.nix already relies on the same mechanism for its
-      # runtime-closure bind args, and bwrap accepts more than one `--args`.
-      #
-      # The descriptor is a literal rather than `{FD}<`-allocated because bash
-      # expands a command's words BEFORE performing its redirections: an
-      # `--args "$FD"` sharing a line with `{FD}< <(…)` expands to the empty
-      # string. 21 sits clear of bash's auto-allocation floor of 10, which
-      # jail.nix's own runtime-closure `--args` already holds.
-      #
-      # Guarded on a non-empty selection: `printf '%s\0'` with no arguments
-      # emits a single empty NUL-terminated string, which bwrap would read back
-      # as an empty option and reject.
-      apiKeyArgsFd = "21";
-      apiKeyPassThrough = lib.optional (selectedApiKeys != [ ]) (
-        jail.combinators.unsafe-add-raw-args (
-          "--args ${apiKeyArgsFd} ${apiKeyArgsFd}< <(printf '%s\\0'"
-          + lib.concatMapStrings (var: " --setenv ${var} \"\${${var}:-}\"") (
-            lib.attrNames selectedApiKeyOpRefs
-          )
-          + ")"
+    # bwrap raw args forwarding each selected API key from the wrapper's
+    # env. `$VAR` is left for runtime shell expansion; the `:-` guard keeps
+    # empty/unset vars from breaking set -u callers.
+    #
+    # The keys travel over `--args FD`, NOT as `--setenv VAR "$VAR"` on the
+    # bwrap command line. `/proc/<pid>/cmdline` is mode 444 and /proc is
+    # routinely mounted without hidepid, so an argv-borne secret is readable
+    # by EVERY process on the host for as long as the jail runs — including
+    # uids that execute untrusted code, such as `nixbld*` running an upstream
+    # package's build script during any `nix build`. bwrap's `--args FD`
+    # parses NUL-separated arguments from a descriptor instead, so the
+    # plaintext travels down an anonymous pipe: absent from argv, never
+    # written to disk. jail.nix already relies on the same mechanism for its
+    # runtime-closure bind args, and bwrap accepts more than one `--args`.
+    #
+    # The descriptor is a literal rather than `{FD}<`-allocated because bash
+    # expands a command's words BEFORE performing its redirections: an
+    # `--args "$FD"` sharing a line with `{FD}< <(…)` expands to the empty
+    # string. 21 sits clear of bash's auto-allocation floor of 10, which
+    # jail.nix's own runtime-closure `--args` already holds.
+    #
+    # Guarded on a non-empty selection: `printf '%s\0'` with no arguments
+    # emits a single empty NUL-terminated string, which bwrap would read back
+    # as an empty option and reject.
+    apiKeyArgsFd = "21";
+    apiKeyPassThrough = lib.optional (selectedApiKeys != []) (
+      jail.combinators.unsafe-add-raw-args (
+        "--args ${apiKeyArgsFd} ${apiKeyArgsFd}< <(printf '%s\\0'"
+        + lib.concatMapStrings (var: " --setenv ${var} \"\${${var}:-}\"") (
+          lib.attrNames selectedApiKeyOpRefs
         )
-      );
+        + ")"
+      )
+    );
 
-      # Resolve a subagent name to its package. The current agent is
-      # reachable under its own `name` even for custom (non-map) agents.
-      resolveAgent =
-        n:
-        if n == name then
-          agent
-        else
-          agentsByName.${n} or (throw "Unknown subagent for jailed-${name}: ${n}");
+    # Resolve a subagent name to its package. The current agent is
+    # reachable under its own `name` even for custom (non-map) agents.
+    resolveAgent = n:
+      if n == name
+      then agent
+      else agentsByName.${n} or (throw "Unknown subagent for jailed-${name}: ${n}");
 
-      # Names of sibling agents to expose, deduped. "all" => every entry in
-      # agentsByName; allowSelfAsSubagent folds the agent's own name in.
-      subagentNames = lib.unique (
-        (if subagents == "all" then lib.attrNames agentsByName else subagents)
-        ++ lib.optional allowSelfAsSubagent name
-      );
+    # Names of sibling agents to expose, deduped. "all" => every entry in
+    # agentsByName; allowSelfAsSubagent folds the agent's own name in.
+    subagentNames = lib.unique (
+      (
+        if subagents == "all"
+        then lib.attrNames agentsByName
+        else subagents
+      )
+      ++ lib.optional allowSelfAsSubagent name
+    );
 
-      # Depth-guarded entrypoint for one sub-agent. Shares a single
-      # JAILED_AGENT_DEPTH counter across all agents, so total nesting depth
-      # (claude -> pi -> codex -> ...) is bounded regardless of which agents
-      # are chained.
-      mkSubagentPkg =
-        subName:
-        pkgs.writeShellScriptBin "jailed-${subName}" ''
-          depth="''${JAILED_AGENT_DEPTH:-0}"
+    # Depth-guarded entrypoint for one sub-agent. Shares a single
+    # JAILED_AGENT_DEPTH counter across all agents, so total nesting depth
+    # (claude -> pi -> codex -> ...) is bounded regardless of which agents
+    # are chained.
+    mkSubagentPkg = subName:
+      pkgs.writeShellScriptBin "jailed-${subName}" ''
+        depth="''${JAILED_AGENT_DEPTH:-0}"
 
-          if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
-            echo "jailed-${subName}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
-            exit 1
-          fi
+        if [ "$depth" -ge "${toString maxSubagentDepth}" ]; then
+          echo "jailed-${subName}: maximum sub-agent depth (${toString maxSubagentDepth}) reached" >&2
+          exit 1
+        fi
 
-          export JAILED_AGENT_DEPTH="$((depth + 1))"
-          exec ${lib.getExe (resolveAgent subName)} "$@"
-        '';
+        export JAILED_AGENT_DEPTH="$((depth + 1))"
+        exec ${lib.getExe (resolveAgent subName)} "$@"
+      '';
 
-      subagentPkgs = map mkSubagentPkg subagentNames;
-      # Bare binaries for sibling agents (the wrapper execs them); the
-      # current agent is already added below, so exclude it here.
-      subagentAgents = map resolveAgent (lib.filter (n: n != name) subagentNames);
-      # Machine-local editable deps can be supplied at eval time via the
-      # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
-      # paths). Requires impure eval (`--impure`); under pure eval getEnv
-      # returns "" -> empty -> no-op. Merged with and deduped against the
-      # static `workspaceDeps` arg, so a flake can ship portable defaults
-      # while each machine adds its own paths via .envrc.
-      envWorkspaceDeps = lib.filter (s: s != "") (
-        lib.splitString ":" (
-          builtins.replaceStrings [ "\n" ] [ ":" ] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
-        )
-      );
-      allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
-      stripTrailingSlashes =
-        dep:
-        if dep != "/" && lib.hasSuffix "/" dep then
-          stripTrailingSlashes (lib.removeSuffix "/" dep)
-        else
-          dep;
-      normalizedWorkspaceDeps = map stripTrailingSlashes allWorkspaceDeps;
-      relativeWorkspaceDeps = lib.filter (dep: !(lib.hasPrefix "/" dep)) normalizedWorkspaceDeps;
-      workspaceBindSpecs = map (dep: {
+    subagentPkgs = map mkSubagentPkg subagentNames;
+    # Bare binaries for sibling agents (the wrapper execs them); the
+    # current agent is already added below, so exclude it here.
+    subagentAgents = map resolveAgent (lib.filter (n: n != name) subagentNames);
+    # Machine-local editable deps can be supplied at eval time via the
+    # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
+    # paths). Requires impure eval (`--impure`); under pure eval getEnv
+    # returns "" -> empty -> no-op. Merged with and deduped against the
+    # static `workspaceDeps` arg, so a flake can ship portable defaults
+    # while each machine adds its own paths via .envrc.
+    envWorkspaceDeps = lib.filter (s: s != "") (
+      lib.splitString ":" (
+        builtins.replaceStrings ["\n"] [":"] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+      )
+    );
+    allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
+    stripTrailingSlashes = dep:
+      if dep != "/" && lib.hasSuffix "/" dep
+      then stripTrailingSlashes (lib.removeSuffix "/" dep)
+      else dep;
+    normalizedWorkspaceDeps = map stripTrailingSlashes allWorkspaceDeps;
+    relativeWorkspaceDeps = lib.filter (dep: !(lib.hasPrefix "/" dep)) normalizedWorkspaceDeps;
+    workspaceBindSpecs =
+      map (dep: {
         source = dep;
         destination = "/workspace/${builtins.baseNameOf dep}";
-      }) normalizedWorkspaceDeps;
-      workspaceBindsByDestination = lib.groupBy (bind: bind.destination) workspaceBindSpecs;
-      duplicateWorkspaceBinds = lib.filterAttrs (
+      })
+      normalizedWorkspaceDeps;
+    workspaceBindsByDestination = lib.groupBy (bind: bind.destination) workspaceBindSpecs;
+    duplicateWorkspaceBinds =
+      lib.filterAttrs (
         _: binds: builtins.length binds > 1
-      ) workspaceBindsByDestination;
-      duplicateWorkspaceBindMessage = lib.concatStringsSep "; " (
-        lib.mapAttrsToList (
-          destination: binds: "${destination} <- ${lib.concatStringsSep ", " (map (bind: bind.source) binds)}"
-        ) duplicateWorkspaceBinds
-      );
-      # jail.nix builds launchers with ShellCheck enabled. Its SC2016 check
-      # rejects a dollar followed by a name inside the single quotes emitted
-      # by escapeShellArgs, even though that is precisely what keeps it
-      # literal. Split dollars into an adjacent, isolated quoted segment:
-      # 'foo$dollar' becomes 'foo'"$"'dollar' with the same argv value.
-      escapeWorkspaceBindArgs =
-        args: builtins.replaceStrings [ "$" ] [ "'\"$\"'" ] (lib.escapeShellArgs args);
-      workspaceBinds = map (
+      )
+      workspaceBindsByDestination;
+    duplicateWorkspaceBindMessage = lib.concatStringsSep "; " (
+      lib.mapAttrsToList (
+        destination: binds: "${destination} <- ${lib.concatStringsSep ", " (map (bind: bind.source) binds)}"
+      )
+      duplicateWorkspaceBinds
+    );
+    # jail.nix builds launchers with ShellCheck enabled. Its SC2016 check
+    # rejects a dollar followed by a name inside the single quotes emitted
+    # by escapeShellArgs, even though that is precisely what keeps it
+    # literal. Split dollars into an adjacent, isolated quoted segment:
+    # 'foo$dollar' becomes 'foo'"$"'dollar' with the same argv value.
+    escapeWorkspaceBindArgs = args: builtins.replaceStrings ["$"] ["'\"$\"'"] (lib.escapeShellArgs args);
+    workspaceBinds =
+      map (
         bind:
-        jail.combinators.unsafe-add-raw-args (escapeWorkspaceBindArgs [
-          "--bind"
-          bind.source
-          bind.destination
-        ])
-      ) workspaceBindSpecs;
+          jail.combinators.unsafe-add-raw-args (escapeWorkspaceBindArgs [
+            "--bind"
+            bind.source
+            bind.destination
+          ])
+      )
+      workspaceBindSpecs;
 
-      inner = jail "jailed-${name}" agent (
-        baseJailOptions
-        ++ workspaceBinds
-        ++ profileOptions.${profile}
-        ++ termOptions
-        ++ packageManagerOptions
-        ++ lib.optionals resolvedBlockSshGitPush sshGitPushBlockOptions
-        ++ lib.optionals sandboxGitIdentity gitIdentityOptions
-        ++ lib.optionals exposePostgres postgresOptions
-        ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
-        ++ [
-          (jail.combinators.add-pkg-deps (
-            commonPkgs
-            ++ extraPkgs
-            ++ [ agent ] # allow sub-agent invocation
-            ++ subagentAgents # bare binaries the subagent wrappers exec
-            ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
-          ))
-        ]
-        ++ extraOptions
-      );
+    inner = jail "jailed-${name}" agent (
+      baseJailOptions
+      ++ workspaceBinds
+      ++ profileOptions.${profile}
+      ++ termOptions
+      ++ packageManagerOptions
+      ++ lib.optionals resolvedBlockSshGitPush sshGitPushBlockOptions
+      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+      ++ lib.optionals exposePostgres postgresOptions
+      ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
+      ++ [
+        (jail.combinators.add-pkg-deps (
+          commonPkgs
+          ++ extraPkgs
+          ++ [agent] # allow sub-agent invocation
+          ++ subagentAgents # bare binaries the subagent wrappers exec
+          ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
+        ))
+      ]
+      ++ extraOptions
+    );
 
-      # Outer wrapper: resolve op:// refs on the host (uses the 1Password
-      # desktop app + biometric unlock via the user's PATH `op'), inject
-      # plaintext into the wrapper's env, then exec the bwrap'd agent.
-      # `op' is taken from PATH so the setuid wrapper at
-      # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
-      # binary, which can't reach the desktop integration socket.
-      outer = pkgs.writeShellScriptBin "jailed-${name}" ''
-        if ! command -v op >/dev/null 2>&1; then
-          echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
-          echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
-          exit 127
-        fi
-        exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
-          ${inner}/bin/jailed-${name} "$@"
-      '';
-    in
+    # Outer wrapper: resolve op:// refs on the host (uses the 1Password
+    # desktop app + biometric unlock via the user's PATH `op'), inject
+    # plaintext into the wrapper's env, then exec the bwrap'd agent.
+    # `op' is taken from PATH so the setuid wrapper at
+    # /run/wrappers/bin/op (on NixOS) is preferred over the raw store
+    # binary, which can't reach the desktop integration socket.
+    outer = pkgs.writeShellScriptBin "jailed-${name}" ''
+      if ! command -v op >/dev/null 2>&1; then
+        echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
+        echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
+        exit 127
+      fi
+      exec op run --no-masking --env-file=${apiKeyEnvFile} -- \
+        ${inner}/bin/jailed-${name} "$@"
+    '';
+  in
     assert builtins.hasAttr profile profileOptions || throw "Unknown jailed agent profile: ${profile}";
-    assert
-      unknownApiKeys == [ ]
-      || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
-    assert
-      relativeWorkspaceDeps == [ ]
-      || throw "Workspace dependencies for jailed-${name} must be absolute paths: ${lib.concatStringsSep ", " relativeWorkspaceDeps}";
-    assert
-      duplicateWorkspaceBinds == { }
-      || throw "Workspace dependencies for jailed-${name} have duplicate destinations: ${duplicateWorkspaceBindMessage}";
-    assert
-      (subagentNames == [ ])
-      || maxSubagentDepth > 0
-      || throw "maxSubagentDepth must be > 0 when subagents are exposed";
-    if useOpEnv && selectedApiKeys != [ ] then outer else inner;
+    assert unknownApiKeys
+    == []
+    || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
+    assert relativeWorkspaceDeps
+    == []
+    || throw "Workspace dependencies for jailed-${name} must be absolute paths: ${lib.concatStringsSep ", " relativeWorkspaceDeps}";
+    assert duplicateWorkspaceBinds
+    == {}
+    || throw "Workspace dependencies for jailed-${name} have duplicate destinations: ${duplicateWorkspaceBindMessage}";
+    assert (subagentNames == [])
+    || maxSubagentDepth > 0
+    || throw "maxSubagentDepth must be > 0 when subagents are exposed";
+      if useOpEnv && selectedApiKeys != []
+      then outer
+      else inner;
 
-  makeJailedPi =
-    args:
+  makeJailedPi = args:
     makeJailedAgent (
       {
         name = "pi";
@@ -446,8 +447,7 @@ let
       // args
     );
 
-  makeJailedCrush =
-    args:
+  makeJailedCrush = args:
     makeJailedAgent (
       {
         name = "crush";
@@ -456,8 +456,7 @@ let
       // args
     );
 
-  makeJailedOpencode =
-    args:
+  makeJailedOpencode = args:
     makeJailedAgent (
       {
         name = "opencode";
@@ -466,8 +465,7 @@ let
       // args
     );
 
-  makeJailedClaude =
-    args:
+  makeJailedClaude = args:
     makeJailedAgent (
       {
         name = "claude";
@@ -476,8 +474,7 @@ let
       // args
     );
 
-  makeJailedCodex =
-    args:
+  makeJailedCodex = args:
     makeJailedAgent (
       {
         name = "codex";
@@ -486,8 +483,7 @@ let
       // args
     );
 
-  makeJailedGemini =
-    args:
+  makeJailedGemini = args:
     makeJailedAgent (
       {
         name = "gemini";
@@ -496,8 +492,7 @@ let
       // args
     );
 
-  makeJailedZerostack =
-    args:
+  makeJailedZerostack = args:
     makeJailedAgent (
       {
         name = "zerostack";
@@ -506,8 +501,7 @@ let
       // args
     );
 
-  makeJailedDirge =
-    args:
+  makeJailedDirge = args:
     makeJailedAgent (
       {
         name = "dirge";
@@ -517,8 +511,7 @@ let
     );
 
   # for testing & installation
-  makeJailedZsh =
-    args:
+  makeJailedZsh = args:
     makeJailedAgent (
       {
         name = "zsh";
@@ -526,8 +519,7 @@ let
       }
       // args
     );
-in
-{
+in {
   inherit
     makeJailedAgent
     makeJailedPi

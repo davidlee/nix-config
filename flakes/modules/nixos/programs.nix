@@ -2,8 +2,7 @@
   pkgs,
   username,
   ...
-}:
-{
+}: {
   programs = {
     nix-ld = {
       enable = true;
@@ -160,7 +159,7 @@
 
     _1password-gui = {
       enable = true;
-      polkitPolicyOwners = [ username ];
+      polkitPolicyOwners = [username];
     };
 
     rust-motd = {
@@ -191,5 +190,5 @@
     };
   };
 
-  environment.pathsToLink = [ "/share/zsh" ];
+  environment.pathsToLink = ["/share/zsh"];
 }
