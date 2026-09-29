@@ -7,16 +7,22 @@
 # hands the server absolute host paths (the jail's /workspace/<name> mount
 # alone would not resolve them). Config is read-only, cache (chat db) is
 # read-write, both from the real home rather than the jail's persisted one.
+# Emacs is in the jail so eca's shell tool can byte-compile / run ert.
+#
+# The unjailed `eca' (same pin) is installed too: dl-eca-toggle-jail.
 {
   inputs,
   pkgs,
   ...
 }: let
-  jailLib = inputs.agents.lib.${pkgs.stdenv.hostPlatform.system}.mkJailedAgents {};
+  system = pkgs.stdenv.hostPlatform.system;
+  jailLib = inputs.agents.lib.${system}.mkJailedAgents {};
 in {
   home.packages = [
+    jailLib.unjailed.eca
     (jailLib.makeJailedEca {
       profile = "specDev";
+      extraPkgs = [inputs.emacs.packages.${system}.default];
       apiKeys = [
         "OPENROUTER_API_KEY"
         "DEEPSEEK_API_KEY"
