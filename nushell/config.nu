@@ -39,6 +39,17 @@ def clock [] {
   clock-rs -Bbt --fmt '%d %b' -c blue
 }
 
+def nonag [] {
+  systemctl --user stop snooze-nag.timer  
+  systemctl --user stop snooze-nag        
+    
+}
+
+def nag [] {
+  systemctl --user start snooze-nag
+  systemctl --user start snooze-nag.timer
+}
+
 #
 # Init
 #
