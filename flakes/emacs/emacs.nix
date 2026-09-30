@@ -155,10 +155,16 @@ in
           org-modern
           org-ql
           org-roam
+          org-review
+          org-srs
           outline-indent
           package-lint
           package-lint-flymake
           persp-mode
+
+          # for org-iw
+          relint
+          undercover
 
           # pi-coding-agent
           popper

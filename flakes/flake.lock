@@ -2315,11 +2315,10 @@
         ]
       },
       "locked": {
-        "lastModified": 1790653250,
-        "narHash": "sha256-hzZZxCwll7PjOgRvS6WgtZRKaYm2z/baTl6HTQWdKyk=",
-        "ref": "refs/heads/main",
-        "rev": "9ea03ab1f15725f2f6bd43cf4749082f4f501bef",
-        "revCount": 267,
+        "dirtyRev": "525dba15c1591dd88d55edf8c15cd029dcc78f12-dirty",
+        "dirtyShortRev": "525dba1-dirty",
+        "lastModified": 1790772840,
+        "narHash": "sha256-gbsW+DBiFWyhst4gUBsdr90Pjp8Hyr7WNA6LVbXvoM0=",
         "type": "git",
         "url": "file:///home/david/dev/oubliette/"
       },
@@ -2342,8 +2341,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1790744936,
-        "narHash": "sha256-80kDOguxAxKuYeqzQU6tojUqhAlgio/gILsbquX5FhE=",
+        "lastModified": 1790749964,
+        "narHash": "sha256-wPgT4qtsrCSEg5RanVJOzV599E/BOcTpR37037Vuo24=",
         "path": "/home/david/dev/panopticon",
         "type": "path"
       },
@@ -2570,8 +2569,8 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1790744872,
-        "narHash": "sha256-7eh7lZJu7GFZ64nDNfflbi0SIZO96ylsr2ZOSJ3PoFM=",
+        "lastModified": 1790749964,
+        "narHash": "sha256-dDcIOjVNvOlIamEaCN1voVk2tymBvXa7HJBasXFrAvY=",
         "path": "/home/david/dev/satan-attrd",
         "type": "path"
       },
@@ -2588,8 +2587,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1790744872,
-        "narHash": "sha256-/C/2lqn3LZ2tRPnO12DLtml4QNJQTYWU7tgfZYff6y0=",
+        "lastModified": 1790749964,
+        "narHash": "sha256-ha5nEH93RlXEMPf5LDT6aBvPbCNFOlh8tGS3ZlWYWAM=",
         "path": "/home/david/dev/satan-patcher",
         "type": "path"
       },
