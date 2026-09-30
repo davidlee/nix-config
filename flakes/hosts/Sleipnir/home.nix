@@ -11,6 +11,7 @@
     ../../modules/home/linux/behaviour.nix
     ../../modules/home/linux/nudge.nix
     ../../modules/home/linux/goad.nix
+    ../../modules/home/linux/walker.nix
     ../../modules/home/shared/cli.nix
   ];
 

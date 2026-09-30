@@ -155,6 +155,13 @@
     };
 
     vicinae.url = "github:vicinaehq/vicinae";
+
+    elephant.url = "github:abenz1267/elephant";
+
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
+    };
   };
 
   outputs = inputs @ {
@@ -218,8 +225,7 @@
           packages."x86_64-linux" = let
             inherit (nixpkgs) lib;
             llm = inputs.llm-agents.packages."x86_64-linux";
-            keep = n: v:
-              n != "default" && (builtins.tryEval (lib.isDerivation v)).value or false;
+            keep = n: v: n != "default" && (builtins.tryEval (lib.isDerivation v)).value or false;
           in
             lib.filterAttrs keep llm;
 
@@ -335,6 +341,7 @@
                 ./hosts/${hostname}/home.nix
                 {nixpkgs.overlays = [inputs.lem.overlays.default];}
               ];
+
               extraSpecialArgs = {
                 inherit inputs username features;
               };

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://vicinae.com/schemas/config.json",
+  "launcher_window": {
+    "layer_shell": {
+      "enabled": true,
+      "keyboard_interactivity": "exclusive",
+      "layer": "top"
+    }
+  }
+}
