@@ -28,11 +28,12 @@
 
 # --- cheatsheet, launcher, panels -------------------------------------
 "Mod+Shift+Slash" = "cheatsheet-toggle" # niri: show-hotkey-overlay
-"Ctrl+Alt+Space" = "spawn:walker"
-"Alt+Space" = "spawn:vicinae toggle"
-# "Mod+Space" = "spawn:vicinae open"
-"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+# "Ctrl+Alt+Space" = "spawn:walker"
+"Alt+Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
+"Mod+Space" = "spawn:vicinae toggle"
 "Mod+Z" = "spawn:noctalia msg panel-toggle clipboard"
+"Mod+Tab" = "spawn:noctalia msg window-switcher"
+"Mod" = "spawn:noctalia msg window-switcher hold"
 
 # --- system -----------------------------------------------------------
 "Mod+Alt+L" = "spawn:noctalia msg session lock"
@@ -126,7 +127,7 @@
 "Mod+Ctrl+Page_Up" = "workspace-move-up"
 
 # Switches focus between the current and the previous workspace.
-"Alt+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
+"Control+Mod+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
 
 "Mod+1" = "workspace-switch:1"
 "Mod+2" = "workspace-switch:2"
@@ -186,8 +187,9 @@
 # niri's recent-windows overlay (layout.kdl) had MRU order, previews and an
 # app-id filter. Umbriel cycles in layout order and remembers one previous
 # window, so Mod+Shift+Grave has no counterpart.
-"Mod+Tab" = "window-focus-next"
-"Mod+Shift+Tab" = "window-focus-previous"
+"Alt+Tab" = "window-focus-next"
+"Alt+Shift+Tab" = "window-focus-previous"
+
 "Mod+Grave" = "window-focus-last"
 
 # --- columns and stacks -----------------------------------------------
