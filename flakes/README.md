@@ -239,25 +239,47 @@ See [ALARM.md](./ALARM.md). `modules/home/nixos/alarm.nix` — plays a playlist 
 
 ### Emacs
 
-`modules/home/emacs.nix` — emacs-unstable-pgtk with nix-managed packages via [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay).
+emacs-unstable-pgtk (emacs-macport on darwin) plus a hand-maintained package
+list, built via [nix-community/emacs-overlay](https://github.com/nix-community/emacs-overlay).
 
-**How it works:** `emacsWithPackagesFromUsePackage` parses all `.el` files in `~/.emacs.d/{core,apps,lang,lisp,editing,completion}/` for `(use-package ...)` forms and bundles the named packages into the nix derivation. `alwaysEnsure = true` (nix-side) means every `use-package` form is treated as a package to install — no `:ensure t` needed in elisp.
+| file | role |
+|------|------|
+| `emacs/emacs.nix` | the package list (`emacsWithPackages`) |
+| `emacs/flake.nix` | its own flake with its own nixpkgs/overlay pins, shared with the `~/.emacs.d` and satan devshells |
+| `modules/home/shared/emacs.nix` | installs it on PATH and as the `services.emacs` daemon |
+
+**Two package sources:**
+
+```
+use-package foo
+  ├─ foo in emacs/emacs.nix ──> nix store, on load-path at startup   (default)
+  └─ :vc (:url …)           ──> package-vc clones into ~/.emacs.d/elpa at runtime
+```
+
+- **nix (default).** Add the name to `emacs/emacs.nix`, then `just home-switch`.
+  The justfile overrides the `emacs` input with the local checkout, so no push
+  or `nix flake update` is needed. `just melpa-list` writes every available
+  name to `emacs-packages.txt`.
+- **package-vc.** For packages not in nixpkgs, or that need a writable
+  directory (ghostel builds a native module in place). Declared with `:vc` on
+  the `use-package` form; Emacs records them in `custom-vars.el`'s
+  `package-vc-selected-packages`.
+
+Emacs never downloads from an archive: `early-init.el` sets
+`package-archives nil` and `use-package-always-ensure nil`. A `use-package`
+form for a package in neither source simply fails to load. `package-initialize`
+still runs, to activate what is in `~/.emacs.d/elpa`. Prefer nix, and don't
+keep a package in both places.
 
 **The same `emacs` derivation** is used for both `home.packages` (PATH) and `services.emacs.package` (daemon). If these diverge, `emacsclient` connects to a daemon with different packages than `emacs --batch`.
 
 **Gotchas:**
 
-- **Path resolution:** `emacsDir` must be a relative nix path (`../../../.emacs.d`), not an absolute path constructed via string interpolation. Flake eval copies the git tree into the store; absolute paths like `/. + "/home/..."` bypass this and resolve to nothing. The `builtins.pathExists` guard silently returns `false`, producing an empty config string and zero packages with no error.
+- **`:init` vs `:config`:** any `use-package` block that calls a mode function (e.g. `(vertico-mode)`) must use `:demand t` + `:config`, not `:init`. Without `:demand t`, `use-package` defers loading until a trigger fires, and the mode function won't exist yet.
 
-- **Git tracking:** flake eval only sees git-tracked files. New `.el` files must be `git add`ed before `home-manager switch` will pick them up.
+- **Broken upstream autoloads.** Nix loads each package's generated autoloads at startup; one that errors logs `Error loading autoloads: …` and silently drops the rest of that file — often its `auto-mode-alist` entry. Declare the missing bits in `use-package` (`:mode`, `:commands`). Example: `typst-ts-mode` 0.12.2, see `lang/dl-typst.el`.
 
-- **Runtime package management is disabled.** `dl-package-loader.el` sets `use-package-always-ensure nil` and does not call `package-initialize` or `package-refresh-contents`. Nix owns package installation; emacs should not try to install anything at runtime.
-
-- **`:init` vs `:config`:** with nix-managed packages, autoloads may not be activated when `:init` runs. Any `use-package` block that calls a mode function (e.g. `(vertico-mode)`, `(doom-modeline-mode 1)`) must use `:demand t` + `:config`, not `:init`. Without `:demand t`, `use-package` defers loading until a trigger fires, and the mode function won't exist yet.
-
-- **Built-in packages:** `recentf`, `saveplace`, `savehist` etc. produce harmless `trace:` warnings during build — they ship with emacs and aren't in MELPA/ELPA.
-
-- **EAF and other attrset-valued epkgs:** a few entries in `epkgs` are not derivations but factory attrsets — e.g. `epkgs.eaf` is `{ override, overrideDerivation, withApplications }` (you call `.withApplications { enabledApps = [...]; }` to get a derivation). `emacsWithPackagesFromUsePackage` sees the bare `(use-package eaf ...)`, tries to coerce the attrset to a path, and fails with `error: cannot coerce a set to a string`. Add `:ensure nil` to any `use-package` form whose name matches an attrset-valued epkg; nix-side, install the real derivation via `extraEmacsPackages` (see `eaf-with-reinput` in `emacs.nix`).
+- **Variable names follow the nix version, not upstream HEAD.** A package's README may describe newer option names than the pinned version has. Check with `describe-variable` before copying settings.
 
 ### crates.io fetch workaround (temporary)
 

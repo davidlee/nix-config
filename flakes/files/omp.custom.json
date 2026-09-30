@@ -58,7 +58,7 @@
           "foreground": "p:white",
           "powerline_symbol": "",
           "options": {
-            "style": "powerlevel",
+            "style": "fish",
             "max_depth": 3,
             "dir_length": 3,
             "full_length_dirs": 3,
