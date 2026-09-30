@@ -14,7 +14,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   `makeJailedCodex`, `makeJailedGemini`, `makeJailedEca`, `makeJailedZerostack` — pre-configured
   makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
-- `commonPkgs` — the shared package set available in every jail
+- `commonPkgs` — the shared package set available in every jail (minus git,
+  which each jail adds itself: see [Git guard](#git-guard-guardgit))
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 - `unjailed` — name→package map of the **bare** (un-jailed) agents, resolved
   from the same eval as the jails. Use it to put agents on the host devShell
@@ -37,6 +38,12 @@ Every jail gets these **base** options regardless of profile:
 - **Workspace mount** at `/workspace/<project>/` — host cwd bind-mounted rw.
 - **Timezone**, terminfo, `no-new-session`.
 - **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc.
+- **Host git excludes**, read-only. The launcher resolves the host user's
+  global excludes file as git does (`core.excludesFile`, else
+  `$XDG_CONFIG_HOME/git/ignore`) and mounts it at `~/.config/git/ignore` in
+  the jail — git's default excludes path, so no jail gitconfig is touched.
+  Agents therefore don't stage what you ignore. Skipped if the file is absent;
+  overridden if the jail's own `~/.gitconfig` sets `core.excludesFile`.
 
 Host audio is intentionally not part of the portable defaults. Opt in from a
 machine-specific composition root with jail.nix's `$XDG_RUNTIME_DIR`-aware
@@ -58,15 +65,15 @@ audioOptions = with agents.combinators; [
 Profiles control persistence, networking, and git policy. Pass `profile` to
 any maker (default: `"specDev"`).
 
-| Profile | Home | Network | SSH push | Git identity |
-|---|---|---|---|---|
-| `specDev` | `agent` (shared, persistent) | yes | blocked | sandboxed (generic) |
-| `research` | `agent-research` (separate) | yes | blocked | host |
-| `offline` | `agent-offline` (separate) | no | blocked | host |
+| Profile | Home | Network | SSH push | Git identity | Git guard |
+|---|---|---|---|---|---|
+| `specDev` | `agent` (shared, persistent) | yes | blocked | sandboxed (generic) | on |
+| `research` | `agent-research` (separate) | yes | blocked | host | on |
+| `offline` | `agent-offline` (separate) | no | blocked | host | on |
 
 Override boolean defaults per-call with `blockSshGitPush` /
-`sandboxGitIdentity`. The SSH guard sets `GIT_SSH_COMMAND` to a failing helper
-and clears SSH helpers. It does **not** block HTTPS pushes in networked
+`sandboxGitIdentity` / `guardGit`. The SSH guard sets `GIT_SSH_COMMAND` to a
+failing helper and clears SSH helpers. It does **not** block HTTPS pushes in networked
 profiles, and is a guardrail rather than a security boundary. The old
 `blockGitPush` spelling remains as a warning-producing compatibility alias for
 one transition.
@@ -85,6 +92,30 @@ agents = inputs.agents.lib.${system}.mkJailedAgents {
   };
 };
 ```
+
+#### Git guard (`guardGit`)
+
+Each jail's git is `guardedGit`: stock git with `bin/git` replaced by
+[`git-guard.sh`](./git-guard.sh), which refuses the subcommands that discard
+uncommitted work. Everything else execs the real git untouched.
+
+| command | refused |
+|---|---|
+| `stash` | always, except read-only `list` / `show` |
+| `checkout` | with `--`, `-f`/`--force`, `-m`/`--merge` (branch switching passes) |
+| `reset` | with `--hard`, `--merge`, `--keep` |
+| `clean` | unless `-n` / `--dry-run` |
+| `restore` | unless `--source=` |
+
+Bypass for one command with `GIT_GUARD=off git …`; it prints a notice, so the
+override shows in the transcript. A speed bump, not a boundary.
+
+Why not `[alias] stash = !false`: git ignores aliases that hide a builtin.
+
+It replaces git rather than shadowing it on PATH, so each jail carries exactly
+one git. `guardGit = false` gives plain `pkgs.git`. Probes live in
+[`git-guard.test.sh`](./git-guard.test.sh), run by the flake check against the
+git a jail actually gets.
 
 #### Sub-agents
 
@@ -326,6 +357,7 @@ passApiKeysFromEnv = per-profile`) keep the simple case simple.
 | `blockSshGitPush` | per profile | Disable Git pushes over SSH. HTTPS is unaffected. |
 | `blockGitPush` | deprecated | Compatibility alias for `blockSshGitPush`; emits a warning |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
+| `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `apiKeys` | all configured names | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail via `--setenv VAR "$VAR"`. Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |

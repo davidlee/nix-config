@@ -83,7 +83,7 @@
     zsh
     coreutils
     bashInteractive
-    git
+    # git: added per jail, guarded or plain (see guardedGit / guardGit)
     curl
     wget
     jq
@@ -106,6 +106,36 @@
 
     # for spec-driver hook
     python3
+  ];
+
+  # git with bin/git replaced by git-guard.sh, which refuses the subcommands
+  # that discard uncommitted work (stash, checkout --, reset --hard, ...).
+  # A replacement, not a PATH-shadowing wrapper: each jail carries exactly
+  # one git, so which one runs never depends on PATH order.
+  guardedGit = pkgs.symlinkJoin {
+    name = "git-guarded";
+    paths = [pkgs.git];
+    postBuild = ''
+      rm "$out/bin/git"
+      install -m755 ${pkgs.replaceVars ./git-guard.sh {git = "${pkgs.git}/bin/git";}} "$out/bin/git"
+      patchShebangs "$out/bin/git"
+    '';
+  };
+
+  # Prints the host's global git excludes file, resolved the way git does:
+  # core.excludesFile, else $XDG_CONFIG_HOME/git/ignore. Runs on the host,
+  # before bwrap, so it reads the host's config rather than the jail's.
+  hostGitExcludesFile = pkgs.writeShellScript "host-git-excludes-file" ''
+    ${pkgs.git}/bin/git config --global --path core.excludesFile ||
+      printf '%s\n' "''${XDG_CONFIG_HOME:-$HOME/.config}/git/ignore"
+  '';
+
+  # Mount the host's excludes read-only at git's default excludes path, so
+  # agents do not stage files the host user ignores. No gitconfig edit: the
+  # jail's git finds it when core.excludesFile is unset. Must follow the
+  # persisted-home bind, or that bind would cover it. -try: no file, no mount.
+  hostGitExcludesOptions = [
+    (jail.combinators.unsafe-add-raw-args "--ro-bind-try \"$(${hostGitExcludesFile})\" ~/.config/git/ignore")
   ];
 
   # Always applied — not policy-bearing
@@ -142,6 +172,7 @@
     specDev = {
       blockSshGitPush = true;
       sandboxGitIdentity = true;
+      guardGit = true;
       exposePostgres = false;
       useOpEnv = true;
     };
@@ -149,6 +180,7 @@
     research = {
       blockSshGitPush = true;
       sandboxGitIdentity = false;
+      guardGit = true;
       exposePostgres = false;
       useOpEnv = true;
     };
@@ -156,6 +188,7 @@
     offline = {
       blockSshGitPush = true;
       sandboxGitIdentity = false;
+      guardGit = true;
       exposePostgres = false;
       useOpEnv = false;
     };
@@ -227,6 +260,8 @@
     # migrated to blockSshGitPush.
     blockGitPush ? null,
     sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
+    # Swap git for guardedGit (refuses stash, checkout --, reset --hard, ...).
+    guardGit ? profileDefaults.${profile}.guardGit,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
     useOpEnv ? profileDefaults.${profile}.useOpEnv,
     # When the caller pre-resolves op:// refs and exports plaintext into
@@ -389,6 +424,7 @@
       baseJailOptions
       ++ workspaceBinds
       ++ profileOptions.${profile}
+      ++ hostGitExcludesOptions
       ++ termOptions
       ++ packageManagerOptions
       ++ lib.optionals resolvedBlockSshGitPush sshGitPushBlockOptions
@@ -398,6 +434,13 @@
       ++ [
         (jail.combinators.add-pkg-deps (
           commonPkgs
+          ++ [
+            (
+              if guardGit
+              then guardedGit
+              else pkgs.git
+            )
+          ]
           ++ extraPkgs
           ++ [agent] # allow sub-agent invocation
           ++ subagentAgents # bare binaries the subagent wrappers exec

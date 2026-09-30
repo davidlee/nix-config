@@ -57,6 +57,7 @@
   research = inner "research" {};
   offline = inner "offline" {};
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
+  gitUnguarded = inner "specDev" {guardGit = false;};
   legacySshPushAllowed = inner "specDev" {blockGitPush = false;};
   customIdentity = customIdentityAgents.makeJailedZsh {
     profile = "specDev";
@@ -157,6 +158,38 @@ in
       grep -Fq -- 'jailed-agent@localhost' "$spec"
       grep -Fq -- "'Test author'" ${customIdentity}/bin/jailed-zsh
       grep -Fq -- 'committer@example.test' ${customIdentity}/bin/jailed-zsh
+
+      # Every profile gets the guarded git, and exactly one git: the guard
+      # replaces git on PATH rather than racing it for first place.
+      for launcher in "$spec" "$research" "$offline"; do
+        grep -q -- '--setenv PATH [^ ]*-git-guarded/bin' "$launcher"
+        ! grep -q -- '--setenv PATH [^ ]*-git-[0-9][^ /]*/bin' "$launcher"
+      done
+      unguarded=${gitUnguarded}/bin/jailed-zsh
+      ! grep -Fq -- '-git-guarded' "$unguarded"
+      grep -Fq -- '${pkgs.git}/bin' "$unguarded"
+
+      # Behaviour: run the probes against the guarded git from the launcher.
+      guarded_bin="$(grep -o '/nix/store/[^ :]*-git-guarded/bin' "$spec" | head -1)"
+      HOME="$TMPDIR/probe-home" PATH="$guarded_bin:$PATH" \
+        sh ${./git-guard.test.sh}
+
+      # Host excludes: mounted read-only at git's default excludes path,
+      # after (so on top of) the persisted home bind.
+      for launcher in "$spec" "$research" "$offline"; do
+        home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$launcher" | cut -d: -f1)"
+        excl_at="$(grep -bo -- '--ro-bind-try "$([^)]*-host-git-excludes-file)" ~/.config/git/ignore' "$launcher" | cut -d: -f1)"
+        test -n "$home_at" && test -n "$excl_at" && test "$excl_at" -gt "$home_at"
+      done
+
+      # Behaviour: the resolver mirrors git's own lookup.
+      resolver="$(grep -o '/nix/store/[^ )]*-host-git-excludes-file' "$spec" | head -1)"
+      fake="$TMPDIR/fake-home"
+      mkdir -p "$fake"
+      test "$(env -i HOME="$fake" "$resolver")" = "$fake/.config/git/ignore"
+      test "$(env -i HOME="$fake" XDG_CONFIG_HOME="$fake/xdg" "$resolver")" = "$fake/xdg/git/ignore"
+      printf '[core]\n  excludesFile = ~/.gitignore_global\n' > "$fake/.gitconfig"
+      test "$(env -i HOME="$fake" "$resolver")" = "$fake/.gitignore_global"
 
       ! grep -Fq -- '/home/david' "$spec"
       ! grep -Fq -- '/run/user/1000' "$spec"
