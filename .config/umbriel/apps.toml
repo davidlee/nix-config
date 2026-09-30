@@ -20,6 +20,7 @@
 
 "Mod+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
 "Ctrl+Alt+Shift+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn kitty kitty"
+"Ctrl+Alt+Shift+D" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn org.kde.dolphin dolphin"
 
 # --- meh-key scratchpads ----------------------------------------------
 # Scratchpad membership comes from the default_scratchpad window rules in
@@ -31,11 +32,12 @@
 "Ctrl+Alt+Shift+E" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
 
 # --- meh-key raise-or-run ---------------------------------------------
-"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn emacs emacsclient -n -c --alternate-editor="
-"Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn obsidian ~/.local/bin/obsidian"
-"Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn thunderbird thunderbird"
-"Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
-"Ctrl+Alt+Shift+B" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn firefox firefox"
+# emacsclient expects systemd to have started the server
+"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
+"Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn obsidian ~/.local/bin/obsidian"
+"Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn thunderbird thunderbird"
+"Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
+"Ctrl+Alt+Shift+B" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn firefox firefox"
 
 "Ctrl+Alt+Shift+C" = 'spawn:ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
 

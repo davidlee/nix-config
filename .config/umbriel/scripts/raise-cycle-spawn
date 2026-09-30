@@ -25,11 +25,11 @@ windows="$("$here/umbriel-windows")"
 mapfile -t ids < <(awk -F'\t' -v a="$app_id" '$2 == a { print $1 }' <<<"$windows")
 ((${#ids[@]})) || exec "$@"
 
-focused="$(awk -F'\t' '$3 == "true" { print $1 }' <<<"$windows")"
+active="$(awk -F'\t' '$3 == "true" { print $1 }' <<<"$windows")"
 
 next=0
 for i in "${!ids[@]}"; do
-  if [[ "${ids[i]}" == "$focused" ]]; then
+  if [[ "${ids[i]}" == "$active" ]]; then
     next=$(((i + 1) % ${#ids[@]}))
     break
   fi

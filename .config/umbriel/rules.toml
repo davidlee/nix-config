@@ -37,8 +37,6 @@ name = "edit"
 # and clip-to-geometry true here; in Umbriel the radius is global
 # (appearance.corner_radius) and clipping is implicit.
 [[window_rule]]
-blur = true
-blur_optimized = true # niri: background-effect { xray true }
 
 [[window_rule]]
 match.is_scratchpad = true
@@ -47,6 +45,7 @@ border_color_unfocused = "#5C4A2AFF"
 
 [[window_rule]]
 match.app_id = "^com[.]mitchellh[.]ghostty$"
+opacity = 1.0
 # opacity = 0.95 # handle this in config.ghostty
 
 [[window_rule]]
@@ -150,6 +149,14 @@ blur_optimized = false
 [[layer_rule]]
 match.namespace = "^launcher$"
 blur = true
+
+
+[[window_rule]]
+blur = true
+blur_optimized = true # niri: background-effect { xray true }
+match.is_focused = false
+blur_ignore_alpha = 0.1
+opacity = 1.0
 
 # Not portable, and left out deliberately:
 #   niri: namespace "^notifications$"  block-out-from "screencast"

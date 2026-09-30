@@ -136,7 +136,9 @@ stands in. They talk to the compositor over `umbriel msg` and
 `scripts/umbriel-windows` normalises the window list for the other three, and
 is the only place an IPC schema change bites. Verified against umbriel 0.1.0:
 `umbriel windows --json` returns a bare array of objects carrying `id`,
-`app_id`, `focused`, `x`/`y`/`w`/`h`, `floating`, `scratchpad` and `workspace`.
+`app_id`, `active`, `focused`, `x`/`y`/`w`/`h`, `floating`, `scratchpad` and `workspace`.
+The helper uses `active` for the current keyboard focus; `focused` may be true
+for a window on each workspace.
 Window ids are 32-hex strings, not integers.
 
 `~/.local/bin/toggle-audio-sink` is compositor-agnostic and is used as-is.

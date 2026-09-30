@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Focus the next window with an app ID, or launch the command if none exists.
+
+Usage: raise-cycle-or-spawn <app-id> <command> [args...]
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+
+def main():
+    if len(sys.argv) < 3 or not sys.argv[1]:
+        print("usage: raise-cycle-or-spawn <app-id> <command> [args...]", file=sys.stderr)
+        return 2
+
+    app_id = sys.argv[1]
+    command = sys.argv[2:]
+    windows = json.loads(subprocess.check_output(["umbriel", "windows", "--json"]))
+    matches = [window for window in windows if window["app_id"] == app_id]
+
+    if not matches:
+        os.execvp(command[0], command)
+
+    # `focused` can be true on several workspaces; `active` is keyboard focus.
+    active_window = next((window for window in windows if window["active"]), None)
+    if active_window in matches:
+        next_index = (matches.index(active_window) + 1) % len(matches)
+    else:
+        next_index = 0
+
+    subprocess.run(["umbriel", "msg", f"window-focus:{matches[next_index]['id']}"], check=True)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

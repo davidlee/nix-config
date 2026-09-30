@@ -4,3 +4,6 @@
 
 #[[workspace]]
 #name = "emacs"
+
+[[workspace]]
+name = "wub"
