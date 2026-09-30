@@ -13,6 +13,5 @@
     slack
 
     rssguard
-    # zoom-us
   ];
 }

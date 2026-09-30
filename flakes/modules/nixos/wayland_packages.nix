@@ -3,7 +3,6 @@
   stable,
   ...
 }: {
-  programs.zoom-us.enable = true;
   # these are about providing a useful common foundation
   environment.systemPackages = with pkgs; [
     wayland-protocols
