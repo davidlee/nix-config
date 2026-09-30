@@ -21,7 +21,7 @@ source "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
 # on PATH for GUI apps and systemd --user units too, not just shells.
 path add "~/nushell"
 
-
+$env.config.buffer_editor = ["emacsclient", "-t"]
 
 #
 # Functions

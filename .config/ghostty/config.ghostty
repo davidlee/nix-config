@@ -2,7 +2,7 @@
 
 theme = noctalia
 background-opacity = 1.0
-# background-blur = true
+background-blur = true
 
 window-decoration = none
 window-padding-x = 5
