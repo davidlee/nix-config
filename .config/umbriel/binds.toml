@@ -28,8 +28,10 @@
 
 # --- cheatsheet, launcher, panels -------------------------------------
 "Mod+Shift+Slash" = "cheatsheet-toggle" # niri: show-hotkey-overlay
-"Ctrl+Alt+Space" = "spawn:noctalia msg panel-toggle launcher"
-"Mod+Space" = "spawn:vicinae open"
+"Ctrl+Alt+Space" = "spawn:walker"
+"Alt+Space" = "spawn:vicinae toggle"
+# "Mod+Space" = "spawn:vicinae open"
+"Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
 "Mod+Z" = "spawn:noctalia msg panel-toggle clipboard"
 
 # --- system -----------------------------------------------------------
