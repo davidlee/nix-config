@@ -25,7 +25,7 @@
 
   services.satan-patcher = {
     enable = true;
-    package = inputs.satan-patcher.packages.${pkgs.system}.satan-patcher;
+    package = inputs.satan-patcher.packages.${pkgs.stdenv.hostPlatform.system}.satan-patcher;
     opBin = "/run/wrappers/bin/op";
     opAccount = "my.1password.com";
     # The module's own default still names ~/notes/satan (CHR-003); the

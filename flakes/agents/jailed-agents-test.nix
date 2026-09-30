@@ -3,7 +3,7 @@
   jail-nix,
 }: let
   inherit (pkgs) lib;
-  system = pkgs.stdenv.system;
+  system = pkgs.stdenv.hostPlatform.system;
 
   fakeAgent = name:
     pkgs.writeShellScriptBin name ''

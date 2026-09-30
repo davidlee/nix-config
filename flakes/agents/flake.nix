@@ -47,7 +47,7 @@
     in {
       lib = {inherit mkJailedAgents agentsOverlay;};
 
-      checks = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+      checks = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         jailed-agents = import ./jailed-agents-test.nix {
           inherit pkgs jail-nix;
         };

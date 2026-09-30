@@ -18,7 +18,7 @@
   ...
 }: {
   home.packages = [
-    inputs.satan.packages.${pkgs.system}.satan-jailed-gptel-harness
+    inputs.satan.packages.${pkgs.stdenv.hostPlatform.system}.satan-jailed-gptel-harness
   ];
 
   systemd.user.services.satan-morning = {

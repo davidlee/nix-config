@@ -133,7 +133,7 @@ Add this flake as an input, then call `mkJailedAgents`:
       devShells.default = pkgs.mkShell {
         packages = [
           # your project tools ...
-        ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+        ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           (agents.makeJailedClaude {
             profile = "specDev";
             extraPkgs = with pkgs; [ go gopls ];

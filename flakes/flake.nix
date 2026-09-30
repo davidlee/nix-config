@@ -145,6 +145,8 @@
     lem = {
       url = "github:lem-project/lem";
       inputs.nixpkgs.follows = "nixpkgs-home";
+      # its own flake-parts pins a 2025 nixpkgs.lib that still uses `or` as an identifier
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     niri = {

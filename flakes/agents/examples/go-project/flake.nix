@@ -20,7 +20,7 @@
       devShells.default = pkgs.mkShell {
         packages =
           goPkgs
-          ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
+          ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
             # Jailed agents with project-specific tools injected
             (agents.makeJailedClaude {extraPkgs = goPkgs;})
             (agents.makeJailedCodex {extraPkgs = goPkgs;})

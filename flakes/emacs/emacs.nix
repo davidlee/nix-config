@@ -1,6 +1,6 @@
 { pkgs }:
 let
-  emacsPackage = if pkgs.stdenv.isDarwin then pkgs.emacs-macport else pkgs.emacs-unstable-pgtk;
+  emacsPackage = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.emacs-macport else pkgs.emacs-unstable-pgtk;
 
   emacsPackages = pkgs.emacsPackagesFor emacsPackage;
 in
@@ -204,7 +204,7 @@ emacsPackages.emacsWithPackages (
 
     # nushell-ts-babel
   ]
-  ++ pkgs.lib.optionals (!pkgs.stdenv.isDarwin) [
+  ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
     #eaf-with-reinput
   ]
 )

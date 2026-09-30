@@ -33,25 +33,25 @@
 
         # Linux-specific dependencies (amd64)
         linuxPackages = with pkgs;
-          lib.optionals stdenv.isLinux [
+          lib.optionals stdenv.hostPlatform.isLinux [
             # zed-editor
           ];
 
         # Darwin-specific dependencies
         darwinPackages = with pkgs;
-          lib.optionals stdenv.isDarwin [
+          lib.optionals stdenv.hostPlatform.isDarwin [
           ];
 
         # Linux-specific shell hook
         linuxShellHook =
-          if pkgs.stdenv.isLinux
+          if pkgs.stdenv.hostPlatform.isLinux
           then ''
           ''
           else "";
 
         # Darwin-specific shell hook
         darwinShellHook =
-          if pkgs.stdenv.isDarwin
+          if pkgs.stdenv.hostPlatform.isDarwin
           then ''
           ''
           else "";
@@ -66,9 +66,9 @@
             # Common shell setup for all platforms
             echo "Development environment loaded for: ${system}"
             echo "Platform: ${
-              if pkgs.stdenv.isLinux
+              if pkgs.stdenv.hostPlatform.isLinux
               then "Linux"
-              else if pkgs.stdenv.isDarwin
+              else if pkgs.stdenv.hostPlatform.isDarwin
               then "Darwin"
               else "Unknown"
             }"

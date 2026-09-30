@@ -34,6 +34,6 @@
 
   services.goad = {
     enable = true;
-    package = inputs.goad.packages.${pkgs.system}.goad;
+    package = inputs.goad.packages.${pkgs.stdenv.hostPlatform.system}.goad;
   };
 }

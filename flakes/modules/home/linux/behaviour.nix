@@ -13,7 +13,7 @@
   lib,
   ...
 }: let
-  panopticon = inputs.panopticon.packages.${pkgs.system}.panopticon;
+  panopticon = inputs.panopticon.packages.${pkgs.stdenv.hostPlatform.system}.panopticon;
 in {
   home.packages = [panopticon];
 

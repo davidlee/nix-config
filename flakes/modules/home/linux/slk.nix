@@ -5,6 +5,6 @@
   ...
 }: {
   home.packages = [
-    inputs.slk.packages.${pkgs.system}.default
+    inputs.slk.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 }

@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  bh = inputs.bough.packages.${pkgs.system};
+  bh = inputs.bough.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   home.packages = [
     bh.default
