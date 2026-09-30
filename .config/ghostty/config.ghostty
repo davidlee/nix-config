@@ -11,7 +11,7 @@ window-title-font-family="Hack"
 
 # keybind = control+m>t=toggle_quick_terminal
 
-keybind = global:control+grave_accent=toggle_quick_terminal
+# keybind = global:control+grave_accent=toggle_quick_terminal
 
 quick-terminal-keyboard-interactivity = exclusive
 quick-terminal-autohide = false
