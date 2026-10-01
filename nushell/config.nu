@@ -27,6 +27,11 @@ $env.config.buffer_editor = ["emacsclient", "-t"]
 # Functions
 #
 
+# attach to a zmx session, creating it in its own systemd scope if new
+def za [name: string@"nu-complete zmx sessions", ...cmd] {
+  systemd-run --user --scope --collect --quiet zmx attach $name ...$cmd
+}
+
 def gcal () {
   gcalcli agenda --calendar $env.WORK_EMAIL
 }
@@ -40,9 +45,9 @@ def clock [] {
 }
 
 def nonag [] {
-  systemctl --user stop snooze-nag.timer  
-  systemctl --user stop snooze-nag        
-    
+  systemctl --user stop snooze-nag.timer
+  systemctl --user stop snooze-nag
+
 }
 
 def nag [] {
