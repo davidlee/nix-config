@@ -15,6 +15,10 @@ flake := "."
 
 default: update-local fmt doctor choose
 
+trial-upgrade: update system-build home-build
+
+
+
 noop:
   @echo ''
 
@@ -58,7 +62,9 @@ doctor:
 darwin-switch:
   darwin-rebuild switch --flake '.#fusillade' {{home_override}}
 
-everything: update-system update-home system-switch home-switch
+everything: fmt update-system update-home system-switch home-switch
+
+update: update-system update-home
 
 ##
 ##
@@ -67,7 +73,7 @@ update-system:
   nix flake update nixpkgs {{system_override}}
 
 update-home:
-  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
+  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix {{home_override}}
 
 update-local:
   nix flake update satan satan-attrd panopticon satan-patcher {{system_override}}

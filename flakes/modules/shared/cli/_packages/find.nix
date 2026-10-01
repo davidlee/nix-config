@@ -17,7 +17,7 @@
     ripgrep-all
   ];
   linuxHome = with pkgs; [
-    semgrep
+    #semgrep
     fsearch
   ];
 }

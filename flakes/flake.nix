@@ -36,10 +36,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    helix = {
-      url = "github:helix-editor/helix/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # helix = {
+    #   url = "github:helix-editor/helix/master";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     # Wrapped Emacs (the manual package list), shared with the ~/.emacs.d and
     # satan devshells — one derivation, one set of pins (its own nixpkgs and
@@ -126,7 +126,7 @@
       url = "github:davidlee/oubliette";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.target.follows = "nixpkgs";
-      # inputs.goad-walk.follows = "nixpgks";
+      inputs.goad-walk.follows = "nixpkgs";
     };
 
     noctalia = {

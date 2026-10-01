@@ -15,7 +15,7 @@
     gh
     hub
     jujutsu
-    mergiraf
+    # mergiraf
     tig
     # debase # broken
     gh-dash

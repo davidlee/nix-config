@@ -8,7 +8,7 @@
 
     discord
     element-desktop
-    zotero
+    # zotero
     thunderbird-latest
     slack
 

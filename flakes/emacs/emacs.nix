@@ -208,6 +208,9 @@ in
           molokai-theme
           nushell-ts-mode
           popterm
+          org-mcp
+          emcp
+          mcp
           tldr
           # nushell-ts-babel
         ]

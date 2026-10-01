@@ -10,7 +10,7 @@
       ./browsers.nix
       ./editors.nix
       ./graphics.nix
-      ./helix.nix
+      # ./helix.nix
       ./media.nix
       ./obs-studio.nix
       ./office.nix

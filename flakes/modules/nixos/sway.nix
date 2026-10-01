@@ -18,7 +18,7 @@
     swaylock-fancy
     swaynotificationcenter
     swaycwd
-    swaymux
+    # swaymux broke
     swaycons
     swaysettings
     swayr
