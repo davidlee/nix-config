@@ -32,8 +32,8 @@
 "Alt+Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
 "Mod+Space" = "spawn:vicinae toggle"
 "Mod+Z" = "spawn:noctalia msg panel-toggle clipboard"
-"Mod+Tab" = "spawn:noctalia msg window-switcher"
-"Mod" = "spawn:noctalia msg window-switcher hold"
+"Alt+Tab" = "spawn:noctalia msg window-switcher"
+"Alt" = "spawn:noctalia msg window-switcher hold"
 
 # --- system -----------------------------------------------------------
 "Mod+Alt+L" = "spawn:noctalia msg session lock"
@@ -187,8 +187,8 @@
 # niri's recent-windows overlay (layout.kdl) had MRU order, previews and an
 # app-id filter. Umbriel cycles in layout order and remembers one previous
 # window, so Mod+Shift+Grave has no counterpart.
-"Alt+Tab" = "window-focus-next"
-"Alt+Shift+Tab" = "window-focus-previous"
+"Mod+Tab" = "window-focus-next"
+"Mod+Shift+Tab" = "window-focus-previous"
 
 "Mod+Grave" = "window-focus-last"
 

@@ -36,7 +36,20 @@ name = "edit"
 # niri also set draw-border-with-background false, geometry-corner-radius 12
 # and clip-to-geometry true here; in Umbriel the radius is global
 # (appearance.corner_radius) and clipping is implicit.
+
+ [[window_rule]]
+ match.is_focused = true
+ outer_border_width = 2
+ border_color_outer  = "#d65d0eFF"
+
 [[window_rule]]
+match.app_id = "^emacs$"
+corner_radius = 0
+
+[[window_rule]]
+match.app_id = "^emacs$"
+match.is_alone = true
+default_fullscreen = true
 
 [[window_rule]]
 match.is_scratchpad = true
@@ -149,7 +162,6 @@ blur_optimized = false
 [[layer_rule]]
 match.namespace = "^launcher$"
 blur = true
-
 
 [[window_rule]]
 blur = true

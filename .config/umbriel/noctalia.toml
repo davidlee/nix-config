@@ -23,6 +23,7 @@ unfocused = "#1A1B26FF"       # niri: focus-ring { inactive-color }
 #scratchpad_focused = "#E0AF68FF"
 #scratchpad_unfocused = "#3D2F14FF"
 outer = "#1A1B26FF"
+#outer = "#111111FF"
 
 [colors.overview]
 badge = "#7AA2F7FF"

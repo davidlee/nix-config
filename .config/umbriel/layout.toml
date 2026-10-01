@@ -11,10 +11,11 @@
 
 [appearance]
 prefer_no_csd = true
-border_width = 3      # niri: focus-ring { width 3 }
-outer_border_width = 0 # niri: border { off }
-corner_radius = 12    # niri: window-rule { geometry-corner-radius 12 }
+border_width = 1
+outer_border_width = 0
+corner_radius = 12
 drag_opacity = 0.9
+
 
 # niri: blur { passes 3; offset 3.0; noise 0.02; saturation 1.2 }
 # `optimized` is niri's window-rule background-effect xray.
