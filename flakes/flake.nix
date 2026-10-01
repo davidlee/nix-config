@@ -126,6 +126,7 @@
       url = "github:davidlee/oubliette";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.target.follows = "nixpkgs";
+      # inputs.goad-walk.follows = "nixpgks";
     };
 
     noctalia = {

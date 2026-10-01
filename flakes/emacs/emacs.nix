@@ -208,7 +208,7 @@ in
           molokai-theme
           nushell-ts-mode
           popterm
-
+          tldr
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
