@@ -135,7 +135,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    umbriel.url = "git+https://github.com/noctalia-dev/umbriel";
+    umbriel = {
+      url = "git+https://github.com/noctalia-dev/umbriel";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     claude-desktop.url = "github:aaddrick/claude-desktop-debian";
 
