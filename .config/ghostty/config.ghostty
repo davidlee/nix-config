@@ -56,6 +56,6 @@ font-feature=-liga
 keybind = control+t=unbind
 
 # more widespread support if we impersonate kitty
-term = xterm-kitty
+# term = xterm-kitty
 
 config-file = ?auto/theme.ghostty

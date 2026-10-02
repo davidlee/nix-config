@@ -10,7 +10,7 @@
   ];
 
   system = {
-    primaryUser = "davidlee";
+    primaryUser = username;
 
     # so we do not need to logout and login again to make the changes take effect.
     # FIXME commented out to see if we don't need it / whether it's contributing to the issue with mouse natural scrolling
@@ -54,6 +54,4 @@
     home = "/Users/${username}";
     description = username;
   };
-
-  nix.settings.trusted-users = [username];
 }

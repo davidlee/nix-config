@@ -43,7 +43,11 @@
     # overlay). GitHub for portability: darwin has no /home/david. The
     # justfile's switch targets override it with the local checkout, so an
     # emacs.nix edit lands without a push.
-    emacs.url = "github:davidlee/nix-config?dir=flakes/emacs";
+    emacs = {
+      url = "github:davidlee/nix-config?dir=flakes/emacs";
+      # Override the upstream flake's moving tarball with a revision-locked fetch.
+      inputs.emacs-overlay.url = "github:nix-community/emacs-overlay";
+    };
 
     # To bump: change the tag below, then `nix flake update llama-cpp-src`.
     # The build number is derived from this ref in modules/overlays/llama-edge.nix.
@@ -273,8 +277,8 @@
           };
 
           darwinConfigurations = let
-            username = "davidlee";
-            hostname = "fusillade";
+            username = "david";
+            hostname = "Davids-MacBook-Pro";
             system = "aarch64-darwin";
             features = mkFeatures hostname;
 
@@ -301,13 +305,7 @@
             };
 
             specialArgs = {
-              inherit
-                inputs
-                pkgs
-                username
-                hostname
-                features
-                ;
+              inherit inputs pkgs username hostname features;
             };
           in {
             "${hostname}" = inputs.darwin.lib.darwinSystem {

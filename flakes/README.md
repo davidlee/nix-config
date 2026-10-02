@@ -29,6 +29,27 @@ So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for w
 
 ## Notes 
 
+### Bootstrap macOS
+
+Lix and Homebrew must already be installed. The `Davids-MacBook-Pro` target
+uses the existing `david` account and leaves the installer-managed Lix in
+place (`nix.enable = false`). This replaces the previous `fusillade` target.
+
+From `~/flakes`:
+
+```sh
+nix build 'path:/Users/david/flakes#darwinConfigurations.Davids-MacBook-Pro.system' --override-input emacs path:/Users/david/flakes/emacs --out-link result-darwin --no-write-lock-file
+sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake 'path:/Users/david/flakes#Davids-MacBook-Pro' --override-input emacs path:/Users/david/flakes/emacs --no-write-lock-file
+```
+
+With `just` installed, `just darwin-switch` runs both steps. Both use the local
+`emacs/` flake so package-list fixes apply without a push and input update.
+
+Use an explicit `path:` reference because the dotfiles repository at `~/.git`
+is bare; automatic Git discovery otherwise fails with “this operation must
+be run in a work tree”. `sudo -H` gives root its own home directory and avoids
+the `$HOME` ownership warning. Only activation needs root.
+
 ### Feature flags
 
 Coarse on/off switches, resolved per host and threaded into **all three**
@@ -320,4 +341,3 @@ nix flake init -t github:davidlee/nix-config?dir=flakes#agents # anywhere
 ```
 
 See [README](./pub/README.md) 
-

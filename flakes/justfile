@@ -62,8 +62,13 @@ home-build: check-flake-root #check-no-root-pub
 doctor:
   sleipnir-doctor
 
-darwin-switch: check-flake-root
-  sudo darwin-rebuild switch --flake '.#fusillade' {{home_override}}
+# Explicit path references bypass the bare dotfiles repository in ~/.git.
+# Build first as the login user; only activation needs root.
+darwin-build host="Davids-MacBook-Pro":
+  nix build 'path:{{justfile_directory()}}#darwinConfigurations.{{host}}.system' {{home_override}} --out-link result-darwin --no-write-lock-file
+
+darwin-switch host="Davids-MacBook-Pro": (darwin-build host)
+  sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake 'path:{{justfile_directory()}}#{{host}}' {{home_override}} --no-write-lock-file
 
 everything: fmt update-system update-home system-switch home-switch
 

@@ -6,7 +6,7 @@
   # build. The host imports ./emacs.nix directly with its own pkgs.
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    emacs-overlay.url = "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
+    emacs-overlay.url = "github:nix-community/emacs-overlay";
   };
 
   outputs = {
