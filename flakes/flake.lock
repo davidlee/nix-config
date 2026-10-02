@@ -8,14 +8,19 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1790752361,
-        "narHash": "sha256-jYOjJUzmxhMJyBh3kizAa5q3PrZp9qVLlATQT0+w+QQ=",
-        "path": "/home/david/flakes/agents",
-        "type": "path"
+        "dir": "flakes/agents",
+        "lastModified": 1790853331,
+        "narHash": "sha256-K/90Yg9in3/BYfiIEaFbewdB8QOqw7LYloKz8TaMh+E=",
+        "owner": "davidlee",
+        "repo": "nix-config",
+        "rev": "1b45f504c7747ee2971c9099d8baea47f4a69e17",
+        "type": "github"
       },
       "original": {
-        "path": "/home/david/flakes/agents",
-        "type": "path"
+        "dir": "flakes/agents",
+        "owner": "davidlee",
+        "repo": "nix-config",
+        "type": "github"
       }
     },
     "agents_2": {
@@ -672,10 +677,13 @@
         "nixpkgs": "nixpkgs_6"
       },
       "locked": {
-        "lastModified": 1790820684,
-        "narHash": "sha256-Y+mS0LY4RR4majmYSf4CDI3VcZPSP6qyMgsBSC1fKbU=",
-        "path": "/home/david/flakes/emacs",
-        "type": "path"
+        "dir": "flakes/emacs",
+        "lastModified": 1790853331,
+        "narHash": "sha256-K/90Yg9in3/BYfiIEaFbewdB8QOqw7LYloKz8TaMh+E=",
+        "owner": "davidlee",
+        "repo": "nix-config",
+        "rev": "1b45f504c7747ee2971c9099d8baea47f4a69e17",
+        "type": "github"
       },
       "original": {
         "dir": "flakes/emacs",

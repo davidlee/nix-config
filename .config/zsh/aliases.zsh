@@ -99,7 +99,7 @@ alias grep="grep --color=auto";
 
 # nix
 # alias -g nomjson=' --log-format internal-json -v |& nom --json';
-alias drs="cd ~/flakes && sudo darwin-rebuild switch --flake '.#fusillade' ";
+alias drs="cd ~/flakes && just darwin-switch";
 alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch --flake /home/david/flakes/\#Sleipnir |& nom --json' ";
 alias nrb="sudo zsh -c 'nixos-rebuild --no-reexec -v --log-format internal-json --flake /home/david/flakes/\#Sleipnir |& nom --json --show-trace' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";

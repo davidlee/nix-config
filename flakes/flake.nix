@@ -9,15 +9,12 @@
     # Jailed agents (formerly `pub`). Follows-anchor for panopticon/satan/
     # satan-attrd's (nested) `pub` inputs, so they share this one copy
     # instead of vendoring their own. Also consumed directly by
-    # overlays/agents.nix (linux only).
+    # overlays/agents.nix (linux only — nothing on darwin forces this input).
     #
-    # Absolute, not `path:./agents`: a relative path input can be resolved
-    # while *locking* (parent flake known) but not while *evaluating* —
-    # call-flake hands fetchTree the locked attrs alone, which for a relative
-    # path is unfetchable ("cannot fetch input 'path:./agents' because it uses
-    # a relative path"). It only appears to work while the fetcher cache is
-    # warm. Sleipnir-only path; nothing on darwin forces this input.
-    agents.url = "path:/home/david/flakes/agents";
+    # Locked from GitHub (portable, like `emacs`); `home_override` in the
+    # Justfile switches to the local checkout so an agents/ edit lands
+    # without push + `nix flake update agents`.
+    agents.url = "github:davidlee/nix-config?dir=flakes/agents";
 
     # Agent CLIs (codex, claude, gemini, ...). Follows agents' pin, so host
     # and every project jail share one agent version: bump it in agents

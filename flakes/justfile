@@ -5,7 +5,10 @@
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
 # emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
-system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/"
+# flakes/agents is locked from GitHub (portable); switch from the checkout so an
+# agents/ edit lands without push + `nix flake update agents`. Linux-only consumer
+# (overlays/agents.nix), so bundled with system_override, not home_override.
+system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/ --override-input agents path:" + justfile_directory() + "/agents"
 
 # flakes/emacs is locked from GitHub (portable); switch from the checkout so an
 # emacs.nix edit lands without push + `nix flake update emacs`.
@@ -59,8 +62,8 @@ home-build: check-flake-root #check-no-root-pub
 doctor:
   sleipnir-doctor
 
-darwin-switch:
-  darwin-rebuild switch --flake '.#fusillade' {{home_override}}
+darwin-switch: check-flake-root
+  sudo darwin-rebuild switch --flake '.#fusillade' {{home_override}}
 
 everything: fmt update-system update-home system-switch home-switch
 
