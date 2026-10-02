@@ -43,7 +43,6 @@
 
       # # completion
       blink-cmp # fzf rust ext
-      luasnip
     ];
   };
 }

@@ -76,9 +76,9 @@ vim.pack.add({
   "https://github.com/MeanderingProgrammer/render-markdown.nvim",
 
   -- snippets
-
-  -- "https://github.com/rafamadriz/friendly-snippets",
-  -- { src = "https://github.com/L3MON4D3/LuaSnip", name = "luasnip" }, -- after friendly-snippets
+  "https://github.com/rafamadriz/friendly-snippets",
+  -- Keep the pack name aligned with lze; case-only aliases collide on macOS.
+  { src = "https://github.com/L3MON4D3/LuaSnip", name = "luasnip" }, -- after friendly-snippets
 
   -- autopairs
   "https://github.com/windwp/nvim-autopairs",
