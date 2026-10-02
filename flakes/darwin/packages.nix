@@ -6,7 +6,6 @@
     # skhd
     # yabai
     shortcat
-    nushell
 
     ## not shared for other reasons
     rustup

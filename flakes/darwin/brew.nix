@@ -15,6 +15,7 @@ _: {
     brews = [
       "d2"
       "git" # gitFull equivalent with svn support
+      # "nushell"
     ];
     casks = [
       "google-chrome"
@@ -44,7 +45,6 @@ _: {
       "orion"
       "docker-desktop"
       "google-chrome@canary"
-      "nushell"
     ];
   };
 }

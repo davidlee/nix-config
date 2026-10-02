@@ -6,6 +6,7 @@
     ../modules/home/shared/programs.nix
     ../modules/home/shared/emacs.nix
     ../modules/home/shared/cli.nix
+    ../modules/home/shared/nushell.nix
   ];
 
   home = {
