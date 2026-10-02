@@ -1,7 +1,20 @@
 {pkgs}: let
   emacsPackage =
     if pkgs.stdenv.hostPlatform.isDarwin
-    then pkgs.emacs-macport
+    then
+      pkgs.emacs-macport.overrideAttrs (old: {
+        postInstall = ''
+          ${old.postInstall or ""}
+          # HACK: Mac Port 30.2.50's init_activation_policy expects this icon
+          # path outside the app bundle, but Nix installs it only inside the
+          # bundle. Missing it causes NSImageCacheException on GUI startup.
+          # Revisit after emacs-macport/nixpkgs updates: remove when upstream
+          # fixes the lookup or installs this path, and test bin/emacs GUI.
+          iconDir="$out/share/emacs/${old.version}/mac/Emacs.app/Contents/Resources"
+          mkdir -p "$iconDir"
+          ln -s "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" "$iconDir/Emacs.icns"
+        '';
+      })
     else pkgs.emacs-unstable-pgtk;
 
   emacsPackages = pkgs.emacsPackagesFor emacsPackage;
@@ -214,6 +227,8 @@ in
           gruvbox-theme
           molokai-theme
           nushell-ts-mode
+          # Nu config files are edited outside language-specific devshells.
+          (treesit-grammars.with-grammars (grammars: [grammars.tree-sitter-nu]))
           popterm
           org-mcp
           emcp

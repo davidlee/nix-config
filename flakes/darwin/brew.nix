@@ -18,6 +18,7 @@ _: {
       # "nushell"
     ];
     casks = [
+      "firefox"
       "google-chrome"
       "1password-cli"
       "notunes"

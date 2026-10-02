@@ -1,0 +1,2 @@
+WRN 2026-10-03T00:37:14.754 ?.55910    server_start:197: Failed to start server: operation not permitted: /var/folders/b8/pqdx88x16458db4jth5hr53w0000gn/T/nvim.david/wE6zTY/nvim.55910.0
+WRN 2026-10-03T00:37:14.865 ?.55910    server_start:197: Failed to start server: operation not permitted: /var/folders/b8/pqdx88x16458db4jth5hr53w0000gn/T/nvim.david/wE6zTY/fzf-lua.1790951834.55910.1
