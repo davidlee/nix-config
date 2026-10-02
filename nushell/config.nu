@@ -15,7 +15,9 @@ source ./private.local.nu
 source ./just.nu
 source ./env.nu
 source ./completion.nu
-source "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
+const ghostel_nu = "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
+const conditionally = if ($ghostel_nu | path exists) { $ghostel_nu } else { null }
+source $conditionally
 
 # the rest of these live in flakes/modules/nixos/env.nix, so pam_env puts them
 # on PATH for GUI apps and systemd --user units too, not just shells.
