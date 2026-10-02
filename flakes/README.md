@@ -12,7 +12,34 @@ Nix is amazing, but it's tag line should be:
 
 > An awful implementation of the only thing that makes sense.
 
-So I [use this approach](https://www.atlassian.com/git/tutorials/dotfiles) for what makes sense, Nix to draw the rest of the owl.
+So I keep `$HOME` itself in git for what makes sense, and use Nix to draw the rest of the owl.
+
+## Dotfiles
+
+`$HOME` is the worktree of this repo. The repository lives in `~/.cfg`; `~/.git`
+is a one-line pointer to it, so plain `git` works anywhere under `~` (no alias).
+
+```
+~/.git  "gitdir: ~/.cfg"  ──►  ~/.cfg/   core.worktree = $HOME
+                                         status.showUntrackedFiles = no
+```
+
+New machine (bash):
+
+```bash
+cd ~
+git clone --no-checkout --separate-git-dir="$HOME/.cfg" \
+  git@github.com:davidlee/nix-config.git ~/.cfg-tmp
+mv ~/.cfg-tmp/.git ~/.git && rmdir ~/.cfg-tmp
+git config core.worktree "$HOME"
+git config status.showUntrackedFiles no
+git reset            # index ← HEAD; files on disk are not touched
+git status           # review: tracked files that differ from ~ or are missing
+git restore -- .     # write them out (overwrites conflicting files)
+```
+
+Never `git stash` under `~`: it acts on the whole home directory, and with
+`-u` it would sweep away every untracked file in it. The same goes for `git clean`.
 
 ## Principles
 

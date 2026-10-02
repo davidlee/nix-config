@@ -219,6 +219,7 @@ in
           emcp
           mcp
           tldr
+          dogears
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
