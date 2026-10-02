@@ -12,6 +12,7 @@
     ../../modules/home/linux/nudge.nix
     ../../modules/home/linux/goad.nix
     ../../modules/home/linux/walker.nix
+    ../../modules/home/linux/chatgpt.nix
     ../../modules/home/shared/cli.nix
   ];
 

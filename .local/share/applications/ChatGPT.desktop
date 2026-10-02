@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=ChatGPT
+#Exec=chatgpt --ozone-platform=wayland %U
+Exec=chatgpt %U
+Terminal=false
+Type=Application
+Icon=chatgpt
+StartupWMClass=chatgpt
+Categories=Utility;Chat;
+MimeType=x-scheme-handler/chatgpt;

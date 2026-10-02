@@ -331,6 +331,7 @@
               overlays = [
                 inputs.claude-desktop.overlays.default
                 self.overlays.agents
+                inputs.llm-agents.overlays.shared-nixpkgs
               ];
             };
           in {
