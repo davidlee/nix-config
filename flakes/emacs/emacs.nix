@@ -181,6 +181,7 @@ in
           package-lint
           package-lint-flymake
           persp-mode
+          tmr
 
           # for org-iw
           relint

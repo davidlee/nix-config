@@ -1,11 +1,11 @@
 {
   pkgs,
-  # stable,
+  stable,
   ...
 }: {
   home.packages = with pkgs; [
     krita
-    mypaint
+    stable.mypaint
     inkscape
     gimp
     blender

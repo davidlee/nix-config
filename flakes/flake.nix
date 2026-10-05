@@ -334,6 +334,10 @@
                 inputs.llm-agents.overlays.shared-nixpkgs
               ];
             };
+            stable = import inputs.stable {
+              inherit system;
+              config.allowUnfree = true;
+            };
           in {
             "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
               inherit pkgs;
@@ -343,7 +347,7 @@
               ];
 
               extraSpecialArgs = {
-                inherit inputs username features;
+                inherit inputs username features stable;
               };
             };
           };
