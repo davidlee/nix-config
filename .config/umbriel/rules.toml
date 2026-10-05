@@ -121,7 +121,7 @@ default_scratchpad = "slack"
 default_floating = true
 
 [[window_rule]]
-match.app_id = "^Spotify$"
+match.app_id = "^spotify$"
 default_scratchpad = "spotify"
 default_floating = true
 

@@ -27,7 +27,7 @@
 # rules.toml, so these only have to toggle or launch.
 "Ctrl+Alt+Shift+G" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn signal signal signal-desktop"
 "Ctrl+Alt+Shift+S" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn slack slack slack"
-"Ctrl+Alt+Shift+Y" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn Spotify spotify spotify"
+"Ctrl+Alt+Shift+Y" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn spotify spotify spotify"
 "Ctrl+Alt+Shift+1" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.onepassword.OnePassword onepassword 1password"
 "Ctrl+Alt+Shift+E" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
 

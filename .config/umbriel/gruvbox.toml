@@ -1,0 +1,30 @@
+# ======================================================================
+# noctalia-gruvbox.toml — Gruvbox dark variant of noctalia.toml
+#
+# Same keys, Tokyo Night swapped for Gruvbox dark (medium contrast).
+# To use: point [include.optional] in config.toml at this file instead
+# of noctalia.toml.
+# ======================================================================
+
+[colors]
+background = "#282828FF"      # bg0
+text_primary = "#EBDBB2FF"    # fg1
+text_muted = "#928374FF"      # gray
+accent_primary = "#83A598FF"  # bright blue
+accent_secondary = "#FABD2FFF" # bright yellow
+warning = "#FE8019FF"         # bright orange
+error = "#FB4934FF"           # bright red
+insert_hint = "#83A59880"
+
+[colors.border]
+# focused = "#83A598FF"
+focused = "#d79921FF"
+unfocused = "#282828FF"
+#scratchpad_focused = "#FABD2FFF"
+#scratchpad_unfocused = "#4A3B12FF"
+outer = "#282828FF"
+#outer = "#1D2021FF"          # bg0_h
+
+[colors.overview]
+badge = "#83A598FF"
+workspace_background = "#00000044"
