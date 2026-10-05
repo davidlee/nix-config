@@ -6,6 +6,10 @@ background-blur = true
 
 macos-option-as-alt = true
 
+clipboard-read = allow
+clipboard-write = allow
+copy-on-select = clipboard
+
 # window-decoration = none
 window-padding-x = 5
 window-padding-y = 5
