@@ -12,7 +12,7 @@
   };
 
   ai = {
-    llama-cpp = true;
+    llama-cpp = false;
     rocm = false;
   };
   hardware = {

@@ -285,7 +285,15 @@ lpadmin -p laser -v ipp://IP:631/ipp/print  # change printer URI
 
 `modules/nixos/llama-cpp.nix` — `llama-server` on `127.0.0.1:8080` (OpenAI-compatible
 API + web UI), serving [Ternary-Bonsai-2-27B](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf)
-on the RX 9070 XT via ROCm. Gated by `ai.llama-cpp`.
+on the RX 9070 XT via ROCm. Gated by `ai.llama-cpp` — **currently off** on
+Sleipnir (no use case a hosted model doesn't cover better); the config is kept
+working. Flip the flag in `hosts/Sleipnir/features.nix` and `system-switch` to
+bring it back; the first build compiles HIP kernels for a long while.
+
+**What to expect** (measured 2026-10): decode 38–48 tok/s, prompt processing
+450–1000 tok/s. Tool calls in pi worked; reasoning is noticeably weaker than
+a hosted frontier model. The model thinks at `xhigh` by default — `/thinking
+medium` in pi (or `reasoning_effort: "medium"`) is faster at little cost.
 
 **Why a fork.** Bonsai stores weights as ternary values {−1, 0, +1} in new GGUF
 types (`PQ2_0`, `PTQ1_0`) that stock llama.cpp rejects. `overlays/llama-prism.nix`
@@ -306,7 +314,9 @@ flags (host, port, `models-max`); per-model options live in the preset.
 
 VRAM at 128k context: model 6.5 GB + q8_0 KV 4.3 GB + compute 0.7 GB ≈ 11.8 GB,
 leaving ~1 GB with the desktop running. Context checkpoints (150 MB each, up
-to 32) live in host RAM. To see buffer sizes, add `verbosity = 4` to the preset.
+to 32) live in host RAM. Bonsai's hybrid attention can only rewind its cache
+to a checkpoint, hence `checkpoint-min-step = 1024` (default 8192) to limit
+re-processing when an agent rewrites recent history. To see buffer sizes, add `verbosity = 4` to the preset.
 
 **pi** (needs router mode): `/login llama.cpp` with `http://127.0.0.1:8080`, no
 API key, then `/model`. Use `127.0.0.1`: node may resolve `localhost` to `::1`,
