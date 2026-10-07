@@ -298,6 +298,16 @@ flake input llama-cpp-prism-src (release tag) ──> overlays/llama-prism.nix �
                                                                                 └─ systemPackages (llama-cli, llama-bench)
 ```
 
+**Router mode.** The server starts without `--model` and loads models on demand
+from a preset INI, generated from the `presets` attrset in the module.
+Command-line flags override presets, so `settings` holds only router-level
+flags (host, port, `models-max`); per-model options live in the preset.
+`load-on-startup` loads Bonsai when the service starts.
+
+**pi** (needs router mode): `/login llama.cpp` with `http://127.0.0.1:8080`, no
+API key, then `/model`. Use `127.0.0.1`: node may resolve `localhost` to `::1`,
+where nothing listens.
+
 `ai.rocm` is not needed — it sets `rocmSupport` globally and rebuilds much of nixpkgs.
 
 **Model files** are fetched by hand, not by nix (7 GB in the store, per bump, is a poor trade):
