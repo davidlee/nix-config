@@ -28,7 +28,15 @@
       bonsai-2-27b = {
         model = "/srv/models/Ternary-Bonsai-2-27B-PQ2_0.gguf";
         load-on-startup = true;
-        ctx-size = 65536; # room for the thinking trace
+        # 128k. Only ~1/4 of layers (full attention) keep a KV cache;
+        # q8_0 halves it. Avoid q5_0: several times slower (KNOWN_ISSUES).
+        ctx-size = 131072;
+        cache-type-k = "q8_0";
+        cache-type-v = "q8_0";
+        # Hybrid attention can only rewind the cache to a checkpoint. The
+        # default 8192-token spacing re-processes up to 8k tokens whenever an
+        # agent rewrites recent history.
+        checkpoint-min-step = 1024;
         # Model card, thinking mode.
         temp = 1.0;
         top-p = 0.95;

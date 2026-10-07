@@ -304,6 +304,10 @@ Command-line flags override presets, so `settings` holds only router-level
 flags (host, port, `models-max`); per-model options live in the preset.
 `load-on-startup` loads Bonsai when the service starts.
 
+VRAM at 128k context: model 6.5 GB + q8_0 KV 4.3 GB + compute 0.7 GB ≈ 11.8 GB,
+leaving ~1 GB with the desktop running. Context checkpoints (150 MB each, up
+to 32) live in host RAM. To see buffer sizes, add `verbosity = 4` to the preset.
+
 **pi** (needs router mode): `/login llama.cpp` with `http://127.0.0.1:8080`, no
 API key, then `/model`. Use `127.0.0.1`: node may resolve `localhost` to `::1`,
 where nothing listens.
