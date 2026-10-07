@@ -1,56 +1,35 @@
-# {pkgs, ...}:
-# {
-#   services.llama-cpp = {
-#     enable = true;
-#
-#     package = pkgs.llama-cpp-edge-rocm;
-#
-#     host = "127.0.0.1";
-#     port = 8013;
-#     openFirewall = false;
-#
-#     model = "/srv/models/gpt-oss-20b-mxfp4.gguf";
-#
-#     extraFlags = [
-#       "--alias"
-#       "gpt-oss-20b"
-#       "--ctx-size"
-#       "32768"
-#       "--flash-attn"
-#       "--n-gpu-layers"
-#       "999"
-#     ];
-#   };
-# }
-{pkgs, ...}: {
-  environment.systemPackages = [
-    # pkgs.llama-cpp-edge-rocm
-    pkgs.llama-cpp-rocm
-  ];
+# llama.cpp server, serving Bonsai 2 27B on the GPU via ROCm.
+# Model files are downloaded by hand into /srv/models (see README).
+{pkgs, ...}: let
+  package = pkgs.llama-cpp-prism-rocm;
+in {
+  environment.systemPackages = [package]; # llama-cli, llama-bench, etc.
 
-  # services = {
-  #   llama-cpp = {
-  #     # package = pkgs.llama-cpp-rocm;
-  #     package = pkgs.llama-cpp-edge-rocm;
-  #     host = "127.0.0.1";
-  #     port = 8080;
-  #
-  #     modelsPreset = {
-  #       "*" = {
-  #         jinja = "true";
-  #         c = "8192";
-  #         flash-attn = "on";
-  #         n-gpu-layers = "all";
-  #         parallel = "1";
-  #         batch-size = "1024";
-  #         ubatch-size = "512";
-  #       };
-  #       model = "/srv/models/qwen2.5-coder-14b-instruct-q5_k_m.gguf";
-  #       "qwen-coder-14b" = {
-  #         model = "/srv/models/qwen2.5-coder-14b-instruct-q4_k_m.gguf";
-  #         alias = "qwen-coder-14b";
-  #       };
-  #     };
-  #   };
-  # };
+  systemd.tmpfiles.rules = ["d /srv/models 0755 david users -"];
+
+  services.llama-cpp = {
+    enable = true;
+    inherit package;
+    settings = {
+      host = "127.0.0.1";
+      port = 8080;
+
+      model = "/srv/models/Ternary-Bonsai-2-27B-PQ2_0.gguf";
+      alias = "bonsai-2-27b";
+      jinja = true;
+      ctx-size = 65536; # room for the thinking trace
+      flash-attn = "on";
+      n-gpu-layers = 99;
+      # Single user: one slot, and a prompt cache big enough to stop
+      # re-processing long conversations.
+      parallel = 1;
+      cache-ram = 24576;
+
+      # Model card, thinking mode.
+      temp = 1.0;
+      top-p = 0.95;
+      top-k = 20;
+      min-p = 0.05;
+    };
+  };
 }

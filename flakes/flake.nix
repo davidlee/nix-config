@@ -49,10 +49,11 @@
       inputs.emacs-overlay.url = "github:nix-community/emacs-overlay";
     };
 
-    # To bump: change the tag below, then `nix flake update llama-cpp-src`.
-    # The build number is derived from this ref in modules/overlays/llama-edge.nix.
-    llama-cpp-src = {
-      url = "github:ggml-org/llama.cpp/b8660";
+    # PrismML llama.cpp fork, for Bonsai's ternary formats. To bump: change the
+    # release tag, `nix flake update llama-cpp-prism-src`, then re-derive
+    # npmDepsHash in overlays/llama-prism.nix (the version comes from this ref).
+    llama-cpp-prism-src = {
+      url = "github:PrismML-Eng/llama.cpp/prism-b10754-2459f68";
       flake = false;
     };
 
@@ -269,7 +270,7 @@
                 ./hosts/${hostname}/config.nix
                 {
                   nixpkgs.overlays = [
-                    self.overlays.llama-edge
+                    self.overlays.llama-prism
                     self.overlays.whisper-rocm
                     self.overlays.click-threading-fix
                     self.overlays.agents

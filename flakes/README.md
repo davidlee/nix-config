@@ -281,6 +281,47 @@ lpadmin -d laser              # set default printer
 lpadmin -p laser -v ipp://IP:631/ipp/print  # change printer URI
 ```
 
+### llama.cpp (Bonsai 2)
+
+`modules/nixos/llama-cpp.nix` — `llama-server` on `127.0.0.1:8080` (OpenAI-compatible
+API + web UI), serving [Ternary-Bonsai-2-27B](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf)
+on the RX 9070 XT via ROCm. Gated by `ai.llama-cpp`.
+
+**Why a fork.** Bonsai stores weights as ternary values {−1, 0, +1} in new GGUF
+types (`PQ2_0`, `PTQ1_0`) that stock llama.cpp rejects. `overlays/llama-prism.nix`
+builds [PrismML's fork](https://github.com/PrismML-Eng/llama.cpp) on the nixpkgs
+`llama-cpp` recipe, swapping only `src`, and compiles HIP kernels for `gfx1201` only.
+
+```
+flake input llama-cpp-prism-src (release tag) ──> overlays/llama-prism.nix ──> pkgs.llama-cpp-prism-rocm
+                                                                                ├─ services.llama-cpp
+                                                                                └─ systemPackages (llama-cli, llama-bench)
+```
+
+`ai.rocm` is not needed — it sets `rocmSupport` globally and rebuilds much of nixpkgs.
+
+**Model files** are fetched by hand, not by nix (7 GB in the store, per bump, is a poor trade):
+
+```sh
+nix shell nixpkgs#python3Packages.huggingface-hub -c \
+  hf download prism-ml/Ternary-Bonsai-2-27B-gguf Ternary-Bonsai-2-27B-PQ2_0.gguf --local-dir /srv/models
+```
+
+`/srv/models` is created by tmpfiles. `PQ2_0` (7.2 GB) is the faster packing for
+prompt processing; `PTQ1_0` (6 GB) is the denser one.
+
+**Bump the fork:** change the tag on `llama-cpp-prism-src` in `flake.nix`, run
+`nix flake update llama-cpp-prism-src`, then rebuild. If the web-UI deps
+changed, the build fails with a hash mismatch: copy the `got:` hash into
+`npmDepsHash`.
+
+**Usage notes** (from the model's
+[KNOWN_ISSUES](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf/blob/main/KNOWN_ISSUES.md)):
+it's a reasoning model, so give requests a large `max_tokens` (≥16k) or the
+answer is cut off mid-thought. `reasoning_effort` accepts `none`, `low`, `medium` or `xhigh`
+(`high` returns HTTP 500); `medium` is the practical setting. Send exactly one
+system message, first.
+
 ### Spotify Alarm
 
 See [ALARM.md](./ALARM.md). `modules/home/nixos/alarm.nix` — plays a playlist through speakers at scheduled times via `spotifyd` + `spotify_player` + systemd user timers.

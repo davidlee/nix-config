@@ -698,11 +698,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1791056378,
-        "narHash": "sha256-6jiNqTMwqTBg869t/KdePVZDbfoPX2vEt+Ah6T2V9zk=",
+        "lastModified": 1791347250,
+        "narHash": "sha256-J+6HP6l0m6kG73wVkPSJoSheG9B1wHJM/Y1LlY3Ehbk=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "091fd2d58f1725163fe2b46a564fd2fc187898ae",
+        "rev": "29483fb60f7b707b5846038cbeb849930a087232",
         "type": "github"
       },
       "original": {
@@ -1356,19 +1356,19 @@
         "type": "github"
       }
     },
-    "llama-cpp-src": {
+    "llama-cpp-prism-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1775241614,
-        "narHash": "sha256-N7p5Ym/bWBcSzuVpEzCJu0m/S3lrFEuWLTN83ba0MCA=",
-        "owner": "ggml-org",
+        "lastModified": 1790971629,
+        "narHash": "sha256-3tASDsQU5JcTb2TIGEXaLpTK4T6osikndyVVBCWa8R4=",
+        "owner": "PrismML-Eng",
         "repo": "llama.cpp",
-        "rev": "d006858316d4650bb4da0c6923294ccd741caefd",
+        "rev": "2459f68b5c0eb26261fd5a81682004b93cd645ba",
         "type": "github"
       },
       "original": {
-        "owner": "ggml-org",
-        "ref": "b8660",
+        "owner": "PrismML-Eng",
+        "ref": "prism-b10754-2459f68",
         "repo": "llama.cpp",
         "type": "github"
       }
@@ -2680,7 +2680,7 @@
         "goad": "goad",
         "home-manager": "home-manager",
         "lem": "lem",
-        "llama-cpp-src": "llama-cpp-src",
+        "llama-cpp-prism-src": "llama-cpp-prism-src",
         "llm-agents": [
           "agents",
           "llm-agents"
