@@ -65,13 +65,19 @@ doctor:
 # drvPath of every configuration, evaluation only — the refactor gate in
 # MULTIHOST.md: snapshot before a change, diff after. Each family uses its
 # switch target's overrides; new hosts are picked up automatically.
+#
+# Two inputs vary with the repo rather than the config, so they are pinned
+# here, or every edit/commit would read as a change:
+# - nixos: the `agents` registry points at this flake's source (nix.nix), so
+#   any file under flakes/ changes the system drv.
+# - darwin: configurationRevision embeds the git rev (`-dirty` included).
 drvs: check-flake-root
-  @just _drvs nixosConfigurations config.system.build.toplevel "{{system_override}}"
-  @just _drvs homeConfigurations activationPackage "{{home_override}}"
-  @just _drvs darwinConfigurations system "{{home_override}}"
+  @just _drvs nixosConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }).config.system.build.toplevel' "{{system_override}}"
+  @just _drvs homeConfigurations 'c: c.activationPackage' "{{home_override}}"
+  @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system' "{{home_override}}"
 
-_drvs output attr overrides:
-  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${cs.${n}.{{attr}}.drvPath}\n") (builtins.attrNames cs))'
+_drvs output pick overrides:
+  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${(pick cs.${n}).drvPath}\n") (builtins.attrNames cs))'
 
 # Explicit path references bypass the bare dotfiles repository in ~/.git.
 # Build first as the login user; only activation needs root.

@@ -138,8 +138,15 @@ diff "$SCRATCH/before" "$SCRATCH/after"
   ordering (e.g. a list that merges in a different order because an import moved)
   can be accepted if it is understood and written down in Notes.
 - aarch64 hosts: **eval only** (`drvPath` resolves). Do not build; no binfmt.
-- Darwin evaluates from Linux in principle. If it doesn't, record that in Notes
-  and leave it out of `drvs` rather than fighting it.
+- Darwin evaluates from Linux (verified S0).
+- `drvs` pins two values that vary with the repo rather than the config
+  (see the justfile comment): the `agents` registry path (the flake's own
+  source, so any edit under flakes/ changed Sleipnir's drv) and darwin's
+  `configurationRevision`. If a later slice adds another reference to
+  `inputs.self` / `self.rev`, the gate goes noisy. Pin it in `drvs` the same
+  way.
+- stderr is chatty (fetch logs, nixpkgs warnings); redirect it when
+  snapshotting: `just drvs 2>/dev/null > …`.
 
 ## Slices
 
@@ -305,7 +312,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 
 | # | slice | status | commit | model | notes |
 |---|---|---|---|---|---|
-| S0 | gate tooling | ⬜ | | Sonnet-ok | |
+| S0 | gate tooling | ✅ | `S0COMMIT` | Sonnet-ok | ~1 min; pins registry + darwin rev |
 | S1 | parameterise `system` | ⬜ | | Opus | overlay recursion trap; agents aarch64 check |
 | S2 | host factories | ⬜ | | Opus | most wiring; alias drvPath must match |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
@@ -321,6 +328,14 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 ## Notes / findings
 
 (append per slice: decisions, accepted ordering diffs, deferred opportunities)
+
+### S0
+
+- Baseline 2026-10-09: Sleipnir `ryda2g8d…`, home `3b3z5wbw…`, darwin
+  `y59pa79x…` (pinned values; not comparable to unpinned drvPaths).
+- The darwin pin also shows that the repo's state changes the real darwin system
+  on every commit (`darwin-version.json`). That's intended (it's how
+  `darwin-version` reports the rev), just not something the gate should see.
 
 ### Considered: srid/nixos-unified (2026-10-09) — not adopted
 
