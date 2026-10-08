@@ -33,13 +33,14 @@
 "Mod+Space" = "spawn:vicinae toggle"
 "Mod+Z" = "spawn:noctalia msg panel-toggle clipboard"
 "Alt+Tab" = "spawn:noctalia msg window-switcher"
-"Alt" = "spawn:noctalia msg window-switcher hold"
+"Alt+Shift+Tab" = "spawn:noctalia msg window-switcher"
 
 # --- system -----------------------------------------------------------
 "Mod+Alt+L" = "spawn:noctalia msg session lock"
 "Mod+Shift+E" = "session-quit"
 "Ctrl+Alt+Delete" = "spawn:noctalia msg panel-open session"
-"Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
+# "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
+# ? dpms-on
 "Mod+Ctrl+M" = "spawn:noctalia msg mic-volume-set 100"
 "Mod+B" = "spawn:noctalia msg bar-toggle"
 "Mod+Ctrl+Comma" = "spawn:noctalia msg settings-toggle"

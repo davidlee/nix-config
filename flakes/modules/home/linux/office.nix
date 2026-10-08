@@ -12,6 +12,7 @@
     thunderbird-latest
     slack
 
+    mpris-timer # aka play timer
     rssguard
   ];
 }

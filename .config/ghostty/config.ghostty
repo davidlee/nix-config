@@ -4,6 +4,8 @@ theme = noctalia
 background-opacity = 1.0
 background-blur = true
 
+# stop dropping clipboard on upgrades
+gtk-single-instance = false
 macos-option-as-alt = true
 
 clipboard-read = allow

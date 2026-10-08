@@ -181,6 +181,7 @@ in
           package-lint-flymake
           persp-mode
           tmr
+          australia-holidays
 
           # for org-iw
           relint
