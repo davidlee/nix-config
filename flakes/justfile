@@ -43,18 +43,17 @@ test:
 nixos-start-docker-daemon:
   systemctl --user start docker
 
-run *args:
-  export SYSTEM_OVERRIDE="{{system_override}}"
-  sudo ./run.sh {{args}}
+run cmd *args:
+  sudo ./run.sh {{cmd}} {{host}} {{system_override}} {{args}}
 
 check-flake-root:
   @if [ -d .git ] && [ ! -e .git/HEAD ]; then echo "invalid .git directory at flake root shadows parent git repo: remove ./.git or move it aside"; exit 1; fi
 
 system-switch: check-flake-root #check-no-root-pub
-  sudo ./run.sh switch {{system_override}}
+  sudo ./run.sh switch {{host}} {{system_override}}
 
 system-build: check-flake-root
-  sudo ./run.sh build {{system_override}}
+  sudo ./run.sh build {{host}} {{system_override}}
 
 home-switch: check-flake-root #check-no-root-pub
   home-manager switch --flake '.#david@{{host}}' {{home_override}}
@@ -72,15 +71,25 @@ doctor:
 # Two inputs vary with the repo rather than the config, so they are pinned
 # here, or every edit/commit would read as a change:
 # - nixos: the `agents` registry points at this flake's source (nix.nix), so
-#   any file under flakes/ changes the system drv.
+#   any file under flakes/ changes the system drv. Pinned only where the entry
+#   exists, so the gate never invents it.
 # - darwin: configurationRevision embeds the git rev (`-dirty` included).
 drvs: check-flake-root
-  @just _drvs nixosConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }).config.system.build.toplevel' "{{system_override}}"
-  @just _drvs homeConfigurations 'c: c.activationPackage' "{{home_override}}"
-  @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system' "{{home_override}}"
+  @just _drvs nixosConfigurations 'c: let pinned = c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }; in (if c.config.nix.registry ? agents then pinned else c).config.system.build.toplevel.drvPath' "{{system_override}}"
+  @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{home_override}}"
+  @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{home_override}}"
 
+# Order-insensitive companion to drvs: count + hash of the *sorted* package
+# lists. When drvs differs but these match, the package change is
+# ordering-only. Other merged lists (groups, sudo rules, …) still need nix-diff.
+drvs-sets: check-flake-root
+  @just _drvs nixosConfigurations 'c: set c.config.environment.systemPackages' "{{system_override}}"
+  @just _drvs homeConfigurations 'c: set c.config.home.packages' "{{home_override}}"
+  @just _drvs darwinConfigurations 'c: set c.config.environment.systemPackages' "{{home_override}}"
+
+# pick: config -> string. `set` hashes a package list independent of order.
 _drvs output pick overrides:
-  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${(pick cs.${n}).drvPath}\n") (builtins.attrNames cs))'
+  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let set = ps: "${toString (builtins.length ps)} ${builtins.hashString "sha256" (builtins.concatStringsSep " " (builtins.sort builtins.lessThan (map (p: p.drvPath) ps)))}"; pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${pick cs.${n}}\n") (builtins.attrNames cs))'
 
 # Explicit path references bypass the bare dotfiles repository in ~/.git.
 # Build first as the login user; only activation needs root.

@@ -165,8 +165,9 @@ entry point.
 | `nixos` | `nixosConfigurations.<host>` | standalone, `homeConfigurations."david@<host>"` from `home.nix`, when `home = true` |
 | `darwin` | `darwinConfigurations.<host>` | darwin module (`darwin/`) |
 
-Adding a host means adding a directory. The justfile and `run.sh` select the
-configuration by `hostname` (`just host=<other> home-build` to override).
+Adding a host means adding a directory. The justfile selects the
+configuration by `hostname`; override with `just host=<other> system-build`
+(or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
 `homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
 See [MULTIHOST.md](./MULTIHOST.md) for the plan this is part of.
 

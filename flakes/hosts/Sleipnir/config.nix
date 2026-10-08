@@ -7,8 +7,8 @@
 }: {
   nix.package = pkgs.lixPackageSets.stable.lix;
 
-  # Sleipnir-only package fixes. The agents overlay is added by mkNixos
-  # (../../hosts.nix), after these.
+  # Sleipnir-only package fixes. mkNixos (../../hosts.nix) appends the agents
+  # overlay after these with mkAfter; without it, it would apply first.
   nixpkgs.overlays = with inputs.self.overlays; [
     llama-prism
     whisper-rocm

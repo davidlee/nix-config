@@ -42,7 +42,8 @@
       };
       modules = [
         ./hosts/${hostname}/config.nix
-        {nixpkgs.overlays = [(agentsOverlay system)];}
+        # mkAfter: host config.nix overlays (package fixes) apply first.
+        {nixpkgs.overlays = lib.mkAfter [(agentsOverlay system)];}
       ];
     };
 

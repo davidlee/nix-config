@@ -153,13 +153,24 @@ diff "$SCRATCH/before" "$SCRATCH/after"
 
 ### Lessons from S0–S2 (read before S3+)
 
-- **Moving an import changes list order.** Merged list options
-  (`environment.systemPackages`, `sudo.extraRules`, `extraGroups`, …) are
-  concatenated in import-tree DFS order. Moving modules into a profile, or
-  one level deeper, reorders them and changes the drv without changing the
-  closure. S4/S5 will hit this constantly. To keep the gate exact, put the
-  profile import **where the modules were**, with the same internal order.
-  When it still differs, prove it's ordering-only:
+- **Moving an import changes list order, and you can't preserve it by
+  placement.** Merged list options (`environment.systemPackages`,
+  `sudo.extraRules`, `extraGroups`, `nixpkgs.overlays`, …) are concatenated in
+  **reversed breadth-first** order of the import tree. The closure is built
+  breadth-first (`genericClosure`) and merging prepends. Verified with a toy
+  `evalModules`: a imports [b c d], b imports [e] → `[e d c b a]`.
+  Consequences:
+  - a module moved one level deeper (into a profile) moves **earlier** in
+    every merged list;
+  - "put the profile where the modules were" does **not** keep the gate exact.
+    Expect ordering diffs on most S4/S5 moves and budget for proving them;
+  - where order is semantic (overlays), make it explicit with
+    `mkBefore`/`mkAfter` rather than relying on import position (see S2.1).
+
+  Proving a diff is ordering-only: run `just drvs-sets` (count + hash of the
+  **sorted** package lists, per config). If drvs differs but drvs-sets
+  matches, the package change is ordering-only. Other lists (groups, sudo
+  rules, firewall ports) aren't covered, so check those with nix-diff:
   ```bash
   nix-diff OLD.drv NEW.drv | head -40      # find the first differing input drv
   # then compare that drv's env (structured attrs live in env.__json):
@@ -173,11 +184,21 @@ diff "$SCRATCH/before" "$SCRATCH/after"
   never `git add -A` / `git commit -a`.
 - **`just -n` doesn't run backticks**, so a dry run prints `` `hostname` ``
   literally. Use `just --evaluate host` to see the value.
-- **Unexplained, and moot because of the pin:** darwin's `configurationRevision`
-  was `<rev>-dirty` before a commit and null after it, even though `~` stays
-  dirty. Don't build anything on `self.rev` / `self.dirtyRev` behaving
-  predictably under Lix with `?dir=flakes`.
-- `just drvs` takes about a minute. Snapshot in the background while you read code.
+- **Unexplained (observed once, not reproduced), moot because of the pin:**
+  darwin's `configurationRevision` was `<rev>-dirty` before a commit and null
+  right after it, even though the tree was then clean and `self.rev` should
+  have been set. Since then it evaluates to `<rev>-dirty` as expected. Don't
+  build anything on `self.rev` / `self.dirtyRev` under Lix with `?dir=flakes`.
+- **The user edits concurrently.** In S2.1 a user commit to `emacs/emacs.nix`
+  landed between baseline and after, so home and darwin moved for a reason
+  unrelated to the slice. If a non-target config moves, check
+  `git log` / mtimes against the baseline snapshot before investigating.
+  Also: with `--override-input emacs path:…`, the nested `emacs-overlay` is
+  re-resolved to the newest GitHub rev on each eval, so home/darwin can drift
+  over hours with no local change. Take baseline and after close together.
+- **Snapshots go in `~/.cache/multihost-gate/`** (outside the repo; `~` hides
+  untracked files).
+- `just drvs` takes 35–60 s. Snapshot in the background while you read code.
 
 ## Slices
 
@@ -317,7 +338,8 @@ it reads no flag whose default flipped, or give it a features file.
     (as Sleipnir), or a work-specific setup. Ask before choosing; S4's base/host
     split of `network.nix` should keep the ControlD bits easy to opt into. Optional `virtualisation.rosetta.enable` behind a comment:
     it needs UTM's Apple Virtualization backend, not QEMU.
-  - `features.nix`: `agents.enable = true` (if S1 found aarch64 support),
+  - Prerequisites: the "before S8" rows in *Follow-ups from the review*.
+  - `features.nix`: `agents.enable = true` (S1: agents has aarch64-linux),
     `agents.capsule = false` (M2: no nested virt), everything else default off.
   - `home.nix`: `linux-headless`.
 - `homeConfigurations."david@nixosvm"`.
@@ -346,6 +368,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 | S0 | gate tooling | ✅ | `63017d80` | Sonnet-ok | ~1 min; pins registry + darwin rev |
 | S1 | parameterise `system` | ✅ | `a7771764` | Opus | gate identical; agents has aarch64-linux |
 | S2 | host factories | ✅ | `2ad1a83e` | Opus | nixos/home identical; darwin ordering-only |
+| S2.1 | review fixes | ✅ | `S21COMMIT` | Opus | overlay mkAfter; host passthrough; gate pin; drvs-sets |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
 | S4 | NixOS profiles | ⬜ | | Opus | classification judgement; mixed modules |
 | S5 | home profiles + personal | ⬜ | | Opus | darwin + linux both affected |
@@ -394,8 +417,10 @@ Candidates, each its own small commit; expected diffs allowed if explained:
   just imports `../../darwin` (the shared darwin base).
 - Sleipnir's package-fix overlays (llama-prism, whisper-rocm,
   click-threading-fix) moved from flake.nix into `hosts/Sleipnir/config.nix`,
-  via `inputs.self.overlays`. mkNixos appends the agents overlay after them,
-  the same order as before, so the drv is identical. `meta.nix` stays pure data.
+  via `inputs.self.overlays`. `meta.nix` stays pure data. **Correction (S2.1):**
+  as committed in S2, the agents overlay applied *before* them (mkNixos's
+  inline module sorts ahead of `config.nix` in the merge). The drv was
+  identical only because they touch disjoint attrs. S2.1 uses `lib.mkAfter`.
 - **Accepted ordering-only diff (darwin):** system-path's `chosenOutputs`
   holds the same 16 paths, but nix-darwin's own tools (`darwin-rebuild`,
   `-option`, `-version`, `-uninstaller`) now come after the user packages,
@@ -404,7 +429,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
   baseline: `vv9yqd3i…`.
 - `homeConfigurations.david` = alias of `david@Sleipnir` (identical drv).
   The justfile uses `david@{{host}}`, with ``host := `hostname` ``. `run.sh` uses
-  `$(hostname)`. `regenerate-hardware` writes to `hosts/{{host}}/`.
+  `$(hostname)` (S2.1: now takes the host as an argument). `regenerate-hardware` writes to `hosts/{{host}}/`.
   `darwin-*` recipes keep their explicit host default (macOS `hostname` may
   return `….local`).
 - Not done: `nixpkgs.hostPlatform` vs `meta.system` can disagree (nixos
@@ -412,6 +437,40 @@ Candidates, each its own small commit; expected diffs allowed if explained:
   `hardware.nix` should set it from the same value, or mkNixos should assert.
 - Darwin host bits not split from `darwin/`. Nothing there is obviously
   per-machine yet. Revisit when the work Mac arrives.
+
+### S2.1 — fixes from the S0–S2 review
+
+A fresh-agent review of S0–S2 found these. The rows marked (plan) were folded
+into the slices or the follow-up list below.
+
+- `nixpkgs.overlays` order: `lib.mkAfter` on the agents overlay in mkNixos.
+  Restores the pre-S2 order (host fixes first); comment corrected.
+- `host` wired through: `run.sh <cmd> <host> [args]`; `system-switch` /
+  `system-build` / `run` pass `{{host}}`. `run` used to `export
+  SYSTEM_OVERRIDE` on its own recipe line (lost; run.sh never read it), so
+  `just build` dry-built **without** `system_override`. It now passes it.
+- `drvs`: registry pin only where `nix.registry.agents` exists, so the gate
+  never invents the entry (matters from S6 on).
+- `drvs-sets`: new order-insensitive companion (see Lessons).
+- Lessons corrected (list order; configurationRevision premise);
+  `features.nix` comment points at hosts.nix.
+- Gate: Sleipnir identical. Home and darwin moved because of the user's
+  concurrent `9aaa8b3c` (emacs.nix), not this slice; stable on re-run.
+
+### Follow-ups from the review (not yet done)
+
+| item | where | when |
+|---|---|---|
+| `emacs/flake.nix` `systems` lacks `aarch64-linux`; `home/shared/emacs.nix` and `eca.nix` read `inputs.emacs.packages.${system}`, so a VM home won't eval | emacs sub-flake (+ push/relock, or `home_override`) | before S8 |
+| `system_override` names `~/dev/oubliette`; overrides are fetched eagerly even for unrelated attrs, so `system-*`/`drvs`/`update-local` fail on any host without it | justfile: per-host overrides (e.g. only if the path exists) | before S8 |
+| `nixpkgs.hostPlatform` vs `meta.system`: have mkNixos set `nixpkgs.hostPlatform = system` (plain priority beats hardware-config's `mkDefault`) | hosts.nix | S8 (or before) |
+| `meta.nix` unvalidated: misspelled `kind` silently drops the host; `home` on darwin is ignored. Validate with a small `lib.evalModules` schema (`kind` enum), the features.nix pattern; leaves room for `lima`/`microvm` | hosts.nix | before S8 |
+| `username = "david"` global; a work Mac likely differs. Move to `meta.nix` (`username ? "david"`), key home `${username}@<host>` | hosts.nix | work Mac |
+| darwin passes `pkgs` as arg **and** specialArg, so `nixpkgs.overlays` in darwin modules is silently ineffective; darwin fix overlays are hardcoded in mkDarwin | hosts.nix → `darwin/` | work Mac |
+| `import <src> { system; allowUnfree; overlays }` ×4 and `agentsOverlay` bound twice (flake.nix, hosts.nix). One `importPkgs` helper; move `legacyPackages`/`packages` beside it so flake.nix is inputs + templates | hosts.nix / new module | S9 |
+| specialArgs shape differs per kind (darwin: no `stable`, has `pkgs`). One `commonArgs` builder | hosts.nix | S9 |
+| gate doesn't cover `legacyPackages` / `packages` / `templates` | justfile | if those change again |
+| `~/.config/zsh/aliases.zsh:103-104` (`nrs`/`nrb`) hardcode `#Sleipnir` | outside flakes/ | user |
 
 ### Considered: srid/nixos-unified (2026-10-09) — not adopted
 
