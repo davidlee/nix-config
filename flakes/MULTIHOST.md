@@ -151,6 +151,34 @@ diff "$SCRATCH/before" "$SCRATCH/after"
 - stderr is chatty (fetch logs, nixpkgs warnings); redirect it when
   snapshotting: `just drvs 2>/dev/null > …`.
 
+### Lessons from S0–S2 (read before S3+)
+
+- **Moving an import changes list order.** Merged list options
+  (`environment.systemPackages`, `sudo.extraRules`, `extraGroups`, …) are
+  concatenated in import-tree DFS order. Moving modules into a profile, or
+  one level deeper, reorders them and changes the drv without changing the
+  closure. S4/S5 will hit this constantly. To keep the gate exact, put the
+  profile import **where the modules were**, with the same internal order.
+  When it still differs, prove it's ordering-only:
+  ```bash
+  nix-diff OLD.drv NEW.drv | head -40      # find the first differing input drv
+  # then compare that drv's env (structured attrs live in env.__json):
+  nix derivation show X.drv | python3 -c 'import json,sys; e=list(json.load(sys.stdin).values())[0]["env"]; print(json.dumps(json.loads(e.get("__json","{}")),indent=1,sort_keys=True))'
+  ```
+  It's ordering-only if the same store paths appear and only their order
+  differs. Record each accepted one in Notes, with the new baseline.
+- **Use `git add -N` (intent-to-add) for new files** before any eval. It makes
+  them visible to the git flake without staging their content.
+- **The `~` work tree is dirty outside flakes/.** Commit explicit paths only;
+  never `git add -A` / `git commit -a`.
+- **`just -n` doesn't run backticks**, so a dry run prints `` `hostname` ``
+  literally. Use `just --evaluate host` to see the value.
+- **Unexplained, and moot because of the pin:** darwin's `configurationRevision`
+  was `<rev>-dirty` before a commit and null after it, even though `~` stays
+  dirty. Don't build anything on `self.rev` / `self.dirtyRev` behaving
+  predictably under Lix with `?dir=flakes`.
+- `just drvs` takes about a minute. Snapshot in the background while you read code.
+
 ## Slices
 
 Each slice ends green, committed, and leaves main usable.
