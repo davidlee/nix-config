@@ -16,6 +16,9 @@ home_override := "--override-input emacs path:" + justfile_directory() + "/emacs
 
 flake := "."
 
+# configurations are keyed by hostname (hosts/<host>/); override with host=…
+host := `hostname`
+
 default: update-local fmt doctor choose
 
 trial-upgrade: update system-build home-build
@@ -54,10 +57,10 @@ system-build: check-flake-root
   sudo ./run.sh build {{system_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  home-manager switch --flake '.#david' {{home_override}}
+  home-manager switch --flake '.#david@{{host}}' {{home_override}}
 
 home-build: check-flake-root #check-no-root-pub
-  home-manager build --flake '.#david' {{home_override}}
+  home-manager build --flake '.#david@{{host}}' {{home_override}}
 
 doctor:
   sleipnir-doctor
@@ -125,7 +128,7 @@ build:
   just run dry-build --show-trace -v
 
 regenerate-hardware:
-   nixos-generate-config --show-hardware-config > hosts/Sleipnir/hardware-configuration.nix
+   nixos-generate-config --show-hardware-config > hosts/{{host}}/hardware-configuration.nix
    nix fmt
 
 gc:

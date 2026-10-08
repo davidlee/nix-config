@@ -149,8 +149,26 @@ was removed upstream, danksearch's flake input is commented out — so a flag
 would promise a switch that breaks the build when flipped. Repair first, then
 promote to a flag.
 
-`homeConfigurations` is keyed by user (`.#david`) with the host pinned inside it.
-A second linux host means keying it `david@<hostname>` and updating `home-switch`.
+### Hosts
+
+`hosts.nix` builds every configuration from the `hosts/` directory: each
+`hosts/<host>/meta.nix` is plain data, and `hosts/<host>/config.nix` is the
+entry point.
+
+```nix
+# hosts/Sleipnir/meta.nix
+{ kind = "nixos"; system = "x86_64-linux"; home = true; }
+```
+
+| kind | output | home-manager |
+|------|--------|--------------|
+| `nixos` | `nixosConfigurations.<host>` | standalone, `homeConfigurations."david@<host>"` from `home.nix`, when `home = true` |
+| `darwin` | `darwinConfigurations.<host>` | darwin module (`darwin/`) |
+
+Adding a host means adding a directory. The justfile and `run.sh` select the
+configuration by `hostname` (`just host=<other> home-build` to override).
+`homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
+See [MULTIHOST.md](./MULTIHOST.md) for the plan this is part of.
 
 ### Sleipnir Doctor
 

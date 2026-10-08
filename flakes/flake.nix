@@ -182,6 +182,7 @@
         imports = [
           inputs.treefmt-nix.flakeModule
           ./overlays.nix
+          ./hosts.nix # *Configurations, one per hosts/<host>/meta.nix
         ];
 
         systems = linuxSystems ++ ["aarch64-darwin"];
@@ -205,10 +206,6 @@
         };
 
         flake = let
-          # Per-host feature flags, resolved once and threaded into all three
-          # configs below. See ./features.nix.
-          mkFeatures = import ./features.nix nixpkgs.lib;
-
           # system -> overlay. See ./overlays/agents.nix.
           agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
         in {
@@ -243,116 +240,6 @@
               description = "Dev shell with jailed LLM agents";
             };
             default = self.templates.agents;
-          };
-
-          nixosConfigurations = let
-            hostname = "Sleipnir";
-            username = "david";
-            system = "x86_64-linux";
-            stable = import inputs.stable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-            features = mkFeatures hostname;
-
-            specialArgs = {
-              inherit
-                inputs
-                username
-                hostname
-                stable
-                features
-                ;
-            };
-          in {
-            "${hostname}" = nixpkgs.lib.nixosSystem {
-              inherit specialArgs;
-
-              modules = [
-                ./hosts/${hostname}/config.nix
-                {
-                  nixpkgs.overlays = [
-                    self.overlays.llama-prism
-                    self.overlays.whisper-rocm
-                    self.overlays.click-threading-fix
-                    (agentsOverlay system)
-                  ];
-                }
-              ];
-            };
-          };
-
-          darwinConfigurations = let
-            username = "david";
-            hostname = "Davids-MacBook-Pro";
-            system = "aarch64-darwin";
-            features = mkFeatures hostname;
-
-            pkgs = import nixpkgs {
-              inherit system;
-              hostPlatform = system;
-              config.allowUnfree = true;
-              overlays = [
-                (final: prev: {
-                  direnv = prev.direnv.overrideAttrs (old: {
-                    doCheck = false;
-                  });
-                })
-                (final: prev: {
-                  inherit
-                    (prev.lixPackageSets.stable)
-                    nixpkgs-review
-                    nix-eval-jobs
-                    nix-fast-build
-                    colmena
-                    ;
-                })
-              ];
-            };
-
-            specialArgs = {
-              inherit inputs pkgs username hostname features;
-            };
-          in {
-            "${hostname}" = inputs.darwin.lib.darwinSystem {
-              inherit pkgs specialArgs;
-              modules = [
-                {system.configurationRevision = self.rev or self.dirtyRev or null;}
-                ./darwin
-              ];
-            };
-          }; # Darwin
-
-          homeConfigurations = let
-            username = "david";
-            hostname = "Sleipnir";
-            system = "x86_64-linux";
-            features = mkFeatures hostname;
-            pkgs = import inputs.nixpkgs-home {
-              inherit system;
-              config.allowUnfree = true;
-              overlays = [
-                inputs.claude-desktop.overlays.default
-                (agentsOverlay system)
-                inputs.llm-agents.overlays.shared-nixpkgs
-              ];
-            };
-            stable = import inputs.stable {
-              inherit system;
-              config.allowUnfree = true;
-            };
-          in {
-            "${username}" = inputs.home-manager.lib.homeManagerConfiguration {
-              inherit pkgs;
-              modules = [
-                ./hosts/${hostname}/home.nix
-                {nixpkgs.overlays = [inputs.lem.overlays.default];}
-              ];
-
-              extraSpecialArgs = {
-                inherit inputs username features stable;
-              };
-            };
           };
         }; # flake
       }

@@ -5,7 +5,7 @@ shift
 
 nixos-rebuild \
   --log-format internal-json \
-  --flake /home/david/flakes/\#Sleipnir \
+  --flake "/home/david/flakes#$(hostname)" \
   -v \
   --show-trace \
   --no-reexec \

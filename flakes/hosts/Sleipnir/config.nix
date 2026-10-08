@@ -1,10 +1,19 @@
 {
   pkgs,
   lib,
+  inputs,
   features,
   ...
 }: {
   nix.package = pkgs.lixPackageSets.stable.lix;
+
+  # Sleipnir-only package fixes. The agents overlay is added by mkNixos
+  # (../../hosts.nix), after these.
+  nixpkgs.overlays = with inputs.self.overlays; [
+    llama-prism
+    whisper-rocm
+    click-threading-fix
+  ];
 
   # Unconditional modules first, then the feature-gated ones. Flags are
   # declared in ../../modules/features.nix and overridden in ./features.nix.
