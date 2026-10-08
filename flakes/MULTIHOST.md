@@ -109,7 +109,10 @@ together.
 - **New files must be `git add`ed before eval.** `.` is a git flake; untracked
   files are invisible to Nix and you'll get "path does not exist".
 - Lint/format after every file: `nix fmt` (treefmt: alejandra + statix),
-  zero warnings.
+  zero warnings. **`nix fmt` re-locks `emacs/emacs-overlay`**: the committed
+  lock is stale against flake.nix's `inputs.emacs-overlay.url` override. Don't
+  commit that drift in a slice. Restore with
+  `git show HEAD:flakes/flake.lock > flake.lock`, or pass `--no-write-lock-file`.
 - Conventional commits, one per slice (or a few small ones); `git add ~/flakes/…`.
 - The user commits to this repo between slices. **Re-read every file you touch
   at slice start**; do not trust line numbers in this doc.
@@ -313,7 +316,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 | # | slice | status | commit | model | notes |
 |---|---|---|---|---|---|
 | S0 | gate tooling | ✅ | `63017d80` | Sonnet-ok | ~1 min; pins registry + darwin rev |
-| S1 | parameterise `system` | ⬜ | | Opus | overlay recursion trap; agents aarch64 check |
+| S1 | parameterise `system` | ✅ | `a7771764` | Opus | gate identical; agents has aarch64-linux |
 | S2 | host factories | ⬜ | | Opus | most wiring; alias drvPath must match |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
 | S4 | NixOS profiles | ⬜ | | Opus | classification judgement; mixed modules |
@@ -336,6 +339,21 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 - The darwin pin also shows that the repo's state changes the real darwin system
   on every commit (`darwin-version.json`). That's intended (it's how
   `darwin-version` reports the rev), just not something the gate should see.
+
+### S1
+
+- `inputs.agents.lib` and `llm-agents.packages` both have `aarch64-linux`,
+  so S6/S8 aren't blocked.
+- `overlays/agents.nix` is now `{inputs}: system: overlay`, bound once as
+  `agentsOverlay` in flake.nix's `flake = let …`. **`overlays.agents` is gone
+  from the flake outputs**: a function of system isn't a valid overlay output,
+  and nothing outside this flake consumed it (grepped ~/flakes, ~/dev).
+- `legacyPackages` / `packages` are generated per `linuxSystems`, which is also
+  the source of `systems`. Darwin isn't included (no registry use there).
+- Opportunity: `modules/nixos/nix.nix` installs nix-search-tv twice — the
+  flake input's package and `pkgs.nix-search-tv`. Pick one (S9).
+- Opportunity (outside this plan): the committed `flake.lock` vs `nix fmt`
+  re-lock above. A deliberate `nix flake update emacs` would settle it.
 
 ### Considered: srid/nixos-unified (2026-10-09) — not adopted
 
