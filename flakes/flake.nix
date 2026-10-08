@@ -176,16 +176,15 @@
     ...
   }:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (
-      {...}: {
+      _: let
+        linuxSystems = ["x86_64-linux" "aarch64-linux"];
+      in {
         imports = [
           inputs.treefmt-nix.flakeModule
           ./overlays.nix
         ];
 
-        systems = [
-          "x86_64-linux"
-          "aarch64-darwin"
-        ];
+        systems = linuxSystems ++ ["aarch64-darwin"];
 
         perSystem = {
           config,
@@ -209,16 +208,20 @@
           # Per-host feature flags, resolved once and threaded into all three
           # configs below. See ./features.nix.
           mkFeatures = import ./features.nix nixpkgs.lib;
+
+          # system -> overlay. See ./overlays/agents.nix.
+          agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
         in {
           # Overlaid full nixpkgs surfaced so the `nixpkgs` registry alias
           # (pinned to self in modules/nixos/nix.nix) resolves `nix shell
           # nixpkgs#codex` etc. to the llm-agents builds. Everything else
           # under nixpkgs#… still works — this is a superset.
-          legacyPackages."x86_64-linux" = import nixpkgs {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-            overlays = [self.overlays.agents];
-          };
+          legacyPackages = nixpkgs.lib.genAttrs linuxSystems (system:
+            import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+              overlays = [(agentsOverlay system)];
+            });
 
           # Every llm-agents CLI, surfaced as this flake's own packages so
           # the `agents` registry alias resolves `nix shell agents#<any>`
@@ -228,12 +231,11 @@
           # handy, omp, but, ck), so blanket-injecting would shadow them
           # system-wide. tryEval guards attrs that throw on eval; drop
           # non-derivations (buildNpmPackage, hooks, default, …).
-          packages."x86_64-linux" = let
+          packages = let
             inherit (nixpkgs) lib;
-            llm = inputs.llm-agents.packages."x86_64-linux";
             keep = n: v: n != "default" && (builtins.tryEval (lib.isDerivation v)).value or false;
           in
-            lib.filterAttrs keep llm;
+            lib.genAttrs linuxSystems (system: lib.filterAttrs keep inputs.llm-agents.packages.${system});
 
           templates = {
             agents = {
@@ -273,7 +275,7 @@
                     self.overlays.llama-prism
                     self.overlays.whisper-rocm
                     self.overlays.click-threading-fix
-                    self.overlays.agents
+                    (agentsOverlay system)
                   ];
                 }
               ];
@@ -331,7 +333,7 @@
               config.allowUnfree = true;
               overlays = [
                 inputs.claude-desktop.overlays.default
-                self.overlays.agents
+                (agentsOverlay system)
                 inputs.llm-agents.overlays.shared-nixpkgs
               ];
             };

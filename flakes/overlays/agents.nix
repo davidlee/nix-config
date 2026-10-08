@@ -3,8 +3,9 @@
 # the dev-flake path and the system override share one definition. llm-agents
 # keeps its own nixpkgs pin (numtide binary cache), not `follows`.
 #
-# System is hardcoded (x86_64-linux — the only host this overlay is applied
-# to). Reading `prev.system` instead would force the target pkgs fixpoint
-# from inside the overlay, recursing through stdenv bootstrap. The agent
-# packages come from agents' own pkgs and are independent of final/prev.
-{inputs}: inputs.agents.lib.x86_64-linux.agentsOverlay {}
+# Takes `system` explicitly rather than reading `prev.system`, which would
+# force the target pkgs fixpoint from inside the overlay, recursing through
+# stdenv bootstrap. The agent packages come from agents' own pkgs and are
+# independent of final/prev. Being a function of system, it is not a valid
+# `overlays.*` flake output, so flake.nix applies it directly.
+{inputs}: system: inputs.agents.lib.${system}.agentsOverlay {}
