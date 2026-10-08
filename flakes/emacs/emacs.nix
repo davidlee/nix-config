@@ -21,6 +21,17 @@
 in
   emacsPackages.emacsWithPackages (
     epkgs: let
+      hunk-notes = epkgs.trivialBuild {
+        pname = "hunk-notes";
+        version = "unstable-2026-10-09";
+        src = pkgs.fetchFromGitHub {
+          owner = "ArthurHeymans";
+          repo = "emacs-hunk-notes";
+          rev = "ba37f3d70927c028e5c15a0982cacac99279434d";
+          hash = "sha256-sg2ZAiwB71Zi11P/uuzEdI4yXKiYmRLookHl7MX/Nbc=";
+        };
+        packageRequires = [epkgs.magit epkgs.transient];
+      };
       # # EAF embeds X11/Wayland GUI apps; it is Linux-only (its build
       # # pulls libinput/libevdev/udev). Skip it entirely on Darwin.
       # #
@@ -182,6 +193,8 @@ in
           persp-mode
           tmr
           australia-holidays
+          magit-filenotify
+          hunk-notes
 
           # for org-iw
           relint
