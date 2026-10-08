@@ -62,6 +62,17 @@ home-build: check-flake-root #check-no-root-pub
 doctor:
   sleipnir-doctor
 
+# drvPath of every configuration, evaluation only — the refactor gate in
+# MULTIHOST.md: snapshot before a change, diff after. Each family uses its
+# switch target's overrides; new hosts are picked up automatically.
+drvs: check-flake-root
+  @just _drvs nixosConfigurations config.system.build.toplevel "{{system_override}}"
+  @just _drvs homeConfigurations activationPackage "{{home_override}}"
+  @just _drvs darwinConfigurations system "{{home_override}}"
+
+_drvs output attr overrides:
+  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${cs.${n}.{{attr}}.drvPath}\n") (builtins.attrNames cs))'
+
 # Explicit path references bypass the bare dotfiles repository in ~/.git.
 # Build first as the login user; only activation needs root.
 darwin-build host="Davids-MacBook-Pro":
