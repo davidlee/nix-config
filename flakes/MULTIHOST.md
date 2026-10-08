@@ -368,7 +368,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 | S0 | gate tooling | ✅ | `63017d80` | Sonnet-ok | ~1 min; pins registry + darwin rev |
 | S1 | parameterise `system` | ✅ | `a7771764` | Opus | gate identical; agents has aarch64-linux |
 | S2 | host factories | ✅ | `2ad1a83e` | Opus | nixos/home identical; darwin ordering-only |
-| S2.1 | review fixes | ✅ | `S21COMMIT` | Opus | overlay mkAfter; host passthrough; gate pin; drvs-sets |
+| S2.1 | review fixes | ✅ | `aaff9dd2` | Opus | overlay mkAfter; host passthrough; gate pin; drvs-sets |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
 | S4 | NixOS profiles | ⬜ | | Opus | classification judgement; mixed modules |
 | S5 | home profiles + personal | ⬜ | | Opus | darwin + linux both affected |
