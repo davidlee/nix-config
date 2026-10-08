@@ -312,7 +312,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 
 | # | slice | status | commit | model | notes |
 |---|---|---|---|---|---|
-| S0 | gate tooling | ✅ | `S0COMMIT` | Sonnet-ok | ~1 min; pins registry + darwin rev |
+| S0 | gate tooling | ✅ | `63017d80` | Sonnet-ok | ~1 min; pins registry + darwin rev |
 | S1 | parameterise `system` | ⬜ | | Opus | overlay recursion trap; agents aarch64 check |
 | S2 | host factories | ⬜ | | Opus | most wiring; alias drvPath must match |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
