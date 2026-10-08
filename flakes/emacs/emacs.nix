@@ -160,7 +160,6 @@ in
           meow-tree-sitter
           minuet
           move-text
-          multiple-cursors
           nano-agenda
           nano-modeline
           nano-theme
