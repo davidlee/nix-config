@@ -317,7 +317,7 @@ Candidates, each its own small commit; expected diffs allowed if explained:
 |---|---|---|---|---|---|
 | S0 | gate tooling | ✅ | `63017d80` | Sonnet-ok | ~1 min; pins registry + darwin rev |
 | S1 | parameterise `system` | ✅ | `a7771764` | Opus | gate identical; agents has aarch64-linux |
-| S2 | host factories | ⬜ | | Opus | most wiring; alias drvPath must match |
+| S2 | host factories | ✅ | `2ad1a83e` | Opus | nixos/home identical; darwin ordering-only |
 | S3 | collect capsule + flag | ⬜ | | Sonnet-ok | |
 | S4 | NixOS profiles | ⬜ | | Opus | classification judgement; mixed modules |
 | S5 | home profiles + personal | ⬜ | | Opus | darwin + linux both affected |
@@ -354,6 +354,36 @@ Candidates, each its own small commit; expected diffs allowed if explained:
   flake input's package and `pkgs.nix-search-tv`. Pick one (S9).
 - Opportunity (outside this plan): the committed `flake.lock` vs `nix fmt`
   re-lock above. A deliberate `nix flake update emacs` would settle it.
+
+### S2
+
+- `hosts.nix` (flake-parts module): `readDir ./hosts` → `meta.nix`
+  (`kind`, `system`, `home`) → `mkNixos` / `mkHome` / `mkDarwin`. All three
+  receive the same specialArgs core (`inputs username hostname features`,
+  + `stable` on linux, + `pkgs` on darwin). Home gained `hostname` (unused so
+  far, so no drv change).
+- Every host's entry point is `hosts/<host>/config.nix`. Darwin's is new and
+  just imports `../../darwin` (the shared darwin base).
+- Sleipnir's package-fix overlays (llama-prism, whisper-rocm,
+  click-threading-fix) moved from flake.nix into `hosts/Sleipnir/config.nix`,
+  via `inputs.self.overlays`. mkNixos appends the agents overlay after them,
+  the same order as before, so the drv is identical. `meta.nix` stays pure data.
+- **Accepted ordering-only diff (darwin):** system-path's `chosenOutputs`
+  holds the same 16 paths, but nix-darwin's own tools (`darwin-rebuild`,
+  `-option`, `-version`, `-uninstaller`) now come after the user packages,
+  because `darwin/` is imported one level deeper. It only matters for file
+  collisions in buildEnv, and these packages don't overlap. New darwin
+  baseline: `vv9yqd3i…`.
+- `homeConfigurations.david` = alias of `david@Sleipnir` (identical drv).
+  The justfile uses `david@{{host}}`, with ``host := `hostname` ``. `run.sh` uses
+  `$(hostname)`. `regenerate-hardware` writes to `hosts/{{host}}/`.
+  `darwin-*` recipes keep their explicit host default (macOS `hostname` may
+  return `….local`).
+- Not done: `nixpkgs.hostPlatform` vs `meta.system` can disagree (nixos
+  hosts take hostPlatform from hardware config). S8's hand-written
+  `hardware.nix` should set it from the same value, or mkNixos should assert.
+- Darwin host bits not split from `darwin/`. Nothing there is obviously
+  per-machine yet. Revisit when the work Mac arrives.
 
 ### Considered: srid/nixos-unified (2026-10-09) — not adopted
 
