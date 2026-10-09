@@ -15,12 +15,18 @@
 
 # --- terminals and browser --------------------------------------------
 "Mod+Return" = "spawn:ghostty"
-"Mod+K" = "spawn:kitty"
 "Mod+Shift+Return" = "spawn:firefox"
 
-"Mod+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
-"Ctrl+Alt+Shift+Apostrophe" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn kitty kitty"
+# --- meh-key raise-or-run ---------------------------------------------
+# emacsclient expects systemd to have started the server
+"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
+"Mod+Apostrophe"   = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
+"Ctrl+Alt+Shift+K" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn kitty kitty"
 "Ctrl+Alt+Shift+D" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn org.kde.dolphin dolphin"
+"Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn obsidian ~/.local/bin/obsidian"
+"Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn thunderbird thunderbird"
+"Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
+"Ctrl+Alt+Shift+B" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn firefox firefox"
 
 # --- meh-key scratchpads ----------------------------------------------
 # Scratchpad membership comes from the default_scratchpad window rules in
@@ -31,21 +37,6 @@
 "Ctrl+Alt+Shift+1" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.onepassword.OnePassword onepassword 1password"
 "Ctrl+Alt+Shift+E" = "spawn:~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
 
-# --- meh-key raise-or-run ---------------------------------------------
-# emacsclient expects systemd to have started the server
-"Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
-"Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn obsidian ~/.local/bin/obsidian"
-"Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn thunderbird thunderbird"
-"Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
-"Ctrl+Alt+Shift+B" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn firefox firefox"
-
+# --- misc ----------------------------------------------
 "Ctrl+Alt+Shift+C" = 'spawn:ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
 
-# --- open-on-workspace ------------------------------------------------
-# niri kept these commented out; the Umbriel form is a window rule with
-# default_workspace, matching the [[workspace]] names in config.toml.
-#
-# [[window_rule]]
-# match.app_id = "^emacs$"
-# match.at_startup = true
-# default_workspace = "emacs"
