@@ -178,8 +178,9 @@ See [MULTIHOST.md](./MULTIHOST.md) for the plan this is part of.
 speech-to-text, typed at the cursor as you speak. Local and CPU-only.
 
 ```
-F9 ──> dictate toggle ──SIGUSR1──> dictate.service (model resident, mic closed)
-                                     pw-record ──100ms──> Nemotron ──> wtype
+F9        ──> dictate toggle ──SIGUSR1────┐
+`=` held  ──> dictate start  ──SIGRTMIN───┼──> dictate.service (model resident, mic closed)
+`=` up    ──> dictate stop   ──SIGRTMIN+1─┘      pw-record ──100ms──> Nemotron ──> wtype
 ```
 
 The model is NVIDIA's [Nemotron 3.5 ASR streaming 0.6B](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b)
@@ -192,9 +193,15 @@ Typing as you speak depends on the transcript only growing: cache-aware
 streaming emits each token once, so each new piece is typed and earlier text
 is never revised. If a revision ever happens, `edit` backspaces it.
 
-A toggle starts dictation; a second toggle, or `DICTATE_IDLE` (10 s) without
-new words, stops it. A toast says when the mic opens and closes. The bind is in
-`~/.config/umbriel/binds.toml`; a ZMK key sending F9 is enough.
+Each command sets whether the daemon should be listening; `DICTATE_IDLE` (10 s)
+without new words also stops it. A toast says when the mic opens and closes.
+
+**Push-to-talk.** umbriel binds fire on press only, so the keyboard splits the
+key: holding the `=` combo (left middle + index, home row) makes ZMK's `ptt`
+macro tap F13, and releasing it taps F14. Tapping the combo still types `=`.
+The binds in `~/.config/umbriel/binds.toml` use xkb's names for those keys,
+`XF86Tools` and `XF86Launch5`. The ZMK side is in `~/dev/kb/zmk-config`
+(`config/combos.dtsi`). F9 toggles, for any keyboard.
 
 ```bash
 just test                       # behaviour tests, no mic or model
@@ -203,8 +210,7 @@ journalctl --user -u dictate -f
 ```
 
 Language is `DICTATE_LANG` in the module (`en`, `fr`, …, or `auto`); a wrong
-hint garbles the output rather than degrading gracefully. Push-to-talk would
-need start/stop signals in place of the toggle, and a key-release bind.
+hint garbles the output rather than degrading gracefully.
 Measurements and open options: [DICTATE.md](./DICTATE.md).
 
 ### Sleipnir Doctor

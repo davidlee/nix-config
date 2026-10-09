@@ -60,10 +60,32 @@ def silence(n):
     return iter([b""] * n)
 
 
-def run(transcriber, chunks, stop=None, idle=60.0):
+def always():
+    return True
+
+
+def run(transcriber, chunks, active=always, idle=60.0):
     keyboard = Keyboard()
-    dictate.session(chunks, transcriber, keyboard, stop or threading.Event(), idle)
+    dictate.session(chunks, transcriber, keyboard, active, idle)
     return keyboard
+
+
+class Listening(unittest.TestCase):
+    """What each command does to "should the mic be open"."""
+
+    def test_toggle_flips(self):
+        self.assertTrue(dictate.next_state("toggle", listening=False))
+        self.assertFalse(dictate.next_state("toggle", listening=True))
+
+    def test_start_and_stop_are_absolute(self):
+        for listening in (False, True):
+            self.assertTrue(dictate.next_state("start", listening))
+            self.assertFalse(dictate.next_state("stop", listening))
+
+    def test_every_command_has_its_own_signal(self):
+        signals = dictate.SIGNALS
+        self.assertEqual(set(signals), {"toggle", "start", "stop"})
+        self.assertEqual(len(set(signals.values())), 3)
 
 
 class Edit(unittest.TestCase):
@@ -90,17 +112,18 @@ class Session(unittest.TestCase):
         kb = run(Scripted([" Hello"], final=" Hello there."), silence(1))
         self.assertEqual(kb.screen, "Hello there.")
 
-    def test_toggle_stops_the_session(self):
-        stop = threading.Event()
+    def test_ends_when_no_longer_active(self):
+        listening = threading.Event()
+        listening.set()
         transcriber = Scripted([" a", " a b", " a b c"])
 
         def chunks():
             yield b""
-            stop.set()
+            listening.clear()
             yield b""
             yield b""
 
-        run(transcriber, chunks(), stop=stop)
+        run(transcriber, chunks(), active=listening.is_set)
         self.assertEqual(transcriber.fed, 2)
 
     def test_stops_after_idle_seconds_of_audio_with_no_new_words(self):
@@ -130,7 +153,7 @@ class RealModel(unittest.TestCase):
         chunks = (pcm[i : i + step] for i in range(0, len(pcm), step))
         keyboard = Keyboard()
         transcriber = dictate.Transcriber(self.recognizer, "fr")
-        dictate.session(chunks, transcriber, keyboard, threading.Event(), 60.0)
+        dictate.session(chunks, transcriber, keyboard, always, 60.0)
         return keyboard
 
     def test_partials_are_typed_without_revision(self):

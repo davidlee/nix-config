@@ -42,7 +42,12 @@
 # "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
 # ? dpms-on
 "Mod+Ctrl+M" = "spawn:noctalia msg mic-volume-set 100"
-"F9" = "spawn:~/.local/bin/dictate toggle" # streaming dictation (flakes: dictate.nix)
+# streaming dictation (flakes: dictate.nix). F13/F14 are push-to-talk: ZMK's
+# `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
+# xkb names F13/F14 XF86Tools/XF86Launch5; binds match the keysym.
+"F9" = { action = "spawn:~/.local/bin/dictate toggle", repeat = false }
+"XF86Tools" = { action = "spawn:~/.local/bin/dictate start", repeat = false }
+"XF86Launch5" = { action = "spawn:~/.local/bin/dictate stop", repeat = false }
 "Mod+B" = "spawn:noctalia msg bar-toggle"
 "Mod+Ctrl+Comma" = "spawn:noctalia msg settings-toggle"
 "Mod+Y" = "spawn:noctalia msg panel-toggle wallpaper"

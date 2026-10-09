@@ -41,7 +41,9 @@ in {
     };
     Install.WantedBy = ["graphical-session.target"];
     Service = {
-      ExecStart = "${python}/bin/python3 %h/.local/bin/dictate";
+      # The store path, not ~/.local/bin: a changed script then changes the
+      # unit, so home-manager restarts the daemon on switch.
+      ExecStart = "${python}/bin/python3 ${./bin/dictate}";
       Environment = [
         "DICTATE_MODEL=${model}"
         "DICTATE_LANG=en"

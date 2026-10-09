@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """dictate — streaming speech-to-text, typed at the cursor.
 
-  dictate          run the daemon (dictate.service does this)
-  dictate toggle   start or stop dictating
+  dictate                   run the daemon (dictate.service does this)
+  dictate toggle            start or stop dictating
+  dictate start | stop      push-to-talk: key down, key up
 
-The daemon holds the model in memory and the mic closed. A toggle (SIGUSR1)
-opens the mic and types words as they are recognised; a second toggle, or
-DICTATE_IDLE seconds with no new words, closes it again.
+The daemon holds the model in memory and the mic closed. Each command is a
+signal (SIGNALS) that sets whether it should be listening. While it is, the
+mic is open and words are typed as they are recognised; DICTATE_IDLE seconds
+with no new words also closes it.
 
     pw-record ──100ms PCM──> Nemotron (sherpa-onnx) ──transcript──> wtype
 
@@ -41,9 +43,20 @@ def edit(typed, text):
     return len(typed) - common, text[common:]
 
 
-def session(chunks, transcriber, keyboard, stop, idle):
-    """Feed audio until `stop` is set or `idle` seconds pass with no new
-    words, typing each change to the transcript as it arrives."""
+def next_state(command, listening):
+    """Whether the mic should be open after `command`."""
+    match command:
+        case "toggle":
+            return not listening
+        case "start":
+            return True
+        case "stop":
+            return False
+
+
+def session(chunks, transcriber, keyboard, active, idle):
+    """Feed audio while `active()` holds and until `idle` seconds pass with
+    no new words, typing each change to the transcript as it arrives."""
     typed = ""
     quiet = 0
     for chunk in chunks:
@@ -53,7 +66,7 @@ def session(chunks, transcriber, keyboard, stop, idle):
             typed, quiet = text, 0
         else:
             quiet += 1
-        if stop.is_set() or quiet * CHUNK_SECONDS >= idle:
+        if not active() or quiet * CHUNK_SECONDS >= idle:
             break
     # The model holds back up to one chunk plus right context; finishing
     # the stream flushes the last words.
@@ -63,6 +76,12 @@ def session(chunks, transcriber, keyboard, stop, idle):
 
 
 # ------------------------------------------------------------------ edges
+
+SIGNALS = {
+    "toggle": signal.SIGUSR1,
+    "start": signal.SIGRTMIN,
+    "stop": signal.SIGRTMIN + 1,
+}
 
 
 def load(model, threads):
@@ -135,7 +154,9 @@ def wtype(erase, insert):
         subprocess.run(["wtype", "-"], input=insert.encode(), check=False)
 
 
-def notify(body):
+def announce(body):
+    """A toast, and a line in the journal."""
+    print(body, flush=True)
     subprocess.run(
         [
             *("notify-send", "-a", "dictate", "-t", "1500"),
@@ -152,29 +173,47 @@ def daemon():
     model = Path(env["DICTATE_MODEL"])
     language = env.get("DICTATE_LANG", "en")
     idle = float(env.get("DICTATE_IDLE", "10"))
-    recognizer = load(model, int(env.get("DICTATE_THREADS", "1")))
 
-    toggled = threading.Event()
-    signal.signal(signal.SIGUSR1, lambda *_: toggled.set())
+    # Handlers before the model: the real-time signals' default action is
+    # to terminate, so a key pressed while loading would kill the daemon.
+    listening = threading.Event()
+
+    def obey(command):
+        def handler(*_):
+            if next_state(command, listening.is_set()):
+                listening.set()
+            else:
+                listening.clear()
+
+        return handler
+
+    for command, signum in SIGNALS.items():
+        signal.signal(signum, obey(command))
+
+    recognizer = load(model, int(env.get("DICTATE_THREADS", "1")))
     print(f"ready: {model.name}, language {language}", flush=True)
 
     while True:
-        toggled.wait()
-        toggled.clear()
-        notify("Listening")
+        listening.wait()
+        announce("Listening")
         chunks = mic()
         try:
-            session(chunks, Transcriber(recognizer, language), wtype, toggled, idle)
+            transcriber = Transcriber(recognizer, language)
+            session(chunks, transcriber, wtype, listening.is_set, idle)
         finally:
             chunks.close()
-        toggled.clear()
-        notify("Stopped")
+        listening.clear()  # an idle stop ends it from this side
+        announce("Stopped")
 
 
-def toggle():
+def send(command):
     # --kill-whom=main: the signal is for the daemon, not pw-record.
     subprocess.run(
-        ["systemctl", "--user", "kill", "--kill-whom=main", "--signal=USR1", "dictate"],
+        [
+            *("systemctl", "--user", "kill", "--kill-whom=main"),
+            f"--signal={int(SIGNALS[command])}",
+            "dictate",
+        ],
         check=True,
     )
 
@@ -183,7 +222,7 @@ if __name__ == "__main__":
     match sys.argv[1:]:
         case []:
             daemon()
-        case ["toggle"]:
-            toggle()
+        case [command] if command in SIGNALS:
+            send(command)
         case _:
             sys.exit(__doc__)

@@ -12,7 +12,7 @@ measurements behind the current choices, and the options left open.
 | chunk | 560 ms | fewer errors and less CPU than 320 ms (below); text arrives in ~0.6 s bursts |
 | threads | 1 | ~1/7 of one core while speaking; fans stay quiet |
 | model lifetime | resident | 1.5 GB RAM idle, no load delay on toggle |
-| trigger | toggle on F9 | works with any compositor bind |
+| trigger | hold `=` combo (push-to-talk); F9 toggles | see "Push-to-talk" below |
 
 ## Measurements (2026-10-09, Ryzen 9 9950X, CPU only)
 
@@ -53,6 +53,30 @@ for "brothels", "apprehen"). `Transcriber.finish` now feeds 1 s of silence
 before `input_finished`; 0.6 s was enough at 560 ms. `dictate-test`'s
 `RealModel` cuts a clip at its last loud sample to hold this.
 
+## Push-to-talk: what it took
+
+```
+hold  ─> hold-tap decides hold (190 ms) ─> ptt: tap F13 ─> XF86Tools   ─> dictate start
+release ─────────────────────────────────> ptt: tap F14 ─> XF86Launch5 ─> dictate stop
+```
+
+Five things broke along the way; each is now fixed and commented where it lives.
+
+| symptom | cause | fix |
+|---|---|---|
+| no F13/F14 at all | ZMK's NKRO report stops at usage 0x67 | `CONFIG_ZMK_HID_KEYBOARD_NKRO_EXTENDED_REPORT=y` (planck, corne; glove80 is 6KRO and fine) |
+| F14 missing on most releases | ZMK bug: `behavior_macro_init` never sets the release half's `tap_ms`/`wait_ms`, so F14 was a ~2 ms tap the host often missed (evtest: F13 30 ms, F14 2 ms) | `<&macro_tap_time 30>` after `&macro_pause_for_release` |
+| binds never fire | xkb names F13/F14 `XF86Tools`/`XF86Launch5`; umbriel matches keysyms | bind those names |
+| daemon killed by a key press | real-time signals terminate by default; one arrived while the model loaded, before handlers existed | install handlers before loading |
+| new script, old daemon | home-manager restarts a unit only when the unit changes | `ExecStart` runs the store path of the script |
+
+`wev` cannot see keys umbriel has bound. To see what the keyboard sends,
+read the device directly: `evtest /dev/input/by-id/usb-ZMK_Project_Planck_*-event-kbd`.
+
+The idle stop still applies while the key is held: a 10 s pause ends the
+session, and pressing again starts a new one. A lost release (only possible
+over Bluetooth) is bounded by the same 10 s.
+
 ## Options left open
 
 **Chunk size.** Exports exist at 80, 160, 320, 560 and 1120 ms. Smaller
@@ -69,10 +93,6 @@ nix hash to-sri --type sha256 <base32>   # Lix has no `nix hash convert`
 **Idle RAM.** Loading on toggle instead would free ~1.5 GB between sessions,
 at a 0.64 s start cost. To keep the first words, start `pw-record` first and
 feed its buffered audio once the model is ready.
-
-**Push-to-talk.** Add SIGUSR2 = stop, keep SIGUSR1 = start/toggle, and bind
-F9 press/release. That needs umbriel key-release binds (not checked). Without
-them, the daemon reads the key from evdev itself (user is in `input`).
 
 **English-only model.** Third-party benchmarks put it about a point of WER
 ahead of 3.5 at every shared chunk size, but it has no punctuation. On our
