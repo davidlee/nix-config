@@ -116,27 +116,44 @@ class Session(unittest.TestCase):
 
 @unittest.skipUnless(os.environ.get("DICTATE_MODEL"), "DICTATE_MODEL unset")
 class RealModel(unittest.TestCase):
-    def test_streamed_typing_matches_the_final_transcript(self):
+    """fr.wav ends: "… ce que vous pouvez faire pour lui"."""
+
+    @classmethod
+    def setUpClass(cls):
         model = Path(os.environ["DICTATE_MODEL"])
-        wav = model / "test_wavs" / "fr.wav"
-        with wave.open(str(wav)) as w:
-            pcm = w.readframes(w.getnframes())
+        cls.recognizer = dictate.load(model, threads=1)
+        with wave.open(str(model / "test_wavs" / "fr.wav")) as w:
+            cls.pcm = w.readframes(w.getnframes())
+
+    def dictate(self, pcm):
         step = int(dictate.SAMPLE_RATE * CHUNK) * 2
         chunks = (pcm[i : i + step] for i in range(0, len(pcm), step))
-
-        recognizer = dictate.load(model, threads=1)
         keyboard = Keyboard()
-        dictate.session(
-            chunks,
-            dictate.Transcriber(recognizer, "fr"),
-            keyboard,
-            threading.Event(),
-            60.0,
-        )
+        transcriber = dictate.Transcriber(self.recognizer, "fr")
+        dictate.session(chunks, transcriber, keyboard, threading.Event(), 60.0)
+        return keyboard
+
+    def test_partials_are_typed_without_revision(self):
+        keyboard = self.dictate(self.pcm)
         self.assertEqual(
             [e for e, _ in keyboard.edits if e], [], "a partial was revised"
         )
-        self.assertGreater(len(keyboard.screen.split()), 5)
+        self.assertTrue(keyboard.screen.endswith("pour lui"), keyboard.screen)
+
+    def test_stopping_right_after_the_last_word_keeps_it(self):
+        keyboard = self.dictate(self.pcm[: speech_end(self.pcm)])
+        self.assertTrue(keyboard.screen.endswith("pour lui"), keyboard.screen)
+
+
+def speech_end(pcm, threshold=500):
+    """Byte offset just past the last sample louder than `threshold`: the
+    recording as if the toggle came the instant speech stopped."""
+    loud = [
+        i
+        for i in range(0, len(pcm), 2)
+        if abs(int.from_bytes(pcm[i : i + 2], "little", signed=True)) > threshold
+    ]
+    return loud[-1] + 2
 
 
 if __name__ == "__main__":

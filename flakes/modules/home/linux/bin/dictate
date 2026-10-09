@@ -96,6 +96,13 @@ class Transcriber:
         return self._decode()
 
     def finish(self):
+        # The encoder only emits a chunk once it has seen the chunk and its
+        # right context. Without trailing audio, a word still in the last
+        # chunk is lost: stopping straight after speaking drops it. A second
+        # of silence covers chunks up to 560ms.
+        import numpy as np
+
+        self.stream.accept_waveform(SAMPLE_RATE, np.zeros(SAMPLE_RATE, np.float32))
         self.stream.input_finished()
         return self._decode()
 

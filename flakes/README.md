@@ -184,8 +184,8 @@ F9 ──> dictate toggle ──SIGUSR1──> dictate.service (model resident, 
 
 The model is NVIDIA's [Nemotron 3.5 ASR streaming 0.6B](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b)
 (cache-aware FastConformer encoder with an RNN-T decoder, punctuation and
-capitals included), as sherpa-onnx's int8 export with 320 ms chunks. One
-thread decodes at about 1/4 real time, so live dictation costs about a quarter
+capitals included), as sherpa-onnx's int8 export with 560 ms chunks. One
+thread decodes at about 1/7 real time, so live dictation costs about a seventh
 of one core. Idle, the daemon holds about 1.5 GB of RAM and no CPU.
 
 Typing as you speak depends on the transcript only growing: cache-aware

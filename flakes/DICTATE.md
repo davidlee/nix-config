@@ -9,8 +9,8 @@ measurements behind the current choices, and the options left open.
 |---|---|---|
 | model | Nemotron 3.5 ASR streaming 0.6B, int8 | punctuation and capitals; faster and more accurate than the English-only Nemotron in the comparison below |
 | runtime | sherpa-onnx 1.13.3 (nixpkgs) | CPU int8 exports exist for every chunk size; no torch |
-| chunk | 320 ms | accuracy first |
-| threads | 1 | ~1/4 of one core while speaking; fans stay quiet |
+| chunk | 560 ms | fewer errors and less CPU than 320 ms (below); text arrives in ~0.6 s bursts |
+| threads | 1 | ~1/7 of one core while speaking; fans stay quiet |
 | model lifetime | resident | 1.5 GB RAM idle, no load delay on toggle |
 | trigger | toggle on F9 | works with any compositor bind |
 
@@ -21,7 +21,7 @@ Clips are LibriSpeech test audio (6.6 s and 17 s).
 
 | model | threads | RTF | notes |
 |---|---|---|---|
-| 3.5, 320 ms | 1 | 0.24 | the deployed config |
+| 3.5, 320 ms | 1 | 0.24 | |
 | 3.5, 320 ms | 2 | 0.15 | |
 | 3.5, 320 ms | 4 | 0.14–0.19 | |
 | English-only, 160 ms | 4 | 0.27–0.37 | no punctuation; more word errors on the same clips |
@@ -34,10 +34,30 @@ Clips are LibriSpeech test audio (6.6 s and 17 s).
   "Demandez plutôt ce pour". `auto` transcribed it correctly and appended no
   language tag.
 
+### 320 vs 560 ms (3.5, 1 thread, language `en`)
+
+| | 320 ms | 560 ms |
+|---|---|---|
+| word errors, the two 16 kHz clips | 5 | 3 |
+| CPU seconds per audio second | 0.22 | 0.14 |
+
+560 ms got "mortals" and "blessed" right where 320 ms said "morts" and
+"blest". (An 8 kHz telephone clip, irrelevant to a USB mic, made it 7 vs 6.) Larger chunks are cheaper as well as better: the per-chunk overhead
+is spread over more audio. 560 ms is deployed.
+
+### Last word clipped on stop (fixed)
+
+The encoder emits a chunk only after seeing its right context, so a word in
+the final chunk was lost when the stream ended straight after it ("brothel"
+for "brothels", "apprehen"). `Transcriber.finish` now feeds 1 s of silence
+before `input_finished`; 0.6 s was enough at 560 ms. `dictate-test`'s
+`RealModel` cuts a clip at its last loud sample to hold this.
+
 ## Options left open
 
 **Chunk size.** Exports exist at 80, 160, 320, 560 and 1120 ms. Smaller
-chunks give lower latency at somewhat lower accuracy; NVIDIA's FLEURS averages
+chunks give lower latency at somewhat lower accuracy (and more CPU); 1120 ms
+also needs a longer tail pad in `finish`; NVIDIA's FLEURS averages
 for transcription-ready languages run 10.38% WER at 80 ms down to 8.84% at
 1.12 s. Changing it means swapping the URL and hash in `dictate.nix`:
 

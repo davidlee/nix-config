@@ -14,13 +14,13 @@
   pkgs,
   ...
 }: let
-  # sherpa-onnx's int8 export. The chunk size is baked into the export: 320ms
-  # is about a third of a second from speech to text, at ~1/4 of one core.
-  # Other sizes (80, 160, 560, 1120ms) trade latency for accuracy.
+  # sherpa-onnx's int8 export. The chunk size is baked into the export: 560ms
+  # beat 320ms on both accuracy and CPU (DICTATE.md), for text arriving in
+  # bigger bursts. 1120ms needs a longer tail pad in the script's `finish`.
   model = pkgs.fetchzip {
-    name = "nemotron-3.5-asr-streaming-0.6b-320ms-int8";
-    url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemotron-3.5-asr-streaming-0.6b-320ms-int8-2026-06-11.tar.bz2";
-    hash = "sha256-K4fpLuFQbDLbtGCJk2ya8EKHIo26htKSGSdgknloU1o=";
+    name = "nemotron-3.5-asr-streaming-0.6b-560ms-int8";
+    url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemotron-3.5-asr-streaming-0.6b-560ms-int8-2026-06-11.tar.bz2";
+    hash = "sha256-BLk8afX1okpEHMoV2oAmyQw53eJ6zNqLutjM2Tqb6qk=";
   };
   python = pkgs.python3.withPackages (p: [p.sherpa-onnx p.numpy]);
 in {
