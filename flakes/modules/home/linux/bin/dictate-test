@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""Behaviour tests for dictate. No mic, no model, no display: the session
+loop takes its audio, transcriber and keyboard as arguments, so each case
+asserts what would have been typed.
+
+  ./dictate-test
+
+With DICTATE_MODEL set to an unpacked sherpa-onnx Nemotron model, one more
+case streams a real recording through the real recogniser.
+"""
+
+import importlib.machinery
+import importlib.util
+import os
+import threading
+import unittest
+import wave
+from pathlib import Path
+
+here = Path(__file__).resolve().parent
+loader = importlib.machinery.SourceFileLoader("dictate", str(here / "dictate"))
+spec = importlib.util.spec_from_loader("dictate", loader)
+dictate = importlib.util.module_from_spec(spec)
+loader.exec_module(dictate)
+
+CHUNK = dictate.CHUNK_SECONDS
+
+
+class Scripted:
+    """A transcriber that answers from a list: one full transcript per
+    chunk fed, the last repeating, and `final` once the audio is finished."""
+
+    def __init__(self, texts, final=None):
+        self.texts = list(texts)
+        self.final = final
+        self.fed = 0
+
+    def feed(self, _samples):
+        self.fed += 1
+        return self.texts[min(self.fed, len(self.texts)) - 1]
+
+    def finish(self):
+        return self.texts[-1] if self.final is None else self.final
+
+
+class Keyboard:
+    """Applies edits the way the cursor would, so a case can assert on the
+    text that ended up on screen as well as on the edits themselves."""
+
+    def __init__(self):
+        self.screen = ""
+        self.edits = []
+
+    def __call__(self, erase, insert):
+        self.edits.append((erase, insert))
+        self.screen = self.screen[: len(self.screen) - erase] + insert
+
+
+def silence(n):
+    return iter([b""] * n)
+
+
+def run(transcriber, chunks, stop=None, idle=60.0):
+    keyboard = Keyboard()
+    dictate.session(chunks, transcriber, keyboard, stop or threading.Event(), idle)
+    return keyboard
+
+
+class Edit(unittest.TestCase):
+    def test_growth_is_typed_as_a_suffix(self):
+        self.assertEqual(dictate.edit("Hello", "Hello world"), (0, " world"))
+
+    def test_no_change_is_no_edit(self):
+        self.assertEqual(dictate.edit("Hello", "Hello"), (0, ""))
+
+    def test_a_revision_erases_back_to_the_common_prefix(self):
+        self.assertEqual(dictate.edit("Hello wold", "Hello world"), (2, "rld"))
+
+
+class Session(unittest.TestCase):
+    def test_types_each_new_piece_as_it_arrives(self):
+        kb = run(Scripted(["", " Hello", " Hello world", " Hello world."]), silence(4))
+        self.assertEqual(kb.edits, [(0, "Hello"), (0, " world"), (0, ".")])
+
+    def test_leading_space_of_a_session_is_dropped(self):
+        kb = run(Scripted([" Hi"]), silence(1))
+        self.assertEqual(kb.screen, "Hi")
+
+    def test_words_still_in_flight_at_stop_are_flushed(self):
+        kb = run(Scripted([" Hello"], final=" Hello there."), silence(1))
+        self.assertEqual(kb.screen, "Hello there.")
+
+    def test_toggle_stops_the_session(self):
+        stop = threading.Event()
+        transcriber = Scripted([" a", " a b", " a b c"])
+
+        def chunks():
+            yield b""
+            stop.set()
+            yield b""
+            yield b""
+
+        run(transcriber, chunks(), stop=stop)
+        self.assertEqual(transcriber.fed, 2)
+
+    def test_stops_after_idle_seconds_of_audio_with_no_new_words(self):
+        transcriber = Scripted([" Hello"])
+        run(transcriber, silence(100), idle=5 * CHUNK)
+        self.assertEqual(transcriber.fed, 6)
+
+    def test_new_words_reset_the_idle_clock(self):
+        transcriber = Scripted([" a", " a", " a b"])
+        run(transcriber, silence(100), idle=2 * CHUNK)
+        self.assertEqual(transcriber.fed, 5)
+
+
+@unittest.skipUnless(os.environ.get("DICTATE_MODEL"), "DICTATE_MODEL unset")
+class RealModel(unittest.TestCase):
+    def test_streamed_typing_matches_the_final_transcript(self):
+        model = Path(os.environ["DICTATE_MODEL"])
+        wav = model / "test_wavs" / "fr.wav"
+        with wave.open(str(wav)) as w:
+            pcm = w.readframes(w.getnframes())
+        step = int(dictate.SAMPLE_RATE * CHUNK) * 2
+        chunks = (pcm[i : i + step] for i in range(0, len(pcm), step))
+
+        recognizer = dictate.load(model, threads=1)
+        keyboard = Keyboard()
+        dictate.session(
+            chunks,
+            dictate.Transcriber(recognizer, "fr"),
+            keyboard,
+            threading.Event(),
+            60.0,
+        )
+        self.assertEqual(
+            [e for e, _ in keyboard.edits if e], [], "a partial was revised"
+        )
+        self.assertGreater(len(keyboard.screen.split()), 5)
+
+
+if __name__ == "__main__":
+    unittest.main()

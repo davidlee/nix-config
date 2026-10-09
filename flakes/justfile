@@ -38,6 +38,7 @@ fmt: check-flake-root
 # behaviour tests for the plain scripts under modules/home/linux/{bin,nudge}/
 test:
   modules/home/linux/bin/snooze-nag-test
+  modules/home/linux/bin/dictate-test
   nu modules/home/linux/nudge/nudge-test.nu
 
 nixos-start-docker-daemon:

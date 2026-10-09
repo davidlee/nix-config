@@ -42,6 +42,7 @@
 # "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
 # ? dpms-on
 "Mod+Ctrl+M" = "spawn:noctalia msg mic-volume-set 100"
+"F9" = "spawn:~/.local/bin/dictate toggle" # streaming dictation (flakes: dictate.nix)
 "Mod+B" = "spawn:noctalia msg bar-toggle"
 "Mod+Ctrl+Comma" = "spawn:noctalia msg settings-toggle"
 "Mod+Y" = "spawn:noctalia msg panel-toggle wallpaper"

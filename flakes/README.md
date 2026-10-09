@@ -139,6 +139,7 @@ A missing host file means the host takes every default unchanged.
 | `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
 | `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
 | `snooze` | `true` | `modules/nixos/snooze.nix` + `modules/home/linux/snooze.nix` |
+| `dictate` | `true` | `modules/home/linux/dictate.nix` |
 | `mpd` | `false` | `modules/nixos/mpd.nix` |
 | `sunshine` | `false` | `modules/nixos/sunshine.nix` |
 
@@ -170,6 +171,41 @@ configuration by `hostname`; override with `just host=<other> system-build`
 (or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
 `homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
 See [MULTIHOST.md](./MULTIHOST.md) for the plan this is part of.
+
+### Dictation
+
+`modules/home/linux/dictate.nix` + `modules/home/linux/bin/dictate` — streaming
+speech-to-text, typed at the cursor as you speak. Local and CPU-only.
+
+```
+F9 ──> dictate toggle ──SIGUSR1──> dictate.service (model resident, mic closed)
+                                     pw-record ──100ms──> Nemotron ──> wtype
+```
+
+The model is NVIDIA's [Nemotron 3.5 ASR streaming 0.6B](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b)
+(cache-aware FastConformer encoder with an RNN-T decoder, punctuation and
+capitals included), as sherpa-onnx's int8 export with 320 ms chunks. One
+thread decodes at about 1/4 real time, so live dictation costs about a quarter
+of one core. Idle, the daemon holds about 1.5 GB of RAM and no CPU.
+
+Typing as you speak depends on the transcript only growing: cache-aware
+streaming emits each token once, so each new piece is typed and earlier text
+is never revised. If a revision ever happens, `edit` backspaces it.
+
+A toggle starts dictation; a second toggle, or `DICTATE_IDLE` (10 s) without
+new words, stops it. A toast says when the mic opens and closes. The bind is in
+`~/.config/umbriel/binds.toml`; a ZMK key sending F9 is enough.
+
+```bash
+just test                       # behaviour tests, no mic or model
+DICTATE_MODEL=<unpacked model> modules/home/linux/bin/dictate-test   # + real model
+journalctl --user -u dictate -f
+```
+
+Language is `DICTATE_LANG` in the module (`en`, `fr`, …, or `auto`); a wrong
+hint garbles the output rather than degrading gracefully. Push-to-talk would
+need start/stop signals in place of the toggle, and a key-release bind.
+Measurements and open options: [DICTATE.md](./DICTATE.md).
 
 ### Sleipnir Doctor
 

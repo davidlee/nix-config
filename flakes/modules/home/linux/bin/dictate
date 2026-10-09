@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+"""dictate — streaming speech-to-text, typed at the cursor.
+
+  dictate          run the daemon (dictate.service does this)
+  dictate toggle   start or stop dictating
+
+The daemon holds the model in memory and the mic closed. A toggle (SIGUSR1)
+opens the mic and types words as they are recognised; a second toggle, or
+DICTATE_IDLE seconds with no new words, closes it again.
+
+    pw-record ──100ms PCM──> Nemotron (sherpa-onnx) ──transcript──> wtype
+
+Typing as you speak only works because the model's partial transcripts grow
+and are not rewritten: cache-aware streaming emits each token once. `edit`
+still handles a rewrite, with backspaces, but none has been seen.
+
+Environment (set by dictate.nix):
+  DICTATE_MODEL    unpacked sherpa-onnx Nemotron model directory
+  DICTATE_LANG     language hint: en, fr, ja, … or auto      (default en)
+  DICTATE_THREADS  CPU threads for inference                 (default 1)
+  DICTATE_IDLE     seconds without new words before stopping (default 10)
+"""
+
+import os
+import signal
+import subprocess
+import sys
+import threading
+from pathlib import Path
+
+SAMPLE_RATE = 16000
+CHUNK_SECONDS = 0.1
+
+
+# ------------------------------------------------------------------ core
+
+
+def edit(typed, text):
+    """The keystrokes that turn `typed` into `text`: (backspaces, insert)."""
+    common = len(os.path.commonprefix([typed, text]))
+    return len(typed) - common, text[common:]
+
+
+def session(chunks, transcriber, keyboard, stop, idle):
+    """Feed audio until `stop` is set or `idle` seconds pass with no new
+    words, typing each change to the transcript as it arrives."""
+    typed = ""
+    quiet = 0
+    for chunk in chunks:
+        text = transcriber.feed(chunk).lstrip()
+        if text != typed:
+            keyboard(*edit(typed, text))
+            typed, quiet = text, 0
+        else:
+            quiet += 1
+        if stop.is_set() or quiet * CHUNK_SECONDS >= idle:
+            break
+    # The model holds back up to one chunk plus right context; finishing
+    # the stream flushes the last words.
+    text = transcriber.finish().lstrip()
+    if text != typed:
+        keyboard(*edit(typed, text))
+
+
+# ------------------------------------------------------------------ edges
+
+
+def load(model, threads):
+    import sherpa_onnx
+
+    return sherpa_onnx.OnlineRecognizer.from_transducer(
+        tokens=str(model / "tokens.txt"),
+        encoder=str(model / "encoder.int8.onnx"),
+        decoder=str(model / "decoder.int8.onnx"),
+        joiner=str(model / "joiner.int8.onnx"),
+        num_threads=threads,
+        sample_rate=SAMPLE_RATE,
+        feature_dim=128,
+        decoding_method="greedy_search",
+    )
+
+
+class Transcriber:
+    """One utterance: s16le PCM in, the transcript so far out."""
+
+    def __init__(self, recognizer, language):
+        self.recognizer = recognizer
+        self.stream = recognizer.create_stream()
+        self.stream.set_option("language", language)
+
+    def feed(self, pcm):
+        import numpy as np
+
+        samples = np.frombuffer(pcm, np.int16).astype(np.float32) / 32768
+        self.stream.accept_waveform(SAMPLE_RATE, samples)
+        return self._decode()
+
+    def finish(self):
+        self.stream.input_finished()
+        return self._decode()
+
+    def _decode(self):
+        while self.recognizer.is_ready(self.stream):
+            self.recognizer.decode_stream(self.stream)
+        return self.recognizer.get_result(self.stream)
+
+
+def mic():
+    """100ms chunks of 16kHz mono s16le from the default PipeWire source,
+    until the generator is closed."""
+    rec = subprocess.Popen(
+        f"pw-record --rate {SAMPLE_RATE} --channels 1 --format s16 -".split(),
+        stdout=subprocess.PIPE,
+    )
+    size = int(SAMPLE_RATE * CHUNK_SECONDS) * 2
+    try:
+        while chunk := rec.stdout.read(size):
+            yield chunk
+    finally:
+        rec.terminate()
+        rec.wait()
+
+
+def wtype(erase, insert):
+    if erase:
+        subprocess.run(["wtype", *["-k", "BackSpace"] * erase], check=False)
+    if insert:
+        subprocess.run(["wtype", "-"], input=insert.encode(), check=False)
+
+
+def notify(body):
+    subprocess.run(
+        [
+            *("notify-send", "-a", "dictate", "-t", "1500"),
+            *("-h", "string:x-canonical-private-synchronous:dictate"),
+            "Dictation",
+            body,
+        ],
+        check=False,
+    )
+
+
+def daemon():
+    env = os.environ
+    model = Path(env["DICTATE_MODEL"])
+    language = env.get("DICTATE_LANG", "en")
+    idle = float(env.get("DICTATE_IDLE", "10"))
+    recognizer = load(model, int(env.get("DICTATE_THREADS", "1")))
+
+    toggled = threading.Event()
+    signal.signal(signal.SIGUSR1, lambda *_: toggled.set())
+    print(f"ready: {model.name}, language {language}", flush=True)
+
+    while True:
+        toggled.wait()
+        toggled.clear()
+        notify("Listening")
+        chunks = mic()
+        try:
+            session(chunks, Transcriber(recognizer, language), wtype, toggled, idle)
+        finally:
+            chunks.close()
+        toggled.clear()
+        notify("Stopped")
+
+
+def toggle():
+    # --kill-whom=main: the signal is for the daemon, not pw-record.
+    subprocess.run(
+        ["systemctl", "--user", "kill", "--kill-whom=main", "--signal=USR1", "dictate"],
+        check=True,
+    )
+
+
+if __name__ == "__main__":
+    match sys.argv[1:]:
+        case []:
+            daemon()
+        case ["toggle"]:
+            toggle()
+        case _:
+            sys.exit(__doc__)

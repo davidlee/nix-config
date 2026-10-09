@@ -22,6 +22,7 @@
       # ./danksearch.nix
     ]
     ++ lib.optional features.apps.cad ./cad-3d.nix
+    ++ lib.optional features.dictate ./dictate.nix
     ++ lib.optional features.desktop.niri ./niri.nix
     ++ lib.optional features.desktop.sway ./sway.nix
     ++ lib.optional features.games.mangohud ./games.nix

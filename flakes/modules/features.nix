@@ -69,6 +69,7 @@ in {
     speech = enabledByDefault "speech synthesis and recognition";
     webserver = enabledByDefault "local webserver";
     snooze = enabledByDefault "nightly suspend and RTC wake, system and user halves";
+    dictate = enabledByDefault "streaming dictation at the cursor (home, linux)";
     mpd = mkEnableOption "Music Player Daemon";
     sunshine = mkEnableOption "Sunshine game streaming host";
   };
