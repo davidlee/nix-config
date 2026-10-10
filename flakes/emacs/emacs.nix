@@ -187,6 +187,7 @@ in
           org-roam
           org-review
           org-srs
+          org-alert
           outline-indent
           package-lint
           package-lint-flymake
