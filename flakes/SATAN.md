@@ -14,9 +14,9 @@ relying on a line number.
 
 | Part | Path | Flake input here | Deployed by |
 |---|---|---|---|
-| broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.emacs.d/apps/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`modules/home/linux/satan.nix:19-21`) |
+| broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.config/emacs/apps/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`modules/home/linux/satan.nix:19-21`) |
 | corpus | `~/satan-corpus` | — | own repo; `just commit` there |
-| editor config | `~/.emacs.d` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`modules/home/shared/emacs.nix:36-43`) |
+| editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`modules/home/shared/emacs.nix:36-43`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `modules/home/linux/satan-attrd.nix` |
 | satan-patcher (= `~/dev/sloptower` symlink) | `~/dev/satan-patcher` | `path:` (`flake.nix:88-91`) | `modules/home/linux/satan-patcher.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `modules/home/linux/behaviour.nix` |
@@ -85,7 +85,7 @@ found using the `corpus` database.
 
 **Secrets:** 1Password via `/run/wrappers/bin/op` (`modules/nixos/programs.nix:152-160`).
 The broker resolves `op://` refs through `my/satan-credential`
-(`~/.emacs.d/lisp/dl-secret.el:141`); jails use `op run --env-file` or FD 21.
+(`~/.config/emacs/lisp/dl-secret.el:141`); jails use `op run --env-file` or FD 21.
 The library ref map (`agents/jailed-agents.nix:36-43`) has no
 `ANTHROPIC_API_KEY`.
 
@@ -114,7 +114,7 @@ Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan-corpus/flake.nix:55-6
 `~/dev/satan-patcher/internal/worktree/worktree.go:42-70`. Other repos' dev
 jails differ again: satan-attrd adds `/run/postgresql` + the docker socket;
 goad adds `~/.local/src/slint` → `/workspace/slint` ro; panopticon adds the
-niri socket; `~/.emacs.d` and `~/notes` flakes add MCP only.
+niri socket; `~/.config/emacs` and `~/notes` flakes add MCP only.
 
 Inside a jail `~/flakes` has no git: its git dir is `~/.git`, which is not
 mounted.

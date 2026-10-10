@@ -1,10 +1,10 @@
 # rebuild system
 
-# Bundle the live ~/.emacs.d (a separate git repo, github:davidlee/emacs-config)
+# Bundle the live ~/.config/emacs (a separate git repo, github:davidlee/emacs-config)
 # on NixOS builds so local elisp edits land in the emacs package set without a
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
-# emacs_override := "--override-input emacs-config path:" + home_directory() + "/.emacs.d"
+# emacs_override := "--override-input emacs-config path:" + home_directory() + "/.config/emacs"
 # flakes/agents is locked from GitHub (portable); switch from the checkout so an
 # agents/ edit lands without push + `nix flake update agents`. Linux-only consumer
 # (overlays/agents.nix), so bundled with system_override, not home_override.

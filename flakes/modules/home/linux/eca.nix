@@ -1,7 +1,7 @@
 # ECA (editor-code-assistant) server, jailed — spawned by eca-emacs via
-# `eca-custom-command` in ~/.emacs.d/apps/dl-eca.el.
+# `eca-custom-command` in ~/.config/emacs/apps/dl-eca.el.
 #
-# On home.packages (not the ~/.emacs.d devshell) so Emacs finds it from any
+# On home.packages (not the ~/.config/emacs devshell) so Emacs finds it from any
 # buffer, independent of direnv. Emacs launches it with cwd = the workspace
 # root; `mount-cwd` binds that root at its host path too, because eca-emacs
 # hands the server absolute host paths (the jail's /workspace/<name> mount

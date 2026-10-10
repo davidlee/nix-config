@@ -12,7 +12,7 @@ State at $XDG_RUNTIME_DIR/satan-timer.json (volatile across reboot).
 Running:  {"duration": N, "deadline": float_epoch}
 Paused:   {"duration": N, "remaining": float_seconds}
 
-On expiry: notify-send + ~/.emacs.d/satan/bin/satan-run-tick, then re-arm
+On expiry: notify-send + ~/dev/satan/satan/bin/satan-run-tick, then re-arm
 deadline = now + duration. Periodic, not one-shot. After a long gap (e.g.
 laptop suspended past a full cycle) realigns without firing a burst.
 """
@@ -28,7 +28,7 @@ STATE = (Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}")
 DEFAULT_DURATION = 30 * 60
 INCR_STEP = 10 * 60
 MIN_DURATION = 60
-SATAN_TICK = Path.home() / ".emacs.d/satan/bin/satan-run-tick"
+SATAN_TICK = Path.home() / "dev/satan/satan/bin/satan-run-tick"
 ZENITY_VALUES = "5|10|15|20|25|30|45|60|90|120"
 
 

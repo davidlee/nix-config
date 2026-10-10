@@ -38,7 +38,7 @@
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
 
-    # Wrapped Emacs (the manual package list), shared with the ~/.emacs.d and
+    # Wrapped Emacs (the manual package list), shared with the ~/.config/emacs and
     # satan devshells — one derivation, one set of pins (its own nixpkgs and
     # overlay). GitHub for portability: darwin has no /home/david. The
     # justfile's switch targets override it with the local checkout, so an

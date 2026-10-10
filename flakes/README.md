@@ -239,7 +239,7 @@ Built-in checks cover disk, memory, swap, thermals, OOM kills, kernel mismatch, 
 
 Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single object instead of an array is accepted.
 
-**Shipped provider:** `sleipnir-doctor-emacs` calls `emacsclient -e '(sleipnir-doctor-checks)'` for server uptime and eglot/LSP health. Elisp side lives in `~/.emacs.d/lisp/dl-sleipnir-doctor.el`.
+**Shipped provider:** `sleipnir-doctor-emacs` calls `emacsclient -e '(sleipnir-doctor-checks)'` for server uptime and eglot/LSP health. Elisp side lives in `~/.config/emacs/lisp/dl-sleipnir-doctor.el`.
 
 ### OOM resilience
 
@@ -419,7 +419,7 @@ list, built via [nix-community/emacs-overlay](https://github.com/nix-community/e
 | file | role |
 |------|------|
 | `emacs/emacs.nix` | the package list (`emacsWithPackages`) |
-| `emacs/flake.nix` | its own flake with its own nixpkgs/overlay pins, shared with the `~/.emacs.d` and satan devshells |
+| `emacs/flake.nix` | its own flake with its own nixpkgs/overlay pins, shared with the `~/.config/emacs` and satan devshells |
 | `modules/home/shared/emacs.nix` | installs it on PATH and as the `services.emacs` daemon |
 
 **Two package sources:**
@@ -427,7 +427,7 @@ list, built via [nix-community/emacs-overlay](https://github.com/nix-community/e
 ```
 use-package foo
   ├─ foo in emacs/emacs.nix ──> nix store, on load-path at startup   (default)
-  └─ :vc (:url …)           ──> package-vc clones into ~/.emacs.d/elpa at runtime
+  └─ :vc (:url …)           ──> package-vc clones into ~/.config/emacs/elpa at runtime
 ```
 
 - **nix (default).** Add the name to `emacs/emacs.nix`, then `just home-switch`.
@@ -442,7 +442,7 @@ use-package foo
 Emacs never downloads from an archive: `early-init.el` sets
 `package-archives nil` and `use-package-always-ensure nil`. A `use-package`
 form for a package in neither source simply fails to load. `package-initialize`
-still runs, to activate what is in `~/.emacs.d/elpa`. Prefer nix, and don't
+still runs, to activate what is in `~/.config/emacs/elpa`. Prefer nix, and don't
 keep a package in both places.
 
 **The same `emacs` derivation** is used for both `home.packages` (PATH) and `services.emacs.package` (daemon). If these diverge, `emacsclient` connects to a daemon with different packages than `emacs --batch`.
