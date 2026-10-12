@@ -39,7 +39,7 @@ export alias lls = ls
 export alias lt = eza --tree
 export alias tree = eza --tree
 
-export alias ch = cd (gum choose ~/dev/doctrine ~/dev/.emacs.d ~/dev/notes ~/flakes ~/nushell ~/Downloads ~/.local/src/ ~/.local/bin)
+export alias ch = cd (gum choose ~/dev/doctrine ~/.config/emacs ~/dev/notes ~/flakes ~/nushell ~/Downloads ~/.local/src/ ~/.local/bin)
 
 export alias arch = distrobox enter archlinux;
 

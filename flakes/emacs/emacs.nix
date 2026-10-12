@@ -188,6 +188,7 @@ in
           org-review
           org-srs
           org-alert
+          org-notify
           outline-indent
           package-lint
           package-lint-flymake
@@ -196,6 +197,7 @@ in
           australia-holidays
           magit-filenotify
           hunk-notes
+          kkp # kitty protocol for terminal emacs
 
           # for org-iw
           relint

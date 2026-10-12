@@ -10,7 +10,7 @@
     element-desktop
     # zotero
     thunderbird-latest
-    slack
+    # slack
 
     mpris-timer # aka play timer
     rssguard

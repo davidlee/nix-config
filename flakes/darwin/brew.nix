@@ -25,7 +25,7 @@ _: {
       "1password"
       "raycast"
       "spotify"
-      "slack"
+      # "slack"
       "tailscale-app"
       "steermouse"
       "rectangle"

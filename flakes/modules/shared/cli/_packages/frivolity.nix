@@ -19,6 +19,6 @@
     tut # mastodon
     tuisky # bluesky
     wiki-tui # wikipedia
-    slack-term
+    # slack-term
   ];
 }

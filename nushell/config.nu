@@ -15,7 +15,7 @@ source ./private.local.nu
 source ./just.nu
 source ./env.nu
 source ./completion.nu
-const ghostel_nu = "~/.emacs.d/elpa/ghostel/etc/shell/ghostel.nu"
+const ghostel_nu = "~/.config/emacs/elpa/ghostel/etc/shell/ghostel.nu"
 const conditionally = if ($ghostel_nu | path exists) { $ghostel_nu } else { null }
 source $conditionally
 

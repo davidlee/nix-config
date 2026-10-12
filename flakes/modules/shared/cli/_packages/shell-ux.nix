@@ -11,7 +11,7 @@
     dvtm # + abduco (suckless)
     shpool # vs abduco . has a service too
     zmx # or this
-    sesh
+    # sesh  # temporarily broken transitive dep: (go-mockery)
     skim
   ];
 }

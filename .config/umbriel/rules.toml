@@ -18,8 +18,8 @@ name = "main"
 [[scratchpad]]
 name = "signal"
 
-[[scratchpad]]
-name = "slack"
+#[[scratchpad]]
+#name = "slack"
 
 [[scratchpad]]
 name = "spotify"
@@ -115,10 +115,10 @@ match.app_id = "^signal$"
 default_scratchpad = "signal"
 default_floating = true
 
-[[window_rule]]
-match.app_id = "^slack$"
-default_scratchpad = "slack"
-default_floating = true
+# [[window_rule]]
+# match.app_id = "^slack$"
+# default_scratchpad = "slack"
+# default_floating = true
 
 [[window_rule]]
 match.app_id = "^spotify$"
