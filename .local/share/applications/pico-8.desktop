@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=PICO-8
+Comment=Fantasy console
+Path=/home/david/.local/Applications/pico-8
+Exec=nix-shell --run pico8
+Icon=/home/david/.local/Applications/pico-8/lexaloffle-pico8.png
+Type=Application
+Categories=Game;
+Terminal=false

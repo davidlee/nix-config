@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Picotron
+Comment=Fantasy workstation
+Path=/home/david/.local/Applications/picotron
+Exec=nix-shell --run picotron
+Icon=/home/david/.local/Applications/picotron/lexaloffle-picotron.png
+Type=Application
+Categories=Game;
+Terminal=false

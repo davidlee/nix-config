@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Warp
+Comment=Terminal
+Exec=appimage-run /home/david/.local/Applications/Warp.AppImage %U
+Icon=/home/david/.local/share/applications/icons/warp.png
+StartupWMClass=dev.warp.Warp
+Type=Application
+Categories=System;TerminalEmulator;
+Terminal=false

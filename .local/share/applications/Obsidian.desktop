@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Obsidian
-Exec=appimage-run /home/david/.local/Applications/Obsidian-1.12.4.AppImage --no-sandbox
+Exec=appimage-run /home/david/.local/Applications/Obsidian.AppImage --no-sandbox
 Icon=/home/david/.local/share/applications/icons/obsidian.png
 Type=Application
 Categories=Utility;
