@@ -2,7 +2,6 @@
   pkgs,
   inputs,
   config,
-  lib,
   ...
 }: let
   inherit (config.nvimPackages) deps eager lazy;

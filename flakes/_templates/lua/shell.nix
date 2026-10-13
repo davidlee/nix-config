@@ -1,10 +1,6 @@
 {
   pkgs ? import <nixpkgs> {},
-  treefmt ? null,
-}: let
-  inherit (pkgs) lib;
-in
-  pkgs.mkShell {
+}: pkgs.mkShell {
     packages = with pkgs; [
       lua-language-server
       stylua

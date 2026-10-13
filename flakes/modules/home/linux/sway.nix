@@ -17,14 +17,6 @@
     exec ${wpmPython}/bin/python3 ${wpmScript} --archive-hourly "$file"
   '';
 in {
-  systemd.user.services.swayosd = {
-    Unit = {
-      # more forgiving rate limit so transient crashes don't permanently kill the service
-      StartLimitBurst = lib.mkForce 10;
-      StartLimitIntervalSec = lib.mkForce 60;
-    };
-    Service.RestartSec = lib.mkForce "5s";
-  };
   services = {
     swayosd.enable = true;
 
@@ -76,33 +68,51 @@ in {
   # hiPrio: this evdev-bundled env must win the buildEnv collision against
   # the plain `python3` from cliPackages (both ship bin/python3-config).
   home.packages = [(lib.hiPrio wpmPython)];
-  systemd.user.services.wpm-daemon = {
-    Unit = {
-      Description = "Keypress counter for Waybar WPM";
-      PartOf = ["graphical-session.target"];
-    };
-    Service = {
-      ExecStart = "${wpmPython}/bin/python3 ${wpmScript} --daemon";
-      Restart = "always";
-      RestartSec = "2s";
-    };
-    Install = {WantedBy = ["graphical-session.target"];};
-  };
 
-  systemd.user.services.wpm-archive = {
-    Unit.Description = "Roll yesterday's WPM log into hourly buckets";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${wpmArchiveYesterday}";
+  systemd = {
+    user = {
+      services = {
+        swayosd = {
+          Unit = {
+            # more forgiving rate limit so transient crashes don't permanently kill the service
+            StartLimitBurst = lib.mkForce 10;
+            StartLimitIntervalSec = lib.mkForce 60;
+          };
+          Service.RestartSec = lib.mkForce "5s";
+        };
+
+        wpm-daemon = {
+          Unit = {
+            Description = "Keypress counter for Waybar WPM";
+            PartOf = ["graphical-session.target"];
+          };
+          Service = {
+            ExecStart = "${wpmPython}/bin/python3 ${wpmScript} --daemon";
+            Restart = "always";
+            RestartSec = "2s";
+          };
+          Install = {WantedBy = ["graphical-session.target"];};
+        };
+
+        wpm-archive = {
+          Unit.Description = "Roll yesterday's WPM log into hourly buckets";
+          Service = {
+            Type = "oneshot";
+            ExecStart = "${wpmArchiveYesterday}";
+          };
+        };
+      };
+      timers = {
+        wpm-archive = {
+          Unit.Description = "Daily WPM log archival (yesterday at 04:00)";
+          Timer = {
+            OnCalendar = "*-*-* 04:00:00";
+            Persistent = true;
+            RandomizedDelaySec = "5m";
+          };
+          Install.WantedBy = ["timers.target"];
+        };
+      };
     };
-  };
-  systemd.user.timers.wpm-archive = {
-    Unit.Description = "Daily WPM log archival (yesterday at 04:00)";
-    Timer = {
-      OnCalendar = "*-*-* 04:00:00";
-      Persistent = true;
-      RandomizedDelaySec = "5m";
-    };
-    Install.WantedBy = ["timers.target"];
   };
 }

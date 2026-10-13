@@ -12,11 +12,13 @@
     epiphany
   ];
 
-  programs.firefox = {
-    enable = true;
-    package = pkgs.firefox;
-    # nativeMessagingHosts.packages = [pkgs.firefoxpwa];
+  programs = {
+    firefox = {
+      enable = true;
+      package = pkgs.firefox;
+      # nativeMessagingHosts.packages = [pkgs.firefoxpwa];
+    };
+    firefoxpwa.enable = true;
+    firefox.configPath = "${config.xdg.configHome}/mozilla/firefox";
   };
-  programs.firefoxpwa.enable = true;
-  programs.firefox.configPath = "${config.xdg.configHome}/mozilla/firefox";
 }

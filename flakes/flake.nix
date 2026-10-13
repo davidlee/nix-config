@@ -74,17 +74,21 @@
 
     panopticon = {
       url = "path:/home/david/dev/panopticon";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "agents";
-      inputs.doctrine.inputs.pub.follows = "agents";
+      inputs = {
+        nixpkgs.follows = "nixpkgs-home";
+        pub.follows = "agents";
+        doctrine.inputs.pub.follows = "agents";
+      };
     };
 
     satan = {
       # url = "path:/home/david/dev/satan";
       url = "github:davidlee/satan";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.agents.follows = "agents";
-      inputs.doctrine.inputs.agents.follows = "agents";
+      inputs = {
+        nixpkgs.follows = "nixpkgs-home";
+        agents.follows = "agents";
+        doctrine.inputs.agents.follows = "agents";
+      };
     };
 
     satan-patcher = {
@@ -94,9 +98,11 @@
 
     satan-attrd = {
       url = "path:/home/david/dev/satan-attrd";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-      inputs.pub.follows = "agents";
-      inputs.spec-driver.inputs.pub.follows = "agents";
+      inputs = {
+        nixpkgs.follows = "nixpkgs-home";
+        pub.follows = "agents";
+        spec-driver.inputs.pub.follows = "agents";
+      };
     };
 
     goad = {
@@ -126,9 +132,11 @@
     # config ever builds the VM.
     oubliette = {
       url = "github:davidlee/oubliette";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.target.follows = "nixpkgs";
-      inputs.goad-walk.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        target.follows = "nixpkgs";
+        goad-walk.follows = "nixpkgs";
+      };
     };
 
     noctalia = {
@@ -150,9 +158,11 @@
 
     lem = {
       url = "github:lem-project/lem";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-      # its own flake-parts pins a 2025 nixpkgs.lib that still uses `or` as an identifier
-      inputs.flake-parts.follows = "flake-parts";
+      inputs = {
+        # its own flake-parts pins a 2025 nixpkgs.lib that still uses `or` as an identifier
+        nixpkgs.follows = "nixpkgs-home";
+        flake-parts.follows = "flake-parts";
+      };
     };
 
     niri = {
@@ -187,23 +197,7 @@
 
         systems = linuxSystems ++ ["aarch64-darwin"];
 
-        perSystem = {
-          config,
-          pkgs,
-          ...
-        }: {
-          treefmt.programs.alejandra.enable = true;
-          treefmt.programs.statix.enable = true;
-
-          devShells.default = pkgs.mkShell {
-            packages = with pkgs; [
-              config.treefmt.build.wrapper
-              gum
-              just
-              nix-output-monitor
-            ];
-          };
-        };
+        perSystem = ./perSystem.nix;
 
         flake = let
           # system -> overlay. See ./overlays/agents.nix.

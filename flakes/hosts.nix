@@ -75,12 +75,12 @@
       hostPlatform = system;
       config.allowUnfree = true;
       overlays = [
-        (final: prev: {
-          direnv = prev.direnv.overrideAttrs (old: {
+        (_final: prev: {
+          direnv = prev.direnv.overrideAttrs (_old: {
             doCheck = false;
           });
         })
-        (final: prev: {
+        (_final: prev: {
           inherit
             (prev.lixPackageSets.stable)
             nixpkgs-review

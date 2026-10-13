@@ -99,14 +99,6 @@ in
           breadcrumb
           buffer-terminator
           cape
-          # comment-dwim-2 dropped: Emacs 30.2.50's package--description-file
-          # (a C primitive) mis-strips package names ending in a bare digit —
-          # "comment-dwim-2-<ver>" becomes "comment-dwim-pkg.el" instead of
-          # "comment-dwim-2-pkg.el", so tar-mode can't find the descriptor and
-          # crashes with "Wrong type argument: arrayp, nil". Reproduced
-          # directly against this Emacs build; looks like a fresh, likely
-          # unreported core bug (affects any MELPA package name ending in a
-          # bare digit). Re-add once a later Emacs snapshot fixes it.
           compile-angel
           consult
           consult-eglot
@@ -261,5 +253,11 @@ in
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
           #eaf-with-reinput
+          # Not on darwin: mac port 30.2.50's package--description-file (a C
+          # primitive) mis-strips package names ending in a bare digit —
+          # "comment-dwim-2-<ver>" becomes "comment-dwim-pkg.el", so tar-mode
+          # can't find the descriptor ("Wrong type argument: arrayp, nil").
+          # Fixed by Emacs 31.1 (linux). Move up once macport passes it.
+          comment-dwim-2
         ]
   )

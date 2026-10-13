@@ -1,4 +1,4 @@
-{hostname, ...}: {
+_: {
   services = {
     fail2ban.enable = true;
     openssh = {

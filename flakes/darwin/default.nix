@@ -21,11 +21,13 @@ in {
 
     inputs.home-manager.darwinModules.home-manager
     {
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.extraSpecialArgs = specialArgs;
-      home-manager.backupFileExtension = "backup";
-      home-manager.users.${username} = import ./home.nix;
+      home-manager = {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+        extraSpecialArgs = specialArgs;
+        backupFileExtension = "backup";
+        users.${username} = import ./home.nix;
+      };
     }
   ];
 

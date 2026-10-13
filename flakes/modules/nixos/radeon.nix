@@ -43,21 +43,23 @@
     ];
   };
 
-  # create a linked path for rocm libraries that might be hardcoded in
-  # various libraries and packages
-  systemd.tmpfiles.rules = let
-    rocmEnv = pkgs.symlinkJoin {
-      name = "opt-rocm";
-      paths = with pkgs.rocmPackages; [
-        rocblas
-        hipblas
-        clr
-      ];
-    };
-  in [
-    "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
-  ];
+  systemd = {
+    # create a linked path for rocm libraries that might be hardcoded in
+    # various libraries and packages
+    tmpfiles.rules = let
+      rocmEnv = pkgs.symlinkJoin {
+        name = "opt-rocm";
+        paths = with pkgs.rocmPackages; [
+          rocblas
+          hipblas
+          clr
+        ];
+      };
+    in [
+      "L+    /opt/rocm   -    -    -     -    ${rocmEnv}"
+    ];
 
-  systemd.packages = with pkgs; [lact];
-  systemd.services.lactd.wantedBy = ["multi-user.target"];
+    packages = with pkgs; [lact];
+    services.lactd.wantedBy = ["multi-user.target"];
+  };
 }

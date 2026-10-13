@@ -1,8 +1,4 @@
-{
-  pkgs,
-  username,
-  ...
-}: {
+_: {
   services = {
     # have X11 available, but not running by default
     xserver = {

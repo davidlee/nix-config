@@ -16,9 +16,9 @@
     zig = zig-overlay.packages.${system}.master;
   in {
     nixpkgs.overlays = [
-      (self: super: {
+      (_self: _super: {
         inherit zig;
-        zls = zls-overlay.packages.${system}.zls.overrideAttrs (finalAttrs: prevAttrs: {
+        zls = zls-overlay.packages.${system}.zls.overrideAttrs (_finalAttrs: _prevAttrs: {
           nativeBuildInputs = [zig];
         });
       })

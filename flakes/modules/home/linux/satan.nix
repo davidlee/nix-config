@@ -21,65 +21,64 @@
     inputs.satan.packages.${pkgs.stdenv.hostPlatform.system}.satan-jailed-gptel-harness
   ];
 
-  systemd.user.services.satan-morning = {
-    Unit = {
-      Description = "SATAN morning run";
-      Documentation = "file:%h/flakes/SATAN.md";
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = "%h/dev/satan/satan/bin/satan-run morning";
-    };
-  };
+  systemd = {
+    user = {
+      timers = {
+        satan-morning = {
+          Unit.Description = "SATAN morning timer";
+          Timer = {
+            OnCalendar = "Mon..Sun 09:15";
+            Persistent = true;
+          };
+          Install.WantedBy = ["timers.target"];
+        };
 
-  systemd.user.timers.satan-morning = {
-    Unit.Description = "SATAN morning timer";
-    Timer = {
-      OnCalendar = "Mon..Sun 09:15";
-      Persistent = true;
-    };
-    Install.WantedBy = ["timers.target"];
-  };
+        satan-motd = {
+          Unit.Description = "SATAN motd timer";
+          Timer = {
+            OnCalendar = "*-*-* 08:15";
+            Persistent = true;
+          };
+          Install.WantedBy = ["timers.target"];
+        };
+        satan-tick = {
+          Unit.Description = "SATAN tick timer";
+          Timer = {
+            # Fires once, 5 minutes after boot.  The 30-minute recurrence and
+            # jitter below are disabled (satan ISS-022).
+            OnBootSec = "5min";
+            # OnUnitActiveSec = "30min";
+            # RandomizedDelaySec = "5min";
+            Persistent = false;
+          };
+          Install.WantedBy = ["timers.target"];
+        };
+      };
 
-  systemd.user.services.satan-motd = {
-    Unit.Description = "SATAN motd refresh";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "%h/dev/satan/satan/bin/satan-run motd";
+      services = {
+        satan-morning = {
+          Unit = {
+            Description = "SATAN morning run";
+            Documentation = "file:%h/flakes/SATAN.md";
+          };
+          Service = {
+            Type = "oneshot";
+            ExecStart = "%h/dev/satan/satan/bin/satan-run morning";
+          };
+        };
+        satan-motd.Unit.Description = "SATAN motd refresh";
+        satan-motd.Service = {
+          Type = "oneshot";
+          ExecStart = "%h/dev/satan/satan/bin/satan-run motd";
+        };
+        satan-tick = {
+          Unit.Description = "SATAN tick";
+          Service = {
+            Type = "oneshot";
+            ExecStart = "%h/dev/satan/satan/bin/satan-run-tick";
+          };
+        };
+      };
     };
-  };
-
-  systemd.user.timers.satan-motd = {
-    Unit.Description = "SATAN motd timer";
-    Timer = {
-      OnCalendar = "*-*-* 08:15";
-      Persistent = true;
-    };
-    Install.WantedBy = ["timers.target"];
-  };
-
-  # Tick: short, lightly-budgeted run.  The broker picks a mode from
-  # `satan-tick-pool' by weight and skips during `satan-tick-quiet-hours'
-  # (currently nil).  The daily token ceiling
-  # (`satan-budget-daily-tokens', default 2500000) caps spend.
-  systemd.user.services.satan-tick = {
-    Unit.Description = "SATAN tick";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "%h/dev/satan/satan/bin/satan-run-tick";
-    };
-  };
-
-  systemd.user.timers.satan-tick = {
-    Unit.Description = "SATAN tick timer";
-    Timer = {
-      # Fires once, 5 minutes after boot.  The 30-minute recurrence and
-      # jitter below are disabled (satan ISS-022).
-      OnBootSec = "5min";
-      # OnUnitActiveSec = "30min";
-      # RandomizedDelaySec = "5min";
-      Persistent = false;
-    };
-    Install.WantedBy = ["timers.target"];
   };
 }

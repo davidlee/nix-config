@@ -1,14 +1,30 @@
 {pkgs, ...}: {
-  # tune systemd-oomd to intervene before the system becomes unresponsive.
-  # oomd fires early on PSI memory-pressure across cgroups.
-  systemd.oomd = {
-    enable = true;
-    enableRootSlice = true;
-    enableUserSlices = true;
-    enableSystemSlice = true;
-    settings.OOM = {
-      SwapUsedLimit = "90%";
-      DefaultMemoryPressureDurationSec = "20s";
+  systemd = {
+    # tune systemd-oomd to intervene before the system becomes unresponsive.
+    # oomd fires early on PSI memory-pressure across cgroups.
+    oomd = {
+      enable = true;
+      enableRootSlice = true;
+      enableUserSlices = true;
+      enableSystemSlice = true;
+      settings.OOM = {
+        SwapUsedLimit = "90%";
+        DefaultMemoryPressureDurationSec = "20s";
+      };
+    };
+
+    # reserve resources for the compositor and login session.
+    # user-1000 is protected against the system; session.slice (compositor
+    # service, pipewire, dbus, portals, rescue term) against the user's own
+    # apps in app.slice. A child's MemoryLow is capped by its parent's, so
+    # the parent must cover it.
+    slices."user-1000".sliceConfig = {
+      CPUWeight = 200;
+      MemoryLow = "1536M";
+    };
+    user.slices.session.sliceConfig = {
+      CPUWeight = 200;
+      MemoryLow = "1G";
     };
   };
 
@@ -28,20 +44,6 @@
       "--avoid"
       "(^|/)(sway|\\.umbriel-wrappe|\\.noctalia-wrapp|Xwayland|waybar|htop|systemd|systemd-oomd|pipewire|wireplumber|dbus)$"
     ];
-  };
-
-  # reserve resources for the compositor and login session.
-  # user-1000 is protected against the system; session.slice (compositor
-  # service, pipewire, dbus, portals, rescue term) against the user's own
-  # apps in app.slice. A child's MemoryLow is capped by its parent's, so
-  # the parent must cover it.
-  systemd.slices."user-1000".sliceConfig = {
-    CPUWeight = 200;
-    MemoryLow = "1536M";
-  };
-  systemd.user.slices.session.sliceConfig = {
-    CPUWeight = 200;
-    MemoryLow = "1G";
   };
 
   # `leash CMD ARGS…` — run an untrusted app in a transient, resource-capped
