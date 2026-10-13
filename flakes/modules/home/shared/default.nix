@@ -9,7 +9,7 @@
     ./nushell.nix
   ];
   home.sessionVariables = {
-    EDITOR = "emacsclient";
-    VISUAL = "emacsclient";
+    EDITOR = "emacsclient -c";
+    VISUAL = "emacsclient -c";
   };
 }

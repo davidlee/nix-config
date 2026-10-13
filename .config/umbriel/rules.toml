@@ -45,6 +45,8 @@ name = "edit"
 [[window_rule]]
 match.app_id = "^emacs$"
 corner_radius = 0
+# emacsclient (as $EDITOR) asks for focus via xdg-activation; grant it
+focus_on_activate = true
 
 [[window_rule]]
 match.app_id = "^emacs$"

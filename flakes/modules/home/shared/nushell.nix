@@ -1,7 +1,13 @@
-{pkgs, ...}: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   programs = {
     nushell = {
       enable = true;
+      # nu can't source hm-session-vars.sh, so pass home.sessionVariables directly
+      environmentVariables = config.home.sessionVariables;
       settings = {
         show_banner = false;
       };
