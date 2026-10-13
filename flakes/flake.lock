@@ -8,13 +8,10 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "dir": "flakes/agents",
-        "lastModified": 1791593284,
-        "narHash": "sha256-qEIu/cepEGL3BVeW7YJMQgK3Sl6pbiEJA7qwuJfmlYA=",
-        "owner": "davidlee",
-        "repo": "nix-config",
-        "rev": "666cc6f9e84efd364b5cd057e9f6095160d158f5",
-        "type": "github"
+        "lastModified": 1790752361,
+        "narHash": "sha256-jYOjJUzmxhMJyBh3kizAa5q3PrZp9qVLlATQT0+w+QQ=",
+        "path": "/home/david/flakes/agents",
+        "type": "path"
       },
       "original": {
         "dir": "flakes/agents",
@@ -2611,12 +2608,12 @@
         ]
       },
       "locked": {
+        "dirtyRev": "1a27efc69d4a6e21eeaa98c576cc8f3f7683ac59-dirty",
+        "dirtyShortRev": "1a27efc-dirty",
         "lastModified": 1790823545,
-        "narHash": "sha256-77jCc4FehMDefVMn6F6U52YKuI6k20hS2lJlItfWIfY=",
-        "owner": "davidlee",
-        "repo": "oubliette",
-        "rev": "1a27efc69d4a6e21eeaa98c576cc8f3f7683ac59",
-        "type": "github"
+        "narHash": "sha256-Mdi/T6rcaA/XL3L6P+MDRHl90gOCe6JOu7VHyl/sgog=",
+        "type": "git",
+        "url": "file:///home/david/dev/oubliette/"
       },
       "original": {
         "owner": "davidlee",

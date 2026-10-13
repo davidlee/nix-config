@@ -1,18 +1,10 @@
-{pkgs, ...}: {
+_: {
   programs = {
     dconf.enable = true;
     gnome-disks.enable = true;
   };
 
   services = {
-    # M-x dictionary
-    dictd = {
-      enable = true;
-      DBs = with pkgs.dictdDBs; [
-        # gcide # This includes the 1913 Webster's Unabridged
-        wordnet # Optional: WordNet
-      ];
-    };
     devmon.enable = true;
     gvfs.enable = true;
     udisks2.enable = true;

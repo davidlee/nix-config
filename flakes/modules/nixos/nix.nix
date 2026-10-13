@@ -94,6 +94,8 @@
     appimage-run
     flatpak
     cachix
+    statix
+    deadnix
     comma
     devenv
     manix

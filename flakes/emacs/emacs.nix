@@ -198,6 +198,9 @@ in
           magit-filenotify
           hunk-notes
           kkp # kitty protocol for terminal emacs
+          flycheck # checker library, fed to flymake via flymake-flycheck
+          flymake-flycheck
+          flyover
 
           # for org-iw
           relint
@@ -206,8 +209,10 @@ in
           # pi-coding-agent
           popper
           posframe
+          powerthesaurus
           prescient
           puni
+          quick-sdcv
           rainbow-delimiters
           rainbow-mode
           ready-player
