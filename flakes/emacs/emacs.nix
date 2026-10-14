@@ -236,6 +236,7 @@ in
           yaml-mode
           zoom-window
           gptel-agent
+          gptel-inline
           macher
           standard-themes
           gruvbox-theme

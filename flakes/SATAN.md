@@ -101,7 +101,7 @@ persists `$HOME` from `~/.local/share/jail.nix/home/<profile-home>` (`specDev`
 
 | Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan-corpus` flake) | patcher job (`jailed-pi`) |
 |---|---|---|---|---|
-| launcher cwd | `/workspace/<basename>` rw — Emacs cwd, probably `~` | `/workspace/satan` | `/workspace/satan-corpus` | `/workspace/<job-id>` (job clone) |
+| launcher cwd | `/workspace/<run-id>` rw — the run dir (broker sets it, ISS-037) | `/workspace/satan` | `/workspace/satan-corpus` | `/workspace/<job-id>` (job clone) |
 | `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` rw (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) | — |
 | `~/notes` | `/satan/notes` ro | `/workspace/notes` **rw** | `/workspace/notes` rw | `/workspace/notes` rw |
 | `~/satan-corpus` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/satan-corpus` rw | cwd (`/workspace/satan-corpus`) | `/workspace/satan-corpus` rw |
@@ -123,9 +123,6 @@ mounted.
 
 - MCP dev jails bind the Emacs server socket rw: arbitrary elisp from inside
   the jail.
-- The broker never sets `default-directory` before spawning the harness, so
-  the harness's `$PWD` bind is the Emacs daemon's cwd — probably all of `~`, rw.
-  Unverified against a live run.
 - `try-fwd-env` puts forwarded API keys on bwrap's argv; the harness gets them
   that way as well as via FD.
 - `SATAN_MAX_BUDGET_TOKENS` is not forwarded, so the harness's hard budget
