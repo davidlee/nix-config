@@ -53,3 +53,13 @@ landed. Code comments change in the phase that changes their code.
 - Out of the phases, at close: record the result as evidence for HYP-001
   (refuted naming the test, or supporting with HYP-001 left `proposed`;
   design sec-8), and the ADR amendments by revision at reconcile (DEC-009).
+- `perSystem.nix` sits at the flake root (`flake.nix` imports
+  `./perSystem.nix`), so the runner imports `./features-test.nix`. Design
+  sec-6 says `../`; that is a slip in the design text, not a design change.
+- The `just test` build of the check uses `--no-link`, so it leaves no
+  `result` symlink.
+- Identity gate hygiene: the drvs recipes evaluate local override inputs
+  (`oubliette` via `git+file`, `agents`, `emacs`) from their working trees.
+  If the gate differs, first compare those inputs' HEAD and dirty state with
+  the ones recorded at baseline: a moved input is a false difference, not a
+  regression. `oubliette` was dirty when this plan was written.

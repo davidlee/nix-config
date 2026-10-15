@@ -39,7 +39,7 @@ derivation is unchanged. Comments in features.nix and hosts.nix updated.
 """
 entrance_criteria = [
   { id = "EN-1", text = "Design locked (RV-001 conducted)." },
-  { id = "EN-2", text = "just drvs and just drvs-sets run on the unedited tree; both outputs saved under .doctrine/state/slice/001/ as the identity baseline." },
+  { id = "EN-2", text = "just drvs and just drvs-sets run on the unedited tree; both outputs saved under .doctrine/state/slice/001/ as the identity baseline, with the HEAD and dirty status of every local override input (system_override: oubliette, agents; home_override: emacs)." },
 ]
 exit_criteria = [
   { id = "EX-1", text = "Fixture tests were observed red against the old features.nix (wrong arity) before the rewrite, and green after." },
@@ -71,7 +71,8 @@ imported by hosts/Sleipnir/features.nix. Remove the snooze and
 hardware.openrgb flags, Sleipnir's openrgb = false, and the three gated
 imports. Add the real-tree tests T1 and T2 (membership assertions). Point
 just test at the moved snooze-nag-test. Update the modules/features.nix
-comment. Every derivation stays identical.
+comment, and the header comments of both snooze halves, which name each
+other's paths. Every derivation stays identical.
 """
 entrance_criteria = [
   { id = "EN-1", text = "PHASE-01 complete: just test green, drvs at baseline." },
