@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   systemd.user = {
     # Nicely reload system units when changing configs
     startServices = "sd-switch";
