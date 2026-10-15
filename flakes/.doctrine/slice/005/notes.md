@@ -6,13 +6,22 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-15 · ready · b2f9367d
 
 ### Produced
+- design locked after RV-011 (8 findings fixed); plan: 4 phases, sheets materialised (commit b2f9367d)
+- decided: DEC-019 (amended: `machine.nix`), DEC-020, DEC-021, DEC-022 — docker and podman exclusive, podman an off feature
+- minted: IMP-018 — podman replaces docker (selection swap after SL-005)
+- out-of-band: podman HRIS supabase stack + unused images deleted at the user's request (podman storage 45G → 6.5G)
 
 ### Learned
+- mem.fact.nix.systempath-collision-first-wins — system-path keeps the first colliding package; sorted-set proofs miss flips
 
 ### Open
+- IMP-003 — `dev`, `caddy`, `jackaudio` in `user.nix` name groups absent on Sleipnir (note at reconcile)
+- IMP-016 — apps taxonomy, `apps.cad`
+- IMP-017 — site-bound config outside DEC-019's machine class
+- RFC-001 — W4 class rename to machine config, at reconcile
 
 ## Design triage (exploring, 2026-10-15)
 
