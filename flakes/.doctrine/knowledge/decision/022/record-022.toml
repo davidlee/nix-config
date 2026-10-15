@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 22
+slug = "docker-podman-exclusive"
+title = "docker and podman are exclusive; podman becomes an off feature"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "podman.nix is unconditional and sets dockerCompat = true, so podman's shim and real docker (virt.docker, rootless) both ship bin/docker; NixOS system-path keeps whichever is listed first, so the winner was positional (RV-011 F-8). User: fail loud rather than pick a winner silently."
+choice = "Only one container engine is installed. podman.nix becomes the tree feature virt.podman (moved verbatim: packages, podman with dockerCompat, podman group), not selected on Sleipnir, and evaluated by a coverage target Sleipnir+podman that selects podman and deselects docker. The virt.docker feature asserts !config.virtualisation.podman.enable, so selecting both fails the build. Sleipnir keeps rootless docker."
+alternatives = ["lib.hiPrio on docker (winner by priority; silent)", "dockerCompat = false only (podman stays beside docker)", "Swap to podman now (IMP-018; needs supabase .envrc work)"]
+rationale = "Two engines behind one docker name is the hazard; refusing the combination removes it instead of managing it. Keeping podman as an off, coverage-checked feature makes IMP-018 a selection change. Rootless docker is what Sleipnir runs today."
+consequences = ["Sleipnir loses podman / podman-compose / podman-desktop / podman-tui / crun and the podman group (distrobox stays via home dev.nix and uses docker)", "Podman storage (~/.local/share/containers / 6.5G after a 2026-10-15 prune; supabase *_satan stack and podman's archlinux/chimera boxes) stays on disk but is unreachable until virt.podman is selected again", "SL-005 is no longer purely behaviour-preserving: the podman commit's drv diff is an intended removal", "IMP-018 becomes: select virt.podman / deselect virt.docker / update supabase .envrc"]
+decided_by = "user (2026-10-15, RV-011 follow-up: 'fail loud if both podman & docker were installed'; 'turn off podman to make it work'; podman entirely)"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-005"

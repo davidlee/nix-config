@@ -1,0 +1,142 @@
+id = 5
+slug = "flags-hardware-virt-apps"
+title = "Legacy flags to feature tree: hardware, virt, app formats"
+status = "ready"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "features/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/microcode.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/ssd.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/qemu.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/docker.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/appimage.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/flatpak.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/user.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/programs.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/nix.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/config.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/virt.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/non-nix-packages.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/workstation.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/machine.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/boot.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/security.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/podman.nix"
+intent = "design-target"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-001"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "IMP-016"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "IMP-003"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.

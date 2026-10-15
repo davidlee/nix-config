@@ -1,0 +1,46 @@
+memory_uid = "mem_01a13f99eeaf777c98b68e57f3246802"
+memory_key = "mem.fact.nix.systempath-collision-first-wins"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "system-path: first colliding package wins; sorted-set proofs miss flips"
+summary = "NixOS system-path buildEnv ignores collisions and keeps the first listed package; reordering systemPackages can silently change which binary owns a path"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["flakes/modules/nixos", "flakes/features"]
+globs = []
+commands = []
+tags = ["nix", "drv-gate"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "943b27763113cf7dda238cddb8c62b345374e05e"
+ref_name = "refs/heads/main"
+checkout_state_id = "890bb3b4764525481609e08c1e25383f3f11304f72c364cabba9fb6a47545a5f"
+base_commit = "38239e7083abaa650c03f7174651033cbe0b48d8"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "high"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-011"
+

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 21
+slug = "sl005-selection"
+title = "SL-005 selection: qemu is a host property; docker and non-nix packages are workstation"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Tree features default off; Sleipnir must keep its effective selection (ADR-001 D7). DEC-011 makes hardware-bound features host properties."
+choice = "hosts/Sleipnir/features.nix sets feature.virt.qemu.enable = true (host property: needs KVM). features/profiles/workstation.nix sets mkDefault true for virt.docker, non-nix-packages.appimage and non-nix-packages.flatpak."
+alternatives = ["All four in workstation", "All four as Sleipnir host properties"]
+rationale = "A profile would switch qemu on for any workstation, including a guest without nested virtualisation (DEC-011). docker (rootless) and the non-Nix package managers are role choices. Either way, a host turns one off with a single plain line."
+consequences = ["Turning qemu off: set false in hosts/Sleipnir/features.nix; nothing of it is evaluated", "kvm-amd stays loaded from hardware-configuration.nix regardless"]
+decided_by = "user (2026-10-15: 'ok, works')"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-005"

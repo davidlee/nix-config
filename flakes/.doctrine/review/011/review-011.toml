@@ -1,0 +1,257 @@
+id    = 11
+slug  = "design-review-of-sl-005"
+title = "design review of SL-005"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Design sec-1..8 attacked against Sleipnir evaluation, pinned nixpkgs (docker, podman, buildenv, appimage, flatpak modules), ucodenix, ADR-001/002/005, DEC-014/015/019/020/021. 8 findings, all fixed and verified."
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Re-concluded after recording routes for F-1, F-8; design adopted at rev 31 incl. DEC-022."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-005"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "docker feature carries a group that does not exist"
+detail = """sec-3 moves users.users.${username}.extraGroups = ["docker"] into the docker feature and claims 'deselecting one now removes its group'. But the feature sets virtualisation.docker.enable = false (rootless only), and nixpkgs creates users.groups.docker only under mkIf cfg.enable (nixos/modules/virtualisation/docker.nix:267,280). Evaluated today: Sleipnir config.users.groups ? docker == false. Rootless docker uses a per-user socket and needs no group. So the entry is dead in user.nix and would stay dead in the feature, contradicting sec-1 'each feature owns everything it switches'. Proposed: drop 'docker' from user.nix and do not re-add it in the feature; define the sec-7 effective-membership proof over groups that exist (intersect extraGroups with attrNames users.groups), so the drop proves identical."""
+disposition = "fix-now"
+response = "Fixed in design sec-3/sec-7: docker group dropped, membership proof over existing groups, rootful-docker assertion in security.nix. Checked by design review."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "User: never rootful docker. docker group dropped from user.nix and not moved into the feature; effective-membership proof restricted to existing groups. Added an unconditional assertion in modules/nixos/security.nix refusing virtualisation.docker.enable (user requested). Note: nixpkgs podman already asserts dockerCompat -> !docker.enable, but incidentally and with a misleading message; ours states intent and survives a podman change. Sweep: dev, caddy, jackaudio in user.nix also name nonexistent groups — recorded for IMP-003 at reconcile, out of scope."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "reopen to record route (lock gate)"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design sec-3/sec-7: docker group dropped, membership proof over existing groups, rootful-docker assertion in security.nix. Checked by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "present in locked design"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Negative controls skip flatpak and docker"
+detail = "sec-7 step 5 deselects only appimage and qemu. The 'feature is the only switch' claim is identical for flatpak (which had its own duplicate, nix.nix:94) and docker. Add: flatpak off -> flatpak absent from the system closure and services.flatpak.enable false; docker off -> docker, lazydocker absent and no docker rootless user service. Same one-off, cheap."
+disposition = "fix-now"
+response = "sec-7 step 4: negative controls for all four features."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-7 step 4: negative controls for all four features."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "boot.shell_on_fail is not host-bound hardware"
+detail = "sec-2 moves both microcode kernel params into hosts/Sleipnir/hardware.nix. ucodenix asks only for microcode.amd_sha_check=off (its README §3; modules/nixos.nix:66 warns without it), so that one belongs with ucodenix. boot.shell_on_fail is a generic boot-rescue param that was bundled into microcode.nix; under DEC-019's own test (bound to this machine's parts) it belongs in modules/nixos/boot.nix. The sorted-kernelParams proof already covers the move."
+disposition = "fix-now"
+response = "boot.shell_on_fail moves to modules/nixos/boot.nix; machine.nix keeps only microcode.amd_sha_check=off with ucodenix."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "boot.shell_on_fail moves to modules/nixos/boot.nix; machine.nix keeps only microcode.amd_sha_check=off with ucodenix."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "sec-2 kernel-param ordering premise is wrong"
+detail = "sec-2 says moving microcode's params ahead of radeon.nix's may reorder the command line. They are already ahead: evaluated boot.kernelParams = [boot.shell_on_fail, microcode.amd_sha_check=off, amdgpu.gpu_recovery=1, root=fstab, ...] although microcode.nix is imported after radeon.nix. Reword to 'order may change; proven by the sorted compare' rather than predicting a direction."
+disposition = "fix-now"
+response = "sec-2 reworded: order may change; sorted compare proves the set."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-2 reworded: order may change; sorted compare proves the set."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Three 'hardware' files with different rules"
+detail = "After SL-005: hosts/<h>/hardware-configuration.nix (generated, never edit), hosts/<h>/hardware.nix (hand-written, host-bound) beside it, and features/hardware.nix (generic hardware feature area, grows in W4). The two adjacent host files differ by one word and opposite edit rules; the host file and the tree area share a name but not a concept. A distinct name (e.g. hosts/<h>/machine.nix) keeps DEC-019's boundary legible. DEC-019 names the file, so a rename amends DEC-019 — user's call."
+disposition = "fix-now"
+response = "User chose machine.nix (fits VMs and physical boxes). Design sec-1/2/5/6/8 updated with a host-directory layout diagram; DEC-019 amended; RFC-001 W4 class rename recorded for reconcile."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "User chose machine.nix (fits VMs and physical boxes). Design sec-1/2/5/6/8 updated with a host-directory layout diagram; DEC-019 amended; RFC-001 W4 class rename recorded for reconcile."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Drv gate brackets three commits, not each"
+detail = "sec-1 commits per flag group (hardware, virt, apps) for atomicity, but sec-7 takes one baseline before the first edit and one after all. An unexpected diff cannot be attributed to a commit, and intermediate commits are unproven. Run the gate (drvs + drvs-sets + the one-off evals) after each commit, each against the previous; expected diffs then partition cleanly (kernelParams/fileSystems -> hardware; groups/qemu/docker -> virt; -2 packages -> apps)."
+disposition = "fix-now"
+response = "sec-7: gate after each commit against the previous; expected diffs tabulated per commit."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-7: gate after each commit against the previous; expected diffs tabulated per commit."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Default flip for future hosts is unstated"
+detail = "Legacy virt.qemu, apps.appimage and apps.flatpak default to true; tree features default off. sec-5 covers Draupnir only. State the semantic change: a new NixOS host with no profile (first likely W7's nixosvm) no longer gets qemu, appimage or flatpak; with workstation it gets docker, appimage, flatpak but not qemu (DEC-021)."
+disposition = "fix-now"
+response = "sec-5: default change for future hosts stated, with nixosvm as the first likely case."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-5: default change for future hosts stated, with nixosvm as the first likely case."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "major"
+title = "Order-only package diffs can flip which binary wins a PATH collision"
+detail = "sec-7 accepts systemPackages diffs that are 'order only' and proves them by an identical sorted set. That is unsound where two packages ship the same path: NixOS's system-path buildEnv ignores collisions and keeps the FIRST package (pkgs/build-support/buildenv/builder.pl:200-202). Sleipnir today: podman.nix sets dockerCompat = true, so podman-docker-compat (systemPackages index 334) also ships bin/docker; real docker wins only because docker.nix's entry sits at index 71. Verified: /run/current-system/sw/bin/docker -> docker-29.8.1. Moving docker into a feature module appended after config.nix moves its entry; if it lands after 334, 'docker' silently becomes podman, and the sorted-set proof stays green. Class: any colliding path in system-path. Proposed: (1) gate compares the realised system-path symlink map (sw paths -> store targets) before/after each commit, catching every collision flip; (2) make the docker winner explicit, not positional — lib.hiPrio on the feature's docker, or drop podman dockerCompat."
+disposition = "fix-now"
+response = "Fixed in design: system-path link-map compared after every commit (control); positional docker win replaced by DEC-022: podman becomes an unselected feature, docker feature asserts podman off, so no bin/docker collision exists. hiPrio dropped."
+route = "control"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Gate gains the system-path link map, identical after every commit (catches any collision flip). Docker's win made explicit with lib.hiPrio in the feature, preserving today's behaviour. User prefers podman to win; that change (podman engine, docker deselected + coverage target, DOCKER_HOST / supabase .envrc) is backlogged as IMP-018 to keep SL-005 behaviour-preserving."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md (adopted rev 30)"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "reopen to record route (lock gate); fix superseded by DEC-022"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = "Fixed in design: system-path link-map compared after every commit (control); positional docker win replaced by DEC-022: podman becomes an unselected feature, docker feature asserts podman off, so no bin/docker collision exists. hiPrio dropped."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "present in locked design; link-map gate runs at execution"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

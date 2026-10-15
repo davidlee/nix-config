@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 20
+slug = "non-nix-packages-area"
+title = "non-nix-packages area for package management outside Nix"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The legacy apps group mixes app formats (appimage, flatpak) with an application (cad). The apps taxonomy is deferred (IMP-016)."
+choice = "A new feature area non-nix-packages holds package management outside Nix. SL-005 adds two features: non-nix-packages.appimage (programs.appimage with binfmt) and non-nix-packages.flatpak (services.flatpak)."
+alternatives = ["apps (reserved for IMP-016's taxonomy)", "foreign (abstruse)", "packaging, runtimes, third-party, alt-package-managers"]
+rationale = "Names the concept, non-Nix package management, without ambiguity. The two features are independent switches."
+consequences = ["A future darwin half (homebrew, darwin/brew.nix) fits this area", "apps.cad stays a legacy flag until IMP-016"]
+decided_by = "user (2026-10-15: 'non-nix-packages isn't confusing')"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-005"

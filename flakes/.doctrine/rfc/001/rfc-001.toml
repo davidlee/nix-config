@@ -54,3 +54,7 @@ target = "QUE-004"
 label = "related"
 target = "SL-002"
 
+[[relation]]
+label = "related"
+target = "SL-005"
+

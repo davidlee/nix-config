@@ -1,0 +1,128 @@
+# Implementation plan for SL-005 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-005"
+
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One phase per commit (design sec-1): hardware, virt, podman, apps. Each phase
+# is gated against the previous phase's "after" snapshot (design sec-7, RV-011 F-6).
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Gate probe and machine config"
+objective = "Add the slice's gate probe, then retire hardware.{microcode,ssd}: their content moves to hand-written hosts/Sleipnir/machine.nix (DEC-019), boot.shell_on_fail to modules/nixos/boot.nix."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-005 design locked (design run stage locked)." },
+  { id = "EN-2", text = "Before any edit under flakes/ (other than the probe script): just drvs, just drvs-sets and the probe are captured as the slice baseline; paths recorded in notes.md." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Probe script .doctrine/slice/005/gate-probe.sh <outdir> writes, for Sleipnir with the drvs overrides: unique sorted environment.systemPackages drvPaths; effective group membership (existing groups listing david in members or extraGroups); sorted boot.kernelParams; fileSystems.\"/\".options; and the system-path link map (build config.system.path, find -type l -printf '%P -> %l\\n' | sort) (RV-011 F-8)." },
+  { id = "EX-2", text = "hosts/Sleipnir/machine.nix exists with the DEC-019 header comment, the ucodenix import, microcode.amd_sha_check=off, services.ucodenix (cpuModelId) and fileSystems.\"/\".options; imported by config.nix immediately after ./hardware-configuration.nix." },
+  { id = "EX-3", text = "modules/nixos/boot.nix sets boot.kernelParams = [\"boot.shell_on_fail\"]." },
+  { id = "EX-4", text = "modules/nixos/{microcode,ssd}.nix deleted; hardware group gone from modules/features.nix and hosts/Sleipnir/features.nix; both gates gone from config.nix." },
+  { id = "EX-5", text = "Gate vs EN-2 baseline: only nixosConfigurations.Sleipnir differs in drvs; drvs-sets identical; probe: sorted kernelParams, fileSystems options, packages, membership and link map identical (RV-011 F-8: link map identical)." },
+  { id = "EX-6", text = "README: hardware.* rows out of the flag table; one line on hosts/<h>/machine.nix beside the generated hardware-configuration.nix." },
+  { id = "EX-7", text = "just gate green; committed (conventional commit, scoped to flakes/); post-phase probe and drvs saved as PHASE-02's baseline." },
+]
+verification = [
+  { id = "VT-1", expects = "machine.nix carries microcode and ssd config", test_file = "hosts/Sleipnir/machine.nix", keywords = ["ucodenix", "cpuModelId", "microcode.amd_sha_check=off", "noatime", "hardware-configuration.nix"], waived = false },
+  { id = "VT-2", expects = "shell_on_fail lives in boot.nix", test_file = "modules/nixos/boot.nix", keywords = ["boot.shell_on_fail"], waived = false },
+  { id = "VT-3", expects = "probe covers every design sec-7 measure", test_file = ".doctrine/slice/005/gate-probe.sh", keywords = ["systemPackages", "extraGroups", "kernelParams", "fileSystems", "system.path"], waived = false },
+  { id = "VA-1", expects = "EX-5 gate diff reviewed: Sleipnir toplevel only, every probe file identical" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "virt: qemu and docker features"
+objective = "Retire virt.{qemu,docker}: inline records in features/virt.nix; groups out of user.nix (IMP-003; docker gets none); rootful docker refused by an unconditional assertion; qemu a Sleipnir host property, docker in workstation (DEC-021)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated (virt.qemu#nixos, virt.docker#nixos among NixOS modules, neither among home modules) written and failing before the records exist." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/virt.nix lists capsule, qemu, docker; qemu and docker bodies moved verbatim except: docker drops extraGroups and takes {pkgs, ...}. modules/nixos/{qemu,docker}.nix deleted." },
+  { id = "EX-2", text = "user.nix extraGroups loses docker and libvirtd; nothing else changes there." },
+  { id = "EX-3", text = "modules/nixos/security.nix asserts !config.virtualisation.docker.enable with a rootless-only message." },
+  { id = "EX-4", text = "hosts/Sleipnir/features.nix sets feature.virt.qemu.enable = true (host property comment, DEC-021); workstation profile sets mkDefault true for feature.virt.docker; virt group gone from modules/features.nix and the host's flags; both gates gone from config.nix." },
+  { id = "EX-5", text = "Gate vs PHASE-01: only Sleipnir toplevel differs; unique sorted packages identical; link map identical, bin/docker -> docker (RV-011 F-8); effective membership identical." },
+  { id = "EX-6", text = "Negative controls (one-off): qemu off -> qemu_kvm and virt-manager absent from the system closure, libvirtd absent from effective groups; docker off -> docker and lazydocker absent from the closure, virtualisation.docker.rootless.enable false." },
+  { id = "EX-7", text = "Guard (one-off): Sleipnir with virtualisation.docker.enable = lib.mkForce true fails with the security.nix message." },
+  { id = "EX-8", text = "README: virt.* rows out of the flag table; tree listing shows qemu and docker in virt.nix." },
+  { id = "EX-9", text = "just gate green; committed; post-phase snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver test selects qemu and docker for Sleipnir", test_file = "features-test.nix", keywords = ["testSleipnirSelectsMigrated", "virt.qemu#nixos", "virt.docker#nixos"], waived = false },
+  { id = "VT-2", expects = "virt area carries the two records", test_file = "features/virt.nix", keywords = ["name = \"qemu\"", "name = \"docker\"", "libvirtd", "rootless"], waived = false },
+  { id = "VT-3", expects = "rootful docker assertion", test_file = "modules/nixos/security.nix", keywords = ["virtualisation.docker.enable", "assertions"], waived = false },
+  { id = "VA-1", expects = "EX-5..EX-7 evidence recorded in notes.md" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "podman: off feature, exclusive with docker"
+objective = "Move podman.nix verbatim into the unselected feature virt.podman with a Sleipnir+podman coverage target; the docker feature asserts podman is off (DEC-022). The slice's one intended behaviour change: Sleipnir loses podman."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: resolver tests assert (a) Sleipnir's selection excludes virt.podman#nixos and (b) the real tree with Sleipnir plus feature.virt.podman.enable = true includes it; (b) fails before the record exists." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/virt.nix gains podman after docker, body of podman.nix verbatim ({pkgs, username, ...}); modules/nixos/podman.nix deleted and its import gone from config.nix." },
+  { id = "EX-2", text = "The docker feature asserts !config.virtualisation.podman.enable; the message names virt.docker, virt.podman and IMP-018." },
+  { id = "EX-3", text = "hosts.nix: coverage.\"Sleipnir+podman\" selects feature.virt.podman and sets feature.virt.docker.enable = false." },
+  { id = "EX-4", text = "Gate vs PHASE-02: only Sleipnir toplevel differs in drvs (coverage is outside drvs). Removed system packages are exactly podman.nix's list plus the podman module's own (podman, dockerCompat shim); distrobox leaves system-path but stays in the home closure (dev.nix). Every link-map change is a removal of a path into one of those; bin/docker -> docker (RV-011 F-8). Effective membership loses only podman." },
+  { id = "EX-5", text = "just coverage evaluates both targets; Sleipnir+podman's closure contains podman and its link map has bin/docker -> the podman shim." },
+  { id = "EX-6", text = "Guard (one-off): Sleipnir with feature.virt.podman.enable = true (docker selected) fails with the exclusivity message." },
+  { id = "EX-7", text = "README: tree listing shows podman in virt.nix (off, coverage); the coverage paragraph names the new target." },
+  { id = "EX-8", text = "just gate green; committed; post-phase snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "podman record and exclusivity assertion", test_file = "features/virt.nix", keywords = ["name = \"podman\"", "dockerCompat", "virtualisation.podman.enable", "IMP-018"], waived = false },
+  { id = "VT-2", expects = "coverage target for the off feature", test_file = "hosts.nix", keywords = ["Sleipnir+podman", "feature.virt.podman.enable"], waived = false },
+  { id = "VT-3", expects = "resolver test leaves podman unselected on Sleipnir", test_file = "features-test.nix", keywords = ["virt.podman#nixos"], waived = false },
+  { id = "VA-1", expects = "EX-4 removal list checked path by path against podman.nix and the nixpkgs podman module; recorded in notes.md" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "non-nix-packages: appimage and flatpak"
+objective = "Retire apps.{appimage,flatpak}: new area features/non-nix-packages.nix (DEC-020), selected by workstation; their unconditional duplicates in programs.nix and nix.nix removed so each feature is the only switch."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated extended with non-nix-packages.appimage#nixos and non-nix-packages.flatpak#nixos, failing before the area exists." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/non-nix-packages.nix (header comment, two records) registered in features/default.nix after virt; git add -N before evaluation." },
+  { id = "EX-2", text = "programs.nix loses appimage.{binfmt,enable}; nix.nix loses appimage-run and flatpak; modules/nixos/{appimage,flatpak}.nix deleted." },
+  { id = "EX-3", text = "workstation sets mkDefault true for both; apps group in modules/features.nix and the host keeps only cad; both gates gone from config.nix." },
+  { id = "EX-4", text = "Gate vs PHASE-03: only Sleipnir toplevel differs; drvs-sets count for Sleipnir drops by exactly 2; unique sorted packages identical; link map identical (RV-011 F-8)." },
+  { id = "EX-5", text = "Negative controls (one-off): appimage off -> appimage-run absent from the closure, programs.appimage.binfmt false; flatpak off -> flatpak absent from the closure, services.flatpak.enable false." },
+  { id = "EX-6", text = "grep under flakes/ finds no features.hardware, features.virt, features.apps.appimage or features.apps.flatpak reads." },
+  { id = "EX-7", text = "README: apps.{appimage,flatpak} rows out; tree listing and the 'moved here' intro line cover every SL-005 feature; feature-flags table matches modules/features.nix." },
+  { id = "EX-8", text = "just gate green; committed." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver test selects the app formats", test_file = "features-test.nix", keywords = ["non-nix-packages.appimage#nixos", "non-nix-packages.flatpak#nixos"], waived = false },
+  { id = "VT-2", expects = "area file with both records", test_file = "features/non-nix-packages.nix", keywords = ["name = \"appimage\"", "name = \"flatpak\"", "binfmt", "services.flatpak"], waived = false },
+  { id = "VT-3", expects = "area registered", test_file = "features/default.nix", keywords = ["non-nix-packages"], waived = false },
+  { id = "VA-1", expects = "EX-4..EX-6 evidence recorded in notes.md" },
+]
+specs        = []
+requirements = []
