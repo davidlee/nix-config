@@ -26,3 +26,20 @@ the lock itself stays non-portable.
 Drop the overrides from lock-writing recipes, re-lock the affected inputs from
 their declared URLs, and check drvs identity (path vs GitHub source of the same
 tree should give the same store content).
+
+## Agreed direction (2026-10-15)
+
+Keep `flake.lock` tracked; the user raised untracking it (`git rm --cached`)
+because machines "fight" over it, and rejected that after review:
+
+- On Linux the flake is `.` (git+file); Nix reads only tracked files, so an
+  untracked lock is invisible: every eval re-resolves every input, and the
+  drvs gate means nothing.
+- The Mac reads `path:`, i.e. its own on-disk lock: the machines would build
+  from silently different pins.
+
+Instead: fix this issue (no `--override-input` on lock-writing recipes;
+re-lock path inputs from declared URLs), and one rule — lock updates happen
+on Sleipnir and are committed; other machines pull and only read (Mac recipes
+already pass `--no-write-lock-file`). Once done, the Mac may not need
+`agents_override` at all.
