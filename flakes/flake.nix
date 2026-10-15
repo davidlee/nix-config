@@ -178,11 +178,7 @@
     };
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    ...
-  }:
+  outputs = inputs @ {self, ...}:
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (
       _: let
         linuxSystems = ["x86_64-linux" "aarch64-linux"];
@@ -197,35 +193,7 @@
 
         perSystem = ./perSystem.nix;
 
-        flake = let
-          # system -> overlay. See ./overlays/agents.nix.
-          agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
-        in {
-          # Overlaid full nixpkgs surfaced so the `nixpkgs` registry alias
-          # (pinned to self in modules/nixos/nix.nix) resolves `nix shell
-          # nixpkgs#codex` etc. to the llm-agents builds. Everything else
-          # under nixpkgs#… still works — this is a superset.
-          legacyPackages = nixpkgs.lib.genAttrs linuxSystems (system:
-            import nixpkgs {
-              inherit system;
-              config.allowUnfree = true;
-              overlays = [(agentsOverlay system)];
-            });
-
-          # Every llm-agents CLI, surfaced as this flake's own packages so
-          # the `agents` registry alias resolves `nix shell agents#<any>`
-          # (amp, droid, goose-cli, grok, …) — the full roster, not just the
-          # curated overlay set. Kept OUT of the nixpkgs overlay on purpose:
-          # ~200 names, many colliding with real nixpkgs attrs (dolt, code,
-          # handy, omp, but, ck), so blanket-injecting would shadow them
-          # system-wide. tryEval guards attrs that throw on eval; drop
-          # non-derivations (buildNpmPackage, hooks, default, …).
-          packages = let
-            inherit (nixpkgs) lib;
-            keep = n: v: n != "default" && (builtins.tryEval (lib.isDerivation v)).value or false;
-          in
-            lib.genAttrs linuxSystems (system: lib.filterAttrs keep inputs.llm-agents.packages.${system});
-
+        flake = {
           templates = {
             agents = {
               path = ./_templates/agents;

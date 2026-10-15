@@ -66,3 +66,17 @@ are needed through PHASE-05 and must outlive the session and a reboot.
   are empty. The legacyPackages pick guards `lp ? stdenv` and prints `none`.
 - The justfile does not follow `just --fmt` (2-space recipe bodies, already
   so at HEAD); not part of the gate, left alone.
+
+### PHASE-02 (shared factory pieces)
+
+- `hosts.nix`: `args`, `stableModule` (`_module.args.stable`), `platformModule`
+  on mkNixos; mkHome appends `stableModule` (overlays and the lem module stay
+  in the factory until PHASE-04). `legacyPackages`/`packages` moved here;
+  `linuxSystems` derives from `config.systems` rather than restating the list.
+- `flake.nix` keeps inputs, wiring, templates; `default.nix` (a byte-identical
+  stale copy of `flake.nix`) deleted. mkDarwin untouched.
+- VA-1: `just drvs` identical to `baseline-drvs` (`~/.cache/sl-004/p02-drvs`).
+  `just coverage` still evaluates.
+- treefmt cache gotcha bit again: deadnix dropped the unused `nixpkgs` binding
+  and left a multi-line arg set that alejandra only collapses on a second,
+  uncached pass; `just gate` caught it.
