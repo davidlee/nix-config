@@ -1,0 +1,272 @@
+id    = 10
+slug  = "reconciliation-review-of-sl-004"
+title = "reconciliation review of SL-004"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-004 at 256da104 against design.md (locked), plan PHASE-01..06 criteria, DEC-016/017/018 and RV-009. Examined: full source diff 979e83ec..HEAD; hosts.nix factories and checks.factories; darwin/, hosts/Draupnir, justfile, README, flake.nix. Ran just gate (green), just drvs (Linux identical to baseline; darwin and david@Draupnir changes as expected), just coverage. Conformance judged by agent (registry misattributes, ISS-005). Settled RV-009 F-1/F-3/F-4/F-10. 8 findings, all terminal; brief written.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-004"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Lifecycle: slice should be started/audit during execution; observed status ready with 6/6 phases complete"
+detail = """
+Expected: `doctrine slice status 4 started` when PHASE-01 began, `audit` now.
+Observed: `doctrine slice status 4` → `ready ⚠ phases: 6/6 … divergent: phases complete but lifecycle not terminal`. slice-004.toml status = "ready".
+Impact: lifecycle reports lie; `doctrine next`/status consumers misroute. No code effect.
+"""
+disposition = "fix-now"
+response = """
+Fixed in audit: `doctrine slice status 4 audit` (ready → audit, recorded as skip). Cause: PHASE-01..06 were executed without the `started` flip; process gap, no code effect.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in audit: `doctrine slice status 4 audit` (ready → audit, recorded as skip). Cause: PHASE-01..06 were executed without the `started` flip; process gap, no code effect.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Conformance: registry should attribute edits to design-target selectors; observed 0 conformant, 18 undeclared, 11 undelivered"
+detail = """
+Expected: `doctrine slice conformance 4` maps each touched path to its selector.
+Observed: every recorded path carries the `flakes/` prefix (git root is $HOME), so none match (ISS-005, known). Judged by agent instead: `git diff --stat 979e83ec..HEAD -- . ':!.doctrine'` touches README.md, darwin/{default,home}.nix, default.nix (D), features-test.nix, flake.nix, hosts.nix, hosts/Davids-MacBook-Pro→Draupnir, hosts/Draupnir/home.nix, justfile, overlays/agents.nix — all inside design-target selectors; no design-target went undelivered. One path outside every selector: modules/shared/cli/_packages/shell-ux.nix (F-3).
+"""
+disposition = "tolerated"
+response = """
+Tolerated: the registry's `flakes/` prefix misattribution is ISS-005 (known, open; boot rule "judge by agent"). Agent judgement in the detail: every touched source path lies in a design-target selector, none undelivered; the one outside path is ISS-007-owned (F-3). No selector change: adding `flakes/`-prefixed selectors would fork the convention ISS-005 should fix once.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tolerated: the registry's `flakes/` prefix misattribution is ISS-005 (known, open; boot rule "judge by agent"). Agent judgement in the detail: every touched source path lies in a design-target selector, none undelivered; the one outside path is ISS-007-owned (F-3). No selector change: adding `flakes/`-prefixed selectors would fork the convention ISS-005 should fix once.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Design sec-3 should record the darwin atuin carve-out; observed undocumented edits in darwin/home.nix and shell-ux.nix (ISS-007)"
+detail = """
+Expected: design sec-3 (Draupnir) describes the darwin home base as built.
+Observed: `darwin/home.nix` sets `programs.atuin.enable = lib.mkForce false`, and `modules/shared/cli/_packages/shell-ux.nix` (outside the slice selectors) makes atuin Linux-only in `common` (commits 6fb92cb4, 9dc80c1f; ISS-007). Not SL-004-caused (atuin 18.23.0 uncached for aarch64-darwin at nixpkgs 7fd4004). Linux drvs unchanged (position kept; audit drvs identical to baseline).
+Design note: the platform fact is expressed twice (program module and package list) because atuin is pre-existingly both a `programs.atuin` and a `home.packages` entry. ISS-007's restore must undo both.
+"""
+disposition = "design-wrong"
+response = """
+Design gap, not a code defect: the carve-out is correct and ISS-007 owns it. Reconcile edits design.md sec-3 to record the temporary darwin atuin carve-out (both sites) under ISS-007. No selector add: shell-ux.nix is ISS-007's touch, not SL-004 scope. Brief: Per-slice F-3.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Design gap, not a code defect: the carve-out is correct and ISS-007 owns it. Reconcile edits design.md sec-3 to record the temporary darwin atuin carve-out (both sites) under ISS-007. No selector add: shell-ux.nix is ISS-007's touch, not SL-004 scope. Brief: Per-slice F-3.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "README cut-over step 4 should check binaries Draupnir has; observed it lists atuin, which is disabled on darwin"
+detail = """
+Expected: README § Bootstrap macOS step 4 names binaries the darwin home installs.
+Observed: README.md:108 `# 4. in a new login shell: which emacs nvim atuin zoxide (nu login too)`; atuin is disabled on darwin (ISS-007), so the check fails by design. PHASE-06 notes record "atuin absent per ISS-007".
+"""
+disposition = "fix-now"
+response = """
+Fixed in audit: README.md:108 now reads `which emacs nvim zoxide (nu login too; atuin is off on darwin, ISS-007)`. ISS-007's restore should put atuin back in this line.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in audit: README.md:108 now reads `which emacs nvim zoxide (nu login too; atuin is off on darwin, ISS-007)`. ISS-007's restore should put atuin back in this line.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Design sec-4 cut-over should match the verified procedure; observed README is ahead (sudo, login shell, stale $SHELL)"
+detail = """
+Expected: design.md sec-4 (canonical for the slice) states the cut-over as executed and documented.
+Observed: PHASE-06 found and README now covers: `darwin-rebuild --list-generations` needs `sudo` (profile lock); between steps 2 and 3 nothing provides `nu`, and `/etc/profiles/per-user/david/bin/nu` is gone, so a terminal holding the old `$SHELL` (Ghostty) and the Mac-local `~/.config/zsh/login.zsh` must resolve nu by PATH (`command -v nu && exec -l nu`). Design sec-4 has none of this and still lists atuin implicitly via step 4.
+"""
+disposition = "design-wrong"
+response = """
+README is right; design sec-4 is stale. Reconcile edits design.md sec-4 cut-over: `sudo` on `--list-generations`; the nu gap between steps 2 and 3 and the PATH-lookup login hook / relaunch-terminal note; step 4 without atuin. Brief: Per-slice F-5.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+README is right; design sec-4 is stale. Reconcile edits design.md sec-4 cut-over: `sudo` on `--list-generations`; the nu gap between steps 2 and 3 and the PATH-lookup login hook / relaunch-terminal note; step 4 without atuin. Brief: Per-slice F-5.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "Design prose should match the implemented forms; observed three small mismatches"
+detail = """
+Expected: design sec-2/sec-4 match hosts.nix and justfile.
+Observed:
+- sec-2 item 6: `classesOf = meta: [(if meta.kind == "darwin" then "darwin" else "nixos")] ++ …`; code: `[meta.kind] ++ …` (kind values are the class names; notes PHASE-03). Equivalent.
+- sec-2 item 5: `homeModule = meta: …`; code: `homeModule = system: …`. Equivalent.
+- sec-4 drvs `legacyPackages` pick: code guards `if lp ? stdenv … else "none"` because flake-parts gives aarch64-darwin an empty key (notes PHASE-01).
+"""
+disposition = "design-wrong"
+response = """
+Equivalent forms; mirror the code. Reconcile edits design.md sec-2 items 5-6 and sec-4 legacyPackages pick. Brief: Per-slice F-6.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Equivalent forms; mirror the code. Reconcile edits design.md sec-2 items 5-6 and sec-4 legacyPackages pick. Brief: Per-slice F-6.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "PHASE-06 should run the documented cut-over; observed out-of-order switch, recovery exercised for real, documented step 2 never run"
+detail = """
+Expected (design sec-4, PHASE-06 EX-2/EX-3): build both, activate prebuilt system via `nix-env -p … --set` + `result-darwin/activate`, then `result-home/activate`; then a deliberate switch-generation and re-switch.
+Observed (notes PHASE-06): the user ran `just darwin-switch` first, so home packages left PATH before a home existed; the home build then failed on atuin (ISS-007); `darwin-rebuild --switch-generation` restored login (the last-resort path, unplanned). Completion: `just host=Draupnir darwin-switch` then `./result-home/activate` from the rolled-back generation. EX-1..EX-3 met (user-confirmed, VH-1), but the documented step 2 (manual nix-env/activate) and the step-2-failure path were never executed.
+Bearing: the procedure is one-time and its only target, Draupnir, is now cut over.
+"""
+disposition = "tolerated"
+response = """
+Tolerated: the VH criteria (PHASE-06 EX-1..EX-3) are met and user-confirmed; the out-of-order run demonstrated the real failure the design guarded against (RV-009 F-4) and its last-resort recovery, which is stronger evidence for that path than a staged rollback. The unexecuted manual step 2 is a one-time procedure whose only target is already cut over; re-staging it would mean deliberately breaking the working Mac. Accepted risk: if a second darwin host is ever cut over from embedded HM, step 2 is unproven as written.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tolerated: the VH criteria (PHASE-06 EX-1..EX-3) are met and user-confirmed; the out-of-order run demonstrated the real failure the design guarded against (RV-009 F-4) and its last-resort recovery, which is stronger evidence for that path than a staged rollback. The unexecuted manual step 2 is a one-time procedure whose only target is already cut over; re-staging it would mean deliberately breaking the working Mac. Accepted risk: if a second darwin host is ever cut over from embedded HM, step 2 is unproven as written.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "major"
+title = "Governance should describe standalone darwin Home Manager; observed ADR-003, ADR-001, DEC-006/007, RFC-001 still describe embedded darwin HM"
+detail = """
+Expected (design sec-6): after DEC-017 lands, accepted authority states both platforms run Home Manager standalone.
+Observed: ADR-003 §Context/§Decision ("on Linux", "Darwin continues to embed Home Manager", REV-001 paragraph on no projection); ADR-001 §Context (three evaluations, embedded darwin HM); DEC-006/DEC-007 wording ("or darwin", "no embedded-HM hook"); RFC-001 where-things-stand, W5/W8/W9. Planned for reconcile (design sec-6), not executed during phases. Also IMP-010's darwin `home` remark is obsolete.
+"""
+disposition = "design-wrong"
+response = """
+Planned reconcile work (design sec-6). One REV at reconcile: ADR-003 (three darwin passages), ADR-001 §Context. Wording edits DEC-006/DEC-007; RFC-001 direct edit (where-things-stand, W5 citation RV-001 F-7, W8, W9); IMP-010 darwin `home` remark. Brief: Governance F-8.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Planned reconcile work (design sec-6). One REV at reconcile: ADR-003 (three darwin passages), ADR-001 §Context. Wording edits DEC-006/DEC-007; RFC-001 direct edit (where-things-stand, W5 citation RV-001 F-7, W8, W9); IMP-010 darwin `home` remark. Brief: Governance F-8.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

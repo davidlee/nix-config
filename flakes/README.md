@@ -105,7 +105,7 @@ sudo ./result-darwin/activate
 #    colliding files moved aside to *.backup (home.backupFileExtension)
 ./result-home/activate
 
-# 4. in a new login shell: which emacs nvim atuin zoxide (nu login too)
+# 4. in a new login shell: which emacs nvim zoxide (nu login too; atuin is off on darwin, ISS-007)
 # 5. from now on: just home-switch
 ```
 

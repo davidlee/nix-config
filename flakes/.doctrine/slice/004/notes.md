@@ -6,21 +6,21 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · PHASE-06 (all phases complete, before audit) · 256da104
+fresh-as-of: 2026-10-15 · audit (RV-010 done) · 256da104
 
 ### Produced
 - PHASE-01..06 done — gate coverage + agents override, shared factory pieces, darwin evaluator-built pkgs + standalone Draupnir home, homeModule (gate passed, no fallback), justfile/README, cut-over on Draupnir (commits 7185e992..9dc80c1f; detail in ## Execution)
+- RV-010 — audit: 8 findings terminal, reconciliation brief written; RV-009 done (F-1, F-3, F-4, F-10 verified from phase evidence)
 - minted: ISS-007 — atuin uncached on aarch64-darwin, disabled there (two places); IMP-015 — `just test`/`gate` cannot run on the Mac
 - ISS-006 — agreed direction recorded: keep flake.lock tracked, Sleipnir owns lock updates
-- design deviations: legacyPackages pick guards the empty darwin entry (PHASE-01); README cut-over gained sudo, nu-path gap, login.zsh note (PHASE-06)
 
 ### Learned
 - mem.fact.nix.verify-closure-not-option — option off ≠ package out of closure; check `nix-store -qR`
 
 ### Open
 - QUE-001 — platform scope for features (ADR-005 D6 weaker on darwin)
-- RV-009 F-1, F-3, F-4 — instrument evidence now in ## Execution (PHASE-01/03/06); close at audit
-- DEC-016 — homeModule gate passed; its consequences need the outcome at reconcile
+- RV-010 F-7 — manual cut-over step 2 never executed (tolerated; one-time procedure)
+- DEC-016 — record the homeModule gate outcome in its consequences at reconcile
 
 ## Design review (RV-009)
 

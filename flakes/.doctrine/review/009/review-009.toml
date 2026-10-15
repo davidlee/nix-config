@@ -29,7 +29,7 @@ ref   = "SL-004"
 
 [[finding]]
 id = "F-1"
-status = "answered"
+status = "verified"
 severity = "blocker"
 title = "agents input is locked to a Linux-only path; darwin/Mac home would force it"
 detail = """
@@ -79,6 +79,13 @@ response = """
 Design rev 32 sec-4: agents_override joins home_override (system_override already has it), so every Mac evaluation (darwin-build/switch, home build, drvs, just test) overrides agents to the checkout; lands in phase 1. Lock drift itself: ISS-006.
 Criterion: on Draupnir, from a checkout at /Users/david/flakes where the locked path /home/david/flakes/agents does not exist, the justfile darwin-build for host Draupnir and the home activationPackage build for david@Draupnir both evaluate and build (cut-over step 1). Linux: just drvs shows home outputs identical after the override is added.
 Host-phase constraint: the Mac half runs in the human cut-over phase, after the justfile change and the Draupnir host and home exist; the Linux identity half runs in the phase that adds the override.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Demonstrated (SL-004 PHASE-01 EX-2/EX-3, PHASE-06 EX-1; audit RV-010). Linux half: agents_override in system_override and home_override; drvs identical to the pre-override snapshot (notes PHASE-01 VA-1). Mac half: user built `just host=Draupnir darwin-switch` and the david@Draupnir home from /Users/david/flakes, where the locked /home/david/flakes/agents does not exist (notes PHASE-06, VH-1). Audit re-run: `just drvs` Linux lines identical to baseline.
 """
 
 [[finding]]
@@ -157,7 +164,7 @@ note = "Re-recording Codex's round-4 verification (unchanged substance) after th
 
 [[finding]]
 id = "F-3"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "checks.factories accessor is invalid and the corrected form can pass vacuously"
 detail = """
@@ -207,9 +214,16 @@ Negative controls the check must reject, observed red: (1) today's mkDarwin, whi
 Host-phase constraint: the check is written first, before mkDarwin changes, so (1) is observed failing on the unchanged factory; (2)-(4) are throwaway mutations tried and reverted in the same phase.
 """
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Controls observed (SL-004 PHASE-03 EX-1, VA-1): (1) unchanged mkDarwin and (2) stale specialArgs.pkgs both fail "darwin module overlays do not reach module pkgs (ISS-004)"; (3) empty darwinConfigurations fails "no darwinConfigurations.Draupnir"; (4) classesOf ignoring home fails the classesOf check. Logs ~/.cache/sl-004/p03-control{1..4}.log. Green on final code: `just gate` (audit RV-010) builds checks.factories.
+"""
+
 [[finding]]
 id = "F-4"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "cut-over removes home packages before the replacement is built; no recovery path"
 detail = """
@@ -276,6 +290,13 @@ response = """
 Design rev 32 sec-4: build both artifacts first; activate the prebuilt system as darwin-rebuild.sh:241-248 does; standalone home activation restores packages even if darwin activation aborts; last resort darwin-rebuild --switch-generation to the generation noted as current, then host named explicitly.
 Criterion: on Draupnir, cut-over steps 1-5 complete; home packages resolve in a new login shell; then a switch-generation to the noted generation restores embedded HM packages, and a re-switch with host Draupnir returns to standalone.
 Host-phase constraint: the final, human-run phase on Draupnir, after all code phases and with network available; not runnable on Linux.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Demonstrated, not as staged (SL-004 PHASE-06 EX-2/EX-3, VH-1; RV-010 F-7). The real package gap occurred (darwin-switch before the home existed); `darwin-rebuild --switch-generation` restored login; re-switch with host=Draupnir plus result-home/activate reached standalone; new kitty login shell resolves emacs, nvim, zoxide from ~/.nix-profile. The manual nix-env/activate step 2 was not exercised (tolerated in RV-010 F-7). README gained the gaps found (sudo, nu/$SHELL hand-over).
 """
 
 [[finding]]
@@ -446,7 +467,7 @@ note = "Codex round 4 (recorded by Claude; Codex ran read-only). design.md:92 se
 
 [[finding]]
 id = "F-10"
-status = "answered"
+status = "verified"
 severity = "nit"
 title = "DEC-016's import-count rationale is stale"
 detail = """
@@ -468,6 +489,13 @@ act = "dispose"
 role = "responder"
 disposition = "fix-now"
 response = "Accepted. DEC-016 choice now names the three explicit imports (stable, nixpkgs-home, nixpkgs) and their differing policies as the reason no mkPkgs helper is introduced; the sibling mkPkgs alternative text fixed the same way."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Confirmed: DEC-016 choice names the three explicit imports (stable, nixpkgs-home, nixpkgs) with distinct policies; hosts.nix has exactly those three.
+"""
 
 # Findings are append-only `[[finding]]` tables, added by `review raise`.
 # Empty here at creation — a fresh review is Active, awaiting the raiser.

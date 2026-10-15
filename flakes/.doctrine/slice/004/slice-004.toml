@@ -1,7 +1,7 @@
 id = 4
 slug = "darwin-standalone-home"
 title = "Darwin standalone Home Manager and unified pkgs factories"
-status = "ready"
+status = "audit"
 created = "2026-10-15"
 updated = "2026-10-15"
 tags = []
