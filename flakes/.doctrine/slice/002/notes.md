@@ -67,16 +67,12 @@ fresh-as-of: 2026-10-15 · closed (done) · DEC-010..014 accepted
 - PHASE-01: feature.virt.capsule (9b5dbf79 move, 5f672bdb wiring); plan 18bb8bcf/c1ce8759
 - minted: CHR-012 — one file per feature (snooze fold, ADR-002 D3)
 - RV-005 — SL-002 audit: 4 findings (F-1/F-2 tolerated, ISS-005/CHR-010; F-3/F-4 aligned); brief: settle DEC-010..014, no REV
+- accepted: DEC-010..014 (reconcile, RV-005); slice closed 5d310c7c
 
 ### Learned
 - mem.fact.nix.sudo-rule-order — plain extraRules always follow nixpkgs' root/wheel rules
 - mem_01a13da6b8d075b49d87683632a39b43 — id-minting hang variant: SSH via port 443 + BatchMode
 
 ### Open
-- (accepted) DEC-010 — feature.virt.capsule, single file, virt appended
-- DEC-011 — Sleipnir selects it in its own features.nix
-- DEC-012 — ownership of the four pieces; nftables.enable stays host-wide
-- DEC-013 — sudo rule at plain priority
-- DEC-014 — verification: real-tree test, drv gate, one-off negative control
 - CHR-012 — follow-up before the next slice (W2): snooze to one file; tighten ADR-002 D3
 - HYP-001 — composition slot (ADR-004 D2–D3) not exercised here; carried to RFC-001 W2/W3
