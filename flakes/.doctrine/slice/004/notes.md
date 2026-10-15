@@ -145,3 +145,14 @@ are needed through PHASE-05 and must outlive the session and a reboot.
   --list-generations` needs `sudo` (profile lock); the cut-over needs a
   login-shell step (`/etc/shells` + `chsh` to `~/.nix-profile/bin/nu`); a
   rollback brings the per-user `nu` path back.
+- 2026-10-15, completion (user-confirmed, VH-1): after pulling `6fb92cb4`,
+  `just host=Draupnir darwin-switch` then `./result-home/activate` from the
+  rolled-back generation — the re-switch completing EX-3. In a fresh kitty
+  login shell emacs, nvim and zoxide resolve under `/Users/david/.nix-profile/bin`
+  (EX-2; atuin absent per ISS-007); hostname is `Draupnir`; `just home-switch`
+  (the newly installed home-manager CLI) succeeded. Builds ran from the Mac
+  checkout with the agents override (EX-1, RV-009 F-1 Mac half).
+- The "exec -l" failure came from the Mac-local, untracked
+  `~/.config/zsh/login.zsh` and from Ghostty, started under the old session,
+  keeping the old `$SHELL`; kitty was clean. README now covers both, and
+  `sudo` for `darwin-rebuild --list-generations` (profile lock).

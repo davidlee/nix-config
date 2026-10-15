@@ -94,7 +94,7 @@ just host=Draupnir darwin-build                    # -> ./result-darwin
 nix build "path:$PWD#homeConfigurations.\"david@Draupnir\".activationPackage" \
   --override-input emacs "path:$PWD/emacs" --override-input agents "path:$PWD/agents" \
   --no-write-lock-file --out-link result-home
-darwin-rebuild --list-generations | grep current
+sudo darwin-rebuild --list-generations | grep current
 
 # 2. activate the prebuilt system (what darwin-rebuild switch does after building).
 #    Embedded home-manager leaves: home packages leave PATH, dotfile links stay.
@@ -111,6 +111,13 @@ sudo ./result-darwin/activate
 
 Steps 2 and 3 build nothing, but step 2 is not offline: homebrew updates and
 upgrades on activation (`darwin/brew.nix`), so run the cut-over online.
+
+Between steps 2 and 3 nothing provides `nu`, and the old home's path,
+`/etc/profiles/per-user/david/bin/nu`, is gone for good. Anything that names it
+breaks: a terminal started before the cut-over keeps it in `$SHELL` until it is
+quit and relaunched, and the zsh login hook (`~/.config/zsh/login.zsh`, outside
+the repo) must hand over by PATH lookup, which survives both layouts and a
+rollback: `command -v nu >/dev/null && exec -l nu`.
 
 **Recovery runs forward.** The standalone home does not depend on the system
 activation finishing.
