@@ -26,7 +26,7 @@
       ../../modules/nixos/avahi.nix
       ../../modules/nixos/bluetooth.nix
       ../../modules/nixos/boot.nix
-      ../../modules/nixos/capsule.nix
+      ../../features/virt/capsule.nix
       ../../modules/nixos/cargo.nix
       ../../modules/nixos/env.nix
       ../../modules/nixos/greeter.nix
