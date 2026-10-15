@@ -6,13 +6,19 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-15 · planned (ready, before PHASE-01) · f62fda8c
 
 ### Produced
+- design locked (run revision 39) after RV-009 (F-1..F-10); plan PHASE-01..06 (commit f62fda8c)
+- minted: ISS-006 — agents/dev inputs locked as local paths; DEC-016 amended — stable as module argument
 
 ### Learned
+- mem.fact.nix.callpackage-autoargs — pkgs attrs leak into callPackage defaulted args; module-arg checks
+- mem.pattern.flakes.codex-design-review — running Codex reviews; recording its acts on the RV by proxy
 
 ### Open
+- QUE-001 — platform scope for features (ADR-005 D6 weaker on darwin)
+- RV-009 F-1, F-3, F-4 — instrument-routed; close after phases (PHASE-01/03/06 criteria)
 
 ## Design review (RV-009)
 

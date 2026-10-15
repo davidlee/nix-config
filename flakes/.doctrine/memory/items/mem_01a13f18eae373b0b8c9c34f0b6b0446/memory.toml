@@ -1,0 +1,46 @@
+memory_uid = "mem_01a13f18eae373b0b8c9c34f0b6b0446"
+memory_key = "mem.fact.nix.callpackage-autoargs"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Attrs added to pkgs leak into callPackage's defaulted arguments"
+summary = "callPackage fills every argument, defaulted or not, from the package set by name; a pkgs.stable overlay breaks kicad/guile-cairo (stable ? true). Pass non-package values as module args (_module.args), not pkgs attrs."
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["hosts.nix"]
+globs = []
+commands = []
+tags = ["nix", "overlays"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "ec01cf15b721ae045d8a69cff3c7117bf1d9e79e"
+ref_name = "refs/heads/main"
+checkout_state_id = "3d6c5db6ce6e220ae927578cab2adbc5092968f90bbe48b501246c6232f172e2"
+base_commit = "f62fda8ca41194bf97c077b69ad34ba3a3e6c389"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-009"
+

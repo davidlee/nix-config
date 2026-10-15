@@ -1,0 +1,46 @@
+memory_uid = "mem_01a13f18eafa70d7939837b7d8f2b8da"
+memory_key = "mem.pattern.flakes.codex-design-review"
+schema_version = 1
+memory_type = "pattern"
+status = "active"
+title = "Codex adversarial design review via codex-companion"
+summary = "Run codex-companion task (background, --effort high), resume-last for later rounds; it cannot write the doctrine review ledger, so record its verdicts on the RV yourself, attributed."
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["review", "codex"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "ec01cf15b721ae045d8a69cff3c7117bf1d9e79e"
+ref_name = "refs/heads/main"
+checkout_state_id = "11751d7056c77abc133c411d202020151e9edb129ac2b8cce6ef2a6133ba702e"
+base_commit = "f62fda8ca41194bf97c077b69ad34ba3a3e6c389"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-009"
+
