@@ -1,0 +1,55 @@
+memory_uid = "mem_01a13eae028b76f19bf987845bb45fc5"
+memory_key = "mem.system.flakes.home-worktree"
+schema_version = 1
+lifespan = "identity"
+memory_type = "system"
+status = "active"
+title = "The git worktree is $HOME; ~/flakes is a subdirectory of it"
+summary = "~/flakes is a subdirectory of the git worktree $HOME (~/.git -> ~/.cfg); repo-wide git ops act on all of ~"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = []
+globs = ["**"]
+commands = ["git", "doctrine slice"]
+tags = ["git", "footgun"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "d48c0d849ab34eaa3b1d9215bdea8c2c5f65bdcb"
+ref_name = "refs/heads/main"
+checkout_state_id = "f29e111050069a28bee5ecbc3daf11a9e2a09efc002a346f23f136abda1d9fcb"
+base_commit = "a64eb416744989df3f77d21ce6de5a0c5dd0cde5"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "high"
+weight = 0
+
+[[relation]]
+label = "related"
+target = "mem_01a13d36ea7272c3891c4d2eff8dd468"
+
+[[relation]]
+label = "related"
+target = "mem_01a13da6b89772768dfd55c3c5fc352d"
+
+[[relation]]
+label = "related"
+target = "ISS-005"
+
