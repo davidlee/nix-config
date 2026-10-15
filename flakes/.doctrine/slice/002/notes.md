@@ -58,7 +58,7 @@ Baseline and after-captures: `.doctrine/state/slice/002/{baseline,after}/`
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · audit complete (RV-005)
+fresh-as-of: 2026-10-15 · closed (done) · DEC-010..014 accepted
 
 ### Produced
 - SL-002 scope, design (sec-1..6) and RV-004; RFC-001 W1 is now designed
@@ -73,7 +73,7 @@ fresh-as-of: 2026-10-15 · audit complete (RV-005)
 - mem_01a13da6b8d075b49d87683632a39b43 — id-minting hang variant: SSH via port 443 + BatchMode
 
 ### Open
-- DEC-010 — feature.virt.capsule, single file, virt appended
+- (accepted) DEC-010 — feature.virt.capsule, single file, virt appended
 - DEC-011 — Sleipnir selects it in its own features.nix
 - DEC-012 — ownership of the four pieces; nftables.enable stays host-wide
 - DEC-013 — sudo rule at plain priority
