@@ -154,9 +154,6 @@
     dconf.enable = true;
     _1password.enable = true;
 
-    appimage.binfmt = true;
-    appimage.enable = true;
-
     _1password-gui = {
       enable = true;
       polkitPolicyOwners = [username];

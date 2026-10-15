@@ -26,6 +26,7 @@ fresh-as-of: 2026-10-16 · started · acb8a403 (PHASE-03 done)
 - IMP-016 — apps taxonomy, `apps.cad`
 - IMP-017 — site-bound config outside DEC-019's machine class
 - RFC-001 — W4 class rename to machine config, at reconcile
+- PHASE-04 EX-5 — flatpak stays in the drv closure via plasma-workspace / xdg-desktop-portal; leaves system-path only (qualify at audit)
 
 ## Design triage (exploring, 2026-10-15)
 
@@ -103,6 +104,7 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
 - `~/.cache/multihost-gate/sl005/phase-02/` — after PHASE-02; PHASE-03's baseline
 - `~/.cache/multihost-gate/sl005/phase-03/` — after PHASE-03; PHASE-04's baseline
 - `~/.cache/multihost-gate/sl005/phase-03-podman/` — probe of `coverage."Sleipnir+podman"`
+- `~/.cache/multihost-gate/sl005/phase-04/` — after PHASE-04; the slice's final state
 
 ## PHASE-01 (2026-10-16)
 
@@ -177,3 +179,31 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
 - README: tree listing, intro line, coverage paragraph, and the
   rootless-only / exclusivity paragraph deferred from PHASE-02.
 - `just gate` green.
+
+## PHASE-04 (2026-10-16)
+
+- Red first (EN-2): `testSleipnirSelectsMigrated` extended with
+  `non-nix-packages.{appimage,flatpak}#nixos`; failed before the area existed.
+- Gate vs phase-03 (EX-4, VA-1): `drvs` differs on Sleipnir and its coverage
+  twins (`Sleipnir+openrgb`, `Sleipnir+podman`) only; home, Draupnir,
+  packages, legacyPackages, templates identical. `drvs-sets` 574 → 572.
+  Probe: packages (456), groups, kernelParams, root options, link map all
+  identical. `just coverage` evaluates both targets.
+- Negative controls (EX-5), temporary `coverage."tmp-no{appimage,flatpak}"`
+  in hosts.nix, removed (`git diff -- hosts.nix` empty):
+  - appimage off: `appimage-run` (and its fhsenv/bwrap/desktop drvs) leaves
+    the drv closure; `programs.appimage.{enable,binfmt}` false. `libappimage`
+    stays: a build input elsewhere, not appimage-run.
+  - flatpak off: `services.flatpak.enable` false; flatpak leaves
+    `system-path` (no longer installed or on PATH). **It stays in the drv
+    closure** as a library: its referrers there are `plasma-workspace` and
+    `xdg-desktop-portal`. Same shape as PHASE-02's qemu source tarball.
+    EX-5's "absent from the closure" holds for system-path only; qualify at
+    audit.
+- EX-6: no `features.hardware`, `features.virt`, `features.apps.appimage` or
+  `features.apps.flatpak` reads under flakes/ (outside `.doctrine/`).
+- README (EX-7): `apps.{appimage,flatpak}` row out; tree listing gains
+  `non-nix-packages`; intro line lists every SL-005 feature; flag table
+  matches `modules/features.nix`.
+- `just gate` green.
+

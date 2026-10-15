@@ -302,8 +302,13 @@ in
 
     # Features migrated from legacy flags (SL-005): NixOS half only, each.
     testSleipnirSelectsMigrated = {
-      expr = sleipnirSelects ["virt.qemu#nixos" "virt.docker#nixos"];
-      expected = [[true false] [true false]];
+      expr = sleipnirSelects [
+        "virt.qemu#nixos"
+        "virt.docker#nixos"
+        "non-nix-packages.appimage#nixos"
+        "non-nix-packages.flatpak#nixos"
+      ];
+      expected = [[true false] [true false] [true false] [true false]];
     };
 
     # podman is an off feature (DEC-022): Sleipnir leaves it unselected, and

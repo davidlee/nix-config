@@ -90,8 +90,6 @@
     # is enough for nix's fetch; no gui/svn needed.)
     gitMinimal
     alejandra
-    appimage-run
-    flatpak
     cachix
     statix
     deadnix

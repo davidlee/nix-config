@@ -61,9 +61,7 @@
       # shared:
       ../../modules/nixos/cli.nix
     ]
-    ++ lib.optional features.apps.appimage ../../modules/nixos/appimage.nix
     ++ lib.optional features.desktop.cosmic ../../modules/nixos/cosmic.nix
-    ++ lib.optional features.apps.flatpak ../../modules/nixos/flatpak.nix
     ++ lib.optional features.fonts ../../modules/nixos/fonts.nix
     ++ lib.optional features.games.enable ../../modules/nixos/games.nix
     ++ lib.optional features.games.gamescope ../../modules/nixos/gamescope.nix

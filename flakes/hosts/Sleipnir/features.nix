@@ -24,11 +24,7 @@
     llama-cpp = false;
     rocm = false;
   };
-  apps = {
-    appimage = true;
-    flatpak = true;
-    cad = true;
-  };
+  apps.cad = true;
   fonts = true;
   printing = true;
   speech = false;

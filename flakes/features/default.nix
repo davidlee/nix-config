@@ -15,4 +15,8 @@
     name = "virt";
     value = import ./virt.nix;
   }
+  {
+    name = "non-nix-packages";
+    value = import ./non-nix-packages.nix;
+  }
 ]

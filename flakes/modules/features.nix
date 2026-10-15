@@ -50,8 +50,6 @@ in {
     };
 
     apps = {
-      appimage = enabledByDefault "AppImage binfmt support";
-      flatpak = enabledByDefault "Flatpak";
       cad = enabledByDefault "CAD and 3D printing tools (home)";
     };
 
