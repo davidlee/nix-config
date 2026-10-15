@@ -229,8 +229,10 @@ feature's `requires` entry is not selected, when a selected feature has no
 module for any of the host's evaluations (a home-only feature on the Mac),
 or when any hand-written `assertions` entry in an outer module is false.
 Structural errors fail every host, because they are checked over every
-feature: a missing, duplicate or dotted name, an unknown key, an
-unknown `requires` path, or a legacy flag at a feature's path. The modules
+feature: an area or feature that is not a record (a path listed where
+`(import …)` was meant), a missing, empty, duplicate or dotted name,
+`requires` that is not a list of strings, an unknown key, an unknown
+`requires` path, or a legacy flag at a feature's path. The modules
 of unselected features are never evaluated, so a broken module blocks no
 host; only the record itself (its keys, `name`, `requires`) is read.
 

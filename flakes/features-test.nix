@@ -194,21 +194,50 @@ in
     };
 
     testUnnamedFeatureFails = {
-      expr = map (f: resolves {tree = [(area "a" [f])];}) [nixos (feat "x" nixos)];
-      expected = [false true];
+      expr = map (f: resolves {tree = [(area "a" [f])];}) [nixos (feat 5 nixos) (feat "x" nixos)];
+      expected = [false false true];
     };
 
-    # Where the feature is written, relative to the flake, and which it is.
+    testEmptyNameFails = {
+      expr = map (tree: resolves {inherit tree;}) [
+        [(area "" [(feat "x" hm)])]
+        [(area "a" [(feat "" hm)])]
+        [(area "a" [(feat "x" hm)])]
+      ];
+      expected = [false false true];
+    };
+
+    # Shapes the later checks cannot read; each must fail as a throw.
+    testMalformedShapeFails = {
+      expr = map (tree: resolves {inherit tree;}) [
+        [{value = [];}]
+        [(area 1 [])]
+        [(area "a" {x = hm;})]
+        [(area "a" [(feat "x" (hm // {requires = "a.x";}))])]
+        [(area "a" [(feat "x" (hm // {requires = [1];}))])]
+        [(area "a" [(feat "x" (hm // {requires = ["a.x"];}))])]
+      ];
+      expected = [false false false false false true];
+    };
+
+    # Each projected module's _file names, relative to the flake, the line
+    # where its feature is named, and which feature it is: inline and spilled.
     testProvenance = {
       expr = let
         r = resolve {
-          tree = one nixos;
-          classes = ["nixos"];
-          modules = [(on "a.x")];
+          tree = real;
+          classes = both;
+          modules = [workstation ./hosts/Sleipnir/features.nix];
         };
+        namedAt = m: let
+          at = builtins.match "(.*):([0-9]+) \\((.*)\\.(.*)#.*\\)" m._file;
+          line = lib.elemAt (lib.splitString "\n" (builtins.readFile (./. + "/${lib.elemAt at 0}"))) (lib.toInt (lib.elemAt at 1) - 1);
+        in
+          lib.hasInfix "name = \"${lib.elemAt at 3}\";" line;
+        find = tag: lib.findFirst (m: logical m == tag) null r.modules.nixos;
       in
-        map (m: builtins.match "features-test\\.nix:[0-9]+ \\(a\\.x#nixos\\)" m._file != null) r.modules.nixos;
-      expected = [true];
+        map (tag: namedAt (find tag)) ["session.snooze#nixos" "virt.capsule#nixos"];
+      expected = [true true];
     };
 
     testProfileSelectsSnooze = {

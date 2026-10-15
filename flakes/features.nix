@@ -87,28 +87,38 @@ lib: {
   # names, descriptor key names, `requires` and option declarations, never a
   # class value or a config value (ADR-002 D4), so all are safe to compute
   # together; `checks` looks paths up by splitting on ".", so it must not run
-  # until these pass. Everything after `badRecords` reads `name`, and a missing
-  # attribute aborts uncatchably, so a feature that is not a record, or has no
-  # name, is reported alone.
-  badRecords = concatMap (area:
-    lib.concatLists (lib.imap1 (i: f:
-      if !lib.isAttrs f
-      then ["feature #${toString i} in area ${area.name} is not a record; list a feature's own file as (import ./${area.name}/<name>.nix)"]
-      else lib.optional (!(f ? name && lib.isString f.name)) "feature #${toString i} in area ${area.name} has no name")
-    area.value))
-  tree;
+  # until these pass. Everything after `badShapes` reads area and feature
+  # names, area lists and `requires` lists, and a missing attribute or a type
+  # error aborts uncatchably, so a shape those reads cannot take is reported
+  # alone.
+  strings = xs: lib.isList xs && lib.all lib.isString xs;
+  badShapes = lib.concatLists (lib.imap1 (j: area:
+    if !(lib.isAttrs area && lib.isString (area.name or null) && lib.isList (area.value or null))
+    then ["area #${toString j} is not { name = <string>; value = [ feature … ]; }"]
+    else
+      lib.concatLists (lib.imap1 (i: f:
+        if builtins.isPath f
+        then ["feature #${toString i} in area ${area.name} is a path; list a feature's own file as (import ./${area.name}/<name>.nix)"]
+        else if !lib.isAttrs f
+        then ["feature #${toString i} in area ${area.name} is not a record"]
+        else if !lib.isString (f.name or null)
+        then ["feature #${toString i} in area ${area.name} has no string name"]
+        else lib.optional (!strings (f.requires or [])) "feature ${area.name}.${f.name}: requires is not a list of strings")
+      area.value))
+  tree);
   areas = map (a: a.name) tree;
   paths = map (r: r.path) records;
   duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
-  dotted = lib.hasInfix ".";
+  # A name is one segment of a dotted path: not empty, no dot.
+  badName = n: n == "" || lib.hasInfix "." n;
   structural =
-    if badRecords != []
-    then badRecords
+    if badShapes != []
+    then badShapes
     else
       map (a: "duplicate area ${a}") (duplicates areas)
       ++ map (p: "duplicate feature ${p}") (duplicates paths)
-      ++ map (a: "area name \"${a}\" contains \".\"") (filter dotted areas)
-      ++ map (r: "feature name \"${r.name}\" in area ${r.area} contains \".\"") (filter (r: dotted r.name) records)
+      ++ map (a: "area name \"${a}\" is empty or contains \".\"") (filter badName areas)
+      ++ map (r: "feature name \"${r.name}\" in area ${r.area} is empty or contains \".\"") (filter (r: badName r.name) records)
       ++ concatMap (r: let
         bad = lib.subtractLists ["name" "nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
       in
@@ -126,8 +136,9 @@ lib: {
   bullets = lib.concatMapStrings (m: "- ${m}\n");
 
   # Where a feature is written, as "<file>:<line>" relative to the flake, from
-  # the position of its `name`. Relative, never a store path: that changes
-  # with every commit.
+  # the position of its `name`. Relative, for readable errors; this holds for
+  # records written in this flake. A record from elsewhere (a flake input)
+  # keeps its absolute path, as removePrefix leaves a non-match unchanged.
   root = "${toString ./.}/";
   origin = f: let
     pos = builtins.unsafeGetAttrPos "name" f;
