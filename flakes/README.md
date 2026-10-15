@@ -105,7 +105,7 @@ hosts/<host>/features.nix ──imports──> features/profiles/*.nix
 |------|------|
 | `modules/features.nix` | legacy flag declarations and defaults |
 | `features.nix` | resolver — `lib.evalModules`, once, per host (tests: `features-test.nix`) |
-| `features/` | the feature tree: area indexes, feature descriptors, profiles |
+| `features/` | the feature tree: one file per area, features inline, profiles |
 | `hosts/<hostname>/features.nix` | that host's profiles and overrides (optional) |
 
 Deliberately **not** a NixOS option. The three configs evaluate independently —
@@ -169,31 +169,46 @@ A missing host file means the host takes every default unchanged.
 
 #### Feature tree
 
-A feature is a plain attrset whose values are ordinary modules, one per
-evaluation it touches:
+A feature is the unit of selection: a plain attrset that names itself and
+holds an ordinary module for each evaluation it touches, written inline,
+halves together. It is never itself a module.
 
 ```nix
-# features/session/snooze/default.nix — a descriptor, never itself a module
-{
-  nixos = ./nixos.nix;         # system half
-  homeManager = ./home.nix;    # user half
-  # darwin = …;  requires = [ "<area>.<name>" ];   (both optional)
-}
+# features/session.nix
+[
+  {
+    name = "snooze";
+    homeManager = _: { … };      # user half: the nag
+    nixos = _: { … };            # system half: the wake alarm
+    # darwin = …;  requires = [ "<area>.<name>" ];   (both optional)
+  }
+]
 ```
 
-Features are grouped into **areas** and reached only from written lists,
-never by listing directories. `features/default.nix` lists the areas, each
-`features/<area>/default.nix` lists its features, both as
-`{ name; value; }` pairs, and list order is projection order:
+Features are grouped into **areas**, and reached only from written lists,
+never by listing directories. An area is a namespace with one file,
+`features/<area>.nix`: the list of its features. `features/default.nix`
+lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix               [ hardware session virt ]
-  hardware/  openrgb.nix
-  session/   snooze/{default,nixos,home}.nix  snooze/bin/
-  virt/      capsule.nix
-  profiles/  workstation.nix
+  default.nix         [ hardware session virt ]
+  hardware.nix        [ openrgb ]
+  session.nix         [ snooze ]
+  session/            snooze-nag  snooze-nag-test     assets, beside their feature
+  virt.nix            [ (import ./virt/capsule.nix) ]
+  virt/capsule.nix    a feature big enough for its own file
+  profiles/           workstation.nix
 ```
+
+- **Own file.** A feature moves to `features/<area>/<name>.nix` when it would
+  dominate its area file (about 100 lines is a prompt to reconsider, not a
+  rule). The file holds the whole record, every half; never split a feature
+  by platform. Moving one between files touches no host or profile, though
+  relative paths inside it may change.
+- **Assets** (scripts, tests, data) sit near their feature. Add no directory
+  that does not help navigation.
+- **Errors** name both places: `features/session.nix:20 (session.snooze#nixos)`.
 
 Each feature gets an option `feature.<area>.<name>.enable`, default `false`.
 A **profile** is an outer module that sets those with `mkDefault`; a host
@@ -214,10 +229,10 @@ feature's `requires` entry is not selected, when a selected feature has no
 module for any of the host's evaluations (a home-only feature on the Mac),
 or when any hand-written `assertions` entry in an outer module is false.
 Structural errors fail every host, because they are checked over every
-descriptor: a duplicate or dotted name, an unknown descriptor key, an
+feature: a missing, duplicate or dotted name, an unknown key, an
 unknown `requires` path, or a legacy flag at a feature's path. The modules
 of unselected features are never evaluated, so a broken module blocks no
-host.
+host; only the record itself (its keys, `name`, `requires`) is read.
 
 Darwin's embedded home-manager receives no projected modules, so a feature
 with only a `homeManager` half cannot reach the Mac (IMP-012).
@@ -357,9 +372,10 @@ A child's `MemoryLow` is capped by its parent's, so `user-1000` must cover `sess
 
 ### Snooze (bedtime ratchet)
 
-`features/session/snooze/` — `home.nix` (the nag), `nixos.nix` (the wake
-alarm), and `bin/snooze-nag` with its test. Selected by the `workstation`
-profile. Nags the machine to bed each night, and wakes it via RTC alarm.
+`features/session.nix` — the `snooze` feature: its home half (the nag) and
+its system half (the wake alarm); `features/session/snooze-nag` with its
+test. Selected by the `workstation` profile. Nags the machine to bed each
+night, and wakes it via RTC alarm.
 
 A fixed-time suspend has one failure mode: you turn it off, and then you stay
 up. So nothing suspends on a clock any more. At 23:20 `snooze-nag.timer` starts
@@ -401,7 +417,7 @@ from a dismissal.
 07:00, which needs a system timer. Suspending does not — an active session may
 `systemctl suspend` unprivileged — so it lives next to the person being asked.
 
-Bedtime and the wake time are in the `let` blocks at the top of each module;
+Bedtime and the wake time are in the `let` blocks at the top of each half;
 the ladder, the absence window and the night window are `SNOOZE_*` defaults at
 the top of the script.
 
