@@ -1,0 +1,50 @@
+memory_uid = "mem_01a141a259d872e2b4c4bda2167d95e4"
+memory_key = "mem.fact.nix.whisper-cpp-rocm-targets"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "whisper-cpp takes its ggml backend from llama-cpp; pin ROCm targets on llama-cpp"
+summary = 'whisper-cpp.override no longer accepts rocmGpuTargets; override its llama-cpp input with rocmGpuTargets = ["gfx1201"]'
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["overlays/whisper-rocm.nix"]
+globs = []
+commands = []
+tags = ["nix", "rocm"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "84648658052812dfb1088a75523621c87fe3f1be"
+ref_name = "refs/heads/main"
+checkout_state_id = "8103d392a89412c14187cb16524b46af19f7bacdcd6e2761950353ec4aa9fc4d"
+base_commit = "d63c6ef5580bf2e83f09b599b6b605252b0f6fe0"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-013"
+
+[[source]]
+kind = "slice"
+ref = "SL-006"
+

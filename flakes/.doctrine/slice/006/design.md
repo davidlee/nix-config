@@ -168,7 +168,7 @@ A sorted list cannot show who wins a collision, and several merged lists are ord
 
 **Gate per phase** (`mem.pattern.flakes.drv-gate`): `just drvs`, `just drvs-sets`, `just probe`, `just coverage` and `just gate` (tests + treefmt, which runs deadnix) before the first edit and after each phase, each phase compared with the one before (RV-013 F-3).
 
-**Merge order.** An ordering-only diff is accepted when every probe measure is identical. Any changed drv the probe does not explain is `nix-diff`ed: its `env` must be equal once lists are sorted, or it is red. If a built artefact changes (a collision winner flipped, `mem.fact.nix.systempath-collision-first-wins`), stop and `/consult`: preferred fix is removing the duplicate at its source; fallback is `mkOrder` on that one definition.
+**Merge order.** An ordering-only diff is accepted when every probe measure is identical, or when the only changed measure is a built artefact whose derivation `nix-diff` shows differs only by list order (met in PHASE-03 and PHASE-04 by `.manpath`, man-cache over man-paths; RV-014 F-1). Any changed drv the probe does not explain is `nix-diff`ed: its `env` must be equal once lists are sorted, or it is red. If a built artefact changes (a collision winner flipped, `mem.fact.nix.systempath-collision-first-wins`), stop and `/consult`: preferred fix is removing the duplicate at its source; fallback is `mkOrder` on that one definition.
 
 <!-- doctrine:section sec-8 -->
 ## Phases and verification
@@ -187,13 +187,13 @@ Home, Draupnir, packages, legacyPackages and templates lines are identical at ev
 
 **Resolver tests** (`features-test.nix`), red first, in the phase that migrates each feature:
 - `testSleipnirSelectsMigrated` gains each on-feature with its halves: `[nixos, home]` per tag (e.g. `games.mangohud` → `[false true]` on its `homeManager` tag; `desktop.sway` → both).
-- `testSleipnirLeavesOff`: llama-cpp, rocm, speech, sunshine unselected.
+- `testOffFeatures`: llama-cpp, rocm, speech, sunshine unselected.
 - `testGamescopeRequiresSteam`: the real tree without the host file, `modules = [(on "games.gamescope")]`, fails; its twin with `games.steam` also on resolves (RV-013 F-4: the host file's plain definitions would make a `false` conflict, failing for the wrong reason).
 - `testFlagsHideSelection` loses its `flags ? games` element in phase 1 (the games flags go); phase 5 replaces it (Retiring the machinery). Its `:303` comment ("NixOS half only, each") is rewritten when home halves join `testSleipnirSelectsMigrated` (RV-013 F-3, F-9).
 
 **Negative controls** (one-off evals, not committed; `mem.fact.nix.verify-closure-not-option`): deselect each on-feature in turn with `lib.mkForce false` (the host's selections are plain definitions; RV-013 F-4) and check its signature is gone — `programs.steam.enable` false and steam absent from system-path (steam, deselected together with gamescope, which requires it); `gamemode` group absent from effective groups (gamescope); mangohud absent from `home.packages` (mangohud); `services.mpd.enable` false (mpd); the `dictate` user unit absent (dictate); `services.printing.enable` false (printing); `static-web-server` unit absent (webserver); openscad absent (cad); `programs.sway.enable`, `programs.niri.enable`, `services.desktopManager.cosmic.enable`, `programs.mango.enable` false, and for kde `plasma-desktop` absent from system-path (one per compositor); `clockface-font` absent from `fonts.packages` (fonts). For sway also: `waybar` absent from system-path (IMP-004).
 
-**Close:** `grep -rEn 'features\.(games|ai|desktop|apps|fonts|printing|speech|webserver|dictate|mpd|sunshine)\b|specialArgs\.features|selection\.flags|modules/features\.nix'` over the flake (excluding `.doctrine/`) finds nothing; `just gate` green (RV-013 F-9).
+**Close:** `git grep -En 'features\.(games|ai|desktop|apps|fonts|printing|speech|webserver|dictate|mpd|sunshine)\b|specialArgs\.features|selection\.flags|modules/features\.nix'` over tracked files under `flakes/` (excluding `.doctrine/`; the flake sees only tracked files) finds nothing; `just gate` green (RV-013 F-9).
 
 <!-- doctrine:section sec-9 -->
 ## Code impact and docs
@@ -220,6 +220,8 @@ Home, Draupnir, packages, legacyPackages and templates lines are identical at ev
 | `README.md` | below |
 
 **README.** "Feature flags" becomes one mechanism: the "Legacy flags" subsection and flag table go; the intro and diagram lose `flags ─> specialArgs.features`; the tree listing shows every area; "have moved here" becomes a statement that every optional module is a feature. Section pointers updated: Dictation (`features/audio.nix`, `features/audio/dictate`), Printing (`features/services.nix`), llama.cpp ("Gated by `ai.llama-cpp`" → `feature.ai.llama-cpp`, selected in `hosts/Sleipnir/features.nix`; drop the `ai.rocm` flag wording). "Parked is not a feature" loses "then promote to a flag" (→ "to a feature").
+
+IMP-004's note landed in PHASE-04 (plan EX-5), which also removed the README flag material ahead of PHASE-05 (RV-014 F-6).
 
 **At reconcile** (REV for governance): ADR-001 D2's "While the legacy flags remain…" and its closing `specialArgs.features` sentence become history; ADR-005 D1's "Transitional" clause goes; RFC-001 W3 row records SL-006 and W3 done. IMP-003 notes gamemode and caddy done (jackaudio remains); IMP-004 notes the fold-in (prune remains); IMP-006 notes W3 complete.
 

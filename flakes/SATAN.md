@@ -56,7 +56,7 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `panopticon-sway` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
-| `wpm-daemon`, `wpm-archive` | `~/.config/waybar/wpm-status.py` → `~/.local/state/satan/log/wpm` | always / 04:00 | `sway.nix:79-105` |
+| `wpm-daemon`, `wpm-archive` | `~/.config/waybar/wpm-status.py` → `~/.local/state/satan/log/wpm` | always / 04:00 | `features/desktop/sway.nix:106-150` |
 
 Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 (file does not exist — point it here); `dl-satan-*` names and "default

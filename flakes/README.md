@@ -133,7 +133,7 @@ activation finishing.
   packages, and sets the hostname back to `Davids-MacBook-Pro`, so name the
   host explicitly (`just host=Draupnir …`) until the next switch.
 
-### Feature flags
+### Features
 
 Optional modules are features: plain data under `features/`, selected by
 options and projected straight into each evaluation's module list. The
@@ -222,7 +222,7 @@ imports profiles and overrides any of them with a plain definition:
 ```nix
 # hosts/Sleipnir/features.nix
 {
-  imports = [../../features/profiles/workstation.nix];   # snooze on
+  imports = [../../features/profiles/workstation.nix];   # snooze, docker, fonts, …
   # feature.session.snooze.enable = false;               # would turn it off
   feature.virt.capsule.enable = true;                    # a host property, no profile
 }

@@ -1,0 +1,296 @@
+id    = 14
+slug  = "reconciliation-review-of-sl-006"
+title = "reconciliation review of SL-006"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-006 over 605b5208..d63c6ef5 in the primary tree: slice conformance (read past ISS-005), every plan EX/VT/VA criterion against code and the gate snapshots, design invariants and RV-013 fixes, stale-reference sweep over tracked flakes/, and the design's reconcile obligations. Re-ran just gate, doctrine check gate, just coverage and the close grep — all green. Nine findings, none blocking; all terminal.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-006"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Gate: expected every probe measure identical (design § Gate and probe; PHASE-03 EX-6, PHASE-04 EX-4); observed .manpath moved, accepted without consult"
+detail = """
+Expected: design § Gate and probe — accepted when every probe measure is identical; a changed built artefact → stop and /consult. PHASE-03 EX-6 / PHASE-04 EX-4 say "every probe measure identical".
+Observed: home/home-files-links `.manpath` moved in PHASE-03 and PHASE-04 (gfzjffpa → jcx1mql8). The orchestrator accepted it as ordering-only: nix-diff shows man-cache differs only through man-paths, which differs only by package order (openscad in P03; cava/waybar dedupe in P04). Content equality of the built man-cache was not proven. The slice objective itself allows "unchanged or proven ordering-only", so the design's gate wording is stricter than the slice it serves.
+"""
+disposition = "design-wrong"
+response = """
+The gate rule in design § Gate and probe is stricter than the slice objective ("unchanged or proven ordering-only") it serves. The acceptance was sound on evidence (nix-diff: man-cache differs only via man-paths, which differs only by order). Reconcile amends design § Gate and probe to admit nix-diff-proven order-only changes to a built artefact, naming `.manpath` as the case met. Brief: Per-slice F-1. The probe false positive itself is IMP-019.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The gate rule in design § Gate and probe is stricter than the slice objective ("unchanged or proven ordering-only") it serves. The acceptance was sound on evidence (nix-diff: man-cache differs only via man-paths, which differs only by order). Reconcile amends design § Gate and probe to admit nix-diff-proven order-only changes to a built artefact, naming `.manpath` as the case met. Brief: Per-slice F-1. The probe false positive itself is IMP-019.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Reconcile obligations open: ADR-001 D2, ADR-005 D1, RFC-001 W3, IMP-003, IMP-006 still describe legacy flags"
+detail = """
+Expected: design § At reconcile schedules governance updates once the flags are gone.
+Observed: ADR-001 D2 still says "While the legacy flags remain…" and keeps its closing `specialArgs.features` sentence; ADR-005 D1 keeps its "Transitional" clause; RFC-001 W3, IMP-003, IMP-006 notes not yet updated. Expected at this stage — recorded so reconcile carries them.
+"""
+disposition = "design-wrong"
+response = """
+Governance text lags the implementation, as the design schedules. Reconcile writes the updates via REV (ADR-001, ADR-005) and direct backlog/RFC note edits (RFC-001 W3, IMP-003, IMP-006). Brief: Governance F-2.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Governance text lags the implementation, as the design schedules. Reconcile writes the updates via REV (ADR-001, ADR-005) and direct backlog/RFC note edits (RFC-001 W3, IMP-003, IMP-006). Brief: Governance F-2.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Stale reference: SATAN.md:59 cites deleted sway.nix:79-105"
+detail = """
+Expected: no tracked reference to deleted module paths (PHASE-05 close grep intent).
+Observed: SATAN.md:59 cites `sway.nix:79-105`; the wpm units now live at features/desktop/sway.nix:104-135. The close grep missed it because it searched full paths, not bare basenames.
+"""
+disposition = "fix-now"
+response = """
+SATAN.md:59 now cites `features/desktop/sway.nix:106-150` (the home systemd block holding wpm-daemon, wpm-archive and its timer).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+SATAN.md:59 now cites `features/desktop/sway.nix:106-150` (the home systemd block holding wpm-daemon, wpm-archive and its timer).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "Stale docstring: features/audio/dictate:19 says 'set by dictate.nix'; deferral not captured durably"
+detail = """
+Expected: deferred cleanup held by a backlog item.
+Observed: features/audio/dictate:19 still names dictate.nix. Deliberately deferred (editing the script moves its store path, which every phase gate forbade), but only notes.md mentions it. Same class: ~/.config/umbriel/binds.toml:45 (outside flakes/) names dictate.nix.
+"""
+disposition = "follow-up"
+response = """
+Deferred deliberately: editing the script moves its store path, which this slice's set-preserving gates forbade. Captured as CHR-013 (links SL-006), with the umbriel binds comment.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Deferred deliberately: editing the script moves its store path, which this slice's set-preserving gates forbade. Captured as CHR-013 (links SL-006), with the umbriel binds comment.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "sway-easyfocus listed twice in features/desktop/sway.nix:15,19; not captured in IMP-004"
+detail = """
+Expected: known prune candidate recorded where the prune lives (IMP-004).
+Observed: duplicate pre-dates the slice (old modules/nixos/sway.nix:12,16), moved verbatim as the design requires. notes.md calls it an IMP-004 prune candidate; IMP-004's body does not mention it. IMP-004 body's first paragraph ("hyprpicker … should move") also contradicts its later paragraphs.
+"""
+disposition = "fix-now"
+response = """
+IMP-004 body now records the sway-easyfocus duplicate as part of its prune, and its contradictory opening sentence is reworded to defer to the SL-006 paragraphs.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+IMP-004 body now records the sway-easyfocus duplicate as part of its prune, and its contradictory opening sentence is reworded to defer to the SL-006 paragraphs.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "Design text vs plan/code: test name testSleipnirLeavesOff vs testOffFeatures; close grep 'grep -r' vs git grep"
+detail = """
+Expected: design.md matches what was built.
+Observed: design § Phases names `testSleipnirLeavesOff`; plan and code use `testOffFeatures` (stronger: non-vacuous, absorbs SL-005's podman tests). Design § 8 close grep says `grep -r` over the flake; PHASE-05 ran `git grep` (tracked only) — correct, since the flake sees only tracked files and `grep -r` would hit untracked user files (review.features.local.md, brief.features.local.md). Also: design § 9 schedules the IMP-004 note for reconcile; plan PHASE-04 EX-5 pulled it into the phase, and PHASE-04 did part of PHASE-05's README work early.
+"""
+disposition = "design-wrong"
+response = """
+Design text is behind the plan, which was the better call each time. Reconcile edits design.md: test name → testOffFeatures; close grep → `git grep` over tracked files (excluding .doctrine/); note that the IMP-004 note and part of PHASE-05's README work landed in PHASE-04. Brief: Per-slice F-6.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Design text is behind the plan, which was the better call each time. Reconcile edits design.md: test name → testOffFeatures; close grep → `git grep` over tracked files (excluding .doctrine/); note that the IMP-004 note and part of PHASE-05's README work landed in PHASE-04. Brief: Per-slice F-6.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "README: '# snooze on' understates the workstation profile; '#### Feature tree' now the whole section"
+detail = """
+Expected: README accurate after flags retired.
+Observed: README ~:225 example comment `# snooze on` — the profile also turns on docker, appimage, flatpak, fonts, dictate. With legacy flags gone, `### Feature flags` contains only `#### Feature tree`; the title is kept because hosts.nix:13 cites it (PHASE-05 sheet A5).
+"""
+disposition = "fix-now"
+response = """
+README example comment now reads `# snooze, docker, fonts, …`. The `### Feature flags` title stays: hosts.nix:13 cites it, and renaming is the human's call (raised to them at audit).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+README example comment now reads `# snooze, docker, fonts, …`. The `### Feature flags` title stays: hosts.nix:13 cites it, and renaming is the human's call (raised to them at audit).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "Gate tooling: emacs-overlay unpinned under home_override; probe flags .manpath on any reorder; probe home mode cannot target coverage.*"
+detail = """
+Expected: the gate compares like with like without manual re-evaluation.
+Observed: PHASE-01 home lines drifted b58afd9 → 08c72b0 mid-capture; every later phase compared with a manual --override-input pin. bin/gate-probe reports `.manpath` on any home.packages reorder (false positive, see F-1). `just probe` hard-codes Sleipnir and cannot target a coverage.* home. mem.pattern.flakes.drv-gate does not mention `just probe` or the pin.
+"""
+disposition = "follow-up"
+response = """
+Tooling improvement outside this slice's scope; captured as IMP-019 (links SL-006) with all three items and the memory update.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Tooling improvement outside this slice's scope; captured as IMP-019 (links SL-006) with all three items and the memory update.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "nit"
+title = "Closed slices' verification keywords stale: SL-001 VT-1 testFlagsHideSelection, SL-005 VT-3 gate-probe.sh"
+detail = """
+Expected: design says these references "become historical".
+Observed: as designed. Minor inconsistency: PHASE-05 kept `testFlagCollisionFails`'s name because SL-001 cites it, while `testFlagsHideSelection` (also SL-001) was replaced. Error text now "is also an outer option" per DEC-025 ("keep the check, reworded") — consistent.
+"""
+disposition = "aligned"
+response = """
+As designed: those references "become historical". Keeping testFlagCollisionFails' name avoids breaking a still-matching closed-slice keyword; testFlagsHideSelection was replaced by design. The reworded error follows DEC-025.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+As designed: those references "become historical". Keeping testFlagCollisionFails' name avoids breaking a still-matching closed-slice keyword; testFlagsHideSelection was replaced by design. The reworded error follows DEC-025.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

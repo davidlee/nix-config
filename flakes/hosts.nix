@@ -10,7 +10,7 @@
 # Each host's entry point is hosts/<host>/config.nix. Each host's features
 # are resolved once (./features.nix) and every factory for that host gets the
 # same selection: the modules the feature tree projects for the factory's
-# class are appended to its `modules`. See README § Feature flags.
+# class are appended to its `modules`. See README § Features.
 #
 # The rule (DEC-016): a factory supplies host identity (`args`) plus one
 # injected module; the evaluator builds pkgs. Local package fixes are modules

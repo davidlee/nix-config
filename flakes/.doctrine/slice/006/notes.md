@@ -20,17 +20,19 @@ and the phase-4 desktop diff, the largest surface — covered by the audit.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · ready (design locked, plan authored) · 164ffce7
+fresh-as-of: 2026-10-16 · audit (RV-014 concluded) · d63c6ef5
 
 ### Produced
-- DEC-023, DEC-024, DEC-025 (accepted; shape SL-006)
-- RV-013 (design review, concluded; F-1..F-11 verified)
-- ISS-008 (niri home half / umbriel coupling; sleipnir-doctor wpmPython)
-- IMP-004 notes (fold-in narrowed to waybar; prune list)
+- PHASE-01..05 done — games, ai, audio, services, apps, desktop to the
+  feature tree; flag machinery retired (commits 1e8833be..d63c6ef5)
+- RV-014 (audit; reconciliation brief for /reconcile)
+- minted: CHR-013 — stale dictate.nix comments; IMP-019 — gate probe pin and
+  .manpath normalisation
+- DEC-023, DEC-024, DEC-025; RV-013 (design review)
 
 ### Learned
-- (none recorded yet; candidate memory at close: whisper-cpp now takes its
-  ggml backend from llama-cpp — pin ROCm targets via llama-cpp.override)
+- mem.fact.nix.whisper-cpp-rocm-targets — pin ROCm targets on llama-cpp
+- mem.pattern.flakes.drv-gate — needs `just probe` and the overlay pin (IMP-019)
 
 ### Open
 - IMP-003 (jackaudio), IMP-004 (prune), IMP-016, ISS-008, QUE-001
