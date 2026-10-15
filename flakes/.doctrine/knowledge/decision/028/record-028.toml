@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 28
+slug = "placement-of-non-base-nixos-config-sl-007"
+title = "Placement of non-base NixOS config (SL-007)"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-007 classifies every modules/nixos module as base, feature, machine config (DEC-019) or host-only."
+choice = "Features: audio.pipewire (audio.nix, rtkit, rtprio limits, snd-* modules, audio/jackaudio groups; workstation), hardware.bluetooth, hardware.qmk, hardware.tablet (opentabletdriver + uinput), hardware.logitech (host, DEC-011), services.postgresql (host), services.webserver gains firewall ports 80/443. desktop.core is workstation-selected; desktop.greeter, compositor.*, shell.noctalia host-selected. Machine config: radeon (with the video group), kernel blacklist, i2c, the enp8s0 profile, nix max-jobs/cores/MemoryHigh, the swapfile. Sleipnir host config: stateVersion, oom.nix, ControlD DNS and gai.conf (site/account-bound, IMP-017, IMP-002), overlays (W9), the rtcwake sudo rule."
+alternatives = ["oom as a workstation feature", "DNS and gai.conf in the base", "radeon as hardware.amdgpu"]
+rationale = "Host properties stay with the host (DEC-024, DEC-011); site- and Sleipnir-tuned values stay out of the base until IMP-017 parametrises them; the GPU is the machine's part."
+consequences = ["Follow-ups: oom parametrisation, i2c investigation. W7 decides the VM's DNS."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-007"
