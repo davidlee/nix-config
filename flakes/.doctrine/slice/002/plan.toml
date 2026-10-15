@@ -1,0 +1,71 @@
+# Implementation plan for SL-002 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-002"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber, so the id
+# sequence goes non-monotonic after a split and that is expected. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms). The prefix is
+# the only mode marker; there is no mode field. Reference a criterion from
+# another phase phase-qualified (PHASE-03/EX-8) — bare EX-8 is ambiguous.
+[[phase]]
+id        = "PHASE-01"
+name      = "Move capsule onto the feature tree"
+objective = """
+Make capsule's host side the tree feature feature.virt.capsule, which owns all
+of its pieces (design sec-2, sec-3), selected in hosts/Sleipnir/features.nix.
+modules/nixos/capsule.nix moves to features/virt/capsule.nix with git mv, and
+takes on the vm-capsule firewall port, the capsule-forward nftables table,
+nftables.enable, the nft read sudo rule and the assigner user. Their comments
+come along and now refer to places in the same file. network.nix, security.nix
+(including its unused username argument) and user.nix lose those pieces.
+Sleipnir's config.nix loses the import. features/virt/default.nix is new and
+features/default.nix appends virt. testSleipnirSelectsCapsule is added, red
+first. Comments that name the old path (flake.nix, SATAN.md) and README
+§ Feature tree are updated. Every derivation stays identical, except an
+ordering-only change in Sleipnir's sudoers (sec-4).
+"""
+entrance_criteria = [
+  { id = "EN-1", text = "Design locked (RV-004 conducted); plan committed." },
+  { id = "EN-2", text = "On the unedited tree, the outputs of just drvs and just drvs-sets and Sleipnir's rendered sudoers (security.sudo.configFile) are saved under .doctrine/state/slice/002/ as the baseline. With them: the HEAD and dirty status of each local override input (oubliette, agents, emacs)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "testSleipnirSelectsCapsule was seen red as [false false], an assertion failure and not an eval error, with the tree entry in place and before the selection line. It is green after." },
+  { id = "EX-2", text = "just test is green." },
+  { id = "EX-3", text = "just drvs matches the baseline for every configuration. Where Sleipnir differs, just drvs-sets matches, and the sudoers diff is exactly the line 3/4 swap allowed by design sec-4." },
+  { id = "EX-4", text = "The negative control (design sec-5) was run with the selection off, its five absences were recorded in the slice notes, and it was reverted." },
+  { id = "EX-5", text = "The mutation check was done: without the selection line the test goes red. Reverted." },
+  { id = "EX-6", text = "No capsule piece is left in the base modules or in Sleipnir's config.nix, and no path in the repo names modules/nixos/capsule.nix." },
+  { id = "EX-7", text = "nix fmt is clean on every touched file, and the commit has no flake.lock or emacs-overlay re-lock in it." },
+]
+verification = [
+  { id = "VT-1", expects = "real-tree test: Sleipnir's selection projects capsule's NixOS half and no home half", test_file = "features-test.nix", keywords = ["testSleipnirSelectsCapsule", "features/virt/capsule#nixos", "hosts/Sleipnir/features.nix"], waived = false },
+  { id = "VT-2", expects = "the feature file owns every capsule piece", test_file = "features/virt/capsule.nix", keywords = ["capsule-perimeter", "microvm.host.enable", "\"vm-capsule\".allowedTCPPorts", "capsule-forward", "nft list table inet capsule-forward", "assigner", "nftables.enable"], waived = false },
+  { id = "VT-3", expects = "virt area index lists capsule, NixOS half only", test_file = "features/virt/default.nix", keywords = ["name = \"capsule\"", "nixos = ./capsule.nix"], waived = false },
+  { id = "VT-4", expects = "the area list appends virt", test_file = "features/default.nix", keywords = ["name = \"virt\"", "import ./virt"], waived = false },
+  { id = "VT-5", expects = "Sleipnir selects capsule", test_file = "hosts/Sleipnir/features.nix", keywords = ["feature.virt.capsule.enable = true"], waived = false },
+  { id = "VA-1", text = "Identity gate (EX-3): compare just drvs, just drvs-sets and the sudoers rendering with the EN-2 baseline, one after the other." },
+  { id = "VA-2", text = "Absence (EX-6): grep -n 'capsule\\|assigner' over modules/nixos/{network,security,user}.nix and hosts/Sleipnir/config.nix finds no config, and grep -rn 'modules/nixos/capsule' over the repo (excluding .doctrine) finds nothing. security.nix no longer takes username, and deadnix and statix are clean." },
+  { id = "VA-3", text = "Negative control (EX-4), the five absences from design sec-5, evaluated and recorded in notes." },
+  { id = "VA-4", text = "Hygiene (EX-7): nix fmt clean; git diff --cached shows no flake.lock and no emacs/flake.lock." },
+]
+specs        = []
+requirements = []
