@@ -31,3 +31,6 @@
 # The trunk delivery ref dispatch advances to / the close gate checks against.
 # [dispatch]
 # deliver-to = "refs/heads/main"
+[reservation]
+allow-local-fallback = true
+reach = "local"

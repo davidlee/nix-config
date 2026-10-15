@@ -7,6 +7,9 @@ __pycache__/
 *.pyc
 REFACTOR.md
 EXECUTION.md
+.agents/skills/*
+.pi/agents/*
+.pi/extensions/*
 .doctrine/state/
 .doctrine/agents/
 .doctrine/hymns/
