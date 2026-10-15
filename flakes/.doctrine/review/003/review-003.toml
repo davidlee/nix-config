@@ -19,6 +19,13 @@ note = """
 Conformance audit of SL-001 at 5ba01615 against design sec-1..8, plan EX/VT/VA for PHASE-01..03, slice tests 1–9, RV-001/RV-002 outcomes. Gates re-run this pass: just test green (checks.features + snooze-nag, dictate, nudge tests); alejandra/statix/deadnix clean on touched .nix; just drvs and drvs-sets identical to the EN-2 baseline for all four configurations (override inputs unchanged since baseline); just coverage one drvPath, differing from Sleipnir's; flake.lock clean. Path conformance and VT attribution checked by hand (ISS-005). No code defects; six findings, all design/governance staleness or tooling.
 """
 
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Second pass: F-7 (flag/feature path collision), raised from an external second opinion the user relayed and agreed to. Fixed in features.nix with a paired-twin test; gates re-run green and identical to baseline. Passes 1 and 2 together cover the whole slice.
+"""
+
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-001"
 
@@ -207,6 +214,39 @@ Plan criteria are immutable, so the keyword cannot be edited and is not a reconc
 [[finding.turn]]
 act = "verify"
 role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "Expected a feature path never to coincide with a legacy flag path; nothing enforces it"
+detail = """
+Expected (ADR-001 D2 amendment, proposed at reconcile): no path is both a legacy flag and a feature.
+Observed: features.nix separates them only by namespace (flags top-level, features under `feature.`). Nothing stops a flag `hardware.openrgb` from returning beside `feature.hardware.openrgb`, so the stated invariant would be prose only.
+Source: external second opinion on the reconcile ADR wording, relayed by the user 2026-10-15; user +1 to enforcing it as a structural check.
+Suggested: structural check over every record: no option is declared at `<area>.<name>` in the outer evaluation; fails every host, like the other D4 structural checks.
+"""
+disposition = "fix-now"
+response = """
+fix-now. User directed 2026-10-15 ("I'm leaning +1 to both of these (with the structural check)"). Add the check to features.nix's `structural` list with a paired-twin test in features-test.nix; mirror in design sec-3/sec-6, README § Feature tree, and ADR-001 D2 / ADR-002 D4 via the reconcile REV.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User directed 2026-10-15 ("I'm leaning +1 to both of these (with the structural check)"). Add the check to features.nix's `structural` list with a paired-twin test in features-test.nix; mirror in design sec-3/sec-6, README § Feature tree, and ADR-001 D2 / ADR-002 D4 via the reconcile REV.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "testFlagCollisionFails red→green; just test green; lint clean; drvs/drvs-sets identical to EN-2 baseline; coverage drvPath unchanged; flake.lock restored."
 
 # Findings are append-only `[[finding]]` tables, added by `review raise`.
 # Empty here at creation — a fresh review is Active, awaiting the raiser.

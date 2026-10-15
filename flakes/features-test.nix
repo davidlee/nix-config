@@ -97,6 +97,16 @@ in
       expected = [false true false true];
     };
 
+    # A legacy flag at a feature's path; the twin's flag sits beside it.
+    testFlagCollisionFails = {
+      expr = map (flag:
+        resolves {
+          tree = [(area "a" [(feat "x" hm)])];
+          modules = [{options = lib.setAttrByPath flag (lib.mkEnableOption "flag");}];
+        }) [["a" "x"] ["a" "y"]];
+      expected = [false true];
+    };
+
     testFalseAssertionFails = {
       expr = map (assertion:
         resolves {

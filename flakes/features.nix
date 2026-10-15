@@ -79,12 +79,14 @@ lib: {
     records;
   };
 
-  inherit (lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;}) config;
+  outer = lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;};
+  inherit (outer) config;
 
   # Structural errors, over every record, selected or not. They read only
-  # names, descriptor key names and `requires` (ADR-002 D4), so all are safe
-  # to compute together; `checks` looks paths up by splitting on ".", so it
-  # must not run until these pass.
+  # names, descriptor key names, `requires` and option declarations, never a
+  # class value or a config value (ADR-002 D4), so all are safe to compute
+  # together; `checks` looks paths up by splitting on ".", so it must not run
+  # until these pass.
   areas = map (a: a.name) tree;
   paths = map (r: r.path) records;
   duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
@@ -99,6 +101,8 @@ lib: {
     in
       lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
     records
+    # A flag at a feature's path would be a second switch for one concept.
+    ++ map (r: "feature ${r.path} is also a flag") (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
     ++ concatMap (r:
       map (p: "unknown feature ${p} in ${r.path}.requires")
       (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
