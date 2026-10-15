@@ -17,10 +17,13 @@ system_override := "--override-input oubliette git+file:///home/david/dev/oublie
 # emacs.nix edit lands without push + `nix flake update emacs`.
 home_override := "--override-input emacs path:" + justfile_directory() + "/emacs " + agents_override
 
-flake := "."
+# The Mac needs an explicit path: reference, because the dotfiles repository
+# at ~/.git is bare and git discovery fails there ("this operation must be
+# run in a work tree"). Linux keeps `.`.
+flake := if os() == "macos" { "path:" + justfile_directory() } else { "." }
 
-# configurations are keyed by hostname (hosts/<host>/); override with host=…
-host := `hostname`
+# configurations are keyed by short hostname (hosts/<host>/); override with host=…
+host := `hostname -s`
 
 default: update-local fmt doctor choose
 
@@ -70,10 +73,10 @@ system-build: check-flake-root
   sudo ./run.sh build {{host}} {{system_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  home-manager switch --flake '.#david@{{host}}' {{home_override}}
+  home-manager switch --flake '{{flake}}#david@{{host}}' {{home_override}}
 
 home-build: check-flake-root #check-no-root-pub
-  home-manager build --flake '.#david@{{host}}' {{home_override}}
+  home-manager build --flake '{{flake}}#david@{{host}}' {{home_override}}
 
 doctor:
   sleipnir-doctor
@@ -114,15 +117,14 @@ drvs-sets: check-flake-root
 
 # pick: config -> string. `set` hashes a package list independent of order.
 _drvs output pick overrides:
-  @nix eval --raw '.#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let set = ps: "${toString (builtins.length ps)} ${builtins.hashString "sha256" (builtins.concatStringsSep " " (builtins.sort builtins.lessThan (map (p: p.drvPath) ps)))}"; pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${pick cs.${n}}\n") (builtins.attrNames cs))'
+  @nix eval --raw '{{flake}}#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let set = ps: "${toString (builtins.length ps)} ${builtins.hashString "sha256" (builtins.concatStringsSep " " (builtins.sort builtins.lessThan (map (p: p.drvPath) ps)))}"; pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${pick cs.${n}}\n") (builtins.attrNames cs))'
 
-# Explicit path references bypass the bare dotfiles repository in ~/.git.
 # Build first as the login user; only activation needs root.
-darwin-build host="Davids-MacBook-Pro":
-  nix build 'path:{{justfile_directory()}}#darwinConfigurations.{{host}}.system' {{home_override}} --out-link result-darwin --no-write-lock-file
+darwin-build host=host:
+  nix build '{{flake}}#darwinConfigurations.{{host}}.system' {{home_override}} --out-link result-darwin --no-write-lock-file
 
-darwin-switch host="Davids-MacBook-Pro": (darwin-build host)
-  sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake 'path:{{justfile_directory()}}#{{host}}' {{home_override}} --no-write-lock-file
+darwin-switch host=host: (darwin-build host)
+  sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake '{{flake}}#{{host}}' {{home_override}} --no-write-lock-file
 
 everything: fmt update-system update-home system-switch home-switch
 

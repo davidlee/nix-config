@@ -9,10 +9,11 @@
     # Jailed agents (formerly `pub`). Follows-anchor for panopticon/satan/
     # satan-attrd's (nested) `pub` inputs, so they share this one copy
     # instead of vendoring their own. Also consumed directly by
-    # overlays/agents.nix (linux only — nothing on darwin forces this input).
+    # overlays/agents.nix, which every system and home evaluation applies.
     #
-    # Locked from GitHub (portable, like `emacs`); `home_override` in the
-    # Justfile switches to the local checkout so an agents/ edit lands
+    # Meant to be locked from GitHub (portable, like `emacs`), but the lock
+    # holds a local path (ISS-006); `agents_override` in the Justfile, on
+    # every recipe, switches to the local checkout so an agents/ edit lands
     # without push + `nix flake update agents`.
     agents.url = "github:davidlee/nix-config?dir=flakes/agents";
 

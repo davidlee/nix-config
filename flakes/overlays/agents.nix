@@ -7,5 +7,5 @@
 # force the target pkgs fixpoint from inside the overlay, recursing through
 # stdenv bootstrap. The agent packages come from agents' own pkgs and are
 # independent of final/prev. Being a function of system, it is not a valid
-# `overlays.*` flake output, so flake.nix applies it directly.
+# `overlays.*` flake output, so hosts.nix applies it directly.
 {inputs}: system: inputs.agents.lib.${system}.agentsOverlay {}

@@ -58,24 +58,73 @@ Never `git stash` under `~`: it acts on the whole home directory, and with
 
 ### Bootstrap macOS
 
-Lix and Homebrew must already be installed. The `Davids-MacBook-Pro` target
-uses the existing `david` account and leaves the installer-managed Lix in
-place (`nix.enable = false`). This replaces the previous `fusillade` target.
+Lix and Homebrew must already be installed. The `Draupnir` target uses the
+existing `david` account and leaves the installer-managed Lix in place
+(`nix.enable = false`). Like Sleipnir, it has a nix-darwin system and a
+standalone home-manager home (`homeConfigurations."david@Draupnir"`), each
+switched on its own.
 
-From `~/flakes`:
+From `~/flakes`, with `just` installed:
 
 ```sh
-nix build 'path:/Users/david/flakes#darwinConfigurations.Davids-MacBook-Pro.system' --override-input emacs path:/Users/david/flakes/emacs --out-link result-darwin --no-write-lock-file
-sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake 'path:/Users/david/flakes#Davids-MacBook-Pro' --override-input emacs path:/Users/david/flakes/emacs --no-write-lock-file
+just darwin-switch     # system: build as the login user, then darwin-rebuild as root
+just home-switch       # home
 ```
 
-With `just` installed, `just darwin-switch` runs both steps. Both use the local
-`emacs/` flake so package-list fixes apply without a push and input update.
+The recipes pick the host by `hostname -s`; pass `host=Draupnir` while the
+machine still has another name. Every recipe overrides two inputs with local
+checkouts: `emacs/`, so package-list fixes apply without a push, and
+`agents/`, which `flake.lock` pins at a Linux-only path (ISS-006).
 
-Use an explicit `path:` reference because the dotfiles repository at `~/.git`
-is bare; automatic Git discovery otherwise fails with “this operation must
-be run in a work tree”. `sudo -H` gives root its own home directory and avoids
-the `$HOME` ownership warning. Only activation needs root.
+On the Mac the flake is referenced as `path:<justfile dir>`, because the
+dotfiles repository at `~/.git` is bare; automatic Git discovery otherwise
+fails with “this operation must be run in a work tree”. `sudo -H` gives root
+its own home directory and avoids the `$HOME` ownership warning. Only
+activation needs root.
+
+#### Cut-over from embedded home-manager
+
+Earlier generations ran home-manager inside the darwin system. The first
+switch to a standalone home builds everything first, then activates only those
+prebuilt store paths:
+
+```sh
+# 1. build both, switch nothing; note the current system generation
+just host=Draupnir darwin-build                    # -> ./result-darwin
+nix build "path:$PWD#homeConfigurations.\"david@Draupnir\".activationPackage" \
+  --override-input emacs "path:$PWD/emacs" --override-input agents "path:$PWD/agents" \
+  --no-write-lock-file --out-link result-home
+darwin-rebuild --list-generations | grep current
+
+# 2. activate the prebuilt system (what darwin-rebuild switch does after building).
+#    Embedded home-manager leaves: home packages leave PATH, dotfile links stay.
+sudo nix-env -p /nix/var/nix/profiles/system --set "$(readlink result-darwin)"
+sudo ./result-darwin/activate
+
+# 3. first standalone home generation; orphaned links are cleaned and
+#    colliding files moved aside to *.backup (home.backupFileExtension)
+./result-home/activate
+
+# 4. in a new login shell: which emacs nvim atuin zoxide (nu login too)
+# 5. from now on: just home-switch
+```
+
+Steps 2 and 3 build nothing, but step 2 is not offline: homebrew updates and
+upgrades on activation (`darwin/brew.nix`), so run the cut-over online.
+
+**Recovery runs forward.** The standalone home does not depend on the system
+activation finishing.
+
+- Step 2 fails (for example in the homebrew stage): run step 3 anyway; it
+  restores home packages and links. Fix the cause and re-run step 2 with the
+  same `result-darwin`.
+- Step 3 fails (for example a collision with an existing `*.backup`): fix it
+  and re-run `./result-home/activate`. Nothing is built or fetched.
+- Last resort: `sudo darwin-rebuild --switch-generation <noted>`, not
+  `--rollback`, which picks the generation below the current one, not
+  necessarily the noted one. It restores embedded home-manager and its
+  packages, and sets the hostname back to `Davids-MacBook-Pro`, so name the
+  host explicitly (`just host=Draupnir …`) until the next switch.
 
 ### Feature flags
 
@@ -116,9 +165,7 @@ outside all of them, and injecting the result keeps one source of truth.
 #### Legacy flags
 
 The flags reach NixOS and darwin as the `features` specialArg, and standalone
-home-manager as `extraSpecialArgs.features`. Darwin's embedded home-manager
-does **not** get them: `darwin/default.nix` passes it only `inputs`, `pkgs`,
-`username` and `hostname`.
+home-manager, on either platform, as `extraSpecialArgs.features`.
 
 Being a specialArg is also what lets `features` gate `imports`: imports are
 resolved before `config` exists, so a real option could not do this.
@@ -236,8 +283,10 @@ feature: an area or feature that is not a record (a path listed where
 of unselected features are never evaluated, so a broken module blocks no
 host; only the record itself (its keys, `name`, `requires`) is read.
 
-Darwin's embedded home-manager receives no projected modules, so a feature
-with only a `homeManager` half cannot reach the Mac (IMP-012).
+A darwin host with a home has a `homeManager` evaluation too, so a feature's
+`homeManager` half reaches the Mac (IMP-012). The flip side: a Linux-only
+`homeManager` half selected there is not refused, because it does land
+somewhere (QUE-001).
 
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such
@@ -269,10 +318,10 @@ entry point.
 | kind | output | home-manager |
 |------|--------|--------------|
 | `nixos` | `nixosConfigurations.<host>` | standalone, `homeConfigurations."david@<host>"` from `home.nix`, when `home = true` |
-| `darwin` | `darwinConfigurations.<host>` | darwin module (`darwin/`) |
+| `darwin` | `darwinConfigurations.<host>` | standalone, as for `nixos`, when `home = true` |
 
 Adding a host means adding a directory. The justfile selects the
-configuration by `hostname`; override with `just host=<other> system-build`
+configuration by `hostname -s`; override with `just host=<other> system-build`
 (or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
 `homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
 The roadmap this is part of is RFC-001 (`doctrine show RFC-001`).

@@ -113,3 +113,18 @@ are needed through PHASE-05 and must outlive the session and a reboot.
   `homeModule` (first in `modules`) carries allowUnfree, the overlays
   `[lem claude-desktop agents llm-agents]` and stableModule. `just drvs`
   identical to PHASE-03 for every line (`~/.cache/sl-004/p04-drvs`).
+
+### PHASE-05 (justfile activation and docs)
+
+- justfile: `flake` is `path:<justfile dir>` on macOS, `.` elsewhere, used by
+  home-*, darwin-* and `_drvs`; `host := hostname -s`; darwin recipes default
+  to `host`. Comments fixed in `flake.nix` (agents input; cites ISS-006 for the
+  path lock) and `overlays/agents.nix`.
+- README: Bootstrap macOS rewritten for Draupnir with the sec-4 cut-over and
+  forward recovery; Legacy flags, Feature tree and Hosts no longer describe
+  embedded darwin home-manager.
+- The one remaining `Davids-MacBook-Pro` (README recovery) is deliberate: a
+  rollback restores that hostname.
+- Not done (per design scope): `test`/`gate` still use `.#`, so `just gate`
+  will not run on the Mac. Candidate follow-up.
+- drvs identical to PHASE-04 (`~/.cache/sl-004/p05-drvs`); gate green.
