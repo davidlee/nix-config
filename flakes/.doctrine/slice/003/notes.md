@@ -62,21 +62,25 @@ A further pass would probe only those two, and the gates already do.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · audit (RV-008 done; handoff to reconcile) · 0237ff67
+fresh-as-of: 2026-10-15 · done · fe344b2a
 
 ### Produced
 
 DEC-015 (accepted) · RV-006 (design pass, waived) · RV-007 (audit pass 1) ·
 RV-008 (audit pass 2, 8 findings verified; its brief supersedes RV-007's) ·
-IMP-013 · commits df85b6b5, bc08438b, c693a33b, fbb27f68, ce91ecc8, 0237ff67.
+REV-002 (done) · DEC-015 supersedes DEC-003, DEC-010 · CHR-011, CHR-012
+resolved · IMP-013 · commits df85b6b5, bc08438b, c693a33b, fbb27f68,
+ce91ecc8, 0237ff67, c9d37087, fe344b2a.
 
 ### Learned
 
 No new memory: the tryEval limit is already held
 (mem_01a13e129e64705d91fb05f77f97ba7e). Plan lessons in § Audit (RV-007).
+Consciously rejected as memory: the /audit `verified`-disposition drift is a
+framework issue, recorded in RV-008 § Synthesis; slug symlinks are tracked
+(the handover said otherwise).
 
 ### Open
 
-- RV-008 § Reconciliation Brief: not yet executed.
 - ISS-005, CHR-010 (tooling; tolerated, RV-007 F-1, F-2).
 - IMP-013 (single tree walk).
