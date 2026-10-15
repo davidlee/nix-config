@@ -79,3 +79,23 @@ and F-3 and F-4 are aligned.
   host-wide; plain sudo priority; real-tree test, drv gate and one-off
   negative control. Reconcile should accept them.
 - HYP-001 stays `proposed` (not exercised; carried to RFC-001 W2/W3).
+
+## Reconciliation Outcome
+
+### Direct edits applied
+- None. The brief asked for none (F-3, F-4 aligned).
+
+### REVs completed
+- None. No spec or governance item.
+
+### Knowledge records settled
+- DEC-010..014 moved from `proposed` to `accepted`. The user approved this by
+  invoking `/reconcile` after the audit asked for a go-ahead (2026-10-15).
+- HYP-001 stays `proposed`; RFC-001 W2/W3 carries it.
+
+### Withdrawn / tolerated
+- F-1 tolerated: conformance and VT attribution fail on the path-root
+  mismatch, which ISS-005 owns.
+- F-2 tolerated: there is no `just gate` recipe, which CHR-010 owns.
+
+Reconcile pass complete; handoff to /close.
