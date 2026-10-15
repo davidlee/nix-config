@@ -1,7 +1,7 @@
 id = 5
 slug = "flags-hardware-virt-apps"
 title = "Legacy flags to feature tree: hardware, virt, app formats"
-status = "audit"
+status = "reconcile"
 created = "2026-10-15"
 updated = "2026-10-15"
 tags = []

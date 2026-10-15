@@ -1,0 +1,206 @@
+id    = 12
+slug  = "reconciliation-review-of-sl-005"
+title = "reconciliation review of SL-005"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance self-audit of SL-005 (a2b08b34..a547c452) against design.md, scope, plan EX/VT, ADR-002/ADR-005 and DEC-019..022: per-phase gate evidence in notes.md and the snapshots; slice conformance (hand-normalised for ISS-005); whole-slice code diff read; just gate and doctrine check gate green; README and legacy-flag grep; RFC-001 and backlog items named by design sec-8.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-005"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "hosts.nix: design sec-6 lists it as changed; the selector registry has it scope-relevant only"
+detail = """
+Expected: every path in design sec-6 (Code impact) is a design-target selector, so conformance can attribute it.
+Observed: `doctrine slice selector list 5` has `hosts.nix` as scope-relevant only. PHASE-03 edited it (coverage."Sleipnir+podman", per design sec-5), so conformance reports it undeclared (after normalising the ISS-005 `flakes/` prefix). The edit is in scope; the registry is incomplete.
+"""
+disposition = "design-wrong"
+response = """
+Registry gap, not scope creep: design sec-5 calls for the coverage target and sec-6 lists hosts.nix. Reconcile: `doctrine slice selector add` hosts.nix as design-target (load-bearing; sec-6 already mirrors it). Brief: Per-slice F-1.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Registry gap, not scope creep: design sec-5 calls for the coverage target and sec-6 lists hosts.nix. Reconcile: `doctrine slice selector add` hosts.nix as design-target (load-bearing; sec-6 already mirrors it). Brief: Per-slice F-1.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Design sec-3/sec-7 say distrobox stays only as a home package; it also stays in system-path"
+detail = """
+Expected (design sec-3 podman bullet, sec-7 table podman row): distrobox removed from system packages, remaining only in home (`modules/shared/cli/_packages/dev.nix`).
+Observed (notes.md `## PHASE-03`): distrobox stays in system-path, because dev.nix also reaches NixOS through `modules/nixos/cli.nix` (linuxSystem). The removed-package set was one smaller than the design predicted; the gate passed against the corrected expectation. Design prose is wrong, code is right.
+"""
+disposition = "design-wrong"
+response = """
+Code and gate are right; the design prose mispredicted. Reconcile edits design.md sec-3 (podman bullet) and sec-7 (podman row): distrobox also reaches system-path via modules/nixos/cli.nix, so it stays in both. Brief: Per-slice F-2.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Code and gate are right; the design prose mispredicted. Reconcile edits design.md sec-3 (podman bullet) and sec-7 (podman row): distrobox also reaches system-path via modules/nixos/cli.nix, so it stays in both. Brief: Per-slice F-2.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Design sec-7.4 claims flatpak leaves the system closure when deselected; it leaves system-path only"
+detail = """
+Expected (design sec-7 check 4; PHASE-04 EX-5): with non-nix-packages.flatpak off, `flatpak` absent from the system closure.
+Observed (notes.md `## PHASE-04`): services.flatpak.enable false and flatpak gone from system-path (not installed, not on PATH), but flatpak-1.18.4 stays in the drv closure: its referrers there are plasma-workspace and xdg-desktop-portal, which link it as a library. appimage's control passed outright. The feature is still the only switch for installing flatpak and running its service, which is what the check was for; the check's wording over-claimed. Same shape as PHASE-02's qemu source tarball (notes.md `## PHASE-02`).
+"""
+disposition = "design-wrong"
+response = """
+The check over-claimed; behaviour is the intended one (feature is the only install/service switch). Reconcile edits design.md sec-7 check 4: "absent from system-path" for flatpak, noting library referrers keep it in the closure. PHASE-04 EX-5 text is immutable plan criteria and is not edited; its evidence is qualified in notes.md. Brief: Per-slice F-3.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The check over-claimed; behaviour is the intended one (feature is the only install/service switch). Reconcile edits design.md sec-7 check 4: "absent from system-path" for flatpak, noting library referrers keep it in the closure. PHASE-04 EX-5 text is immutable plan criteria and is not edited; its evidence is qualified in notes.md. Brief: Per-slice F-3.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "RFC-001 still names the host-bound class 'hardware'; DEC-019 makes it machine config in hosts/<h>/machine.nix"
+detail = """
+Expected (design sec-8, DEC-019): RFC-001 Target shape and W4 use "machine config" / `machine.nix`; the W3 row records SL-005.
+Observed (`doctrine show RFC-001`): Target shape tree "config.nix  base + hardware + host-only bits"; W4 row "Sleipnir hardware"; W7 row "hand-written `hardware.nix`"; W3 row has no SL-005 progress.
+"""
+disposition = "design-wrong"
+response = """
+Governance text lags DEC-019. Reconcile updates RFC-001: Target shape (machine config / machine.nix), W4 class "machine config", W7 "machine.nix", W3 row records SL-005 (hardware, virt, app formats done). Brief: Governance F-4.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Governance text lags DEC-019. Reconcile updates RFC-001: Target shape (machine config / machine.nix), W4 class "machine config", W7 "machine.nix", W3 row records SL-005 (hardware, virt, app formats done). Brief: Governance F-4.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Backlog notes promised by design sec-8 not yet written (IMP-003, IMP-006)"
+detail = """
+Expected (design sec-8 "At reconcile"): IMP-003 notes docker and libvirtd done, and that `dev`, `caddy`, `jackaudio` in user.nix name groups absent on Sleipnir; IMP-006 notes W3 slices discharge it incrementally.
+Observed: `doctrine show IMP-003` / `IMP-006` unchanged since 2026-10-15.
+"""
+disposition = "fix-now"
+response = """
+Promised by design sec-8 for reconcile. Reconcile appends the notes to IMP-003 and IMP-006 bodies (both stay open: IMP-003 still has caddy/gamemode/jackaudio, IMP-006 is the lean-defaults flip). Brief: Per-slice F-5.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Promised by design sec-8 for reconcile. Reconcile appends the notes to IMP-003 and IMP-006 bodies (both stay open: IMP-003 still has caddy/gamemode/jackaudio, IMP-006 is the lean-defaults flip). Brief: Per-slice F-5.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "slice conformance attributes nothing: every path carries the flakes/ prefix"
+detail = """
+Expected: conformance matches git paths to selectors.
+Observed: 26 undeclared, 22 undelivered, 0 conformant. Normalising the `flakes/` prefix by hand, every undelivered selector matches an edited path; the undeclared residue is notes.md, slice-005.toml, gate-probe.sh (workflow artefacts) and hosts.nix (F-1). Known tooling defect ISS-005.
+"""
+disposition = "follow-up"
+response = """
+Tooling defect already owned by ISS-005; no new item. This audit normalised the prefix by hand (brief, F-1). Nothing in SL-005 to change.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Tooling defect already owned by ISS-005; no new item. This audit normalised the prefix by hand (brief, F-1). Nothing in SL-005 to change.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

@@ -16,3 +16,16 @@ nix-store -qR "$d" | grep -i <pkg>     # expect nothing
 
 To drop one platform's copy without moving list order (drvs gate), split
 the list: `[a b] ++ lib.optional stdenv.hostPlatform.isLinux x ++ [c d]`.
+
+**A hit is not yet red.** The drv closure (`nix-store -qR <drv>`) holds build
+inputs and libraries other packages link, not only what the module installs.
+Before calling a hit a failure, intersect its referrers with the closure:
+
+```bash
+comm -12 <(nix-store -qR "$d" | sort) <(nix-store -q --referrers <hit.drv> | sort)
+```
+
+Observed (SL-005): qemu off left `qemu-*.tar.xz` (a source for qemu-utils);
+flatpak off left `flatpak` (linked by plasma-workspace, xdg-desktop-portal)
+while it left system-path. For "no longer installed", check
+`config.system.path`'s inputs or the system-path link map instead.
