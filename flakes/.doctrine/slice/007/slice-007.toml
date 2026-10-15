@@ -12,27 +12,31 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "modules/nixos/**"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts/Sleipnir/**"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/**"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/shared/cli/_packages/system.nix"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"
@@ -55,9 +59,19 @@ label = "governed_by"
 target = "ADR-005"
 
 [[relation]]
+label = "governed_by"
+target = "POL-001"
+
+[[relation]]
 label = "references"
 role = "concerns"
 target = "IMP-004"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "ControlD hostname moves to hosts/Sleipnir/dns.nix (DEC-029)"
+target = "IMP-002"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

@@ -1,0 +1,133 @@
+id    = 15
+slug  = "design-review-of-sl-007"
+title = "design review of SL-007"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-007"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "desktop.core merges wayland.nix and wayland_packages.nix, losing history"
+detail = "sec-4 lists ./core/wayland.nix as 'wayland.nix + wayland_packages.nix' while claiming whole-file moves keep history via git mv. Merging two files breaks that for one of them, and the merge is not needed. Fix: keep each moved file whole under its own name in features/desktop/core/."
+disposition = "fix-now"
+response = "sec-4: wayland.nix and wayland_packages.nix move separately under their own names. Class sweep: radeon.nix into machine.nix is the same loss, settled by DEC-019/DEC-028; sec-3 now states it."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-4: wayland.nix and wayland_packages.nix move separately under their own names. Class sweep: radeon.nix into machine.nix is the same loss, settled by DEC-019/DEC-028; sec-3 now states it."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Order deviation from ADR-002 D5 not stated"
+detail = "Moving modules into features reorders merged lists, deviating from ADR-002 D5 ('migration preserves existing order'), as SL-006 did with proof per phase. sec-8 relies on this but never says it is a deliberate, accepted deviation. Fix: state it in sec-8, citing SL-006's precedent."
+disposition = "fix-now"
+response = "sec-8 states the deliberate ADR-002 D5 deviation on SL-006's terms (per-phase gate proof)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-8 states the deliberate ADR-002 D5 deviation on SL-006's terms (per-phase gate proof)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "New files need git add -N before evaluation"
+detail = "The flake sees only tracked files (mem.fact.flakes.git-add-n). P1-P5 create modules/nixos/default.nix, hosts/Sleipnir/dns.nix, features/compositor.nix, features/shell.nix, features/desktop/core*. The design does not say so; a phase gate would fail or, worse, evaluate a stale tree. Fix: add to sec-8."
+disposition = "fix-now"
+response = "sec-8 lists the new files and requires git add -N before each phase's gate."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-8 lists the new files and requires git add -N before each phase's gate."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "xdg.nix comment points at ./umbriel.nix"
+detail = "xdg.nix:13 says umbriel defines its portal section 'in ./umbriel.nix'; after the move it is compositor.umbriel's upstream module. Fix: comment updated in P3 (sec-4)."
+disposition = "fix-now"
+response = "sec-4 notes the xdg.nix:13 comment correction in P3."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-4 notes the xdg.nix:13 comment correction in P3."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "desktop.greeter → compositor.niri over-constrains"
+detail = """User (2026-10-16): the edge exists only because greeter.nix:19 hard-codes default = "niri". It forces niri onto any host wanting the greeter, while the user plans umbriel-only. Proposed: the host sets services.displayManager.defaultSession (NixOS asserts it names an installed session); the greeter record passes it to noctalia-greeter's settings.default; no requires edge."""
+disposition = "design-wrong"
+response = """Integrated (user: 'go', 2026-10-16): DEC-026 amended; sec-1 drops the edge; sec-3 host sets services.displayManager.defaultSession = "niri"; sec-4 greeter record passes it to noctalia-greeter; sec-8 drops testGreeterRequiresNiri, adds a bogus-name refusal check and greeter.toml identity in P3."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """Integrated (user: 'go', 2026-10-16): DEC-026 amended; sec-1 drops the edge; sec-3 host sets services.displayManager.defaultSession = "niri"; sec-4 greeter record passes it to noctalia-greeter; sec-8 drops testGreeterRequiresNiri, adds a bogus-name refusal check and greeter.toml identity in P3."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

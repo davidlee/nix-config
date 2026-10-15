@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 29
+slug = "controld-dns-moves-as-is-into-hostssleipnirdnsnix-sl-007-pol-001"
+title = "ControlD DNS moves as-is into hosts/Sleipnir/dns.nix (SL-007, POL-001)"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "POL-001 classes DNS-filter profile ids as Private. The ControlD profile hostname in modules/nixos/network.nix has been public since 36c4d3f0. DEC-028 moves ControlD DNS to Sleipnir host config, which re-commits the value."
+choice = "Move the ControlD/stubby DNS block unchanged into its own file, hosts/Sleipnir/dns.nix, with a comment pointing at IMP-002. SL-007 does not change the value or add a private input."
+alternatives = ["Do IMP-002 (private input + profile rotation) inside SL-007", "Do IMP-002 before SL-007"]
+rationale = "No new exposure: the value is already public and IMP-002 makes it inert by rotation. SL-007 stays a structural, behaviour-preserving slice; the file boundary makes IMP-002 a one-file swap."
+consequences = ["One more commit carries a known-Private value, knowingly, until IMP-002", "IMP-002 targets hosts/Sleipnir/dns.nix"]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-007"

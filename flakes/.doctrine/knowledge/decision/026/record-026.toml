@@ -12,10 +12,10 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "The desktop area mixes compositors with the shared stack the modules/nixos split now adds (SL-007). The user's principle: options are the main interface; group by cohesion and independent on/off, limited depth, consistent granularity."
-choice = "Three sibling areas. desktop: core (the shared Wayland stack: wayland env and packages, x11, qt, xdg portals, keyring, dconf/thunar/foot, GUI nix-ld libs, gvfs/devmon/gnome-disks, hunspell and GUI libs, v4l2loopback, SSH_ASKPASS, 1Password GUI, input group), greeter, fonts. compositor: sway, niri, cosmic, kde, mango, umbriel; each requires desktop.core. shell: noctalia (out of niri's record). desktop.greeter requires compositor.niri (its default session)."
+choice = "Three sibling areas. desktop: core (the shared Wayland stack: wayland env and packages, x11, qt, xdg portals, keyring, dconf/thunar/foot, GUI nix-ld libs, gvfs/devmon/gnome-disks, hunspell and GUI libs, v4l2loopback, SSH_ASKPASS, 1Password GUI, input group), greeter, fonts. compositor: sway, niri, cosmic, kde, mango, umbriel; each requires desktop.core. shell: noctalia (out of niri's record). desktop.greeter has no requires: it passes services.displayManager.defaultSession, set as host config, to noctalia-greeter's default session (amended 2026-10-16, RV-015 F-5; was: requires compositor.niri)."
 alternatives = ["nested sub-areas (feature.desktop.compositor.sway): resolver recursion, ADR-002 REV, mixed depth", "compositors flat in desktop beside the stack", "finer desktop features (portals, keyring, x11, ...)"]
 rationale = "Same IA as nesting at fixed two-level depth, no resolver or ADR change. The stack's parts are never toggled independently; the greeter is its own capability (CPT-001)."
-consequences = ["feature.desktop.<wm> renames to feature.compositor.<wm> (host, tests, README). shell.noctalia has no requires: requires is conjunctive and a shell needs any compositor. Compositor records change projection position: gate-proven reorder."]
+consequences = ["feature.desktop.<wm> renames to feature.compositor.<wm> (host and tests and README)", "shell.noctalia has no requires: requires is conjunctive and a shell needs any compositor", "Compositor records change projection position: gate-proven reorder", "A host picks its default session with services.displayManager.defaultSession; NixOS refuses a name that is not an installed session"]
 decided_by = "user (2026-10-16)"
 decided_on = "2026-10-16"
 

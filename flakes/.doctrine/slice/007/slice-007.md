@@ -24,35 +24,48 @@ User (2026-10-16): take W4 now, IMP-004's prune included.
 
 ## Scope & Objectives
 
+Settled in design (2026-10-16): DEC-026 (desktop taxonomy), DEC-027 (base
+shape), DEC-028 (placement), DEC-029 (ControlD DNS under POL-001).
+
 1. **Classify** each module in `modules/nixos/` (and each import in
    `hosts/Sleipnir/config.nix`) as one of:
-   - **base** — every NixOS host (candidates: `nix`, `user`, `ssh`, `cli`,
-     `locate`, `maintenance`, `lib`, `util`, `security`, `env`, `boot`?,
-     `kernel`?, `network` base, `oom`);
-   - **feature** — optional, selected per host (candidates: the
-     desktop-shared modules `wayland`, `wayland_packages`, `greeter`, `qt`,
-     `x11`, `xdg`, `keyring`, `umbriel`, `audio`, `bluetooth`, `avahi`,
-     `keyboard`; `1password`; `postgresql`);
-   - **machine config** — bound to Sleipnir's parts, into
-     `hosts/Sleipnir/machine.nix` (DEC-019) (candidates: `radeon`,
-     `network`'s `enp8s0` profile);
-   - **Sleipnir-only** — host-specific but not hardware.
-   The candidate lists are a starting point; design settles each one.
-2. **Express the base** — decide its shape (one import list per kind, a
-   module, or other). An open question in RFC-001 that also shapes W5.
-3. **Split mixed modules**: `programs.nix` (nix-ld libraries, 1Password,
-   thunar, foot, zsh, rust-motd, dconf), `1password.nix` (CLI vs GUI and its
-   browser list), `network.nix` (base vs the `enp8s0` profile), and any
-   others classification turns up.
-4. **Move** the optional modules onto the feature tree (DEC-015 shape),
-   selected by Sleipnir through profiles or `hosts/Sleipnir/features.nix`
-   (DEC-024), so Sleipnir's effective selection is unchanged.
-5. **IMP-004 prune** (a behaviour change, its own phase, not set-preserving):
-   drop entries nothing uses from `wayland_packages.nix` — `wob`,
-   `i3status`, `wf-config`, `gnomeExtensions.appindicator`,
-   `marble-shell-theme` — and the duplicate `sway-easyfocus` in
-   `features/desktop/sway.nix` (RV-014 F-5). Design confirms each is unused.
-6. README: host/base/feature description and tree listing updated.
+   - **base** (DEC-027) — `nix` (with lix), `user`, `ssh`, `cli`, `locate`,
+     `maintenance`, `env`, `boot`, `kernel`, `avahi`, cargo/build libs, and
+     the generic halves of `security`, `network`, `programs`;
+   - **feature** (DEC-026, DEC-028) — `desktop.{core,greeter,fonts}`,
+     `compositor.{sway,niri,cosmic,kde,mango,umbriel}`, `shell.noctalia`,
+     `audio.pipewire`, `hardware.{bluetooth,qmk,tablet,logitech}`,
+     `services.postgresql`; `services.webserver` gains ports 80/443;
+   - **machine config** (DEC-019, DEC-028) — radeon (+ video group), kernel
+     blacklist, i2c, the `enp8s0` profile, nix jobs/cores/MemoryHigh, swapfile;
+   - **Sleipnir host config** (DEC-028) — `system.stateVersion`, `oom.nix`,
+     ControlD DNS (`hosts/Sleipnir/dns.nix`, DEC-029), `gai.conf`, overlays,
+     the rtcwake sudo rule.
+2. **Express the base** (DEC-027): `modules/nixos/default.nix`, an import
+   list, imported by each NixOS host's `config.nix`. Not a profile; no
+   factory change. `modules/nixos/` then holds only the base (plus parked).
+3. **Split mixed modules**: `programs`, `security`, `network`, `1password`,
+   `util`, `env`, `kernel`, `lib`, `keyring` — generic halves to the base,
+   desktop halves to `desktop.core`, machine/host parts as above.
+4. **Move** the optional modules onto the feature tree (DEC-015 shape).
+   `desktop.core` is selected by the workstation profile; the rest by
+   `hosts/Sleipnir/features.nix` (DEC-024). Sleipnir's effective selection
+   is unchanged. **Rename** `feature.desktop.<wm>` → `feature.compositor.<wm>`
+   and `noctalia` out of niri's record into `shell.noctalia` (DEC-026).
+5. **Base evaluation target** (DEC-027): an evaluation-only aarch64-linux
+   configuration importing only the base (coverage style); `cpuid`/`x86info`
+   guarded to x86. The only new coverage target.
+6. **Behaviour-change phase** (own phase, not set-preserving): IMP-004 prune
+   of `wayland_packages.nix` (`wob`, `i3status`, `wf-config`,
+   `gnomeExtensions.appindicator`, `marble-shell-theme`); duplicate
+   `sway-easyfocus` (RV-014 F-5); keyring `greedt` typo; postgresql's stray
+   80/443; undefined `dev` group; helix from nix-ld libs to systemPackages;
+   drop the Rust `kernelPatch` (kernel `.config` compared identical first).
+7. README: host/base/feature description and tree listing, per phase.
+
+Phasing (user, 2026-10-16): P1 base · P2 machine + host · P3 desktop,
+compositor, shell · P4 audio, hardware, services · P5 aarch64 base target ·
+P6 behaviour changes. Detail in design.md.
 
 ## Non-Goals
 
@@ -61,15 +74,19 @@ User (2026-10-16): take W4 now, IMP-004's prune included.
   until then.
 - Per-host overlays into their features (W9), unless design finds the move
   falls out of a module it already touches.
-- Lean default selection (IMP-006); new hosts (W7).
+- Lean default selection (IMP-006); new hosts (W7) — the aarch64 base
+  target is an evaluation only, not a host. W7 decides the VM's DNS.
+- IMP-002 (private input, ControlD rotation): DEC-029 moves the value as-is.
 - Desktop behaviour: ISS-001, IMP-005, ISS-008 (CPT-001).
 - Parked modules (`hyprland`, `kmscon`) stay parked.
 
 ## Affected surface
 
-`modules/nixos/**`, `hosts/Sleipnir/{config,machine,features}.nix`,
-`features/**` (new areas or records), `features/profiles/**`, `hosts.nix`
-(if the base is injected by the factory), `features-test.nix`, `README.md`.
+`modules/nixos/**`, `hosts/Sleipnir/{config,machine,features,dns}.nix`,
+`features/**` (new `compositor` and `shell` areas, new records),
+`features/profiles/**`, `flake.coverage` (aarch64 base target),
+`features-test.nix`, `README.md`. Not `hosts.nix` (DEC-027: no factory
+change). POL-001 governs what the moved files may carry.
 
 ## Risks and assumptions
 
@@ -88,12 +105,17 @@ User (2026-10-16): take W4 now, IMP-004's prune included.
 
 - Structural phases: Sleipnir system drvs identical or proven
   ordering-only; probe (packages, groups, link maps) identical;
-  `just coverage` evaluates every off feature; one negative control per
-  newly-featured module; `just gate` green.
-- IMP-004 phase: probe diff equals exactly the pruned packages.
-- At close: every `modules/nixos/*.nix` is base, feature, machine config or
-  Sleipnir-only, and the base is named in one place; RFC-001 W4 updated.
+  `just coverage` evaluates every off feature and the aarch64 base
+  target; one negative control per newly-featured module; `just gate` green.
+- Behaviour-change phase: probe diff equals exactly the listed changes.
+- At close: every `modules/nixos/*.nix` is base (or parked), and every other
+  piece is a feature, machine config or Sleipnir host config; the base is
+  named in one place; RFC-001 W4 and IMP-004 updated.
 
 ## Summary
 
 ## Follow-Ups
+
+- IMP-022 — oom tuning per host.
+- CHR-014 — i2c investigation.
+- IMP-002 — retargets `hosts/Sleipnir/dns.nix` (DEC-029).
