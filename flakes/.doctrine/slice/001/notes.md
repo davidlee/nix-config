@@ -97,6 +97,18 @@ inquiry graph `inq-1`–`inq-10` holds the questions below.
 - README Feature flags restructured (legacy flags / feature tree / coverage),
   darwin claim corrected, snooze paths current; MULTIHOST.md S7 annotated.
 
+## Code review RV-002 (2026-10-15)
+
+External raiser Codex (gpt-6-sol); 7 findings, all fix-now by user assent
+("agreed"). Repairs add to design sec-3's structural checks, for reconcile
+to fold into design and ADR-002 (DEC-009 path):
+- unknown descriptor keys fail resolution (F-1): a misspelt class key
+  otherwise drops that half silently;
+- `.` in an area or feature name fails resolution (F-2): paths are
+  dot-joined;
+- the duplicate-name error names the duplicates (F-5).
+README now says structural errors in the tree fail every host (F-3).
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)

@@ -67,6 +67,9 @@ home-build: check-flake-root #check-no-root-pub
 doctor:
   sleipnir-doctor
 
+# nixos pick for drvs and coverage: drvPath, `agents` registry pinned (below).
+nixos_pick := 'c: let pinned = c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }; in (if c.config.nix.registry ? agents then pinned else c).config.system.build.toplevel.drvPath'
+
 # drvPath of every configuration, evaluation only — the refactor gate in
 # MULTIHOST.md: snapshot before a change, diff after. Each family uses its
 # switch target's overrides; new hosts are picked up automatically.
@@ -78,13 +81,13 @@ doctor:
 #   exists, so the gate never invents it.
 # - darwin: configurationRevision embeds the git rev (`-dirty` included).
 drvs: check-flake-root
-  @just _drvs nixosConfigurations 'c: let pinned = c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }; in (if c.config.nix.registry ? agents then pinned else c).config.system.build.toplevel.drvPath' "{{system_override}}"
+  @just _drvs nixosConfigurations '{{nixos_pick}}' "{{system_override}}"
   @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{home_override}}"
   @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{home_override}}"
 
-# ADR-005 coverage targets: evaluate off features, outside the switch path.
+# ADR-005 coverage targets: evaluate off features, outside the switch path; pinned like drvs.
 coverage: check-flake-root
-  @just _drvs coverage 'c: c.config.system.build.toplevel.drvPath' "{{system_override}}"
+  @just _drvs coverage '{{nixos_pick}}' "{{system_override}}"
 
 # Order-insensitive companion to drvs: count + hash of the *sorted* package
 # lists. When drvs differs but these match, the package change is

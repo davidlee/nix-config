@@ -18,7 +18,7 @@
 # modules  outer modules: the host's features.nix (if any), plus extras
 #
 # A descriptor is { nixos?, homeManager?, darwin?, requires? }. The resolver
-# reads only key presence and `requires`; class values are never forced here,
+# reads only key names and `requires`; class values are never forced here,
 # so an unselected feature is never evaluated. Every check is enforced: a
 # failure throws, so nothing in the result can be read.
 lib: {
@@ -26,7 +26,7 @@ lib: {
   classes,
   modules,
 }: let
-  inherit (lib) concatMap filter mkEnableOption mkOption types;
+  inherit (lib) concatMap concatStringsSep filter mkEnableOption mkOption types;
 
   records = concatMap (area:
     map (f: {
@@ -61,19 +61,18 @@ lib: {
   # Per selected feature: its prerequisites are selected, and it has a module
   # for at least one of this host's classes (ADR-005 D6).
   checks = {config, ...}: let
-    on = r: config.feature.${r.area}.${r.name}.enable;
-    selected = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
+    enabled = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
   in {
     assertions = concatMap (r:
-      lib.optionals (on r) (
+      lib.optionals (enabled r.path) (
         map (p: {
-          assertion = selected p;
+          assertion = enabled p;
           message = "feature.${r.path} requires feature.${p}, which is not selected";
         }) (r.descriptor.requires or [])
         ++ [
           {
             assertion = lib.any (c: r.descriptor ? ${c}) classes;
-            message = "feature.${r.path} is selected but has no module for this host's evaluations (${lib.concatStringsSep ", " classes})";
+            message = "feature.${r.path} is selected but has no module for this host's evaluations (${concatStringsSep ", " classes})";
           }
         ]
       ))
@@ -82,14 +81,32 @@ lib: {
 
   inherit (lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;}) config;
 
+  # Structural errors, over every record, selected or not. They read only
+  # names, descriptor key names and `requires` (ADR-002 D4), so all are safe
+  # to compute together; `checks` looks paths up by splitting on ".", so it
+  # must not run until these pass.
+  areas = map (a: a.name) tree;
   paths = map (r: r.path) records;
-  unique = lib.allUnique (map (a: a.name) tree) && lib.allUnique paths;
-  unknown = concatMap (r:
-    map (p: "unknown feature ${p} in ${r.path}.requires")
-    (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
-  records;
+  duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
+  dotted = lib.hasInfix ".";
+  structural =
+    map (a: "duplicate area ${a}") (duplicates areas)
+    ++ map (p: "duplicate feature ${p}") (duplicates paths)
+    ++ map (a: "area name \"${a}\" contains \".\"") (filter dotted areas)
+    ++ map (r: "feature name \"${r.name}\" in area ${r.area} contains \".\"") (filter (r: dotted r.name) records)
+    ++ concatMap (r: let
+      bad = lib.subtractLists ["nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
+    in
+      lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
+    records
+    ++ concatMap (r:
+      map (p: "unknown feature ${p} in ${r.path}.requires")
+      (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
+    records;
   failed = filter (a: !a.assertion) config.assertions;
   selected = filter (r: config.feature.${r.area}.${r.name}.enable) records;
+
+  bullets = lib.concatMapStrings (m: "- ${m}\n");
 
   # _file names the feature in error messages; imports never forces the value.
   project = class:
@@ -99,12 +116,10 @@ lib: {
     })
     (filter (r: r.descriptor ? ${class}) selected);
 in
-  if !unique
-  then throw "feature tree has a duplicate area or feature name"
-  else if unknown != []
-  then throw (lib.concatStringsSep "\n" unknown)
+  if structural != []
+  then throw "feature tree is malformed:\n${bullets structural}"
   else if failed != []
-  then throw "feature selection failed:\n${lib.concatMapStrings (a: "- ${a.message}\n") failed}"
+  then throw "feature selection failed:\n${bullets (map (a: a.message) failed)}"
   else {
     flags = removeAttrs config ["feature" "assertions"];
     modules = lib.genAttrs ["nixos" "homeManager" "darwin"] project;

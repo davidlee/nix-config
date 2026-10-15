@@ -14,8 +14,18 @@ lib: let
   feat = name: value: {inherit name value;};
   on = path: lib.setAttrByPath (["feature"] ++ lib.splitString "." path ++ ["enable"]) true;
 
-  # The resolver fails by `throw`, which tryEval catches.
+  # The resolver fails by `throw`, which tryEval catches. tryEval loses the
+  # message, so each failing fixture is paired with a passing twin that
+  # differs only in the property under test: [ fixture twin ] -> [ false true ].
   fails = e: !(builtins.tryEval e).success;
+  resolves = args:
+    !fails
+    (resolve ({
+        classes = both;
+        modules = [];
+      }
+      // args)).flags;
+  one = descriptor: [(area "a" [(feat "x" descriptor)])];
   tags = map (m: m._file);
 
   hm = {homeManager = {};};
@@ -55,14 +65,54 @@ in
     };
 
     testUnknownPrerequisiteFails = {
-      expr =
-        fails
-        (resolve {
-          tree = [(area "a" [(feat "x" (hm // {requires = ["no.such"];}))])];
-          classes = both;
-          modules = [];
-        }).flags;
-      expected = true;
+      expr = map (p: resolves {tree = [(area "a" [(feat "x" (hm // {requires = [p];})) (feat "y" hm)])];}) ["no.such" "a.y"];
+      expected = [false true];
+    };
+
+    # Checked on every record, selected or not.
+    testUnknownDescriptorKeyFails = {
+      expr = let
+        full = {
+          nixos = {};
+          homeManager = {};
+          darwin = {};
+          requires = [];
+        };
+      in
+        map (d: resolves {tree = one d;}) [(full // {homeManger = {};}) full];
+      expected = [false true];
+    };
+
+    # The selected, self-requiring fixture also proves the dot check runs
+    # before the `requires` lookup, which would otherwise abort uncatchably.
+    testDottedNameFails = {
+      expr = let
+        dottedArea = a:
+          resolves {
+            tree = [(area a [(feat "x" (hm // {requires = ["${a}.x"];}))])];
+            modules = [(lib.setAttrByPath ["feature" a "x" "enable"] true)];
+          };
+        dottedFeature = f: resolves {tree = [(area "a" [(feat f hm)])];};
+      in [(dottedArea "a.b") (dottedArea "ab") (dottedFeature "x.y") (dottedFeature "xy")];
+      expected = [false true false true];
+    };
+
+    testFalseAssertionFails = {
+      expr = map (assertion:
+        resolves {
+          tree = one hm;
+          modules = [
+            {
+              assertions = [
+                {
+                  inherit assertion;
+                  message = "m";
+                }
+              ];
+            }
+          ];
+        }) [false true];
+      expected = [false true];
     };
 
     # Neither unselected value may be forced (throw) or applied (missing pkgs).
@@ -91,14 +141,13 @@ in
     };
 
     testNowhereToLandFails = {
-      expr =
-        fails
-        (resolve {
-          tree = [(area "a" [(feat "x" hm)])];
-          classes = ["darwin"];
+      expr = map (classes:
+        resolves {
+          tree = one hm;
+          inherit classes;
           modules = [(on "a.x")];
-        }).modules.darwin;
-      expected = true;
+        }) [["darwin"] ["darwin" "homeManager"]];
+      expected = [false true];
     };
 
     testListOrder = {
@@ -116,17 +165,13 @@ in
     };
 
     testDuplicateNamesFail = {
-      expr = map (tree:
-        fails
-        (resolve {
-          inherit tree;
-          classes = both;
-          modules = [];
-        }).flags) [
+      expr = map (tree: resolves {inherit tree;}) [
         [(area "a" [(feat "x" hm)]) (area "a" [(feat "y" hm)])]
+        [(area "a" [(feat "x" hm)]) (area "b" [(feat "y" hm)])]
         [(area "a" [(feat "x" hm) (feat "x" nixos)])]
+        [(area "a" [(feat "x" hm) (feat "y" nixos)])]
       ];
-      expected = [true true];
+      expected = [false true false true];
     };
 
     testProfileSelectsSnooze = {

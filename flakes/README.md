@@ -211,7 +211,10 @@ Nothing is selected automatically. The resolver refuses to return anything
 feature's `requires` entry is not selected, when a selected feature has no
 module for any of the host's evaluations (a home-only feature on the Mac),
 or when any hand-written `assertions` entry in an outer module is false.
-Unselected features are never evaluated, so a broken one blocks no host.
+Structural errors fail every host, because they are checked over every
+descriptor: a duplicate or dotted name, an unknown descriptor key, or an
+unknown `requires` path. The modules of unselected features are never
+evaluated, so a broken module blocks no host.
 
 Darwin's embedded home-manager receives no projected modules, so a feature
 with only a `homeManager` half cannot reach the Mac (IMP-012).
