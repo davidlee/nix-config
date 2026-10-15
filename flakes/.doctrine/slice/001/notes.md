@@ -15,6 +15,38 @@ Scope selectors were written as `flakes/...` (git root is `~`, worktree of
 `~/.cfg`); unverified whether doctrine resolves them against `~` or
 `~/flakes`. Check at first conformance run.
 
+## Design triage (2026-10-15)
+
+Research: `research/research.md` (runtime, gitignored). The design run's
+inquiry graph `inq-1`–`inq-10` holds the questions below.
+
+- **User decisions:**
+  - Darwin takes no snooze. An outer profile selects it, and the Mac imports
+    no profile. `mkDarwin` projects the `darwin` class only.
+  - The namespace is `feature.<area>.<name>.enable`.
+  - Snooze goes in area `session`.
+  - openrgb (`hardware`, off on Sleipnir) is also migrated, to give test 7 a
+    real off feature.
+- **Agent proposals (in the design):**
+  - Index files are lists of `{name; value}`, with a root `features/default.nix`.
+  - Profiles live in `features/profiles/`.
+  - A prerequisite is a `requires` list on the descriptor. An unselected
+    prerequisite is an error however it got there.
+  - The resolver is a pure function of `{tree; classes; modules}`. It
+    resolves once per host and throws on a failed assertion.
+  - `specialArgs.features` exposes the legacy flags only.
+  - Coverage targets go in `flake.coverage`, run by `just coverage`.
+- **Risks:**
+  - Ordering: the snooze halves move to factory depth. Snooze has no shared
+    lists, so this is expected to be identical; the gate decides.
+  - The snooze script and its test must move together.
+  - New files must be `git add -N`'d.
+- **Assumption:** openrgb's area-index position (`hardware` before `session`)
+  matches its current position in the gated NixOS list (`config.nix:78`
+  before `:82`).
+- **Governing:** ADR-001 to ADR-005 (proposed), HYP-001, and research
+  Thread 1. Amendment candidates are R1–R6 in the research.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design (pre-research) · f870a4cb
