@@ -42,3 +42,27 @@ instruments, not by more design review:
 
 `/plan` reads the instrument-routed criteria on RV-009 (`doctrine review show
 RV-009 -f F-1 -f F-3 -f F-4`).
+
+## Execution
+
+### PHASE-01 (gate coverage and baseline)
+
+Gate artefacts live in `~/.cache/sl-004/`, not the session scratchpad: they
+are needed through PHASE-05 and must outlive the session and a reboot.
+
+| file | what |
+|---|---|
+| `en2-drvs` (+ `en2-head`) | EN-2: `just drvs` before any justfile edit, at `979e83ec` |
+| `baseline-drvs` | EX-4: slice baseline; PHASE-02.. diff against it |
+| `baseline-darwin-home-pkgs` | EX-4: sorted names of embedded `home-manager.users.david.home.packages` (209), for PHASE-03 EX-6 |
+
+- `agents_override` folded into `system_override` and `home_override`; `test`
+  and `gate` builds carry it too (RV-009 F-1, Linux half).
+- VA-1: `diff en2-drvs baseline-drvs` shows only added lines (packages,
+  legacyPackages, templates). Overriding agents to the same tree moved no
+  home or darwin derivation (EX-3).
+- Deviation from design sec-4: flake-parts gives every system a key, so
+  `legacyPackages.aarch64-darwin` (and `packages.aarch64-darwin`) exist and
+  are empty. The legacyPackages pick guards `lp ? stdenv` and prints `none`.
+- The justfile does not follow `just --fmt` (2-space recipe bodies, already
+  so at HEAD); not part of the gate, left alone.

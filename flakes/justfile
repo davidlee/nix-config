@@ -5,14 +5,17 @@
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
 # emacs_override := "--override-input emacs-config path:" + home_directory() + "/.config/emacs"
-# flakes/agents is locked from GitHub (portable); switch from the checkout so an
-# agents/ edit lands without push + `nix flake update agents`. Linux-only consumer
-# (overlays/agents.nix), so bundled with system_override, not home_override.
-system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/ --override-input agents path:" + justfile_directory() + "/agents"
+# flakes/agents: build from the checkout so an agents/ edit lands without
+# push + `nix flake update agents`. Every evaluation consumes it (agentsOverlay
+# in mkNixos, mkHome and the flake outputs), and flake.lock pins a Linux path
+# absent on the Mac, so every recipe that evaluates the flake carries it.
+agents_override := "--override-input agents path:" + justfile_directory() + "/agents"
+
+system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/ " + agents_override
 
 # flakes/emacs is locked from GitHub (portable); switch from the checkout so an
 # emacs.nix edit lands without push + `nix flake update emacs`.
-home_override := "--override-input emacs path:" + justfile_directory() + "/emacs"
+home_override := "--override-input emacs path:" + justfile_directory() + "/emacs " + agents_override
 
 flake := "."
 
@@ -38,7 +41,7 @@ fmt: check-flake-root
 # resolver tests (features-test.nix), then behaviour tests for the plain
 # scripts under features/ and modules/home/linux/{bin,nudge}/
 test:
-  nix build ".#checks.$(nix config show system).features" --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).features" {{agents_override}} --no-link --no-write-lock-file
   features/session/snooze-nag-test
   modules/home/linux/bin/dictate-test
   nu modules/home/linux/nudge/nudge-test.nu
@@ -47,7 +50,7 @@ test:
 # read-only flake check (alejandra, statix, deadnix), then the tests.
 # --no-write-lock-file: a check never re-locks (CHR-008).
 gate: test
-  nix build ".#checks.$(nix config show system).treefmt" --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).treefmt" {{agents_override}} --no-link --no-write-lock-file
 
 nixos-start-docker-daemon:
   systemctl --user start docker
@@ -91,6 +94,9 @@ drvs: check-flake-root
   @just _drvs nixosConfigurations '{{nixos_pick}}' "{{system_override}}"
   @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{home_override}}"
   @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{home_override}}"
+  @just _drvs packages 'ps: set (builtins.attrValues ps)' "{{agents_override}}"
+  @just _drvs legacyPackages 'lp: if lp ? stdenv then builtins.concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"]) else "none"' "{{agents_override}}"
+  @just _drvs templates 't: "${t.path} ${t.description}"' ""
 
 # ADR-005 coverage targets: evaluate off features, outside the switch path; pinned like drvs.
 coverage: check-flake-root
