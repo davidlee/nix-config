@@ -44,18 +44,28 @@ Baseline and after-captures: `.doctrine/state/slice/002/{baseline,after}/`
   touched files; no repo path names `modules/nixos/capsule.nix`.
 - An extra comment in `features/virt/capsule.nix` explains why the sudo rule
   is at plain priority (the design said only that there is no `mkAfter`).
+- **VT**: `verify-vt 2` reports VT-1..5 UNATTRIBUTABLE: the files are
+  git-root-relative (ISS-005). Judged by agent instead: every keyword is
+  present, and every file is in 9b5dbf79 / 5f672bdb.
+- **Two commits**: 9b5dbf79 is the pure move, with Sleipnir importing the
+  new path, so `git log --follow` reaches capsule's earlier history.
+  Absorbing the pieces more than doubles the file, which drops git's rename
+  similarity below 50%, so a single commit would have cut that history.
+  5f672bdb wires the feature. HEAD's `just drvs` matches the gated capture.
 - `.doctrine/doctrine.toml` gained `[reservation] allow-local-fallback` while
   the work was running, from outside this session. It is left uncommitted:
   the user's call.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · design locked · d2b787b5 (+ the SL-002 design commit after it)
+fresh-as-of: 2026-10-15 · PHASE-01 complete · 5f672bdb
 
 ### Produced
 - SL-002 scope, design (sec-1..6) and RV-004; RFC-001 W1 is now designed
 - minted: CHR-011 — repoint the ADR citations of MULTIHOST.md
 - out-of-repo follow-up: `~/dev/oubliette/README.md:242` names the old capsule path
+- PHASE-01: feature.virt.capsule (9b5dbf79 move, 5f672bdb wiring); plan 18bb8bcf/c1ce8759
+- minted: CHR-012 — one file per feature (snooze fold, ADR-002 D3)
 
 ### Learned
 - mem.fact.nix.sudo-rule-order — plain extraRules always follow nixpkgs' root/wheel rules
