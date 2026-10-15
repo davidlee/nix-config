@@ -1,0 +1,20 @@
+schema = "doctrine.adr"
+version = 1
+
+id = 2
+slug = "feature-shape"
+title = "Features are plain data addressed by attribute path"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+# `supersedes` stays typed — author with `doctrine supersede ADR-NNN <previous>`.
+# `related` edges are uniform `[[relation]]` rows — author with `doctrine link ADR-NNN related <target>`.
+supersedes    = []
+superseded_by = []   # set on the old ADR by F1; reverse link is derived
+
+[[relation]]
+label = "related"
+target = "ADR-005"

@@ -1,0 +1,42 @@
+memory_uid = "mem_01a13d36ea7272c3891c4d2eff8dd468"
+memory_key = "mem.fact.flakes.git-add-n"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "New files in ~/flakes are invisible to Nix until git-added"
+summary = "Use git add -N (intent-to-add) before eval"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["flakes/"]
+globs = []
+commands = []
+tags = ["nix"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "f5d1d72a0dda2728165cca0c88dd97331e439790"
+ref_name = "refs/heads/main"
+checkout_state_id = "8c95f0f4947d8a72f729e656e534c218e1c46ddcc15e46325b49f207d6cfbe0c"
+base_commit = "c2fa9b5631122b5e582da2984c91c903b14a4966"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

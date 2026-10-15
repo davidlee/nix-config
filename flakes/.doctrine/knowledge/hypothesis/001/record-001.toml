@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 1
+slug = "typed-resolver-suffices"
+title = "The typed resolver suffices for this repo's feature coupling"
+record_kind = "hypothesis"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+proposition = "Evolving the typed outer resolver (one enable option per feature, profiles as mkDefault, outer assertions) is sufficient for this repo's feature coupling; no reference graph (includes/genericClosure) or composition library is needed."
+predicts = "The snooze spike passes all its tests (profile default, host override, prerequisite error on a home-only build, exclusion of throwing/missing-attr features, identical drvs, coverage target) without adding graph traversal."
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written, ADR-004 §5)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "ADR-001"

@@ -1,0 +1,20 @@
+schema = "doctrine.adr"
+version = 1
+
+id = 3
+slug = "separate-lifecycles"
+title = "System and home keep separate lifecycles and pins"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+# `supersedes` stays typed — author with `doctrine supersede ADR-NNN <previous>`.
+# `related` edges are uniform `[[relation]]` rows — author with `doctrine link ADR-NNN related <target>`.
+supersedes    = []
+superseded_by = []   # set on the old ADR by F1; reverse link is derived
+
+[[relation]]
+label = "related"
+target = "ADR-004"

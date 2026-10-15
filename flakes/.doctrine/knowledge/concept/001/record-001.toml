@@ -1,0 +1,27 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 1
+slug = "desktop-session"
+title = "Desktop session: installed, default, current"
+record_kind = "concept"
+status = "draft"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # currently empty; seeded for scaffold-order invariant
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written, ADR-004 §5)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "ADR-004"

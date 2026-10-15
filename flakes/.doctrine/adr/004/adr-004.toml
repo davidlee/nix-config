@@ -1,0 +1,16 @@
+schema = "doctrine.adr"
+version = 1
+
+id = 4
+slug = "integrations-settings"
+title = "Integrations and settings ownership"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+# `supersedes` stays typed — author with `doctrine supersede ADR-NNN <previous>`.
+# `related` edges are uniform `[[relation]]` rows — author with `doctrine link ADR-NNN related <target>`.
+supersedes    = []
+superseded_by = []   # set on the old ADR by F1; reverse link is derived

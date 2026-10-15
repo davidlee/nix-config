@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 1
+slug = "coupling-survey"
+title = "Feature coupling survey 2026-10-15"
+record_kind = "evidence"
+status = "captured"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+datum = "Across modules/ and darwin/: zero mkIf on config, zero osConfig, zero assertions; specialArgs.features read only by host files and modules/home/linux/default.nix. Coupling found: xdg.nix portal fan-out over a hard-coded desktop list; greeter default and global XDG_CURRENT_DESKTOP hard-coded to niri (wrong under umbriel); satan-patcher/satan-attrd (home) need system postgresql; emacs.nix imports shpool.nix; capsule smeared over capsule/network/security/user; WM-specific packages in wayland_packages.nix; central extraGroups in user.nix."
+provenance = "inspection"
+confidence = "high"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written, ADR-004 §5)
+
+[[relation]]
+label = "supports"
+target = "HYP-001"

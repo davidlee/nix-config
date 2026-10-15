@@ -1,0 +1,42 @@
+memory_uid = "mem_01a13d36e98071c8987ef7f8b6e237a8"
+memory_key = "mem.fact.nix.merge-order"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Nix list options merge in reversed breadth-first import order"
+summary = "Moving an import changes merged list order; prove ordering-only diffs with drvs-sets + nix-diff"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["flakes/"]
+globs = []
+commands = []
+tags = ["nix", "gate"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "f5d1d72a0dda2728165cca0c88dd97331e439790"
+ref_name = "refs/heads/main"
+checkout_state_id = "7a3b2c63f0f6f6607ca8302ec6fd1795b79d8bf8806d8cf2ede5ed0f9dacd0f4"
+base_commit = "c2fa9b5631122b5e582da2984c91c903b14a4966"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
