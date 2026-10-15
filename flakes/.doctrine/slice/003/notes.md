@@ -47,24 +47,36 @@ A further pass would probe only those two, and the gates already do.
 - Plan lessons (F-3, F-7): test a VA grep against the expected end state;
   make red-first an exit criterion.
 
+## Audit (RV-008, 2026-10-15)
+
+- Independent pass; RV-007 evidence. Code review by a fresh agent, malformed
+  inputs probed by execution. 8 findings, 7 fix-now (0237ff67), 1 to brief.
+- `badRecords` became `badShapes`: area shape, string name, `requires` list
+  of strings, all checked alone before anything that reads them.
+- testProvenance checks the content of the line `_file` names (not its
+  number): robust to edits, red on a wrong line (mutation-checked) or an
+  absolute path.
+- User decision: keep area `{ name; value; }` pairs.
+- Skill/CLI drift: /audit prescribes a `verified` disposition the CLI lacks;
+  `aligned` + brief used.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · audit (first pass RV-007 concluded; fresh pass pending) · ce91ecc8
+fresh-as-of: 2026-10-15 · audit (RV-008 done; handoff to reconcile) · 0237ff67
 
 ### Produced
 
-DEC-015 (accepted) · RV-006 (design pass, waived) · RV-007 (audit pass 1,
-9 findings verified) · commits df85b6b5, bc08438b, c693a33b, fbb27f68,
-ce91ecc8.
+DEC-015 (accepted) · RV-006 (design pass, waived) · RV-007 (audit pass 1) ·
+RV-008 (audit pass 2, 8 findings verified; its brief supersedes RV-007's) ·
+IMP-013 · commits df85b6b5, bc08438b, c693a33b, fbb27f68, ce91ecc8, 0237ff67.
 
 ### Learned
 
 No new memory: the tryEval limit is already held
-(mem_01a13e129e64705d91fb05f77f97ba7e). Plan lessons in § Audit.
+(mem_01a13e129e64705d91fb05f77f97ba7e). Plan lessons in § Audit (RV-007).
 
 ### Open
 
-- User decision: areas as `{ name; value; }` pairs (agent recommendation)
-  or paths named by `baseNameOf` (RV-007 § Synthesis).
-- RV-007 § Reconciliation Brief: not yet executed.
+- RV-008 § Reconciliation Brief: not yet executed.
 - ISS-005, CHR-010 (tooling; tolerated, RV-007 F-1, F-2).
+- IMP-013 (single tree walk).

@@ -1,7 +1,7 @@
 id = 3
 slug = "feature-shape"
 title = "Feature shape: area files and self-named features"
-status = "audit"
+status = "reconcile"
 created = "2026-10-15"
 updated = "2026-10-15"
 tags = []
