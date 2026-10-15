@@ -211,7 +211,6 @@ A missing host file means the host takes every default unchanged.
 | `games.gamescope` | ← `games.enable` | `modules/nixos/gamescope.nix` |
 | `games.mangohud` | ← `games.enable` | `modules/home/linux/games.nix` |
 | `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
-| `hardware.{microcode,ssd}` | `false` | `modules/nixos/<name>.nix` |
 | `virt.qemu` | `true` | `modules/nixos/qemu.nix` |
 | `virt.docker` | `false` | `modules/nixos/docker.nix` (rootless; podman is unconditional) |
 | `apps.{appimage,flatpak}` | `true` | `modules/nixos/<name>.nix` |
@@ -315,7 +314,9 @@ promote to a flag.
 
 `hosts.nix` builds every configuration from the `hosts/` directory: each
 `hosts/<host>/meta.nix` is plain data, and `hosts/<host>/config.nix` is the
-entry point.
+entry point. `hosts/<host>/machine.nix` holds hand-written config bound to
+that machine's parts (microcode, mount options), beside the generated
+`hardware-configuration.nix`.
 
 ```nix
 # hosts/Sleipnir/meta.nix

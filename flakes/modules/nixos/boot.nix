@@ -13,6 +13,9 @@ _: {
       };
     };
 
+    # drop to a rescue shell when stage 1 fails
+    kernelParams = ["boot.shell_on_fail"];
+
     # plymouth = {
     #   enable = true;
     # };

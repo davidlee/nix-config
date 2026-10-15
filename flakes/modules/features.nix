@@ -49,11 +49,6 @@ in {
       rocm = enabledByDefault "ROCm compute stack, for llama.cpp on Radeon";
     };
 
-    hardware = {
-      microcode = mkEnableOption "ucodenix CPU microcode updates";
-      ssd = mkEnableOption "SSD mount options (noatime, discard)";
-    };
-
     virt = {
       qemu = enabledByDefault "QEMU/libvirt";
       docker = mkEnableOption "Docker daemon (podman is unconditional)";

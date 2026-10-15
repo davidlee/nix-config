@@ -87,3 +87,24 @@ Post-review ruling (user, 2026-10-15): fail loud rather than rank `docker`
 over podman's shim; podman off entirely. Recorded as DEC-022; `hiPrio` dropped.
 Commit order hardware → virt → podman → apps; the exclusivity assertion lands
 with podman, since `podman.nix` is unconditional until then.
+
+## Gate snapshots
+
+Outside the repo, one directory per snapshot, each holding `drvs`,
+`drvs-sets`, `coverage` and the probe's files
+(`.doctrine/slice/005/gate-probe.sh <dir>`):
+
+- `~/.cache/multihost-gate/sl005/baseline/` — before any flake edit (PHASE-01 EN-2), tree at a2b08b34
+- `~/.cache/multihost-gate/sl005/phase-01/` — after PHASE-01; PHASE-02's baseline
+
+## PHASE-01 (2026-10-16)
+
+- Probe: one `nix eval` (justfile `system_override`, no agents pin: the
+  registry reaches none of its measures), then `nix build` of `system.path`
+  for the link map. About 1 min; the link map is 25,755 lines.
+- Gate vs baseline (EX-5, VA-1): `drvs` differs on `nixosConfigurations.Sleipnir`
+  only, plus `coverage.Sleipnir+openrgb` (same config). `drvs-sets` identical.
+  Probe: packages (463), groups (9), sorted kernelParams, root options, link
+  map all identical. `nix-diff` of the toplevel: only `boot.json`, kernelParams
+  order (`amdgpu.gpu_recovery=1` from radeon.nix now precedes the two moved params).
+- `just gate` green.

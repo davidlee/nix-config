@@ -22,10 +22,6 @@
     llama-cpp = false;
     rocm = false;
   };
-  hardware = {
-    ssd = true;
-    microcode = true;
-  };
   virt = {
     qemu = true;
     docker = true;
