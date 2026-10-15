@@ -17,6 +17,11 @@ act = "conclude"
 role = "raiser"
 note = "Agent self-review of design.md rev 36: sections 1-8 against ADR-001..005 and DEC-001..009, the resolver sketch evaluated against fixtures, and the verification mapping. F-3 is answered with an instrument (control) route, to be verified once phases exist."
 
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Adversarial pass over design.md sec-1..8 against DEC-001..009, ADR-001..005, HYP-001, EVD-001 and the current code (features.nix, hosts.nix, modules/features.nix, hosts/Sleipnir, darwin, justfile, snooze/openrgb modules); the four probes in the SL-001 notes (Design review). F-5..F-11 raised, repaired in prose, verified on the user LGTM. F-3 (control) stays answered until phases exist."
+
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-001"
 
@@ -118,6 +123,176 @@ response = "Accepted for two features; recorded in sec-8 open items. A completen
 act = "verify"
 role = "raiser"
 note = "checked in design.md rev 36"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "major"
+title = "HYP-001 cannot be refuted by this pilot, yet sec-8 sets it to confirmed"
+detail = """sec-8 confirms HYP-001 if tests 1-9 pass with no graph walk and nothing auto-selected. The design implements no graph walk, so that clause holds by construction. Snooze and openrgb have no prerequisites and no integrations, and requires is exercised only by inline fixtures (T3). None of the coupling EVD-001 names is exercised: desktop base with five compositors, the cross-class satan (home) to postgresql (system) edge, or the ADR-004 xdg portal fan-out. HYP-001 claims sufficiency for this repo's coupling. A pass shows only that the mechanism works for two features with no edges. Recording "confirmed" at close would let later migration slices treat an untested claim as settled. Repair, one of: (a) narrow the outcome to "supported for an edge-free pilot" and say which later slice tests the edges, or (b) add one fixture test that models the real EVD-001 graph (base plus compositors, a cross-class prerequisite, a host turning base off) and state what failure there would refute."""
+disposition = "fix-now"
+route = "review"
+response = 'Accepted. The observation was checked against the design: there is no graph walk, and neither pilot feature has a prerequisite or an integration. Of the two proposed repairs I took (a), narrowing the outcome. Repair (b), a fixture that models the EVD-001 graph, would also pass by construction, because requires can express every edge; the open question is ergonomics, which only a real migration shows. Also, the hypothesis lifecycle offers only proposed, confirmed or refuted, so there is no "supported" status to set. Design sec-8 (HYP-001) now says SL-001 can refute HYP-001 but not confirm it: on a pass, the result is recorded as supporting evidence, HYP-001 stays proposed, and the first migration slice with real edges decides it. Sibling swept: the HYP-001 line in slice-001.md Verification / closure. DEC-009 only defers "HYP-001 status" to close, so it stays consistent and is not reopened.'
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = 'Accepted. The observation was checked against the design: there is no graph walk, and neither pilot feature has a prerequisite or an integration. Of the two proposed repairs I took (a), narrowing the outcome. Repair (b), a fixture that models the EVD-001 graph, would also pass by construction, because requires can express every edge; the open question is ergonomics, which only a real migration shows. Also, the hypothesis lifecycle offers only proposed, confirmed or refuted, so there is no "supported" status to set. Design sec-8 (HYP-001) now says SL-001 can refute HYP-001 but not confirm it: on a pass, the result is recorded as supporting evidence, HYP-001 stays proposed, and the first migration slice with real edges decides it. Sibling swept: the HYP-001 line in slice-001.md Verification / closure. DEC-009 only defers "HYP-001 status" to close, so it stays consistent and is not reopened.'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "No stated pattern for ADR-004 integrations under the {flags; modules} contract"
+detail = 'ADR-004 D2 says the outer layer selects integrations whose applicability depends on selection. The resolver projects only tree features and has no slot for a conditional integration module. The first desktop migration (the xdg.nix portal fan-out) will have to choose a mechanism, and that may change the contract this slice is meant to fix as the pattern. HYP-001 already allows one cheap answer with no new mechanism: an integration is an ordinary feature that requires both of its ends and is selected by the profile. Repair: add one sentence to sec-8 "Open, accepted as-is" naming that pattern, or naming the contract change it would need. Then the migration slices inherit a decision instead of a gap.'
+disposition = "fix-now"
+response = """Accepted. Design sec-8 "Open, accepted as-is" now names the pattern: an integration whose applicability depends on selection (ADR-004 D2) is an ordinary feature that requires both of its ends and is selected by the profile that selects them. It needs no new mechanism and no change to the contract. The stated cost is that a host turning one end off must also turn the integration off, as with any prerequisite (DEC-005). I did not repeat the reviewer's xdg example: ADR-004 treats the portal fan-out as an always-present option (D1), not as a selection-dependent integration."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """Accepted. Design sec-8 "Open, accepted as-is" now names the pattern: an integration whose applicability depends on selection (ADR-004 D2) is an ordinary feature that requires both of its ends and is selected by the profile that selects them. It needs no new mechanism and no change to the contract. The stated cost is that a host turning one end off must also turn the integration off, as with any prerequisite (DEC-005). I did not repeat the reviewer's xdg example: ADR-004 treats the portal fan-out as an always-present option (D1), not as a selection-dependent integration."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "DEC-001 deferral blocks every shared home feature; dependency not stated"
+detail = """For the Mac, classesOf returns only darwin. A homeManager-only feature selected there fails the ADR-005 D6 check. Every module in modules/home/shared (cli, emacs, zsh, nvim, nushell, programs, shpool) is imported on both Linux and darwin. None of them can move into the tree until darwin's Home Manager receives projected modules (IMP-012, or a home-manager.sharedModules hook in mkDarwin). That hook is not free: darwin/default.nix builds extraSpecialArgs without features or stable, so projected home modules that take those arguments would break. sec-4 frames the gap as "until a feature needs it". In practice it is a hard prerequisite of the shared-home migration. Repair: say so in sec-4 or sec-8, and relate IMP-012 as blocking that migration, so the MULTIHOST rebase orders it correctly."""
+disposition = "fix-now"
+response = "Accepted. Verified that darwin/home.nix imports modules/home/shared zsh, nvim-plugins, nvim, programs, emacs, cli and nushell, and that darwin/default.nix lines 8-15 build extraSpecialArgs without features or stable. Design sec-4 (Darwin) now states that IMP-012, or an equivalent, must land before any shared home module is migrated, and why a sharedModules hook alone is not enough. sec-8 points to it. IMP-012's body now records that it blocks the shared-home migration. DEC-001 is not reopened: its choice for SL-001 stands, and only its consequence is now stated."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. Verified that darwin/home.nix imports modules/home/shared zsh, nvim-plugins, nvim, programs, emacs, cli and nushell, and that darwin/default.nix lines 8-15 build extraSpecialArgs without features or stable. Design sec-4 (Darwin) now states that IMP-012, or an equivalent, must land before any shared home module is migrated, and why a sharedModules hook alone is not enough. sec-8 points to it. IMP-012's body now records that it blocks the shared-home migration. DEC-001 is not reopened: its choice for SL-001 stands, and only its consequence is now stated."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "Real-tree tests assert exact contents and break on every migration"
+detail = "T1 expects modules.nixos to equal exactly the snooze tag, and modules.homeManager likewise. T1d expects all three lists to be empty for the Mac. T2 runs on the real tree and the real workstation profile. The next slice that adds a feature to workstation or to the tree turns these red although nothing is broken. They test the current inventory, not resolver behaviour, which goes against the project's test-behaviour standard. Repair: on the real tree, assert membership (the snooze tag is present in both lists; absent after the override; no homeManager or nixos tags for the Mac), and leave exact-list assertions to the fixture tests (T9 already covers order)."
+disposition = "fix-now"
+response = "Accepted. In design sec-6, T1 now asserts that the snooze tags are included in the nixos and homeManager lists, and T2 that neither list includes them. A paragraph after the table explains why tests on the real tree assert membership, and why T1d stays exact: nothing is selected without a profile or host definition, so an empty result for the Mac is a behaviour, not an inventory. Exact lists and order stay on fixtures (T9). T11 already checked a property, not contents."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. In design sec-6, T1 now asserts that the snooze tags are included in the nixos and homeManager lists, and T2 that neither list includes them. A paragraph after the table explains why tests on the real tree assert membership, and why T1d stays exact: nothing is selected without a profile or host definition, so an empty result for the Mac is a behaviour, not an inventory. Exact lists and order stay on fixtures (T9). T11 already checked a property, not contents."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "nit"
+title = "A requires typo in an unselected feature is not detected"
+detail = "requires paths are resolved only inside the check for a selected feature, so a misspelt path stays silent until some host selects the feature. Checking every record's requires paths against the record set is descriptor-level only (ADR-002 D4 allows it) and costs a few lines beside the uniqueness check. Optional; it can go to sec-8 as accepted if it is not wanted."
+disposition = "fix-now"
+response = "Accepted. The change is net neutral in size: the lazy throw inside on is gone, and the structural check sits beside the uniqueness check. Design sec-3 changes as follows. Step 1 runs two structural checks over every record, selected or not: duplicate names, and requires paths that name no record. The sketch adds paths and unknown and uses getAttrFromPath. A new invariant covers the check. The flowchart and its caption now show the structural branch; before, they claimed a single branch although the uniqueness throw already existed, a stale projection found in self-review. In sec-6, T3u now uses an unselected feature, which is the negative control for this change. I evaluated the revised sketch against inline fixtures with nix eval: order is kept, T3, T3u, T8 and T10 throw, a valid prerequisite resolves, and an unselected throw feature is untouched."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. The change is net neutral in size: the lazy throw inside on is gone, and the structural check sits beside the uniqueness check. Design sec-3 changes as follows. Step 1 runs two structural checks over every record, selected or not: duplicate names, and requires paths that name no record. The sketch adds paths and unknown and uses getAttrFromPath. A new invariant covers the check. The flowchart and its caption now show the structural branch; before, they claimed a single branch although the uniqueness throw already existed, a stale projection found in self-review. In sec-6, T3u now uses an unselected feature, which is the negative control for this change. I evaluated the revised sketch against inline fixtures with nix eval: order is kept, T3, T3u, T8 and T10 throw, a valid prerequisite resolves, and an unselected throw feature is untouched."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "nit"
+title = "Merge-order argument omits position within a level"
+detail = """sec-5 argues that the NixOS half stays at depth 2. Under breadth-first collection, the wrapper's import also moves from position :82 among config.nix's imports to after all of them. Depth alone does not preserve order. For snooze this does not matter, because it touches no shared list. The paragraph will be copied by later migrations, though, and for those it gives the wrong reason. Also, "No evaluation gains or loses a module" is loosely true: each projection adds a wrapper module. Repair: one clause each. The gate stays the arbiter."""
+disposition = "fix-now"
+response = "Accepted. mem.fact.nix.merge-order confirms that the closure is collected breadth-first, so position within a level matters. Design sec-5 (Merge order) now says the NixOS half stays at depth 2 but moves after every module that config.nix imports, and that depth alone does not preserve order. The host-by-host line now reads: no evaluation gains or loses a feature module, and each projected half gains a wrapper that carries only _file."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. mem.fact.nix.merge-order confirms that the closure is collected breadth-first, so position within a level matters. Design sec-5 (Merge order) now says the NixOS half stays at depth 2 but moves after every module that config.nix imports, and that depth alone does not preserve order. The host-by-host line now reads: no evaluation gains or loses a feature module, and each projected half gains a wrapper that carries only _file."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "nit"
+title = 'slice-001.md says "all seven tests" but lists nine'
+detail = """The slice's Verification / closure says "All seven tests pass". Its Scope section lists tests 1-9, and the design adds T10 and T11. The slice record lags the design. Repair: refresh the slice text to "tests 1-9", or to "the tests in design sec-6"."""
+disposition = "fix-now"
+response = 'Accepted. The slice is the stale side. slice-001.md Verification / closure now reads "Tests 1-9 pass". Swept: its HYP-001 line, updated for F-5. The Scope section already listed tests 1-9.'
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = 'Accepted. The slice is the stale side. slice-001.md Verification / closure now reads "Tests 1-9 pass". Swept: its HYP-001 line, updated for F-5. The Scope section already listed tests 1-9.'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = 'user accepted the dispositions: "LGTM / waive it / whatever clears the gate and proceed to planning"'
 
 # Findings are append-only `[[finding]]` tables, added by `review raise`.
 # Empty here at creation — a fresh review is Active, awaiting the raiser.

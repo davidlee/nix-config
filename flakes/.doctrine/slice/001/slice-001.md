@@ -116,10 +116,11 @@ configuration's builds stay identical. Design decisions: DEC-001 to DEC-009.
 
 ## Verification / closure
 
-- All seven tests pass; `just test` stays green; `nix fmt` clean (no
+- Tests 1–9 pass; `just test` stays green; `nix fmt` clean (no
   committed lock drift, mem.fact.flakes.fmt-relock).
-- HYP-001 status set from the result (confirmed, or refuted with the
-  failing test named).
+- HYP-001 refuted with the failing test named; otherwise the result is
+  recorded as supporting evidence and HYP-001 stays `proposed` (design,
+  "Governance impact and open items").
 - ADR-001 to ADR-005 are amended through a revision at reconcile (DEC-009),
   then put to the user for acceptance.
 

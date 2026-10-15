@@ -210,7 +210,9 @@ Tests can therefore resolve fixture trees without touching `features/`.
 
 ```mermaid
 flowchart TD
-  A["tree + classes + modules"] --> B["lib.evalModules:<br/>legacy flags · feature.*.enable · assertions option ·<br/>generated checks · host modules"]
+  A["tree + classes + modules"] --> S{"duplicate name, or<br/>unknown requires path?"}
+  S -->|yes| X0["throw: structural error"]
+  S -->|no| B["lib.evalModules:<br/>legacy flags · feature.*.enable · assertions option ·<br/>generated checks · host modules"]
   B --> C{"any assertion<br/>false?"}
   C -->|yes| X["throw: every failed message"]
   C -->|no| D["selected = features with enable = true,<br/>in index order"]
@@ -218,11 +220,16 @@ flowchart TD
   E --> F["{ flags; modules }"]
 ```
 
-The flowchart shows the single path through the resolver. The only branch
-is the assertion check, and a failure produces no result at all.
+The flowchart shows the single path through the resolver. It has two
+checks, structural then selection, and a failure of either produces no
+result at all.
 
 1. **Flatten** the tree into a list of records
    `{ area; name; path = "<area>.<name>"; descriptor; }`, keeping index order.
+   Two structural checks run first, over every record, selected or not. A
+   duplicate area or feature name fails resolution. So does a path in any
+   `requires` that names no record: `unknown feature <r> in <path>.requires`.
+   They read only names and `requires`, so they stay within ADR-002 D4.
 2. **Evaluate** the outer modules:
    - `modules/features.nix`, the legacy flags, unchanged apart from the two
      removed flags;
@@ -233,8 +240,7 @@ is the assertion check, and a failure produces no result at all.
    - the host's `modules`, which bring in its profiles.
 3. **Checks**, for each feature that is selected in the final merged config:
    - every path in `requires` is selected. Otherwise:
-     `feature.<path> requires feature.<r>, which is not selected`. An unknown
-     path in `requires` throws `unknown feature <r> in <path>.requires`;
+     `feature.<path> requires feature.<r>, which is not selected`;
    - its descriptor has at least one of `classes` (ADR-005 D6, presence test
      only). Otherwise:
      `feature.<path> is selected but has no module for this host's evaluations (<classes>)`.
@@ -291,10 +297,7 @@ lib: {tree, classes, modules}: let
   };
 
   checks = {config, ...}: let
-    on = path:
-      lib.attrByPath (lib.splitString "." path ++ ["enable"])
-      (throw "unknown feature ${path}")
-      config.feature;
+    on = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
   in {
     assertions = concatMap (r:
       lib.optionals (on r.path) (
@@ -312,7 +315,12 @@ lib: {tree, classes, modules}: let
 
   inherit ((lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;})) config;
 
-  unique = lib.allUnique (map (a: a.name) tree) && lib.allUnique (map (r: r.path) records);
+  paths = map (r: r.path) records;
+  unique = lib.allUnique (map (a: a.name) tree) && lib.allUnique paths;
+  unknown = concatMap (r:
+    map (p: "unknown feature ${p} in ${r.path}.requires")
+    (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
+  records;
   failed = filter (a: !a.assertion) config.assertions;
   selected = filter (r: config.feature.${r.area}.${r.name}.enable) records;
   project = class:
@@ -324,6 +332,8 @@ lib: {tree, classes, modules}: let
 in
   if !unique
   then throw "feature tree has a duplicate area or feature name"
+  else if unknown != []
+  then throw (lib.concatStringsSep "\n" unknown)
   else if failed != []
   then throw "feature selection failed:\n${lib.concatMapStrings (a: "- ${a.message}\n") failed}"
   else {
@@ -344,6 +354,9 @@ in
 - One record per path (ADR-002 D6). A duplicate area or feature name fails
   resolution before anything else is checked. Otherwise `listToAttrs` would
   silently keep one of the duplicates, while projection emitted both.
+- Every `requires` path names a record, whether or not its feature is
+  selected. A misspelt prerequisite fails on every host, not only on the
+  first host that selects the feature.
 
 <!-- doctrine:section sec-4 -->
 ## Factories and coverage targets
@@ -421,6 +434,15 @@ built with extra modules.
 silently doing nothing. IMP-012 tracks making darwin's Home Manager
 standalone, which would remove this asymmetry.
 
+This blocks a whole class of later migrations, not only some future feature.
+`darwin/home.nix` imports the shared home modules
+(`modules/home/shared/{zsh,nvim,nvim-plugins,programs,emacs,cli,nushell}.nix`),
+so none of them can become a feature until darwin's Home Manager receives
+projected modules. A `home-manager.sharedModules` hook in `mkDarwin` would not
+be enough on its own: darwin's `extraSpecialArgs` (`darwin/default.nix:8-15`)
+carries neither `features` nor `stable`. IMP-012, or an equivalent, must
+therefore land before any shared home module is migrated.
+
 ### Coverage targets (ADR-005)
 
 ```nix
@@ -487,12 +509,17 @@ therefore links the same file.
 | Sleipnir · Home Manager | imported → projected | n/a |
 | Mac · darwin | flag true, nothing consumes it → not selected | flag false → not selected |
 
-No evaluation gains or loses a module.
+No evaluation gains or loses a feature module. Each projected half gains a
+wrapper module that carries only `_file`.
 
 ### Merge order
 
 The NixOS half moves from factory → `config.nix` → `snooze.nix` to
-factory → wrapper → `nixos.nix`: depth 2 either way. The Home Manager half
+factory → wrapper → `nixos.nix`. Both are at depth 2, but the position is not
+the same. The closure is collected breadth-first, so `nixos.nix` now comes
+after every module that `config.nix` imports, instead of at its old place
+among them (`config.nix:82`). Depth alone therefore does not preserve order.
+The Home Manager half
 moves from depth 4 (factory → `home.nix` → `profiles/linux-desktop.nix` →
 `modules/home/linux` → `snooze.nix`) up to depth 2. List options merge in
 reverse breadth-first import order (`mem.fact.nix.merge-order`), so moving a
@@ -530,16 +557,21 @@ every test passes. Fixtures are written inline, so nothing is added under
 
 | id | test | input | expected |
 |---|---|---|---|
-| T1 | profile selects snooze | real tree, `classes = [nixos homeManager]`, modules `[workstation]` | `modules.nixos` file tags `["features/session/snooze#nixos"]`; `modules.homeManager` `["features/session/snooze#homeManager"]` |
+| T1 | profile selects snooze | real tree, `classes = [nixos homeManager]`, modules `[workstation]` | `modules.nixos` file tags include `features/session/snooze#nixos`; `modules.homeManager` tags include `features/session/snooze#homeManager` |
 | T1d | Mac selects nothing | real tree, `[darwin]`, no modules | all three lists empty; no throw |
-| T2 | host override wins | T1 + `{feature.session.snooze.enable = false;}` | both lists empty |
+| T2 | host override wins | T1 + `{feature.session.snooze.enable = false;}` | neither list includes a snooze tag |
 | T3 | prerequisite off fails | fixture `a.x` (`requires = ["a.y"]`), `a.x` on, `a.y` off | `tryEval` of `modules.homeManager` fails; also of `flags` |
-| T3u | unknown prerequisite fails | `requires = ["no.such"]` | `tryEval` fails |
+| T3u | unknown prerequisite fails | fixture feature, **unselected**, with `requires = ["no.such"]` | `tryEval` fails |
 | T4 | exclusion boundary | fixture features, unselected: one with `nixos = throw "…"` (fails if the resolver *forces* a class value), one whose module function names `pkgs.does-not-exist` (fails if the resolver *applies* a module); one harmless feature selected | resolve succeeds; `lib.evalModules` over `modules.nixos` with a stub option set evaluates `config` fully |
 | T8 | D6: nowhere to land | fixture `homeManager`-only feature selected, `classes = [darwin]` | `tryEval` fails |
 | T9 | order is list order | fixture areas `zeta` before `alpha`, both selected | file tags in `zeta`, `alpha` order |
 | T10 | duplicate names | a repeated area, then a repeated feature | `tryEval` fails |
 | T11 | flags hide the selection | real tree | `flags` has no `feature` and no `assertions` |
+
+Tests on the real tree assert membership, not equality, so adding a feature
+to the tree or to `workstation` does not turn them red. T1d stays exact
+because nothing is selected without a profile or host definition. Exact
+lists and order are tested on fixtures (T9).
 
 `builtins.tryEval` catches `throw`, which is how the resolver fails. It
 does not catch a missing-attribute error. T4 therefore asserts success,
@@ -665,9 +697,18 @@ DEC-001 (darwin), DEC-002 (namespace), DEC-003 (tree shape), DEC-004
 
 ### HYP-001
 
-Confirmed if tests 1–9 pass with no graph walk and nothing selected
-automatically. Refuted, naming the failing test, otherwise. SL-001 sets the
-status at close.
+SL-001 can refute HYP-001, but it cannot confirm it. Snooze and openrgb have
+no prerequisites and no integrations, and the design contains no graph walk,
+so a pass shows only that the mechanism holds where there are no edges. The
+coupling HYP-001 is about (EVD-001: the desktop base and its compositors,
+satan's home services needing the system PostgreSQL) first appears in the
+desktop and home migrations.
+
+- If a SL-001 test needs graph traversal or automatic selection, HYP-001 is
+  refuted, naming the test.
+- Otherwise SL-001 records its result as evidence supporting HYP-001, and
+  HYP-001 stays `proposed`. The first migration slice with real edges decides
+  it.
 
 ### Open, accepted as-is
 
@@ -675,6 +716,15 @@ status at close.
   not expressible in descriptors. The escape hatch is a hand-written
   `assertions` entry in an outer module, which the same check enforces. Build
   more only when a real case appears (DEC-005).
+- Integrations whose applicability depends on selection (ADR-004 D2) have
+  no slot of their own in `{ flags; modules }`. The intended pattern needs
+  no new mechanism: such an integration is an ordinary feature whose
+  descriptor `requires` both ends, selected by the profile that selects
+  them. The cost is that a host turning one end off must also turn the
+  integration off, as with any prerequisite (DEC-005).
+- Darwin's Home Manager receives no projection, which blocks migrating the
+  shared home modules until IMP-012 or an equivalent lands (see "Darwin"
+  under factories).
 - A duplicate *module* reached two ways, e.g. projected and also imported by
   hand, is not detected. ADR-001 D6 makes avoiding this a convention, and
   this slice removes both hand imports.

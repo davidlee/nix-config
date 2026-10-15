@@ -18,3 +18,10 @@ DEC-001 defers.
 It is a behaviour change: darwin's activation and outputs change. It needs
 its own slice and an ADR-003 amendment. Raised during SL-001 design,
 2026-10-15.
+
+**Blocks the shared-home migration** (RV-001 F-7). `darwin/home.nix`
+imports `modules/home/shared/*`, and under SL-001 the Mac's evaluation
+accepts only the `darwin` class. So no shared home module can become a
+feature until darwin's Home Manager receives projected modules: this item,
+or a `home-manager.sharedModules` hook plus `features`/`stable` in darwin's
+`extraSpecialArgs`. Order it before that migration slice.
