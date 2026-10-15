@@ -1,0 +1,152 @@
+# Implementation plan for SL-006 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-006"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One phase per commit (design § Phases and verification): games (with the
+# probe), ai, audio/services/apps, desktop, retirement. Each phase is gated
+# against the previous phase's "after" snapshot (design § Gate and probe).
+# Every phase gate = just drvs, just drvs-sets, just probe, just coverage,
+# just gate (RV-013 F-3).
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Probe promotion, then games"
+objective = "Promote the gate probe to bin/gate-probe with the new system measures and a home mode (just probe), take the slice baseline, then retire games.{enable,gamescope,mangohud} into features/games.nix as games.steam, games.gamescope (requires steam; owns the gamemode group, IMP-003) and games.mangohud (DEC-023)."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-006 design locked (design run stage locked); slice status ready." },
+  { id = "EN-2", text = "Probe promoted and extended before any config edit; then the baseline (just drvs, just drvs-sets, just probe for system and home, just coverage) captured on the unchanged config, paths recorded in notes.md." },
+  { id = "EN-3", text = "Red: testSleipnirSelectsMigrated gains games.steam#nixos, games.gamescope#nixos (both [true false]) and games.mangohud#homeManager ([false true]); testGamescopeRequiresSteam (real tree, no host file: gamescope alone fails, twin with steam resolves) written; both failing before the records exist." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "bin/gate-probe (git mv from .doctrine/slice/005/gate-probe.sh): flake root $(dirname \"$0\")/..; system mode with system_override, home mode (attr homeConfigurations.*) with home_override (RV-013 F-7); just probe <outdir> writes <outdir>/{system,home}; header points to mem.pattern.flakes.drv-gate." },
+  { id = "EX-2", text = "Probe measures built artefacts for order-semantic lists (RV-013 F-2): system keeps packages, groups, kernelParams, root-options, system-path-links and adds ports (sorted firewall TCP/UDP ports and ranges, global and per interface), udev-rules (built rules dir, file -> target), session-desktops (link map of services.displayManager.sessionData.desktops), fontconfig (link map of built /etc/fonts plus fonts.conf hash); home adds packages, home-path-links, home-files-links. The /share/nix-ld and /share/xdg-desktop-portal prefixes are confirmed present in system-path-links, else added as measures." },
+  { id = "EX-3", text = "features/games.nix lists steam, gamescope, mangohud; bodies moved verbatim from modules/nixos/{games,gamescope}.nix and modules/home/linux/games.nix (both game-devices-udev-rules entries kept); gamescope has requires = [\"games.steam\"] and users.groups.gamemode.members = [username]; the three old files deleted; features/default.nix appends games." },
+  { id = "EX-4", text = "gamemode out of user.nix extraGroups; programs.nix:92 comment names features/games.nix (games.steam)." },
+  { id = "EX-5", text = "games flags gone from modules/features.nix (follows and its now-unused config arg removed, deadnix clean) and from hosts/Sleipnir/features.nix; Sleipnir selects games.{steam,gamescope,mangohud} as host properties (DEC-024); gates gone from config.nix and modules/home/linux/default.nix." },
+  { id = "EX-6", text = "testFlagsHideSelection drops its flags ? games element (RV-013 F-3)." },
+  { id = "EX-7", text = "Gate vs EN-2 baseline: only Sleipnir's toplevel and david@Sleipnir's home differ in drvs; drvs-sets identical; every probe measure identical, system and home; any other changed drv nix-diffed with env equal once lists are sorted (RV-013 F-2)." },
+  { id = "EX-8", text = "README tree listing and flag table updated for games; committed (conventional commit, scoped to flakes/); post-phase snapshot saved as PHASE-02's baseline." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver tests cover the games features and the steam prerequisite", test_file = "features-test.nix", keywords = ["games.steam#nixos", "games.gamescope#nixos", "games.mangohud#homeManager", "testGamescopeRequiresSteam"], waived = false },
+  { id = "VT-2", expects = "games area carries three records, the prerequisite and the group", test_file = "features/games.nix", keywords = ["name = \"steam\"", "name = \"gamescope\"", "name = \"mangohud\"", "requires = [\"games.steam\"]", "users.groups.gamemode.members"], waived = false },
+  { id = "VT-3", expects = "probe covers every design measure, both modes", test_file = "bin/gate-probe", keywords = ["system-path-links", "ports", "udev-rules", "session-desktops", "fontconfig", "home-path-links", "home-files-links", "home_override"], waived = false },
+  { id = "VA-1", expects = "EX-7 gate diff reviewed: allowed rows only (design PHASE 1 row), every probe file identical" },
+  { id = "VA-2", expects = "Negative controls with lib.mkForce false: steam+gamescope off -> programs.steam.enable false, steam absent from system-path; gamescope off -> gamemode absent from effective groups; mangohud off -> absent from home.packages (RV-013 F-4)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "ai: llama-cpp and rocm"
+objective = "Retire ai.{llama-cpp,rocm} into features/ai.nix; neither selected; one coverage target each."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testOffFeatures written and failing before the records exist: Sleipnir leaves ai.llama-cpp and ai.rocm unselected, and selecting each (sleipnirWith [(on …)]) projects its NixOS half — a leaves-off assertion alone would pass vacuously. Extended in PHASE-03." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/ai.nix lists llama-cpp (modules/nixos/llama-cpp.nix verbatim, header and presets inline) and rocm (rocmSupport, with a comment: rebuilds much of nixpkgs; llama-cpp does not need it); old files deleted; features/default.nix appends ai." },
+  { id = "EX-2", text = "ai flags gone from modules/features.nix and hosts/Sleipnir/features.nix; gates gone from config.nix." },
+  { id = "EX-3", text = "hosts.nix gains coverage.\"Sleipnir+llama-cpp\" and coverage.\"Sleipnir+rocm\"; just coverage evaluates both." },
+  { id = "EX-4", text = "overlays/whisper-rocm.nix header no longer claims rocmSupport is on globally via modules/nixos/rocm.nix (RV-013 F-10)." },
+  { id = "EX-5", text = "Gate vs PHASE-01: every drvs line identical; probe identical." },
+  { id = "EX-6", text = "README llama.cpp section: gated by feature.ai.llama-cpp, selected in hosts/Sleipnir/features.nix; rocm flag wording gone; committed." },
+]
+verification = [
+  { id = "VT-1", expects = "ai features are off on Sleipnir and selectable", test_file = "features-test.nix", keywords = ["testOffFeatures", "ai.llama-cpp#nixos", "ai.rocm#nixos"], waived = false },
+  { id = "VT-2", expects = "coverage targets exist for both ai features", test_file = "hosts.nix", keywords = ["Sleipnir+llama-cpp", "Sleipnir+rocm"], waived = false },
+  { id = "VA-1", expects = "EX-5: drvs identical everywhere, both new coverage targets print a drvPath" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "audio, services, apps"
+objective = "Retire mpd, speech, dictate, printing, webserver, sunshine and apps.cad into features/{audio,services,apps}.nix; repair the speech overlay; dictate's assets move beside it; caddy leaves user.nix."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated gains audio.mpd#nixos, services.printing#nixos, services.webserver#nixos ([true false]), audio.dictate#homeManager and apps.cad#homeManager ([false true]); testOffFeatures gains audio.speech, services.sunshine; failing before the records exist." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/audio.nix (mpd, speech, dictate), features/services.nix (printing, webserver, sunshine), features/apps.nix (cad): bodies verbatim; old module files deleted; features/default.nix appends audio, services, apps." },
+  { id = "EX-2", text = "modules/home/linux/bin/{dictate,dictate-test} git mv'd to features/audio/; the dictate record's two ./bin/dictate references become ./audio/dictate; justfile test path and its comment updated." },
+  { id = "EX-3", text = "overlays/whisper-rocm.nix pins gfx1201 through whisper-cpp.override { rocmSupport = true; vulkanSupport = false; llama-cpp = prev.llama-cpp.override { rocmGpuTargets = [\"gfx1201\"]; }; }; coverage.\"Sleipnir+speech\" evaluates, demonstrating the repair (RV-013 F-1). If it does not evaluate: stop and /consult (fallback: park speech)." },
+  { id = "EX-4", text = "coverage.\"Sleipnir+sunshine\" added and evaluates." },
+  { id = "EX-5", text = "caddy out of user.nix extraGroups; flags mpd, speech, dictate, printing, webserver, sunshine, apps.cad gone from modules/features.nix (mkEnableOption import removed if unused, deadnix clean) and from hosts/Sleipnir/features.nix; workstation profile selects audio.dictate (QUE-001 caveat comment); Sleipnir selects audio.mpd, services.{printing,webserver}, apps.cad (DEC-024); gates gone from config.nix and modules/home/linux/default.nix." },
+  { id = "EX-6", text = "Gate vs PHASE-02: only Sleipnir's toplevel and home differ in drvs; drvs-sets identical; every probe measure identical (so dictate's files and unit are unchanged); just coverage evaluates all six targets." },
+  { id = "EX-7", text = "README Dictation and Printing sections point to the feature files; tree listing and flag table updated; committed." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver tests cover the migrated singletons", test_file = "features-test.nix", keywords = ["audio.mpd#nixos", "audio.dictate#homeManager", "services.printing#nixos", "services.webserver#nixos", "apps.cad#homeManager", "audio.speech#nixos", "services.sunshine#nixos"], waived = false },
+  { id = "VT-2", expects = "dictate test runs from its new home", test_file = "justfile", keywords = ["features/audio/dictate-test"], waived = false },
+  { id = "VT-3", expects = "speech overlay pins targets through llama-cpp", test_file = "overlays/whisper-rocm.nix", keywords = ["llama-cpp = prev.llama-cpp.override", "rocmGpuTargets"], waived = false },
+  { id = "VA-1", expects = "EX-6 gate diff reviewed: allowed rows only, every probe file identical" },
+  { id = "VA-2", expects = "Negative controls (lib.mkForce false): mpd -> services.mpd.enable false; dictate -> dictate user unit absent; printing -> services.printing.enable false; webserver -> static-web-server unit absent; cad -> openscad absent" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "desktop (+ IMP-004)"
+objective = "Retire desktop.{sway,niri,cosmic,kde,mango} and fonts into features/desktop.nix, with sway and fonts in their own files; waybar leaves wayland_packages.nix and the sway record's cava duplicate goes (IMP-004); the last gates and the features/lib args leave config.nix and modules/home/linux/default.nix."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 committed; its post-phase snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated gains desktop.sway (nixos and home), desktop.niri (nixos and home), desktop.{cosmic,kde,mango,fonts}#nixos; failing before the records exist." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/desktop.nix lists sway, niri, cosmic, kde, mango, fonts in that order; sway (nixos + homeManager) and fonts in features/desktop/{sway,fonts}.nix as (import ./desktop/<name>.nix); niri carries both halves; bodies verbatim; old files deleted; features/default.nix appends desktop." },
+  { id = "EX-2", text = "waybar removed from modules/nixos/wayland_packages.nix; cava removed from the sway record (stays in wayland_packages); nothing else in wayland_packages changes." },
+  { id = "EX-3", text = "desktop and fonts flags gone from modules/features.nix and hosts/Sleipnir/features.nix; workstation profile selects desktop.fonts; Sleipnir selects the five compositors (DEC-024); config.nix and modules/home/linux/default.nix lose their last gates and their features and lib args (RV-013 F-8); config.nix's parked comment reworded (RV-013 F-9)." },
+  { id = "EX-4", text = "Gate vs PHASE-03: only Sleipnir's toplevel and home differ in drvs; drvs-sets system count drops by exactly 2; the probe's unique packages identical (RV-013 F-11); every other probe measure identical (session-desktops, fontconfig, system-path-links included)." },
+  { id = "EX-5", text = "IMP-004 notes updated (fold-in done; prune remains); README tree listing and flag table; committed." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver tests cover the desktop features", test_file = "features-test.nix", keywords = ["desktop.sway#nixos", "desktop.sway#homeManager", "desktop.niri#homeManager", "desktop.kde#nixos", "desktop.fonts#nixos"], waived = false },
+  { id = "VT-2", expects = "desktop area lists every compositor and spills sway and fonts", test_file = "features/desktop.nix", keywords = ["import ./desktop/sway.nix", "import ./desktop/fonts.nix", "name = \"niri\"", "name = \"cosmic\"", "name = \"kde\"", "name = \"mango\""], waived = false },
+  { id = "VA-1", expects = "EX-4 gate diff reviewed: count -2, unique set identical, every probe file identical" },
+  { id = "VA-2", expects = "Negative controls (lib.mkForce false): programs.sway.enable, programs.niri.enable, services.desktopManager.cosmic.enable, programs.mango.enable false; kde -> plasma-desktop absent from system-path; fonts -> clockface-font absent from fonts.packages; sway -> waybar absent from system-path" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Retire the flag machinery"
+objective = "Delete modules/features.nix; the resolver returns { modules } only and keeps its outer-option-at-feature-path check (DEC-025); hosts.nix stops passing features; tests and README describe one mechanism."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 committed; no flag remains in modules/features.nix." },
+  { id = "EN-2", text = "Red: testResultIsModulesOnly (attrNames of the result == [\"modules\"]) written and failing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "modules/features.nix deleted; features.nix no longer loads it, returns { modules }, header loses 'Two paths coexist'; the option-at-feature-path check stays with reworded comment (DEC-025)." },
+  { id = "EX-2", text = "hosts.nix args drop features = selection.flags; header comment updated." },
+  { id = "EX-3", text = "features-test.nix: resolves and testPrerequisiteOffFails force .modules; testFlagsHideSelection replaced by testResultIsModulesOnly; :119 comment speaks of an outer option; :303 comment no longer says NixOS half only." },
+  { id = "EX-4", text = "README: Legacy flags subsection and flag table gone; intro and diagram lose flags -> specialArgs.features; tree listing shows every area; Parked section says 'promote to a feature'." },
+  { id = "EX-5", text = "Gate vs PHASE-04: every drvs line identical; probe identical." },
+  { id = "EX-6", text = "Close grep (design § Phases and verification) over flakes/ excluding .doctrine/ finds nothing; just gate green; committed." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver result is modules only", test_file = "features-test.nix", keywords = ["testResultIsModulesOnly"], waived = false },
+  { id = "VA-1", expects = "Close grep output empty (covers hosts.nix's features specialArg and every flag read); EX-5 drvs identical" },
+]
+specs        = []
+requirements = []

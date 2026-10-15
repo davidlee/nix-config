@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 25
+slug = "resolver-keeps-the-outer-option-at-feature-path-check-after-flag-retirement"
+title = "Resolver keeps the outer-option-at-feature-path check after flag retirement"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-006 retires modules/features.nix and the resolver's flags output. ADR-002 D4 lists 'no option is declared at a feature's path' as a structural check; it was written against legacy flags."
+choice = "Keep the check, reworded: any outer option at <area>.<name> would be a second switch for a feature. The resolver returns only { modules }; the features specialArg goes."
+alternatives = ["Drop the check with the flags (slice scope wording)"]
+rationale = "Outer settings schemas (ADR-002 D4, CPT-001 default session) remain legitimate outer options; the guard stays cheap and ADR-002 stays unamended on this point."
+consequences = ["Its resolver test keeps its fixture-declared option and no longer depends on modules/features.nix"]
+decided_by = "user (2026-10-16, 'agreed')"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-006"

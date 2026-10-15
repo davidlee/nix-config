@@ -1,7 +1,7 @@
 id = 6
 slug = "flags-games-ai-singletons"
 title = "Legacy flags to feature tree: the rest of W3"
-status = "design"
+status = "plan"
 created = "2026-10-15"
 updated = "2026-10-15"
 tags = []
@@ -12,7 +12,7 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "modules/features.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts/Sleipnir/**"
@@ -20,7 +20,7 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "hosts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/**"
@@ -28,75 +28,75 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "features-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/user.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/games.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/gamescope.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/llama-cpp.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/rocm.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/fonts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/printing.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/speech.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/sunshine.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/webserver.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/mpd.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/default.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/games.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/dictate.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/bin/dictate*"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "flake.nix"
@@ -104,7 +104,7 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "modules/home/linux/cad-3d.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/{sway,niri,cosmic,kde,mango}.nix"
@@ -116,11 +116,103 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "modules/nixos/wayland_packages.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/nixos/programs.nix"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "features/games.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/ai.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/audio.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/audio/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/services.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/apps.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/desktop.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/desktop/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/workstation.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/config.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/gate-probe"
+intent = "design-target"
+
+[[selector]]
+selector = "justfile"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/sway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/niri.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/cosmic.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/kde.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/mango.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/linux/sway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/linux/niri.nix"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/slice/005/gate-probe.sh"
+intent = "design-target"
+
+[[selector]]
+selector = "overlays/whisper-rocm.nix"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"
@@ -143,6 +235,11 @@ target = "IMP-003"
 label = "references"
 role = "concerns"
 target = "IMP-016"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "IMP-004"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

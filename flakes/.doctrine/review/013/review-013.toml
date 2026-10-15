@@ -1,0 +1,365 @@
+id    = 13
+slug  = "design-review-of-sl-006"
+title = "design review of SL-006"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Adversarial Opus pass over design.md, governance (ADR-001/002/005, DEC-015/023/024/025, CPT-001), SL-005 precedent and all modules in scope; 11 findings raised, all fixed and re-verified by the reviewer against the revised design; whisper-cpp override evaluated against the pinned nixpkgs."
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Same pass; F-1..F-4 re-routed (no content change)."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-006"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "blocker"
+title = "Sleipnir+speech coverage does not evaluate"
+detail = "sec-5/sec-8: overlays/whisper-rocm.nix:10 passes rocmGpuTargets, which current whisper-cpp no longer accepts; evaluating Sleipnir + speech fails ('unexpected argument rocmGpuTargets'). Under ADR-005 an unevaluable feature is parked, not off; phase 3's coverage proof goes red."
+disposition = "fix-now"
+response = "Overlay repair specified in sec-3; demonstrated in phase 3 by coverage Sleipnir+speech (reviewer already evaluated the override)."
+route = "demonstrate"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = 'User chose repair (2026-10-16). sec-3: overlays/whisper-rocm.nix pins targets via llama-cpp.override { rocmGpuTargets = ["gfx1201"]; } passed to whisper-cpp (pinned whisper-cpp takes its backend from llama-cpp); phase 3 proves it with coverage Sleipnir+speech; fallback park after /consult.'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Re-route for design lock gate"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "demonstrate"
+response = "Overlay repair specified in sec-3; demonstrated in phase 3 by coverage Sleipnir+speech (reviewer already evaluated the override)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Resolved; re-checked by the adversarial reviewer."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "Allowed-diff rows omit reordered lists the probe cannot prove"
+detail = "sec-7/sec-8: moving gated modules to appended tree modules reorders udev.packages, displayManager.sessionPackages, xdg.portal.extraPortals, firewall ports, nix-ld.libraries, fonts.packages, console.packages — several order-semantic (buildEnv winners, fontconfig precedence, udev shadowing). Rows list only systemPackages and groups; probe measures none of these."
+disposition = "fix-now"
+response = "Probe measures built artefacts for order-semantic lists (sec-7); proven per phase by the probe."
+route = "probe"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. sec-7 probe measures built artefacts for order-semantic lists (ports, udev rules dir, session desktops, fontconfig; nix-ld and portals via system-path link map, confirmed in phase 1); unexplained changed drvs nix-diffed with env equal once sorted; sec-8 rows list the reordered lists per phase."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Re-route for design lock gate"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "probe"
+response = "Probe measures built artefacts for order-semantic lists (sec-7); proven per phase by the probe."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Resolved; re-checked by the adversarial reviewer."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "testFlagsHideSelection breaks in phase 1; tests not run per phase"
+detail = "sec-6/sec-8: features-test.nix:279 asserts flags ? games; phase 1 removes games flags. just test/gate appear only in phase 5's row; per-phase gate omits them."
+disposition = "fix-now"
+response = "Design fixed: just gate per phase; testFlagsHideSelection trimmed in phase 1 (sec-7, sec-8)."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. just gate added to every phase's gate (sec-7); testFlagsHideSelection drops flags ? games in phase 1, replaced in phase 5 (sec-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Re-route for design lock gate"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Design fixed: just gate per phase; testFlagsHideSelection trimmed in phase 1 (sec-7, sec-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Resolved; re-checked by the adversarial reviewer."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "major"
+title = "Host plain definitions defeat the gamescope test and negative controls"
+detail = "sec-8: hosts/Sleipnir/features.nix sets feature.games.steam.enable = true plainly, so adding false conflicts (throws for the wrong reason). Deselecting steam alone also trips gamescope's requires."
+disposition = "fix-now"
+response = "Design fixed: host-free gamescope test, mkForce false controls, steam with gamescope (sec-8)."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. testGamescopeRequiresSteam on the real tree without the host file; negative controls use lib.mkForce false; steam control deselects gamescope too (sec-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Re-route for design lock gate"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Design fixed: host-free gamescope test, mkForce false controls, steam with gamescope (sec-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Resolved; re-checked by the adversarial reviewer."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "IMP-004 consumer claims wrong for waybar, wob, grimshot"
+detail = "sec-4: sway.conf:469 'exec waybar' is commented; waybar starts from the sway home half's programs.waybar (still sway-only). wob has no consumer (prune candidate). grimshot is also used by zsh alias scr (aliases.zsh:66): not sway-only."
+disposition = "fix-now"
+response = "Verified (sway.conf:469 commented; no wob consumer; aliases.zsh:66 uses grimshot). IMP-004 fold-in narrowed to waybar (consumer: sway home half's programs.waybar); wob joins the prune list; grimshot stays shared (sec-4, sec-9, IMP-004)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Verified (sway.conf:469 commented; no wob consumer; aliases.zsh:66 uses grimshot). IMP-004 fold-in narrowed to waybar (consumer: sway home half's programs.waybar); wob joins the prune list; grimshot stays shared (sec-4, sec-9, IMP-004)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "ADR-002 D5 order change of moved modules not stated"
+detail = "sec-1: moved modules go from config.nix's alphabetical gate order to area order; D5 says migration preserves existing order. State the deviation and its diff consequence."
+disposition = "fix-now"
+response = "Accepted. sec-1 states the deviation from ADR-002 D5 for moved modules and its consequence (reordered lists, proven per phase)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. sec-1 states the deviation from ADR-002 D5 for moved modules and its consequence (reordered lists, proven per phase)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "Promoted probe: flake root path and per-mode overrides"
+detail = "sec-7: gate-probe.sh resolves the flake as dirname/../../..; from bin/ it must be dirname/.. . Home mode should use home_override as just drvs does."
+disposition = "fix-now"
+response = "Accepted. sec-7: flake root dirname/..; per-mode overrides (system_override, home_override)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. sec-7: flake root dirname/..; per-mode overrides (system_override, home_override)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "deadnix cleanups land earlier than the design says"
+detail = "sec-6/sec-8: unused follows/config (phase 1), mkEnableOption (phase 3), features+lib in config.nix and home default.nix (phase 4, not 5) — treefmt's deadnix edits them per phase."
+disposition = "fix-now"
+response = "Accepted. features/lib args leave config.nix and home default.nix in phase 4; per-phase deadnix cleanups listed (sec-6, sec-8)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. features/lib args leave config.nix and home default.nix in phase 4; per-phase deadnix cleanups listed (sec-6, sec-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "Stale comments and an imprecise close grep"
+detail = "sec-6: config.nix:56-57 'not feature flags', features-test.nix:119 and :303 comments, justfile:45-47 test comment, sleipnir-doctor.nix:1 depends on sway's wpmPython (note for ISS-008/W4). Close grep 'features.' matches filenames; use a specific pattern."
+disposition = "fix-now"
+response = "Accepted. Stale comments listed (config.nix:56-57, features-test.nix:119/:303, justfile:45-47); sleipnir-doctor wpmPython dependency noted under ISS-008; close grep made specific (sec-6, sec-8, sec-9)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. Stale comments listed (config.nix:56-57, features-test.nix:119/:303, justfile:45-47); sleipnir-doctor wpmPython dependency noted under ISS-008; close grep made specific (sec-6, sec-8, sec-9)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "minor"
+title = "whisper-rocm overlay comment cites rocm.nix"
+detail = "sec-9: overlays/whisper-rocm.nix:2 says rocmSupport is already on globally via modules/nixos/rocm.nix — false today, and the path goes in phase 2."
+disposition = "fix-now"
+response = "Accepted. overlays/whisper-rocm.nix header comment corrected in phase 2 (sec-9)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. overlays/whisper-rocm.nix header comment corrected in phase 2 (sec-9)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "minor"
+title = "drvs-sets cannot prove unique-set identity"
+detail = "sec-8 phase 4: drvs-sets hashes the sorted list with duplicates; unique-set identity comes from the probe's packages measure."
+disposition = "fix-now"
+response = "Accepted. Unique-set identity attributed to the probe's packages measure (sec-8 phase 4)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. Unique-set identity attributed to the probe's packages measure (sec-8 phase 4)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Adversarial reviewer re-checked the revised design (2026-10-16): resolved."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

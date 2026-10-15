@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 23
+slug = "w3-area-taxonomy-games-ai-audio-services-apps-desktop"
+title = "W3 area taxonomy: games, ai, audio, services, apps, desktop"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-006 moves the remaining legacy flags onto the feature tree (DEC-015 area files) and must name their areas and features."
+choice = "games: steam (was games.enable), gamescope (requires games.steam), mangohud. ai: llama-cpp, rocm. audio: mpd, speech, dictate. services: printing, webserver, sunshine. apps: cad (taxonomy still IMP-016). desktop: sway, niri, cosmic, kde, mango, fonts. New areas append to features/default.nix in phase order."
+alternatives = ["games as one feature with nixos + homeManager halves", "sunshine under games", "media area for mpd/speech/dictate", "singletons in a catch-all system area"]
+rationale = "Areas group by what a feature is, not its use (sunshine streams the desktop; no games dependency). Three games features keep the legacy flags' independent toggles; requires replaces the follows defaults and the resolver checks it."
+consequences = ["Legacy paths games.enable and the top-level singletons are renamed", "games.gamescope selected without games.steam fails resolution"]
+decided_by = "user (2026-10-16, 'agreed')"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-006"

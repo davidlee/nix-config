@@ -43,16 +43,22 @@ No intended behaviour change.
   settings from `hosts/Sleipnir/features.nix`.
 - Features Sleipnir leaves off (llama-cpp, rocm, speech, sunshine) get
   `flake.coverage` targets (ADR-005).
+  speech does not evaluate today (`overlays/whisper-rocm.nix` passes a
+  removed `rocmGpuTargets`); its overlay is repaired here (RV-013 F-1,
+  user 2026-10-16). Sleipnir does not select it, so nothing it builds changes.
 - IMP-003 where it falls out: the `gamemode` group (enabled by
   `modules/nixos/gamescope.nix`) moves out of `user.nix` into the feature
-  that owns it. `jackaudio` has no owner module; out of scope.
+  that owns it; `caddy` (no such group on Sleipnir) is dropped with
+  webserver. `jackaudio` has no owner module; out of scope.
 - `apps.cad` moves verbatim (its taxonomy stays IMP-016), so no flag remains.
 - Desktop compositors move verbatim, with their system and home halves.
-  IMP-004 (WM-specific packages out of `wayland_packages.nix`) folds in
-  where it is set-preserving on Sleipnir.
+  IMP-004 folds in: `waybar` leaves `wayland_packages.nix` (`desktop.sway`
+  already lists it); `cava`, `wob`, `grimshot` stay shared (set-preserving on
+  Sleipnir); the unused-package prune stays in IMP-004. ISS-008 logs niri's
+  home half carrying umbriel's tray and wallpaper.
 - **Retire the machinery** (W3's exit, RFC-001): `modules/features.nix`
-  deleted; the resolver (`features.nix`) stops returning `flags` and its
-  legacy-flag checks go; `hosts.nix` stops passing the `features`
+  deleted; the resolver (`features.nix`) stops returning `flags`, keeping
+  its outer-option-at-feature-path check (DEC-025); `hosts.nix` stops passing the `features`
   specialArg / `extraSpecialArgs`; `features-test.nix` loses its flag
   cases; README's "Legacy flags" section goes.
 - README: tree listing, intro, feature-flags section rewritten for one
@@ -72,23 +78,14 @@ The per-phase gate and the audit stay.
   its effective selection.
 - Parked modules (hyprland, kmscon, danksearch).
 
-## Open questions (for design)
+## Design answers
 
-- Areas: names and grouping (e.g. `games`, `ai`, `media`/`audio` for
-  mpd/speech/dictate, `desktop-services`/`system` for fonts, printing,
-  webserver, sunshine).
-- games: one feature with nixos + homeManager halves, or games / gamescope
-  / mangohud as three features with `requires` (replacing the `follows`
-  defaults)?
-- Selection: workstation profile vs host property, per feature.
-- Desktop: one area with five compositor features; where shared desktop
-  modules (wayland, greeter, xdg) sit — base, or a `requires` target.
-- Order: is desktop last (largest diff surface), with retirement as the
-  final phase?
-- Home-only features (dictate, mangohud) are Linux-only: Draupnir selects
-  none, so QUE-001 does not bite here; confirm.
-- `gate-probe.sh` lives under SL-005: reuse in place or promote to a shared
-  location.
+Settled in design (2026-10-16): areas and names DEC-023 (sunshine under
+`services`), selection DEC-024, outer-option check DEC-025. The rest are in
+the design: desktop base stays unconditional; one coverage target per off
+feature; IMP-004 folds into the desktop phase; phases games → ai → audio/services/apps → desktop → retirement;
+QUE-001 does not bite (Draupnir imports no profile); `gate-probe.sh` is
+promoted to `just probe`, with a home mode.
 
 ## Verification / closure intent
 
