@@ -1,0 +1,81 @@
+id = 4
+slug = "darwin-standalone-home"
+title = "Darwin standalone Home Manager and unified pkgs factories"
+status = "design"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "hosts.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flake.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "darwin/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts/Davids-MacBook-Pro/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "justfile"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "README.md"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features-test.nix"
+intent = "scope-relevant"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-003"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-001"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "IMP-012"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "ISS-004"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "CHR-003"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "embedded-HM no-projection consequence is superseded"
+target = "DEC-001"
+
+[[relation]]
+label = "related"
+target = "RFC-001"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.
