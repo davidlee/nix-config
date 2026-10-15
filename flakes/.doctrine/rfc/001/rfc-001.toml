@@ -70,3 +70,7 @@ target = "SL-004"
 label = "related"
 target = "SL-006"
 
+[[relation]]
+label = "related"
+target = "SL-007"
+
