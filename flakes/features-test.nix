@@ -187,6 +187,12 @@ in
       expected = [false true false true];
     };
 
+    # The likeliest spill mistake: listing a feature's file, not importing it.
+    testNonRecordFeatureFails = {
+      expr = map (f: resolves {tree = [(area "a" [f])];}) [./features/virt/capsule.nix (import ./features/virt/capsule.nix)];
+      expected = [false true];
+    };
+
     testUnnamedFeatureFails = {
       expr = map (f: resolves {tree = [(area "a" [f])];}) [nixos (feat "x" nixos)];
       expected = [false true];

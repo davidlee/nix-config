@@ -87,12 +87,14 @@ lib: {
   # names, descriptor key names, `requires` and option declarations, never a
   # class value or a config value (ADR-002 D4), so all are safe to compute
   # together; `checks` looks paths up by splitting on ".", so it must not run
-  # until these pass. Everything after `unnamed` reads `name`, and a missing
-  # attribute aborts uncatchably, so an unnamed feature is reported alone.
-  unnamed = concatMap (area:
+  # until these pass. Everything after `badRecords` reads `name`, and a missing
+  # attribute aborts uncatchably, so a feature that is not a record, or has no
+  # name, is reported alone.
+  badRecords = concatMap (area:
     lib.concatLists (lib.imap1 (i: f:
-      lib.optional (!(f ? name && lib.isString f.name))
-      "feature #${toString i} in area ${area.name} has no name")
+      if !lib.isAttrs f
+      then ["feature #${toString i} in area ${area.name} is not a record; list a feature's own file as (import ./${area.name}/<name>.nix)"]
+      else lib.optional (!(f ? name && lib.isString f.name)) "feature #${toString i} in area ${area.name} has no name")
     area.value))
   tree;
   areas = map (a: a.name) tree;
@@ -100,8 +102,8 @@ lib: {
   duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
   dotted = lib.hasInfix ".";
   structural =
-    if unnamed != []
-    then unnamed
+    if badRecords != []
+    then badRecords
     else
       map (a: "duplicate area ${a}") (duplicates areas)
       ++ map (p: "duplicate feature ${p}") (duplicates paths)
