@@ -142,8 +142,11 @@ A descriptor is plain data. It is never a module of any evaluator itself
 | `nixos`, `homeManager`, `darwin` | module (path, attrset or function) | the half for that class; absent = this feature contributes nothing there |
 | `requires` | list of `"<area>.<name>"` | features that must also be selected (DEC-005) |
 
-The resolver may test whether a key is present, and may read `requires`. It
-never imports or applies a class value (ADR-002 D4). An unselected feature's
+No other key is allowed. An unknown key, such as a misspelt class, fails
+resolution on every host; otherwise it would drop that half silently.
+
+The resolver may read key names, and may read `requires`. It never imports
+or applies a class value (ADR-002 D4). An unselected feature's
 modules, and the packages they name, are therefore never evaluated.
 
 Neither snooze nor openrgb has prerequisites. `requires` exists for test 3
@@ -210,8 +213,8 @@ Tests can therefore resolve fixture trees without touching `features/`.
 
 ```mermaid
 flowchart TD
-  A["tree + classes + modules"] --> S{"duplicate name, or<br/>unknown requires path?"}
-  S -->|yes| X0["throw: structural error"]
+  A["tree + classes + modules"] --> S{"malformed tree?<br/>duplicate or dotted name, flag at a feature path,<br/>unknown key or requires path"}
+  S -->|yes| X0["throw: every structural error"]
   S -->|no| B["lib.evalModules:<br/>legacy flags · feature.*.enable · assertions option ·<br/>generated checks · host modules"]
   B --> C{"any assertion<br/>false?"}
   C -->|yes| X["throw: every failed message"]
@@ -226,10 +229,23 @@ result at all.
 
 1. **Flatten** the tree into a list of records
    `{ area; name; path = "<area>.<name>"; descriptor; }`, keeping index order.
-   Two structural checks run first, over every record, selected or not. A
-   duplicate area or feature name fails resolution. So does a path in any
-   `requires` that names no record: `unknown feature <r> in <path>.requires`.
-   They read only names and `requires`, so they stay within ADR-002 D4.
+   Structural checks run first, over every record, selected or not. Any
+   failure stops resolution with one message, `feature tree is malformed:`,
+   listing every error:
+   - a duplicate area or feature path, named (`duplicate feature a.x`);
+   - an area or feature name containing `.`. Paths are dot-joined and split
+     again to look options up, so a dotted name would otherwise abort the
+     evaluation, which `tryEval` cannot catch;
+   - a descriptor key other than `nixos`, `homeManager`, `darwin`,
+     `requires`;
+   - an option declared at a feature's path `<area>.<name>`, such as a
+     legacy flag: one concept would have two switches (DEC-002);
+   - a path in any `requires` that names no record:
+     `unknown feature <r> in <path>.requires`.
+
+   They read only names, descriptor key names, `requires` and option
+   declarations, never a class value or a config value, so they stay within
+   ADR-002 D4.
 2. **Evaluate** the outer modules:
    - `modules/features.nix`, the legacy flags, unchanged apart from the two
      removed flags;
@@ -297,12 +313,12 @@ lib: {tree, classes, modules}: let
   };
 
   checks = {config, ...}: let
-    on = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
+    enabled = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
   in {
     assertions = concatMap (r:
-      lib.optionals (on r.path) (
+      lib.optionals (enabled r.path) (
         map (p: {
-          assertion = on p;
+          assertion = enabled p;
           message = "feature.${r.path} requires feature.${p}, which is not selected";
         }) (r.descriptor.requires or [])
         ++ [{
@@ -313,14 +329,30 @@ lib: {tree, classes, modules}: let
     records;
   };
 
-  inherit ((lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;})) config;
+  outer = lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;};
+  inherit (outer) config;
 
+  areas = map (a: a.name) tree;
   paths = map (r: r.path) records;
-  unique = lib.allUnique (map (a: a.name) tree) && lib.allUnique paths;
-  unknown = concatMap (r:
-    map (p: "unknown feature ${p} in ${r.path}.requires")
-    (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
-  records;
+  duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
+  dotted = lib.hasInfix ".";
+  structural =
+    map (a: "duplicate area ${a}") (duplicates areas)
+    ++ map (p: "duplicate feature ${p}") (duplicates paths)
+    ++ map (a: "area name \"${a}\" contains \".\"") (filter dotted areas)
+    ++ map (r: "feature name \"${r.name}\" in area ${r.area} contains \".\"") (filter (r: dotted r.name) records)
+    ++ concatMap (r: let
+      bad = lib.subtractLists ["nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
+    in
+      lib.optional (bad != []) "unknown descriptor key(s) ${lib.concatStringsSep ", " bad} in feature ${r.path}")
+    records
+    ++ map (r: "feature ${r.path} is also a flag")
+    (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
+    ++ concatMap (r:
+      map (p: "unknown feature ${p} in ${r.path}.requires")
+      (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
+    records;
+  bullets = lib.concatMapStrings (m: "- ${m}\n");
   failed = filter (a: !a.assertion) config.assertions;
   selected = filter (r: config.feature.${r.area}.${r.name}.enable) records;
   project = class:
@@ -330,12 +362,10 @@ lib: {tree, classes, modules}: let
     })
     (filter (r: r.descriptor ? ${class}) selected);
 in
-  if !unique
-  then throw "feature tree has a duplicate area or feature name"
-  else if unknown != []
-  then throw (lib.concatStringsSep "\n" unknown)
+  if structural != []
+  then throw "feature tree is malformed:\n${bullets structural}"
   else if failed != []
-  then throw "feature selection failed:\n${lib.concatMapStrings (a: "- ${a.message}\n") failed}"
+  then throw "feature selection failed:\n${bullets (map (a: a.message) failed)}"
   else {
     flags = removeAttrs config ["feature" "assertions"];
     modules = lib.genAttrs ["nixos" "homeManager" "darwin"] project;
@@ -357,6 +387,12 @@ in
 - Every `requires` path names a record, whether or not its feature is
   selected. A misspelt prerequisite fails on every host, not only on the
   first host that selects the feature.
+- Every descriptor key is one of `nixos`, `homeManager`, `darwin`,
+  `requires`, and no area or feature name contains `.`. Like the checks
+  above, these fail on every host, selected or not.
+- No option is declared at a feature's path, so no concept is both a
+  legacy flag and a feature (DEC-002). Namespaces alone would not stop a
+  flag `hardware.openrgb` returning beside `feature.hardware.openrgb`.
 
 <!-- doctrine:section sec-4 -->
 ## Factories and coverage targets
@@ -461,11 +497,17 @@ therefore land before any shared home module is migrated.
 - **Forced.** `just coverage` reuses the `_drvs` helper to force each
   target's `config.system.build.toplevel.drvPath`, with `system_override`
   (ADR-005 D4). It proves evaluation, not a build (ADR-005 D5).
+- **Pinned like `drvs`.** Both recipes share one NixOS pick, `nixos_pick`,
+  which pins the `agents` registry entry (it points at this flake's source).
+  A coverage drvPath therefore changes only with the configuration, not with
+  unrelated edits to the repo.
 
 ```just
-# ADR-005 coverage targets: evaluate off features, outside the switch path.
+nixos_pick := 'c: let pinned = c.extendModules { … agents registry → /drvs-gate … }; in (…).config.system.build.toplevel.drvPath'
+
+# ADR-005 coverage targets: evaluate off features, outside the switch path; pinned like drvs.
 coverage: check-flake-root
-  @just _drvs coverage 'c: c.config.system.build.toplevel.drvPath' "{{system_override}}"
+  @just _drvs coverage '{{nixos_pick}}' "{{system_override}}"
 ```
 
 Accepted cost: `nix flake check` warns `unknown flake output 'coverage'`.
@@ -561,12 +603,17 @@ every test passes. Fixtures are written inline, so nothing is added under
 | T1d | Mac selects nothing | real tree, `[darwin]`, no modules | all three lists empty; no throw |
 | T2 | host override wins | T1 + `{feature.session.snooze.enable = false;}` | neither list includes a snooze tag |
 | T3 | prerequisite off fails | fixture `a.x` (`requires = ["a.y"]`), `a.x` on, `a.y` off | `tryEval` of `modules.homeManager` fails; also of `flags` |
+| T3p | prerequisite on passes | T3 with `a.y` also on | both projected, in index order |
 | T3u | unknown prerequisite fails | fixture feature, **unselected**, with `requires = ["no.such"]` | `tryEval` fails |
 | T4 | exclusion boundary | fixture features, unselected: one with `nixos = throw "…"` (fails if the resolver *forces* a class value), one whose module function names `pkgs.does-not-exist` (fails if the resolver *applies* a module); one harmless feature selected | resolve succeeds; `lib.evalModules` over `modules.nixos` with a stub option set evaluates `config` fully |
 | T8 | D6: nowhere to land | fixture `homeManager`-only feature selected, `classes = [darwin]` | `tryEval` fails |
 | T9 | order is list order | fixture areas `zeta` before `alpha`, both selected | file tags in `zeta`, `alpha` order |
 | T10 | duplicate names | a repeated area, then a repeated feature | `tryEval` fails |
+| T10k | unknown descriptor key | unselected feature with `homeManger` beside the valid keys | `tryEval` fails |
+| T10d | dotted name | area `a.b` (selected, requiring itself), feature `x.y` | `tryEval` fails, before the `requires` lookup could abort |
+| T10f | flag at a feature path | outer module declares option `a.x`; tree has feature `a.x` | `tryEval` fails |
 | T11 | flags hide the selection | real tree | `flags` has no `feature` and no `assertions` |
+| T12 | hand-written assertion | outer module with a false `assertions` entry | `tryEval` fails |
 
 Tests on the real tree assert membership, not equality, so adding a feature
 to the tree or to `workstation` does not turn them red. T1d stays exact
@@ -577,8 +624,13 @@ lists and order are tested on fixtures (T9).
 does not catch a missing-attribute error. T4 therefore asserts success,
 and never relies on catching such an error.
 
+`tryEval` also discards the message, so a test that only expects failure
+would pass on any throw. Each failing fixture (T3u, T8, T10, T10k, T10d,
+T10f, T12) is therefore paired with a passing twin that differs only in the
+property under test: `[ fixture twin ] -> [ false true ]`.
+
 **Runner.** `perSystem.nix` adds `checks.features`. It evaluates
-`import ../features-test.nix lib`, and throws the pretty-printed failure list
+`import ./features-test.nix lib`, and throws the pretty-printed failure list
 if it is non-empty; otherwise it is a trivial `runCommand`. `just test`
 builds the current system's `checks.<system>.features` before the existing
 script tests. The `test` recipe also picks up the new path of
@@ -649,7 +701,7 @@ deadnix). It re-locks emacs-overlay, and that drift must not be committed
 | path | change |
 |---|---|
 | `features.nix` | rewritten. `lib: { tree, classes, modules }` → `{ flags, modules }`, or throws. Comment updated |
-| `features-test.nix` | new. Resolver tests T1–T11 |
+| `features-test.nix` | new. Resolver tests T1–T12 |
 | `features/default.nix` | new. Area index: `hardware`, `session` |
 | `features/hardware/default.nix` | new. `openrgb` |
 | `features/hardware/openrgb.nix` | moved from `modules/nixos/openrgb.nix` |

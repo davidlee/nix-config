@@ -128,3 +128,41 @@ doctrine framework, not in the project.
     every descriptor, selected or not, and fail every host. Reading key
     names forces no class value, so the exclusion boundary holds.
 - After the REV: put ADR-001..005 to the user for acceptance (DEC-009).
+
+### Added in pass 2
+- F-7 · flag at a feature path: fixed in code (b454d50c); mirrored in
+  design sec-3/sec-6, README § Feature tree, and ADR-001 D2 / ADR-002 D4
+  through the REV.
+
+## Reconciliation Outcome
+
+User assent 2026-10-15: +1 to the brief, with the external reviewer's two
+changes (enforce the flag/feature collision; ADR-003 wording), and
+"happy to accept the ADRs once we're done … with doctrine adr status".
+
+### Direct edits applied
+- design.md sec-2: closed descriptor key set (F-1).
+- design.md sec-3: flowchart, step 1, sketch, invariants. Five structural
+  checks and one `feature tree is malformed:` error; sketch matches
+  features.nix (F-1, F-7).
+- design.md sec-4: `coverage` uses the shared `nixos_pick` (F-3).
+- design.md sec-6: runner `./features-test.nix`; T3p, T10k, T10d, T10f
+  and T12 added; the pass/fail pairing convention stated (F-2, F-7).
+- design.md sec-7: tests T1–T12.
+- README.md § Feature tree: flag collision is a structural error (F-7).
+
+### REVs completed
+- REV-001 (`reconcile-sl-001`): done. ADR-001 D2/D4/trailing, ADR-002
+  D1/D2/D4, ADR-003 Decision, ADR-005 D1/Verification amended (F-4, F-7).
+  Rationale in revision-001.md.
+
+### Governance acts
+- ADR-001..005 → accepted by `doctrine adr status`, on the user's
+  direction (DEC-009's acceptance step, no REV by user choice).
+
+### Tolerated
+- F-5: ISS-005 tooling; manual conformance mapping in the finding.
+- F-6: stale immutable VT keyword `allUnique`; intent covered by
+  testDuplicateNamesFail.
+
+Reconcile pass complete — handoff to /close.
