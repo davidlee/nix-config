@@ -3,15 +3,12 @@
 # nixpkgs, separate `switch`), so an option declared in one is invisible to
 # the others; hosts.nix resolves here and hands each evaluation its share.
 #
-#   lib -> { tree, classes, modules } -> { flags, modules }   (or throws)
+#   lib -> { tree, classes, modules } -> { modules }   (or throws)
 #
-# Two paths coexist:
-# - legacy flags (modules/features.nix) come back as `flags`, which hosts.nix
-#   passes as the `features` specialArg so hosts can gate `imports` on them.
-# - the feature tree (./features): one `feature.<area>.<name>.enable` option
-#   per feature, set by the host and the profiles it imports. Selected
-#   features are projected into `modules.<class>` in tree order, for the
-#   factories to append. No downstream module sees the selection.
+# The feature tree (./features) gives one `feature.<area>.<name>.enable`
+# option per feature, set by the host and the profiles it imports. Selected
+# features are projected into `modules.<class>` in tree order, for the
+# factories to append. No downstream module sees the selection.
 #
 # tree     [ { name = area; value = [ feature … ]; } … ]
 # classes  this host's evaluations, e.g. [ "nixos" "homeManager" ]
@@ -80,7 +77,7 @@ lib: {
     records;
   };
 
-  outer = lib.evalModules {modules = [./modules/features.nix options checks] ++ modules;};
+  outer = lib.evalModules {modules = [options checks] ++ modules;};
   inherit (outer) config;
 
   # Structural errors, over every record, selected or not. They read only
@@ -124,8 +121,8 @@ lib: {
       in
         lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
       records
-      # A flag at a feature's path would be a second switch for one concept.
-      ++ map (r: "feature ${r.path} is also a flag") (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
+      # An outer option at a feature's path would be a second switch for that feature (DEC-025).
+      ++ map (r: "feature ${r.path} is also an outer option") (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
       ++ concatMap (r:
         map (p: "unknown feature ${p} in ${r.path}.requires")
         (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
@@ -161,6 +158,5 @@ in
   else if failed != []
   then throw "feature selection failed:\n${bullets (map (a: a.message) failed)}"
   else {
-    flags = removeAttrs config ["feature" "assertions"];
     modules = lib.genAttrs ["nixos" "homeManager" "darwin"] project;
   }

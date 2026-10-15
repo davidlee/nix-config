@@ -135,32 +135,25 @@ activation finishing.
 
 ### Feature flags
 
-Two ways to switch optional modules on, both resolved once per host by
-`features.nix`, outside the NixOS, darwin and home-manager evaluations:
-
-- **legacy flags** — booleans that a host's files read to gate their own
-  imports. None remain; the mechanism is still wired through until it is
-  retired (RFC-001 W3).
-- **the feature tree** — features as plain data under `features/`, selected
-  by options and projected straight into each evaluation's module list.
-  Every optional module is a feature.
+Optional modules are features: plain data under `features/`, selected by
+options and projected straight into each evaluation's module list. The
+selection is resolved once per host by `features.nix`, outside the NixOS,
+darwin and home-manager evaluations.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
           │                                     │
           └──────────────┬──────────────────────┘
                          ▼
- modules/features.nix ─> features.nix <── features/ (tree)
+                  features.nix <── features/ (tree)
                          │  (one lib.evalModules per host, checks enforced)
-          ┌──────────────┴───────────────┐
-          ▼                              ▼
- flags ─> specialArgs.features   modules.{nixos,homeManager,darwin}
-          (gates imports)        ─> appended by mkNixos / mkHome / mkDarwin
+                         ▼
+          modules.{nixos,homeManager,darwin}
+          ─> appended by mkNixos / mkHome / mkDarwin
 ```
 
 | file | role |
 |------|------|
-| `modules/features.nix` | legacy flag declarations (none left; retired with the mechanism) |
 | `features.nix` | resolver — `lib.evalModules`, once, per host (tests: `features-test.nix`) |
 | `features/` | the feature tree: one file per area, features inline, profiles |
 | `hosts/<hostname>/features.nix` | that host's profiles and overrides (optional) |
@@ -169,15 +162,6 @@ Deliberately **not** a NixOS option. The three configs evaluate independently �
 separate nixpkgs (`nixpkgs` vs `nixpkgs-home`), separate `switch` — so an option
 declared in one is invisible to the others. Evaluating the option set once,
 outside all of them, and injecting the result keeps one source of truth.
-
-#### Legacy flags
-
-The flags reach NixOS and darwin as the `features` specialArg, and standalone
-home-manager, on either platform, as `extraSpecialArgs.features`.
-
-Being a specialArg is also what let `features` gate `imports` (`lib.optional
-features.<flag> ./module.nix`): imports are resolved before `config` exists.
-Every flag has since moved to the feature tree.
 
 #### Feature tree
 
@@ -253,7 +237,7 @@ Structural errors fail every host, because they are checked over every
 feature: an area or feature that is not a record (a path listed where
 `(import …)` was meant), a missing, empty, duplicate or dotted name,
 `requires` that is not a list of strings, an unknown key, an unknown
-`requires` path, or a legacy flag at a feature's path. The modules
+`requires` path, or an outer option at a feature's path (a second switch for it). The modules
 of unselected features are never evaluated, so a broken module blocks no
 host; only the record itself (its keys, `name`, `requires`) is read.
 

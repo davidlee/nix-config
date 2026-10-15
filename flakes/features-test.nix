@@ -24,7 +24,7 @@ lib: let
         classes = both;
         modules = [];
       }
-      // args)).flags;
+      // args)).modules;
   one = descriptor: [(area "a" [(feat "x" descriptor)])];
   # A projected module's `_file` is "<file>:<line> (<area>.<name>#<class>)";
   # tests identify it by the logical part.
@@ -74,8 +74,8 @@ lib: let
 in
   lib.runTests {
     testPrerequisiteOffFails = {
-      expr = let r = prerequisite ["a.x"]; in [(fails r.modules.homeManager) (fails r.flags)];
-      expected = [true true];
+      expr = let r = prerequisite ["a.x"]; in fails r.modules.homeManager;
+      expected = true;
     };
 
     testPrerequisiteOnPasses = {
@@ -116,7 +116,7 @@ in
       expected = [false true false true];
     };
 
-    # A legacy flag at a feature's path; the twin's flag sits beside it.
+    # An outer option at a feature's path (DEC-025); the twin's sits beside it.
     testFlagCollisionFails = {
       expr = map (flag:
         resolves {
@@ -266,18 +266,14 @@ in
       expected = [false false];
     };
 
-    testFlagsHideSelection = {
-      expr = let
-        inherit
-          (resolve {
-            tree = real;
-            classes = both;
-            modules = [];
-          })
-          flags
-          ;
-      in [(flags ? feature) (flags ? assertions)];
-      expected = [false false];
+    # The selection reaches no evaluation except as modules.
+    testResultIsModulesOnly = {
+      expr = builtins.attrNames (resolve {
+        tree = real;
+        classes = both;
+        modules = [];
+      });
+      expected = ["modules"];
     };
 
     testMacSelectsNothing = {

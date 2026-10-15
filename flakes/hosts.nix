@@ -9,9 +9,8 @@
 #
 # Each host's entry point is hosts/<host>/config.nix. Each host's features
 # are resolved once (./features.nix) and every factory for that host gets the
-# same selection: its legacy `flags` go in as the `features` specialArg, which
-# hosts use to gate imports, and the modules the feature tree projects for the
-# factory's class are appended to its `modules`. See README § Feature flags.
+# same selection: the modules the feature tree projects for the factory's
+# class are appended to its `modules`. See README § Feature flags.
 #
 # The rule (DEC-016): a factory supplies host identity (`args`) plus one
 # injected module; the evaluator builds pkgs. Local package fixes are modules
@@ -62,10 +61,7 @@
   selections = lib.mapAttrs (hostname: meta: select hostname meta []) hosts;
 
   # Host identity: specialArgs (system evaluations), extraSpecialArgs (home).
-  args = hostname: selection: {
-    inherit inputs username hostname;
-    features = selection.flags;
-  };
+  args = hostname: {inherit inputs username hostname;};
 
   stableModule = system: {
     _module.args.stable = import inputs.stable {
@@ -84,7 +80,7 @@
 
   mkNixos = hostname: meta: selection:
     lib.nixosSystem {
-      specialArgs = args hostname selection;
+      specialArgs = args hostname;
       modules =
         [
           ./hosts/${hostname}/config.nix
@@ -118,14 +114,14 @@
           ./hosts/${hostname}/home.nix
         ]
         ++ selection.modules.homeManager;
-      extraSpecialArgs = args hostname selection;
+      extraSpecialArgs = args hostname;
     };
 
   # No pkgs: nix-darwin builds them from nixpkgs.source (darwin follows our
   # nixpkgs), so module overlays reach module pkgs (ISS-004).
   mkDarwin = hostname: meta: selection:
     inputs.darwin.lib.darwinSystem {
-      specialArgs = args hostname selection;
+      specialArgs = args hostname;
       modules =
         [
           {system.configurationRevision = self.rev or self.dirtyRev or null;}

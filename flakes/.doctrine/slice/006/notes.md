@@ -253,3 +253,25 @@ resolve into the store).
   bodies. `sway-easyfocus` still listed twice (prune candidate, IMP-004).
 - `just gate` green (zero lint warnings), `just coverage` green,
   `flake.lock` untouched.
+
+## PHASE-05 summary — flag machinery retired
+
+- T0: HEAD 903875fd, tree clean, baseline phase-04 present.
+- Red (T1): `testResultIsModulesOnly` alone failed (result `["flags" "modules"]`),
+  no abort.
+- Green (T2, atomic): `modules/features.nix` removed (`git rm`); the resolver
+  returns `{ modules }`; hosts.nix `args hostname` drops `selection` and the
+  `features` specialArg; `testFlagsHideSelection` replaced by
+  `testResultIsModulesOnly`; `resolves` reads `.modules`;
+  `testPrerequisiteOffFails` simplified to `fails r.modules.homeManager` /
+  `true`. Collision message now "is also an outer option" (DEC-025);
+  `testFlagCollisionFails` keeps its name (VT keyword in SL-001).
+- README: one mechanism; legacy bullets, diagram branch, file-table row and
+  `#### Legacy flags` removed; section title unchanged.
+- EX-5: emacs-overlay pinned to 08c72b09 (pin grep = 1), unpinned
+  (`git diff --quiet -- justfile` ok). drvs, drvs-sets, coverage, system/,
+  home/ all identical to phase-04 (captures in
+  ~/.cache/multihost-gate/sl006/phase-05/).
+- Close grep (`git grep -nE '...' -- . ':!.doctrine'`): no output, exit 1.
+- `just gate` green (zero warnings), `just coverage` green (six targets),
+  flake.lock untouched.
