@@ -45,7 +45,7 @@ Three inline records appended to `features/virt.nix` after `capsule`, in the ord
 
 - **qemu** (`nixos = {pkgs, username, lib, ...}:`): quickemu and qemu_kvm, libvirtd with `qemu.package = pkgs.qemu_kvm`, the virbr0 firewall ports, `users.groups.libvirtd.members = [username]`, virt-manager, and the `mkForce []` on the libvirtd and libvirt-guests `wantedBy`. Comments move with their lines.
 - **docker** (`nixos = {pkgs, config, ...}:`): docker, docker-compose and lazydocker; `virtualisation.containers.enable`; rootless docker with its DNS settings; `virtualisation.docker.enable = false` with its comment. No group: the rootless daemon serves a per-user socket, and nixpkgs creates the `docker` group only when the rootful daemon is enabled (`nixos/modules/virtualisation/docker.nix:267,280`). The `extraGroups = ["docker"]` in `docker.nix` is dropped, not moved.
-- **podman** (`nixos = {pkgs, username, ...}:`): podman, podman-compose, podman-desktop, podman-tui, distrobox and crun; `virtualisation.containers.enable`; podman with `dockerCompat` and the DNS network setting; `users.users.${username}.extraGroups = ["podman"]` (the group exists when podman is enabled). distrobox is also a home package (`modules/shared/cli/_packages/dev.nix:34`), so it stays on Sleipnir and runs on docker.
+- **podman** (`nixos = {pkgs, username, ...}:`): podman, podman-compose, podman-desktop, podman-tui, distrobox and crun; `virtualisation.containers.enable`; podman with `dockerCompat` and the DNS network setting; `users.users.${username}.extraGroups = ["podman"]` (the group exists when podman is enabled). distrobox is also in `modules/shared/cli/_packages/dev.nix:34`, which reaches both home and system-path (through `modules/nixos/cli.nix`), so it stays on Sleipnir in both and runs on docker.
 - **docker and podman are exclusive (DEC-022).** Both ship `bin/docker` (podman through `dockerCompat`), and NixOS's system-path silently keeps whichever is listed first (`pkgs/build-support/buildenv/builder.pl:200-202`). The `docker` feature asserts `!config.virtualisation.podman.enable`, with a message naming both features and IMP-018. It tests the NixOS option, not the feature, so it also catches podman switched on by any other module. The assertion lands in the podman commit, not the virt commit: until then `podman.nix` is still unconditional, so the virt commit would fail.
 
 ```
@@ -123,7 +123,7 @@ The NixOS modules add those packages themselves: `programs.appimage` adds `cfg.p
    |---|---|---|
    | hardware | kernel command line order | sorted `kernelParams` identical; `fileSystems."/".options` identical |
    | virt | `systemPackages` order; `extraGroups` order and contents (`docker`, `libvirtd` out); `libvirtd.members` deduplicated | unique sorted package set identical; link map identical (`bin/docker` → docker); effective membership identical |
-   | podman | podman removed: its packages, the `dockerCompat` shim, `virtualisation.podman` units and config, the `podman` group | removed packages are exactly podman.nix's list (less distrobox, still in home) plus the podman module's (`podman`, shim); every link-map change is a removal into one of them; `bin/docker` still → docker; effective membership loses only `podman` |
+   | podman | podman removed: its packages, the `dockerCompat` shim, `virtualisation.podman` units and config, the `podman` group | removed packages are exactly podman.nix's list (less distrobox, still in home and system-path via dev.nix) plus the podman module's (`podman`, shim); every link-map change is a removal into one of them; `bin/docker` still → docker; effective membership loses only `podman` |
    | apps | `systemPackages` order, two fewer duplicate entries | `drvs-sets` count drops by exactly 2; unique sorted set identical; link map identical |
 
    The link map must be identical after every commit except podman's, whose changes must all be removals of podman's paths.
@@ -132,7 +132,7 @@ The NixOS modules add those packages themselves: `programs.appimage` adds `cfg.p
 3. **Resolver test** (`features-test.nix`, DEC-014 shape): `testSleipnirSelectsMigrated` resolves the real tree with `hosts/Sleipnir/features.nix` and asserts that `virt.qemu#nixos`, `virt.docker#nixos`, `non-nix-packages.appimage#nixos` and `non-nix-packages.flatpak#nixos` are among the NixOS modules and none of them among the home modules. Red first: write it before the records exist.
 4. **Negative controls** (one-off, not committed; `mem.fact.nix.verify-closure-not-option`). Evaluate Sleipnir with each feature deselected in turn:
    - appimage: `appimage-run` absent from the system closure; `programs.appimage.binfmt` false.
-   - flatpak: `flatpak` absent from the system closure; `services.flatpak.enable` false.
+   - flatpak: `flatpak` absent from system-path; `services.flatpak.enable` false. It stays in the drv closure as a library of plasma-workspace and xdg-desktop-portal.
    - qemu: `qemu_kvm` and `virt-manager` absent from the closure; `libvirtd` absent from effective groups.
    - docker: the `docker` package and `lazydocker` absent from the closure; `virtualisation.docker.rootless.enable` false.
    - podman (the positive direction, since Sleipnir leaves it off): `coverage."Sleipnir+podman"` has `podman` in its closure and `bin/docker` → podman's shim.

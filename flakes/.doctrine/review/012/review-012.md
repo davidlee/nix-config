@@ -95,3 +95,27 @@ read by hand because of ISS-005.
   (`machine.nix`, DEC-019); W4 row's class "Sleipnir hardware" → "machine
   config"; W7 row "hand-written `hardware.nix`" → `machine.nix`; W3 row
   records SL-005 (hardware → machine config, virt, app formats).
+
+## Reconciliation Outcome
+
+User agreement 2026-10-16 ("agreed"); RFC-001 edited directly at the user's
+instruction ("RFC needs no REV"), so no REV was opened.
+
+### Direct edits applied
+- F-1: `doctrine slice selector add --intent design-target 5 hosts.nix`.
+- F-2: design.md sec-3 podman bullet and sec-7 podman row: distrobox stays in
+  home and system-path (dev.nix via `modules/nixos/cli.nix`).
+- F-3: design.md sec-7 check 4: flatpak absent from system-path; stays in the
+  drv closure as a library of plasma-workspace and xdg-desktop-portal.
+- F-4: RFC-001: Target shape (`config.nix` base + host-only; `machine.nix`
+  line, DEC-019); W4 class "machine config"; W7 `machine.nix`; W3 row
+  records SL-005.
+- F-5: IMP-003 and IMP-006 bodies gain their SL-005 notes; both stay open.
+
+### REVs completed
+- None (governance item F-4 landed by direct edit, per the user).
+
+### Withdrawn / tolerated
+- F-6: no write; ISS-005 owns the conformance prefix defect.
+
+Reconcile pass complete — handoff to /close.

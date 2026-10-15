@@ -48,7 +48,7 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "hosts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
