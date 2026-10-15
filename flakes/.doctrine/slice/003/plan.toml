@@ -1,0 +1,71 @@
+# Implementation plan for SL-003 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-003"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber, so the id
+# sequence goes non-monotonic after a split and that is expected. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms). The prefix is
+# the only mode marker; there is no mode field. Reference a criterion from
+# another phase phase-qualified (PHASE-03/EX-8) — bare EX-8 is ambiguous.
+[[phase]]
+id        = "PHASE-01"
+name      = "Resolver, tests and tree migration"
+objective = "features.nix reads areas as lists of self-named features with dual provenance; features-test.nix reshaped with unnamed and provenance tests; hardware, session and virt migrated to area files; just drvs identical."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-003 design locked (design run stage locked)" },
+  { id = "EN-2", text = "just drvs baseline captured before the first edit" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/{hardware,session,virt}.nix and features/virt/capsule.nix hold self-named feature records; features/{hardware,session,virt}/default.nix, features/hardware/openrgb.nix and features/session/snooze/ are gone" },
+  { id = "EX-2", text = "snooze-nag and snooze-nag-test live in features/session/; justfile runs the test from there" },
+  { id = "EX-3", text = "Projected modules carry _file = '<flake-relative file>:<line> (<area>.<name>#<class>)'" },
+  { id = "EX-4", text = "just drvs identical to the EN-2 baseline; just coverage evaluates" },
+  { id = "EX-5", text = "nix fmt clean; statix and deadnix zero warnings" },
+]
+verification = [
+  { id = "VT-1", expects = "a feature without a name fails resolution; its named twin resolves", test_file = "features-test.nix", keywords = ["testUnnamedFeatureFails"], waived = false },
+  { id = "VT-2", expects = "a projected module's _file is flake-relative with line and logical path", test_file = "features-test.nix", keywords = ["testProvenance", "logical"], waived = false },
+  { id = "VT-3", expects = "resolver reads name from the record and computes provenance from the name attribute's position", test_file = "features.nix", keywords = ["unsafeGetAttrPos", "\"name\"", "removePrefix"], waived = false },
+  { id = "VT-4", expects = "existing resolver tests (order, duplicates, unselected not forced, real-tree selection) pass on the reshaped fixtures", test_file = "features-test.nix", keywords = ["testListOrder", "testUnselectedNotForced", "testDuplicateNamesFail", "session.snooze#nixos", "virt.capsule#nixos"], waived = false },
+  { id = "VA-1", text = "just drvs diff against baseline is empty" },
+  { id = "VA-2", text = "just test green, including snooze-nag-test from features/session/" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Docs"
+objective = "README § Feature flags › Feature tree and § Snooze, justfile comment, and header comments describe the new shape and paths."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 completed" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "README feature-tree section shows a self-named record, the area-file tree, and the spill/asset rules; no reference to {name; value;} feature entries or snooze/{default,nixos,home}.nix remains" },
+  { id = "EX-2", text = "grep finds no stale path (features/session/snooze, features/<area>/default.nix) outside git history and slice records" },
+]
+verification = [
+  { id = "VT-1", expects = "README documents the new feature record and area files", test_file = "README.md", keywords = ["features/session.nix", "name = \"snooze\"", "features/<area>.nix"], waived = false },
+  { id = "VA-1", text = "grep -rn 'session/snooze\\|<area>/default.nix' outside .doctrine/ returns nothing" },
+]
+specs        = []
+requirements = []

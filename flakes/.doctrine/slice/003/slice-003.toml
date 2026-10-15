@@ -1,0 +1,90 @@
+id = 3
+slug = "feature-shape"
+title = "Feature shape: area files and self-named features"
+status = "plan"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "justfile"
+intent = "design-target"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "features/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/hardware.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/hardware/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/session.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/session/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/virt.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/virt/**"
+intent = "design-target"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "CHR-012"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "CHR-011"
+
+[[relation]]
+label = "related"
+target = "RFC-001"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.

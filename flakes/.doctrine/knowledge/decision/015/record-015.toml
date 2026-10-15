@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 15
+slug = "feature-tree-shape-area-files-of-self-named-features"
+title = "Feature tree shape: area files of self-named features"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "ADR-002 left granularity to judgement; snooze became three files and every feature cost a { name; value; } index entry. Extrapolated over RFC-001 W3 this recreates, as layout, the per-file ceremony REFACTOR.md removed."
+choice = "A feature is the unit of selection: { name; nixos?; homeManager?; darwin?; requires? }, halves inline together. An area is a namespace with one file, features/<area>.nix, listing its features in projection order. A feature spills to features/<area>/<name>.nix by author judgement (~100 lines prompts reconsideration), halves still together, never split by platform. Assets live near their feature; no directory without navigational value."
+alternatives = ["Directory per feature with per-class files (SL-001 snooze)", "One file per feature plus per-area index (CHR-012 as written)", "Inline features under { name; value; } pairs (one more nesting level)", "Areas as <area>/default.nix"]
+rationale = "Lowest per-feature boilerplate, module bodies at ordinary indent, no tiny files; moving a feature between files needs no consumer edit. Reviewed by an external agent; corrections adopted."
+consequences = ["Resolver requires a name key in each feature", "One syntax error breaks its whole area (already accepted by ADR-002)", "Spilled files repeat their name: identity vs storage"]
+decided_by = "user (2026-10-15, 'agreed')"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-003"
