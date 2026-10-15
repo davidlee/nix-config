@@ -268,7 +268,7 @@ in
       expr =
         (resolve {
           tree = real;
-          classes = ["darwin"];
+          classes = ["darwin" "homeManager"];
           modules = [];
         }).modules;
       expected = {

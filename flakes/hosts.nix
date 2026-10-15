@@ -3,9 +3,9 @@
 #
 #   { kind = "nixos" | "darwin"; system = "x86_64-linux"; home = true; }
 #
-# `home` (nixos only) adds a standalone home-manager config,
-# homeConfigurations."<username>@<hostname>", from hosts/<host>/home.nix.
-# Darwin runs home-manager as a darwin module instead (see ./darwin).
+# `home` adds a standalone home-manager config,
+# homeConfigurations."<username>@<hostname>", from hosts/<host>/home.nix, on
+# either kind (DEC-017).
 #
 # Each host's entry point is hosts/<host>/config.nix. Each host's features
 # are resolved once (./features.nix) and every factory for that host gets the
@@ -43,11 +43,9 @@
   );
   hostsOf = kind: lib.filterAttrs (_: meta: meta.kind == kind) hosts;
 
-  # The evaluations a host has, i.e. the classes a feature may land in.
-  classesOf = meta:
-    if meta.kind == "darwin"
-    then ["darwin"]
-    else ["nixos"] ++ lib.optional (meta.home or false) "homeManager";
+  # The evaluations a host has, i.e. the classes a feature may land in:
+  # its kind (which names its system class), plus homeManager with a home.
+  classesOf = meta: [meta.kind] ++ lib.optional (meta.home or false) "homeManager";
 
   # extra: outer modules beyond the host's own features.nix.
   select = hostname: meta: extra: let
@@ -116,40 +114,16 @@
       extraSpecialArgs = args hostname selection;
     };
 
-  # Darwin's embedded home-manager gets no projected modules (DEC-001).
-  mkDarwin = hostname: {system, ...}: selection: let
-    pkgs = import inputs.nixpkgs {
-      inherit system;
-      hostPlatform = system;
-      config.allowUnfree = true;
-      overlays = [
-        (_final: prev: {
-          direnv = prev.direnv.overrideAttrs (_old: {
-            doCheck = false;
-          });
-        })
-        (_final: prev: {
-          inherit
-            (prev.lixPackageSets.stable)
-            nixpkgs-review
-            nix-eval-jobs
-            nix-fast-build
-            colmena
-            ;
-        })
-      ];
-    };
-  in
+  # No pkgs: nix-darwin builds them from nixpkgs.source (darwin follows our
+  # nixpkgs), so module overlays reach module pkgs (ISS-004).
+  mkDarwin = hostname: meta: selection:
     inputs.darwin.lib.darwinSystem {
-      inherit pkgs;
-      specialArgs = {
-        inherit inputs pkgs username hostname;
-        features = selection.flags;
-      };
+      specialArgs = args hostname selection;
       modules =
         [
           {system.configurationRevision = self.rev or self.dirtyRev or null;}
           ./hosts/${hostname}/config.nix
+          (platformModule meta)
         ]
         ++ selection.modules.darwin;
     };
@@ -159,8 +133,58 @@
 
   homes =
     lib.mapAttrs' (hostname: lib.nameValuePair "${username}@${hostname}")
-    (configure mkHome (lib.filterAttrs (_: meta: meta.home or false) (hostsOf "nixos")));
+    (configure mkHome (lib.filterAttrs (_: meta: meta.home or false) hosts));
+
+  darwinConfigurations = configure mkDarwin (hostsOf "darwin");
+
+  # Bare `david`: transitional alias for the pre-factory key. Drop once
+  # nothing calls `.#david`.
+  homeConfigurations = homes // {${username} = homes."${username}@Sleipnir";};
+
+  # Evaluation-only checks on the factories (DEC-016). Each failure throws
+  # its own message. The probe reads the `pkgs` argument modules actually
+  # receive, so a leftover specialArgs.pkgs fails it (RV-009 F-3).
+  factoryChecks = let
+    probe = c:
+      (c.extendModules {
+        modules = [
+          ({pkgs, ...}: {
+            nixpkgs.overlays = [(_: _: {factoryProbe = true;})];
+            assertions = [
+              {
+                assertion = pkgs.factoryProbe or false;
+                message = "darwin module overlays do not reach module pkgs (ISS-004)";
+              }
+            ];
+          })
+        ];
+      }).system.drvPath;
+    expect = what: ok: ok || throw "checks.factories: ${what}";
+    classes = map classesOf [
+      {kind = "nixos";}
+      {
+        kind = "nixos";
+        home = true;
+      }
+      {kind = "darwin";}
+      {
+        kind = "darwin";
+        home = true;
+      }
+    ];
+  in
+    map probe (lib.attrValues darwinConfigurations)
+    ++ [
+      (expect "no darwinConfigurations.Draupnir" (darwinConfigurations ? Draupnir))
+      (expect "classesOf over kind x home: ${builtins.toJSON classes}"
+        (classes == [["nixos"] ["nixos" "homeManager"] ["darwin"] ["darwin" "homeManager"]]))
+      (expect "no homeConfigurations.\"${username}@Draupnir\"" (homeConfigurations ? "${username}@Draupnir"))
+    ];
 in {
+  perSystem = {pkgs, ...}: {
+    checks.factories = builtins.deepSeq factoryChecks (pkgs.runCommand "factories" {} "touch $out");
+  };
+
   flake = {
     # Overlaid full nixpkgs, so the `agents` registry alias
     # (modules/nixos/nix.nix) resolves `nix shell agents#codex` etc. to the
@@ -187,11 +211,7 @@ in {
       lib.genAttrs linuxSystems (system: lib.filterAttrs keep inputs.llm-agents.packages.${system});
 
     nixosConfigurations = configure mkNixos (hostsOf "nixos");
-    darwinConfigurations = configure mkDarwin (hostsOf "darwin");
-
-    # Bare `david`: transitional alias for the pre-factory key. Drop once
-    # nothing calls `.#david`.
-    homeConfigurations = homes // {${username} = homes."${username}@Sleipnir";};
+    inherit darwinConfigurations homeConfigurations;
 
     coverage."Sleipnir+openrgb" =
       mkNixos "Sleipnir" hosts.Sleipnir

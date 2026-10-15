@@ -73,10 +73,36 @@ are needed through PHASE-05 and must outlive the session and a reboot.
   on mkNixos; mkHome appends `stableModule` (overlays and the lem module stay
   in the factory until PHASE-04). `legacyPackages`/`packages` moved here;
   `linuxSystems` derives from `config.systems` rather than restating the list.
-- `flake.nix` keeps inputs, wiring, templates; `default.nix` (a byte-identical
-  stale copy of `flake.nix`) deleted. mkDarwin untouched.
+- `flake.nix` keeps inputs, wiring, templates; `default.nix` (a symlink to
+  `flake.nix`, no consumer) deleted. mkDarwin untouched.
 - VA-1: `just drvs` identical to `baseline-drvs` (`~/.cache/sl-004/p02-drvs`).
   `just coverage` still evaluates.
 - treefmt cache gotcha bit again: deadnix dropped the unused `nixpkgs` binding
   and left a multi-line arg set that alejandra only collapses on a second,
   uncached pass; `just gate` caught it.
+
+### PHASE-03 (darwin evaluator-built pkgs, standalone Draupnir home)
+
+- `checks.factories` (hosts.nix `perSystem`), built by `just test` with
+  `home_override`. Failures throw, ordered probe → `? Draupnir` → classesOf →
+  `david@Draupnir`, so each red names its cause. RV-009 F-3 controls, each
+  observed red then reverted (logs `~/.cache/sl-004/p03-control{1..4}.log`):
+  1. unchanged mkDarwin → `Failed assertions: darwin module overlays do not
+     reach module pkgs (ISS-004)` (EN-2);
+  2. no pkgs argument, stale `specialArgs.pkgs` kept → same assertion;
+  3. `darwinConfigurations = {}` → `no darwinConfigurations.Draupnir`;
+  4. classesOf ignoring home on darwin → `classesOf over kind x home: …
+     ["darwin"]]`.
+- After dropping mkDarwin's pkgs, `allowUnfree` must come from
+  `darwin/default.nix` (shortcat is unfree) — as designed.
+- VA-2: drvs vs baseline (`p03-drvs`): Sleipnir, packages, legacyPackages,
+  templates identical; `Davids-MacBook-Pro` → `Draupnir` (new drv);
+  `david@Draupnir` new.
+- VA-3 / EX-6 parity (`p03-draupnir-home-pkgs` vs `baseline-darwin-home-pkgs`):
+  210 vs 209 names, the only difference is `home-manager`. `hm-session-vars`
+  is in both (embedded HM with useUserPackages installs it too), so the
+  delta is a subset of the expected one. EDITOR/VISUAL = `emacsclient -c`.
+- `classesOf = [meta.kind] ++ …`: kind values are the system class names.
+- Interim: justfile `darwin-build`/`darwin-switch` still default to
+  `Davids-MacBook-Pro`, which no longer exists, until PHASE-05. Pass
+  `host=Draupnir` meanwhile.
