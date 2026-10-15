@@ -111,30 +111,33 @@ README now says structural errors in the tree fail every host (F-3).
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)
+fresh-as-of: 2026-10-15 · started, PHASE-01..03 completed, RV-002 done, pre-audit · 01e1a71e (harvest commit follows)
 
 ### Produced
 - ADR-001..005 — composition direction (8fb3b0b3)
-- SL-001 scope (f870a4cb); revised to DEC-001..009 this session
+- SL-001 scope (f870a4cb); DEC-001..009; design locked (be2b2bb4); plan (436b8ce3, 573d5720)
 - research round — `research/research.md` (runtime)
-- design run: 10 inquiries, design.md sec-1..8 materialised; self-review RV-001
-- minted: DEC-001..009, IMP-012 (darwin standalone HM), CHR-009 (memory scope paths)
+- design run: 10 inquiries, design.md sec-1..8; self-review RV-001
+- PHASE-01 84d77e11 · PHASE-02 da8e70d8 · PHASE-03 d19a1d45 · RV-002 repairs b4f42cf2
+- RV-002 — code review (Codex raiser), 7 findings verified, synthesis 01e1a71e
+- minted: DEC-001..009, IMP-012, CHR-009, ISS-005
 - earlier: ISS-001..004, IMP-001..011, CHR-001..008, IDE-001
 
 ### Learned
-- mem.fact.flakes.selector-root — selectors are root-relative to ~/flakes
-- mem.fact.doctrine.reservation-fallback — id minting without an SSH agent
+- mem.fact.flakes.selector-root
+- mem.fact.doctrine.reservation-fallback
 - mem.fact.nix.merge-order
 - mem.pattern.flakes.drv-gate
 - mem.fact.flakes.git-add-n
 - mem.fact.flakes.fmt-relock
+- mem.fact.nix.tryeval-scope (new)
 - EVD-001 — coupling survey
 - CPT-001 — desktop session model
 
 ### Open
-- HYP-001 — typed resolver suffices; this slice tests it
-- DEC-009 — ADR amendments applied by revision at reconcile
-- RV-001 F-3 — home-only negative control, to be verified once phases exist
+- HYP-001 — record SL-001 result as evidence at close (design sec-8)
+- DEC-009 — ADR amendments by revision at reconcile; plus RV-002 additions to sec-3 (notes § Code review RV-002)
+- ISS-005 — delta paths vs doctrine root; verify-vt/conformance unattributable for SL-001
 - IMP-012 — darwin standalone Home Manager
 - CHR-009 — memory scope paths
 - QUE-001 — platform scope declaration
