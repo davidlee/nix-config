@@ -6,12 +6,13 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · started · adc48563 (PHASE-02 done)
+fresh-as-of: 2026-10-16 · started · acb8a403 (PHASE-03 done)
 
 ### Produced
 - design locked after RV-011 (8 findings fixed); plan: 4 phases, sheets materialised (commit b2f9367d)
 - PHASE-01: `gate-probe.sh`, `hosts/Sleipnir/machine.nix`; hardware flags gone (commit 715e4012)
 - PHASE-02: qemu, docker in `features/virt.nix`; rootful docker refused in `security.nix` (commit adc48563)
+- PHASE-03: podman an off feature, exclusive with docker; `coverage."Sleipnir+podman"` (commit acb8a403)
 - decided: DEC-019 (amended: `machine.nix`), DEC-020, DEC-021, DEC-022 — docker and podman exclusive, podman an off feature
 - minted: IMP-018 — podman replaces docker (selection swap after SL-005)
 - out-of-band: podman HRIS supabase stack + unused images deleted at the user's request (podman storage 45G → 6.5G)
@@ -20,6 +21,7 @@ fresh-as-of: 2026-10-16 · started · adc48563 (PHASE-02 done)
 - mem.fact.nix.systempath-collision-first-wins — system-path keeps the first colliding package; sorted-set proofs miss flips
 
 ### Open
+- design sec-3/sec-7 — distrobox stays in system-path via `modules/nixos/cli.nix`, not only home (correct at reconcile)
 - IMP-003 — `dev`, `caddy`, `jackaudio` in `user.nix` name groups absent on Sleipnir (note at reconcile)
 - IMP-016 — apps taxonomy, `apps.cad`
 - IMP-017 — site-bound config outside DEC-019's machine class
