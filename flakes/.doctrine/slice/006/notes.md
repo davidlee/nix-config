@@ -20,10 +20,17 @@ and the phase-4 desktop diff, the largest surface — covered by the audit.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-16 · ready (design locked, plan authored) · 164ffce7
 
 ### Produced
+- DEC-023, DEC-024, DEC-025 (accepted; shape SL-006)
+- RV-013 (design review, concluded; F-1..F-11 verified)
+- ISS-008 (niri home half / umbriel coupling; sleipnir-doctor wpmPython)
+- IMP-004 notes (fold-in narrowed to waybar; prune list)
 
 ### Learned
+- (none recorded yet; candidate memory at close: whisper-cpp now takes its
+  ggml backend from llama-cpp — pin ROCm targets via llama-cpp.override)
 
 ### Open
+- IMP-003 (jackaudio), IMP-004 (prune), IMP-016, ISS-008, QUE-001
