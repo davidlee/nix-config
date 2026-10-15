@@ -17,6 +17,14 @@
     mangohud.enable = true;
   };
 
+  feature.audio.mpd.enable = true; # /media/music
+  # printers: site-bound (IMP-017)
+  feature.services = {
+    printing.enable = true;
+    webserver.enable = true;
+  };
+  feature.apps.cad.enable = true; # not in a profile until IMP-016
+
   desktop = {
     sway = true;
     niri = true;
@@ -25,11 +33,5 @@
     mango = true;
   };
 
-  apps.cad = true;
   fonts = true;
-  printing = true;
-  speech = false;
-  mpd = true;
-  sunshine = false;
-  webserver = true;
 }

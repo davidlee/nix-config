@@ -302,17 +302,26 @@ in
 
     # Features migrated from legacy flags (SL-005, SL-006), each with its
     # [nixos, home] halves.
-    testSleipnirSelectsMigrated = {
-      expr = sleipnirSelects [
+    testSleipnirSelectsMigrated = let
+      nixosOnly = [
         "virt.qemu#nixos"
         "virt.docker#nixos"
         "non-nix-packages.appimage#nixos"
         "non-nix-packages.flatpak#nixos"
         "games.steam#nixos"
         "games.gamescope#nixos"
-        "games.mangohud#homeManager"
+        "audio.mpd#nixos"
+        "services.printing#nixos"
+        "services.webserver#nixos"
       ];
-      expected = [[true false] [true false] [true false] [true false] [true false] [true false] [false true]];
+      homeOnly = [
+        "games.mangohud#homeManager"
+        "audio.dictate#homeManager" # through the workstation profile
+        "apps.cad#homeManager"
+      ];
+    in {
+      expr = sleipnirSelects (nixosOnly ++ homeOnly);
+      expected = map (_: [true false]) nixosOnly ++ map (_: [false true]) homeOnly;
     };
 
     # gamescopeSession is a steam option: gamescope alone is refused. No host
@@ -335,7 +344,9 @@ in
         "ai.llama-cpp#nixos"
         "ai.rocm#nixos"
         "virt.podman#nixos" # DEC-022: exclusive with docker, so no host selects it
+        "audio.speech#nixos"
+        "services.sunshine#nixos"
       ];
-      expected = lib.replicate 3 [[false false] [true false]];
+      expected = lib.replicate 5 [[false false] [true false]];
     };
   }

@@ -27,4 +27,16 @@
     name = "ai";
     value = import ./ai.nix;
   }
+  {
+    name = "audio";
+    value = import ./audio.nix;
+  }
+  {
+    name = "services";
+    value = import ./services.nix;
+  }
+  {
+    name = "apps";
+    value = import ./apps.nix;
+  }
 ]

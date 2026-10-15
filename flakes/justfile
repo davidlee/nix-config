@@ -43,12 +43,12 @@ fmt: check-flake-root
 
 # resolver tests (features-test.nix), factory checks (hosts.nix), then
 # behaviour tests for the plain scripts under features/ and
-# modules/home/linux/{bin,nudge}/
+# modules/home/linux/nudge/
 test:
   nix build ".#checks.$(nix config show system).features" {{agents_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).factories" {{home_override}} --no-link --no-write-lock-file
   features/session/snooze-nag-test
-  modules/home/linux/bin/dictate-test
+  features/audio/dictate-test
   nu modules/home/linux/nudge/nudge-test.nu
 
 # what `doctrine check gate` runs: `nix fmt`'s treefmt programs as a

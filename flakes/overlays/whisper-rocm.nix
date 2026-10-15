@@ -2,11 +2,13 @@
 # on globally (the ai.rocm feature is off), so the override sets it itself, but
 # pinning the single GPU target is the real win: the nixpkgs default builds
 # every rocBLAS target (~30 min per the derivation's own note), gfx1201-only is
-# minutes.
+# minutes. whisper-cpp takes its ggml backend from llama-cpp and passes
+# rocmSupport on to it; llama-cpp is what takes rocmGpuTargets, so the pin goes
+# there.
 _final: prev: {
   whisper-cpp-rocm = prev.whisper-cpp.override {
     rocmSupport = true;
     vulkanSupport = false;
-    rocmGpuTargets = "gfx1201";
+    llama-cpp = prev.llama-cpp.override {rocmGpuTargets = ["gfx1201"];};
   };
 }

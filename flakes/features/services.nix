@@ -1,0 +1,71 @@
+# Services features, in projection order. Shape: README § Feature tree.
+[
+  {
+    name = "printing";
+    nixos = {pkgs, ...}: {
+      services.printing = {
+        enable = true;
+        drivers = with pkgs; [
+          brlaser # Brother HL-L2445DW
+          gutenprint # broad Canon/inkjet support
+          gutenprintBin
+        ];
+      };
+
+      # static resolution for printers — CUPS' ipp backend
+      # can't resolve .local via avahi in its sandbox
+      networking.extraHosts = ''
+        192.168.0.30 BRWC8A3E8DADA55.local
+      '';
+
+      environment.systemPackages = with pkgs; [
+        system-config-printer
+      ];
+    };
+  }
+
+  {
+    name = "webserver";
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        caddy
+      ];
+
+      services = {
+        static-web-server = {
+          enable = true;
+          root = "/var/www";
+          listen = "[::]:80";
+
+          configuration = {
+            general = {
+              directory-listing = true;
+            };
+          };
+        };
+      };
+    };
+  }
+
+  {
+    name = "sunshine";
+    nixos = {pkgs, ...}: {
+      services = {
+        sunshine = {
+          enable = true;
+          openFirewall = true;
+          capSysAdmin = true;
+          # capSysNice = true;
+          autoStart = false;
+        };
+      };
+
+      environment = {
+        systemPackages = with pkgs; [
+          moonlight-qt
+          sunshine
+        ];
+      };
+    };
+  }
+]

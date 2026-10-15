@@ -139,11 +139,12 @@ Two ways to switch optional modules on, both resolved once per host by
 `features.nix`, outside the NixOS, darwin and home-manager evaluations:
 
 - **legacy flags** — booleans that a host's files read to gate their own
-  imports. Most features are still flags.
+  imports. Only the desktop compositors and fonts are still flags.
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
   snooze, openrgb, capsule, qemu, docker, podman, appimage, flatpak, steam,
-  gamescope, mangohud, llama-cpp and rocm have moved here; the rest follow later.
+  gamescope, mangohud, llama-cpp, rocm, mpd, speech, dictate, printing,
+  webserver, sunshine and cad have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -182,8 +183,8 @@ resolved before `config` exists, so a real option could not do this.
 # hosts/Sleipnir/config.nix
 imports =
   [ ...unconditional... ]
-  ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix
-  ++ lib.optional features.webserver ../../modules/nixos/webserver.nix;
+  ++ lib.optional features.fonts ../../modules/nixos/fonts.nix
+  ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix;
 ```
 
 Import-gating is the mechanism, not in-module `mkIf`: it reads as the direct
@@ -196,8 +197,7 @@ friends work:
 
 ```nix
 {
-  mpd = true;
-  speech = false;
+  desktop.kde = false;
 }
 ```
 
@@ -207,11 +207,7 @@ A missing host file means the host takes every default unchanged.
 |------|---------|-------|
 | `desktop.{sway,niri}` | `true` | `modules/nixos/<wm>.nix` + `modules/home/linux/<wm>.nix` |
 | `desktop.{cosmic,kde,mango}` | `true` | `modules/nixos/<wm>.nix` |
-| `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
-| `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
-| `dictate` | `true` | `modules/home/linux/dictate.nix` |
-| `mpd` | `false` | `modules/nixos/mpd.nix` |
-| `sunshine` | `false` | `modules/nixos/sunshine.nix` |
+| `fonts` | `true` | `modules/nixos/fonts.nix` |
 
 #### Feature tree
 
@@ -238,7 +234,7 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ai ]
+  default.nix         [ hardware session virt non-nix-packages games ai audio services apps ]
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -247,6 +243,10 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm ]              neither selected; coverage targets
+  audio.nix           [ mpd speech dictate ]          speech: coverage target
+  audio/              dictate  dictate-test           assets, beside their feature
+  services.nix        [ printing webserver sunshine ] sunshine: coverage target
+  apps.nix            [ cad ]
   profiles/           workstation.nix
 ```
 
@@ -292,8 +292,8 @@ somewhere (QUE-001).
 
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such
-features (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`, `"Sleipnir+llama-cpp"`,
-`"Sleipnir+rocm"`), off
+features, one per off feature (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`,
+`"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+speech"`, `"Sleipnir+sunshine"`), off
 every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 
@@ -339,7 +339,7 @@ The roadmap this is part of is RFC-001 (`doctrine show RFC-001`).
 
 ### Dictation
 
-`modules/home/linux/dictate.nix` + `modules/home/linux/bin/dictate` — streaming
+`features/audio.nix` (`audio.dictate`) + `features/audio/dictate` — streaming
 speech-to-text, typed at the cursor as you speak. Local and CPU-only.
 
 ```
@@ -370,7 +370,7 @@ The binds in `~/.config/umbriel/binds.toml` use xkb's names for those keys,
 
 ```bash
 just test                       # behaviour tests, no mic or model
-DICTATE_MODEL=<unpacked model> modules/home/linux/bin/dictate-test   # + real model
+DICTATE_MODEL=<unpacked model> features/audio/dictate-test   # + real model
 journalctl --user -u dictate -f
 ```
 
@@ -491,7 +491,7 @@ journalctl --user -u snooze-nag -f
 
 ### Printing
 
-`modules/nixos/printing.nix` — CUPS with drivers for Brother HL-L2445DW (laser) and Canon TR8600 (inkjet via gutenprint).
+`features/services.nix` (`services.printing`) — CUPS with drivers for Brother HL-L2445DW (laser) and Canon TR8600 (inkjet via gutenprint).
 
 **Printers:** both discovered via Avahi/mDNS (`avahi.nix`). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
 

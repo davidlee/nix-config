@@ -83,7 +83,8 @@ over Bluetooth) is bounded by the same 10 s.
 chunks give lower latency at somewhat lower accuracy (and more CPU); 1120 ms
 also needs a longer tail pad in `finish`; NVIDIA's FLEURS averages
 for transcription-ready languages run 10.38% WER at 80 ms down to 8.84% at
-1.12 s. Changing it means swapping the URL and hash in `dictate.nix`:
+1.12 s. Changing it means swapping the URL and hash in the `dictate` record
+of `features/audio.nix`:
 
 ```sh
 nix-prefetch-url --unpack <url>          # base32

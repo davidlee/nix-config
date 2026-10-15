@@ -7,7 +7,7 @@
 # Defaults describe a host that says nothing. A host overrides what it likes in
 # hosts/<hostname>/features.nix.
 {lib, ...}: let
-  inherit (lib) mkEnableOption mkOption types;
+  inherit (lib) mkOption types;
 
   enabledByDefault = description:
     mkOption {
@@ -25,16 +25,6 @@ in {
       mango = enabledByDefault "mango compositor";
     };
 
-    apps = {
-      cad = enabledByDefault "CAD and 3D printing tools (home)";
-    };
-
     fonts = enabledByDefault "system font set";
-    printing = enabledByDefault "CUPS and printer drivers";
-    speech = enabledByDefault "speech synthesis and recognition";
-    webserver = enabledByDefault "local webserver";
-    dictate = enabledByDefault "streaming dictation at the cursor (home, linux)";
-    mpd = mkEnableOption "Music Player Daemon";
-    sunshine = mkEnableOption "Sunshine game streaming host";
   };
 }

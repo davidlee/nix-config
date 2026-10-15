@@ -233,6 +233,15 @@ in {
       mkNixos "Sleipnir" hosts.Sleipnir
       (select "Sleipnir" hosts.Sleipnir [{feature.ai.rocm.enable = true;}]);
 
+    # Evaluates the whisper-cpp ROCm closure (overlays/whisper-rocm.nix); builds nothing.
+    coverage."Sleipnir+speech" =
+      mkNixos "Sleipnir" hosts.Sleipnir
+      (select "Sleipnir" hosts.Sleipnir [{feature.audio.speech.enable = true;}]);
+
+    coverage."Sleipnir+sunshine" =
+      mkNixos "Sleipnir" hosts.Sleipnir
+      (select "Sleipnir" hosts.Sleipnir [{feature.services.sunshine.enable = true;}]);
+
     # docker off: the two are exclusive (DEC-022); a plain false beats the
     # workstation profile's mkDefault.
     coverage."Sleipnir+podman" = mkNixos "Sleipnir" hosts.Sleipnir (select "Sleipnir" hosts.Sleipnir [

@@ -22,8 +22,6 @@
       # parked — its flake input is commented out in ../../../flake.nix
       # ./danksearch.nix
     ]
-    ++ lib.optional features.apps.cad ./cad-3d.nix
-    ++ lib.optional features.dictate ./dictate.nix
     ++ lib.optional features.desktop.niri ./niri.nix
     ++ lib.optional features.desktop.sway ./sway.nix;
 

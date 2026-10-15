@@ -65,11 +65,6 @@
     ++ lib.optional features.fonts ../../modules/nixos/fonts.nix
     ++ lib.optional features.desktop.kde ../../modules/nixos/kde.nix
     ++ lib.optional features.desktop.mango ../../modules/nixos/mango.nix
-    ++ lib.optional features.mpd ../../modules/nixos/mpd.nix
     ++ lib.optional features.desktop.niri ../../modules/nixos/niri.nix
-    ++ lib.optional features.printing ../../modules/nixos/printing.nix
-    ++ lib.optional features.speech ../../modules/nixos/speech.nix
-    ++ lib.optional features.sunshine ../../modules/nixos/sunshine.nix
-    ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix
-    ++ lib.optional features.webserver ../../modules/nixos/webserver.nix;
+    ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix;
 }

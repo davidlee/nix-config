@@ -56,6 +56,11 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
   (`*-home-pinned-b58afd9`).
 - `~/.cache/multihost-gate/sl006/phase-02/` — after PHASE-02; PHASE-03's
   baseline (`drvs`, `drvs-sets`, `coverage`, `system/`, `home/`).
+- `~/.cache/multihost-gate/sl006/phase-03/` — after PHASE-03; PHASE-04's
+  baseline. Taken at emacs-overlay 08c72b09663805de26057dfed80b7153846336ca
+  (no drift; no pinned files needed). Also holds `nix-diff-toplevel.txt`,
+  `nix-diff-home.txt`. Re-captured after T7/T8 (docs, temp entries removed):
+  `drvs`, `drvs-sets`, `coverage` identical.
 
 ## PHASE-01 summary
 
@@ -127,4 +132,56 @@ resolve into the store).
 - Refactor (T5): `testSleipnirLeavesPodmanOff` + `testPodmanSelectable` folded
   into `testOffFeatures` as `virt.podman#nixos`; PHASE-03 extends the flat list.
 - README: Overrides example `ai.rocm = false` swapped for `speech = false`.
+- `just gate` green, `flake.lock` untouched.
+
+## PHASE-03 summary
+
+- Gate vs phase-02:
+  - `drvs`: only Sleipnir moved — `nixosConfigurations.Sleipnir`
+    hdy0sg8q → zypvdm5s; `homeConfigurations.david` and `david@Sleipnir`
+    wz9szhqv → xjan80fm. Draupnir (home, darwin), packages, templates
+    identical. `drvs-sets` identical. `system/` probe identical.
+  - toplevel nix-diff: sole leaf `system-path`, env equal once arrays are
+    sorted; moved entries caddy-2.11.7 and system-config-printer-1.5.18. etc,
+    dbus-1, system-units, user-units differ only through it.
+    `users-groups.json` did **not** move: no caddy group exists, so dropping
+    `"caddy"` from extraGroups changed nothing (narrower than expected).
+  - home nix-diff: leaves `home-manager-path`, `man-paths`,
+    `david-fish-completions`, each order-only; moved entry openscad-2021.01.
+    `home-path-links` identical.
+  - `home/home-files-links` differs on one line, `.manpath`: its text embeds
+    the man-cache store path, and man-cache is input-addressed over
+    man-paths (a buildEnv of home.packages), so any home.packages reorder
+    moves it. Worker STOP; **orchestrator adjudication: accepted as
+    ordering-only** (slice objective admits "unchanged or proven
+    ordering-only", mem.pattern.flakes.drv-gate); EX-6 read with that
+    exception for `.manpath`.
+- Coverage: six lines. The four existing moved (Sleipnir's toplevel moved);
+  new `Sleipnir+speech` 4n6plf0v057j58c0116ndhc8d1f402p0 and
+  `Sleipnir+sunshine` sgfjby7va8nby0j12cgbah5dmfni1cpb, both distinct from
+  the toplevel.
+- Speech red → green: before the repair `Sleipnir+speech` failed with
+  "function 'anonymous lambda' called with unexpected argument
+  'rocmGpuTargets'". Fact: whisper-cpp now takes its ggml backend from
+  llama-cpp and passes rocmSupport on to it, so the ROCm target pin goes
+  through `llama-cpp = prev.llama-cpp.override {rocmGpuTargets =
+  ["gfx1201"];}`. Checked: whisper-cpp-1.9.5.drv's llama-cpp-0.6.0.drv input
+  names gfx1201.
+- Negative controls (VA-2, temp `lib.mkForce false` entries, removed after):
+  mpd `services.mpd.enable` false (on: true); printing
+  `services.printing.enable` false, system-config-printer links in
+  system-path 0 (on: 40); webserver `systemd.services ? static-web-server`
+  false, `bin/caddy` 0 (on: 1); dictate user unit and `.local/bin/dictate`
+  both absent (on: present); cad openscad absent from `home.packages` and
+  home-path `bin/` (on: 149 home-path links).
+- Red (T1): whole run aborted on "The option `feature.audio' does not
+  exist". T1 refactor taken: `testSleipnirSelectsMigrated` is two literal tag
+  lists (`nixosOnly`, `homeOnly`) with `expected` derived by map.
+- dictate assets moved byte-identical (`git mv`); `features/audio/dictate:19`
+  docstring still says "set by dictate.nix" — fixing it moves store paths,
+  left for a later commit. `~/.config/umbriel/binds.toml:45` likewise
+  (outside flakes/).
+- README: gating example now `features.fonts`; Overrides example
+  `desktop.kde = false`; flag table down to desktop.* and fonts (PHASE-04
+  needs a third swap or deletion).
 - `just gate` green, `flake.lock` untouched.
