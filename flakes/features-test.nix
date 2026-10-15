@@ -221,4 +221,19 @@ in
         darwin = [];
       };
     };
+
+    # Sleipnir's own selection projects capsule's NixOS half, and no home half.
+    testSleipnirSelectsCapsule = {
+      expr = let
+        r = resolve {
+          tree = real;
+          classes = both;
+          modules = [./hosts/Sleipnir/features.nix];
+        };
+      in [
+        (lib.elem "features/virt/capsule#nixos" (tags r.modules.nixos))
+        (lib.any (lib.hasPrefix "features/virt/capsule") (tags r.modules.homeManager))
+      ];
+      expected = [true false];
+    };
   }

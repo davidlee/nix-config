@@ -110,7 +110,7 @@
     };
 
     # The capsule's host-side perimeter as systemd units under dedicated uids
-    # (nixosModules.capsule-perimeter, wired in modules/nixos/capsule.nix, which
+    # (nixosModules.capsule-perimeter, wired in features/virt/capsule.nix, which
     # also takes microvm.nix's host module through this input rather than locking
     # a second copy). The VM itself is still built from the local checkout by
     # `vm capsule` or created imperatively with `microvm -c`; this input carries

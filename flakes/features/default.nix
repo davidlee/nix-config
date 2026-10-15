@@ -10,4 +10,8 @@
     name = "session";
     value = import ./session;
   }
+  {
+    name = "virt";
+    value = import ./virt;
+  }
 ]

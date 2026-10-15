@@ -4,6 +4,10 @@
 {
   imports = [../../features/profiles/workstation.nix];
 
+  # A property of this host, not a profile: capsule needs KVM and the local
+  # oubliette checkout.
+  feature.virt.capsule.enable = true;
+
   games.enable = true;
 
   desktop = {

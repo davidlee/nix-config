@@ -21,7 +21,7 @@ relying on a line number.
 | satan-patcher (= `~/dev/sloptower` symlink) | `~/dev/satan-patcher` | `path:` (`flake.nix:88-91`) | `modules/home/linux/satan-patcher.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `modules/home/linux/behaviour.nix` |
 | goad | `~/dev/goad` | `git+file:` (`flake.nix:100-102`), **no follows** | `modules/home/linux/goad.nix` |
-| oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `modules/nixos/capsule.nix` (host module only; no capsules at boot) |
+| oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `features/virt/capsule.nix` (host module only; no capsules at boot) |
 | jail library | `~/flakes/agents` | `agents = path:` (`flake.nix:20`) | consumed by every repo's flake |
 
 All modules are imported from `hosts/Sleipnir/home.nix:7-11`. `just

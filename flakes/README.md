@@ -86,7 +86,7 @@ Two ways to switch optional modules on, both resolved once per host by
   imports. Most features are still flags.
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
-  snooze and openrgb have moved here; the rest follow later.
+  snooze, openrgb and capsule have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -188,9 +188,10 @@ never by listing directories. `features/default.nix` lists the areas, each
 
 ```
 features/
-  default.nix               [ hardware session ]
+  default.nix               [ hardware session virt ]
   hardware/  openrgb.nix
   session/   snooze/{default,nixos,home}.nix  snooze/bin/
+  virt/      capsule.nix
   profiles/  workstation.nix
 ```
 
@@ -203,6 +204,7 @@ imports profiles and overrides any of them with a plain definition:
 {
   imports = [../../features/profiles/workstation.nix];   # snooze on
   # feature.session.snooze.enable = false;               # would turn it off
+  feature.virt.capsule.enable = true;                    # a host property, no profile
 }
 ```
 

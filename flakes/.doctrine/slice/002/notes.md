@@ -21,6 +21,33 @@ session that closed SL-001 and retired MULTIHOST.md (d2b787b5).
 - The run reports RV-004 as STALE. The pass was concluded before the fixes
   were redeclared, and the user disposed it as conducted.
 
+## PHASE-01 execution (2026-10-15)
+
+Baseline and after-captures: `.doctrine/state/slice/002/{baseline,after}/`
+(runtime). Inputs held: oubliette 1a27efc6 (dirty), flake.lock sha
+528ed051 (user's uncommitted edit) unchanged throughout.
+
+- **Red**: with the tree entry in place and no selection, `just test` failed
+  on `testSleipnirSelectsCapsule` with `[false false]`, an assertion failure,
+  not an eval error. **Green** after the selection line.
+- **Mutation**: selection line commented out → red `[false false]`; restored.
+- **Gate**: `just drvs` differs only in `nixosConfigurations.Sleipnir`;
+  home and darwin identical. `just drvs-sets` identical. Sleipnir's sudoers
+  differs only by the rtcwake rule and the nft rule changing places (design
+  sec-4). nix-diff of the two toplevels: the only differing leaf is
+  `activate → etc → sudoers → sudoers-in`.
+- **Negative control** (`feature.virt.capsule.enable = false`, reverted):
+  the toplevel drvPath evaluates; sudoers has 0 `capsule-forward` lines;
+  `firewall.interfaces ? "vm-capsule"`, `nftables.tables ? capsule-forward`,
+  `users.users ? assigner` and `services ? capsule-perimeter` are all false.
+- **Hygiene**: `nix fmt` changed nothing; deadnix and statix are clean on the
+  touched files; no repo path names `modules/nixos/capsule.nix`.
+- An extra comment in `features/virt/capsule.nix` explains why the sudo rule
+  is at plain priority (the design said only that there is no `mkAfter`).
+- `.doctrine/doctrine.toml` gained `[reservation] allow-local-fallback` while
+  the work was running, from outside this session. It is left uncommitted:
+  the user's call.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design locked · d2b787b5 (+ the SL-002 design commit after it)
