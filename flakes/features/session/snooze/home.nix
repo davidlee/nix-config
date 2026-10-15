@@ -1,7 +1,7 @@
 # The user half of snooze: the bedtime nag, and the suspend it eventually
-# performs. The system half (modules/nixos/snooze.nix) is only the RTC wake
-# alarm now — `systemctl suspend` needs no privilege from an active session,
-# so the decision to suspend belongs next to the person being asked.
+# performs. The system half (./nixos.nix) is only the RTC wake alarm now —
+# `systemctl suspend` needs no privilege from an active session, so the
+# decision to suspend belongs next to the person being asked.
 #
 # The escalation, and why dismissing the toast is not an escape, are in the
 # script. `snooze-nag-test` alongside it holds that behaviour without a

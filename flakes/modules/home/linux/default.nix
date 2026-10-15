@@ -26,8 +26,7 @@
     ++ lib.optional features.dictate ./dictate.nix
     ++ lib.optional features.desktop.niri ./niri.nix
     ++ lib.optional features.desktop.sway ./sway.nix
-    ++ lib.optional features.games.mangohud ./games.nix
-    ++ lib.optional features.snooze ./snooze.nix;
+    ++ lib.optional features.games.mangohud ./games.nix;
 
   # GUI apps launched by the compositor never source a shell profile
   systemd.user.sessionVariables = config.home.sessionVariables;

@@ -1,6 +1,9 @@
-# Sleipnir's feature flags, overriding the defaults declared in
-# ../../modules/features.nix. Anything not named here takes the default.
+# Sleipnir's feature selection: the profiles it imports, and the legacy flags
+# it overrides (defaults in ../../modules/features.nix). Anything not named
+# here takes the default.
 {
+  imports = [../../features/profiles/workstation.nix];
+
   games.enable = true;
 
   desktop = {
@@ -16,7 +19,6 @@
     rocm = false;
   };
   hardware = {
-    openrgb = false;
     ssd = true;
     microcode = true;
   };

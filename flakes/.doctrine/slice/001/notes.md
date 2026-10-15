@@ -70,6 +70,19 @@ inquiry graph `inq-1`–`inq-10` holds the questions below.
 - `perSystem.nix` takes `lib` from flake-parts' module args; the resolver
   tests pass under it.
 
+## PHASE-02 evidence (2026-10-15)
+
+- Red: T1/T2 (`testProfileSelectsSnooze`, `testHostOverrideWins`) failed
+  as an eval error (`features/profiles/workstation.nix` missing) before the
+  tree and profile existed. Green after.
+- Identity gate: `just drvs` and `just drvs-sets` identical to the fresh
+  pre-phase snapshot and to the EN-2 baseline, all four configurations. The
+  merge-order risk (snooze halves moved to factory depth) did not
+  materialise: no ordering-only diff to explain.
+- VA-2: no reader of `features.snooze` / `features.hardware.openrgb` in
+  `hosts/` or `modules/`; `features.hardware.microcode` still found.
+- Moves done with `git mv`, so history follows; new files `git add -N`'d.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)

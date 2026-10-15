@@ -1,6 +1,8 @@
-# Feature flag declarations. Evaluated once by ../features.nix, outside the
-# NixOS / darwin / home-manager module systems, and injected into all three as
-# a plain attrset. See ../README.md#feature-flags.
+# Legacy feature flag declarations. Evaluated once by ../features.nix, outside
+# the NixOS / darwin / home-manager module systems, and injected into all three
+# as a plain attrset that hosts read to gate imports. Features migrated to the
+# feature tree (../features) are selected by `feature.<area>.<name>.enable`
+# instead, and have no flag here. See ../README.md#feature-flags.
 #
 # Defaults describe a host that says nothing. A host overrides what it likes in
 # hosts/<hostname>/features.nix.
@@ -48,7 +50,6 @@ in {
     };
 
     hardware = {
-      openrgb = mkEnableOption "OpenRGB lighting control";
       microcode = mkEnableOption "ucodenix CPU microcode updates";
       ssd = mkEnableOption "SSD mount options (noatime, discard)";
     };
@@ -68,7 +69,6 @@ in {
     printing = enabledByDefault "CUPS and printer drivers";
     speech = enabledByDefault "speech synthesis and recognition";
     webserver = enabledByDefault "local webserver";
-    snooze = enabledByDefault "nightly suspend and RTC wake, system and user halves";
     dictate = enabledByDefault "streaming dictation at the cursor (home, linux)";
     mpd = mkEnableOption "Music Player Daemon";
     sunshine = mkEnableOption "Sunshine game streaming host";

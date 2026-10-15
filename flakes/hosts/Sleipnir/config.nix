@@ -75,11 +75,9 @@
     ++ lib.optional features.hardware.microcode ../../modules/nixos/microcode.nix
     ++ lib.optional features.mpd ../../modules/nixos/mpd.nix
     ++ lib.optional features.desktop.niri ../../modules/nixos/niri.nix
-    ++ lib.optional features.hardware.openrgb ../../modules/nixos/openrgb.nix
     ++ lib.optional features.printing ../../modules/nixos/printing.nix
     ++ lib.optional features.virt.qemu ../../modules/nixos/qemu.nix
     ++ lib.optional features.ai.rocm ../../modules/nixos/rocm.nix
-    ++ lib.optional features.snooze ../../modules/nixos/snooze.nix
     ++ lib.optional features.speech ../../modules/nixos/speech.nix
     ++ lib.optional features.hardware.ssd ../../modules/nixos/ssd.nix
     ++ lib.optional features.sunshine ../../modules/nixos/sunshine.nix

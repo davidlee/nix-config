@@ -22,6 +22,20 @@ lib: let
   nixos = {nixos = {};};
   both = ["nixos" "homeManager"];
 
+  workstation = ./features/profiles/workstation.nix;
+
+  # Real tree, both linux classes: is snooze in [ nixos homeManager ]?
+  snoozeIn = modules: let
+    r = resolve {
+      tree = real;
+      classes = both;
+      inherit modules;
+    };
+  in [
+    (lib.elem "features/session/snooze#nixos" (tags r.modules.nixos))
+    (lib.elem "features/session/snooze#homeManager" (tags r.modules.homeManager))
+  ];
+
   prerequisite = selected:
     resolve {
       tree = [(area "a" [(feat "x" (hm // {requires = ["a.y"];})) (feat "y" hm)])];
@@ -113,6 +127,16 @@ in
         [(area "a" [(feat "x" hm) (feat "x" nixos)])]
       ];
       expected = [true true];
+    };
+
+    testProfileSelectsSnooze = {
+      expr = snoozeIn [workstation];
+      expected = [true true];
+    };
+
+    testHostOverrideWins = {
+      expr = snoozeIn [workstation {feature.session.snooze.enable = false;}];
+      expected = [false false];
     };
 
     testFlagsHideSelection = {
