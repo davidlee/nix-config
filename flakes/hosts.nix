@@ -93,22 +93,29 @@
         ++ selection.modules.nixos;
     };
 
+  # Injected into home evaluations. Home Manager re-imports nixpkgs from
+  # config.nixpkgs, putting module overlays before pkgs.overlays; this list
+  # keeps the order the factory-built pkgs had.
+  homeModule = system: {
+    nixpkgs.config.allowUnfree = true;
+    nixpkgs.overlays = [
+      inputs.lem.overlays.default
+      inputs.claude-desktop.overlays.default
+      (agentsOverlay system)
+      inputs.llm-agents.overlays.shared-nixpkgs
+    ];
+    imports = [(stableModule system)];
+  };
+
+  # Bare import, not legacyPackages: that carries nixpkgs' flake-only lib
+  # overlay, which Home Manager would inherit (RV-009 F-6).
   mkHome = hostname: {system, ...}: selection:
     inputs.home-manager.lib.homeManagerConfiguration {
-      pkgs = import inputs.nixpkgs-home {
-        inherit system;
-        config.allowUnfree = true;
-        overlays = [
-          inputs.claude-desktop.overlays.default
-          (agentsOverlay system)
-          inputs.llm-agents.overlays.shared-nixpkgs
-        ];
-      };
+      pkgs = import inputs.nixpkgs-home {inherit system;};
       modules =
         [
+          (homeModule system)
           ./hosts/${hostname}/home.nix
-          {nixpkgs.overlays = [inputs.lem.overlays.default];}
-          (stableModule system)
         ]
         ++ selection.modules.homeManager;
       extraSpecialArgs = args hostname selection;

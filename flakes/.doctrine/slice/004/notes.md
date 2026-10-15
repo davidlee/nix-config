@@ -106,3 +106,10 @@ are needed through PHASE-05 and must outlive the session and a reboot.
 - Interim: justfile `darwin-build`/`darwin-switch` still default to
   `Davids-MacBook-Pro`, which no longer exists, until PHASE-05. Pass
   `host=Draupnir` meanwhile.
+
+### PHASE-04 (homeModule)
+
+- Gate passed, no fallback: mkHome passes a bare `import nixpkgs-home`;
+  `homeModule` (first in `modules`) carries allowUnfree, the overlays
+  `[lem claude-desktop agents llm-agents]` and stableModule. `just drvs`
+  identical to PHASE-03 for every line (`~/.cache/sl-004/p04-drvs`).
