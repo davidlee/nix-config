@@ -49,10 +49,22 @@ A further pass would probe only those two, and the gates already do.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-15 · audit (first pass RV-007 concluded; fresh pass pending) · ce91ecc8
 
 ### Produced
 
+DEC-015 (accepted) · RV-006 (design pass, waived) · RV-007 (audit pass 1,
+9 findings verified) · commits df85b6b5, bc08438b, c693a33b, fbb27f68,
+ce91ecc8.
+
 ### Learned
 
+No new memory: the tryEval limit is already held
+(mem_01a13e129e64705d91fb05f77f97ba7e). Plan lessons in § Audit.
+
 ### Open
+
+- User decision: areas as `{ name; value; }` pairs (agent recommendation)
+  or paths named by `baseNameOf` (RV-007 § Synthesis).
+- RV-007 § Reconciliation Brief: not yet executed.
+- ISS-005, CHR-010 (tooling; tolerated, RV-007 F-1, F-2).
