@@ -1,10 +1,14 @@
 # Darwin home base: the counterpart of profiles/linux-desktop.nix.
 # Host identity (username, homeDirectory, stateVersion) is in hosts/<host>/home.nix.
-{
+{lib, ...}: {
   imports = [
     ../modules/home/shared
     ../modules/home/shared/cli.nix
   ];
+
+  # atuin 18.23.0 (nixpkgs 7fd4004) is not cached for aarch64-darwin and
+  # fails to build locally; restore when it is (ISS-007).
+  programs.atuin.enable = lib.mkForce false;
 
   # Move colliding files aside instead of failing activation; the policy
   # embedded Home Manager applied, kept for every home-switch.

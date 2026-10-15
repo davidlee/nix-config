@@ -128,3 +128,20 @@ are needed through PHASE-05 and must outlive the session and a reboot.
 - Not done (per design scope): `test`/`gate` still use `.#`, so `just gate`
   will not run on the Mac. Candidate follow-up.
 - drvs identical to PHASE-04 (`~/.cache/sl-004/p05-drvs`); gate green.
+
+### PHASE-06 (Draupnir cut-over, human) — in progress
+
+- 2026-10-15, first attempt: the user ran `just darwin-switch` (the new
+  system) before activating the home, so `/etc/profiles/per-user/david/bin`
+  vanished and new shells failed: the login shell, set by hand outside nix,
+  pointed at `.../per-user/david/bin/nu`. The home build then failed on atuin
+  (ISS-007), so the user ran the last-resort `darwin-rebuild
+  --switch-generation`, which restored login (EX-3, first half, unplanned).
+- atuin 18.23.0 is uncached for aarch64-darwin at nixpkgs `7fd4004`;
+  not SL-004-caused. Disabled on darwin (`darwin/home.nix`, ISS-007); drvs:
+  only `david@Draupnir` moves.
+- The user then activated a home with atuin hacked out locally.
+- README gaps found (fix pending the user's report): `darwin-rebuild
+  --list-generations` needs `sudo` (profile lock); the cut-over needs a
+  login-shell step (`/etc/shells` + `chsh` to `~/.nix-profile/bin/nu`); a
+  rollback brings the per-user `nu` path back.
