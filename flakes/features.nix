@@ -13,14 +13,15 @@
 #   features are projected into `modules.<class>` in tree order, for the
 #   factories to append. No downstream module sees the selection.
 #
-# tree     [ { name = area; value = [ { name; value = descriptor; } … ]; } … ]
+# tree     [ { name = area; value = [ feature … ]; } … ]
 # classes  this host's evaluations, e.g. [ "nixos" "homeManager" ]
 # modules  outer modules: the host's features.nix (if any), plus extras
 #
-# A descriptor is { nixos?, homeManager?, darwin?, requires? }. The resolver
-# reads only key names and `requires`; class values are never forced here,
-# so an unselected feature is never evaluated. Every check is enforced: a
-# failure throws, so nothing in the result can be read.
+# A feature is { name, nixos?, homeManager?, darwin?, requires? }. The
+# resolver reads only key names, `name`, `requires` and the position of
+# `name`; class values are never forced here, so an unselected feature's
+# implementation is never evaluated. Every check is enforced: a failure
+# throws, so nothing in the result can be read.
 lib: {
   tree,
   classes,
@@ -33,7 +34,7 @@ lib: {
       area = area.name;
       inherit (f) name;
       path = "${area.name}.${f.name}";
-      descriptor = f.value;
+      descriptor = f;
     })
     area.value)
   tree;
@@ -86,36 +87,58 @@ lib: {
   # names, descriptor key names, `requires` and option declarations, never a
   # class value or a config value (ADR-002 D4), so all are safe to compute
   # together; `checks` looks paths up by splitting on ".", so it must not run
-  # until these pass.
+  # until these pass. Everything after `unnamed` reads `name`, and a missing
+  # attribute aborts uncatchably, so an unnamed feature is reported alone.
+  unnamed = concatMap (area:
+    lib.concatLists (lib.imap1 (i: f:
+      lib.optional (!(f ? name && lib.isString f.name))
+      "feature #${toString i} in area ${area.name} has no name")
+    area.value))
+  tree;
   areas = map (a: a.name) tree;
   paths = map (r: r.path) records;
   duplicates = xs: lib.unique (filter (x: lib.count (y: y == x) xs > 1) xs);
   dotted = lib.hasInfix ".";
   structural =
-    map (a: "duplicate area ${a}") (duplicates areas)
-    ++ map (p: "duplicate feature ${p}") (duplicates paths)
-    ++ map (a: "area name \"${a}\" contains \".\"") (filter dotted areas)
-    ++ map (r: "feature name \"${r.name}\" in area ${r.area} contains \".\"") (filter (r: dotted r.name) records)
-    ++ concatMap (r: let
-      bad = lib.subtractLists ["nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
-    in
-      lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
-    records
-    # A flag at a feature's path would be a second switch for one concept.
-    ++ map (r: "feature ${r.path} is also a flag") (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
-    ++ concatMap (r:
-      map (p: "unknown feature ${p} in ${r.path}.requires")
-      (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
-    records;
+    if unnamed != []
+    then unnamed
+    else
+      map (a: "duplicate area ${a}") (duplicates areas)
+      ++ map (p: "duplicate feature ${p}") (duplicates paths)
+      ++ map (a: "area name \"${a}\" contains \".\"") (filter dotted areas)
+      ++ map (r: "feature name \"${r.name}\" in area ${r.area} contains \".\"") (filter (r: dotted r.name) records)
+      ++ concatMap (r: let
+        bad = lib.subtractLists ["name" "nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
+      in
+        lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
+      records
+      # A flag at a feature's path would be a second switch for one concept.
+      ++ map (r: "feature ${r.path} is also a flag") (filter (r: lib.isOption (lib.attrByPath [r.area r.name] null outer.options)) records)
+      ++ concatMap (r:
+        map (p: "unknown feature ${p} in ${r.path}.requires")
+        (filter (p: !lib.elem p paths) (r.descriptor.requires or [])))
+      records;
   failed = filter (a: !a.assertion) config.assertions;
   selected = filter (r: config.feature.${r.area}.${r.name}.enable) records;
 
   bullets = lib.concatMapStrings (m: "- ${m}\n");
 
-  # _file names the feature in error messages; imports never forces the value.
+  # Where a feature is written, as "<file>:<line>" relative to the flake, from
+  # the position of its `name`. Relative, never a store path: that changes
+  # with every commit.
+  root = "${toString ./.}/";
+  origin = f: let
+    pos = builtins.unsafeGetAttrPos "name" f;
+  in
+    if pos == null
+    then "unknown"
+    else "${lib.removePrefix root pos.file}:${toString pos.line}";
+
+  # _file names the feature in error messages, by place and by path; imports
+  # never forces the value.
   project = class:
     map (r: {
-      _file = "features/${r.area}/${r.name}#${class}";
+      _file = "${origin r.descriptor} (${r.path}#${class})";
       imports = [r.descriptor.${class}];
     })
     (filter (r: r.descriptor ? ${class}) selected);

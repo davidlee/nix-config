@@ -11,7 +11,7 @@ lib: let
     inherit name;
     value = features;
   };
-  feat = name: value: {inherit name value;};
+  feat = name: descriptor: descriptor // {inherit name;};
   on = path: lib.setAttrByPath (["feature"] ++ lib.splitString "." path ++ ["enable"]) true;
 
   # The resolver fails by `throw`, which tryEval catches. tryEval loses the
@@ -26,7 +26,10 @@ lib: let
       }
       // args)).flags;
   one = descriptor: [(area "a" [(feat "x" descriptor)])];
-  tags = map (m: m._file);
+  # A projected module's `_file` is "<file>:<line> (<area>.<name>#<class>)";
+  # tests identify it by the logical part.
+  logical = m: lib.head (builtins.match ".*\\((.*)\\)" m._file);
+  tags = map logical;
 
   hm = {homeManager = {};};
   nixos = {nixos = {};};
@@ -42,8 +45,8 @@ lib: let
       inherit modules;
     };
   in [
-    (lib.elem "features/session/snooze#nixos" (tags r.modules.nixos))
-    (lib.elem "features/session/snooze#homeManager" (tags r.modules.homeManager))
+    (lib.elem "session.snooze#nixos" (tags r.modules.nixos))
+    (lib.elem "session.snooze#homeManager" (tags r.modules.homeManager))
   ];
 
   prerequisite = selected:
@@ -61,7 +64,7 @@ in
 
     testPrerequisiteOnPasses = {
       expr = tags (prerequisite ["a.x" "a.y"]).modules.homeManager;
-      expected = ["features/a/x#homeManager" "features/a/y#homeManager"];
+      expected = ["a.x#homeManager" "a.y#homeManager"];
     };
 
     testUnknownPrerequisiteFails = {
@@ -171,7 +174,7 @@ in
           classes = ["nixos"];
           modules = map on ["alpha.a1" "zeta.z1" "zeta.z2"];
         }).modules.nixos;
-      expected = ["features/zeta/z2#nixos" "features/zeta/z1#nixos" "features/alpha/a1#nixos"];
+      expected = ["zeta.z2#nixos" "zeta.z1#nixos" "alpha.a1#nixos"];
     };
 
     testDuplicateNamesFail = {
@@ -182,6 +185,24 @@ in
         [(area "a" [(feat "x" hm) (feat "y" nixos)])]
       ];
       expected = [false true false true];
+    };
+
+    testUnnamedFeatureFails = {
+      expr = map (f: resolves {tree = [(area "a" [f])];}) [nixos (feat "x" nixos)];
+      expected = [false true];
+    };
+
+    # Where the feature is written, relative to the flake, and which it is.
+    testProvenance = {
+      expr = let
+        r = resolve {
+          tree = one nixos;
+          classes = ["nixos"];
+          modules = [(on "a.x")];
+        };
+      in
+        map (m: builtins.match "features-test\\.nix:[0-9]+ \\(a\\.x#nixos\\)" m._file != null) r.modules.nixos;
+      expected = [true];
     };
 
     testProfileSelectsSnooze = {
@@ -231,8 +252,8 @@ in
           modules = [./hosts/Sleipnir/features.nix];
         };
       in [
-        (lib.elem "features/virt/capsule#nixos" (tags r.modules.nixos))
-        (lib.any (lib.hasPrefix "features/virt/capsule") (tags r.modules.homeManager))
+        (lib.elem "virt.capsule#nixos" (tags r.modules.nixos))
+        (lib.any (lib.hasPrefix "virt.capsule#") (tags r.modules.homeManager))
       ];
       expected = [true false];
     };

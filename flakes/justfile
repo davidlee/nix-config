@@ -39,7 +39,7 @@ fmt: check-flake-root
 # scripts under features/ and modules/home/linux/{bin,nudge}/
 test:
   nix build ".#checks.$(nix config show system).features" --no-link --no-write-lock-file
-  features/session/snooze/bin/snooze-nag-test
+  features/session/snooze-nag-test
   modules/home/linux/bin/dictate-test
   nu modules/home/linux/nudge/nudge-test.nu
 
