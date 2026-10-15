@@ -51,6 +51,25 @@ inquiry graph `inq-1`–`inq-10` holds the questions below.
 - **Governing:** ADR-001 to ADR-005 (proposed), HYP-001, and research
   Thread 1. Amendment candidates are R1–R6 in the research.
 
+## PHASE-01 evidence (2026-10-15)
+
+- Red: `just test` against the old `features.nix` failed with
+  `cannot coerce a set to a string` (old `lib: hostname:` arity). Green
+  after the rewrite.
+- Mutations, each reverted: dropping the uniqueness check, the assertion
+  enforcement, or the `selected` filter in projection each turned the
+  suite red.
+- Identity gate: `just drvs` and `just drvs-sets` identical to the EN-2
+  baseline for all four configurations (also after the `configure`
+  refactor). Override inputs as at baseline: oubliette `1a27efc6` (dirty,
+  one doctrine toml), agents/emacs clean at `bf2eb570`.
+- RV-001 F-3 control: with `assertions = [{assertion = false; message =
+  "control";}]` in `hosts/Sleipnir/features.nix`, evaluating
+  `homeConfigurations."david@Sleipnir".activationPackage.drvPath` alone
+  failed with `feature selection failed:` / `- control`. Line reverted.
+- `perSystem.nix` takes `lib` from flake-parts' module args; the resolver
+  tests pass under it.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)

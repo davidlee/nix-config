@@ -7,9 +7,11 @@
 # homeConfigurations."<username>@<hostname>", from hosts/<host>/home.nix.
 # Darwin runs home-manager as a darwin module instead (see ./darwin).
 #
-# Each host's entry point is hosts/<host>/config.nix. Feature flags are
-# resolved per host (./features.nix) and passed as a specialArg so they can
-# gate imports. See README § Feature flags.
+# Each host's entry point is hosts/<host>/config.nix. Each host's features
+# are resolved once (./features.nix) and every factory for that host gets the
+# same selection: its legacy `flags` go in as the `features` specialArg, which
+# hosts use to gate imports, and the modules the feature tree projects for the
+# factory's class are appended to its `modules`. See README § Feature flags.
 {
   inputs,
   self,
@@ -18,7 +20,8 @@
   inherit (inputs.nixpkgs) lib;
 
   username = "david";
-  mkFeatures = import ./features.nix lib;
+  resolve = import ./features.nix lib;
+  tree = import ./features;
   agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
 
   hosts = lib.mapAttrs (name: _: import ./hosts/${name}/meta.nix) (
@@ -27,27 +30,49 @@
   );
   hostsOf = kind: lib.filterAttrs (_: meta: meta.kind == kind) hosts;
 
+  # The evaluations a host has, i.e. the classes a feature may land in.
+  classesOf = meta:
+    if meta.kind == "darwin"
+    then ["darwin"]
+    else ["nixos"] ++ lib.optional (meta.home or false) "homeManager";
+
+  # extra: outer modules beyond the host's own features.nix.
+  select = hostname: meta: extra: let
+    host = ./hosts/${hostname}/features.nix;
+  in
+    resolve {
+      inherit tree;
+      classes = classesOf meta;
+      modules = lib.optional (builtins.pathExists host) host ++ extra;
+    };
+
+  # One resolution per host, shared by all its factories, so a failed check
+  # stops a home-only build as well as a system one.
+  selections = lib.mapAttrs (hostname: meta: select hostname meta []) hosts;
+
   mkStable = system:
     import inputs.stable {
       inherit system;
       config.allowUnfree = true;
     };
 
-  mkNixos = hostname: {system, ...}:
+  mkNixos = hostname: {system, ...}: selection:
     lib.nixosSystem {
       specialArgs = {
         inherit inputs username hostname;
         stable = mkStable system;
-        features = mkFeatures hostname;
+        features = selection.flags;
       };
-      modules = [
-        ./hosts/${hostname}/config.nix
-        # mkAfter: host config.nix overlays (package fixes) apply first.
-        {nixpkgs.overlays = lib.mkAfter [(agentsOverlay system)];}
-      ];
+      modules =
+        [
+          ./hosts/${hostname}/config.nix
+          # mkAfter: host config.nix overlays (package fixes) apply first.
+          {nixpkgs.overlays = lib.mkAfter [(agentsOverlay system)];}
+        ]
+        ++ selection.modules.nixos;
     };
 
-  mkHome = hostname: {system, ...}:
+  mkHome = hostname: {system, ...}: selection:
     inputs.home-manager.lib.homeManagerConfiguration {
       pkgs = import inputs.nixpkgs-home {
         inherit system;
@@ -58,18 +83,21 @@
           inputs.llm-agents.overlays.shared-nixpkgs
         ];
       };
-      modules = [
-        ./hosts/${hostname}/home.nix
-        {nixpkgs.overlays = [inputs.lem.overlays.default];}
-      ];
+      modules =
+        [
+          ./hosts/${hostname}/home.nix
+          {nixpkgs.overlays = [inputs.lem.overlays.default];}
+        ]
+        ++ selection.modules.homeManager;
       extraSpecialArgs = {
         inherit inputs username hostname;
         stable = mkStable system;
-        features = mkFeatures hostname;
+        features = selection.flags;
       };
     };
 
-  mkDarwin = hostname: {system, ...}: let
+  # Darwin's embedded home-manager gets no projected modules (DEC-001).
+  mkDarwin = hostname: {system, ...}: selection: let
     pkgs = import inputs.nixpkgs {
       inherit system;
       hostPlatform = system;
@@ -96,21 +124,26 @@
       inherit pkgs;
       specialArgs = {
         inherit inputs pkgs username hostname;
-        features = mkFeatures hostname;
+        features = selection.flags;
       };
-      modules = [
-        {system.configurationRevision = self.rev or self.dirtyRev or null;}
-        ./hosts/${hostname}/config.nix
-      ];
+      modules =
+        [
+          {system.configurationRevision = self.rev or self.dirtyRev or null;}
+          ./hosts/${hostname}/config.nix
+        ]
+        ++ selection.modules.darwin;
     };
 
+  # Applies a factory to each host, with that host's shared selection.
+  configure = mk: lib.mapAttrs (hostname: meta: mk hostname meta selections.${hostname});
+
   homes =
-    lib.mapAttrs' (hostname: meta: lib.nameValuePair "${username}@${hostname}" (mkHome hostname meta))
-    (lib.filterAttrs (_: meta: meta.home or false) (hostsOf "nixos"));
+    lib.mapAttrs' (hostname: lib.nameValuePair "${username}@${hostname}")
+    (configure mkHome (lib.filterAttrs (_: meta: meta.home or false) (hostsOf "nixos")));
 in {
   flake = {
-    nixosConfigurations = lib.mapAttrs mkNixos (hostsOf "nixos");
-    darwinConfigurations = lib.mapAttrs mkDarwin (hostsOf "darwin");
+    nixosConfigurations = configure mkNixos (hostsOf "nixos");
+    darwinConfigurations = configure mkDarwin (hostsOf "darwin");
 
     # Bare `david`: transitional alias for the pre-factory key. Drop once
     # nothing calls `.#david`.
