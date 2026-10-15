@@ -79,7 +79,7 @@ note = "checked in design.md rev 36"
 
 [[finding]]
 id = "F-3"
-status = "answered"
+status = "verified"
 severity = "minor"
 title = "Home-only failure (test 3) is argued from structure, not observed"
 detail = "sec-6 maps slice test 3 to T3 at resolver level plus the argument that mkHome reads the same guarded selection. No test evaluates homeConfigurations with a failing selection. A regression that gave mkHome its own unguarded resolution would pass T3."
@@ -97,6 +97,11 @@ role = "responder"
 disposition = "fix-now"
 route = "control"
 response = "sec-6 adds a one-off negative control. The incorrect candidate it must reject is a mkHome with its own unguarded resolution: with a deliberately false assertion in the host file, the home-only drvPath evaluation must fail with the control message. Plan places it in the phase that rewires hosts.nix."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """Observed in PHASE-01 (84d77e11) as PHASE-01 VA-2: with a false assertion in hosts/Sleipnir/features.nix, homeConfigurations."david@Sleipnir".activationPackage.drvPath alone failed with 'feature selection failed: - control'; reverted. Evidence: SL-001 notes § PHASE-01 evidence."""
 
 [[finding]]
 id = "F-4"
