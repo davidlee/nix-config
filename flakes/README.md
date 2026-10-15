@@ -256,7 +256,7 @@ Adding a host means adding a directory. The justfile selects the
 configuration by `hostname`; override with `just host=<other> system-build`
 (or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
 `homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
-See [MULTIHOST.md](./MULTIHOST.md) for the plan this is part of.
+The roadmap this is part of is RFC-001 (`doctrine show RFC-001`).
 
 ### Dictation
 

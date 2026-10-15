@@ -1,0 +1,52 @@
+schema = "doctrine.rfc"
+version = 1
+
+id = 1
+slug = "multihost-roadmap"
+title = "Multi-host and feature composition roadmap"
+status = "open"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+# RFCs participate in the tier-1 `related` relation (AnyNumbered — links to any entity).
+# Author with `doctrine link RFC-NNN related <target>`. `doctrine inspect RFC-NNN` renders them.
+superseded_by = []   # reverse link is derived (REV→RFC originates_from)
+
+[[relation]]
+label = "related"
+target = "SL-001"
+
+[[relation]]
+label = "related"
+target = "ADR-001"
+
+[[relation]]
+label = "related"
+target = "ADR-002"
+
+[[relation]]
+label = "related"
+target = "ADR-003"
+
+[[relation]]
+label = "related"
+target = "ADR-004"
+
+[[relation]]
+label = "related"
+target = "ADR-005"
+
+[[relation]]
+label = "related"
+target = "HYP-001"
+
+[[relation]]
+label = "related"
+target = "QUE-001"
+
+[[relation]]
+label = "related"
+target = "QUE-004"
+

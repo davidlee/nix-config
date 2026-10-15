@@ -70,9 +70,10 @@ doctor:
 # nixos pick for drvs and coverage: drvPath, `agents` registry pinned (below).
 nixos_pick := 'c: let pinned = c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }; in (if c.config.nix.registry ? agents then pinned else c).config.system.build.toplevel.drvPath'
 
-# drvPath of every configuration, evaluation only — the refactor gate in
-# MULTIHOST.md: snapshot before a change, diff after. Each family uses its
-# switch target's overrides; new hosts are picked up automatically.
+# drvPath of every configuration, evaluation only — the refactor gate
+# (mem.pattern.flakes.drv-gate): snapshot before a change, diff after.
+# Each family uses its switch target's overrides; new hosts are picked up
+# automatically.
 #
 # Two inputs vary with the repo rather than the config, so they are pinned
 # here, or every edit/commit would read as a change:
