@@ -8,7 +8,10 @@ __pycache__/
 REFACTOR.md
 EXECUTION.md
 .doctrine/state/
+.doctrine/agents/
+.doctrine/hymns/
 .doctrine/slice/*/phases
+.doctrine/slice/*/research
 .doctrine/**/handover.md
 .doctrine/slice/*/inquisition.md
 .doctrine/memory/index/*
