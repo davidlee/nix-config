@@ -1,6 +1,6 @@
 id = 6
 slug = "flags-games-ai-singletons"
-title = "Legacy flags to feature tree: games, ai, singletons"
+title = "Legacy flags to feature tree: the rest of W3"
 status = "design"
 created = "2026-10-15"
 updated = "2026-10-15"
@@ -92,6 +92,34 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "modules/home/linux/bin/dictate*"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flake.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/home/linux/cad-3d.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/nixos/{sway,niri,cosmic,kde,mango}.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/home/linux/{sway,niri}.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/nixos/wayland_packages.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/nixos/programs.nix"
 intent = "scope-relevant"
 
 [[relation]]
