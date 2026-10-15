@@ -109,9 +109,21 @@ to fold into design and ADR-002 (DEC-009 path):
 - the duplicate-name error names the duplicates (F-5).
 README now says structural errors in the tree fail every host (F-3).
 
+## Audit RV-003 (2026-10-15)
+
+Conformance audit, self-driven (raiser `auditor`, responder `author`).
+Gates re-run at 5ba01615: `just test` green; lint clean; `just drvs` and
+`drvs-sets` identical to the EN-2 baseline; `just coverage` one drvPath.
+No code defects. Six findings: F-1..F-3 design prose stale after the RV-002
+repairs, F-4 DEC-009 ADR amendments pending (both go to reconcile through
+the brief in `review-003.md`), F-5 ISS-005 tooling (tolerated), F-6 plan
+VT-2 keyword `allUnique` gone (tolerated; plan criteria are immutable).
+Phase-sheet sweep: everything durable was already here or in memories,
+except that there is no `just gate` recipe (CHR-010).
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · started, PHASE-01..03 completed, RV-002 done, pre-audit · 01e1a71e (harvest commit follows)
+fresh-as-of: 2026-10-15 · audit (RV-003 done) · 5ba01615 (audit commit follows)
 
 ### Produced
 - ADR-001..005 — composition direction (8fb3b0b3)
@@ -120,7 +132,8 @@ fresh-as-of: 2026-10-15 · started, PHASE-01..03 completed, RV-002 done, pre-aud
 - design run: 10 inquiries, design.md sec-1..8; self-review RV-001
 - PHASE-01 84d77e11 · PHASE-02 da8e70d8 · PHASE-03 d19a1d45 · RV-002 repairs b4f42cf2
 - RV-002 — code review (Codex raiser), 7 findings verified, synthesis 01e1a71e
-- minted: DEC-001..009, IMP-012, CHR-009, ISS-005
+- RV-003 — reconciliation audit, 6 findings, reconciliation brief
+- minted: DEC-001..009, IMP-012, CHR-009, ISS-005, CHR-010
 - earlier: ISS-001..004, IMP-001..011, CHR-001..008, IDE-001
 
 ### Learned
@@ -136,8 +149,9 @@ fresh-as-of: 2026-10-15 · started, PHASE-01..03 completed, RV-002 done, pre-aud
 
 ### Open
 - HYP-001 — record SL-001 result as evidence at close (design sec-8)
-- DEC-009 — ADR amendments by revision at reconcile; plus RV-002 additions to sec-3 (notes § Code review RV-002)
+- DEC-009 — ADR amendments by revision at reconcile; itemised in RV-003 Reconciliation Brief
 - ISS-005 — delta paths vs doctrine root; verify-vt/conformance unattributable for SL-001
+- CHR-010 — `just gate` recipe for `doctrine check gate`
 - IMP-012 — darwin standalone Home Manager
 - CHR-009 — memory scope paths
 - QUE-001 — platform scope declaration

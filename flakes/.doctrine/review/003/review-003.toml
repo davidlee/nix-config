@@ -1,0 +1,212 @@
+id    = 3
+slug  = "reconciliation-review-of-sl-001"
+title = "reconciliation review of SL-001"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "auditor"
+responder = "author"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-001 at 5ba01615 against design sec-1..8, plan EX/VT/VA for PHASE-01..03, slice tests 1–9, RV-001/RV-002 outcomes. Gates re-run this pass: just test green (checks.features + snooze-nag, dictate, nudge tests); alejandra/statix/deadnix clean on touched .nix; just drvs and drvs-sets identical to the EN-2 baseline for all four configurations (override inputs unchanged since baseline); just coverage one drvPath, differing from Sleipnir's; flake.lock clean. Path conformance and VT attribution checked by hand (ISS-005). No code defects; six findings, all design/governance staleness or tooling.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-001"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Expected design sec-3 to state the resolver's structural checks; RV-002 added three it does not describe"
+detail = """
+Expected: design sec-3 (steps 1, sketch, invariants, flowchart) describes every structural check features.nix enforces.
+Observed: features.nix (`structural`, ~:83-101) also refuses unknown descriptor keys (RV-002 F-1), "." in area or feature names (F-2), and names each duplicate area/path (F-5); all failures throw one "feature tree is malformed:" bullet list. Design sec-3 lists only duplicates (as a boolean, message "feature tree has a duplicate area or feature name") and unknown `requires` paths, and its sketch uses `allUnique`.
+User assented to these additions on RV-002 ("agreed"), recorded in notes § Code review RV-002 for reconcile. Code is right; design is stale.
+Also sec-2 descriptor table: the key set is now closed (unknown keys fail), which the table does not say.
+"""
+disposition = "aligned"
+response = """
+Code is correct and user-assented (RV-002, "agreed"); the defect is design prose only. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-2 descriptor table + sec-3 steps/flowchart/sketch/invariants.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Code is correct and user-assented (RV-002, "agreed"); the defect is design prose only. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-2 descriptor table + sec-3 steps/flowchart/sketch/invariants.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "nit"
+title = "Expected design sec-6 to match features-test.nix and its runner; path and test inventory differ"
+detail = """
+Expected: sec-6 runner text and T-table match the tests as built.
+Observed:
+- runner: sec-6 says `import ../features-test.nix lib`; perSystem.nix:18 imports `./features-test.nix` (known slip, plan.md Notes).
+- inventory: features-test.nix also has testPrerequisiteOnPasses, testFalseAssertionFails, testUnknownDescriptorKeyFails, testDottedNameFails, and pairs each failing fixture with a passing twin (RV-002 F-4). sec-6 lists T1–T11 only and does not state the twin convention.
+"""
+disposition = "aligned"
+response = """
+Tests and runner are correct; design sec-6 is stale. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-6 runner path and T-table.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Tests and runner are correct; design sec-6 is stale. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-6 runner path and T-table.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "nit"
+title = "Expected design sec-4's coverage recipe to match justfile; it now shares the pinned nixos pick"
+detail = """
+Expected: sec-4 `coverage` recipe as built.
+Observed: sec-4 shows `_drvs coverage 'c: c.config.system.build.toplevel.drvPath'`. justfile defines `nixos_pick` (agents registry pinned to /drvs-gate) and both `drvs` and `coverage` use it (RV-002 F-6), so coverage drvPaths no longer move with unrelated repo edits.
+"""
+disposition = "aligned"
+response = """
+justfile is correct (RV-002 F-6, user-assented); design sec-4 is stale. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-4 coverage recipe.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+justfile is correct (RV-002 F-6, user-assented); design sec-4 is stale. Delegated to /reconcile: Reconciliation Brief § Per-slice, design.md sec-4 coverage recipe.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Expected ADR-001..005 to describe the contract SL-001 built; DEC-009 amendments not yet applied"
+detail = """
+Expected (DEC-009, design sec-8): ADR-001..005 amended by revision at reconcile, then put to the user for acceptance.
+Observed: ADRs are `proposed` and unamended. Pending set: design sec-8 table (ADR-001 D4, ADR-001 D2/ADR-002 D2, ADR-002 D1 `requires`, ADR-002 D2 index shape, ADR-002 D1/ADR-003 darwin HM, ADR-005 D1 transitional, ADR-005 Verification) plus RV-002 additions to ADR-002 D1/D4: the descriptor key set is closed, names may not contain ".", and structural checks (names, keys, `requires` paths) read every descriptor and fail every host — reading key names forces no class value, so D4 still holds.
+"""
+disposition = "aligned"
+response = """
+Planned work (DEC-009): the ADR amendments are applied by revision at reconcile, not in audit. Delegated to /reconcile: Reconciliation Brief § Governance (REV), ADR-001/002/003/005.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Planned work (DEC-009): the ADR amendments are applied by revision at reconcile, not in audit. Delegated to /reconcile: Reconciliation Brief § Governance (REV), ADR-001/002/003/005.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected slice conformance and verify-vt to attribute SL-001's edits; both report nothing attributable"
+detail = """
+Expected: `doctrine slice conformance 1` and `slice verify-vt 1` attribute recorded source-deltas to selectors and VT files.
+Observed: conformance: 28 undeclared (all `flakes/`-prefixed), 16 undelivered, 0 conformant. verify-vt: every VT row UNATTRIBUTABLE. Cause: ISS-005 — source-delta paths are git-root-relative (`~`), selectors and VT test_files are doctrine-root-relative (`~/flakes`).
+Manual mapping (prefix stripped): 26 code/doc paths each match a design-target selector; all 16 design-target selectors match an edit; the 2 remaining paths are the slice's own doctrine artefacts (notes.md, slice-001.toml). No scope creep, no undelivered target.
+"""
+disposition = "tolerated"
+response = """
+Tooling defect, not a slice defect; tracked by ISS-005. Rationale: the manual mapping in the finding is complete (26/26 paths conformant, 16/16 selectors delivered), and VT keywords were checked by script against each test_file (F-6). Re-running conformance once ISS-005 is fixed would confirm mechanically; nothing in SL-001 depends on it.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tooling defect, not a slice defect; tracked by ISS-005. Rationale: the manual mapping in the finding is complete (26/26 paths conformant, 16/16 selectors delivered), and VT keywords were checked by script against each test_file (F-6). Re-running conformance once ISS-005 is fixed would confirm mechanically; nothing in SL-001 depends on it.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "Expected plan PHASE-01 VT-2 keywords to occur in features.nix; 'allUnique' no longer does"
+detail = """
+Expected: each VT keyword present in its test_file.
+Observed: PHASE-01 VT-2 lists `allUnique`; RV-002 F-5 replaced it with `duplicates` (features.nix ~:86) so the error can name what collided. Other VT keywords checked by grep: all present (features-test.nix test names; features.nix tree/classes/assertions/requires/_file; perSystem.nix checks/features-test.nix; hosts.nix selections/classesOf/modules.*; workstation.nix; snooze descriptor; justfile coverage/_drvs coverage/snooze-nag-test path; hosts.nix Sleipnir+openrgb).
+Plan criteria are immutable (append-only); the uniqueness intent is covered by testDuplicateNamesFail.
+"""
+disposition = "tolerated"
+response = """
+Plan criteria are immutable, so the keyword cannot be edited and is not a reconcile surface. The criterion's intent (duplicates fail resolution) holds: `duplicates` in features.nix, exercised by testDuplicateNamesFail with passing twins. A future verify-vt run will report VT-2 as missing `allUnique`; this disposition is the record of why.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Plan criteria are immutable, so the keyword cannot be edited and is not a reconcile surface. The criterion's intent (duplicates fail resolution) holds: `duplicates` in features.nix, exercised by testDuplicateNamesFail with passing twins. A future verify-vt run will report VT-2 as missing `allUnique`; this disposition is the record of why.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
