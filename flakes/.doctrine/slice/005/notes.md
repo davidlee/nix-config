@@ -97,6 +97,7 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
 
 - `~/.cache/multihost-gate/sl005/baseline/` — before any flake edit (PHASE-01 EN-2), tree at a2b08b34
 - `~/.cache/multihost-gate/sl005/phase-01/` — after PHASE-01; PHASE-02's baseline
+- `~/.cache/multihost-gate/sl005/phase-02/` — after PHASE-02; PHASE-03's baseline
 
 ## PHASE-01 (2026-10-16)
 
@@ -108,4 +109,31 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
   Probe: packages (463), groups (9), sorted kernelParams, root options, link
   map all identical. `nix-diff` of the toplevel: only `boot.json`, kernelParams
   order (`amdgpu.gpu_recovery=1` from radeon.nix now precedes the two moved params).
+- `just gate` green.
+
+## PHASE-02 (2026-10-16)
+
+- Red first: `testSleipnirSelectsMigrated` failed ([false false] twice) before
+  the records existed. `sleipnirSelects` (features-test.nix) now serves it and
+  testSleipnirSelectsCapsule; it takes literal `<area>.<name>#nixos` tags.
+- Gate vs phase-01 (EX-5): `drvs` differs on Sleipnir and its coverage twin
+  only; `drvs-sets` identical; probe all identical; `bin/docker ->
+  docker-29.8.1`. nix-diff: `system-path` (rest of env identical, sorted paths
+  identical: order only) cascading into etc/dbus/units/activate; and
+  `users-groups.json`, where `libvirtd.members` lost its duplicate `david`.
+  Effective membership identical (libvirtd stays, docker never existed).
+- Negative controls (EX-6), temporary coverage entries in hosts.nix, removed
+  (hosts.nix == HEAD after):
+  - qemu off: `qemu-11.1.1`, `quickemu`, `virt-manager` leave the drv
+    closure; `libvirtd` leaves effective groups. The `qemu-11.1.1.tar.xz`
+    source stays: it feeds `qemu-utils` / `qemu-host-cpu-only`, pulled by
+    other packages.
+  - docker off: `docker-29.8.1`, `lazydocker` leave the closure;
+    `virtualisation.docker.rootless.enable` false.
+- Guards (EX-7): `virtualisation.docker.enable = mkForce true` fails with the
+  security.nix message, both with virt.docker selected and with it forced
+  off. nixpkgs' own "dockerCompat conflicts with docker" also fires while
+  podman is on.
+- README: docker's rootless-only note deferred to PHASE-03, with the podman
+  exclusivity it sits beside (design sec-8).
 - `just gate` green.

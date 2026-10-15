@@ -2,4 +2,5 @@
 # host that imports it can override any of them with a plain definition.
 {lib, ...}: {
   feature.session.snooze.enable = lib.mkDefault true;
+  feature.virt.docker.enable = lib.mkDefault true;
 }

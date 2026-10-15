@@ -12,7 +12,7 @@
       homeMode = "755";
       isNormalUser = true;
       description = "David Lee";
-      extraGroups = ["networkmanager" "wheel" "dev" "video" "docker" "caddy" "libvirtd" "jackaudio" "audio" "gamemode" "input"];
+      extraGroups = ["networkmanager" "wheel" "dev" "video" "caddy" "jackaudio" "audio" "gamemode" "input"];
       home = "/home/${username}";
       #shell = pkgs.zsh;
       shell = pkgs.nushell;

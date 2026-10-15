@@ -142,7 +142,7 @@ Two ways to switch optional modules on, both resolved once per host by
   imports. Most features are still flags.
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
-  snooze, openrgb and capsule have moved here; the rest follow later.
+  snooze, openrgb, capsule, qemu and docker have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -211,8 +211,6 @@ A missing host file means the host takes every default unchanged.
 | `games.gamescope` | ← `games.enable` | `modules/nixos/gamescope.nix` |
 | `games.mangohud` | ← `games.enable` | `modules/home/linux/games.nix` |
 | `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
-| `virt.qemu` | `true` | `modules/nixos/qemu.nix` |
-| `virt.docker` | `false` | `modules/nixos/docker.nix` (rootless; podman is unconditional) |
 | `apps.{appimage,flatpak}` | `true` | `modules/nixos/<name>.nix` |
 | `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
 | `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
@@ -249,7 +247,7 @@ features/
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
-  virt.nix            [ (import ./virt/capsule.nix) ]
+  virt.nix            [ (import ./virt/capsule.nix) qemu docker ]
   virt/capsule.nix    a feature big enough for its own file
   profiles/           workstation.nix
 ```

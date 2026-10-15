@@ -49,11 +49,6 @@ in {
       rocm = enabledByDefault "ROCm compute stack, for llama.cpp on Radeon";
     };
 
-    virt = {
-      qemu = enabledByDefault "QEMU/libvirt";
-      docker = mkEnableOption "Docker daemon (podman is unconditional)";
-    };
-
     apps = {
       appimage = enabledByDefault "AppImage binfmt support";
       flatpak = enabledByDefault "Flatpak";

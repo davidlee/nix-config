@@ -7,6 +7,8 @@
   # A property of this host, not a profile: capsule needs KVM and the local
   # oubliette checkout.
   feature.virt.capsule.enable = true;
+  # Also a host property: qemu needs KVM (DEC-021).
+  feature.virt.qemu.enable = true;
 
   games.enable = true;
 
@@ -21,10 +23,6 @@
   ai = {
     llama-cpp = false;
     rocm = false;
-  };
-  virt = {
-    qemu = true;
-    docker = true;
   };
   apps = {
     appimage = true;

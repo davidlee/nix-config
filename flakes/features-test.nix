@@ -49,6 +49,20 @@ lib: let
     (lib.elem "session.snooze#homeManager" (tags r.modules.homeManager))
   ];
 
+  # Sleipnir's own selection, real tree. Per "<area>.<name>#nixos" tag:
+  # [ projected into nixos, any half of that feature projected into home ].
+  sleipnirSelects = let
+    r = resolve {
+      tree = real;
+      classes = both;
+      modules = [./hosts/Sleipnir/features.nix];
+    };
+  in
+    map (tag: [
+      (lib.elem tag (tags r.modules.nixos))
+      (lib.any (lib.hasPrefix (lib.removeSuffix "nixos" tag)) (tags r.modules.homeManager))
+    ]);
+
   prerequisite = selected:
     resolve {
       tree = [(area "a" [(feat "x" (hm // {requires = ["a.y"];})) (feat "y" hm)])];
@@ -280,16 +294,13 @@ in
 
     # Sleipnir's own selection projects capsule's NixOS half, and no home half.
     testSleipnirSelectsCapsule = {
-      expr = let
-        r = resolve {
-          tree = real;
-          classes = both;
-          modules = [./hosts/Sleipnir/features.nix];
-        };
-      in [
-        (lib.elem "virt.capsule#nixos" (tags r.modules.nixos))
-        (lib.any (lib.hasPrefix "virt.capsule#") (tags r.modules.homeManager))
-      ];
-      expected = [true false];
+      expr = sleipnirSelects ["virt.capsule#nixos"];
+      expected = [[true false]];
+    };
+
+    # Features migrated from legacy flags (SL-005): NixOS half only, each.
+    testSleipnirSelectsMigrated = {
+      expr = sleipnirSelects ["virt.qemu#nixos" "virt.docker#nixos"];
+      expected = [[true false] [true false]];
     };
   }
