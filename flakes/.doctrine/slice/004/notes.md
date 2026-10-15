@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · audit (RV-010 done) · 256da104
+fresh-as-of: 2026-10-16 · close (SL-004 done; IMP-012, ISS-004, CHR-003, IMP-009, CHR-004 resolved)
 
 ### Produced
 - PHASE-01..06 done — gate coverage + agents override, shared factory pieces, darwin evaluator-built pkgs + standalone Draupnir home, homeModule (gate passed, no fallback), justfile/README, cut-over on Draupnir (commits 7185e992..9dc80c1f; detail in ## Execution)
@@ -20,7 +20,6 @@ fresh-as-of: 2026-10-15 · audit (RV-010 done) · 256da104
 ### Open
 - QUE-001 — platform scope for features (ADR-005 D6 weaker on darwin)
 - RV-010 F-7 — manual cut-over step 2 never executed (tolerated; one-time procedure)
-- DEC-016 — record the homeModule gate outcome in its consequences at reconcile
 
 ## Design review (RV-009)
 
