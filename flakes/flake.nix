@@ -60,7 +60,6 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     treefmt-nix.url = "github:numtide/treefmt-nix";
 
-    nix-search-tv.url = "github:3timeslazy/nix-search-tv";
     ucodenix.url = "github:e-tho/ucodenix";
     zed.url = "github:zed-industries/zed";
     # zig-overlay.url = "github:mitchellh/zig-overlay";

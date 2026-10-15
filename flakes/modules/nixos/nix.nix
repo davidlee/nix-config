@@ -89,7 +89,6 @@
     # full git lives in home.packages, which root can't see. (gitMinimal
     # is enough for nix's fetch; no gui/svn needed.)
     gitMinimal
-    inputs.nix-search-tv.packages.${pkgs.stdenv.hostPlatform.system}.default
     alejandra
     appimage-run
     flatpak
@@ -119,7 +118,6 @@
     nix-melt
     nix-output-monitor
     nix-search-cli
-    nix-search-tv
     nix-top
     nix-tree
     nvd
