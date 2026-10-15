@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · audit · RV-012 concluded (6 findings verified, brief written)
+fresh-as-of: 2026-10-16 · done · reconciled (ee449eb1); closed
 
 ### Produced
 - design locked after RV-011 (8 findings fixed); plan: 4 phases, sheets materialised (commit b2f9367d)
@@ -23,7 +23,9 @@ fresh-as-of: 2026-10-16 · audit · RV-012 concluded (6 findings verified, brief
 - mem.fact.nix.verify-closure-not-option — amended: a drv-closure hit needs referrers before it is red
 
 ### Open
-- RV-012 Reconciliation Brief — F-1..F-5 for /reconcile (selector, design sec-3/sec-7, RFC-001, IMP-003/IMP-006 notes)
+- IMP-003 — remaining central groups (caddy, gamemode, jackaudio); `dev` etc. absent on Sleipnir
+- IMP-018 — podman replaces docker
+- ISS-005 — conformance misattributes `flakes/`-prefixed paths
 - IMP-016 — apps taxonomy, `apps.cad`
 - IMP-017 — site-bound config outside DEC-019's machine class
 
