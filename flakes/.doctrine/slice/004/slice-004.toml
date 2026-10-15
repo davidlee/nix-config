@@ -12,31 +12,51 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "hosts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "flake.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "darwin/**"
 intent = "scope-relevant"
 
 [[selector]]
-selector = "hosts/Davids-MacBook-Pro/**"
-intent = "scope-relevant"
-
-[[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "overlays/agents.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Draupnir/**"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Davids-MacBook-Pro/**"
+intent = "design-target"
+
+[[selector]]
+selector = "darwin/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "darwin/home.nix"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"
@@ -66,6 +86,16 @@ label = "references"
 role = "concerns"
 descriptor = "embedded-HM no-projection consequence is superseded"
 target = "DEC-001"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "IMP-009"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "CHR-004"
 
 [[relation]]
 label = "related"

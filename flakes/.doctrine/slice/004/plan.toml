@@ -1,0 +1,146 @@
+# Implementation plan for SL-004 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-004"
+
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Gate coverage and baseline"
+objective = "Extend the drvs gate to packages, legacyPackages and templates (CHR-004, DEC-018), add the agents override to every evaluation recipe (RV-009 F-1), and record the baseline every later phase diffs against."
+entrance_criteria = [
+  { id = "EN-1", text = "Design locked (SL-004 design run, stage locked)." },
+  { id = "EN-2", text = "A pre-change just drvs snapshot is saved to the scratchpad before any justfile edit." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "just drvs emits packages, legacyPackages (stdenv, codex, claude drvPaths) and templates lines for each system." },
+  { id = "EX-2", text = "agents_override is part of home_override and system_override; home, darwin, drvs and test recipes all carry it (RV-009 F-1, Linux half)." },
+  { id = "EX-3", text = "Every pre-existing drvs line is byte-identical to the EN-2 snapshot after the override is added: overriding agents to the same tree changes no home or darwin derivation (RV-009 F-1, Linux half)." },
+  { id = "EX-4", text = "The post-phase drvs output is saved as the slice baseline, together with the sorted package names of darwinConfigurations.Davids-MacBook-Pro.config.home-manager.users.david.home.packages for PHASE-03 EX-6 (scratchpad paths recorded in notes.md)." },
+  { id = "EX-5", text = "just gate green." },
+]
+verification = [
+  { id = "VT-1", expects = "justfile defines the agents override, folds it into home_override, and the drvs recipe covers the new outputs", test_file = "justfile", keywords = ["agents_override", "legacyPackages", "packages", "templates"], waived = false },
+  { id = "VA-1", expects = "diff of EN-2 snapshot vs post-phase drvs shows only added lines (EX-3)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Shared factory pieces (NixOS and Linux home)"
+objective = "Pure refactor: args, stableModule (_module.args.stable), platformModule on mkNixos (IMP-009), agentsOverlay bound once in hosts.nix, legacyPackages/packages moved from flake.nix, default.nix deleted, header comment. mkDarwin untouched."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 baseline recorded." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "mkStable is gone; stableModule sets _module.args.stable; mkNixos and mkHome take specialArgs/extraSpecialArgs from args (no stable key); the four stable call sites are unchanged." },
+  { id = "EX-2", text = "mkNixos appends platformModule (hostPlatform + mkAfter agents overlay + stableModule); mkHome appends stableModule to modules with its overlays still built in the factory." },
+  { id = "EX-3", text = "agentsOverlay is bound only in hosts.nix; legacyPackages and packages live in hosts.nix's flake attrset with corrected comments; flake.nix keeps inputs, wiring and templates; default.nix deleted." },
+  { id = "EX-4", text = "just drvs identical to the PHASE-01 baseline for every line, darwin included." },
+  { id = "EX-5", text = "just gate green." },
+]
+verification = [
+  { id = "VT-1", expects = "hosts.nix carries the shared pieces and the moved outputs", test_file = "hosts.nix", keywords = ["stableModule", "_module.args.stable", "platformModule", "args =", "legacyPackages", "agentsOverlay"], waived = false },
+  { id = "VA-1", expects = "just drvs diff against PHASE-01 baseline is empty (EX-4)" },
+  { id = "VA-2", expects = "grep: no mkStable, no agentsOverlay binding in flake.nix, default.nix absent" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Darwin evaluator-built pkgs and standalone Draupnir home"
+objective = "Fix ISS-004 and IMP-012: checks.factories first (red), then mkDarwin without pkgs plus platformModule, dead overlays deleted, classesOf/homes read meta.home, hosts/Davids-MacBook-Pro renamed to hosts/Draupnir with home = true and home.nix, darwin/home.nix becomes the darwin home base, embedded HM leaves darwin/default.nix."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete; drvs identical to baseline." },
+  { id = "EN-2", text = "checks.factories written and observed failing against the unchanged mkDarwin (stale specialArgs.pkgs) before any mkDarwin edit (RV-009 F-3, negative control 1)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "checks.factories rejects each named wrong candidate, each observed red via a throwaway mutation then reverted (RV-009 F-3 control): (1) today's mkDarwin passing prebuilt pkgs as argument and specialArg; (2) mkDarwin dropping only the pkgs argument but keeping specialArgs.pkgs; (3) an empty darwinConfigurations set; (4) a classesOf that ignores meta.home." },
+  { id = "EX-2", text = "checks.factories green on the final code; just test builds it with home_override." },
+  { id = "EX-3", text = "mkDarwin passes neither pkgs nor a pkgs specialArg; specialArgs come from args; platformModule appended; direnv and lix-tools overlays deleted; darwin/default.nix sets nixpkgs.config.allowUnfree and has no Home Manager block." },
+  { id = "EX-4", text = "hosts/Draupnir exists via git mv with meta.nix home = true and home.nix (username, homeDirectory /Users/david, stateVersion 24.11, programs.home-manager); darwin/home.nix imports modules/home/shared and shared/cli.nix, sets home.backupFileExtension = backup, keeps kitty and targets.darwin settings, PATH hack without the per-user profile entry." },
+  { id = "EX-5", text = "just drvs: every Sleipnir line, packages, legacyPackages and templates identical to baseline; darwinConfigurations.Draupnir replaces Davids-MacBook-Pro; homeConfigurations.david@Draupnir present." },
+  { id = "EX-6", text = "Draupnir home parity: package names of david@Draupnir versus the baseline embedded home-manager.users.david differ only by home-manager CLI, hm-session-vars, and rebuilt direnv/mise; EDITOR and VISUAL in home.sessionVariables." },
+  { id = "EX-7", text = "testMacSelectsNothing classes are [darwin homeManager]; just gate green." },
+]
+verification = [
+  { id = "VT-1", expects = "checks.factories probes module pkgs, requires Draupnir, and tests classesOf", test_file = "hosts.nix", keywords = ["factories", "factoryProbe", "assertions", "Draupnir", "classesOf"], waived = false },
+  { id = "VT-2", expects = "darwin home base imports shared modules and keeps the backup policy", test_file = "darwin/home.nix", keywords = ["../modules/home/shared", "cli.nix", "backupFileExtension"], waived = false },
+  { id = "VT-3", expects = "Draupnir host entry provides the standalone identity", test_file = "hosts/Draupnir/home.nix", keywords = ["homeDirectory", "stateVersion", "programs.home-manager.enable", "darwin/home.nix"], waived = false },
+  { id = "VA-1", expects = "each EX-1 negative control observed red with its failure message, then reverted; record outputs in the phase sheet" },
+  { id = "VA-2", expects = "drvs diff against baseline limited to the darwin key/content change and the new david@Draupnir line (EX-5)" },
+  { id = "VA-3", expects = "home parity comparison (EX-6) recorded in notes.md" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Home pkgs built by Home Manager (homeModule)"
+objective = "Gate-conditional per DEC-016: mkHome passes a bare import of nixpkgs-home and homeModule carries allowUnfree and the overlays [lem claude-desktop agents llm-agents] plus stableModule; the separate lem module goes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Either homeModule is in place and just drvs is identical to the PHASE-03 output for every line, or the change is reverted, the factory keeps building home pkgs, and the reason (the differing derivations) is recorded in notes.md and DEC-016's consequences." },
+  { id = "EX-2", text = "checks.factories and just gate green." },
+]
+verification = [
+  { id = "VT-1", expects = "mkHome uses homeModule with lem first (or VA-2 records the fallback)", test_file = "hosts.nix", keywords = ["homeModule", "inputs.lem.overlays.default", "nixpkgs.config.allowUnfree"], waived = false },
+  { id = "VA-1", expects = "drvs diff against PHASE-03 output empty" },
+  { id = "VA-2", expects = "if reverted: the nix-diff of the first differing home derivation is summarised in notes.md" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Justfile activation and docs"
+objective = "Per-OS flake ref, host := hostname -s, darwin recipes default to host, stale comments fixed (justfile, flake.nix, overlays/agents.nix, hosts.nix header), README Bootstrap macOS (Draupnir, cut-over and recovery from design sec-4), Feature flags and Hosts sections."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 complete (either outcome)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "justfile: flake is path:<justfile dir> on macOS and . elsewhere, used by home, darwin and _drvs recipes; host := hostname -s; darwin-build/darwin-switch default to host; no Davids-MacBook-Pro outside .doctrine." },
+  { id = "EX-2", text = "README Bootstrap macOS gives the design sec-4 cut-over (build both, activate prebuilt, recover forward, switch-generation last resort with explicit host) and names the agents override; Feature flags and Hosts sections no longer describe embedded darwin Home Manager." },
+  { id = "EX-3", text = "just drvs identical to the PHASE-04 output; just gate green." },
+]
+verification = [
+  { id = "VT-1", expects = "justfile per-OS flake ref and short hostname", test_file = "justfile", keywords = ["os() == \"macos\"", "hostname -s", "host=host"], waived = false },
+  { id = "VT-2", expects = "README documents the Draupnir cut-over and recovery", test_file = "README.md", keywords = ["Draupnir", "--switch-generation", "result-home/activate", "--override-input agents"], waived = false },
+  { id = "VA-1", expects = "grep -rn Davids-MacBook-Pro outside .doctrine returns nothing" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-06"
+name      = "Draupnir cut-over (human)"
+objective = "The user runs the design sec-4 cut-over on Draupnir and exercises the recovery path; demonstrates RV-009 F-1 (Mac half) and F-4."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-05 committed and pulled onto Draupnir at /Users/david/flakes; network available." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "From the Draupnir checkout, where the locked path /home/david/flakes/agents does not exist, just host=Draupnir darwin-build and the david@Draupnir activationPackage build both succeed (RV-009 F-1, Mac half)." },
+  { id = "EX-2", text = "Cut-over steps 1-5 complete; a new login shell resolves emacs, nvim, atuin and zoxide from ~/.nix-profile; nu login finds them (RV-009 F-4)." },
+  { id = "EX-3", text = "darwin-rebuild --switch-generation to the generation noted as current restores embedded HM packages; a re-switch with host=Draupnir returns to standalone (RV-009 F-4 recovery)." },
+]
+verification = [
+  { id = "VH-1", expects = "user confirms EX-1..EX-3 on Draupnir; transcript notes recorded in notes.md" },
+]
+specs        = []
+requirements = []

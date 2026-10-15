@@ -1,0 +1,39 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 17
+slug = "darwin-standalone-home"
+title = "Darwin runs Home Manager standalone; meta.home opts any host in"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Linux runs Home Manager standalone (own pin nixpkgs-home, home-switch without sudo); darwin embedded it as a nix-darwin module with useGlobalPkgs, so the Mac got no homeManager projection (DEC-001) and every shared-home feature migration was blocked (RV-001 F-7). The Mac's hostname is now Draupnir."
+choice = """homeConfigurations."david@<host>" is built by the one mkHome for every host whose meta.nix sets home = true; classesOf = [kind class] ++ optional meta.home "homeManager" for both kinds. hosts/Davids-MacBook-Pro becomes hosts/Draupnir with home = true and a home.nix entry mirroring Sleipnir's (home.username, homeDirectory, stateVersion, programs.home-manager.enable, imports ../../darwin/home.nix). darwin/home.nix becomes the darwin home base: imports modules/home/shared plus shared/cli.nix, kitty, targets.darwin.defaults, nushell PATH hack without the /etc/profiles/per-user entry. darwin/default.nix drops the embedded Home Manager block. justfile: flake ref is path: on macOS and . elsewhere, used by home and darwin recipes; darwin recipes default to {{host}}; host := hostname -s. Cut-over: darwin-switch, then one bootstrap activation of the pinned activationPackage with HOME_MANAGER_BACKUP_EXT=backup, then just home-switch thereafter (README Bootstrap macOS)."""
+alternatives = ["Keep embedded HM and add a home-manager.sharedModules projection hook (keeps the asymmetry ADR-003 gives no darwin reason for)", "Darwin home unconditional, ignoring meta.home (diverges from Linux)"]
+rationale = "ADR-003's reasons for standalone home (fast userland fixes, aggressive home pin, no sudo) apply equally to the Mac. One mkHome serves both platforms, so darwin gets homeManager projection without a special hook."
+consequences = ["Draupnir's darwin system derivation changes (HM removed, hostname); Draupnir gains a home configuration in the drvs gate", "update-home now moves Draupnir's home pin", "ADR-005 D6 weakens on darwin: a Linux-only homeManager feature selected on Draupnir no longer fails 'lands nowhere'; platform scope stays open (QUE-001)", "ADR-003 (three darwin passages) and ADR-001 Context amended by one REV at reconcile; DEC-006 and DEC-007 wording edited; RFC-001 edited directly", "IMP-010's 'home on darwin is ignored' becomes obsolete", "Shared-home migration (RFC-001 W5) unblocked"]
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "replaces DEC-001's consequence deferring darwin home projection; DEC-001's choice (no snooze on darwin, mkDarwin projects darwin class only) stands"
+target = "DEC-001"
+
+[[relation]]
+label = "shapes"
+target = "SL-004"

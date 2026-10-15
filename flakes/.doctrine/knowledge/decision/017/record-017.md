@@ -1,0 +1,1 @@
+Settles SL-004 inq-4 (Mac home entry, IMP-012), inq-7 (activation and cut-over) and inq-8 (governance). Supersedes DEC-001's deferral of darwin home projection. Evidence: SL-004 research.md B1, C3-C6, D3-D5, E1-E2, cross-thread 4.

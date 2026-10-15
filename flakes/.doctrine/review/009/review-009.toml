@@ -1,0 +1,473 @@
+id    = 9
+slug  = "design-review-of-sl-004"
+title = "design review of SL-004"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Codex (gpt-6.1-sol) adversarial review, 4 rounds; acts recorded by Claude because Codex's sandbox could not take the ledger lock. Round 1 raised F-1..F-7 (1 blocker, 3 major, 3 minor); rounds 2-4 verified F-1..F-9 (F-2 re-verified after the user replaced pkgs.pkgsStable with a stable module argument), raised F-8, F-9 (minor) and F-10 (nit, answered). Codex's round-4 basis: no blocker or major defect remains; the module argument is simpler than either overlay alternative, the phase-2 interim holds, and no further abstraction shows a benefit. Full configuration identity (just drvs) and Mac activation/recovery remain implementation gates.
+"""
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Re-concluded after routing repair of F-1..F-4 (substance unchanged since Codex's round-4 conclusion: no blocker or major defect remains in the design). F-1, F-4 (demonstrate) and F-3 (control) close after slice phases against their criteria."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-004"
+
+[[finding]]
+id = "F-1"
+status = "answered"
+severity = "blocker"
+title = "agents input is locked to a Linux-only path; darwin/Mac home would force it"
+detail = """
+Raised by Codex (gpt-6.1-sol) adversarial review, round 1.
+Claim: sec-2 adds agentsOverlay to darwin (platformModule) and Mac home (homeModule); sec-4 overrides only emacs on the Mac.
+Evidence: flake.lock nodes.agents.locked = {type=path; path=/home/david/flakes/agents}. overlays/agents.nix:11 reads inputs.agents.lib.${system} as soon as the overlay is constructed. justfile:11 overrides agents only in system_override (Linux run.sh); home_override (justfile:15) overrides only emacs.
+Failure: on the Mac (/Users/david) the locked path does not exist; any evaluation that builds the overlay list fails to fetch agents. "Lazy, drv-neutral" (DEC-016 consequences) does not hold for fetching the input that supplies the overlay.
+Fix: supply a portable agents source for every Mac evaluation (bootstrap, darwin-build/switch, home-build/switch, checks), e.g. override agents to path:<justfile_dir>/agents.
+"""
+disposition = "fix-now"
+response = """
+Design rev 32 sec-4: agents_override joins home_override (system_override already has it), so every Mac evaluation (darwin-build/switch, home build, drvs, just test) overrides agents to the checkout; lands in phase 1. Lock drift itself: ISS-006.
+Criterion: on Draupnir, from a checkout at /Users/david/flakes where the locked path /home/david/flakes/agents does not exist, the justfile darwin-build for host Draupnir and the home activationPackage build for david@Draupnir both evaluate and build (cut-over step 1). Linux: just drvs shows home outputs identical after the override is added.
+Host-phase constraint: the Mac half runs in the human cut-over phase, after the justfile change and the Draupnir host and home exist; the Linux identity half runs in the phase that adds the override.
+"""
+route = "demonstrate"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Confirmed: flake.lock nodes.agents.locked is path:/home/david/flakes/agents. Linux home-switch also consumes agentsOverlay without overriding it (works only because the path exists locally), so the justfile:9-10 "Linux-only consumer" comment is already false.
+Design revision 25, sec-4: agents_override joins home_override (system_override already has it), so home, darwin, drvs and `just test` all carry it; lands in phase 1 (sec-7). Linux home unchanged (same tree; drvs gate). Cut-over step 1 builds with the home_override flags. DEC-016 consequence amended. Lock drift itself out of scope: ISS-006.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Ledger repair by Claude: severe findings need a route before the review pass can be disposed; reopening to set it. Substance unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "demonstrate"
+response = """
+Design rev 32 sec-4: agents_override joins home_override (system_override already has it), so every Mac evaluation (darwin-build/switch, home build, drvs, just test) overrides agents to the checkout; lands in phase 1. Lock drift itself: ISS-006.
+Criterion: on Draupnir, from a checkout at /Users/david/flakes where the locked path /home/david/flakes/agents does not exist, the justfile darwin-build for host Draupnir and the home activationPackage build for david@Draupnir both evaluate and build (cut-over step 1). Linux: just drvs shows home outputs identical after the override is added.
+Host-phase constraint: the Mac half runs in the human cut-over phase, after the justfile change and the Draupnir host and home exist; the Linux identity half runs in the phase that adds the override.
+"""
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "pkgs.stable collides with callPackage auto-arguments (kicad stable ? true)"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-2 item 1 / DEC-016: stableOverlay adds pkgs.stable, derivation-preserving.
+Evidence: nixpkgs pkgs/by-name/ki/kicad/package.nix:25 `stable ? true`; also ki/kicad/base.nix and gu/guile-cairo/package.nix. lib/customisation.nix callPackageWith fills defaulted args from the package set. Codex eval: with the overlay, kicad fails "expected a Boolean but found a set" (package.nix:192).
+Failure: pkgs.kicad (and siblings) break in every overlaid set, incl. legacyPackages (agents#kicad). The 3-attr legacyPackages probe would not catch it.
+Fix: keep stable out of the package namespace or use a collision-free name; add a concrete regression probe.
+"""
+disposition = "fix-now"
+response = """
+Settled in design (rev 32, user-directed): stable is never in pkgs; stableModule sets _module.args.stable, imported by platformModule and homeModule; the 4 call sites are unchanged; legacyPackages unchanged. The collision class is removed by construction, not guarded. DEC-016 amended. Remaining identity check is the existing just drvs gate.
+"""
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Confirmed: pinned nixpkgs kicad/package.nix:25, kicad/base.nix and guile-cairo declare `stable ?`. grep of pinned nixpkgs pkgs/ and lib/ finds no function arg named pkgsStable.
+Revision 25: the overlay attr is pkgs.pkgsStable (sec-1, sec-2 items 1/7, sec-5 call sites). DEC-016's rejection of the specialArg alternative stands; only the attr name changes (DEC-016 choice amended). legacyPackages probe adds kicad as a regression probe for this class (sec-4).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Reopened by Claude: the verified fix (pkgs.pkgsStable) is replaced on user direction (2026-10-15) by a stable module argument; needs re-verification."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Confirmed: pinned nixpkgs kicad/package.nix:25, kicad/base.nix and guile-cairo declare `stable ?`; callPackage fills defaulted args from the package set.
+Revision 32 (replaces rev 25's pkgs.pkgsStable on user direction): stable is never put in pkgs. `stableModule = system: { _module.args.stable = import inputs.stable { inherit system; config.allowUnfree = true; }; }` is imported by platformModule and homeModule, so every evaluation (darwin included) gets the same `stable` module argument with no factory specialArg. The 4 call sites keep `{stable, ...}:` unchanged. legacyPackages gains nothing; the kicad probe is dropped as moot. DEC-016 choice/alternatives/consequences amended.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 4 (recorded by Claude; Codex ran read-only). stableModule preserves today's import arguments and leaves pkgs untouched; lib/modules.nix:741-746 resolves non-special args via config._module.args lazily. Whole-tree search: four package-list uses, none import-time, no competing upstream definition. Pure eval of the unchanged consumers matched all 59 font, 97 system-package and 9 home-package drvPaths; a phase-2 HM fixture gave identical activation drvPaths."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Ledger repair by Claude: severe findings need a route before the review pass can be disposed; reopening to set it. Substance unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = """
+Settled in design (rev 32, user-directed): stable is never in pkgs; stableModule sets _module.args.stable, imported by platformModule and homeModule; the 4 call sites are unchanged; legacyPackages unchanged. The collision class is removed by construction, not guarded. DEC-016 amended. Remaining identity check is the existing just drvs gate.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Re-recording Codex's round-4 verification (unchanged substance) after the routing repair."
+
+[[finding]]
+id = "F-3"
+status = "answered"
+severity = "major"
+title = "checks.factories accessor is invalid and the corrected form can pass vacuously"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-2 item 8 asserts (c.extendModules {...}).config._module.args.pkgs.factoryProbe.
+Evidence: lib/modules.nix:404 removes _module from config -> "attribute '_module' missing". Even corrected to ._module.args.pkgs, a stale specialArgs.pkgs (the ISS-004 shape) shadows _module.args.pkgs for modules: Codex probe {checked=true; actualModuleArgument=false}. An empty set of darwin configurations satisfies a universal assertion.
+Fix: read pkgs inside an injected module (the argument modules actually get), assert the sentinel there, force the extended system's drvPath; assert the expected darwin target exists.
+"""
+disposition = "fix-now"
+response = """
+Design rev 32 sec-2 item 8 rewrote checks.factories: a probe module reads its own pkgs argument and asserts the sentinel via assertions while forcing system.drvPath; asserts darwinConfigurations has Draupnir; asserts classesOf over kind x home.
+Negative controls the check must reject, observed red: (1) today's mkDarwin, which passes a prebuilt pkgs as both argument and specialArg, so the module overlay never reaches module pkgs; (2) a variant that drops only the pkgs argument but keeps specialArgs.pkgs; (3) an empty darwinConfigurations set; (4) a classesOf that ignores meta.home.
+Host-phase constraint: the check is written first, before mkDarwin changes, so (1) is observed failing on the unchanged factory; (2)-(4) are throwaway mutations tried and reverted in the same phase.
+"""
+route = "control"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted. Revision 25 sec-2 item 8: probe module reads its own `pkgs` argument and asserts via `assertions`, forcing system.drvPath of the extended config, so a stale specialArgs.pkgs fails it; asserts darwinConfigurations ? Draupnir (non-vacuous). sec-7 red/green restated against the stale-specialArg shape.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Ledger repair by Claude: severe findings need a route before the review pass can be disposed; reopening to set it. Substance unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = """
+Design rev 32 sec-2 item 8 rewrote checks.factories: a probe module reads its own pkgs argument and asserts the sentinel via assertions while forcing system.drvPath; asserts darwinConfigurations has Draupnir; asserts classesOf over kind x home.
+Negative controls the check must reject, observed red: (1) today's mkDarwin, which passes a prebuilt pkgs as both argument and specialArg, so the module overlay never reaches module pkgs; (2) a variant that drops only the pkgs argument but keeps specialArgs.pkgs; (3) an empty darwinConfigurations set; (4) a classesOf that ignores meta.home.
+Host-phase constraint: the check is written first, before mkDarwin changes, so (1) is observed failing on the unchanged factory; (2)-(4) are throwaway mutations tried and reverted in the same phase.
+"""
+
+[[finding]]
+id = "F-4"
+status = "answered"
+severity = "major"
+title = "cut-over removes home packages before the replacement is built; no recovery path"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-4 orders darwin-switch (embedded HM leaves), then nix build of standalone home, then activate; "run 2 immediately".
+Evidence: nix-darwin modules/users/default.nix:336 builds the per-user profile from users.users.<u>.packages, which embedded HM fed. HM check-link-targets.sh:26 rejects collisions incl. an existing .backup.
+Failure: a fetch/build failure (e.g. F-1) or collision leaves the user in the package gap with no documented way back. Embedded HM leaves no standalone generation history to roll back to.
+Fix: build both artifacts before switching; record the recovery (darwin-rebuild --rollback restores embedded HM, darwin-rebuild.sh:204) and verify it.
+"""
+disposition = "fix-now"
+response = """
+Design rev 32 sec-4: build both artifacts first; activate the prebuilt system as darwin-rebuild.sh:241-248 does; standalone home activation restores packages even if darwin activation aborts; last resort darwin-rebuild --switch-generation to the generation noted as current, then host named explicitly.
+Criterion: on Draupnir, cut-over steps 1-5 complete; home packages resolve in a new login shell; then a switch-generation to the noted generation restores embedded HM packages, and a re-switch with host Draupnir returns to standalone.
+Host-phase constraint: the final, human-run phase on Draupnir, after all code phases and with network available; not runnable on Linux.
+"""
+route = "demonstrate"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted. Revision 25 sec-4: step 1 builds both darwin system and home activationPackage and notes the darwin generation before switching anything; steps 2-3 only activate prebuilt paths. Recovery: darwin-rebuild --rollback re-runs embedded HM activation and restores per-user packages; exercised once on Draupnir before close (sec-7).
+"""
+
+[[finding.turn]]
+act = "contest"
+role = "raiser"
+note = """
+Codex round 2 (recorded by Claude; Codex sandbox could not take the RV lock).
+1. Step 2 still runs `darwin-rebuild switch --flake ...`, which re-evaluates and rebuilds from the flake rather than activating the step-1 artifact.
+2. Rollback restores the Davids-MacBook-Pro generation, whose darwin/system.nix:45-46 sets hostName/computerName back to Davids-MacBook-Pro; `host := hostname -s` then selects a removed configuration on retry.
+Fix: activate the retained store artifact (or name the target explicitly) in both switch and recovery.
+"""
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted both points. Revision 27 sec-4: step 2 activates the step-1 artifact exactly as darwin-rebuild.sh:241-248 does after its build (nix-env -p system --set result-darwin; result-darwin/activate); no flake re-evaluation. Recovery runs forward (step 3 regardless of step-2 failure; re-run result-home/activate on step-3 failure); rollback is last resort and the text names the hostname reversion (darwin/system.nix:45-46) and requires host=Draupnir explicitly afterwards. sec-7 exercises rollback + re-switch with host=Draupnir.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 3 (recorded by Claude; Codex ran read-only). Rev 27 prebuilds both artifacts, sets the system profile as root and runs the retained activate script, matching darwin-rebuild.sh:240-248; host=Draupnir handles hostname reversion; standalone HM installs into its own profile (home-environment.nix:229-237,756-790), so step 3 does not need darwin activation to finish."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Ledger repair by Claude: severe findings need a route before the review pass can be disposed; reopening to set it. Substance unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "demonstrate"
+response = """
+Design rev 32 sec-4: build both artifacts first; activate the prebuilt system as darwin-rebuild.sh:241-248 does; standalone home activation restores packages even if darwin activation aborts; last resort darwin-rebuild --switch-generation to the generation noted as current, then host named explicitly.
+Criterion: on Draupnir, cut-over steps 1-5 complete; home packages resolve in a new login shell; then a switch-generation to the noted generation restores embedded HM packages, and a re-switch with host Draupnir returns to standalone.
+Host-phase constraint: the final, human-run phase on Draupnir, after all code phases and with network available; not runnable on Linux.
+"""
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "testMacSelectsNothing does not exercise production classesOf"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-7 / code impact: classesOf change covered by updating testMacSelectsNothing classes.
+Evidence: features-test.nix:267 passes classes directly, independent of hosts.nix. Real tree with ["darwin"] and ["darwin" "homeManager"] both project empty lists.
+Failure: test passes if classesOf is unchanged or ignores meta.home.
+Fix: test production class selection for darwin with home on and off (plus a home-only sentinel).
+"""
+disposition = "fix-now"
+response = """
+Accepted. Revision 25: checks.factories asserts classesOf over {nixos,darwin} x {home, no home} and homeConfigurations ? "david@Draupnir". testMacSelectsNothing stays as the empty-selection fixture only (sec-5 note).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted. Revision 25: checks.factories asserts classesOf over {nixos,darwin} x {home, no home} and homeConfigurations ? "david@Draupnir". testMacSelectsNothing stays as the empty-selection fixture only (sec-5 note).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "homeModule overlay order is misstated; legacyPackages is not bare"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-2 item 5: order is today's pkgs.overlays, then lem, then stable; pkgs = nixpkgs-home.legacyPackages (bare).
+Evidence: marker eval through pinned HM: today [lem claude-desktop agents llm-agents]. nixpkgs flake.nix:234 adds a lib version-info overlay to legacyPackages; HM eval-config.nix:27 inherits pkgs.overlays.
+Failure: implementing the prose literally reorders lem; the inherited lib overlay is an extra difference for the identity gate.
+Fix: document the actual order, preserve it explicitly.
+"""
+disposition = "fix-now"
+response = """
+Accepted; verified HM lib/eval-config.nix:27-30 re-injects pkgs.overlays as a module definition. Revision 25 sec-2 item 5: pkgs = bare `import inputs.nixpkgs-home { inherit (meta) system; }` (no flake lib overlay, matching today's base); lem moves into homeModule's list first: [lem claude-desktop agents llm-agents pkgsStable], the measured order plus pkgsStable. Prose states the measured order.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted; verified HM lib/eval-config.nix:27-30 re-injects pkgs.overlays as a module definition. Revision 25 sec-2 item 5: pkgs = bare `import inputs.nixpkgs-home { inherit (meta) system; }` (no flake lib overlay, matching today's base); lem moves into homeModule's list first: [lem claude-desktop agents llm-agents pkgsStable], the measured order plus pkgsStable. Prose states the measured order.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "backup policy is lost after the bootstrap activation"
+detail = """
+Raised by Codex, round 1.
+Claim: sec-4 passes HOME_MANAGER_BACKUP_EXT=backup once, then plain just home-switch.
+Evidence: darwin/default.nix:28 sets home-manager.backupFileExtension = "backup" today. justfile home-switch passes no -b; HM home.backupFileExtension defaults to null (home-environment.nix:548).
+Failure: later switches abort on a differing regular file that embedded activation would have backed up; contradicts research's recommendation.
+Fix: set home.backupFileExtension = "backup" in the darwin home base.
+"""
+disposition = "fix-now"
+response = """
+Accepted. Revision 25 sec-3: darwin/home.nix sets home.backupFileExtension = "backup"; bootstrap no longer needs HOME_MANAGER_BACKUP_EXT (sec-4).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted. Revision 25 sec-3: darwin/home.nix sets home.backupFileExtension = "backup"; bootstrap no longer needs HOME_MANAGER_BACKUP_EXT (sec-4).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 2 verdict: revised design (rev 25) resolves it; source/hash checks and eval probes support the fix. Recorded by Claude: Codex's sandbox could not take the RV-009 lock (EROFS)."
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "Homebrew update/upgrade runs during cut-over activation and rollback"
+detail = """
+Codex round 2 (recorded by Claude).
+Claim: sec-4 says steps 2-3 need no network and the gap lasts seconds.
+Evidence: darwin/brew.nix:9-11 homebrew.onActivation = { autoUpdate = true; upgrade = true; }; nix-darwin runs it during system activation, before postActivation (where embedded HM activates).
+Failure: activation (step 2) and rollback both hit the network and can abort; a rollback that aborts in the homebrew stage never re-runs embedded HM, so recovery can fail too.
+Fix: do not claim an offline transition; make recovery not depend on darwin activation completing.
+"""
+disposition = "fix-now"
+response = """
+Accepted. Revision 27 sec-4 drops the offline claim (cut-over runs online; brew.nix:9-11 cited) and makes recovery independent of darwin activation completing: standalone home (step 3) restores packages and links even if step 2 or a rollback aborts in the homebrew stage.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted. Revision 27 sec-4 drops the offline claim (cut-over runs online; brew.nix:9-11 cited) and makes recovery independent of darwin activation completing: standalone home (step 3) restores packages and links even if step 2 or a rollback aborts in the homebrew stage.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 3 (recorded by Claude; Codex ran read-only). Rev 27 acknowledges Homebrew networking; activation-scripts.nix:138-140 confirms Homebrew precedes embedded HM's postActivation; standalone activation bypasses both."
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "Recorded generation is not necessarily the rollback target"
+detail = """
+Codex round 3 (recorded by Claude).
+Claim: sec-4 records `darwin-rebuild --list-generations | tail -1` and says --rollback returns to it.
+Evidence: darwin-rebuild.sh:103-118,204-209 distinguishes --rollback from explicit generation selection; nix-env --rollback goes to the highest generation below the current one, and tail -1 is the highest overall.
+Failure: with generation 5 current and 6 retained, the procedure records 6 and rollback restores 5 (or vice versa), not the saved one.
+Fix: record the generation marked (current) and restore it with darwin-rebuild --switch-generation <n>.
+"""
+disposition = "fix-now"
+response = "Accepted. Revision 29 sec-4: record the generation marked (current); last resort is darwin-rebuild --switch-generation <noted>, not --rollback; sec-7 exercise updated to match."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. Revision 29 sec-4: record the generation marked (current); last resort is darwin-rebuild --switch-generation <noted>, not --rollback; sec-7 exercise updated to match."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex round 4 (recorded by Claude; Codex ran read-only). design.md:92 selects the generation marked current; :112/:160 restore that number; darwin-rebuild.sh:111-118,204-209,244-248 switch to and activate the selected generation."
+
+[[finding]]
+id = "F-10"
+status = "answered"
+severity = "nit"
+title = "DEC-016's import-count rationale is stale"
+detail = """
+Codex round 4 (recorded by Claude).
+Claim: DEC-016 says "the only remaining explicit import is legacyPackages".
+Evidence: design.md:30,36,40 explicitly import stable (stableModule), nixpkgs-home (mkHome) and nixpkgs (legacyPackages).
+Failure: the stated reason for rejecting an import helper is inaccurate; implementation unaffected.
+Fix: describe the three distinct imports instead.
+"""
+disposition = "fix-now"
+response = "Accepted. DEC-016 choice now names the three explicit imports (stable, nixpkgs-home, nixpkgs) and their differing policies as the reason no mkPkgs helper is introduced; the sibling mkPkgs alternative text fixed the same way."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Accepted. DEC-016 choice now names the three explicit imports (stable, nixpkgs-home, nixpkgs) and their differing policies as the reason no mkPkgs helper is introduced; the sibling mkPkgs alternative text fixed the same way."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

@@ -1,0 +1,1 @@
+Settles SL-004 inq-1 (darwin pkgs, ISS-004), inq-2 (shared factory inputs, CHR-003/IMP-009), inq-3 (pkgs helper), inq-5 (overlay placement) and the permanent part of inq-9. Evidence: SL-004 research.md D1/D2 (nix-darwin mkForce pkgs drops nixpkgs.overlays silently), C2, cross-thread 1-3; cache.nixos.org narinfo 200 for unpatched aarch64-darwin direnv and mise (2026-10-15).

@@ -1,0 +1,1 @@
+Settles SL-004 inq-6 (CHR-003 outputs move, CHR-004 gate). Evidence: SL-004 research.md A1, cross-thread 5-6.
