@@ -45,7 +45,7 @@ ordering-only change in Sleipnir's sudoers (sec-4).
 """
 entrance_criteria = [
   { id = "EN-1", text = "Design locked (RV-004 conducted); plan committed." },
-  { id = "EN-2", text = "On the unedited tree, the outputs of just drvs and just drvs-sets and Sleipnir's rendered sudoers (security.sudo.configFile) are saved under .doctrine/state/slice/002/ as the baseline. With them: the HEAD and dirty status of each local override input (oubliette, agents, emacs)." },
+  { id = "EN-2", text = "On the unedited tree, the outputs of just drvs and just drvs-sets and Sleipnir's rendered sudoers (security.sudo.configFile) are saved under .doctrine/state/slice/002/ as the baseline. With them: the HEAD and dirty status of each local override input (oubliette, agents, emacs), and the sha256 of the uncommitted flake.lock, which must not change during the phase." },
 ]
 exit_criteria = [
   { id = "EX-1", text = "testSleipnirSelectsCapsule was seen red as [false false], an assertion failure and not an eval error, with the tree entry in place and before the selection line. It is green after." },
@@ -64,7 +64,7 @@ verification = [
   { id = "VT-5", expects = "Sleipnir selects capsule", test_file = "hosts/Sleipnir/features.nix", keywords = ["feature.virt.capsule.enable = true"], waived = false },
   { id = "VA-1", text = "Identity gate (EX-3): compare just drvs, just drvs-sets and the sudoers rendering with the EN-2 baseline, one after the other." },
   { id = "VA-2", text = "Absence (EX-6): grep -n 'capsule\\|assigner' over modules/nixos/{network,security,user}.nix and hosts/Sleipnir/config.nix finds no config, and grep -rn 'modules/nixos/capsule' over the repo (excluding .doctrine) finds nothing. security.nix no longer takes username, and deadnix and statix are clean." },
-  { id = "VA-3", text = "Negative control (EX-4), the five absences from design sec-5, evaluated and recorded in notes." },
+  { id = "VA-3", text = "Negative control (EX-4): with the selection off, Sleipnir's toplevel drvPath still evaluates (nothing else depends on the moved pieces), and the five absences from design sec-5 hold. Recorded in notes." },
   { id = "VA-4", text = "Hygiene (EX-7): nix fmt clean; git diff --cached shows no flake.lock and no emacs/flake.lock." },
 ]
 specs        = []
