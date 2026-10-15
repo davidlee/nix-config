@@ -10,6 +10,7 @@ Justfile - user entrypoint (aliased as j)
 ~/.config/emacs/ - user emacs config
 
 repo: ~/.git (sparse repo)
+git add ~/flakes/ is typically correct, with conventional commits.
 
 **Heads-up: the git worktree is `$HOME`, not `~/flakes`.** `~/.git` points at
 `~/.cfg` (`core.worktree = $HOME`, `showUntrackedFiles = no`).
@@ -22,5 +23,4 @@ repo: ~/.git (sparse repo)
 - git paths carry a `flakes/` prefix, so doctrine selector / conformance /
   verify-vt attribution misfires (ISS-005). Judge by agent.
 - Detail: `doctrine memory show mem.system.flakes.home-worktree`.
-git add ~/flakes/ is typically correct, with conventional commits.
 
