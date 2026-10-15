@@ -6,7 +6,7 @@ slug = "multihost-roadmap"
 title = "Multi-host and feature composition roadmap"
 status = "open"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [relationships]
@@ -57,4 +57,16 @@ target = "SL-002"
 [[relation]]
 label = "related"
 target = "SL-005"
+
+[[relation]]
+label = "related"
+target = "SL-003"
+
+[[relation]]
+label = "related"
+target = "SL-004"
+
+[[relation]]
+label = "related"
+target = "SL-006"
 
