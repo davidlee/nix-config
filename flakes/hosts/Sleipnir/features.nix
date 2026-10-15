@@ -25,10 +25,6 @@
     mango = true;
   };
 
-  ai = {
-    llama-cpp = false;
-    rocm = false;
-  };
   apps.cad = true;
   fonts = true;
   printing = true;

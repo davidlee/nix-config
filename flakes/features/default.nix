@@ -23,4 +23,8 @@
     name = "games";
     value = import ./games.nix;
   }
+  {
+    name = "ai";
+    value = import ./ai.nix;
+  }
 ]

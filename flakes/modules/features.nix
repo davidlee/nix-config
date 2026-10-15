@@ -25,11 +25,6 @@ in {
       mango = enabledByDefault "mango compositor";
     };
 
-    ai = {
-      llama-cpp = enabledByDefault "llama.cpp server";
-      rocm = enabledByDefault "ROCm compute stack, for llama.cpp on Radeon";
-    };
-
     apps = {
       cad = enabledByDefault "CAD and 3D printing tools (home)";
     };

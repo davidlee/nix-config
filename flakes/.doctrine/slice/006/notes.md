@@ -54,6 +54,8 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
   baseline. Also holds `nix-diff-toplevel.txt` and the home lines re-evaluated
   with `emacs/emacs-overlay` pinned to the baseline's rev
   (`*-home-pinned-b58afd9`).
+- `~/.cache/multihost-gate/sl006/phase-02/` — after PHASE-02; PHASE-03's
+  baseline (`drvs`, `drvs-sets`, `coverage`, `system/`, `home/`).
 
 ## PHASE-01 summary
 
@@ -111,3 +113,18 @@ resolve into the store).
 - mangohud `mkForce false`: `programs.mangohud.enable` false; 0 mangohud in
   `home.packages` (vs 1); 0 mangohud files in home-path (vs 14).
 - twins: `bin/steam`, `gamemode`, mangohud all present in the baseline probe.
+
+## PHASE-02 summary
+
+- Gate vs phase-01: `drvs`, `drvs-sets`, `system/`, `home/` all identical,
+  every line (home/darwin included: emacs-overlay did not drift this time, so
+  the pinned comparison was unnecessary). `coverage` gained exactly two lines:
+  `Sleipnir+llama-cpp` 2949l4yp4jwdxz1r8r88xz7cicckzs9p, `Sleipnir+rocm`
+  hdv7ljb0zrpbqivbs8890zdnfxi5d3i6; the other two unchanged. Both differ from
+  Sleipnir's toplevel (each feature projects something).
+- Red (A2): `testOffFeatures` aborted the whole run with "The option
+  `feature.ai' does not exist" (no tryEval in `sleipnirWith`).
+- Refactor (T5): `testSleipnirLeavesPodmanOff` + `testPodmanSelectable` folded
+  into `testOffFeatures` as `virt.podman#nixos`; PHASE-03 extends the flat list.
+- README: Overrides example `ai.rocm = false` swapped for `speech = false`.
+- `just gate` green, `flake.lock` untouched.

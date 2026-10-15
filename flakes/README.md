@@ -143,7 +143,7 @@ Two ways to switch optional modules on, both resolved once per host by
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
   snooze, openrgb, capsule, qemu, docker, podman, appimage, flatpak, steam,
-  gamescope and mangohud have moved here; the rest follow later.
+  gamescope, mangohud, llama-cpp and rocm have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -197,7 +197,7 @@ friends work:
 ```nix
 {
   mpd = true;
-  ai.rocm = false;
+  speech = false;
 }
 ```
 
@@ -207,7 +207,6 @@ A missing host file means the host takes every default unchanged.
 |------|---------|-------|
 | `desktop.{sway,niri}` | `true` | `modules/nixos/<wm>.nix` + `modules/home/linux/<wm>.nix` |
 | `desktop.{cosmic,kde,mango}` | `true` | `modules/nixos/<wm>.nix` |
-| `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
 | `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
 | `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
 | `dictate` | `true` | `modules/home/linux/dictate.nix` |
@@ -239,7 +238,7 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ]
+  default.nix         [ hardware session virt non-nix-packages games ai ]
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -247,6 +246,7 @@ features/
   virt/capsule.nix    a feature big enough for its own file
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
+  ai.nix              [ llama-cpp rocm ]              neither selected; coverage targets
   profiles/           workstation.nix
 ```
 
@@ -292,7 +292,8 @@ somewhere (QUE-001).
 
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such
-features (`coverage."Sleipnir+openrgb"`, `coverage."Sleipnir+podman"`), off
+features (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`, `"Sleipnir+llama-cpp"`,
+`"Sleipnir+rocm"`), off
 every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 
@@ -510,11 +511,11 @@ lpadmin -p laser -v ipp://IP:631/ipp/print  # change printer URI
 
 ### llama.cpp (Bonsai 2)
 
-`modules/nixos/llama-cpp.nix` — `llama-server` on `127.0.0.1:8080` (OpenAI-compatible
+`features/ai.nix` (`ai.llama-cpp`) — `llama-server` on `127.0.0.1:8080` (OpenAI-compatible
 API + web UI), serving [Ternary-Bonsai-2-27B](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf)
-on the RX 9070 XT via ROCm. Gated by `ai.llama-cpp` — **currently off** on
+on the RX 9070 XT via ROCm. **Currently off** on
 Sleipnir (no use case a hosted model doesn't cover better); the config is kept
-working. Flip the flag in `hosts/Sleipnir/features.nix` and `system-switch` to
+working. Set `feature.ai.llama-cpp.enable = true;` in `hosts/Sleipnir/features.nix` and `system-switch` to
 bring it back; the first build compiles HIP kernels for a long while.
 
 **What to expect** (measured 2026-10): decode 38–48 tok/s, prompt processing
@@ -549,7 +550,7 @@ re-processing when an agent rewrites recent history. To see buffer sizes, add `v
 API key, then `/model`. Use `127.0.0.1`: node may resolve `localhost` to `::1`,
 where nothing listens.
 
-`ai.rocm` is not needed — it sets `rocmSupport` globally and rebuilds much of nixpkgs.
+The `ai.rocm` feature is not needed — it sets `rocmSupport` globally and rebuilds much of nixpkgs.
 
 **Model files** are fetched by hand, not by nix (7 GB in the store, per bump, is a poor trade):
 

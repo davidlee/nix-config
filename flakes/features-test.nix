@@ -326,15 +326,16 @@ in
       expected = [false true];
     };
 
-    # podman is an off feature (DEC-022): Sleipnir leaves it unselected, and
-    # selecting it projects its NixOS half.
-    testSleipnirLeavesPodmanOff = {
-      expr = sleipnirSelects ["virt.podman#nixos"];
-      expected = [[false false]];
-    };
-
-    testPodmanSelectable = {
-      expr = sleipnirWith [(on "virt.podman")] ["virt.podman#nixos"];
-      expected = [[true false]];
+    # Off features (ADR-005): Sleipnir leaves each unselected, and selecting it
+    # projects its NixOS half — the second element keeps the first from passing
+    # vacuously.
+    testOffFeatures = {
+      expr = map (tag:
+        sleipnirSelects [tag] ++ sleipnirWith [(on (lib.removeSuffix "#nixos" tag))] [tag]) [
+        "ai.llama-cpp#nixos"
+        "ai.rocm#nixos"
+        "virt.podman#nixos" # DEC-022: exclusive with docker, so no host selects it
+      ];
+      expected = lib.replicate 3 [[false false] [true false]];
     };
   }
