@@ -79,21 +79,46 @@ the `$HOME` ownership warning. Only activation needs root.
 
 ### Feature flags
 
-Coarse on/off switches, resolved per host and threaded into **all three**
-configs: `specialArgs` for NixOS and darwin, `extraSpecialArgs` for standalone
-home-manager. (Darwin runs home-manager as a darwin module and reuses
-`specialArgs` as its `extraSpecialArgs`, so one entry covers both its halves.)
+Two ways to switch optional modules on, both resolved once per host by
+`features.nix`, outside the NixOS, darwin and home-manager evaluations:
+
+- **legacy flags** — booleans that a host's files read to gate their own
+  imports. Most features are still flags.
+- **the feature tree** — features as plain data under `features/`, selected
+  by options and projected straight into each evaluation's module list.
+  snooze and openrgb have moved here; the rest follow later.
+
+```
+hosts/<host>/features.nix ──imports──> features/profiles/*.nix
+          │                                     │
+          └──────────────┬──────────────────────┘
+                         ▼
+ modules/features.nix ─> features.nix <── features/ (tree)
+                         │  (one lib.evalModules per host, checks enforced)
+          ┌──────────────┴───────────────┐
+          ▼                              ▼
+ flags ─> specialArgs.features   modules.{nixos,homeManager,darwin}
+          (gates imports)        ─> appended by mkNixos / mkHome / mkDarwin
+```
 
 | file | role |
 |------|------|
-| `modules/features.nix` | option declarations and defaults |
-| `features.nix` | resolver — `lib.evalModules`, once, per host |
-| `hosts/<hostname>/features.nix` | that host's overrides (optional) |
+| `modules/features.nix` | legacy flag declarations and defaults |
+| `features.nix` | resolver — `lib.evalModules`, once, per host (tests: `features-test.nix`) |
+| `features/` | the feature tree: area indexes, feature descriptors, profiles |
+| `hosts/<hostname>/features.nix` | that host's profiles and overrides (optional) |
 
 Deliberately **not** a NixOS option. The three configs evaluate independently —
 separate nixpkgs (`nixpkgs` vs `nixpkgs-home`), separate `switch` — so an option
 declared in one is invisible to the others. Evaluating the option set once,
 outside all of them, and injecting the result keeps one source of truth.
+
+#### Legacy flags
+
+The flags reach NixOS and darwin as the `features` specialArg, and standalone
+home-manager as `extraSpecialArgs.features`. Darwin's embedded home-manager
+does **not** get them: `darwin/default.nix` passes it only `inputs`, `pkgs`,
+`username` and `hostname`.
 
 Being a specialArg is also what lets `features` gate `imports`: imports are
 resolved before `config` exists, so a real option could not do this.
@@ -132,16 +157,73 @@ A missing host file means the host takes every default unchanged.
 | `games.gamescope` | ← `games.enable` | `modules/nixos/gamescope.nix` |
 | `games.mangohud` | ← `games.enable` | `modules/home/linux/games.nix` |
 | `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
-| `hardware.{openrgb,microcode,ssd}` | `false` | `modules/nixos/<name>.nix` |
+| `hardware.{microcode,ssd}` | `false` | `modules/nixos/<name>.nix` |
 | `virt.qemu` | `true` | `modules/nixos/qemu.nix` |
 | `virt.docker` | `false` | `modules/nixos/docker.nix` (rootless; podman is unconditional) |
 | `apps.{appimage,flatpak}` | `true` | `modules/nixos/<name>.nix` |
 | `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
 | `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
-| `snooze` | `true` | `modules/nixos/snooze.nix` + `modules/home/linux/snooze.nix` |
 | `dictate` | `true` | `modules/home/linux/dictate.nix` |
 | `mpd` | `false` | `modules/nixos/mpd.nix` |
 | `sunshine` | `false` | `modules/nixos/sunshine.nix` |
+
+#### Feature tree
+
+A feature is a plain attrset whose values are ordinary modules, one per
+evaluation it touches:
+
+```nix
+# features/session/snooze/default.nix — a descriptor, never itself a module
+{
+  nixos = ./nixos.nix;         # system half
+  homeManager = ./home.nix;    # user half
+  # darwin = …;  requires = [ "<area>.<name>" ];   (both optional)
+}
+```
+
+Features are grouped into **areas** and reached only from written lists,
+never by listing directories. `features/default.nix` lists the areas, each
+`features/<area>/default.nix` lists its features, both as
+`{ name; value; }` pairs, and list order is projection order:
+
+```
+features/
+  default.nix               [ hardware session ]
+  hardware/  openrgb.nix
+  session/   snooze/{default,nixos,home}.nix  snooze/bin/
+  profiles/  workstation.nix
+```
+
+Each feature gets an option `feature.<area>.<name>.enable`, default `false`.
+A **profile** is an outer module that sets those with `mkDefault`; a host
+imports profiles and overrides any of them with a plain definition:
+
+```nix
+# hosts/Sleipnir/features.nix
+{
+  imports = [../../features/profiles/workstation.nix];   # snooze on
+  # feature.session.snooze.enable = false;               # would turn it off
+}
+```
+
+Nothing is selected automatically. The resolver refuses to return anything
+— so a home-only build fails just like a system one — when a selected
+feature's `requires` entry is not selected, when a selected feature has no
+module for any of the host's evaluations (a home-only feature on the Mac),
+or when any hand-written `assertions` entry in an outer module is false.
+Unselected features are never evaluated, so a broken one blocks no host.
+
+Darwin's embedded home-manager receives no projected modules, so a feature
+with only a `homeManager` half cannot reach the Mac (IMP-012).
+
+**Coverage.** A feature that no host selects would otherwise never be
+evaluated. `flake.coverage` holds handwritten configurations that select such
+features (`coverage."Sleipnir+openrgb"`), off every switch path and outside
+`just drvs`. `just coverage` evaluates them and prints one drvPath each.
+`nix flake check` warns about the unknown `coverage` output; that is expected.
+
+`just test` runs the resolver tests (`features-test.nix`, as
+`checks.<system>.features`) before the script tests.
 
 **Parked is not a feature.** `modules/nixos/{hyprland,kmscon}.nix` and
 `modules/home/linux/danksearch.nix` stay commented out in their import lists.
@@ -269,8 +351,9 @@ A child's `MemoryLow` is capped by its parent's, so `user-1000` must cover `sess
 
 ### Snooze (bedtime ratchet)
 
-`modules/home/linux/snooze.nix` + `modules/nixos/snooze.nix` — nags the machine
-to bed each night, and wakes it via RTC alarm.
+`features/session/snooze/` — `home.nix` (the nag), `nixos.nix` (the wake
+alarm), and `bin/snooze-nag` with its test. Selected by the `workstation`
+profile. Nags the machine to bed each night, and wakes it via RTC alarm.
 
 A fixed-time suspend has one failure mode: you turn it off, and then you stay
 up. So nothing suspends on a clock any more. At 23:20 `snooze-nag.timer` starts

@@ -12,6 +12,10 @@
 # same selection: its legacy `flags` go in as the `features` specialArg, which
 # hosts use to gate imports, and the modules the feature tree projects for the
 # factory's class are appended to its `modules`. See README § Feature flags.
+#
+# `coverage` holds ADR-005 targets: configurations that select a feature no
+# switchable host selects, so `just coverage` proves it still evaluates. They
+# are off every switch path and outside `just drvs`.
 {
   inputs,
   self,
@@ -148,5 +152,9 @@ in {
     # Bare `david`: transitional alias for the pre-factory key. Drop once
     # nothing calls `.#david`.
     homeConfigurations = homes // {${username} = homes."${username}@Sleipnir";};
+
+    coverage."Sleipnir+openrgb" =
+      mkNixos "Sleipnir" hosts.Sleipnir
+      (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = true;}]);
   };
 }

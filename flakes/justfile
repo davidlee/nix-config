@@ -82,6 +82,10 @@ drvs: check-flake-root
   @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{home_override}}"
   @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{home_override}}"
 
+# ADR-005 coverage targets: evaluate off features, outside the switch path.
+coverage: check-flake-root
+  @just _drvs coverage 'c: c.config.system.build.toplevel.drvPath' "{{system_override}}"
+
 # Order-insensitive companion to drvs: count + hash of the *sorted* package
 # lists. When drvs differs but these match, the package change is
 # ordering-only. Other merged lists (groups, sudo rules, …) still need nix-diff.

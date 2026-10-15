@@ -318,7 +318,8 @@ Exit: gate identical.
 
 - Every flag defaults to `false` (`follows` stays). Sleipnir's
   `features.nix` names every flag it uses, including the ones it previously got
-  by default (`snooze`, `agents.*`, …).
+  by default (`agents.*`, …). (`snooze` is no longer a flag: SL-001 moved
+  it to the feature tree, selected by the `workstation` profile.)
 - README feature table: defaults column updated; text "defaults describe a
   host that says nothing" now true.
 

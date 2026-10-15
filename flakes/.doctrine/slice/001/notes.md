@@ -83,6 +83,20 @@ inquiry graph `inq-1`–`inq-10` holds the questions below.
   `hosts/` or `modules/`; `features.hardware.microcode` still found.
 - Moves done with `git mv`, so history follows; new files `git add -N`'d.
 
+## PHASE-03 evidence (2026-10-15)
+
+- Red: `just coverage` failed (`does not provide attribute … coverage`)
+  before the output existed. Green: one line,
+  `coverage.Sleipnir+openrgb /nix/store/sfs4can8…-nixos-system-Sleipnir…drv`,
+  differing from Sleipnir's toplevel.
+- The drvPath difference alone is weak evidence (coverage does not pin the
+  agents registry), so openrgb was checked directly:
+  `services.hardware.openrgb.enable` is true in the coverage target, false
+  in `nixosConfigurations.Sleipnir`.
+- `just drvs` still identical to the EN-2 baseline; switch recipes untouched.
+- README Feature flags restructured (legacy flags / feature tree / coverage),
+  darwin claim corrected, snooze paths current; MULTIHOST.md S7 annotated.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)
