@@ -32,7 +32,7 @@ exit_criteria = [
   { id = "EX-2", text = "hosts/Sleipnir/machine.nix exists with the DEC-019 header comment, the ucodenix import, microcode.amd_sha_check=off, services.ucodenix (cpuModelId) and fileSystems.\"/\".options; imported by config.nix immediately after ./hardware-configuration.nix." },
   { id = "EX-3", text = "modules/nixos/boot.nix sets boot.kernelParams = [\"boot.shell_on_fail\"]." },
   { id = "EX-4", text = "modules/nixos/{microcode,ssd}.nix deleted; hardware group gone from modules/features.nix and hosts/Sleipnir/features.nix; both gates gone from config.nix." },
-  { id = "EX-5", text = "Gate vs EN-2 baseline: only nixosConfigurations.Sleipnir differs in drvs; drvs-sets identical; probe: sorted kernelParams, fileSystems options, packages, membership and link map identical (RV-011 F-8: link map identical)." },
+  { id = "EX-5", text = "Gate vs EN-2 baseline: only nixosConfigurations.Sleipnir differs in drvs; drvs-sets identical; probe: sorted kernelParams, fileSystems options, packages, membership and link map identical (RV-011 F-8: link map identical); just coverage evaluates every target (design sec-7.1)." },
   { id = "EX-6", text = "README: hardware.* rows out of the flag table; one line on hosts/<h>/machine.nix beside the generated hardware-configuration.nix." },
   { id = "EX-7", text = "just gate green; committed (conventional commit, scoped to flakes/); post-phase probe and drvs saved as PHASE-02's baseline." },
 ]
@@ -58,9 +58,9 @@ exit_criteria = [
   { id = "EX-2", text = "user.nix extraGroups loses docker and libvirtd; nothing else changes there." },
   { id = "EX-3", text = "modules/nixos/security.nix asserts !config.virtualisation.docker.enable with a rootless-only message." },
   { id = "EX-4", text = "hosts/Sleipnir/features.nix sets feature.virt.qemu.enable = true (host property comment, DEC-021); workstation profile sets mkDefault true for feature.virt.docker; virt group gone from modules/features.nix and the host's flags; both gates gone from config.nix." },
-  { id = "EX-5", text = "Gate vs PHASE-01: only Sleipnir toplevel differs; unique sorted packages identical; link map identical, bin/docker -> docker (RV-011 F-8); effective membership identical." },
+  { id = "EX-5", text = "Gate vs PHASE-01: only Sleipnir toplevel differs; unique sorted packages identical; link map identical, bin/docker -> docker (RV-011 F-8); effective membership identical; just coverage evaluates every target (design sec-7.1)." },
   { id = "EX-6", text = "Negative controls (one-off): qemu off -> qemu_kvm and virt-manager absent from the system closure, libvirtd absent from effective groups; docker off -> docker and lazydocker absent from the closure, virtualisation.docker.rootless.enable false." },
-  { id = "EX-7", text = "Guard (one-off): Sleipnir with virtualisation.docker.enable = lib.mkForce true fails with the security.nix message." },
+  { id = "EX-7", text = "Guard (one-off): Sleipnir with virtualisation.docker.enable = lib.mkForce true fails with the security.nix message, both with feature.virt.docker selected and with it set false (design sec-7.5)." },
   { id = "EX-8", text = "README: virt.* rows out of the flag table; tree listing shows qemu and docker in virt.nix." },
   { id = "EX-9", text = "just gate green; committed; post-phase snapshot saved." },
 ]
@@ -83,7 +83,7 @@ entrance_criteria = [
 ]
 exit_criteria = [
   { id = "EX-1", text = "features/virt.nix gains podman after docker, body of podman.nix verbatim ({pkgs, username, ...}); modules/nixos/podman.nix deleted and its import gone from config.nix." },
-  { id = "EX-2", text = "The docker feature asserts !config.virtualisation.podman.enable; the message names virt.docker, virt.podman and IMP-018." },
+  { id = "EX-2", text = "The docker feature asserts !config.virtualisation.podman.enable; the message names virt.docker, virt.podman and IMP-018. Its nixos signature becomes {pkgs, config, ...} (design sec-3)." },
   { id = "EX-3", text = "hosts.nix: coverage.\"Sleipnir+podman\" selects feature.virt.podman and sets feature.virt.docker.enable = false." },
   { id = "EX-4", text = "Gate vs PHASE-02: only Sleipnir toplevel differs in drvs (coverage is outside drvs). Removed system packages are exactly podman.nix's list plus the podman module's own (podman, dockerCompat shim); distrobox leaves system-path but stays in the home closure (dev.nix). Every link-map change is a removal of a path into one of those; bin/docker -> docker (RV-011 F-8). Effective membership loses only podman." },
   { id = "EX-5", text = "just coverage evaluates both targets; Sleipnir+podman's closure contains podman and its link map has bin/docker -> the podman shim." },
@@ -112,7 +112,7 @@ exit_criteria = [
   { id = "EX-1", text = "features/non-nix-packages.nix (header comment, two records) registered in features/default.nix after virt; git add -N before evaluation." },
   { id = "EX-2", text = "programs.nix loses appimage.{binfmt,enable}; nix.nix loses appimage-run and flatpak; modules/nixos/{appimage,flatpak}.nix deleted." },
   { id = "EX-3", text = "workstation sets mkDefault true for both; apps group in modules/features.nix and the host keeps only cad; both gates gone from config.nix." },
-  { id = "EX-4", text = "Gate vs PHASE-03: only Sleipnir toplevel differs; drvs-sets count for Sleipnir drops by exactly 2; unique sorted packages identical; link map identical (RV-011 F-8)." },
+  { id = "EX-4", text = "Gate vs PHASE-03: only Sleipnir toplevel differs; drvs-sets count for Sleipnir drops by exactly 2; unique sorted packages identical; link map identical (RV-011 F-8); just coverage evaluates every target (design sec-7.1)." },
   { id = "EX-5", text = "Negative controls (one-off): appimage off -> appimage-run absent from the closure, programs.appimage.binfmt false; flatpak off -> flatpak absent from the closure, services.flatpak.enable false." },
   { id = "EX-6", text = "grep under flakes/ finds no features.hardware, features.virt, features.apps.appimage or features.apps.flatpak reads." },
   { id = "EX-7", text = "README: apps.{appimage,flatpak} rows out; tree listing and the 'moved here' intro line cover every SL-005 feature; feature-flags table matches modules/features.nix." },
