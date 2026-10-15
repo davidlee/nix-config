@@ -10,7 +10,11 @@ Found during SL-004 PHASE-06 (Draupnir cut-over), 2026-10-15. At nixpkgs
 cache.nixos.org for aarch64-darwin, and a local build on Draupnir failed after
 a long wait. Not caused by SL-004: any switch at this pin hits it.
 
-Workaround: `darwin/home.nix` sets `programs.atuin.enable = lib.mkForce false`.
+Workaround, two places (both must be undone):
+- `darwin/home.nix` sets `programs.atuin.enable = lib.mkForce false`;
+- `modules/shared/cli/_packages/shell-ux.nix` adds `atuin` to the `common`
+  bucket only on Linux. The first fix missed this copy: check the closure
+  (`nix-store -qR <drv> | grep atuin`), not the option.
 Linux keeps atuin.
 
 Done when: a nixpkgs bump makes atuin substitutable for aarch64-darwin

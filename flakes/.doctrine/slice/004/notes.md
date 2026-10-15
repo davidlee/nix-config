@@ -156,3 +156,7 @@ are needed through PHASE-05 and must outlive the session and a reboot.
   `~/.config/zsh/login.zsh` and from Ghostty, started under the old session,
   keeping the old `$SHELL`; kitty was clean. README now covers both, and
   `sudo` for `darwin-rebuild --list-generations` (profile lock).
+- Follow-up: the darwin home still built atuin after `6fb92cb4`, from
+  `modules/shared/cli/_packages/shell-ux.nix` (`common` bucket). Now
+  Linux-only there too; both Draupnir closures are atuin-free; drvs: only
+  `david@Draupnir` moves.
