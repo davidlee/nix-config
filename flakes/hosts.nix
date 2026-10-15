@@ -223,5 +223,14 @@ in {
     coverage."Sleipnir+openrgb" =
       mkNixos "Sleipnir" hosts.Sleipnir
       (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = true;}]);
+
+    # docker off: the two are exclusive (DEC-022); a plain false beats the
+    # workstation profile's mkDefault.
+    coverage."Sleipnir+podman" = mkNixos "Sleipnir" hosts.Sleipnir (select "Sleipnir" hosts.Sleipnir [
+      {
+        feature.virt.podman.enable = true;
+        feature.virt.docker.enable = false;
+      }
+    ]);
   };
 }

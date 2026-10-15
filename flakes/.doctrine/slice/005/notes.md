@@ -99,6 +99,8 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
 - `~/.cache/multihost-gate/sl005/baseline/` — before any flake edit (PHASE-01 EN-2), tree at a2b08b34
 - `~/.cache/multihost-gate/sl005/phase-01/` — after PHASE-01; PHASE-02's baseline
 - `~/.cache/multihost-gate/sl005/phase-02/` — after PHASE-02; PHASE-03's baseline
+- `~/.cache/multihost-gate/sl005/phase-03/` — after PHASE-03; PHASE-04's baseline
+- `~/.cache/multihost-gate/sl005/phase-03-podman/` — probe of `coverage."Sleipnir+podman"`
 
 ## PHASE-01 (2026-10-16)
 
@@ -137,4 +139,39 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
   podman is on.
 - README: docker's rootless-only note deferred to PHASE-03, with the podman
   exclusivity it sits beside (design sec-8).
+- `just gate` green.
+
+## PHASE-03 (2026-10-16)
+
+- Red first: `testPodmanSelectable` failed (`feature.virt.podman` did not
+  exist); `testSleipnirLeavesPodmanOff` passes before and after.
+  `sleipnirWith extra` now backs `sleipnirSelects`.
+- Gate vs phase-02 (EX-4, VA-1): `drvs` differs on Sleipnir and its coverage
+  twin only (plus the new `Sleipnir+podman`); home, Draupnir, packages,
+  legacyPackages, templates identical. `drvs-sets` 582 → 574.
+  - Removed unique packages, path by path: `podman` (podman.nix's entry) and
+    `podman` again (the module's wrapped build), `podman-docker-compat`
+    (module, `dockerCompat`), `podman-compose`, `podman-desktop`,
+    `podman-tui`, `crun`. That is podman.nix's list less distrobox, plus the
+    module's two.
+  - **distrobox stays in system-path**, not only home: `dev.nix` reaches
+    NixOS through `modules/nixos/cli.nix` (`linuxSystem`). One fewer change
+    than design sec-3/sec-7 expected; correct those lines at reconcile.
+  - Link map: 517 removals, all into podman, podman-man, podman-docker-compat-man,
+    podman-compose, podman-desktop, podman-tui, crun; plus
+    `lib/systemd/user-generators`, which buildEnv now links as systemd's
+    directory instead of merging it with podman's generator (same contents,
+    less `podman-user-generator`). `bin/docker -> docker-29.8.1`.
+  - Groups: only `podman` gone. kernelParams, root options identical.
+  - nix-diff: every changed input is podman's — its units (podman, prune),
+    tmpfiles, generators, users-groups, the `podman0` DNS rule in
+    nftables-rules, and `network_backend = netavark` / `firewall_driver` in
+    containers.conf (set by the podman module).
+- Coverage (EX-5): `just coverage` evaluates both targets.
+  `Sleipnir+podman` packages include podman; `bin/docker ->
+  podman-docker-compat-5.8.8`.
+- Guard (EX-6): temporary `coverage."tmp-both"` (podman on, docker from
+  workstation) fails with the exclusivity message; removed.
+- README: tree listing, intro line, coverage paragraph, and the
+  rootless-only / exclusivity paragraph deferred from PHASE-02.
 - `just gate` green.

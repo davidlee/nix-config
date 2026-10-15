@@ -39,7 +39,6 @@
       ../../modules/nixos/network.nix
       ../../modules/nixos/nix.nix
       ../../modules/nixos/oom.nix
-      ../../modules/nixos/podman.nix
       ../../modules/nixos/postgresql.nix
       ../../modules/nixos/programs.nix
       ../../modules/nixos/qt.nix

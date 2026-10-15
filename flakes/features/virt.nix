@@ -49,7 +49,21 @@
     name = "docker";
     # Rootless only: no docker group, since nixpkgs creates it only for the
     # rootful daemon. Rootful is refused in modules/nixos/security.nix.
-    nixos = {pkgs, ...}: {
+    nixos = {
+      pkgs,
+      config,
+      ...
+    }: {
+      # Both ship bin/docker (podman via dockerCompat) and system-path keeps
+      # whichever is listed first, silently (DEC-022). Tests the option, not
+      # the feature, so podman switched on by any module is caught.
+      assertions = [
+        {
+          assertion = !config.virtualisation.podman.enable;
+          message = "virt.docker and virt.podman are exclusive: both provide bin/docker. Deselect one (IMP-018: podman replaces docker).";
+        }
+      ];
+
       environment.systemPackages = with pkgs; [
         docker
         docker-compose
@@ -72,6 +86,37 @@
             };
           };
         };
+      };
+    };
+  }
+
+  # Selected by no host (DEC-022); evaluated by coverage."Sleipnir+podman".
+  {
+    name = "podman";
+    nixos = {
+      pkgs,
+      username,
+      ...
+    }: {
+      environment.systemPackages = with pkgs; [
+        podman
+        podman-compose
+        podman-desktop
+        podman-tui
+        distrobox
+        crun # needed for distrobox
+      ];
+      virtualisation = {
+        containers.enable = true;
+        podman = {
+          enable = true;
+          dockerCompat = true;
+          defaultNetwork.settings.dns_enabled = true; # Required for containers under podman-compose to be able to talk to each other.
+        };
+      };
+
+      users.users.${username} = {
+        extraGroups = ["podman"];
       };
     };
   }

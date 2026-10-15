@@ -49,19 +49,21 @@ lib: let
     (lib.elem "session.snooze#homeManager" (tags r.modules.homeManager))
   ];
 
-  # Sleipnir's own selection, real tree. Per "<area>.<name>#nixos" tag:
-  # [ projected into nixos, any half of that feature projected into home ].
-  sleipnirSelects = let
+  # Sleipnir's selection plus extra outer modules, real tree. Per
+  # "<area>.<name>#nixos" tag: [ projected into nixos, any half of that
+  # feature projected into home ].
+  sleipnirWith = extra: let
     r = resolve {
       tree = real;
       classes = both;
-      modules = [./hosts/Sleipnir/features.nix];
+      modules = [./hosts/Sleipnir/features.nix] ++ extra;
     };
   in
     map (tag: [
       (lib.elem tag (tags r.modules.nixos))
       (lib.any (lib.hasPrefix (lib.removeSuffix "nixos" tag)) (tags r.modules.homeManager))
     ]);
+  sleipnirSelects = sleipnirWith [];
 
   prerequisite = selected:
     resolve {
@@ -302,5 +304,17 @@ in
     testSleipnirSelectsMigrated = {
       expr = sleipnirSelects ["virt.qemu#nixos" "virt.docker#nixos"];
       expected = [[true false] [true false]];
+    };
+
+    # podman is an off feature (DEC-022): Sleipnir leaves it unselected, and
+    # selecting it projects its NixOS half.
+    testSleipnirLeavesPodmanOff = {
+      expr = sleipnirSelects ["virt.podman#nixos"];
+      expected = [[false false]];
+    };
+
+    testPodmanSelectable = {
+      expr = sleipnirWith [(on "virt.podman")] ["virt.podman#nixos"];
+      expected = [[true false]];
     };
   }

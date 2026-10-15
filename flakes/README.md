@@ -142,7 +142,7 @@ Two ways to switch optional modules on, both resolved once per host by
   imports. Most features are still flags.
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
-  snooze, openrgb, capsule, qemu and docker have moved here; the rest follow later.
+  snooze, openrgb, capsule, qemu, docker and podman have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -247,7 +247,7 @@ features/
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
-  virt.nix            [ (import ./virt/capsule.nix) qemu docker ]
+  virt.nix            [ (import ./virt/capsule.nix) qemu docker podman ]
   virt/capsule.nix    a feature big enough for its own file
   profiles/           workstation.nix
 ```
@@ -294,9 +294,15 @@ somewhere (QUE-001).
 
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such
-features (`coverage."Sleipnir+openrgb"`), off every switch path and outside
-`just drvs`. `just coverage` evaluates them and prints one drvPath each.
+features (`coverage."Sleipnir+openrgb"`, `coverage."Sleipnir+podman"`), off
+every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
+
+**docker and podman.** Docker is rootless only: `modules/nixos/security.nix`
+refuses the rootful daemon on every host. Both ship `bin/docker` (podman
+through `dockerCompat`), and the system profile silently keeps whichever is
+listed first, so the `docker` feature refuses podman. podman is a feature no
+host selects; `Sleipnir+podman` swaps it in for docker (IMP-018).
 
 `just test` runs the resolver tests (`features-test.nix`, as
 `checks.<system>.features`) before the script tests.
