@@ -9,9 +9,9 @@ created = "2026-10-15"
 updated = "2026-10-15"
 
 [scope]
-paths = ["flakes/"]
-globs = []
-commands = []
+paths = [""]
+globs = ["**/*.nix"]
+commands = ["nix eval", "nix build", "just drvs", "just gate"]
 tags = ["nix"]
 workspace = "default"
 repo = "github.com/davidlee/nix-config"

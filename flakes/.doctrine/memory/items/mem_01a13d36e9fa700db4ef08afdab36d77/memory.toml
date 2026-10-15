@@ -9,9 +9,9 @@ created = "2026-10-15"
 updated = "2026-10-15"
 
 [scope]
-paths = ["flakes/"]
+paths = ["flake.nix", "hosts.nix", "features.nix", "overlays.nix", "perSystem.nix", "hosts/", "features/profiles/"]
 globs = []
-commands = ["just drvs"]
+commands = ["just drvs", "just drvs-sets"]
 tags = ["gate"]
 workspace = "default"
 repo = "github.com/davidlee/nix-config"

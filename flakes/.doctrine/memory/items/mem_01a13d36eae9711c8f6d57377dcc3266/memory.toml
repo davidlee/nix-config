@@ -9,7 +9,7 @@ created = "2026-10-15"
 updated = "2026-10-15"
 
 [scope]
-paths = ["flakes/flake.lock", "flakes/perSystem.nix"]
+paths = ["flake.lock", "perSystem.nix"]
 globs = []
 commands = ["nix fmt", "just gate", "just test", "just drvs"]
 tags = ["nix"]

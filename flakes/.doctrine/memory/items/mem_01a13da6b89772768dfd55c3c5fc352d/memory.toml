@@ -10,7 +10,7 @@ updated = "2026-10-15"
 
 [scope]
 paths = [".doctrine/"]
-globs = []
+globs = [""]
 commands = []
 tags = ["doctrine"]
 workspace = "default"
