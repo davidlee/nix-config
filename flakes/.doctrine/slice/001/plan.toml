@@ -1,0 +1,125 @@
+# Implementation plan for SL-001 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-001"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms).
+[[phase]]
+id        = "PHASE-01"
+name      = "Resolver and factory wiring, empty tree"
+objective = """
+Land the new resolver contract and the factory wiring with an empty feature
+tree, so the mechanism exists before anything moves onto it. features.nix
+becomes lib: { tree, classes, modules } -> { flags, modules } (design sec-3,
+including the structural checks). hosts.nix resolves each host once
+(select / selections) and every factory takes the selection and appends the
+projected modules for its class (sec-4, coverage excluded). features/default.nix
+is an empty area list. features-test.nix holds the fixture tests, run as
+checks.<system>.features by just test. No legacy flag changes, so every
+derivation is unchanged. Comments in features.nix and hosts.nix updated.
+"""
+entrance_criteria = [
+  { id = "EN-1", text = "Design locked (RV-001 conducted)." },
+  { id = "EN-2", text = "just drvs and just drvs-sets run on the unedited tree; both outputs saved under .doctrine/state/slice/001/ as the identity baseline." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Fixture tests were observed red against the old features.nix (wrong arity) before the rewrite, and green after." },
+  { id = "EX-2", text = "just test is green: checks.<system>.features plus the existing script tests." },
+  { id = "EX-3", text = "just drvs and just drvs-sets match the baseline for all four configurations." },
+  { id = "EX-4", text = "RV-001 F-3 negative control observed and reverted, result noted in slice notes." },
+  { id = "EX-5", text = "nix fmt clean on every touched file; no flake.lock drift committed." },
+]
+verification = [
+  { id = "VT-1", expects = "fixture resolver tests: prerequisite off, unknown prerequisite on an unselected feature, unselected throw not forced, nowhere to land, list order, duplicate names, flags hide the selection, Mac selects nothing", test_file = "features-test.nix", keywords = ["testPrerequisiteOffFails", "testUnknownPrerequisiteFails", "testUnselectedNotForced", "testNowhereToLandFails", "testListOrder", "testDuplicateNamesFail", "testFlagsHideSelection", "testMacSelectsNothing", "tryEval"], waived = false },
+  { id = "VT-2", expects = "resolver contract: structural checks, enforced assertions, _file-wrapped projection", test_file = "features.nix", keywords = ["tree", "classes", "assertions", "allUnique", "requires", "_file"], waived = false },
+  { id = "VT-3", expects = "checks.features runner evaluates features-test.nix", test_file = "perSystem.nix", keywords = ["checks", "features-test.nix"], waived = false },
+  { id = "VT-4", expects = "hosts.nix resolves once per host and factories append projected modules", test_file = "hosts.nix", keywords = ["selections", "classesOf", "modules.nixos", "modules.homeManager", "modules.darwin"], waived = false },
+  { id = "VA-1", text = "Identity gate: just drvs and just drvs-sets compared back to back with the EN-2 baseline; identical." },
+  { id = "VA-2", text = "RV-001 F-3 control. Candidate to reject: a mkHome with its own unguarded resolution. Add assertions = [{assertion = false; message = \"control\";}] to hosts/Sleipnir/features.nix; evaluating homeConfigurations.\"david@Sleipnir\".activationPackage.drvPath alone must fail with 'feature selection failed' and '- control'. Revert the line." },
+  { id = "VA-3", text = "nix fmt clean; flake.lock unchanged in the commit." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Migrate snooze and openrgb"
+objective = """
+Move snooze and openrgb onto the feature tree (design sec-2, sec-5): area
+indexes hardware and session, the snooze directory with descriptor, both
+halves and bin/, openrgb as a single file, and features/profiles/workstation.nix
+imported by hosts/Sleipnir/features.nix. Remove the snooze and
+hardware.openrgb flags, Sleipnir's openrgb = false, and the three gated
+imports. Add the real-tree tests T1 and T2 (membership assertions). Point
+just test at the moved snooze-nag-test. Update the modules/features.nix
+comment. Every derivation stays identical.
+"""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete: just test green, drvs at baseline." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "T1 and T2 observed red before the tree and profile exist, green after." },
+  { id = "EX-2", text = "just test green, including snooze-nag-test at its new path." },
+  { id = "EX-3", text = "just drvs matches the baseline for all four configurations; any difference is red until proven ordering-only with drvs-sets and nix-diff and recorded." },
+  { id = "EX-4", text = "No reader of the removed flags remains." },
+  { id = "EX-5", text = "New and moved files git add -N'd before evaluation; nix fmt clean; no flake.lock drift committed." },
+]
+verification = [
+  { id = "VT-1", expects = "real-tree tests: profile selects snooze into nixos and homeManager; host override removes both", test_file = "features-test.nix", keywords = ["testProfileSelectsSnooze", "testHostOverrideWins", "features/session/snooze#nixos", "features/session/snooze#homeManager"], waived = false },
+  { id = "VT-2", expects = "workstation profile selects snooze with mkDefault", test_file = "features/profiles/workstation.nix", keywords = ["feature.session.snooze.enable", "mkDefault"], waived = false },
+  { id = "VT-3", expects = "snooze descriptor names both halves", test_file = "features/session/snooze/default.nix", keywords = ["nixos = ./nixos.nix", "homeManager = ./home.nix"], waived = false },
+  { id = "VT-4", expects = "just test runs the moved snooze-nag-test", test_file = "justfile", keywords = ["features/session/snooze/bin/snooze-nag-test"], waived = false },
+  { id = "VA-1", text = "Identity gate against the PHASE-01 baseline: just drvs and just drvs-sets identical." },
+  { id = "VA-2", text = "grep for features.snooze and features.hardware.openrgb over hosts/ and modules/ finds nothing; the same grep finds features.hardware.microcode (positive control)." },
+  { id = "VA-3", text = "nix fmt clean; flake.lock unchanged in the commit." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Coverage target and docs"
+objective = """
+Add the ADR-005 coverage target flake.coverage.\"Sleipnir+openrgb\" (a
+selection with feature.hardware.openrgb.enable = true, built by mkNixos) and
+the just coverage recipe over _drvs (design sec-4). Update the docs (sec-5):
+README Feature flags (table, mechanism, feature tree, profiles, just
+coverage, the darwin specialArgs correction), README snooze paths, and the
+MULTIHOST.md snooze annotation.
+"""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete: openrgb is in the tree, drvs at baseline." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "just coverage was red before the output existed and prints one drvPath after, different from Sleipnir's toplevel." },
+  { id = "EX-2", text = "just drvs still matches the baseline (coverage is outside it); switch recipes unchanged." },
+  { id = "EX-3", text = "README and MULTIHOST.md state the current mechanism and paths." },
+  { id = "EX-4", text = "nix fmt clean; just test green; no flake.lock drift committed." },
+]
+verification = [
+  { id = "VT-1", expects = "just coverage forces the coverage targets via _drvs", test_file = "justfile", keywords = ["coverage:", "_drvs coverage"], waived = false },
+  { id = "VT-2", expects = "hosts.nix defines the openrgb coverage target off the switch path", test_file = "hosts.nix", keywords = ["coverage", "Sleipnir+openrgb", "feature.hardware.openrgb.enable = true"], waived = false },
+  { id = "VA-1", text = "just coverage output inspected: one line, drvPath differs from nixosConfigurations.Sleipnir's; just drvs unchanged." },
+  { id = "VA-2", text = "README: no snooze row, no openrgb in the hardware row, feature tree and profiles described, darwin claim corrected, snooze paths current; MULTIHOST.md annotated." },
+]
+specs        = []
+requirements = []
