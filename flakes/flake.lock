@@ -675,11 +675,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1791593284,
-        "narHash": "sha256-qEIu/cepEGL3BVeW7YJMQgK3Sl6pbiEJA7qwuJfmlYA=",
+        "lastModified": 1792059416,
+        "narHash": "sha256-7tQkPQj7ukZM9IKl/AR0VY+YRD5gdQXCVnxQwPaRGfM=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "666cc6f9e84efd364b5cd057e9f6095160d158f5",
+        "rev": "ee8d509c57cfd917e7575152f49b628c6c279055",
         "type": "github"
       },
       "original": {
