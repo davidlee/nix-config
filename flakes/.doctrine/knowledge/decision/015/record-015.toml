@@ -25,7 +25,7 @@ contradicts = []
 notes       = []
 
 [relationships]                 # verb-written edges (set by doctrine supersede)
-supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+supersedes    = ["DEC-003", "DEC-010"]   # record ids this one replaces (set by doctrine supersede)
 superseded_by = []   # set on superseded predecessor (verb-written)
 
 [[relation]]

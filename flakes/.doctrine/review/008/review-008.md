@@ -111,3 +111,31 @@ One REV over ADR-001, ADR-002, ADR-003 (RV-007 F-9, F-5, F-6; RV-008 F-4):
 
 ### Backlog
 - CHR-011, CHR-012: resolved by SL-003 at close.
+
+## Reconciliation Outcome
+
+### Direct edits applied
+- design.md sec-2 item 3: "Shapes first" (`badShapes`, `badName`) (RV-008 F-2,
+  F-3, F-5; RV-007 F-4).
+- design.md sec-3: example `:20`; relative-for-readability rationale and its
+  precondition; position follows `name` (RV-008 F-4, F-8; RV-007 F-5, F-6).
+- design.md sec-4: new tests listed; testProvenance on the real tree (RV-008 F-6).
+- RFC-001 (evidence, per user): SL-002/SL-003 done lines; target-shape tree;
+  W1 done; W2/W3 start from DEC-015.
+
+### REVs completed
+- REV-002 (`reconcile-sl-003`): done — ADR-002 D1–D6, Context, Negative
+  consequences, References; ADR-001 and ADR-003 MULTIHOST.md citations
+  repointed (RV-007 F-5, F-6, F-9; RV-008 F-2..F-5; CHR-011). Wording
+  reviewed by an external agent and adjudicated before landing; narrative in
+  revision-002.md.
+
+### Knowledge
+- DEC-015 supersedes DEC-003 and DEC-010 (RV-007 F-8).
+
+### Withdrawn / tolerated
+- RV-007 F-1, F-2 (ISS-005, CHR-010 tooling), F-3, F-7 (plan lessons):
+  tolerated with rationale on RV-007.
+
+### At close
+- CHR-011, CHR-012 resolve.

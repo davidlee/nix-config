@@ -23,7 +23,7 @@ Only the record shape changes; selection, checks, projection order and the resul
 
 1. **Records.** An area's `value` is the feature list itself: `descriptor = f`, `name = f.name`. Was `f.name` / `f.value`.
 2. **Allowed keys.** `[ "name" "nixos" "homeManager" "darwin" "requires" ]`.
-3. **Unnamed features first.** A feature without a string `name` is a structural error: `feature #<i> in area <a> has no name`. It is checked on its own and short-circuits the remaining structural checks, because those (and the option tree) read `name`.
+3. **Shapes first.** `badShapes` checks, on its own and before anything that reads them: each area is `{ name = <string>; value = <list>; }`; each feature is a record (a path gets an `(import ./<area>/<name>.nix)` hint) with a string `name`; `requires` is a list of strings. It short-circuits the remaining structural checks, because those (and the option tree) read names, lists and `requires`, and a missing attribute or type error aborts uncatchably. The remaining checks add: names are non-empty and dot-free (`badName`). (Audit RV-007 F-4, RV-008 F-3, F-5.)
 4. **Option tree** built from `f.name` per area, as now.
 5. **Exclusion contract** (ADR-002 D4, reworded): descriptors may be inspected during selection; unselected class implementations and their package expressions are never forced by resolution or projection. The resolver reads only key names, `name`, `requires`, and attribute positions.
 
@@ -34,11 +34,11 @@ Each projected module carries both where the feature lives and which feature it 
 
 ```
 _file = "<flake-relative file>:<line> (<area>.<name>#<class>)"
-        features/session.nix:4 (session.snooze#nixos)
+        features/session.nix:20 (session.snooze#nixos)
 ```
 
 - Position: `builtins.unsafeGetAttrPos "name" f`. Reads the position of the `name` attribute; forces no class value (verified, research.md Thread 2).
-- Relative: `lib.removePrefix "${toString ./.}/" pos.file`. `features.nix` sits at the flake root, so `./.` is the same source tree the area files come from. Never an absolute store path: it changes with every commit and would churn any derivation that embeds definition locations.
+- Relative: `lib.removePrefix "${toString ./.}/" pos.file`. `features.nix` sits at the flake root, so `./.` is the same source tree the area files come from. Relative, for readable errors. This holds for records written in this flake; a record from elsewhere (a flake input) keeps its absolute path, as `removePrefix` leaves a non-match unchanged. Position follows `name`, so records are written literally by convention: one built by a helper reports the helper's line. (RV-007 F-5, F-6; RV-008 F-4.)
 - Null position (a record built where Nix keeps no position): `unknown` in place of `file:line`.
 - One helper, `origin`, computes the prefix; the format is defined in one place.
 
@@ -49,8 +49,11 @@ _file = "<flake-relative file>:<line> (<area>.<name>#<class>)"
 - Modules are identified by the logical part of `_file`, through one helper: `logical = m: head (match ".*\\((.*)\\)" m._file)`. Expected values become `a.x#homeManager`, `session.snooze#nixos`, `virt.capsule#nixos`.
 - Carried over unchanged in intent: order, duplicates, dotted names, unknown keys, unselected-not-forced, requires, flag collision, nowhere-to-land, real-tree selection.
 - New:
-  - `testUnnamedFeatureFails` — `[ { nixos = {}; } ]` vs a named twin → `[ false true ]`.
-  - `testProvenance` — a fixture feature's `_file` matches `^features-test\.nix:[0-9]+ \(a\.x#nixos\)$`: relative, with line, with logical path.
+  - `testUnnamedFeatureFails` — no name, `name = 5`, named twin → `[ false false true ]`.
+  - `testEmptyNameFails` — empty area name, empty feature name, twin → `[ false false true ]`.
+  - `testMalformedShapeFails` — area without name, non-string area name, non-list area value, string `requires`, `requires = [1]`, twin → `[ false … true ]`.
+  - `testNonRecordFeatureFails` — a bare path vs its `(import …)` → `[ false true ]`.
+  - `testProvenance` — on the real tree, the file and line in `_file` name the feature, for snooze (inline) and capsule (spilled): relative, exact line, logical path. Checks the line's content, not its number, so edits above a record do not break it.
 - Red first: the new tests and the reshaped helper go in before the resolver change.
 
 <!-- doctrine:section sec-5 -->
