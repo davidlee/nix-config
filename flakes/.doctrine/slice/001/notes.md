@@ -123,17 +123,18 @@ except that there is no `just gate` recipe (CHR-010).
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · audit (RV-003 done) · 5ba01615 (audit commit follows)
+fresh-as-of: 2026-10-15 · close · fd17f130 (close commit follows)
 
 ### Produced
-- ADR-001..005 — composition direction (8fb3b0b3)
+- ADR-001..005 — composition direction (8fb3b0b3); amended by REV-001 and accepted (fd17f130)
 - SL-001 scope (f870a4cb); DEC-001..009; design locked (be2b2bb4); plan (436b8ce3, 573d5720)
 - research round — `research/research.md` (runtime)
 - design run: 10 inquiries, design.md sec-1..8; self-review RV-001
 - PHASE-01 84d77e11 · PHASE-02 da8e70d8 · PHASE-03 d19a1d45 · RV-002 repairs b4f42cf2
 - RV-002 — code review (Codex raiser), 7 findings verified, synthesis 01e1a71e
-- RV-003 — reconciliation audit, 6 findings, reconciliation brief
-- minted: DEC-001..009, IMP-012, CHR-009, ISS-005, CHR-010
+- RV-003 — reconciliation audit, 7 findings (F-7 flag/feature collision fixed b454d50c); reconciliation outcome
+- REV-001 — reconcile SL-001: ADR-001/002/003/005 amendments
+- minted: DEC-001..009, IMP-012, CHR-009, ISS-005, CHR-010, REV-001, EVD-002
 - earlier: ISS-001..004, IMP-001..011, CHR-001..008, IDE-001
 
 ### Learned
@@ -142,14 +143,15 @@ fresh-as-of: 2026-10-15 · audit (RV-003 done) · 5ba01615 (audit commit follows
 - mem.fact.nix.merge-order
 - mem.pattern.flakes.drv-gate
 - mem.fact.flakes.git-add-n
-- mem.fact.flakes.fmt-relock
-- mem.fact.nix.tryeval-scope (new)
+- mem.fact.flakes.fmt-relock (extended: drift seen after gate runs too)
+- mem.fact.nix.tryeval-scope
+- EVD-002 — SL-001 pilot result, supports HYP-001
 - EVD-001 — coupling survey
 - CPT-001 — desktop session model
 
 ### Open
-- HYP-001 — record SL-001 result as evidence at close (design sec-8)
-- DEC-009 — ADR amendments by revision at reconcile; itemised in RV-003 Reconciliation Brief
+- HYP-001 — stays proposed; first migration slice with real edges decides it
+- ADR-004 D2–D3 — no composition slot for selection-dependent integrations yet; capsule slice's design
 - ISS-005 — delta paths vs doctrine root; verify-vt/conformance unattributable for SL-001
 - CHR-010 — `just gate` recipe for `doctrine check gate`
 - IMP-012 — darwin standalone Home Manager

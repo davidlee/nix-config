@@ -11,7 +11,7 @@ updated = "2026-10-15"
 [scope]
 paths = ["flakes/flake.lock"]
 globs = []
-commands = ["nix fmt"]
+commands = ["nix fmt", "just test", "just drvs", "just drvs-sets", "just coverage"]
 tags = ["nix"]
 workspace = "default"
 repo = "github.com/davidlee/nix-config"

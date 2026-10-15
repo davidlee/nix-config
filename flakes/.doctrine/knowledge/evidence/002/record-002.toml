@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 2
+slug = "sl-001-pilot-result"
+title = "SL-001 snooze pilot passed without graph traversal"
+record_kind = "evidence"
+status = "captured"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+datum = "SL-001 slice tests 1-9 passed (resolver tests, identical drvs for all four configurations, coverage target) with no graph traversal and no automatic selection: profiles (mkDefault), host overrides, requires checked as assertions, and outer hand-written assertions sufficed. Snooze and openrgb have no prerequisites or integrations, so this supports HYP-001 only where there are no edges; it cannot confirm it."
+provenance = "experiment"
+confidence = "medium"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "supports"
+target = "HYP-001"
