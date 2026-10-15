@@ -1,0 +1,256 @@
+id    = 2
+slug  = "code-review-review-of-sl-001"
+title = "code-review review of SL-001"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "code-review"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "codex"
+responder = "claude"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Codex (gpt-6-sol), read-only, over bf2eb570..d19a1d45 (flakes/) against design sec-3/4/6 and the brief's lines of attack. Claude reproduced every candidate by eval or code reading before raising (F-1..F-6), and added F-7. Also checked by Claude and found sound, so not raised: self-referencing requires, empty area, a hand-written host assertions entry (enforced), resolver tests returning [].
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-001"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Expected an unknown descriptor key to fail resolution; a misspelt class key silently drops that half"
+detail = """
+features.nix only tests key presence: the D6 check (`lib.any (c: r.descriptor ? ${c}) classes`, ~:75) passes as long as one class key exists, and `project` (~:100) emits only the recognised keys.
+Proof (eval): `{nixos = {}; homeManger = {};}` selected with classes [nixos homeManager] → modules.nixos has the feature, modules.homeManager = [ ]. No error.
+Risk: every later migration writes descriptors by hand; a typo removes a feature half invisibly (the drvs gate catches it only during a migration, not afterwards).
+Suggested: structural check over every record that attrNames descriptor ⊆ [nixos homeManager darwin requires]; reading names forces no value (ADR-002 D4 holds).
+Raised by codex (gpt-6-sol), verified by claude.
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Expected a dotted area or feature name to be refused clearly; observed an uncatchable abort"
+detail = """
+features.nix builds `path = "${area.name}.${f.name}"` and later splits it (`lib.splitString "."` in `checks`) to look the option up.
+Proof (eval): area "a.b", feature x, requires ["a.b.x"], selected → `evaluation aborted … cannot find attribute 'a.b.x.enable'`. It's an abort, so tryEval cannot catch it.
+Suggested: reject names containing "." in the structural checks, with a message naming the culprit.
+Raised by codex, verified by claude.
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Expected the README to state when an unselected feature can fail a host; it says one never can"
+detail = """
+README.md ~:214: "Unselected features are never evaluated, so a broken one blocks no host."
+features.nix's structural checks deliberately run over every record (design sec-3 step 1, invariant: "a misspelt prerequisite fails on every host"). Proof (eval): an unselected feature with requires ["absent.y"] → `unknown feature absent.y in a.x.requires` on every host.
+The code matches the design; the README overclaims. Same applies to any new structural checks (F-1, F-2).
+Suggested: README says structural errors in the tree (names, requires paths, descriptor keys) fail every host; module contents of unselected features are never evaluated.
+Raised by codex, verified by claude.
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Expected each failure test to prove its specific check fired; they accept any failure"
+detail = """
+features-test.nix `fails = e: !(builtins.tryEval e).success` (~:17) is used by testUnknownPrerequisiteFails, testNowhereToLandFails and testDuplicateNamesFail. Any throw in the resolver passes them, e.g. a regression that throws for every fixture.
+Only testPrerequisiteOffFails has a passing twin (testPrerequisiteOnPasses) that differs in exactly the property under test. There is also no test for a hand-written host `assertions` entry (the documented escape hatch).
+tryEval drops the message, so asserting the text is not available in pure eval. Suggested: pair each failure fixture with a minimally different passing one, and add a false host-assertion fixture with its passing twin.
+Raised by codex, verified by claude (code reading; the resolver's own error paths are throws, so the claim holds).
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected the duplicate-name error to name what collided; observed a generic message"
+detail = """
+features.nix ~:86 computes `unique` as a boolean, and ~:102 throws "feature tree has a duplicate area or feature name". A host author has to search the tree by hand.
+Suggested: compute the duplicated area names and paths, and throw them, as the unknown-requires message already does.
+Raised by codex, verified by claude (code reading).
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "Expected coverage drvPaths to vary only with the config; they also vary with the repo"
+detail = """
+justfile `coverage` picks `c.config.system.build.toplevel.drvPath` with no agents-registry pin; `drvs` (~:81) pins it because the registry points at this flake's source. So any edit under flakes/ changes the coverage drvPath. It's harmless for an evaluation check, but misleading if anyone compares runs. (PHASE-03 already had to verify openrgb directly for this reason.)
+Suggested: share the pinned nixos pick between drvs and coverage (one just variable), so both stay identical across repo edits.
+Raised by codex, verified by claude.
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Expected one name per concept in features.nix; 'selected' names two different things"
+detail = """
+In `checks`, `selected = path: getAttrFromPath …` is a predicate on a path, beside `on = r: …`, a predicate on a record. At top level, `selected = filter … records` is the list of selected records. Two predicates do one job, and one name means two things.
+Suggested: one predicate in checks (e.g. `enabled = path: …`, used as `enabled r.path`), and keep `selected` for the list only.
+Raised by claude (code reading).
+"""
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+fix-now. User agreed 2026-10-15 ("agreed") to fix all seven in SL-001, F-1/F-2/F-5 as additions to design sec-3 structural checks, to be recorded in slice notes for reconcile. Repair delegated to a subagent; verified by claude before verify.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fixed in b4f42cf2; claude re-ran tests ([ ]), just test, lint, drvs (= baseline), coverage"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
