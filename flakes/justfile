@@ -43,6 +43,12 @@ test:
   modules/home/linux/bin/dictate-test
   nu modules/home/linux/nudge/nudge-test.nu
 
+# what `doctrine check gate` runs: `nix fmt`'s treefmt programs as a
+# read-only flake check (alejandra, statix, deadnix), then the tests.
+# --no-write-lock-file: a check never re-locks (CHR-008).
+gate: test
+  nix build ".#checks.$(nix config show system).treefmt" --no-link --no-write-lock-file
+
 nixos-start-docker-daemon:
   systemctl --user start docker
 
