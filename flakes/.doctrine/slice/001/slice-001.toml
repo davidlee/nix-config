@@ -1,0 +1,89 @@
+id = 1
+slug = "snooze-pilot"
+title = "Snooze pilot: first feature under the typed outer resolver"
+status = "design"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "flakes/features.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/modules/features.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/hosts.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/hosts/Sleipnir/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/features/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/profiles/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/modules/nixos/snooze.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/modules/home/linux/snooze.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/modules/home/linux/default.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/justfile"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flakes/README.md"
+intent = "scope-relevant"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-001"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-003"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-004"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "HYP-001"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis (SL-048 "the cut"). Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`, SL-060). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-018
+#   doctrine link SL-NNN governed_by ADR-010
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.
