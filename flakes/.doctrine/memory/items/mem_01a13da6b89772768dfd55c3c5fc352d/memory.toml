@@ -1,0 +1,42 @@
+memory_uid = "mem_01a13da6b89772768dfd55c3c5fc352d"
+memory_key = "mem.fact.flakes.selector-root"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Slice selectors resolve against ~/flakes, not the ~ git root"
+summary = "Write slice selectors root-relative (features.nix), never flakes/features.nix"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = [".doctrine/"]
+globs = []
+commands = []
+tags = ["doctrine"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "00435675e803ea49ee5f8df97e9ca08d619933fb"
+ref_name = "refs/heads/main"
+checkout_state_id = "0ace632e87301f184794fee442fe96d02f3aabf2368854820c7987849e718c76"
+base_commit = "1b5e646025b7922d7dcadeda41f7093616e97c67"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

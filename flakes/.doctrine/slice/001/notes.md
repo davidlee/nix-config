@@ -14,6 +14,10 @@ untracked — reference only, not authority; ADRs supersede it).
 Scope selectors were written as `flakes/...` (git root is `~`, worktree of
 `~/.cfg`); unverified whether doctrine resolves them against `~` or
 `~/flakes`. Check at first conformance run.
+**Answered 2026-10-15** by `doctrine slice selector doctor 1`: selectors
+resolve against `~/flakes`, so the `flakes/` prefix matched nothing. All
+selectors were re-added root-relative. The four flakes memories still carry
+`scope.paths: [flakes/]`, which needs fixing the same way (open).
 
 ## Design triage (2026-10-15)
 
@@ -49,14 +53,19 @@ inquiry graph `inq-1`–`inq-10` holds the questions below.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · design (pre-research) · f870a4cb
+fresh-as-of: 2026-10-15 · design/reviewing (pre-external-review) · 1b5e6460 (harvest commit follows)
 
 ### Produced
-- ADR-001..005 — composition direction, proposed (8fb3b0b3)
-- SL-001 scope (f870a4cb)
-- minted: ISS-001..004, IMP-001..011, CHR-001..008, IDE-001 — session fixes, MULTIHOST follow-ups, TODO.md items
+- ADR-001..005 — composition direction (8fb3b0b3)
+- SL-001 scope (f870a4cb); revised to DEC-001..009 this session
+- research round — `research/research.md` (runtime)
+- design run: 10 inquiries, design.md sec-1..8 materialised; self-review RV-001
+- minted: DEC-001..009, IMP-012 (darwin standalone HM), CHR-009 (memory scope paths)
+- earlier: ISS-001..004, IMP-001..011, CHR-001..008, IDE-001
 
 ### Learned
+- mem.fact.flakes.selector-root — selectors are root-relative to ~/flakes
+- mem.fact.doctrine.reservation-fallback — id minting without an SSH agent
 - mem.fact.nix.merge-order
 - mem.pattern.flakes.drv-gate
 - mem.fact.flakes.git-add-n
@@ -66,7 +75,22 @@ fresh-as-of: 2026-10-15 · design (pre-research) · f870a4cb
 
 ### Open
 - HYP-001 — typed resolver suffices; this slice tests it
+- DEC-009 — ADR amendments applied by revision at reconcile
+- RV-001 F-3 — home-only negative control, to be verified once phases exist
+- IMP-012 — darwin standalone Home Manager
+- CHR-009 — memory scope paths
 - QUE-001 — platform scope declaration
 - QUE-002 — CLI tiers (deferred)
 - QUE-003 — launcher source (out of scope)
 - QUE-004 — Mac VM shape (out of scope)
+
+## Design review (2026-10-15)
+
+Self-review pass on RV-001 (ledger: `doctrine show RV-001`). If a further
+adversarial pass is run (e.g. astra), it should probe:
+- whether a profile layer plus `requires` is enough for the next migrations,
+  without auto-selection (HYP-001);
+- the merge-order argument for moving modules up the import tree, for
+  features that do touch shared lists;
+- whether `flake.coverage` and `checks.features` stay off every switch path;
+- the darwin asymmetry (DEC-001, IMP-012).

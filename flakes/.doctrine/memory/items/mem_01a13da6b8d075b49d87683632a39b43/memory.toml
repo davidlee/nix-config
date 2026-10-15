@@ -1,0 +1,42 @@
+memory_uid = "mem_01a13da6b8d075b49d87683632a39b43"
+memory_key = "mem.fact.doctrine.reservation-fallback"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Doctrine id minting fails without an SSH agent; use the local fallback"
+summary = "DOCTRINE_RESERVATION_FALLBACK=1 when git@github.com reservation fetch is denied"
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["doctrine"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "00435675e803ea49ee5f8df97e9ca08d619933fb"
+ref_name = "refs/heads/main"
+checkout_state_id = "f4841eaca69fc2782f8fc1356d5170267c1ccb66372df9c810c4e0707c3f48ec"
+base_commit = "1b5e646025b7922d7dcadeda41f7093616e97c67"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

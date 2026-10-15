@@ -201,9 +201,10 @@ flags    the legacy flag config; becomes specialArgs.features
 modules  { nixos = [ … ]; homeManager = [ … ]; darwin = [ … ]; }
 ```
 
-The resolver is a pure function of its arguments. It does not find a
-host's file or the real tree itself; `hosts.nix` passes both in. Tests can
-therefore resolve fixture trees without touching `features/`.
+Apart from the legacy flag module (`modules/features.nix`), which it always
+includes, the resolver is a pure function of its arguments. It does not
+find a host's file or the real tree itself; `hosts.nix` passes both in.
+Tests can therefore resolve fixture trees without touching `features/`.
 
 ### Steps
 
@@ -343,4 +344,345 @@ in
 - One record per path (ADR-002 D6). A duplicate area or feature name fails
   resolution before anything else is checked. Otherwise `listToAttrs` would
   silently keep one of the duplicates, while projection emitted both.
+
+<!-- doctrine:section sec-4 -->
+## Factories and coverage targets
+
+### Current behaviour
+
+`hosts.nix` binds `mkFeatures = import ./features.nix lib`. Each factory
+calls `mkFeatures hostname` on its own (`hosts.nix:41`, `:68`, `:99`) and
+passes the result as `specialArgs.features` (or `extraSpecialArgs` for
+Home Manager). The resolver finds `hosts/<host>/features.nix` by itself.
+
+### Target behaviour
+
+`hosts.nix` resolves each host once and hands the result to every factory
+for that host. Each factory takes the selection as an argument, so the
+coverage target reuses `mkNixos` unchanged.
+
+```nix
+  resolve = import ./features.nix lib;
+  tree = import ./features;
+
+  classesOf = meta:
+    if meta.kind == "darwin"
+    then ["darwin"]
+    else ["nixos"] ++ lib.optional (meta.home or false) "homeManager";
+
+  # extra: outer modules beyond the host's own, e.g. a coverage override.
+  select = hostname: meta: extra: let
+    host = ./hosts/${hostname}/features.nix;
+  in
+    resolve {
+      inherit tree;
+      classes = classesOf meta;
+      modules = lib.optional (builtins.pathExists host) host ++ extra;
+    };
+
+  selections = lib.mapAttrs (hostname: meta: select hostname meta []) hosts;
+
+  mkNixos = hostname: {system, ...}: selection:
+    lib.nixosSystem {
+      specialArgs = { …; features = selection.flags; };
+      modules = [ ./hosts/${hostname}/config.nix {nixpkgs.overlays = …;} ]
+        ++ selection.modules.nixos;
+    };
+  # mkHome:   … extraSpecialArgs.features = selection.flags;
+  #           modules = [ home.nix overlay ] ++ selection.modules.homeManager
+  # mkDarwin: … specialArgs.features = selection.flags;
+  #           modules = [ rev config.nix ] ++ selection.modules.darwin
+```
+
+The outputs pass `selections.${hostname}`. Because `selections` is a single
+`let` binding, the NixOS and standalone Home Manager configurations of one
+host share one resolution, and a failed check stops both (ADR-001 D5).
+
+```mermaid
+flowchart LR
+  M["hosts/*/meta.nix"] --> S["selections.&lt;host&gt;<br/>(one resolve per host)"]
+  F["hosts/&lt;host&gt;/features.nix"] --> S
+  S --> N["mkNixos"]
+  S --> HM["mkHome"]
+  S --> D["mkDarwin"]
+  S2["select Sleipnir meta [openrgb on]"] --> C["coverage.&quot;Sleipnir+openrgb&quot;<br/>(mkNixos)"]
+```
+
+The diagram shows that every switchable configuration draws on the same
+per-host selection. The coverage target is the one place a selection is
+built with extra modules.
+
+### Darwin
+
+`mkDarwin` appends `modules.darwin` only. Darwin's embedded Home Manager
+(`darwin/default.nix:22-31`) receives no projected modules and still gets no
+`features` (DEC-001). A darwin host that selects a feature with only
+`nixos` or `homeManager` halves fails the ADR-005 D6 check, instead of
+silently doing nothing. IMP-012 tracks making darwin's Home Manager
+standalone, which would remove this asymmetry.
+
+### Coverage targets (ADR-005)
+
+```nix
+  flake.coverage."Sleipnir+openrgb" =
+    mkNixos "Sleipnir" hosts.Sleipnir
+    (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = true;}]);
+```
+
+- **Handwritten.** A small set, one entry per feature that has no other
+  target (ADR-005 D3). Snooze is covered by Sleipnir itself, and openrgb by
+  this target.
+- **Off the switch path.** `coverage` is not `nixosConfigurations`, so
+  `nixos-rebuild` and `just system-switch` never see it, and a broken off
+  feature never blocks a host. It is also outside `just drvs`, whose output
+  stays identical (DEC-008).
+- **Forced.** `just coverage` reuses the `_drvs` helper to force each
+  target's `config.system.build.toplevel.drvPath`, with `system_override`
+  (ADR-005 D4). It proves evaluation, not a build (ADR-005 D5).
+
+```just
+# ADR-005 coverage targets: evaluate off features, outside the switch path.
+coverage: check-flake-root
+  @just _drvs coverage 'c: c.config.system.build.toplevel.drvPath' "{{system_override}}"
+```
+
+Accepted cost: `nix flake check` warns `unknown flake output 'coverage'`.
+
+<!-- doctrine:section sec-5 -->
+## Migration of snooze and openrgb
+
+### Moves
+
+| from | to | notes |
+|---|---|---|
+| `modules/nixos/snooze.nix` | `features/session/snooze/nixos.nix` | content unchanged; header comment's sibling path updated |
+| `modules/home/linux/snooze.nix` | `features/session/snooze/home.nix` | `source = ./bin/snooze-nag` still resolves, because `bin/` moves with it |
+| `modules/home/linux/bin/snooze-nag{,-test}` | `features/session/snooze/bin/` | the test finds the script relative to itself (`snooze-nag-test:13-14`), so the two move together |
+| `modules/nixos/openrgb.nix` | `features/hardware/openrgb.nix` | content unchanged |
+
+Moving `bin/snooze-nag` does not change its store path. The path is named
+by its basename plus a content hash, and both are unchanged. `home.file`
+therefore links the same file.
+
+### Removals
+
+- `modules/features.nix:71`: the `snooze` flag. `:51`: `hardware.openrgb`.
+- `hosts/Sleipnir/config.nix:78`, `:82`: the gated imports of openrgb and
+  snooze.
+- `modules/home/linux/default.nix:30`: the gated import of snooze. The
+  list's closing `;` moves to `:29`.
+- `hosts/Sleipnir/features.nix:19`: `openrgb = false;`. The new option
+  defaults to false.
+
+### Additions
+
+- `hosts/Sleipnir/features.nix` imports `features/profiles/workstation.nix`.
+- The descriptors and index files from the tree section.
+
+### Behaviour, host by host
+
+| host · evaluation | snooze before → after | openrgb before → after |
+|---|---|---|
+| Sleipnir · NixOS | imported (flag true) → projected (profile) | not imported → not projected |
+| Sleipnir · Home Manager | imported → projected | n/a |
+| Mac · darwin | flag true, nothing consumes it → not selected | flag false → not selected |
+
+No evaluation gains or loses a module.
+
+### Merge order
+
+The NixOS half moves from factory → `config.nix` → `snooze.nix` to
+factory → wrapper → `nixos.nix`: depth 2 either way. The Home Manager half
+moves from depth 4 (factory → `home.nix` → `profiles/linux-desktop.nix` →
+`modules/home/linux` → `snooze.nix`) up to depth 2. List options merge in
+reverse breadth-first import order (`mem.fact.nix.merge-order`), so moving a
+module up can reorder lists that it contributes to. Snooze contributes to
+none. Its units and its `home.file` entry are attrsets keyed by name, and
+the only lists it sets (`wantedBy`, `After`, `PartOf`, `WantedBy`) belong to
+its own units. The expected result is identical derivations. The
+`drvs`/`drvs-sets` gate decides, and is not assumed.
+
+### Documentation
+
+- README "Feature flags": remove the `snooze` row and `openrgb` from the
+  `hardware` row. Add a short account of the feature tree, profiles and
+  `just coverage`.
+- Correct the darwin claim (`README.md:84-85`). Darwin's embedded Home
+  Manager does not receive `features`.
+- README snooze section: update the paths (`:272`, `:311` area), and the
+  path to `snooze-nag-test`.
+- Comments: `features.nix:1-14`, `modules/features.nix:1-6` and
+  `hosts.nix:10-12` describe import-gating as the only mechanism. State that
+  both paths exist. `modules/home/linux/dictate.nix:27` refers to snooze-nag
+  by analogy only; leave it.
+- `MULTIHOST.md:321` lists `snooze` as a default-on flag. Annotate it, since
+  that slice plan will be rebased later.
+
+<!-- doctrine:section sec-6 -->
+## Verification
+
+### Resolver tests, `features-test.nix`
+
+The test file sits beside `features.nix`, following the `<name>-test`
+convention. Its shape is `lib: lib.runTests { … }`, which returns `[]` when
+every test passes. Fixtures are written inline, so nothing is added under
+`features/` (DEC-008).
+
+| id | test | input | expected |
+|---|---|---|---|
+| T1 | profile selects snooze | real tree, `classes = [nixos homeManager]`, modules `[workstation]` | `modules.nixos` file tags `["features/session/snooze#nixos"]`; `modules.homeManager` `["features/session/snooze#homeManager"]` |
+| T1d | Mac selects nothing | real tree, `[darwin]`, no modules | all three lists empty; no throw |
+| T2 | host override wins | T1 + `{feature.session.snooze.enable = false;}` | both lists empty |
+| T3 | prerequisite off fails | fixture `a.x` (`requires = ["a.y"]`), `a.x` on, `a.y` off | `tryEval` of `modules.homeManager` fails; also of `flags` |
+| T3u | unknown prerequisite fails | `requires = ["no.such"]` | `tryEval` fails |
+| T4 | exclusion boundary | fixture features, unselected: one with `nixos = throw "…"` (fails if the resolver *forces* a class value), one whose module function names `pkgs.does-not-exist` (fails if the resolver *applies* a module); one harmless feature selected | resolve succeeds; `lib.evalModules` over `modules.nixos` with a stub option set evaluates `config` fully |
+| T8 | D6: nowhere to land | fixture `homeManager`-only feature selected, `classes = [darwin]` | `tryEval` fails |
+| T9 | order is list order | fixture areas `zeta` before `alpha`, both selected | file tags in `zeta`, `alpha` order |
+| T10 | duplicate names | a repeated area, then a repeated feature | `tryEval` fails |
+| T11 | flags hide the selection | real tree | `flags` has no `feature` and no `assertions` |
+
+`builtins.tryEval` catches `throw`, which is how the resolver fails. It
+does not catch a missing-attribute error. T4 therefore asserts success,
+and never relies on catching such an error.
+
+**Runner.** `perSystem.nix` adds `checks.features`. It evaluates
+`import ../features-test.nix lib`, and throws the pretty-printed failure list
+if it is non-empty; otherwise it is a trivial `runCommand`. `just test`
+builds the current system's `checks.<system>.features` before the existing
+script tests. The `test` recipe also picks up the new path of
+`snooze-nag-test`.
+
+**Red first.** The test file is written against today's `features.nix`,
+which takes `hostname`, not `{ tree, classes, modules }`, so every resolver
+test fails. T7 fails because there is no `coverage` output yet.
+
+### Identity gate (tests 5, 6)
+
+- Before any edit, run `just drvs` and `just drvs-sets` on the tree as
+  found, and save both snapshots.
+- After the change, run both again and compare them, back to back
+  (`mem.pattern.flakes.drv-gate`).
+- Expected: identical for `nixosConfigurations.Sleipnir`,
+  `homeConfigurations."david@Sleipnir"`, `homeConfigurations.david` and
+  `darwinConfigurations.Davids-MacBook-Pro`.
+- Any difference is red until explained. An ordering-only difference must
+  be proven with `drvs-sets` and `nix-diff`.
+- Identical derivations also prove that the nixpkgs pins and standalone
+  Home Manager activation are unchanged (test 6, ADR-003).
+
+### Negative control: home-only build (test 3)
+
+T3 shows the guard at resolver level. That a home-only build is stopped
+rests on `mkHome` reading the shared `selections.<host>`. Observe it once:
+
+1. Temporarily add `assertions = [{assertion = false; message = "control";}];`
+   to `hosts/Sleipnir/features.nix`.
+2. Evaluate `homeConfigurations."david@Sleipnir".activationPackage.drvPath`
+   on its own.
+3. It must fail with `feature selection failed` and `- control`. A `mkHome`
+   with its own unguarded resolution would evaluate. Revert the line.
+
+### Coverage (test 7)
+
+`just coverage` prints one drvPath for `coverage."Sleipnir+openrgb"`. As a
+sanity check, its toplevel differs from Sleipnir's, since openrgb is on.
+
+### Existing behaviour tests
+
+`just test` still runs `snooze-nag-test` (at its new path), `dictate-test`
+and `nudge-test.nu`, and they stay green.
+
+### Lint
+
+`nix fmt` must be clean for every touched `.nix` file (alejandra, statix,
+deadnix). It re-locks emacs-overlay, and that drift must not be committed
+(`mem.fact.flakes.fmt-relock`).
+
+### Mapping to the slice tests
+
+| slice test | evidence |
+|---|---|
+| 1 | T1 (+ T1d for the Mac) |
+| 2 | T2 |
+| 3 | T3, T3u. The home-only build fails because `mkHome` reads the same guarded `selections.<host>` |
+| 4 | T4 |
+| 5, 6 | identity gate |
+| 7 | `just coverage` |
+| 8 | T8 |
+| 9 | T9 |
+
+<!-- doctrine:section sec-7 -->
+## Code impact
+
+| path | change |
+|---|---|
+| `features.nix` | rewritten. `lib: { tree, classes, modules }` → `{ flags, modules }`, or throws. Comment updated |
+| `features-test.nix` | new. Resolver tests T1–T11 |
+| `features/default.nix` | new. Area index: `hardware`, `session` |
+| `features/hardware/default.nix` | new. `openrgb` |
+| `features/hardware/openrgb.nix` | moved from `modules/nixos/openrgb.nix` |
+| `features/session/default.nix` | new. `snooze` |
+| `features/session/snooze/default.nix` | new. Descriptor |
+| `features/session/snooze/{nixos,home}.nix` | moved from `modules/nixos/snooze.nix` and `modules/home/linux/snooze.nix` |
+| `features/session/snooze/bin/snooze-nag{,-test}` | moved from `modules/home/linux/bin/` |
+| `features/profiles/workstation.nix` | new. Selects snooze with `mkDefault` |
+| `modules/features.nix` | remove the `snooze` and `hardware.openrgb` flags. Comment updated |
+| `hosts.nix` | `select`/`selections`; factories take a selection and append projected modules; `flake.coverage`. Comment updated |
+| `hosts/Sleipnir/features.nix` | import `workstation`; drop `openrgb = false` |
+| `hosts/Sleipnir/config.nix` | drop the two gated imports |
+| `modules/home/linux/default.nix` | drop the gated snooze import |
+| `perSystem.nix` | `checks.features` |
+| `justfile` | `test` runs the check and the new path of `snooze-nag-test`; new `coverage` recipe |
+| `README.md` | Feature flags (table, mechanism, darwin correction), snooze paths |
+| `MULTIHOST.md` | annotate the stale `snooze` flag mention |
+
+Unchanged: `darwin/**`, `profiles/linux-desktop.nix`, every other module and
+gate.
+
+Every new or moved file is `git add -N`'d before any evaluation, or the flake
+cannot see it (`mem.fact.flakes.git-add-n`).
+
+<!-- doctrine:section sec-8 -->
+## Governance impact and open items
+
+### Decisions this design rests on
+
+DEC-001 (darwin), DEC-002 (namespace), DEC-003 (tree shape), DEC-004
+(profiles), DEC-005 (prerequisites), DEC-006 (enforced resolution), DEC-007
+(projection), DEC-008 (tests and coverage), DEC-009 (amendments).
+
+### ADR amendments, applied at reconcile (DEC-009)
+
+| ADR | amendment |
+|---|---|
+| ADR-001 D4 | an unselected prerequisite of a selected feature is an error, however it came to be off; the resolver never selects anything |
+| ADR-001 D2, ADR-002 D2 | `feature.<area>.<name>.enable` beside the legacy flags; `specialArgs.features` carries the legacy flags only |
+| ADR-002 D1 | optional descriptor key `requires` |
+| ADR-002 D2 | index files are `{ name; value; }` lists, rooted at `features/default.nix`, two levels deep |
+| ADR-002 D1, ADR-003 | darwin's embedded Home Manager gets no projection until a feature needs it |
+| ADR-005 D1 | transitional: binds only features in the tree |
+| ADR-005 Verification | targets live in `flake.coverage`, run by `just coverage` |
+
+### HYP-001
+
+Confirmed if tests 1–9 pass with no graph walk and nothing selected
+automatically. Refuted, naming the failing test, otherwise. SL-001 sets the
+status at close.
+
+### Open, accepted as-is
+
+- Relations richer than "A requires B", such as conflicts or "one of", are
+  not expressible in descriptors. The escape hatch is a hand-written
+  `assertions` entry in an outer module, which the same check enforces. Build
+  more only when a real case appears (DEC-005).
+- A duplicate *module* reached two ways, e.g. projected and also imported by
+  hand, is not detected. ADR-001 D6 makes avoiding this a convention, and
+  this slice removes both hand imports.
+- `nix flake check` warns about the `coverage` output.
+- Nothing checks that every feature in the tree is selected by some host or
+  coverage target (ADR-005 D1). With two features the set is handwritten and
+  checked by eye. A completeness check waits until the tree is larger.
+- The four flakes memories carry `scope.paths: [flakes/]`. Doctrine
+  resolves paths against `~/flakes`, so they need re-scoping, as the slice
+  selectors were.
 

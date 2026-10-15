@@ -1,0 +1,123 @@
+id    = 1
+slug  = "design-review-of-sl-001"
+title = "design review of SL-001"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Agent self-review of design.md rev 36: sections 1-8 against ADR-001..005 and DEC-001..009, the resolver sketch evaluated against fixtures, and the verification mapping. F-3 is answered with an instrument (control) route, to be verified once phases exist."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-001"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Resolver called pure, but hard-wires the legacy flag module"
+detail = "sec-3 Contract says the resolver is a pure function of its arguments, but the sketch always imports ./modules/features.nix. Tests therefore always carry the real legacy flags. Harmless, but the claim is overstated."
+disposition = "fix-now"
+route = "review"
+response = "sec-3 Contract now says the resolver is pure apart from the legacy flag module it always includes."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "sec-3 Contract now says the resolver is pure apart from the legacy flag module it always includes."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "checked in design.md rev 36"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "T4 fixtures detect different faults; the design does not say which"
+detail = "sec-6 T4: a class value that is throw detects the resolver forcing a value; a function module naming pkgs.does-not-exist detects only applying the module, since deepSeq does not apply functions. The table presents them as one check. State what each fixture guards."
+disposition = "fix-now"
+route = "review"
+response = "sec-6 T4 row now states what each fixture detects: the throw value detects forcing, the pkgs module function detects application."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "sec-6 T4 row now states what each fixture detects: the throw value detects forcing, the pkgs module function detects application."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "checked in design.md rev 36"
+
+[[finding]]
+id = "F-3"
+status = "answered"
+severity = "minor"
+title = "Home-only failure (test 3) is argued from structure, not observed"
+detail = "sec-6 maps slice test 3 to T3 at resolver level plus the argument that mkHome reads the same guarded selection. No test evaluates homeConfigurations with a failing selection. A regression that gave mkHome its own unguarded resolution would pass T3."
+disposition = "fix-now"
+route = "control"
+response = "sec-6 adds a one-off negative control. The incorrect candidate it must reject is a mkHome with its own unguarded resolution: with a deliberately false assertion in the host file, the home-only drvPath evaluation must fail with the control message. Plan places it in the phase that rewires hosts.nix."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = "sec-6 adds a one-off negative control. The incorrect candidate it must reject is a mkHome with its own unguarded resolution: with a deliberately false assertion in the host file, the home-only drvPath evaluation must fail with the control message. Plan places it in the phase that rewires hosts.nix."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "ADR-005 D1 completeness is not checked"
+detail = "Nothing asserts that every non-parked feature in the tree is selected by some host or coverage target. With two features this is handwritten; record it as accepted rather than implied."
+disposition = "tolerated"
+route = "review"
+response = "Accepted for two features; recorded in sec-8 open items. A completeness check waits until the tree is larger."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+route = "review"
+response = "Accepted for two features; recorded in sec-8 open items. A completeness check waits until the tree is larger."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "checked in design.md rev 36"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

@@ -11,48 +11,72 @@ needs = []                      # slice→work hard prerequisite
 after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
-selector = "flakes/features.nix"
+selector = "features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/**"
 intent = "scope-relevant"
 
 [[selector]]
-selector = "flakes/modules/features.nix"
-intent = "scope-relevant"
+selector = "features/**"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/hosts.nix"
-intent = "scope-relevant"
+selector = "modules/nixos/snooze.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/hosts/Sleipnir/**"
-intent = "scope-relevant"
+selector = "modules/home/linux/snooze.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/features/**"
-intent = "scope-relevant"
+selector = "modules/home/linux/default.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/profiles/**"
-intent = "scope-relevant"
+selector = "justfile"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/modules/nixos/snooze.nix"
-intent = "scope-relevant"
+selector = "features-test.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/modules/home/linux/snooze.nix"
-intent = "scope-relevant"
+selector = "hosts/Sleipnir/features.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/modules/home/linux/default.nix"
-intent = "scope-relevant"
+selector = "hosts/Sleipnir/config.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/justfile"
-intent = "scope-relevant"
+selector = "modules/nixos/openrgb.nix"
+intent = "design-target"
 
 [[selector]]
-selector = "flakes/README.md"
-intent = "scope-relevant"
+selector = "modules/home/linux/bin/snooze-nag*"
+intent = "design-target"
+
+[[selector]]
+selector = "perSystem.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "MULTIHOST.md"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"
