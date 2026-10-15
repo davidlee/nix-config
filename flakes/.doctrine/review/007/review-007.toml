@@ -1,0 +1,298 @@
+id    = 7
+slug  = "reconciliation-review-of-sl-003"
+title = "reconciliation review of SL-003"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Conformance of SL-003 against design sec-1..7 and DEC-015: tree, resolver, tests, docs, gates; plus an external reviewer's critique. 9 findings, all verified."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-003"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Mechanical conformance and VT attribution unusable (ISS-005 root mismatch)"
+detail = """
+slice conformance lists all 20 touched paths as undeclared, and verify-vt reports every VT UNATTRIBUTABLE: source-delta paths are git-root-relative (flakes/...), selectors and test_file are ~/flakes-relative. Same as SL-002 (RV-005 F-1).
+"""
+disposition = "tolerated"
+response = "Known ISS-005, unchanged by this slice. Judged by agent: every touched path is under a design-target selector once the flakes/ prefix is dropped; every VT keyword is present in its test_file (features-test.nix, features.nix, README.md), each modified by the SL-003 commits (PHASE-01 refactor, fbb27f68 fix, PHASE-02 docs)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Known ISS-005, unchanged by this slice. Judged by agent: every touched path is under a design-target selector once the flakes/ prefix is dropped; every VT keyword is present in its test_file (features-test.nix, features.nix, README.md), all modified in 6e… PHASE-01/02 commits.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "response carries a stray '6e…' fragment; restating"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Known ISS-005, unchanged by this slice. Judged by agent: every touched path is under a design-target selector once the flakes/ prefix is dropped; every VT keyword is present in its test_file (features-test.nix, features.nix, README.md), each modified by the SL-003 commits (PHASE-01 refactor, fbb27f68 fix, PHASE-02 docs)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "doctrine check gate cannot run: no just gate recipe"
+detail = """
+doctrine check gate needs a just gate recipe (CHR-010). Its parts were run by hand.
+"""
+disposition = "tolerated"
+response = """
+CHR-010 open. Ran its parts: just test exit 0; nix fmt 0 changed (alejandra, statix, deadnix); just drvs identical; just coverage evaluates.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+CHR-010 open. Ran its parts: just test exit 0; nix fmt 0 changed (alejandra, statix, deadnix); just drvs identical; just coverage evaluates.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "PHASE-02 VA-1 grep is defective"
+detail = '''
+VA-1 greps 'session/snooze\|<area>/default.nix'. The first alternative matches the new, correct path features/session/snooze-nag (justfile:42, features/session.nix:28); the second matches only placeholder text, never a real stale path. Raised by an external reviewer.
+'''
+disposition = "tolerated"
+response = '''
+Plan criteria are immutable. Intent verified with the corrected grep 'session/snooze/\|features/[a-z]*/default\.nix\|hardware/openrgb' over the tree: hits only historical .doctrine records (SL-001/002 designs and plans, DEC-003, DEC-010, CHR-012). Lesson: test a VA grep against the expected end state when authoring it.
+'''
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = '''
+Plan criteria are immutable. Intent verified with the corrected grep 'session/snooze/\|features/[a-z]*/default\.nix\|hardware/openrgb' over the tree: hits only historical .doctrine records (SL-001/002 designs and plans, DEC-003, DEC-010, CHR-012). Lesson: test a VA grep against the expected end state when authoring it.
+'''
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Bare path in an area list reported as 'has no name'"
+detail = """
+Listing ./virt/capsule.nix instead of (import ./virt/capsule.nix), the likeliest spill mistake, failed with 'feature #1 in area virt has no name'. Raised by an external reviewer.
+"""
+disposition = "fix-now"
+response = """
+Fixed in fbb27f68: a non-attrset feature reports 'is not a record; list a feature's own file as (import ./<area>/<name>.nix)'. Check renamed badRecords. testNonRecordFeatureFails guards rejection; the message itself cannot be asserted in pure Nix (tryEval drops it), checked by hand. drvs identical.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in fbb27f68: a non-attrset feature reports 'is not a record; list a feature's own file as (import ./<area>/<name>.nix)'. Check renamed badRecords. testNonRecordFeatureFails guards rejection; the message itself cannot be asserted in pure Nix (tryEval drops it), checked by hand. drvs identical.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Provenance reports where name is written, not where the feature lives"
+detail = """
+origin uses unsafeGetAttrPos "name". A record built by a helper (the test fixture's feat, or a future mkFeature for RFC-001 W3) reports the helper's line for every feature. Raised by an external reviewer.
+"""
+disposition = "aligned"
+response = """
+Implementation matches design sec-3. The limitation is a rule to state: records are written literally. Routed to the Reconciliation Brief (ADR-002 D6).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Implementation matches design sec-3. The limitation is a rule to state: records are written literally. Routed to the Reconciliation Brief (ADR-002 D6).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "'Never a store path' rationale overstated in design sec-3"
+detail = """
+sec-3 says a store path would churn derivations that embed definition locations. Path-imported halves already label definitions with store paths, and just drvs stayed identical across commits (SL-002, SL-003), so _file does not reach these derivations. Line numbers churn on edits anyway. The real reason is readable errors. Raised by an external reviewer.
+"""
+disposition = "aligned"
+response = """
+Implementation unaffected. Rationale corrected at reconcile: design.md sec-3 (direct edit) and ADR-002 D6 wording (REV). Routed to the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Implementation unaffected. Rationale corrected at reconcile: design.md sec-3 (direct edit) and ADR-002 D6 wording (REV). Routed to the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Red-first is not an exit criterion; red was an abort, not per-test failures"
+detail = """
+Design sec-4 asks for red first; PHASE-01 has no EX for it (SL-002 had EX-1). Red was observed: after reshaping tests, evaluation aborted at features.nix:36 (descriptor = f.value) before the resolver changed. Raised by an external reviewer.
+"""
+disposition = "tolerated"
+response = """
+Red observed (session transcript, 2026-10-15), recorded in notes.md. Plan criteria immutable; carried as a planning lesson for later slices.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Red observed (session transcript, 2026-10-15), recorded in notes.md. Plan criteria immutable; carried as a planning lesson for later slices.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "DEC-003 and DEC-010 describe the superseded shape"
+detail = """
+DEC-003 (SL-001 tree layout: { name; value; } features, snooze directory) and DEC-010 (capsule listed as { name; value = { nixos = ./capsule.nix; }; }) are contradicted by DEC-015.
+"""
+disposition = "aligned"
+response = """
+Implementation follows DEC-015. Routed to the Reconciliation Brief: DEC-015 supersedes DEC-003 and DEC-010.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Implementation follows DEC-015. Routed to the Reconciliation Brief: DEC-015 supersedes DEC-003 and DEC-010.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "ADR-001..003 out of date: shape, and MULTIHOST.md citations"
+detail = """
+ADR-002 D1-D4, D6 describe { name; value; } features, directory granularity and logical-only _file. ADR-001..003 cite the retired MULTIHOST.md (CHR-011).
+"""
+disposition = "aligned"
+response = """
+Planned (design sec-6). Routed to the Reconciliation Brief as one REV.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Planned (design sec-6). Routed to the Reconciliation Brief as one REV.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
