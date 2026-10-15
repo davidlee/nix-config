@@ -59,7 +59,6 @@
     marble-shell-theme
 
     # bars & widgets
-    waybar
     wob
     i3status
     wttrbar

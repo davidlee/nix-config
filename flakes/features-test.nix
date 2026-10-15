@@ -313,15 +313,28 @@ in
         "audio.mpd#nixos"
         "services.printing#nixos"
         "services.webserver#nixos"
+        "desktop.cosmic#nixos"
+        "desktop.kde#nixos"
+        "desktop.mango#nixos"
+        "desktop.fonts#nixos" # through the workstation profile
+      ];
+      bothHalves = [
+        "desktop.sway#nixos"
+        "desktop.niri#nixos"
       ];
       homeOnly = [
         "games.mangohud#homeManager"
         "audio.dictate#homeManager" # through the workstation profile
         "apps.cad#homeManager"
+        "desktop.sway#homeManager"
+        "desktop.niri#homeManager"
       ];
     in {
-      expr = sleipnirSelects (nixosOnly ++ homeOnly);
-      expected = map (_: [true false]) nixosOnly ++ map (_: [false true]) homeOnly;
+      expr = sleipnirSelects (nixosOnly ++ bothHalves ++ homeOnly);
+      expected =
+        map (_: [true false]) nixosOnly
+        ++ map (_: [true true]) bothHalves
+        ++ map (_: [false true]) homeOnly;
     };
 
     # gamescopeSession is a steam option: gamescope alone is refused. No host

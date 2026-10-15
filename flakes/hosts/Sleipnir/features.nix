@@ -1,6 +1,6 @@
-# Sleipnir's feature selection: the profiles it imports, the features it
-# selects itself, and the legacy flags it overrides (defaults in
-# ../../modules/features.nix). Anything not named here takes the default.
+# Sleipnir's feature selection: the profiles it imports, and the features it
+# selects itself. Anything not named here is off (tree features default to
+# false).
 {
   imports = [../../features/profiles/workstation.nix];
 
@@ -25,13 +25,12 @@
   };
   feature.apps.cad.enable = true; # not in a profile until IMP-016
 
-  desktop = {
-    sway = true;
-    niri = true;
-    cosmic = true;
-    kde = true;
-    mango = true;
+  # Taste, toggled often (DEC-024): every compositor installed.
+  feature.desktop = {
+    sway.enable = true;
+    niri.enable = true;
+    cosmic.enable = true;
+    kde.enable = true;
+    mango.enable = true;
   };
-
-  fonts = true;
 }

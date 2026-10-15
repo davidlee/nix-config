@@ -1,4 +1,5 @@
-# python3 interpreter comes from the sway module's wpmPython env (already on PATH).
+# python3 interpreter comes from the desktop.sway feature's wpmPython env
+# (features/desktop/sway.nix; already on PATH).
 _: {
   home.file = {
     ".local/bin/sleipnir-doctor" = {

@@ -9,3 +9,7 @@ compositor-agnostic and stay shared. Remaining: prune entries nothing uses —
 `wob`, `i3status`, `wf-config` (wayfire), `gnomeExtensions.appindicator` and
 `marble-shell-theme` (GNOME Shell). A removal, so a behaviour change: not
 set-preserving.
+
+SL-006 PHASE-04: fold-in done — `waybar` left `wayland_packages.nix`
+(`desktop.sway` lists it); `cava`'s duplicate left the sway record. Remaining:
+the prune above.

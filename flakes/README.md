@@ -139,12 +139,11 @@ Two ways to switch optional modules on, both resolved once per host by
 `features.nix`, outside the NixOS, darwin and home-manager evaluations:
 
 - **legacy flags** — booleans that a host's files read to gate their own
-  imports. Only the desktop compositors and fonts are still flags.
+  imports. None remain; the mechanism is still wired through until it is
+  retired (RFC-001 W3).
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
-  snooze, openrgb, capsule, qemu, docker, podman, appimage, flatpak, steam,
-  gamescope, mangohud, llama-cpp, rocm, mpd, speech, dictate, printing,
-  webserver, sunshine and cad have moved here; the rest follow later.
+  Every optional module is a feature.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -161,7 +160,7 @@ hosts/<host>/features.nix ──imports──> features/profiles/*.nix
 
 | file | role |
 |------|------|
-| `modules/features.nix` | legacy flag declarations and defaults |
+| `modules/features.nix` | legacy flag declarations (none left; retired with the mechanism) |
 | `features.nix` | resolver — `lib.evalModules`, once, per host (tests: `features-test.nix`) |
 | `features/` | the feature tree: one file per area, features inline, profiles |
 | `hosts/<hostname>/features.nix` | that host's profiles and overrides (optional) |
@@ -176,38 +175,9 @@ outside all of them, and injecting the result keeps one source of truth.
 The flags reach NixOS and darwin as the `features` specialArg, and standalone
 home-manager, on either platform, as `extraSpecialArgs.features`.
 
-Being a specialArg is also what lets `features` gate `imports`: imports are
-resolved before `config` exists, so a real option could not do this.
-
-```nix
-# hosts/Sleipnir/config.nix
-imports =
-  [ ...unconditional... ]
-  ++ lib.optional features.fonts ../../modules/nixos/fonts.nix
-  ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix;
-```
-
-Import-gating is the mechanism, not in-module `mkIf`: it reads as the direct
-replacement for commenting out an import, the import list shows what is on, and
-it works even for modules that cannot evaluate.
-
-**Overrides.** Each flag is a plain boolean with a default. Overrides go in
-`hosts/<hostname>/features.nix`, which is an ordinary module, so `mkForce` and
-friends work:
-
-```nix
-{
-  desktop.kde = false;
-}
-```
-
-A missing host file means the host takes every default unchanged.
-
-| flag | default | gates |
-|------|---------|-------|
-| `desktop.{sway,niri}` | `true` | `modules/nixos/<wm>.nix` + `modules/home/linux/<wm>.nix` |
-| `desktop.{cosmic,kde,mango}` | `true` | `modules/nixos/<wm>.nix` |
-| `fonts` | `true` | `modules/nixos/fonts.nix` |
+Being a specialArg is also what let `features` gate `imports` (`lib.optional
+features.<flag> ./module.nix`): imports are resolved before `config` exists.
+Every flag has since moved to the feature tree.
 
 #### Feature tree
 
@@ -234,7 +204,7 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ai audio services apps ]
+  default.nix         [ hardware session virt non-nix-packages games ai audio services apps desktop ]
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -247,6 +217,8 @@ features/
   audio/              dictate  dictate-test           assets, beside their feature
   services.nix        [ printing webserver sunshine ] sunshine: coverage target
   apps.nix            [ cad ]
+  desktop.nix         [ (import ./desktop/sway.nix) niri cosmic kde mango (import ./desktop/fonts.nix) ]
+  desktop/            sway.nix  fonts.nix             features big enough for their own file
   profiles/           workstation.nix
 ```
 
@@ -309,9 +281,9 @@ host selects; `Sleipnir+podman` swaps it in for docker (IMP-018).
 **Parked is not a feature.** `modules/nixos/{hyprland,kmscon}.nix` and
 `modules/home/linux/danksearch.nix` stay commented out in their import lists.
 They do not evaluate — `hyprlandPlugins.hyprexpo` is gone, `services.kmscon.fonts`
-was removed upstream, danksearch's flake input is commented out — so a flag
+was removed upstream, danksearch's flake input is commented out — so a feature
 would promise a switch that breaks the build when flipped. Repair first, then
-promote to a flag.
+promote to a feature.
 
 ### Hosts
 

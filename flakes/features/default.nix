@@ -39,4 +39,8 @@
     name = "apps";
     value = import ./apps.nix;
   }
+  {
+    name = "desktop";
+    value = import ./desktop.nix;
+  }
 ]

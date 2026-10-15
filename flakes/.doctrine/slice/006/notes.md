@@ -61,6 +61,15 @@ Outside the repo, one directory per snapshot, each holding `drvs`,
   (no drift; no pinned files needed). Also holds `nix-diff-toplevel.txt`,
   `nix-diff-home.txt`. Re-captured after T7/T8 (docs, temp entries removed):
   `drvs`, `drvs-sets`, `coverage` identical.
+- `~/.cache/multihost-gate/sl006/phase-04/` — after PHASE-04; PHASE-05's
+  baseline. Taken with `emacs/emacs-overlay` pinned (temporary `justfile`
+  edit, removed after; `git diff --quiet -- flakes/justfile`) to
+  08c72b09663805de26057dfed80b7153846336ca, which is also what an unpinned
+  eval resolved to at T0. Also holds `order-before.json` / `order-after.json`
+  (fonts, console, sessions, portals, sorted systemPackages drvPaths),
+  `nix-diff-toplevel.txt`, `nix-diff-home.txt`, and the negative-control
+  probes `tmp-no{sway,kde,mango}/`. Docs/comment edits after the capture
+  (T7) re-checked: Sleipnir system and home drvs unchanged, no re-capture.
 
 ## PHASE-01 summary
 
@@ -185,3 +194,62 @@ resolve into the store).
   `desktop.kde = false`; flag table down to desktop.* and fonts (PHASE-04
   needs a third swap or deletion).
 - `just gate` green, `flake.lock` untouched.
+
+## PHASE-04 summary
+
+- Gate vs phase-03 (emacs-overlay pinned to 08c72b0):
+  - `drvs`: only Sleipnir moved — `nixosConfigurations.Sleipnir` zypvdm5s →
+    wcvilzwg; `homeConfigurations.david` and `david@Sleipnir` xjan80fm →
+    cyfidm5f. Draupnir (home, darwin), packages, legacyPackages, templates
+    identical.
+  - `drvs-sets`: one line — Sleipnir system `572 ad76579a…` → `570
+    0a8db462…`; every other line identical. Sorted systemPackages multiset
+    (order-{before,after}.json): exactly two removed, `cava-1.0.0.drv`
+    (fb8f74hj) and `waybar-0.15.0.drv` (sl4z9l4p) — the IMP-004 duplicates.
+  - `system/` probe identical, every file: `packages` (unique),
+    `session-desktops`, `system-path-links`, `udev-rules`, `ports`, `groups`,
+    `kernelParams`, `root-options`, **`fontconfig`** (A2 held; no EX-4
+    deviation to record).
+  - Order lists: fonts (73), console (1), sessions (6), portals (15) — each
+    the same order, not only the same multiset. Nothing reordered.
+  - toplevel nix-diff: sole leaf `system-path`. Its env is equal outside
+    `chosenOutputs`; `chosenOutputs` 572 → 570, sorted multiset diff exactly
+    one `cava-1.0.0` and one `waybar-0.15.0` entry (priority 5) removed. The
+    rest is order: the desktop entries (kde, niri, sway blocks) now precede
+    the services / games / virt feature entries (caddy … quickemu) instead of
+    following them. `system-path-links` identical, so no first-wins collision
+    flipped (R2 did not fire). etc, dbus-1, system-units (accounts-daemon,
+    dbus-broker, polkit), user-units differ only through it.
+  - home nix-diff: leaves `home-manager-path`, `david-fish-completions`,
+    `man-paths`; for each, env equal once lists/words are sorted (only `out`
+    differs). `home-path-links` identical (R3 did not fire).
+  - `home/home-files-links`: one line, `.manpath` (gfzjffpa → jcx1mql8),
+    the accepted exception by PHASE-03 precedent.
+- Coverage: six lines, all moved (A7), all evaluate.
+- Negative controls (VA-2; temp `lib.mkForce false` entries in hosts.nix,
+  removed after, `git diff --quiet -- flakes/hosts.nix`):
+  sway `programs.sway.enable` false (on: true), `bin/waybar` in system-path
+  0 (on: 1) — waybar now reaches system-path only through sway; niri
+  `programs.niri.enable` false (on: true); cosmic
+  `services.desktopManager.cosmic.enable` false (on: true); kde
+  `-plasma-desktop-` lines in system-path-links 0 (on: 776); fonts
+  clockface-font absent from `fonts.packages` (on: present).
+  mango: the sheet expected `programs.mango` undeclared when off; it is not —
+  nixpkgs now ships its own `nixos/modules/programs/wayland/mango.nix`, so
+  the option exists either way (declared by mangowm's flake module when on).
+  So VA-2 reads literally: `programs.mango.enable` false (on: true);
+  `mango.desktop` absent from `session-desktops` (on: 1), sessionPackages
+  6 → 5.
+- Red (T1): plain assertion failure in `testSleipnirSelectsMigrated` only
+  (A6), no abort. Test choice: `nixosOnly` gains cosmic, kde, mango, fonts
+  (fonts through the workstation profile); new `bothHalves` (sway, niri
+  `#nixos` → `[true true]`); `homeOnly` gains sway, niri `#homeManager` →
+  `[false true]` — slightly redundant with `bothHalves`, kept so VT-1's
+  `#homeManager` keywords are real assertions.
+- `modules/features.nix` is now `{ options = {}; }` with a header saying no
+  flag remains (deadnix/statix clean); kept for PHASE-05.
+- Verbatim check (`diff -w` HEAD sources vs new halves): only record framing,
+  headers, the ISS-008 comment, and T3's `cava`. No alejandra reflow inside
+  bodies. `sway-easyfocus` still listed twice (prune candidate, IMP-004).
+- `just gate` green (zero lint warnings), `just coverage` green,
+  `flake.lock` untouched.
