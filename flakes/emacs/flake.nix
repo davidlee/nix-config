@@ -14,7 +14,7 @@
     emacs-overlay,
     ...
   }: let
-    systems = ["x86_64-linux" "aarch64-darwin"];
+    systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forAll = f:
       nixpkgs.lib.genAttrs systems (system:
         f (import nixpkgs {
