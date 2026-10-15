@@ -40,4 +40,5 @@ fresh-as-of: 2026-10-15 · design locked · d2b787b5 (+ the SL-002 design commit
 - DEC-012 — ownership of the four pieces; nftables.enable stays host-wide
 - DEC-013 — sudo rule at plain priority
 - DEC-014 — verification: real-tree test, drv gate, one-off negative control
+- CHR-012 — follow-up before the next slice (W2): snooze to one file; tighten ADR-002 D3
 - HYP-001 — composition slot (ADR-004 D2–D3) not exercised here; carried to RFC-001 W2/W3

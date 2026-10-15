@@ -1,0 +1,33 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 12
+slug = "one-file-per-feature-fold-snoozes-halves-inline-tighten-adr-002-d3"
+title = "One file per feature: fold snooze's halves inline; tighten ADR-002 D3"
+kind = "chore"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "D3 granularity: tighten to one file per feature, halves inline"
+target = "ADR-002"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "SL-001"

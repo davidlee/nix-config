@@ -84,3 +84,5 @@ feature's selection, so HYP-001's open point stays with RFC-001 W2/W3.
 ## Follow-Ups
 
 - W2 agents, W3 legacy flags (RFC-001).
+- CHR-012, before the next slice: fold snooze's halves into one file and
+  tighten ADR-002 D3 (one file per feature, halves inline).
