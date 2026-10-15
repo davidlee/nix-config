@@ -3,6 +3,8 @@ If you have NOT seen `BOOT-SENTINEL: doctrine-governance-snapshot` anywhere in y
 
 no code without an approved plan (in the abstract sense; plan mode is optional)
 
+Doctrine ids from another repo are always written `<repo>:ID` (e.g. `doctrine:IDE-004`); a bare id means this repo's.
+
 docs:
 
 @README.md
