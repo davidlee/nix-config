@@ -6,19 +6,21 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · planned (ready, before PHASE-01) · f62fda8c
+fresh-as-of: 2026-10-15 · PHASE-06 (all phases complete, before audit) · 256da104
 
 ### Produced
-- design locked (run revision 39) after RV-009 (F-1..F-10); plan PHASE-01..06 (commit f62fda8c)
-- minted: ISS-006 — agents/dev inputs locked as local paths; DEC-016 amended — stable as module argument
+- PHASE-01..06 done — gate coverage + agents override, shared factory pieces, darwin evaluator-built pkgs + standalone Draupnir home, homeModule (gate passed, no fallback), justfile/README, cut-over on Draupnir (commits 7185e992..9dc80c1f; detail in ## Execution)
+- minted: ISS-007 — atuin uncached on aarch64-darwin, disabled there (two places); IMP-015 — `just test`/`gate` cannot run on the Mac
+- ISS-006 — agreed direction recorded: keep flake.lock tracked, Sleipnir owns lock updates
+- design deviations: legacyPackages pick guards the empty darwin entry (PHASE-01); README cut-over gained sudo, nu-path gap, login.zsh note (PHASE-06)
 
 ### Learned
-- mem.fact.nix.callpackage-autoargs — pkgs attrs leak into callPackage defaulted args; module-arg checks
-- mem.pattern.flakes.codex-design-review — running Codex reviews; recording its acts on the RV by proxy
+- mem.fact.nix.verify-closure-not-option — option off ≠ package out of closure; check `nix-store -qR`
 
 ### Open
 - QUE-001 — platform scope for features (ADR-005 D6 weaker on darwin)
-- RV-009 F-1, F-3, F-4 — instrument-routed; close after phases (PHASE-01/03/06 criteria)
+- RV-009 F-1, F-3, F-4 — instrument evidence now in ## Execution (PHASE-01/03/06); close at audit
+- DEC-016 — homeModule gate passed; its consequences need the outcome at reconcile
 
 ## Design review (RV-009)
 
