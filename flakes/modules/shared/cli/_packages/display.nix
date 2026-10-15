@@ -5,7 +5,6 @@
     less
     most
     moor
-    viddy
     ov
 
     ## graphing

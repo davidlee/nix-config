@@ -15,9 +15,9 @@
     gh
     hub
     jujutsu
-    # mergiraf
+    mergiraf
     tig
-    # debase # broken
+    debase # broken
     gh-dash
     lazygit
     lazyjj

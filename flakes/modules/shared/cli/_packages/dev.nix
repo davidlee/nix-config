@@ -14,6 +14,7 @@
     watcher
     watchexec
     fswatch
+    viddy
     entr
 
     ## assorted qol

@@ -1,6 +1,6 @@
 {pkgs, ...}: {
   common = with pkgs; [
-    lapce
+    # lapce # gui editor
     wordgrinder
   ];
   linuxHome = with pkgs; [

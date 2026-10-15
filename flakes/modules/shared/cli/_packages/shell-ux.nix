@@ -7,11 +7,12 @@
     atuin
     zoxide
     tmux
-    abduco # shell persist
-    dvtm # + abduco (suckless)
-    shpool # vs abduco . has a service too
     zmx # or this
+    skim # $ sk
+
+    # abduco # shell persist
+    # dvtm # + abduco (suckless)
+    # shpool # vs abduco . has a service too
     # sesh  # temporarily broken transitive dep: (go-mockery)
-    skim
   ];
 }
