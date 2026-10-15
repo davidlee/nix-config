@@ -276,8 +276,8 @@ in
           })
           flags
           ;
-      in [(flags ? feature) (flags ? assertions) (flags ? games)];
-      expected = [false false true];
+      in [(flags ? feature) (flags ? assertions)];
+      expected = [false false];
     };
 
     testMacSelectsNothing = {
@@ -300,15 +300,30 @@ in
       expected = [[true false]];
     };
 
-    # Features migrated from legacy flags (SL-005): NixOS half only, each.
+    # Features migrated from legacy flags (SL-005, SL-006), each with its
+    # [nixos, home] halves.
     testSleipnirSelectsMigrated = {
       expr = sleipnirSelects [
         "virt.qemu#nixos"
         "virt.docker#nixos"
         "non-nix-packages.appimage#nixos"
         "non-nix-packages.flatpak#nixos"
+        "games.steam#nixos"
+        "games.gamescope#nixos"
+        "games.mangohud#homeManager"
       ];
-      expected = [[true false] [true false] [true false] [true false]];
+      expected = [[true false] [true false] [true false] [true false] [true false] [true false] [false true]];
+    };
+
+    # gamescopeSession is a steam option: gamescope alone is refused. No host
+    # file, whose plain selections would fail a twin for the wrong reason.
+    testGamescopeRequiresSteam = {
+      expr = map (sel:
+        resolves {
+          tree = real;
+          modules = map on sel;
+        }) [["games.gamescope"] ["games.gamescope" "games.steam"]];
+      expected = [false true];
     };
 
     # podman is an off feature (DEC-022): Sleipnir leaves it unselected, and

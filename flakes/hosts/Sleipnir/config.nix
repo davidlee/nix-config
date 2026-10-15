@@ -63,8 +63,6 @@
     ]
     ++ lib.optional features.desktop.cosmic ../../modules/nixos/cosmic.nix
     ++ lib.optional features.fonts ../../modules/nixos/fonts.nix
-    ++ lib.optional features.games.enable ../../modules/nixos/games.nix
-    ++ lib.optional features.games.gamescope ../../modules/nixos/gamescope.nix
     ++ lib.optional features.desktop.kde ../../modules/nixos/kde.nix
     ++ lib.optional features.ai.llama-cpp ../../modules/nixos/llama-cpp.nix
     ++ lib.optional features.desktop.mango ../../modules/nixos/mango.nix

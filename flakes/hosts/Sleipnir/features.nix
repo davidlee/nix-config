@@ -1,6 +1,6 @@
-# Sleipnir's feature selection: the profiles it imports, and the legacy flags
-# it overrides (defaults in ../../modules/features.nix). Anything not named
-# here takes the default.
+# Sleipnir's feature selection: the profiles it imports, the features it
+# selects itself, and the legacy flags it overrides (defaults in
+# ../../modules/features.nix). Anything not named here takes the default.
 {
   imports = [../../features/profiles/workstation.nix];
 
@@ -10,7 +10,12 @@
   # Also a host property: qemu needs KVM (DEC-021).
   feature.virt.qemu.enable = true;
 
-  games.enable = true;
+  # Host properties too: this is the gaming machine.
+  feature.games = {
+    steam.enable = true;
+    gamescope.enable = true;
+    mangohud.enable = true;
+  };
 
   desktop = {
     sway = true;
@@ -31,6 +36,4 @@
   mpd = true;
   sunshine = false;
   webserver = true;
-
-  # games.enable = true;
 }

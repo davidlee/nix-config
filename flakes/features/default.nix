@@ -19,4 +19,8 @@
     name = "non-nix-packages";
     value = import ./non-nix-packages.nix;
   }
+  {
+    name = "games";
+    value = import ./games.nix;
+  }
 ]

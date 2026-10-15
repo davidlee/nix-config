@@ -142,8 +142,8 @@ Two ways to switch optional modules on, both resolved once per host by
   imports. Most features are still flags.
 - **the feature tree** — features as plain data under `features/`, selected
   by options and projected straight into each evaluation's module list.
-  snooze, openrgb, capsule, qemu, docker, podman, appimage and flatpak have
-  moved here; the rest follow later.
+  snooze, openrgb, capsule, qemu, docker, podman, appimage, flatpak, steam,
+  gamescope and mangohud have moved here; the rest follow later.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -183,22 +183,21 @@ resolved before `config` exists, so a real option could not do this.
 imports =
   [ ...unconditional... ]
   ++ lib.optional features.desktop.sway ../../modules/nixos/sway.nix
-  ++ lib.optional features.games.enable ../../modules/nixos/games.nix;
+  ++ lib.optional features.webserver ../../modules/nixos/webserver.nix;
 ```
 
 Import-gating is the mechanism, not in-module `mkIf`: it reads as the direct
 replacement for commenting out an import, the import list shows what is on, and
 it works even for modules that cannot evaluate.
 
-**Defaults and nesting.** A flag may default to another flag —
-`games.gamescope` and `games.mangohud` follow `games.enable` unless a host pins
-them. Overrides go in `hosts/<hostname>/features.nix`, which is an ordinary
-module, so `mkForce` and friends work:
+**Overrides.** Each flag is a plain boolean with a default. Overrides go in
+`hosts/<hostname>/features.nix`, which is an ordinary module, so `mkForce` and
+friends work:
 
 ```nix
 {
-  games.enable = true;
-  games.gamescope = false;   # steam, but no gamescope session
+  mpd = true;
+  ai.rocm = false;
 }
 ```
 
@@ -208,9 +207,6 @@ A missing host file means the host takes every default unchanged.
 |------|---------|-------|
 | `desktop.{sway,niri}` | `true` | `modules/nixos/<wm>.nix` + `modules/home/linux/<wm>.nix` |
 | `desktop.{cosmic,kde,mango}` | `true` | `modules/nixos/<wm>.nix` |
-| `games.enable` | `false` | `modules/nixos/games.nix` (steam, wine, its `nix-ld` libraries) |
-| `games.gamescope` | ← `games.enable` | `modules/nixos/gamescope.nix` |
-| `games.mangohud` | ← `games.enable` | `modules/home/linux/games.nix` |
 | `ai.{llama-cpp,rocm}` | `true` | `modules/nixos/<name>.nix` |
 | `apps.cad` | `true` | `modules/home/linux/cad-3d.nix` |
 | `fonts`, `printing`, `speech`, `webserver` | `true` | `modules/nixos/<name>.nix` |
@@ -243,13 +239,14 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages ]
+  default.nix         [ hardware session virt non-nix-packages games ]
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
   virt.nix            [ (import ./virt/capsule.nix) qemu docker podman ]
   virt/capsule.nix    a feature big enough for its own file
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
+  games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   profiles/           workstation.nix
 ```
 

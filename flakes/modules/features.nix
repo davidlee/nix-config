@@ -6,21 +6,8 @@
 #
 # Defaults describe a host that says nothing. A host overrides what it likes in
 # hosts/<hostname>/features.nix.
-{
-  lib,
-  config,
-  ...
-}: let
+{lib, ...}: let
   inherit (lib) mkEnableOption mkOption types;
-
-  # An option that follows another flag unless the host pins it.
-  follows = other: description:
-    mkOption {
-      inherit description;
-      type = types.bool;
-      default = other;
-      defaultText = lib.literalExpression "config.games.enable";
-    };
 
   enabledByDefault = description:
     mkOption {
@@ -36,12 +23,6 @@ in {
       cosmic = enabledByDefault "COSMIC desktop";
       kde = enabledByDefault "KDE Plasma";
       mango = enabledByDefault "mango compositor";
-    };
-
-    games = {
-      enable = mkEnableOption "Steam, wine, protontricks, and the nix-ld libraries games need";
-      gamescope = follows config.games.enable "gamescope session and gamemode";
-      mangohud = follows config.games.enable "mangohud performance overlay (home)";
     };
 
     ai = {

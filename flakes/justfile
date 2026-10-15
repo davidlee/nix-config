@@ -115,6 +115,15 @@ drvs-sets: check-flake-root
   @just _drvs homeConfigurations 'c: set c.config.home.packages' "{{home_override}}"
   @just _drvs darwinConfigurations 'c: set c.config.environment.systemPackages' "{{home_override}}"
 
+# Built-artefact measures drvs cannot show (mem.pattern.flakes.drv-gate):
+# Sleipnir's system and home under <outdir>/{system,home}, or one attr.
+probe outdir attr="": check-flake-root
+  #!/usr/bin/env bash
+  set -euo pipefail
+  if [ -n '{{attr}}' ]; then exec bin/gate-probe '{{outdir}}' '{{attr}}'; fi
+  bin/gate-probe '{{outdir}}/system' nixosConfigurations.Sleipnir
+  bin/gate-probe '{{outdir}}/home' 'homeConfigurations."david@Sleipnir"'
+
 # pick: config -> string. `set` hashes a package list independent of order.
 _drvs output pick overrides:
   @nix eval --raw '{{flake}}#{{output}}' {{overrides}} --no-write-lock-file --apply 'cs: let set = ps: "${toString (builtins.length ps)} ${builtins.hashString "sha256" (builtins.concatStringsSep " " (builtins.sort builtins.lessThan (map (p: p.drvPath) ps)))}"; pick = {{pick}}; in builtins.concatStringsSep "" (map (n: "{{output}}.${n} ${pick cs.${n}}\n") (builtins.attrNames cs))'

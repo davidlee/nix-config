@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# Gate probe: the measures `just drvs` cannot show; diff snapshot against
+# snapshot. Method: mem.pattern.flakes.drv-gate. Run as `just probe`.
+#
+#   gate-probe <outdir> [<flake attr>]   default: nixosConfigurations.Sleipnir
+#
+# A homeConfigurations.* attr selects home mode (home_override); anything
+# else is system mode (system_override), as `just drvs` evaluates them. No
+# agents registry pin (justfile nixos_pick): nix.registry reaches none of these.
+# Writes, one file each:
+#
+# system
+#   packages           unique sorted environment.systemPackages drvPaths
+#   groups             effective membership: existing groups listing the user
+#                      in members, or named in its extraGroups
+#   kernelParams       boot.kernelParams, sorted
+#   root-options       fileSystems."/".options, as merged
+#   ports              networking.firewall ports and ranges, global and per
+#                      interface, sorted
+#   system-path-links  link map of the built config.system.path: shows who won
+#                      a path collision; covers the nested nix-ld env
+#                      (share/nix-ld) and portal definitions
+#   udev-rules         built udev rules dir, file and content hash: rules are
+#                      copied, last package wins a file name
+#   session-desktops   link map of services.displayManager.sessionData.desktops
+#   fontconfig         link map of the built /etc/fonts, plus fonts.conf hash
+# home
+#   packages           unique sorted home.packages drvPaths
+#   home-path-links    link map of config.home.path
+#   home-files-links   link map of config.home-files (dotfiles, scripts, units)
+#
+# A link map lists every file reachable under the built tree, links followed,
+# with its resolved target: a nested env (nix-ld's, linked in as one directory)
+# gets a new store path when its inputs reorder, but the files it resolves to
+# do not.
+set -euo pipefail
+
+out=${1:?usage: gate-probe <outdir> [<flake attr>]}
+attr=${2:-nixosConfigurations.Sleipnir}
+user=david
+flake=$(cd "$(dirname "$0")/.." && pwd)
+
+sorted='lib.sort lib.lessThan'
+drvs="ps: lib.unique ($sorted (map (p: p.drvPath) ps))"
+case $attr in
+homeConfigurations.*)
+  override=home_override
+  apply="c: let
+    cfg = c.config;
+    inherit (c.pkgs) lib;
+  in {
+    lists.packages = ($drvs) cfg.home.packages;
+    trees.home-path-links = cfg.home.path.drvPath;
+    trees.home-files-links = cfg.home-files.drvPath;
+  }"
+  ;;
+*)
+  override=system_override
+  apply="c: let
+    cfg = c.config;
+    inherit (c.pkgs) lib;
+    inherit (cfg.users) groups;
+    extra = cfg.users.users.$user.extraGroups;
+    fw = cfg.networking.firewall;
+    ports = scope: f: map (p: \"\${scope} tcp \${toString p}\") f.allowedTCPPorts
+      ++ map (p: \"\${scope} udp \${toString p}\") f.allowedUDPPorts
+      ++ map (r: \"\${scope} tcp-range \${toString r.from}-\${toString r.to}\") f.allowedTCPPortRanges
+      ++ map (r: \"\${scope} udp-range \${toString r.from}-\${toString r.to}\") f.allowedUDPPortRanges;
+    drvOf = s: lib.head (lib.attrNames (builtins.getContext s));
+  in {
+    lists = {
+      packages = ($drvs) cfg.environment.systemPackages;
+      groups = lib.filter (g: lib.elem \"$user\" groups.\${g}.members || lib.elem g extra) (lib.attrNames groups);
+      kernelParams = $sorted cfg.boot.kernelParams;
+      root-options = cfg.fileSystems.\"/\".options;
+      ports = lib.unique ($sorted (ports \"global\" fw ++ lib.concatLists (lib.mapAttrsToList ports fw.interfaces)));
+    };
+    trees = {
+      system-path-links = cfg.system.path.drvPath;
+      session-desktops = cfg.services.displayManager.sessionData.desktops.drvPath;
+      fontconfig = drvOf cfg.environment.etc.fonts.source;
+    };
+    hashes.udev-rules = cfg.environment.etc.\"udev/rules.d\".source.drvPath;
+  }"
+  ;;
+esac
+
+read -ra overrides <<<"$(just --justfile "$flake/justfile" --evaluate "$override")"
+mkdir -p "$out"
+probe=$(nix eval --json "$flake#$attr" "${overrides[@]}" --no-write-lock-file --apply "$apply")
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+built() { nix build --no-link --print-out-paths "$1^out"; }
+
+# every file reachable under $1, links followed, sorted
+files() { (cd "$1" && find -L . ! -type d -printf '%P\n') | LC_ALL=C sort; }
+
+# "<relpath> = <sha256>" for each relpath on stdin, under $1
+digest() {
+  (cd "$1" && xargs -r -d '\n' sha256sum --) | awk '{h = $1; sub(/^[^ ]+  /, ""); print $0 " = " h}'
+}
+
+# link map: "<relpath> -> <resolved target>". A file the tree holds itself
+# (not a link out) would resolve into the tree's own store path, which moves
+# with any input, so it is measured by content instead.
+links() {
+  files "$1" >"$tmp/names"
+  [[ -s $tmp/names ]] || return 0
+  paste "$tmp/names" <(cd "$1" && xargs -d '\n' realpath -m -- <"$tmp/names") >"$tmp/pairs"
+  {
+    awk -F '\t' -v own="$1/" 'index($2, own) != 1 {print $1 " -> " $2}' "$tmp/pairs"
+    awk -F '\t' -v own="$1/" 'index($2, own) == 1 {print $1}' "$tmp/pairs" | digest "$1"
+  } | LC_ALL=C sort
+}
+
+each() { jq -r ".$1 // {} | to_entries[] | \"\(.key) \(.value)\"" <<<"$probe"; }
+
+jq -r '.lists | keys[]' <<<"$probe" | while read -r name; do
+  jq -r --arg n "$name" '.lists[$n][]' <<<"$probe" >"$out/$name"
+done
+each trees | while read -r name drv; do
+  root=$(built "$drv")
+  links "$root" >"$out/$name"
+done
+each hashes | while read -r name drv; do
+  root=$(built "$drv")
+  files "$root" | digest "$root" >"$out/$name"
+done
+
+# fonts.conf is the file fontconfig reads first: its content too
+if [[ -e $out/fontconfig ]]; then
+  conf=$(sed -n 's|^etc/fonts/fonts\.conf -> ||p' "$out/fontconfig")
+  echo "fonts.conf = $(sha256sum <"$conf" | cut -d ' ' -f 1)" >>"$out/fontconfig"
+fi
