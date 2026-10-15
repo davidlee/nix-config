@@ -58,7 +58,7 @@ Baseline and after-captures: `.doctrine/state/slice/002/{baseline,after}/`
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-15 · PHASE-01 complete · 5f672bdb
+fresh-as-of: 2026-10-15 · audit complete (RV-005)
 
 ### Produced
 - SL-002 scope, design (sec-1..6) and RV-004; RFC-001 W1 is now designed
@@ -66,6 +66,7 @@ fresh-as-of: 2026-10-15 · PHASE-01 complete · 5f672bdb
 - out-of-repo follow-up: `~/dev/oubliette/README.md:242` names the old capsule path
 - PHASE-01: feature.virt.capsule (9b5dbf79 move, 5f672bdb wiring); plan 18bb8bcf/c1ce8759
 - minted: CHR-012 — one file per feature (snooze fold, ADR-002 D3)
+- RV-005 — SL-002 audit: 4 findings (F-1/F-2 tolerated, ISS-005/CHR-010; F-3/F-4 aligned); brief: settle DEC-010..014, no REV
 
 ### Learned
 - mem.fact.nix.sudo-rule-order — plain extraRules always follow nixpkgs' root/wheel rules

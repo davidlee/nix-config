@@ -1,0 +1,124 @@
+id    = 5
+slug  = "reconciliation-review-of-sl-002"
+title = "reconciliation review of SL-002"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Conformance audit of SL-002 PHASE-01: diff 4e451ad3..5f672bdb compared with design sec-2..6 and plan EX-1..7 / VT-1..5 / VA-1..4. Re-run this pass: just test (green), just drvs at HEAD compared with the baseline and after-captures, the sudoers diff, the nix-diff record, the VA-2 absence greps, deadnix on the touched files, and the flake.lock sha. Also read: slice conformance, and the PHASE-01 notes for red/green, mutation and the negative control."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-002"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Mechanical conformance and VT attribution are unusable for SL-002 (ISS-005 root mismatch)"
+detail = """
+Expected: `doctrine slice conformance 2` reports the sec-6 paths as conformant, and `slice verify-vt 2` attributes VT-1..5.
+Observed: conformance reports 15 undeclared, 13 undelivered, 0 conformant. Every undeclared path is a design-target selector with a `flakes/` prefix (the source-delta registry records git-root-relative paths, git root = ~; selectors are ~/flakes-relative). Stripping the prefix, the 13 sec-6 selectors map 1:1 onto the 13 code paths touched in 9b5dbf79/5f672bdb; the remaining 2 undeclared are slice artefacts (notes.md, slice-002.toml). verify-vt reports VT-1..5 UNATTRIBUTABLE for the same reason (per PHASE-01 notes). Manual check this audit: every VT keyword present in its file; every file in the two commits."""
+disposition = "tolerated"
+response = "Tolerated: the drift is in the tool's path roots, not in the slice. The prefix-stripped mapping is exact (13/13 sec-6 selectors delivered, nothing undeclared beyond slice artefacts), and VT-1..5 are judged by agent, as SL-001 did. Adding `flakes/`-prefixed selectors would just move the mismatch to the other column; the fix belongs in ISS-005, which stays open and owns it. No selector or design change."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Tolerated: the drift is in the tool's path roots, not in the slice. The prefix-stripped mapping is exact (13/13 sec-6 selectors delivered, nothing undeclared beyond slice artefacts), and VT-1..5 are judged by agent, as SL-001 did. Adding `flakes/`-prefixed selectors would just move the mismatch to the other column; the fix belongs in ISS-005, which stays open and owns it. No selector or design change."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "`doctrine check gate` cannot run: no `just gate` recipe"
+detail = """
+Expected (audit skill): `doctrine check gate` passes.
+Observed: `error: justfile does not contain recipe `gate``. Substitute gates run this audit: `just test` green (features check + script tests); `just drvs` at HEAD identical to the PHASE-01 after-capture, differing from baseline only in nixosConfigurations.Sleipnir; sudoers diff is the rtcwake/nft rule swap only; nix-diff's only differing leaf is sudoers-in; flake.lock sha 528ed051 unchanged. Already captured as CHR-010."""
+disposition = "tolerated"
+response = "Tolerated: the project gates (just test, drvs, drvs-sets, sudoers, nix-diff) were run and recorded in the detail, and they are stronger than a generic gate for this slice. Adding the recipe is CHR-010's job, outside SL-002's scope."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Tolerated: the project gates (just test, drvs, drvs-sets, sudoers, nix-diff) were run and recorded in the detail, and they are stronger than a generic gate for this slice. Adding the recipe is CHR-010's job, outside SL-002's scope."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "nit"
+title = "Move landed as two commits, design implies one `git mv`"
+detail = """
+Expected: design sec-3/sec-6 — capsule.nix moved with `git mv` "so history follows".
+Observed: 9b5dbf79 is a pure rename (Sleipnir imports the new path); 5f672bdb absorbs the pieces and wires the feature. A single commit would put rename similarity below 50% (file more than doubles), so `git log --follow` would lose capsule's history — the stated purpose of the git mv. Notes PHASE-01 § "Two commits" record this."""
+disposition = "aligned"
+response = "Aligned: the design asks for `git mv` so history follows, and never says how many commits. Two commits is what makes the history follow. Notes record why."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = "Aligned: the design asks for `git mv` so history follows, and never says how many commits. Two commits is what makes the history follow. Notes record why."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "Comment drift from design sec-3: one added, one lead dropped"
+detail = """
+Expected: design sec-3 — comments travel verbatim except cross-file references.
+Observed: (a) features/virt/capsule.nix adds a "Plain priority: sudoers is last-match-wins …mkOrder 400/600" comment on the sudo rule (DEC-013's rationale, in code); (b) the firewall.interfaces comment lost its `~/dev/microvm-spike/ —` lead, since the file header already names that checkout. (c) Also a new "devshell path's perimeter" lead comment on the networking block, which design sec-2's sketch shows. No behaviour effect."""
+disposition = "aligned"
+response = "Aligned: (a) puts DEC-013's reason next to the rule it governs; (b) removes a duplicate of the header; (c) matches the sec-2 sketch. Nothing changes in the evaluated config, as the identical drvs-sets show."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = "Aligned: (a) puts DEC-013's reason next to the rule it governs; (b) removes a duplicate of the header; (c) matches the sec-2 sketch. Nothing changes in the evaluated config, as the identical drvs-sets show."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
