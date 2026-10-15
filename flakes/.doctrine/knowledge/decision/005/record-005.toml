@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 5
+slug = "prerequisites-requires"
+title = "Prerequisites: descriptor `requires`; any unmet prerequisite in the final selection is an error"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "`requires` list on the descriptor; any unselected prerequisite of a selected feature fails resolution; no auto-selection"
+alternatives = ["auto-select prerequisites, error only on explicit false (computed defaults + priority inspection; edges into automatic expansion that HYP-001 rules out)", "hand-written assertions only"]
+rationale = "Keeps selection fully explicit (every enabled feature traces to a host or profile line) and honours HYP-001's no-expansion bet; cost is one extra profile line per prerequisite"
+consequences = ["ADR-001 D4 amendment proposed", "relations richer than 'A needs B' (conflicts, any-of) are not expressible in descriptors; escape hatch is a hand-written `assertions` entry in an outer module, enforced by the same resolver check — build more only if a real case appears"]
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

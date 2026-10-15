@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 3
+slug = "feature-tree-shape"
+title = "Feature tree: {name; value} index lists, two levels, snooze in session, openrgb in hardware"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "{name; value} index lists; root areas list; fixed depth area.name; snooze dir under session; openrgb file under hardware"
+alternatives = ["single-key attrsets per element", "attrset plus separate order list"]
+rationale = "Standard nameValuePair shape: listToAttrs builds the tree, list order is projection order; no name duplication"
+consequences = []
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

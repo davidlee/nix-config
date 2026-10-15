@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 8
+slug = "test-harness"
+title = "Tests: pure resolver tests as a flake check; coverage targets in flake.coverage"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "features-test.nix + checks.features runner; flake.coverage + just coverage for ADR-005 targets"
+alternatives = ["nix eval --impure from the justfile (needs getFlake on a bare-repo path)", "coverage targets as nixosConfigurations entries (switchable, changes drvs output)", "coverage under legacyPackages (mislabels)"]
+rationale = "Pure lib tests need no host config or local overrides; checks is the conventional runner; a dedicated output keeps targets off the switch path and the drvs gate unchanged"
+consequences = ["nix flake check warns: unknown output 'coverage'", "mem.pattern.flakes.drv-gate unchanged"]
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

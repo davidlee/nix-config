@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 4
+slug = "outer-profiles"
+title = "Outer profiles live in features/profiles/ and hosts import them"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "features/profiles/<name>.nix, imported by the host's features.nix; first profile `workstation`"
+alternatives = ["hosts/profiles/ (relies on hosts.nix skipping dirs without meta.nix)", "profile names in meta.nix resolved by the resolver"]
+rationale = "Plain module imports: no lookup mechanism, trace visible in the host file, composes with standard priority rules"
+consequences = ["profiles compose by module merge; conflicts are loud", "no ordering between profiles"]
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

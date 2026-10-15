@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 9
+slug = "sl001-adr-amendments"
+title = "SL-001 ADR amendments, applied by revision at reconcile"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "Seven amendments via REV at reconcile; HYP-001 status and ADR acceptance at close"
+alternatives = ["edit the proposed ADRs now, before the spike"]
+rationale = "Amend once, with implementation evidence, through the governance surface"
+consequences = []
+decided_by = "agent"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

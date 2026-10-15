@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 1
+slug = "darwin-no-snooze-projection"
+title = "Darwin takes no snooze; mkDarwin projects the darwin class only"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "Profile selects snooze; darwin imports no such profile; mkDarwin projects the darwin class only"
+alternatives = ["Feature platform metadata now (pulls QUE-001 into SL-001)", "Project homeManager halves into darwin's embedded HM"]
+rationale = "Preserves each host's effective selection with no new metadata; keeps systemd.user units off darwin"
+consequences = ["darwin selection of snooze flips true -> false with no drv change", "embedded darwin HM projection is deferred to the first feature that needs it"]
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 7
+slug = "projection"
+title = "Projection: list fold over area indexes, wrapped with _file, appended to factory modules"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "Ordered list fold, _file wrapper, presence-only resolver, append after host entry point, D6 as a generated assertion"
+alternatives = ["emit bare class values (no provenance for inline modules)", "prepend projected modules before the host entry point"]
+rationale = "Minimal mechanism satisfying ADR-002 D4-D6 and ADR-005 D6"
+consequences = []
+decided_by = "user"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-001"
