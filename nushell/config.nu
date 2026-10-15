@@ -10,11 +10,12 @@ path add "~/nushell"
 use ./keys.nu
 use ./aliases.nu *
 
-source ./fzf.nu
 source ./private.local.nu
 source ./just.nu
 source ./env.nu
 source ./completion.nu
+# after completion.nu: fzf wraps whichever external completer is already registered
+source ./fzf.nu
 const ghostel_nu = "~/.config/emacs/elpa/ghostel/etc/shell/ghostel.nu"
 const conditionally = if ($ghostel_nu | path exists) { $ghostel_nu } else { null }
 source $conditionally

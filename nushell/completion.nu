@@ -6,9 +6,9 @@
 
 $env.CARAPACE_BRIDGES = 'fish,zsh,bash'
 
-let carapace_completer = {|spans|
-    # Invoke carapace for nushell and parse the JSON output
-    CARAPACE_LENIENT=1 carapace $spans.0 nushell ...$spans | from json
+# `place.command`: tokens of the command under the cursor (also after a pipe or `;`).
+let carapace_completer = {|place|
+  CARAPACE_LENIENT=1 carapace $place.command.0 nushell ...$place.command | from json
 }
 
 $env.config.completions.external = {

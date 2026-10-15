@@ -129,3 +129,32 @@ real, unplanned one (F-7).
 
 - Resolve IMP-012, ISS-004, CHR-003, IMP-009, CHR-004. ISS-005, ISS-006,
   ISS-007, IMP-014, IMP-015, QUE-001 stay open.
+
+## Reconciliation Outcome
+
+User agreed the full set in session (2026-10-15, "agreed").
+
+### Direct edits applied
+
+- design.md sec-2 items 5-6, sec-4 drvs `legacyPackages` pick → match code (F-6).
+- design.md sec-3: temporary darwin atuin carve-out, both sites, ISS-007 (F-3).
+- design.md sec-4: `sudo` on `--list-generations`; nu/`$SHELL` hand-over
+  paragraph; step 4 without atuin (F-5).
+- DEC-006 alternatives and body, DEC-007 body (factory module lists as of
+  DEC-016), DEC-016 consequence (homeModule gate passed), IMP-010 (darwin
+  `home` remark dropped), RFC-001 (where-things-stand, SL-004 done bullet,
+  IMP-012 blocker edge, W5, W8, W9) (F-8).
+
+### REVs completed
+
+- REV-003 (`reconcile-sl-004`): done — ADR-003 §Context/§Decision/
+  §Verification and ADR-001 §Context describe standalone Home Manager on
+  both platforms (F-8). Rationale in revision-003.md.
+
+### Withdrawn / tolerated
+
+- F-2: tolerated — conformance registry misattribution (ISS-005).
+- F-7: tolerated — cut-over ran out of order; manual step 2 unexecuted.
+- F-1, F-4: fixed during audit.
+
+Reconcile pass complete — handoff to /close.

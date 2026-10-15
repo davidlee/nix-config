@@ -33,10 +33,10 @@ hosts/<h>/meta.nix  { kind; system; home?; }
    - Plain priority beats the `mkDefault` in Sleipnir's hardware config. The value is the same, so there is no derivation change (IMP-009).
    - `mkAfter` keeps host `config.nix` overlays first (`mem.fact.nix.merge-order`).
 4. **mkDarwin** passes no `pkgs` (neither argument nor specialArg) and no inline import, so nix-darwin builds pkgs from `nixpkgs.source`, which is darwin's input and follows ours (research D1/D2). The two inline overlays are deleted (DEC-016).
-5. **mkHome** passes `pkgs = import inputs.nixpkgs-home { inherit (meta) system; }`: no config, no overlays. Not `legacyPackages`, which carries nixpkgs' flake-only lib version-info overlay (`nixpkgs/flake.nix:234`) that Home Manager would inherit (`lib/eval-config.nix:27`) and today's import does not have (RV-009 F-6). `homeModule = meta: { nixpkgs.config.allowUnfree = true; nixpkgs.overlays = [lem claude-desktop (agentsOverlay meta.system) llm-agents.shared-nixpkgs]; imports = [(stableModule meta.system)]; }` goes first in `modules`, followed by `hosts/<h>/home.nix`, then `selection.modules.homeManager` (DEC-007 order). The separate `lem` module goes; `lem` moves into this list.
+5. **mkHome** passes `pkgs = import inputs.nixpkgs-home { inherit (meta) system; }`: no config, no overlays. Not `legacyPackages`, which carries nixpkgs' flake-only lib version-info overlay (`nixpkgs/flake.nix:234`) that Home Manager would inherit (`lib/eval-config.nix:27`) and today's import does not have (RV-009 F-6). `homeModule = system: { nixpkgs.config.allowUnfree = true; nixpkgs.overlays = [lem claude-desktop (agentsOverlay system) llm-agents.shared-nixpkgs]; imports = [(stableModule system)]; }` goes first in `modules`, followed by `hosts/<h>/home.nix`, then `selection.modules.homeManager` (DEC-007 order). The separate `lem` module goes; `lem` moves into this list.
    - Home Manager always re-imports nixpkgs from `config.nixpkgs` (HM `modules/misc/nixpkgs.nix:58`). The effective order today is `[lem claude-desktop agents llm-agents]` (module overlays before `pkgs.overlays`; measured, RV-009 F-6). The list above keeps it exactly.
    - **Gate-conditional** (DEC-016): if Linux home derivations differ, revert to building pkgs in the factory with the overlays baked in, and record the reason.
-6. **Classes and homes.** `classesOf = meta: [(if meta.kind == "darwin" then "darwin" else "nixos")] ++ lib.optional (meta.home or false) "homeManager"`, tested by `checks.factories` (item 8). `homes` filters `hosts` (not `hostsOf "nixos"`) by `meta.home`. The `david` alias stays.
+6. **Classes and homes.** `classesOf = meta: [meta.kind] ++ lib.optional (meta.home or false) "homeManager"` (kind values are the class names), tested by `checks.factories` (item 8). `homes` filters `hosts` (not `hostsOf "nixos"`) by `meta.home`. The `david` alias stays.
 7. **Outputs** (DEC-018). `legacyPackages` (`import inputs.nixpkgs { inherit system; config.allowUnfree = true; overlays = [(agentsOverlay system)]; }`, linux systems) and `packages` move into this file's `flake` attrset unchanged. Their comments are corrected: the `agents` registry alias (`modules/nixos/nix.nix:9-25`) consumes them, not `nixpkgs`.
 8. **Factory check** (DEC-016). `perSystem.checks.factories`, defined here beside the factories, is evaluation-only. It is not a switchable output (ADR-005 D3/D4); `just test` gains a line building `.#checks.$(nix config show system).factories {{home_override}}` beside `features`. It asserts:
    - **Overlay reaches module `pkgs`** (ISS-004). For every darwin configuration, extend it with one probe module and force the result's `system.drvPath`:
@@ -67,6 +67,7 @@ DEC-017.
 - **`darwin/default.nix`** keeps the `system`, `brew` and `packages` imports and `nix.enable = false`; adds `nixpkgs.config.allowUnfree = true`; drops the embedded Home Manager block, its `specialArgs` and the now-unused arguments.
 - **Overlays.** Draupnir has no local fix overlays. The direnv `doCheck` overlay is obsolete: unpatched direnv and mise are on cache.nixos.org for aarch64-darwin, so deleting it stops local direnv and mise builds. lix-tools has no consumer.
 - **Untouched**: `darwin/nix-core.nix` and Draupnir's nix settings (IMP-014).
+- **atuin, temporarily** (ISS-007): 18.23.0 is uncached for aarch64-darwin, so it is off on darwin in two places: `programs.atuin.enable = lib.mkForce false` in `darwin/home.nix`, and Linux-only in `modules/shared/cli/_packages/shell-ux.nix` `common` (position kept, so Linux derivations are unchanged). Restoring it undoes both and README step 4.
 
 <!-- doctrine:section sec-4 -->
 ## Activation and cut-over
@@ -78,7 +79,7 @@ DEC-017.
 - `host := \`hostname -s\``. `darwin-build`/`darwin-switch` lose their hard-coded `host="Davids-MacBook-Pro"` default and use `{{host}}`.
 - `drvs`/`drvs-sets` pick up `david@Draupnir` automatically (research E2), and gain the DEC-018 entries:
   - `packages`: `ps: set (builtins.attrValues ps)`;
-  - `legacyPackages`: `lp: concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"])`;
+  - `legacyPackages`: `lp: if lp ? stdenv then concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"]) else "none"` (flake-parts gives aarch64-darwin an empty key);
   - `templates`: `t: "${t.path} ${t.description}"`.
 - Comments that become false are fixed: `justfile:9-10` ("Linux-only consumer"; already false, since mkHome consumes `agentsOverlay`), `flake.nix:12`, `overlays/agents.nix:10`.
 
@@ -89,7 +90,7 @@ DEC-017.
      just host=Draupnir darwin-build            -> ./result-darwin
      nix build "path:$PWD#homeConfigurations.\"david@Draupnir\".activationPackage" \
        <home_override flags> --no-write-lock-file --out-link result-home
-   note the current generation: darwin-rebuild --list-generations | grep current
+   note the current generation: sudo darwin-rebuild --list-generations | grep current
 2. activate the prebuilt system (what `darwin-rebuild switch` does after building,
    darwin-rebuild.sh:241-248):
      sudo nix-env -p /nix/var/nix/profiles/system --set "$(readlink result-darwin)"
@@ -99,11 +100,13 @@ DEC-017.
 3. ./result-home/activate    first standalone generation; the embedded one is treated as old,
                              so orphan links are cleaned (research D4); collisions are moved
                              aside to *.backup (home.backupFileExtension)
-4. new login shell: which emacs nvim atuin zoxide; nu login finds them
+4. new login shell: which emacs nvim zoxide; nu login finds them (atuin off, ISS-007)
 5. thereafter: just home-switch     (the home config now installs the home-manager CLI)
 ```
 
 Steps 2 and 3 build nothing. Step 2 is not offline: `homebrew.onActivation` updates and upgrades (`darwin/brew.nix:9-11`), so run the cut-over online (RV-009 F-8).
+
+Between steps 2 and 3 nothing provides `nu`, and `/etc/profiles/per-user/david/bin/nu` is gone for good. A terminal started before the cut-over keeps it in `$SHELL` until quit and relaunched; the Mac-local zsh login hook must resolve nu by PATH (`command -v nu >/dev/null && exec -l nu`), which survives both layouts and a rollback. Found on Draupnir (PHASE-06).
 
 **Recovery.** Standalone home does not depend on darwin activation finishing, so recovery runs forward, not back:
 

@@ -536,9 +536,8 @@ def _fzf_complete_kill [query: string] {
 
 # --- Main FZF External Completer ---
 
-# This function is registered with Nushell's external completion system.
-# It gets called when Tab is pressed.
-let fzf_external_completer = {|spans|
+# Called by `_fzf_wrapper_completion` when Tab is pressed.
+def _fzf_trigger_completion [spans: list<string>] {
   let trigger: string = $env.FZF_COMPLETION_TRIGGER? | default '**'
 
   if ($trigger | is-empty)     { return null } # Cannot work with empty trigger
@@ -617,39 +616,41 @@ let fzf_external_completer = {|spans|
 
 # --- WRAPPER AND REGISTRATION ---
 
+# `@interactive` runs this on the line-editor thread with the terminal to itself, so fzf can
+# draw; otherwise it runs on a background worker with no terminal. Nushell only sees it when
+# the registered closure's whole body is this one call, so the logic lives here, not there.
+@interactive
+def _fzf_wrapper_completion [place: record] {
+  # 1. Try the FZF completer logic first
+  let fzf_result = _fzf_trigger_completion $place.command
+
+  # 2. If FZF returned a result (a list, even an empty one), return it.
+  #    `null` means FZF didn't handle it because the trigger wasn't present.
+  if $fzf_result != null {
+    $fzf_result
+  } else if $env.__fzf_previous_completer? != null {
+    # 3. FZF didn't handle it, so call the previous completer (if it exists).
+    do $env.__fzf_previous_completer $place
+  } else {
+    # 4. No previous completer, and FZF didn't handle it. Return null.
+    null
+  }
+}
+
 # Guard against re-sourcing: wrapping the completer multiple times would
 # nest wrappers and grow the call chain on every reload.
 if ($env.__fzf_completer_registered? | default false) != true {
 
-  # Get the currently configured external completer, if any exists
-  let previous_external_completer = $env.config? | get completions? | get external? | get completer?
+  # Keep the currently configured external completer, if any, for the wrapper to fall back to.
+  # It lives in $env because a `def` cannot capture a variable.
+  $env.__fzf_previous_completer = $env.config? | get completions? | get external? | get completer?
 
-  # Define the new wrapper completer
-  let fzf_wrapper_completer = {|spans|
-    # 1. Try the FZF completer logic first
-    let fzf_result = do $fzf_external_completer $spans
-
-    # 2. If FZF returned a result (a list, even an empty one), return it.
-    #    `null` means FZF didn't handle it because the trigger wasn't present.
-    if $fzf_result != null {
-      $fzf_result
-    } else {
-      # 3. FZF didn't handle it, so call the previous completer (if it exists).
-      if $previous_external_completer != null {
-        do $previous_external_completer $spans
-      } else {
-        # 4. No previous completer, and FZF didn't handle it. Return null.
-        null
-      }
-    }
-  }
-
-  # Register the new wrapper completer
+  # Register the wrapper completer
   # This ensures external completions are enabled and sets our wrapper.
   $env.config = $env.config | upsert completions {
     external: {
       enable: true
-      completer: $fzf_wrapper_completer
+      completer: {|place| _fzf_wrapper_completion $place }
     }
   }
 

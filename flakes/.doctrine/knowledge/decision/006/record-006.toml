@@ -13,7 +13,7 @@ tags = []
 [facet]                         # every field typed; seeded empty (captured later)
 context      = ""
 choice = "Single guarded resolution per host in hosts.nix; outer `assertions` option; throw listing all failures"
-alternatives = ["check in each factory (easy to miss one)", "forward outer assertions into each evaluator's own assertions (three module systems; darwin embedded HM can't see them; fails only after full eval)"]
+alternatives = ["check in each factory (easy to miss one)", "forward outer assertions into each evaluator's own assertions (three module systems; fails only after full eval)"]
 rationale = "One checked value shared by all factories is the simplest way to satisfy ADR-001 D5 and test 3 on the home-only build"
 consequences = []
 decided_by = "user"
