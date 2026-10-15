@@ -14,7 +14,9 @@ repo: ~/.git (sparse repo)
 **Heads-up: the git worktree is `$HOME`, not `~/flakes`.** `~/.git` points at
 `~/.cfg` (`core.worktree = $HOME`, `showUntrackedFiles = no`).
 - Any repo-wide git op acts on all of `~`. Scope every command to a path; never
-  stash, checkout, clean or reset --hard.
+  stash, checkout, clean or reset --hard. Staging: `git add .` (in ~/flakes)
+  and `git add -u` (tracked only) are safe; bare `git add -A` stages every
+  untracked file in `~` (~170k) — use `git add -A .`.
 - Untracked files don't show in `git status`; use `-uall -- <path>`. Add new
   files (and doctrine slug symlinks) explicitly; flakes see only tracked files.
 - git paths carry a `flakes/` prefix, so doctrine selector / conformance /

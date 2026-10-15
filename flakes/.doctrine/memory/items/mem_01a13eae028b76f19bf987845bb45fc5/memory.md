@@ -6,6 +6,11 @@ Consequences:
 - **Repo-wide git ops act on all of `~`.** Never `git stash`, `checkout`,
   `clean`, `reset --hard`, or anything over "every file in the repo". Scope
   every command to a path (`git add ~/flakes/...`, `git diff -- flakes/`).
+- **Staging, verified by dry-run (git 2.55, from ~/flakes):** `git add .` is
+  scoped to the cwd (tracked + untracked under it) — safe. `git add -u` spans
+  the whole worktree but only tracked files — safe. Bare `git add -A` spans
+  the whole worktree *including untracked* — it would stage ~172k files
+  (games, docker volumes, …). Use `git add -A .` instead.
 - **Untracked files are invisible.** `git status` hides them; use
   `git status --short -uall -- <path>`. New files (including doctrine slug
   symlinks, which *are* tracked by convention) must be added explicitly.
