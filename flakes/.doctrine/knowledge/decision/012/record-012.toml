@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 12
+slug = "capsule-ownership"
+title = "Capsule's feature owns its four scattered pieces; nftables.enable stays host-wide"
+record_kind = "decision"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Capsule's host side is spread over capsule.nix, network.nix, security.nix and user.nix (research Thread 2). No other module reads assigner, vm-capsule or capsule-forward."
+choice = 'features/virt/capsule.nix takes: all of modules/nixos/capsule.nix (deleted); networking.firewall.interfaces."vm-capsule".allowedTCPPorts; networking.nftables.tables.capsule-forward; the sudo rule for nft list table inet capsule-forward; users.users.assigner. Each moves with its comment, rewritten to point within the file. networking.nftables.enable = true stays in network.nix and is also set in the feature.'
+alternatives = ["leave the devshell-path pieces in base modules, gated by a legacy flag", "move nftables.enable into the feature"]
+rationale = "Each piece serves only capsule; ADR-004 D1 lets a feature set upstream options. nftables.enable selects the firewall backend for the whole host, so removing it with capsule would change an unrelated host property; setting it in the feature too makes the feature self-sufficient (booleans merge; oubliette sets mkDefault true)."
+consequences = ["network.nix, security.nix and user.nix lose capsule text", "hosts/Sleipnir/config.nix drops the capsule.nix import"]
+decided_by = "agent"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-002"

@@ -1,0 +1,139 @@
+id    = 4
+slug  = "design-review-of-sl-002"
+title = "design review of SL-002"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Adversarial pass by a fresh Claude subagent: design.md sec-1..6 against code, research, ADR-001..005, DEC-001..014; evaluated the design's edits in a scratch copy (gate: only sudoers-in differs, the sec-4 swap; test red [false false] → green; negative control clean). Five minor findings, all fixed and verified."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-002"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "wheel sudo rule is mkOrder 600, not 400"
+detail = "Adversarial pass (subagent). nixpkgs sudo.nix:252 root mkOrder 400, :257 wheel mkOrder 600. sec-4, DEC-013 and research say both 400. Conclusion unchanged (600 < 1000). Verified by orchestrator."
+disposition = "fix-now"
+response = "sec-4, DEC-013 and research corrected to mkOrder 400 (root) / 600 (wheel)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-4, DEC-013 and research corrected to mkOrder 400 (root) / 600 (wheel)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "sec-5 red claim and DEC-014 'exactly' overstate the test"
+detail = "Before the tree entry the test yields [false false], an assertion failure, not an eval error. DEC-014(1) says 'exactly #nixos and nothing for homeManager or darwin'; the test checks membership with classes = both and selects via Sleipnir's host file, and goes red if Sleipnir turns capsule off."
+disposition = "fix-now"
+response = "sec-5 red claim now [false false]; ordering note added; DEC-014 amended to match the test (membership, Sleipnir selection pinned on purpose, darwin via generic D6)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-5 red claim now [false false]; ordering note added; DEC-014 amended to match the test (membership, Sleipnir selection pinned on purpose, darwin via generic D6)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "security.nix keeps an unused username argument"
+detail = "security.nix:3 takes username; its only use (:40) is the nft rule that moves out. deadnix is enabled (perSystem.nix:10), so nix fmt will flag it. sec-3/sec-6 say the base modules are otherwise unchanged. Verified."
+disposition = "fix-now"
+response = "sec-3 and sec-6 now drop security.nix's unused username argument."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-3 and sec-6 now drop security.nix's unused username argument."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "SATAN.md names modules/nixos/capsule.nix"
+detail = "SATAN.md:24 names modules/nixos/capsule.nix; missing from sec-6. ~/dev/oubliette/README.md:242 also names it (out of repo). Verified SATAN.md."
+disposition = "fix-now"
+response = "SATAN.md added to sec-3/sec-6 and to design-target selectors; oubliette README:242 recorded as an out-of-repo follow-up."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "SATAN.md added to sec-3/sec-6 and to design-target selectors; oubliette README:242 recorded as an out-of-repo follow-up."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "sec-1 names nixosvm as an existing host"
+detail = "hosts/ holds only Sleipnir and Davids-MacBook-Pro. Say 'a future host' or cite RFC-001."
+disposition = "fix-now"
+response = "sec-1 now says 'a future host (RFC-001: nixosvm, a work Mac guest)'."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-1 now says 'a future host (RFC-001: nixosvm, a work Mac guest)'."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

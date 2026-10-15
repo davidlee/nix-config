@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 13
+slug = "capsule-sudo-order"
+title = "Capsule's sudo rule stays at plain priority"
+record_kind = "decision"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "sudoers is last-match-wins. Moving the nft rule changes its position among plain-priority extraRules."
+choice = "No mkBefore/mkAfter. Any reorder of the nft rule relative to the rtcwake rule is accepted as ordering-only."
+alternatives = ["mkAfter, to pin it last"]
+rationale = "nixpkgs adds the blanket root and %wheel ALL rules at mkOrder 400 and 600 (sudo.nix:252, :257; RV-004 F-1), both before the default 1000, so they render first whatever the import depth. The nft and rtcwake rules name disjoint commands, so neither can override the other. mkAfter would reorder it against oubliette's own mkAfter rules for no benefit."
+consequences = ["the gate may show a sudoers ordering diff, explained here"]
+decided_by = "agent"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-002"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 10
+slug = "capsule-feature-shape"
+title = "Capsule is feature.virt.capsule: one NixOS-only file, area virt appended"
+record_kind = "decision"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-002 moves oubliette's capsule host side onto the feature tree (ADR-001, ADR-002)."
+choice = 'features/virt/capsule.nix holds the whole NixOS half. features/virt/default.nix lists it inline as { name = "capsule"; value = { nixos = ./capsule.nix; }; } (openrgb precedent). The area virt is appended after session in features/default.nix.'
+alternatives = ["area agents, beside RFC-001 W2", "directory form features/virt/capsule/{default,nixos}.nix"]
+rationale = "User chose virt: capsule is a microvm host, and its neighbours are the qemu and docker flags that W3 will migrate. One class means one file. Area position does not matter here: no other projected feature sets sudo, firewall, nftables or users (snooze's NixOS half sets none)."
+consequences = ["W3 adds qemu and docker under virt", "the resolver's flag-collision check passes: there is no virt.capsule flag"]
+decided_by = "user (area, layout); agent (index form, position)"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-002"

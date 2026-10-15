@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 14
+slug = "capsule-verification"
+title = "SL-002 verification: one real-tree resolver test, the drv gate, a one-off negative control"
+record_kind = "decision"
+status = "proposed"
+created = "2026-10-15"
+updated = "2026-10-15"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A refactor that must not change Sleipnir's system, plus new tree wiring."
+choice = "(1) features-test.nix testSleipnirSelectsCapsule: on the real tree with Sleipnir's features.nix, capsule's NixOS half is projected and no capsule module reaches homeManager. Red before the change as [false false]; it deliberately pins Sleipnir's selection. The darwin boundary is the resolver's generic D6 check (SL-001 tests). (2) just drvs identical for every configuration, or an ordering-only diff proven with drvs-sets and the rendered sudoers. (3) One-off negative control, not committed: with the selection removed, Sleipnir's sudoers, firewall, nftables tables and users lack the capsule pieces; recorded in notes, then reverted. just test green, nix fmt clean. (Amended per RV-004 F-2.)"
+alternatives = ["a committed coverage target for capsule off", "no new pure test"]
+rationale = "The resolver's generic behaviour is already covered by SL-001's tests; what is new is this tree entry and the host selection. The gate proves the selected case; the negative control proves the off case once, without a coverage target that ADR-005 does not require (Sleipnir selects capsule)."
+consequences = []
+decided_by = "agent"
+decided_on = "2026-10-15"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-002"

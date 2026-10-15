@@ -1,0 +1,46 @@
+memory_uid = "mem_01a13e63a45b70619105f1631a011858"
+memory_key = "mem.fact.nix.sudo-rule-order"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Plain-priority sudo extraRules always render after nixpkgs' blanket root/wheel rules"
+summary = "nixpkgs adds root ALL at mkOrder 400 and %wheel ALL at mkOrder 600, so a plain (1000) extraRules entry renders after them regardless of import depth."
+created = "2026-10-15"
+updated = "2026-10-15"
+
+[scope]
+paths = ["modules/nixos/", "features/"]
+globs = []
+commands = []
+tags = ["sudo", "merge-order"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "7053eb80206b76e0196e70e41fc9d0ed7dc15865"
+ref_name = "refs/heads/main"
+checkout_state_id = "0964388095f0feac2d6c7ac221a66860d5d62ab48cdf4c5b35dce2458c846aac"
+base_commit = "f4c0a4625b8516bb162dd990c88ec09ed65049bd"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-002"
+

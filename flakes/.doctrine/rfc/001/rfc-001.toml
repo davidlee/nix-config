@@ -50,3 +50,7 @@ target = "QUE-001"
 label = "related"
 target = "QUE-004"
 
+[[relation]]
+label = "related"
+target = "SL-002"
+
