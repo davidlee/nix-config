@@ -1,6 +1,6 @@
 # Copy to .envrc. `use flake_local agents` reads ~/flakes/agents live, not
 # from flake.lock, so agent bumps land on the next reload (helper: direnv
-# stdlib in ~/flakes/modules/home/shared/programs.nix). Elsewhere: plain flake.
+# stdlib in ~/flakes/modules/home/programs.nix). Elsewhere: plain flake.
 if declare -F use_flake_local >/dev/null; then
   use flake_local agents --impure
 else

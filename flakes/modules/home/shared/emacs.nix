@@ -14,7 +14,7 @@
     hash = "sha256-wEnu6azvGJt8bxWd/lZGuiFwEP+l+gpxD1e+7CI7tz0=";
   };
 in {
-  imports = [./shpool.nix];
+  imports = [../shpool.nix];
 
   home.packages =
     [

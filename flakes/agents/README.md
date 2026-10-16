@@ -220,7 +220,7 @@ cd ~/flakes/agents && nix flake update llm-agents
 Projects whose `.envrc` uses `use flake_local agents` (or `use flake_pub` for
 an input still named `pub`; template:
 `_templates/agents/_envrc`; helper: direnv stdlib in
-`modules/home/shared/programs.nix`) read this flake live via `--override-input`, so
+`modules/home/programs.nix`) read this flake live via `--override-input`, so
 the bump lands on their next direnv reload — no per-project lock update. The
 host picks it up on `nix flake update agents` + `just home-switch`.
 Plain `nix develop`, CI, and other machines use the project's committed lock;

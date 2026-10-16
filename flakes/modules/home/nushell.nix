@@ -43,7 +43,7 @@
       enableNushellIntegration = true;
       enableBashIntegration = true;
       settings = builtins.fromJSON (
-        builtins.readFile ../../../files/omp.custom.json
+        builtins.readFile ../../files/omp.custom.json
       );
     };
     eza = {

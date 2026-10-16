@@ -1,5 +1,11 @@
+# The Linux home layer: the home base (../.) plus what every Linux home
+# needs. A Linux host's home.nix imports this directory; the darwin
+# counterpart is ../darwin. The GUI modules below are temporary: SL-008 P3
+# and P5 move them into features.
 {config, ...}: {
   imports = [
+    ../.
+
     ./ai.nix
     ./alarm.nix
     ./browsers.nix

@@ -1,10 +1,9 @@
-# Darwin home base: the counterpart of profiles/linux-desktop.nix.
-# Host identity (username, homeDirectory, stateVersion) is in hosts/<host>/home.nix.
+# The darwin home layer: the home base (../.) plus what only a Mac home
+# needs. A darwin host's home.nix imports this directory; the Linux
+# counterpart is ../linux. Host identity (username, homeDirectory,
+# stateVersion) is in hosts/<host>/home.nix.
 {lib, ...}: {
-  imports = [
-    ../modules/home/shared
-    ../modules/home/shared/cli.nix
-  ];
+  imports = [../.];
 
   # atuin 18.23.0 (nixpkgs 7fd4004) is not cached for aarch64-darwin and
   # fails to build locally; restore when it is (ISS-007).

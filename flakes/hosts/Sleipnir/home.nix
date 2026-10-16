@@ -1,8 +1,8 @@
 {username, ...}: {
   imports = [
-    ../../profiles/linux-desktop.nix
+    ../../modules/home/linux
 
-    # machine-specific
+    # host config and W2 exceptions; the personal modules leave in SL-008 P5
     ../../modules/home/linux/sleipnir-doctor.nix
     ../../modules/home/linux/satan.nix
     ../../modules/home/linux/satan-patcher.nix
@@ -13,7 +13,6 @@
     ../../modules/home/linux/goad.nix
     ../../modules/home/linux/walker.nix
     ../../modules/home/linux/chatgpt.nix
-    ../../modules/home/shared/cli.nix
   ];
 
   home = {
@@ -22,10 +21,8 @@
     stateVersion = "24.11";
   };
 
-  programs.home-manager.enable = true;
-
   services = {
-    systembus-notify.enable = true; # notify-send from systemd
+    systembus-notify.enable = true; # notify-send from systemd; to desktop.core in P3
     # mpris-proxy.enable = true;
   };
 }

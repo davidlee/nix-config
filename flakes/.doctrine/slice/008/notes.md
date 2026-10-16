@@ -176,3 +176,20 @@ gave `[false false false]` (expected `[false false true]`) and
 `platforms` was an unknown key. After allowing the key: `[true true true]` and
 `[true true]`, each red for its own reason. Shape check, then selection check,
 turned both green. `testPlatformsAbsentMeansAll` passes throughout (guard).
+
+## PHASE-02
+
+Status: executed, **STOPPED at the EX-5 gate (STOP trigger 1)**; handed to the orchestrator. Uncommitted P2 delta on top of 1391fcc6.
+
+### Decisions
+- D1 taken: editors + EDITOR/VISUAL stay in a shrunk `modules/home/shared/default.nix`, imported last by the base until P4.
+- Relative-path fixes (nushell.nix, cli.nix, shared/emacs.nix) and doc paths (agents/README.md, _templates/agents/_envrc) done as in the sheet.
+
+### Gate snapshots
+Snapshots under `~/.cache/multihost-gate/sl008/`: before `phase-02-before/` (taken at HEAD 1391fcc6, clean but for the vicinae deletion; identical to phase-01), after `phase-02/`.
+- Counts 13 / 5 / 7. Drift check: archive of HEAD evaluated to the same 13 lines as T0 -> no drift. (The sheet's recipe needs the archive's justfile `flake :=` set to `path:` + justfile_directory(); `.` resolves the git root to `~/.cache`.)
+- drvs-sets, coverage, system probe: identical.
+- drvs: `homeConfigurations.david@Draupnir` IDENTICAL (no reorder reached darwin); `david` / `david@Sleipnir` changed; `templates.agents/default` changed. Template proof: `diff -r` shows only the `_envrc:3` comment line.
+- Sleipnir home probe: `packages` and `home-path-links` identical; `home-files-links` differs on ONE line, `.manpath -> hm_.manpath`. The manpath file differs only in the `man-cache` store hash (MANDB_MAP line), which is derived from `home-path`'s drv hash. Contents otherwise equal. Per the sheet this is STOP 1.
+- `order-only` on Sleipnir: NOT ORDER-ONLY, naming `david-fish-completions` and `home-manager-generation`. `david-fish-completions` differs in env `paths` (a space-separated string, not an array, so the checker's list sort misses it): its 345 tokens sorted are byte-identical old vs new (evidence: `phase-02/evidence/*.paths`). home-manager-generation is the cascade. nix-diff: `phase-02/nix-diff.david@Sleipnir`; chain bottoms out at home-manager-path `__json` + fish-completions `paths`.
+- just gate green, fmt 0 changed, flake.lock unchanged.
