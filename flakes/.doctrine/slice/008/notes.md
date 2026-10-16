@@ -598,6 +598,9 @@ Walked the P7 table: availability (Sleipnir sets identical, Draupnir +57 in 07a,
 - `just probe`'s `packages` file is a unique drv set, so it cannot show a duplicate-entry removal; `pkgs_of` multiset diff is the proof for EX-3.
 
 ### Pending user (VH-1, VH-2) -- NOT verified
+
+2026-10-16 user decisions: VH-1 -- skip both builds; `shell_cmds` (getName of killall) and `yEd` added to `cli-broken.nix` aarch64-darwin (Draupnir home 263 -> 261 packages; `just test`, `just coverage` + isolation green). VH-1 resolved by user choice. VH-2 deferred to audit/next Draupnir switch (user). `break-remind.nix` deleted by the user (1142eae6). PHASE-07 delta recorded as range ff4a0746..HEAD (includes user commits e7bfec60/8dbfd01c; 8dbfd01c only deletes the vicinae settings file, outside SL-008). DEC-024 draft consequence: user assents; apply at reconcile.
+
 VH-1 (user decides, per uncached package): `killall-shell_cmds-329` (/nix/store/wpjr4ml6rry1arkkpqx9i6ha1kx0724c-killall-shell_cmds-329) and `yEd-3.25.1` (/nix/store/7k8hz835dpfnyackb56g7my96j6rzik3-yEd-3.25.1); Block B changed no Draupnir package other than the yazi/mcfly removals (identical drvs remain via HM, already cached or built as before). For each: add its name to `features/cli-broken.nix` `aarch64-darwin`, or accept a local build at the next Draupnir `home-switch`. Commands to re-check: `awk '/^>/{print $4, $2}' ~/.cache/multihost-gate/sl008/phase-07a/evidence/draupnir-delta | while read out name; do nix path-info --store https://cache.nixos.org "$out" >/dev/null 2>&1 && echo "cached $name" || echo "UNCACHED $name $out"; done`. Expected: exactly the two UNCACHED lines above (cache state may have moved). Mark verified only on the user's choice.
 
 VH-2 (on Draupnir, before activating the new home):

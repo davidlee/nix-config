@@ -11,8 +11,10 @@
 # - udiskie: depends on libappindicator-gtk3, not available on darwin.
 # - micro (listed as micro-with-wl-clipboard; getName gives pname): depends on wayland, not available on darwin.
 # - fsearch: meta.broken, which availableOn ignores.
-# The last four fail to evaluate; availableOn sees only a package's own
+# - shell_cmds (killall) and yEd: not in cache.nixos.org; the user chose to
+#   skip them rather than build locally (SL-008 PHASE-07 VH-1).
+# gtt, udiskie, micro and fsearch fail to evaluate; availableOn sees only a package's own
 # meta.platforms, not its dependencies (SL-008 PHASE-07, EX-1 extension).
 {
-  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch"];
+  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd"];
 }
