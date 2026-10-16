@@ -1,0 +1,128 @@
+# Implementation plan for SL-009 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-009"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber. Criterion ids
+# are local to their phase, bare, and equally immutable.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Dev checkouts and the lock"
+objective = "One list of dev checkouts (bin/dev-checkouts, DEC-037) drives every override; every input is declared by its remote URL and the lock holds no local source (DEC-038). Resolves ISS-003 and ISS-006 on Linux."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-009 design locked; slice status ready; plan committed." },
+  { id = "EN-2", text = "Baseline on the unchanged config: just drvs, drvs-sets, probe (system and home), coverage, gate; snapshot paths and, for each of oubliette goad panopticon satan-patcher satan-attrd, `git rev-parse HEAD` and `git status --porcelain -uno` recorded in notes.md. Checkouts under active agent work may move: every snapshot in this slice records them (user, 2026-10-16)." },
+  { id = "EN-3", text = "All five ~/dev checkouts reachable on GitHub at or behind their local HEAD (`just push-local` done 2026-10-16; re-checked with rev-list @{u}..HEAD)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "bin/dev-checkouts: list oubliette goad panopticon satan-patcher satan-attrd; root ${FLAKES_DEV:-$HOME/dev}; present = <root>/<i>/.git exists; verbs override (git+file:// absolute), stub (path:<repo>/features/stub for every listed input), ahead (stderr warnings, exit 0), names; refuses a root containing whitespace naming it (RV-019 F-3); unknown verb exits non-zero with usage. bin/dev-checkouts-test written red first (temp FLAKES_DEV roots: none present, some present, whitespace root, ahead checkout)." },
+  { id = "EX-2", text = "justfile: tree_override, dev_override, local_override, stub_override per design § The justfile; agents_override/home_override/system_override gone; recipe table applied (isolation = tree_override + stub_override only); update-system/update-home pass no override; update-local = `bin/dev-checkouts ahead` then `nix flake update satan agents emacs $(bin/dev-checkouts names)`. The user's uncommitted push-local recipe is untouched and NOT staged: the commit stages a filtered copy of the justfile (hash-object + update-index) so only this phase's hunks land." },
+  { id = "EX-3", text = "just test runs bin/dev-checkouts-test and the jq lock guard (design § The lock guard); the guard is shown red on the pre-relock lock before the re-lock." },
+  { id = "EX-4", text = "bin/gate-probe evaluates local_override in both modes; its header comment updated." },
+  { id = "EX-5", text = "Checkpoint A (justfile + script, declarations unchanged): drvs vs EN-2; diffs limited to consumers of panopticon, satan-patcher, satan-attrd (path: -> git+file drops ignored files) and to oubliette if its dirty tree moved; each attributed in notes.md." },
+  { id = "EX-6", text = "flake.nix declares panopticon, satan-patcher (github:davidlee/sloptower), satan-attrd, goad by GitHub URL; the commented satan path line and the ISS-006 / agents_override comments go; the oubliette `target` comment is reworded without the /home/david/dev path. Re-lock: `nix flake update agents oubliette goad panopticon satan-patcher satan-attrd`, no override. Lock guard green." },
+  { id = "EX-7", text = "Checkpoint B (after re-lock, checkouts present): every drvs line identical to checkpoint A, provided checkout states match those recorded at A; any mismatch is attributed to a recorded checkout move." },
+  { id = "EX-8", text = "Absence: with FLAKES_DEV=/nonexistent, drvs and probe evaluate; drvs equals checkpoint B wherever the checkout is clean at its locked rev; every remaining line is attributed to a dirty or ahead checkout (RV-019 F-1; oubliette had a modified tracked file on 2026-10-16)." },
+  { id = "EX-9", text = "just isolation passes; its negative control (a lean home reaching a stubbed input) still fails, naming the input. just gate and just coverage green." },
+  { id = "EX-10", text = "README: short § Dev checkouts; § Bootstrap macOS override paragraph no longer names agents/ as Linux-pinned (ISS-006). Committed (flakes/ scoped, new files added explicitly); snapshot saved as PHASE-02's baseline with checkout states." },
+]
+verification = [
+  { id = "VT-1", expects = "behaviour tests cover every verb, absence, whitespace refusal, ahead warning", test_file = "bin/dev-checkouts-test", keywords = ["FLAKES_DEV", "override", "stub", "ahead", "names", "git+file://"], waived = false },
+  { id = "VT-2", expects = "the one checkout list and its verbs", test_file = "bin/dev-checkouts", keywords = ["oubliette goad panopticon satan-patcher satan-attrd", "FLAKES_DEV", "features/stub", "--override-input"], waived = false },
+  { id = "VT-3", expects = "justfile composes overrides from the script and guards the lock", test_file = "justfile", keywords = ["tree_override", "dev_override", "local_override", "bin/dev-checkouts", "startswith(\"file:\")", "dev-checkouts-test"], waived = false },
+  { id = "VT-4", expects = "inputs declared by remote", test_file = "flake.nix", keywords = ["github:davidlee/panopticon", "github:davidlee/sloptower", "github:davidlee/satan-attrd", "github:davidlee/goad"], waived = false },
+  { id = "VT-5", expects = "gate-probe uses the composed override", test_file = "bin/gate-probe", keywords = ["local_override"], waived = false },
+  { id = "VA-1", expects = "EX-5, EX-7, EX-8 gate diffs reviewed and every line attributed against recorded checkout states" },
+  { id = "VA-2", expects = "EX-2 commit holds no push-local hunk (git show HEAD -- justfile)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Validate meta.nix"
+objective = "host-meta.nix validates each hosts/<h>/meta.nix with a small evalModules schema (DEC-039) before any resolution; a bad meta fails every evaluation, naming the file. Resolves IMP-010. No derivation changes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 committed; its snapshot is the baseline, retaken immediately before editing, checkout states recorded." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "host-meta-test.nix written red first (lib.runTests; each failing fixture has a passing twin): testMetaPasses, testMetaUnknownKindFails, testMetaUnknownKeyFails, testMetaMissingSystemFails, testMetaHomeTypeFails; wired as checks.host-meta in perSystem.nix and built by just test." },
+  { id = "EX-2", text = "host-meta.nix per design § Validating meta.nix: kind enum, system str, home bool default false; _file = the flake-relative path; addErrorContext names the file for a missing system; _module stripped." },
+  { id = "EX-3", text = "hosts.nix builds hosts through host-meta.nix, deepSeq'd before selections; `meta.home or false` becomes meta.home (classesOf, homes); header comment points at host-meta.nix." },
+  { id = "EX-4", text = "Gate vs EN-1: every drvs line identical; just gate green; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "schema tests exist and pass", test_file = "host-meta-test.nix", keywords = ["testMetaPasses", "testMetaUnknownKindFails", "testMetaUnknownKeyFails", "testMetaMissingSystemFails", "testMetaHomeTypeFails"], waived = false },
+  { id = "VT-2", expects = "schema module", test_file = "host-meta.nix", keywords = ["evalModules", "enum", "addErrorContext", "_module"], waived = false },
+  { id = "VT-3", expects = "hosts validated before resolution", test_file = "hosts.nix", keywords = ["host-meta.nix", "deepSeq"], waived = false },
+  { id = "VT-4", expects = "check wired", test_file = "perSystem.nix", keywords = ["checks.host-meta", "host-meta-test.nix"], waived = false },
+  { id = "VA-1", expects = "a misspelled kind in a scratch copy of the flake fails `nix eval .#homeConfigurations` with an error naming hosts/<h>/meta.nix" },
+  { id = "VA-2", expects = "EX-4 gate diff: every drvs line identical" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Agents overlay only where consumed"
+objective = "The agents overlay leaves system and home pkgs and stays on legacyPackages, its one consumer (DEC-040). No derivation changes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 committed; baseline retaken immediately before editing, checkout states recorded." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "hosts.nix: platformModule drops the agentsOverlay mkAfter line; homeModule drops (agentsOverlay system); legacyPackages keeps it. overlays/agents.nix stays." },
+  { id = "EX-2", text = "hosts/Sleipnir/config.nix overlay-ordering comment updated (no mkAfter append any more)." },
+  { id = "EX-3", text = "Gate vs EN-1: every drvs line identical, legacyPackages and packages included; drvs-sets identical. Any diff (callPackage auto-args, mem.fact.nix.callpackage-autoargs) stops the phase: /consult, never fix forward." },
+  { id = "EX-4", text = "just gate green; committed; snapshot saved." },
+]
+verification = [
+  { id = "VA-1", expects = "grep: agentsOverlay referenced only by its definition and legacyPackages in hosts.nix" },
+  { id = "VA-2", expects = "EX-3 gate diff: every drvs line identical" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "The agents area"
+objective = "features/agents.nix holds agents.registry (nixos), agents.eca (homeManager, linux) and agents.chatgpt (homeManager), selected by personal-linux (DEC-041). The registry leaves the NixOS base; eca and chatgpt leave Sleipnir's home.nix. Sleipnir's selection and built outputs unchanged."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 committed; baseline retaken immediately before editing, checkout states recorded." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features-test.nix: Sleipnir selection tests gain agents.registry, agents.eca, agents.chatgpt (red first)." },
+  { id = "EX-2", text = "features/agents.nix per design § The agents area, listed after ai in features/default.nix; registry rationale comment moved from modules/nixos/nix.nix; eca platforms = lib.platforms.linux; no requires." },
+  { id = "EX-3", text = "personal-linux.nix selects the three with mkDefault. Removed: modules/home/linux/{eca,chatgpt}.nix (git rm), their imports and the W2-exceptions comment in hosts/Sleipnir/home.nix, the registry block in modules/nixos/nix.nix. New files git add -N before the gate." },
+  { id = "EX-4", text = "Gate vs EN-1: system drvs identical (registry value unchanged, pinned); Sleipnir home reorder only (.manpath hash; probe packages and home-path-links identical); Draupnir identical; coverage.\"base@aarch64-linux\" changes (registry entry gone), nothing else in coverage." },
+  { id = "EX-5", text = "Negative control: Sleipnir with feature.agents.eca.enable = mkForce false drops eca from home-path." },
+  { id = "EX-6", text = "README § Feature tree lists the agents area (default.nix line, agents.nix row). Close checks: git grep 'agents_override\\|home_override\\|system_override\\|/home/david/dev' over tracked flakes/ files excluding .doctrine/ finds nothing; lock guard green; just gate and just coverage green. Committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "agents area records", test_file = "features/agents.nix", keywords = ["\"registry\"", "\"eca\"", "\"chatgpt\"", "nix.registry.agents", "lib.platforms.linux", "llm-agents.chatgpt"], waived = false },
+  { id = "VT-2", expects = "Sleipnir selects the agents area", test_file = "features-test.nix", keywords = ["agents.registry", "agents.eca", "agents.chatgpt"], waived = false },
+  { id = "VT-3", expects = "profile selects the area", test_file = "features/profiles/personal-linux.nix", keywords = ["feature.agents.registry.enable", "feature.agents.eca.enable", "feature.agents.chatgpt.enable"], waived = false },
+  { id = "VT-4", expects = "area listed after ai", test_file = "features/default.nix", keywords = ["agents"], waived = false },
+  { id = "VA-1", expects = "EX-4 gate diff matches the design's P4 row; EX-5 negative control observed" },
+  { id = "VA-2", expects = "EX-6 close grep empty" },
+  { id = "VH-1", expects = "user, on Draupnir: just drvs and just probe succeed; just isolation passes (ISS-003 on the Mac's os() branch). Can be run any time after PHASE-01." },
+]
+specs        = []
+requirements = []
