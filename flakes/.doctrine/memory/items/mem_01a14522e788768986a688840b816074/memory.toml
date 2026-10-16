@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14522e788768986a688840b816074"
+memory_key = "mem.fact.doctrine.list-flag-comma-split"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "knowledge edit list flags split on commas"
+summary = "doctrine knowledge edit --consequences/--alternatives split on every comma; an item containing a comma cannot round-trip through the CLI"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = []
+globs = []
+commands = ["doctrine knowledge edit"]
+tags = ["doctrine", "knowledge"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "35a4f9f697b0edf358cc1bc4304ce82e25594d41"
+ref_name = "refs/heads/main"
+checkout_state_id = "eeb93375805bd58591a163060d84fe3ec9fc3ea010afebcf5b5ffaebe4a8c4a2"
+base_commit = "47a9131c7e3ea07cbd7975587766ff4df1c5d464"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-021"
+

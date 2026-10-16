@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · audit done (RV-021) · 61680d0c
+fresh-as-of: 2026-10-17 · closed · reconcile 47a9131c
 
 ### Produced
 - research round (`research/research.md`, gitignored) → slice rescoped (user agreed)
@@ -19,6 +19,7 @@ fresh-as-of: 2026-10-17 · audit done (RV-021) · 61680d0c
 - PHASE-03 landed (1f4d6bd8), PHASE-04 landed (41c9d906): § PHASE-03, § PHASE-04 below
 - RV-021 (audit): done; F-1 fixed (61680d0c, justfile comment); brief → reconcile
 - ISS-011 (oubliette follows stale once its SL-004 lands), from RV-021 F-5
+- reconciled (47a9131c): RV-021 § Reconciliation Outcome
 
 ### Learned
 - mem.fact.flakes.override-records-in-lock — lock-writing commands record overrides; git+file vs path:
@@ -26,9 +27,10 @@ fresh-as-of: 2026-10-17 · audit done (RV-021) · 61680d0c
 - mem.fact.flakes.fmt-relock — corrected: unpinned nested override re-resolves on every lock write (ISS-010)
 - mem.pattern.flakes.drv-gate — extended: record dev checkout state per snapshot; compare old/new trees back to back
 - mem.fact.nix.lazy-error-context — addErrorContext misses lazily forced option errors
+- mem.fact.doctrine.list-flag-comma-split — knowledge edit list flags split on commas
+- rejected as memory: `.manpath` lands in the probe's `home-files-links` (an observation records it; IMP-019 owns probe masking)
 
 ### Open
-- reconcile: RV-021 § Reconciliation Brief (items 1–12)
 - ISS-011: oubliette follows lines go once oubliette is pushed and re-locked
 - user's `push-local` recipe still uncommitted in justfile (left to the user)
 - VH-1 (Draupnir: drvs, probe, isolation) can run now
