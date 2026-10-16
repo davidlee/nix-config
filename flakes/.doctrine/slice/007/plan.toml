@@ -1,0 +1,171 @@
+# Implementation plan for SL-007 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-007"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One
+
+[[phase]]
+id        = "PHASE-01"
+name      = "The NixOS base"
+objective = "Create modules/nixos/default.nix, the base import list (DEC-027), and import it from hosts/Sleipnir/config.nix in place of the base modules' flat imports. Mixed modules are imported whole; only lix moves into nix.nix and system.stateVersion into config.nix."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-007 design locked (run stage locked); slice status ready." },
+  { id = "EN-2", text = "Baseline captured on the unchanged config: just drvs, just drvs-sets, just probe (system and home), just coverage, just gate; paths recorded in notes.md." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "modules/nixos/default.nix lists avahi, boot, cargo, env, kernel, lib, locate, maintenance, network, nix, programs, security, ssh, user, util, cli in that order, with the header comment from design § The NixOS base; git add -N before the gate." },
+  { id = "EX-2", text = "config.nix imports hardware-configuration, machine, then ../../modules/nixos, then the remaining flat imports in their current order (1password audio bluetooth greeter keyboard keyring oom postgresql qt radeon umbriel wayland wayland_packages x11 xdg), parked comments kept." },
+  { id = "EX-3", text = "nix.package = lix moves from config.nix into nix.nix; system.stateVersion moves from nix.nix into config.nix." },
+  { id = "EX-4", text = "Gate vs EN-2: every drvs line identical, or an order-only diff with every probe measure identical (design P1 row)." },
+  { id = "EX-5", text = "README Hosts gains the base paragraph and the four-class table (design § Shape); committed, scoped to flakes/; snapshot saved as PHASE-02's baseline." },
+]
+verification = [
+  { id = "VT-1", expects = "base import list exists with every base module", test_file = "modules/nixos/default.nix", keywords = ["./avahi.nix", "./network.nix", "./nix.nix", "./security.nix", "./user.nix", "./util.nix", "./cli.nix", "DEC-027"], waived = false },
+  { id = "VT-2", expects = "host imports the base and owns stateVersion", test_file = "hosts/Sleipnir/config.nix", keywords = ["../../modules/nixos #", "system.stateVersion"], waived = false },
+  { id = "VA-1", expects = "EX-4 gate diff reviewed against the P1 row; any changed built artefact nix-diffed to list order only" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Machine and host config"
+objective = "Move what follows from Sleipnir's parts into hosts/Sleipnir/machine.nix (DEC-019) and what follows from its site, account or tuning into host config beside config.nix (DEC-028, DEC-029)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 committed; its snapshot is the baseline." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "machine.nix gains radeon.nix verbatim plus users.users.<user>.extraGroups = [\"video\"]; the kernel blacklist (ucsi_ccg, vc032x, gspca_vc032x); hardware.i2c.enable; the enp8s0 NetworkManager profile; nix max-jobs, cores and nix-daemon MemoryHigh; the 16G /swapfile. modules/nixos/radeon.nix deleted; video leaves user.nix." },
+  { id = "EX-2", text = "modules/nixos/oom.nix git mv to hosts/Sleipnir/oom.nix, minus the swapfile; header cites IMP-022." },
+  { id = "EX-3", text = "hosts/Sleipnir/dns.nix: NetworkManager dns = systemd-resolved, stubby with the ControlD upstreams, resolved, stubby's restart policy, moved unchanged; header names POL-001 and IMP-002. No Private identifier is added to any file (POL-001, DEC-029): values move, none are introduced." },
+  { id = "EX-4", text = "config.nix gains gai.conf, the rtcwake sudo rule and the Rust kernelPatch, each moved verbatim with a one-line comment; imports ./dns.nix and ./oom.nix after the base." },
+  { id = "EX-5", text = "Gate vs PHASE-01: allowed order changes only in kernelModules, kernelParams, swapDevices, extraGroups, sudo.extraRules, systemPackages; every probe measure identical." },
+  { id = "EX-6", text = "README OOM resilience and Prefer IPv4 name the new files; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "machine config holds the part-bound pieces", test_file = "hosts/Sleipnir/machine.nix", keywords = ["ucsi_ccg", "enp8s0", "max-jobs", "MemoryHigh", "/swapfile", "\"video\"", "i2c.enable"], waived = false },
+  { id = "VT-2", expects = "site DNS lives beside the host, flagged by policy", test_file = "hosts/Sleipnir/dns.nix", keywords = ["stubby", "systemd-resolved", "POL-001", "IMP-002"], waived = false },
+  { id = "VT-3", expects = "host config holds site and tuning pieces", test_file = "hosts/Sleipnir/config.nix", keywords = ["gai.conf", "rtcwake", "./dns.nix", "./oom.nix"], waived = false },
+  { id = "VA-1", expects = "EX-5 gate diff reviewed against the P2 row; sudo rule reorder judged harmless per mem.fact.nix.sudo-rule-order" },
+  { id = "VA-2", expects = "POL-001: git diff of the phase adds no identifier absent before it (values only move)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Desktop, compositor and shell features"
+objective = "Introduce desktop.core (own file importing its modules, REV-006), desktop.greeter (default session from the host), the compositor area (five renamed records plus umbriel, each requiring desktop.core) and the shell area (noctalia), per design § Desktop, compositor and shell."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 committed; its snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated renames desktop.<wm> to compositor.<wm> and gains desktop.core, desktop.greeter, compositor.umbriel, shell.noctalia (each #nixos, [true false]); testCompositorRequiresCore written (real tree, no host file: compositor.sway alone refused, with desktop.core resolves); both failing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/desktop/core.nix holds the core record; its nixos half imports ./core/{wayland,wayland_packages,x11,xdg,qt,keyring,gui,v4l2loopback}.nix. The six whole files move with git mv. keyring.nix gains greetd's keyring PAM line from security.nix and drops polkit.enable (base sets it)." },
+  { id = "EX-2", text = "core/gui.nix collects the desktop halves of programs (GUI nix-ld libs, dconf, thunar, foot, 1Password GUI), 1password (GUI, browser allowlist), util (gvfs, devmon, gnome-disks, dconf), env (SSH_ASKPASS_REQUIRE), lib (hunspell, ffmpeg, glfw, pixman) and user (input group); header names each origin. core/v4l2loopback.nix takes the module, package and modprobe options from kernel.nix. modules/nixos/1password.nix deleted; its CLI package goes to programs.nix." },
+  { id = "EX-3", text = "xdg.nix's comment on umbriel's portal section points at the compositor.umbriel record's upstream module." },
+  { id = "EX-4", text = "desktop.greeter is greeter.nix whole with no requires; settings.default comes from services.displayManager.defaultSession via lib.mkIf (design snippet); config.nix sets services.displayManager.defaultSession = \"niri\"." },
+  { id = "EX-5", text = "features/compositor.nix lists sway (features/desktop/sway.nix git mv to features/compositor/sway.nix), niri (minus the noctalia package), cosmic, kde, mango and umbriel (umbriel.nix as a record in the mango shape), each with requires = [\"desktop.core\"]; features/shell.nix lists noctalia; features/default.nix appends compositor, shell after desktop; features/desktop.nix holds core, greeter, fonts with a rewritten header. Old modules/nixos files deleted." },
+  { id = "EX-6", text = "Selection: workstation profile gains desktop.core; hosts/Sleipnir/features.nix renames desktop.<wm> to compositor.<wm> and selects desktop.greeter, compositor.umbriel, shell.noctalia. No feature.desktop.<wm> path remains anywhere (undeclared-option failure proves it)." },
+  { id = "EX-7", text = "REV-006 approved and applied: ADR-002 D3 carries the record-imports-modules sentence; README own-file rule worded the same, tree listing gains compositor/, shell/, desktop/core/ and the new records." },
+  { id = "EX-8", text = "Gate vs PHASE-02: order changes only in systemPackages, nix-ld.libraries, extraPortals, sessionPackages, kernelModules, extraGroups, and home order of the sway and niri halves; every probe measure identical, system and home; the greeter's greeter.toml identical." },
+  { id = "EX-9", text = "Committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver tests cover the renamed and new desktop features and the core prerequisite", test_file = "features-test.nix", keywords = ["compositor.sway#nixos", "compositor.umbriel#nixos", "desktop.core#nixos", "desktop.greeter#nixos", "shell.noctalia#nixos", "testCompositorRequiresCore"], waived = false },
+  { id = "VT-2", expects = "compositor area records require the core", test_file = "features/compositor.nix", keywords = ["name = \"niri\"", "name = \"umbriel\"", "requires = [\"desktop.core\"]"], waived = false },
+  { id = "VT-3", expects = "core record imports its own modules", test_file = "features/desktop/core.nix", keywords = ["name = \"core\"", "./core/wayland_packages.nix", "./core/gui.nix", "./core/v4l2loopback.nix"], waived = false },
+  { id = "VT-4", expects = "greeter default follows the host's defaultSession", test_file = "features/desktop.nix", keywords = ["name = \"greeter\"", "services.displayManager.defaultSession"], waived = false },
+  { id = "VA-1", expects = "EX-8 gate diff reviewed against the P3 row" },
+  { id = "VA-2", expects = "Negative controls (lib.mkForce false, closure not option): desktop.core with the compositors, defaultSession mkForce null -> wayland-utils and seahorse absent from system-path, qt.enable false; desktop.greeter -> noctalia-greeter off, and once defaultSession = \"bogus\" refused at evaluation; compositor.umbriel -> programs.umbriel.enable false; shell.noctalia -> noctalia absent from system-path; SL-006 compositor controls re-run under compositor.* paths, niri's with defaultSession mkForce null" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Audio, hardware and service features"
+objective = "Introduce audio.pipewire, hardware.{bluetooth,qmk,tablet,logitech} and services.postgresql, and move the web ports into services.webserver, per design § Audio, hardware and service features. After it, modules/nixos holds only the base and the two parked files."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 committed; its snapshot is the baseline." },
+  { id = "EN-2", text = "Red: testSleipnirSelectsMigrated gains audio.pipewire, hardware.bluetooth, hardware.qmk, hardware.tablet, hardware.logitech, services.postgresql (each #nixos, [true false]); failing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "audio.pipewire, first in features/audio.nix: audio.nix minus avahi.enable (base sets it); security.rtkit; the @users rtprio loginLimits from security.nix; boot.kernelModules snd-seq, snd-rawmidi, snd-aloop from kernel.nix; user groups audio, jackaudio from user.nix." },
+  { id = "EX-2", text = "features/hardware.nix after openrgb: bluetooth (bluetooth.nix whole), qmk (keyboard.nix whole), tablet (opentabletdriver, hardware.uinput, kernelModules uinput from util.nix), logitech (logitech.wireless from util.nix)." },
+  { id = "EX-3", text = "features/services.nix: postgresql after printing (postgresql.nix whole, stray 80/443 kept until PHASE-06); webserver gains networking.firewall.allowedTCPPorts = [80 443] from network.nix." },
+  { id = "EX-4", text = "Selection: workstation gains audio.pipewire; Sleipnir selects the four hardware features and services.postgresql. Old modules/nixos files deleted; config.nix imports nothing flat from modules/nixos." },
+  { id = "EX-5", text = "ls modules/nixos equals default.nix's list plus hyprland.nix and kmscon.nix (and default.nix)." },
+  { id = "EX-6", text = "Gate vs PHASE-03: order changes only in systemPackages, kernelModules, allowedTCPPorts, extraGroups, loginLimits; every probe measure identical, ports included." },
+  { id = "EX-7", text = "README tree listing and Printing's avahi.nix reference updated; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "resolver tests cover the new audio, hardware and service features", test_file = "features-test.nix", keywords = ["audio.pipewire#nixos", "hardware.bluetooth#nixos", "hardware.qmk#nixos", "hardware.tablet#nixos", "hardware.logitech#nixos", "services.postgresql#nixos"], waived = false },
+  { id = "VT-2", expects = "hardware area carries the four peripheral records", test_file = "features/hardware.nix", keywords = ["name = \"bluetooth\"", "name = \"qmk\"", "name = \"tablet\"", "name = \"logitech\""], waived = false },
+  { id = "VT-3", expects = "pipewire record owns rtkit, rtprio and the sound modules", test_file = "features/audio.nix", keywords = ["name = \"pipewire\"", "rtkit", "rtprio", "snd-aloop", "jackaudio"], waived = false },
+  { id = "VA-1", expects = "EX-6 gate diff reviewed against the P4 row" },
+  { id = "VA-2", expects = "Negative controls (lib.mkForce false, closure not option): audio.pipewire -> pavucontrol, ncpamixer absent, no @users rtprio limit; hardware.bluetooth -> bluetui absent, services.blueman.enable false, hardware.bluetooth.enable true while cosmic is selected and false with cosmic also deselected; qmk / tablet / logitech -> qmk / opentabletdriver / ltunify absent; services.postgresql -> postgresql unit absent" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "aarch64 base target"
+objective = "Prove the base evaluates headless on aarch64-linux with no host, feature or machine config: coverage.\"base@aarch64-linux\" in hosts.nix (ADR-005 style), with x86 guards on the shared CLI list."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 committed; its snapshot is the baseline." },
+  { id = "EN-2", text = "Red: the target added first and just coverage run, recording the evaluation failures (cpuid, x86info expected)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "hosts.nix gains coverage.\"base@aarch64-linux\" per design § Base evaluation on aarch64 (base, platformModule, stateVersion and a root filesystem); just coverage prints its toplevel drvPath." },
+  { id = "EX-2", text = "cpuid and x86info guarded at their own sites in modules/shared/cli/_packages/system.nix with lib.optional pkgs.stdenv.hostPlatform.isx86, keeping Sleipnir's list order. Any further breaker gets a guard at its own site; anything larger is a /consult." },
+  { id = "EX-3", text = "Gate vs PHASE-04: every Sleipnir, home and Draupnir drvs line identical; coverage gains the new target." },
+  { id = "EX-4", text = "README Coverage names the aarch64 base target; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "aarch64 base coverage target exists", test_file = "hosts.nix", keywords = ["base@aarch64-linux", "./modules/nixos", "aarch64-linux"], waived = false },
+  { id = "VT-2", expects = "x86-only packages are guarded", test_file = "modules/shared/cli/_packages/system.nix", keywords = ["isx86", "pkgs.cpuid", "pkgs.x86info"], waived = false },
+  { id = "VA-1", expects = "EX-3: drvs identical; base@aarch64-linux prints a drvPath" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-06"
+name      = "Behaviour changes"
+objective = "Apply exactly the design § Behaviour changes table: the IMP-004 prune, the duplicate sway-easyfocus, the greedt typo, postgresql's stray ports, the dev group, helix to systemPackages, and the Rust kernelPatch after its .config is shown identical."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-05 committed; its snapshot is the baseline." },
+  { id = "EN-2", text = "Kernel configfile derivations built with and without the Rust kernelPatch and compared: identical. If not, stop and /consult." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "wob, i3status, wf-config, gnomeExtensions.appindicator, marble-shell-theme removed from features/desktop/core/wayland_packages.nix; one sway-easyfocus removed from features/compositor/sway.nix; keyring greedt entry corrected; postgresql record loses 80/443; dev leaves user.nix; helix leaves nix-ld libraries for environment.systemPackages in programs.nix; the kernelPatch leaves config.nix." },
+  { id = "EX-2", text = "Gate vs PHASE-05: drvs-sets system count drops by 6 and gains 1 (helix); the probe diff is exactly the table's rows; nothing else differs." },
+  { id = "EX-3", text = "Close checks: every modules/nixos/*.nix is in default.nix or parked; the design § Phases and verification close git grep over tracked files under flakes/ (excluding .doctrine/) finds nothing; just gate green." },
+  { id = "EX-4", text = "rustByDefault finding recorded as a memory; committed." },
+]
+verification = [
+  { id = "VA-1", expects = "EX-2 probe diff equals the table: 5 packages and 1 duplicate gone, helix on root PATH, /etc/pam.d/greedt gone, dev gone from extraGroups, firewall duplicates gone, kernel now the cached linuxPackages_latest build" },
+  { id = "VA-2", expects = "Negative control re-run: services.webserver off -> 80 and 443 absent from ports" },
+  { id = "VA-3", expects = "EN-2 kernel .config comparison recorded in notes.md" },
+  { id = "VA-4", expects = "git grep -w for wob, i3status, wf-config, appindicator, marble-shell-theme under features/ and modules/nixos/ finds nothing; sway-easyfocus appears once (removals cannot be asserted by a keyword mandate)" },
+]
+specs        = []
+requirements = []

@@ -85,9 +85,10 @@ P6 behaviour changes. Detail in design.md.
 `modules/nixos/**`, `hosts/Sleipnir/{config,machine,features,dns}.nix`,
 `features/**` (new `compositor` and `shell` areas, new records),
 `features/profiles/**`, `flake.coverage` (aarch64 base target),
-`features-test.nix`, `README.md`; ADR-002 D3 via REV-006 (a big record may
-import modules of its own, for `desktop.core`). Not `hosts.nix` (DEC-027: no
-factory change). POL-001 governs what the moved files may carry.
+`features-test.nix`, `modules/shared/cli/_packages/system.nix`, `README.md`;
+ADR-002 D3 via REV-006 (a big record may
+import modules of its own, for `desktop.core`). `hosts.nix` gains only the
+aarch64 base coverage target; its factories do not change (DEC-027). POL-001 governs what the moved files may carry.
 
 ## Risks and assumptions
 

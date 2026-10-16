@@ -1,0 +1,30 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 1
+slug = "evaluating-the-aarch64-base-toplevel-on-x86-64-is-enough-evidence-for-w4"
+title = "Evaluating the aarch64 base toplevel on x86_64 is enough evidence for W4"
+record_kind = "assumption"
+status = "held"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+claim           = ""
+confidence      = ""            # low | medium | high
+basis           = ""            # observation | prior-art | design-inference | external-source | operator-judgement
+validation_plan = ""
+validated_by    = ""
+validated_on    = ""
+invalidated_by  = ""
+invalidated_on  = ""
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
