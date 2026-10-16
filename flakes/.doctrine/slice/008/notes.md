@@ -462,3 +462,66 @@ Draupnir, system, coverage identical.
   guards; the unguarded resolve inside is only reached when `ok`.
 - R6: `~/.config/emacs/CHANGELOG.md:568` names the old directory (history),
   not touched.
+
+## PHASE-06
+
+Status: all tasks T0-T7 done, gate green, no STOP. Worker model: sonnet
+(claude-sonnet-5-5). Uncommitted P6 delta on HEAD 0d7dd406. Plan/design
+authoritative over the sheet; no disagreement found.
+
+### Gate snapshots
+
+- Before: `~/.cache/multihost-gate/sl008/phase-06-before/` (drvs, drvs-sets,
+  coverage, `system/`, `home/`, `local-input-refs`). P5->T0 drift: none.
+  After: `.../phase-06/` (PHASE-07's baseline; `coverage` has 8 lines).
+- Drift check (HEAD archive `drvs` vs before): identical, no drift. Archive removed.
+- Counts: drvs 13, drvs-sets 5, coverage 8 (was 7).
+- `diff drvs`, `diff drvs-sets`: empty. `diff coverage`: exactly
+  `> coverage.home@aarch64-linux /nix/store/10vf1bdn52y2mdk0xg6p22cbza9v60mh-home-manager-generation.drv`.
+  `diff -r` of `system/` and `home/` probes: empty.
+- `coverage.err` ends with `isolation: coverage."home@aarch64-linux" ok` and
+  `isolation: homeConfigurations."david@Draupnir" ok`; `just coverage` exit 0.
+- T6e (`phase-06/evidence/isolation-drvpaths`): stubbed == unstubbed for both
+  targets; Draupnir's equals its `drvs` line (`ni5xsrc2...`), home-base's its
+  new `coverage` line (`10vf1bdn...`).
+- `just gate` exit 0; `nix fmt` second run 0 changed (first reformatted the
+  stub to `{outputs = _: {};}`); `flake.lock` unchanged after every task.
+
+### Red evidence
+
+- T2: `just isolation` before the target: `coverage."home@aarch64-linux"`
+  FAILED (`flake ... does not provide attribute ...coverage."home@aarch64-linux"...`),
+  Draupnir ok, exit 1.
+- T4: `just coverage` with new target, old pick: eval error through
+  `concatStringsSep` in `_drvs` (nixos_pick on a home); first line `error:`.
+  After `coverage_pick`: 8 lines, exit 0.
+
+### Negative control (VA-1)
+
+- Owners (T0c, `phase-06-before/local-input-refs`): exactly 7 refs, all
+  `.packages`/`.homeManagerModules`: attention.nix:76,80 (goad), attention/behaviour.nix:19
+  (panopticon), satan/attrd.nix:28,32, satan/patcher.nix:28,32. Nothing in
+  `modules/home` or `hosts/Draupnir`.
+- Control: `feature.attention.goad.enable` resolved into the target's modules.
+  Unstubbed (`controls/goad-unstubbed.result`): `attribute 'aarch64-linux'
+  missing` at attention.nix:80 (goad's real flake has no aarch64-linux
+  packages; R7), i.e. differs from the stubbed error. Stubbed
+  (`controls/goad-on.result`): `attribute 'homeManagerModules' missing` at
+  attention.nix:76:30; `home@aarch64-linux` FAILED; Draupnir ok; exit 1; no
+  other input named. As expected.
+- Restore by `cp` from `controls/hosts.nix.orig`; `cmp` ok; `just isolation`
+  two ok lines, exit 0; lock unchanged.
+
+### Verdict
+
+P6 row: coverage gains one line (home@aarch64-linux); all drvs and drvs-sets
+identical; isolation passes; the goad control fails on goad's
+homeManagerModules only.
+
+### Assumptions and decisions
+
+A1-A5 taken as written. D1-D4 as ruled: target calls `homeManagerConfiguration`
+directly (mkHome untouched); stub path absolute via `stub := "path:" +
+justfile_directory() + "/features/stub"`; isolation reports on stderr only;
+one `nix eval` per target. Files: hosts.nix, justfile, README.md,
+features/stub/flake.nix (new, `git add -N`).

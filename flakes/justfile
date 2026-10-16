@@ -17,6 +17,12 @@ system_override := "--override-input oubliette git+file:///home/david/dev/oublie
 # emacs.nix edit lands without push + `nix flake update emacs`.
 home_override := "--override-input emacs path:" + justfile_directory() + "/emacs " + agents_override
 
+# just isolation: the local-path inputs (a path: or git+file: URL on this
+# machine), each overridden to an empty flake, so a reference to one's
+# packages or homeManagerModules fails evaluation and names it (DEC-034).
+stub := "path:" + justfile_directory() + "/features/stub"
+stub_override := "--override-input panopticon " + stub + " --override-input satan-patcher " + stub + " --override-input satan-attrd " + stub + " --override-input goad " + stub
+
 # The Mac needs an explicit path: reference, because the dotfiles repository
 # at ~/.git is bare and git discovery fails there ("this operation must be
 # run in a work tree"). Linux keeps `.`.
@@ -83,6 +89,9 @@ doctor:
 # nixos pick for drvs and coverage: drvPath, `agents` registry pinned (below).
 nixos_pick := 'c: let pinned = c.extendModules { modules = [({lib, ...}: { nix.registry.agents.to = lib.mkForce { type = "path"; path = "/drvs-gate"; }; })]; }; in (if c.config.nix.registry ? agents then pinned else c).config.system.build.toplevel.drvPath'
 
+# coverage pick: a home target's activation drvPath, else nixos_pick.
+coverage_pick := 'c: if c ? activationPackage then c.activationPackage.drvPath else (' + nixos_pick + ') c'
+
 # drvPath of every configuration, evaluation only — the refactor gate
 # (mem.pattern.flakes.drv-gate): snapshot before a change, diff after.
 # Each family uses its switch target's overrides; new hosts are picked up
@@ -102,9 +111,27 @@ drvs: check-flake-root
   @just _drvs legacyPackages 'lp: if lp ? stdenv then builtins.concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"]) else "none"' "{{agents_override}}"
   @just _drvs templates 't: "${t.path} ${t.description}"' ""
 
-# ADR-005 coverage targets: evaluate off features, outside the switch path; pinned like drvs.
+# ADR-005 coverage targets: evaluate off features, and the NixOS and home
+# bases off x86, outside the switch path; pinned like drvs. Then isolation.
 coverage: check-flake-root
-  @just _drvs coverage '{{nixos_pick}}' "{{system_override}}"
+  @just _drvs coverage '{{coverage_pick}}' "{{system_override}} {{home_override}}"
+  @just isolation
+
+# Lean homes never reach a local-path input (DEC-034): the home base, and
+# Draupnir until a darwin feature needs one (IMP-023 removes that leg).
+# Reports on stderr, so `just coverage`'s stdout stays one line per target.
+isolation: check-flake-root
+  #!/usr/bin/env bash
+  set -uo pipefail
+  fail=0
+  for attr in 'coverage."home@aarch64-linux"' 'homeConfigurations."david@Draupnir"'; do
+    if err=$(nix eval --raw '{{flake}}#'"$attr"'.activationPackage.drvPath' {{home_override}} {{stub_override}} --no-write-lock-file 2>&1 >/dev/null); then
+      echo "isolation: $attr ok" >&2
+    else
+      printf '%s\n' "$err" >&2; echo "isolation: $attr FAILED" >&2; fail=1
+    fi
+  done
+  exit $fail
 
 # Order-insensitive companion to drvs: count + hash of the *sorted* package
 # lists. When drvs differs but these match, the package change is

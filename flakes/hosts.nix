@@ -19,9 +19,9 @@
 # to every `stable ? …` default (mem.fact.nix.callpackage-autoargs).
 #
 # `coverage` holds ADR-005 targets: configurations that select a feature no
-# switchable host selects, or (`base@aarch64-linux`) the NixOS base alone, so
-# `just coverage` proves they still evaluate. They are off every switch path
-# and outside `just drvs`.
+# switchable host selects, or the NixOS base (`base@aarch64-linux`) or home
+# base (`home@aarch64-linux`) alone, so `just coverage` proves they still
+# evaluate. They are off every switch path and outside `just drvs`.
 {
   inputs,
   self,
@@ -264,6 +264,25 @@ in {
           };
         }
       ];
+    };
+
+    # The home base and Linux layer alone on aarch64-linux (DEC-034): proves
+    # they evaluate headless and off x86, with no host, feature or identity.
+    # Evaluated by `just coverage` and `just isolation`; builds nothing.
+    coverage."home@aarch64-linux" = inputs.home-manager.lib.homeManagerConfiguration {
+      pkgs = import inputs.nixpkgs-home {system = "aarch64-linux";};
+      modules = [
+        (homeModule "aarch64-linux")
+        ./modules/home/linux
+        {
+          home = {
+            inherit username;
+            homeDirectory = "/home/${username}";
+            stateVersion = "24.11";
+          };
+        }
+      ];
+      extraSpecialArgs = args "home-base";
     };
   };
 }

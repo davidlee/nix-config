@@ -231,6 +231,7 @@ features/
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness patcher attrd ]       each its own file under satan/
   profiles/           workstation.nix  personal.nix  personal-linux.nix  personal-darwin.nix
+  stub/               flake.nix                       empty flake: just isolation's stand-in for local inputs
 ```
 
 - **Own file.** A feature moves to `features/<area>/<name>.nix` when it would
@@ -285,7 +286,13 @@ features, one per off feature (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"
 every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
 `coverage."base@aarch64-linux"` is the NixOS base alone (no host, feature
 or machine config) on aarch64-linux: it proves the base evaluates headless
-and off x86. Like the rest it is evaluated, never built.
+and off x86. `coverage."home@aarch64-linux"` is its home counterpart: the
+home base and Linux layer alone (no host, feature or identity). Like the rest
+they are evaluated, never built.
+`just isolation` evaluates that target and Draupnir's home with panopticon,
+satan-patcher, satan-attrd and goad (the inputs that are local paths)
+overridden to the empty `features/stub` flake, so a lean home that reaches one
+fails to evaluate, naming it. `just coverage` runs it.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 
 **docker and podman.** Docker is rootless only: `modules/nixos/security.nix`
