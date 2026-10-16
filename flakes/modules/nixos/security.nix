@@ -1,8 +1,4 @@
-{
-  pkgs,
-  config,
-  ...
-}: {
+{config, ...}: {
   # Docker on this flake is rootless only (features/virt.nix, virt.docker).
   # Unconditional, so it also holds when virt.docker is not selected.
   assertions = [
@@ -20,22 +16,6 @@
 
     sudo = {
       enable = true;
-      # ORDER IS SIGNIFICANT: sudoers is last-match-wins
-      extraRules = [
-        {
-          groups = ["wheel"];
-          commands = [
-            {
-              command = "${pkgs.util-linux}/bin/rtcwake";
-              options = ["NOPASSWD" "SETENV"];
-            }
-            {
-              command = "/run/current-system/sw/bin/rtcwake";
-              options = ["NOPASSWD" "SETENV"];
-            }
-          ];
-        }
-      ];
     };
 
     pam.loginLimits = [

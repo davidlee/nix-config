@@ -92,3 +92,20 @@ HEAD f9c57b3a (uncommitted worktree delta for PHASE-01).
 - Cosmetic: alejandra collapsed config.nix's arg list to `{inputs, ...}:` (`pkgs` unused after nix.package moved); drvs re-run stable after formatting.
 - `just gate` green (tests + treefmt).
 - Friction: `nix-diff` env diffs dump huge single lines; use `cut -c1-200` and decode `__json` via `nix derivation show | jq`.
+
+### PHASE-02 verdict: order-only (P2 row), /etc identical modulo order
+
+HEAD 0a7458d5 + uncommitted PHASE-02 delta. Snapshot `~/.cache/multihost-gate/sl007/phase-02/` (PHASE-03's baseline): drvs 13, drvs-sets 5, coverage 6, `system/` + `home/` probe, `etc` (GC root). T0 added the baseline's built `/etc` as `phase-01/etc` (359 symlinks).
+
+- drvs: only `nixosConfigurations.Sleipnir` and the six `coverage.Sleipnir+*` lines differ. Home, Draupnir, packages, legacyPackages, templates identical.
+- drvs-sets: identical (Sleipnir 570, same hash). probe: `diff -r system home` empty, including `system/packages`, `kernelParams` and `system-path-links`.
+- nix-diff of toplevel (`phase-02/nix-diff-toplevel.txt`): three leaves, all order-only, everything else fallout (dbus-1, system/user units, restart triggers, activate):
+  - `system-path`: only `chosenOutputs` differs; sorted multiset equal (570 = 570).
+  - `sudoers-in`: the wheel rtcwake rule moved after `nft list table inet capsule-forward` (back to its pre-PHASE-01 place); sorted lines equal.
+  - `boot.json`: `amdgpu.gpu_recovery=1` moved one place in kernelParams; sorted equal.
+  - Not moved: `modules-load.d/nixos.conf`, `modprobe.d/nixos.conf`, users-groups (extraGroups), swap.
+- /etc (VA-3), link-map diff `phase-02/etc-linkmap.diff`: gai.conf, stubby.yml, the `wired` NM ini, resolved.conf, nix.conf (`max-jobs = 4`, `cores = 4`), modules-load.d, modprobe.d, NetworkManager.conf all point at the same store paths. Changed links: `sudoers` (order only, above); `dbus-1`, `systemd/system`, `systemd/user`, `terminfo` (identical after normalising the system-path/unit store hashes); `nix/registry.json` (only the `agents` registry `path`, the flake's own source path, which changes with any source edit — the reason `nixos_pick` pins it in `just drvs`; the T0/T6 `/etc` build does not pin it).
+- VA-1 sudoers rendering: `root ALL`, `%wheel ALL` first; then nft capsule-forward, rtcwake, capsule-proxy restarts; commands disjoint.
+- VA-2 POL-001: `phase-02/pol001-added-tokens.txt` — added-only tokens are comment words, attr paths, file paths and ids (POL-001, IMP-002, IMP-022, DEC-029, SL-007, PHASE-06). `1qncxpyinu9`, `76.76.`, `2606:1a40`, `192.168`, `enp8s0`, `controld` each removed = added. Values only moved.
+- README edits came after the snapshot; they do not change any evaluated drv (`just drvs` pins the registry), so no re-run.
+- `just gate` green (tests + treefmt); statix and deadnix clean on every touched file.

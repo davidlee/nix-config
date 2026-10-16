@@ -1,3 +1,6 @@
+# Sleipnir's memory-pressure tuning (README § OOM resilience). Host config, not
+# base: the session-slice reservation names this host's UID and the earlyoom
+# avoid list its compositors and shell. IMP-022 parametrises it per host.
 {pkgs, ...}: {
   systemd = {
     # tune systemd-oomd to intervene before the system becomes unresponsive.
@@ -66,14 +69,6 @@
         -p ManagedOOMMemoryPressureLimit=80% \
         -- "$@"
     '')
-  ];
-
-  # 16G swap file on root (ext4) — supplements the 8.8G swap partition
-  swapDevices = [
-    {
-      device = "/swapfile";
-      size = 16384;
-    }
   ];
 
   # zram: compressed swap in RAM (fast). This is the primary swap tier.

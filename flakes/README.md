@@ -376,7 +376,7 @@ Exit code is ignored (non-zero logs stdout/stderr as a single WARN). A single ob
 
 ### OOM resilience
 
-`modules/nixos/oom.nix` — tunes `systemd-oomd` and reserves resources so the desktop stays usable under memory pressure.
+`hosts/Sleipnir/oom.nix` — tunes `systemd-oomd` and reserves resources so the desktop stays usable under memory pressure. Host config: it names this host's UID and compositors (IMP-022 parametrises it per host). The 16G swap file is in `hosts/Sleipnir/machine.nix`.
 
 **systemd-oomd:** enabled for root, system, and user slices. Kills when swap hits 90%. Default memory pressure duration 20s.
 
@@ -609,7 +609,7 @@ When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `
 
 ### Prefer IPv4 (gai.conf)
 
-`modules/nixos/network.nix` — `environment.etc."gai.conf"` sets `precedence ::ffff:0:0/96 100`, flipping getaddrinfo to prefer IPv4 over the RFC 6724 default (which prefers v6).
+`hosts/Sleipnir/config.nix` — `environment.etc."gai.conf"` sets `precedence ::ffff:0:0/96 100`, flipping getaddrinfo to prefer IPv4 over the RFC 6724 default (which prefers v6).
 
 **Why:** the ISP's v6 egress goes intermittently dead — the router keeps advertising a v6 default route and delegating a global prefix (`2403:5802:…`), but outbound v6 `connect()` blackholes ~3s then fails. Because a global v6 address exists, RFC 6724 makes apps dial the dead v6 first on every dual-stack name, so everything stalls seconds per attempt. It surfaced as a nix FOD hanging forever in `bun install --frozen-lockfile` (fresh `HOME` cache → full download, each dep dialling dead v6 first).
 

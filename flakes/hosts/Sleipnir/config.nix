@@ -1,4 +1,9 @@
-{inputs, ...}: {
+{
+  inputs,
+  lib,
+  pkgs,
+  ...
+}: {
   system.stateVersion = "24.11"; # the release this host was first installed with
 
   # Sleipnir-only package fixes. mkNixos (../../hosts.nix) appends the agents
@@ -14,16 +19,17 @@
     ./machine.nix
 
     ../../modules/nixos # the base (DEC-027)
+    ./dns.nix
+    ./oom.nix
+
     ../../modules/nixos/1password.nix
     ../../modules/nixos/audio.nix
     ../../modules/nixos/bluetooth.nix
     ../../modules/nixos/greeter.nix
     ../../modules/nixos/keyboard.nix
     ../../modules/nixos/keyring.nix
-    ../../modules/nixos/oom.nix
     ../../modules/nixos/postgresql.nix
     ../../modules/nixos/qt.nix
-    ../../modules/nixos/radeon.nix
     ../../modules/nixos/umbriel.nix
     ../../modules/nixos/wayland.nix
     ../../modules/nixos/wayland_packages.nix
@@ -34,5 +40,46 @@
     # not features: selecting one says "flip me", which would be a lie here.
     # ../../modules/nixos/hyprland.nix   (hyprlandPlugins.hyprexpo missing)
     # ../../modules/nixos/kmscon.nix     (services.kmscon.fonts removed upstream)
+  ];
+
+  # gai.conf: prefer IPv4 (README § Prefer IPv4).
+  # Prefer IPv4 in getaddrinfo source/dest selection (RFC 6724 default
+  # prefers v6). ISP v6 egress has been intermittently dead — the router
+  # still advertises a v6 default + hands out a global prefix, so apps dial
+  # the dead v6 first and stall ~3s per attempt (wedged bun install in a nix
+  # FOD). Interface-agnostic and self-healing: when v6 egress recovers, apps
+  # still work, just preferring v4. mkForce overrides the stock gai.conf.
+  environment.etc."gai.conf".text = lib.mkForce ''
+    reload no
+    precedence ::ffff:0:0/96  100
+  '';
+
+  # wheel may run rtcwake (scheduled wake from suspend) without a password.
+  # ORDER IS SIGNIFICANT: sudoers is last-match-wins
+  security.sudo.extraRules = [
+    {
+      groups = ["wheel"];
+      commands = [
+        {
+          command = "${pkgs.util-linux}/bin/rtcwake";
+          options = ["NOPASSWD" "SETENV"];
+        }
+        {
+          command = "/run/current-system/sw/bin/rtcwake";
+          options = ["NOPASSWD" "SETENV"];
+        }
+      ];
+    }
+  ];
+
+  # Rust support in the kernel build; SL-007 PHASE-06 removes it if harmless.
+  boot.kernelPatches = [
+    {
+      name = "Rust Support";
+      patch = null;
+      features = {
+        rust = true;
+      };
+    }
   ];
 }

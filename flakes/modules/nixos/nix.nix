@@ -28,8 +28,6 @@
     settings = {
       trusted-users = ["root" "@wheel"];
       experimental-features = ["nix-command" "flakes"];
-      max-jobs = 4;
-      cores = 4;
       auto-optimise-store = true;
       substituters = [
         "https://cache.nixos.org"
@@ -68,12 +66,6 @@
       options = "--delete-older-than 7d";
     };
   };
-
-  # Cap nix-daemon memory so heavy builds (rust links) don't swap out the desktop
-  # and freeze the cursor. Soft limit: kernel reclaims nix-daemon's own pages and
-  # throttles its allocations past 40G rather than OOM-killing the build. Leaves
-  # ~20G for sway + apps + page cache. Bump if builds thrash inside the cgroup.
-  systemd.services.nix-daemon.serviceConfig.MemoryHigh = "40G";
 
   # WORKAROUND (remove after nixpkgs bump past 2026-05-27): crates.io rate-limits
   # and 403s the curl/* User-Agent on /api/v1/.../download, used by importCargoLock
