@@ -1,5 +1,7 @@
 # Terminal features, in projection order. Shape: README § Feature tree.
-{lib, ...}: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "emulators";
     platforms = lib.platforms.linux;
@@ -18,11 +20,7 @@
 
   {
     name = "utils";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## screen rec
@@ -39,7 +37,7 @@
           ## clock
           clock-rs
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           nerd-font-patcher
         ];
     };

@@ -1,12 +1,10 @@
 # Text features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "tools";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## regex
@@ -17,7 +15,7 @@ _: [
           choose
           slides
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ### unicode
           cicero-tui # unicode
         ];
@@ -26,11 +24,7 @@ _: [
 
   {
     name = "pagers";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## text readers, pagers
@@ -42,7 +36,7 @@ _: [
           ## highlighting
           chroma
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           fltrdr
         ];
     };
@@ -52,11 +46,7 @@ _: [
   # which every home imported (quick-sdcv in Emacs reads them).
   {
     name = "dictionary";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: let
+    homeManager = {pkgs, ...}: let
       # Webster's Revised Unabridged Dictionary (1913), StarDict format, read by
       # sdcv (quick-sdcv in Emacs). Public domain.
       web1913 = pkgs.fetchzip {
@@ -69,7 +59,7 @@ _: [
           aspell
           sdcv
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ## translate
           gtt
         ];

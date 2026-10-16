@@ -1,5 +1,7 @@
 # Files features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "manage";
     homeManager = {
@@ -32,7 +34,7 @@ _: [
           # trash
           trash-cli
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           # hiPrio: wins bin/trash over the portable trash-cli above.
           (lib.hiPrio trashy)
         ];
@@ -41,11 +43,7 @@ _: [
 
   {
     name = "disk";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## disk & file io
@@ -55,7 +53,7 @@ _: [
           dust
           pydf
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           mmtui # mount manager
           udiskie
         ];
@@ -77,11 +75,7 @@ _: [
 
   {
     name = "search";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           bfs # faster than fd
@@ -100,7 +94,7 @@ _: [
           ast-grep
           ripgrep-all
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           #semgrep
           fsearch
         ];
@@ -109,18 +103,14 @@ _: [
 
   {
     name = "sync";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## download / backup
           syncthing
           # backblaze-b2
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           backintime
         ];
     };

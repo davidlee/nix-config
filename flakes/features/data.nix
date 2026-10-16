@@ -1,12 +1,10 @@
 # Data features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "structured";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## CSV
@@ -22,7 +20,7 @@ _: [
           jc
           jless
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ## csv
           csv-tui
         ];
@@ -31,12 +29,8 @@ _: [
 
   {
     name = "hex";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+    homeManager = {pkgs, ...}: {
+      home.packages = available pkgs (with pkgs; [
         ## hex editors
         hexyl
         unixtools.xxd

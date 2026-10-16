@@ -1,12 +1,10 @@
 # Net features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "tools";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           aria2
@@ -29,7 +27,7 @@ _: [
           bandwhich # whats eating the network
           lsof
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           sn0int
         ];
     };

@@ -1,5 +1,7 @@
 # Office features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "calc";
     homeManager = {pkgs, ...}: {
@@ -13,11 +15,7 @@ _: [
 
   {
     name = "calendar";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ### google cal
@@ -26,7 +24,7 @@ _: [
           # calendar-cli # disabled: test failures in python3.13-niquests dep
           calcure
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           mpris-timer # aka play timer
         ];
     };

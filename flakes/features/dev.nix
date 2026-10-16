@@ -1,5 +1,7 @@
 # Dev features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "scm";
     homeManager = {
@@ -27,7 +29,7 @@ _: [
           lazyjj
           jjui
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           # hiPrio: superset of the base's `git`; wins bin/git on Linux.
           (lib.hiPrio gitFull)
           gitui
@@ -38,11 +40,7 @@ _: [
 
   {
     name = "build";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           ## build tools
@@ -58,7 +56,7 @@ _: [
           ## lang.c
           gcc
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           lldb
           lld
           llvm
@@ -83,11 +81,7 @@ _: [
 
   {
     name = "runners";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           just
@@ -101,9 +95,7 @@ _: [
           viddy
           entr
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
-          # watchman pulls the folly/fbthrift C++ tower, which currently
-          # fails to build on aarch64-darwin; keep it Linux-only.
+        ++ available pkgs [
           watchman
         ];
     };
@@ -111,11 +103,7 @@ _: [
 
   {
     name = "tools";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           exercism
@@ -133,7 +121,7 @@ _: [
           shellcheck
           shfmt
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ccache
 
           ## load test / benchmark

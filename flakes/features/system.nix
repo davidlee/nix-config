@@ -1,19 +1,17 @@
 # System features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "monitor";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           glances
           btop
           bottom
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ## systray
           tray-tui
 
@@ -27,12 +25,8 @@ _: [
 
   {
     name = "process";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+    homeManager = {pkgs, ...}: {
+      home.packages = available pkgs (with pkgs; [
         ## process management
         pstree
         killall

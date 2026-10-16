@@ -1,13 +1,11 @@
 # Notes features, in projection order. Shape: README § Feature tree.
-{lib, ...}: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "terminal";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+    homeManager = {pkgs, ...}: {
+      home.packages = available pkgs (with pkgs; [
         kb
         nb
         tpnote

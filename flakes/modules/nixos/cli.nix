@@ -25,7 +25,7 @@
       ## hardware & disk inspection
       hdparm
     ]
-    ++ lib.optional pkgs.stdenv.hostPlatform.isx86 pkgs.cpuid
+    ++ lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) [pkgs.cpuid]
     ++ [
       cpuinfo
       dmidecode
@@ -37,7 +37,7 @@
       sysstat
       usbutils
     ]
-    ++ lib.optional pkgs.stdenv.hostPlatform.isx86 pkgs.x86info
+    ++ lib.filter (lib.meta.availableOn pkgs.stdenv.hostPlatform) [pkgs.x86info]
     ++ [
       lm_sensors
 

@@ -1,5 +1,7 @@
 # Editor features, in projection order. Shape: README § Feature tree.
-{lib, ...}: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   (import ./editor/emacs.nix)
 
   # Modules the record owns: options.nvimPackages is declared only when
@@ -16,12 +18,8 @@
 
   {
     name = "kakoune";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+    homeManager = {pkgs, ...}: {
+      home.packages = available pkgs (with pkgs; [
         kakoune
         kakoune-lsp
         kakoune-cr
@@ -31,17 +29,13 @@
 
   {
     name = "misc";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           # lapce # gui editor
           wordgrinder
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           micro-with-wl-clipboard
         ];
     };

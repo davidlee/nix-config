@@ -1,17 +1,15 @@
 # Docs features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: let
+  available = import ./available.nix lib;
+in [
   {
     name = "diagrams";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           graphviz
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           d2
           mermaid-cli
           structurizr-cli
@@ -23,16 +21,12 @@ _: [
 
   {
     name = "typeset";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       home.packages = with pkgs;
         [
           typst
         ]
-        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+        ++ available pkgs [
           ghostscript
           latex2html
 
@@ -64,12 +58,8 @@ _: [
 
   {
     name = "help";
-    homeManager = {
-      pkgs,
-      lib,
-      ...
-    }: {
-      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+    homeManager = {pkgs, ...}: {
+      home.packages = available pkgs (with pkgs; [
         # tealdeer is the tldr client (provides bin/tldr); plain `tldr` dropped.
         tealdeer
         cheat

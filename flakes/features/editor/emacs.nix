@@ -12,6 +12,7 @@
     # From flakes/emacs, not built against this host's pkgs: the same
     # derivation the ~/.config/emacs devshell runs.
     emacs = inputs.emacs.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    available = import ../available.nix lib;
   in {
     home.packages =
       [
@@ -32,7 +33,7 @@
             collection-fontsrecommended
           ]))
       ])
-      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [pkgs.emacs-all-the-icons-fonts];
+      ++ available pkgs [pkgs.emacs-all-the-icons-fonts];
 
     home.sessionVariables = {
       EDITOR = "emacsclient -c";

@@ -525,3 +525,23 @@ directly (mkHome untouched); stub path absolute via `stub := "path:" +
 justfile_directory() + "/features/stub"`; isolation reports on stderr only;
 one `nix eval` per target. Files: hosts.nix, justfile, README.md,
 features/stub/flake.nix (new, `git add -N`).
+
+## PHASE-07
+
+### Block A status: DONE (T0-T3), uncommitted. Worker: sonnet (second worker finished T2/T3).
+
+Done (uncommitted, source only): T0 baseline `phase-07-pre/`; T1 `features/cli-broken.nix` + `features/available.nix`; T2 all 29 guards + `modules/nixos/cli.nix` converted; T3 Draupnir delta + VA-1. Snapshot `~/.cache/multihost-gate/sl008/phase-07a/` (drvs 13, drvs-sets 5, coverage 8, probe) is Block B's before.
+
+Decisions: A4 names via `lib.getName` (plain data). A5 helper in separate `features/available.nix`. A6 `a ++ available pkgs [linux...]`.
+
+**Plan adaptation (orchestrator ruling, DEC-036 conformant):** EX-1 list extended from [watchman atuin] by four eval-time failures on aarch64-darwin, added to `cli-broken.nix` with reasons: `gtt` (alsa-lib), `udiskie` (libappindicator-gtk3), `micro` (= micro-with-wl-clipboard; wayland; `lib.getName` returns pname `micro`, not `micro-wrapped`), `fsearch` (meta.broken). availableOn sees only a package's own meta.platforms. No change to available.nix semantics. Evidence: `phase-07a/evidence/eval-fail`, `eval-fail-errors`.
+
+Gate results: `just gate` green; fmt 0 changed; flake.lock unchanged. Sleipnir: drvs and drvs-sets lines (system, home, david) identical to phase-07-pre; `pkgs.Sleipnir` identical; probe `system/` and `home/` `diff -rq` empty. Coverage 8 lines identical, exit 0, isolation `coverage."home@aarch64-linux"` ok and `homeConfigurations."david@Draupnir"` ok. Only changed lines: Draupnir home drv (`pc3p64c2...`) and set (208 -> 265, +57).
+
+Draupnir gained (57; no removals; watchman, atuin, gtt, udiskie, micro, fsearch absent): await binutils-wrapper ccache cheat circumflex clang cmatrix csv-tui d2 drawio emacs-all-the-icons-fonts fastfetch ffmpeg-full fltrdr fortune-mod ghostscript gitui git-with-svn gtop hexyl htop hyperfine kakoune kakoune.cr kakoune-lsp kb killall-shell_cmds latex2html lld lldb llvm mermaid-cli mprocs nb nerd-font-patcher nms pandoc-cli pinfo procs pstree pueue resvg russ sn0int stdenv-darwin stress-ng structurizr-cli tdf tealdeer tpnote tui-journal tuisky tut ueberzugpp wiki-tui xxd-tinyxxd yEd. Delta: `phase-07a/evidence/draupnir-delta`.
+Spot checks: gained `htop-3.5.3` (system.monitor) present; excluded `tray-tui` and `wtf` (same list) absent, `availableOn` false on aarch64-darwin.
+
+stdenv-darwin / binutils-wrapper: from `dev.build` (features/dev.nix ~58-66): `clangStdenv` resolves on darwin to `stdenv-darwin` (the stdenv itself, a derivation that is not useful as a user package), and `binutils` resolves to `binutils-wrapper-2.46` (the cctools wrapper; `clang`, `lld`, `llvm`, `lldb` from libclang/llvm entries are real tools). Bare `gcc` is unguarded and was already `gcc-wrapper` on Draupnir. FINDING: `clangStdenv` in home.packages is a pre-existing oddity on Linux too (a stdenv, not a tool); on darwin it gains a stdenv-darwin entry. Intended by the availability rule but arguably unintended content; not fixed. `binutils-wrapper` may collide with darwin cctools `bin/ld`/`ar` etc. (R4/VH-2).
+
+### VA-1 (cache.nixos.org, aarch64-darwin outPaths of the 57 gained)
+55 cached. UNCACHED (for VH-1): `killall-shell_cmds-329` /nix/store/wpjr4ml6rry1arkkpqx9i6ha1kx0724c-killall-shell_cmds-329; `yEd-3.25.1` /nix/store/7k8hz835dpfnyackb56g7my96j6rzik3-yEd-3.25.1. Evidence `phase-07a/evidence/va1-cache`. User choice: add to `cli-broken.nix` aarch64-darwin, or accept a local build.
