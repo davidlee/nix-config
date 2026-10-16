@@ -2,10 +2,8 @@
   imports = [
     ../../modules/home/linux
 
-    # host config (the doctor) and the W2 exceptions (eca, chatgpt)
+    # host config
     ./doctor.nix
-    ../../modules/home/linux/eca.nix
-    ../../modules/home/linux/chatgpt.nix
   ];
 
   home = {

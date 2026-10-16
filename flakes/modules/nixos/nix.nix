@@ -1,29 +1,8 @@
-{
-  pkgs,
-  inputs,
-  ...
-}: {
+{pkgs, ...}: {
   nixpkgs.config.allowUnfree = true;
 
   nix = {
     package = pkgs.lixPackageSets.stable.lix;
-
-    # Dedicated `agents` registry alias -> this flake, so ad-hoc
-    # `nix shell agents#codex` (claude, gemini, opencode, pi, crush,
-    # zerostack, dirge) and nix run/build resolve to self.legacyPackages —
-    # a full nixpkgs with the agents overlay applied. Deliberately NOT the
-    # `nixpkgs` alias: the nixpkgs-flake module routes <nixpkgs> through
-    # `flake:nixpkgs`, so repointing it would make `import <nixpkgs>`
-    # import this flake's dir, breaking legacy tooling.
-    #
-    # Explicit `to` path (not `.flake = inputs.self`): self is a subdir
-    # flake (?dir=flakes), and `.flake` auto-tags the parent repo's
-    # rev/narHash onto a path pointing at the subdir — the mismatch makes
-    # Nix reject it ("does not contain a '/flake.nix'"). A bare path works.
-    registry.agents.to = {
-      type = "path";
-      path = inputs.self.outPath;
-    };
 
     settings = {
       trusted-users = ["root" "@wheel"];

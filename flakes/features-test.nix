@@ -456,6 +456,7 @@ in
         "hardware.tablet#nixos"
         "hardware.logitech#nixos"
         "services.postgresql#nixos"
+        "agents.registry#nixos" # through the personal-linux profile
       ];
       bothHalves = [
         "compositor.sway#nixos"
@@ -467,6 +468,8 @@ in
         "audio.dictate#homeManager" # through the workstation profile
         "compositor.sway#homeManager"
         "compositor.niri#homeManager"
+        "agents.eca#homeManager" # through the personal-linux profile
+        "agents.chatgpt#homeManager" # through the personal-linux profile
       ];
     in {
       expr = sleipnirSelects (nixosOnly ++ bothHalves ++ homeOnly);
@@ -549,6 +552,9 @@ in
         "attention.nudge#homeManager"
         "attention.goad#homeManager"
         "audio.alarm#homeManager"
+        # SL-009 P4: personal-linux
+        "agents.eca#homeManager"
+        "agents.chatgpt#homeManager"
       ];
     in {
       expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;

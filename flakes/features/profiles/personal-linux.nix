@@ -11,6 +11,9 @@
   feature.attention.nudge.enable = lib.mkDefault true;
   feature.attention.goad.enable = lib.mkDefault true;
   feature.media.spotify.enable = lib.mkDefault true;
+  feature.agents.registry.enable = lib.mkDefault true;
+  feature.agents.eca.enable = lib.mkDefault true;
+  feature.agents.chatgpt.enable = lib.mkDefault true;
   # satan.patcher and satan.attrd require it; a profile only defaults it
   # (ADR-001 D4).
   feature.services.postgresql.enable = lib.mkDefault true;

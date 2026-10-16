@@ -210,9 +210,9 @@ order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ai audio services desktop compositor shell
-                        editor notes dev docs data files net web system text office security media graphics
-                        comms fun terminal attention satan ]
+  default.nix         [ hardware session virt non-nix-packages games ai agents audio services desktop compositor
+                        shell editor notes dev docs data files net web system text office security media
+                        graphics comms fun terminal attention satan ]
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -221,6 +221,7 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
+  agents.nix          [ registry eca chatgpt ]        registry: nixos only; eca: linux only (personal-linux)
   audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
   audio/              dictate  dictate-test  alarm/   assets, beside their feature
   services.nix        [ printing postgresql webserver sunshine ] sunshine: coverage target

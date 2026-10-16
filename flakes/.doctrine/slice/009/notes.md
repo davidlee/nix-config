@@ -140,3 +140,22 @@ Agents overlay removed from system and home pkgs; kept on `legacyPackages` (DEC-
 - `drvs`, `drvs-sets`, `checkouts`: no diff (EX-3, VA-2 met). No attribution needed.
 - VA-1: `agentsOverlay` appears only at its definition (:36) and `legacyPackages` (:203); no `mkAfter` in hosts.nix.
 - `just gate`: rc=0, treefmt 0 changed (alejandra/statix/deadnix clean). Only nix-level environmental warnings (dirty tree, oubliette overrides for goad-walk/target, lock not written); none from the edits. `flake.lock` clean.
+
+## PHASE-04
+
+The agents area (DEC-041): `features/agents.nix` holds `agents.registry` (nixos), `agents.eca` (homeManager, `platforms = lib.platforms.linux`) and `agents.chatgpt` (homeManager), listed after `ai`; `personal-linux` selects all three with `mkDefault`.
+
+- Edits: `features/agents.nix` (new, `git add -N`; registry rationale comment and eca header moved verbatim), `features/default.nix`, `features/profiles/personal-linux.nix`, `features-test.nix`, `hosts/Sleipnir/home.nix` (eca/chatgpt imports and the W2 comment out; `# host config` kept on `./doctor.nix`), `modules/nixos/nix.nix` (registry block and the now-unused `inputs` arg out), `README.md` § Feature tree (default.nix block reflowed with `agents`; `agents.nix` row). `git rm modules/home/linux/{eca,chatgpt}.nix`.
+- Module args: both moved halves receive `inputs` as before (eval green); no plumbing added.
+- RED: with the tests extended and no area, `checks.features` failed exactly testSleipnirSelectsMigrated and testSleipnirHomeSelection, the new entries reading `false` / `[false false]`. GREEN after the area.
+- Snapshots: `~/.cache/sl009/p4/{before,after}`, `coverage-{before,after}`. Checkouts identical before/after (oubliette 63cc360b, goad 250b8ed9, panopticon a6648a46, satan-patcher 4efa2054, satan-attrd c8fd7eb5; all clean); no attribution needed.
+- EX-4, against the P4 row:
+  - `drvs`: only `homeConfigurations.david@Sleipnir` (and its alias `homeConfigurations.david`, same drv) `aljb9phd…` → `mafy4gac…`. System, Draupnir, packages, legacyPackages, templates identical.
+  - `drvs-sets`: identical (same package set).
+  - probe system: identical. probe home: `packages`, `home-path-links` identical; `home-files-links` differs in one line, `.manpath` (`1mbrisx1…` → `d7gxd20w…`). `.manpath` is a `home.file`, so it lands in `home-files-links`; this is the row's `.manpath` hash, not a separate diff. Cause: `man-paths.drv` differs only in `chosenOutputs` order (same 341-entry set; rest of the env hash-identical). `claude-desktop` (ai) now follows chatgpt/eca/jailed-eca (agents) — the merge-order effect (`mem.fact.nix.merge-order`).
+  - coverage: only `base@aarch64-linux` (`p3mjj2vi…` → `q62v7x37…`); nix-diff confines it to `etc-nix-registry.json`, which lost the `agents` entry. Warning sets before/after identical (mpd rename, known); isolation ok both targets.
+- EX-5: unmodified Sleipnir `home.packages` names matching eca|chatgpt: `chatgpt-26.928.20755 eca-0.161.2 jailed-eca`; with `feature.agents.eca.enable = lib.mkForce false` (temp edit, plus `{lib, ...}:` header): `chatgpt-26.928.20755` only, home drv `ryh7c2dh…` ≠ after `mafy4gac…`. Restored from a scratch copy: `git diff --stat` / `git status --short` on `hosts/Sleipnir/features.nix` empty.
+- EX-6 close grep (`agents_override|home_override|system_override|/home/david/dev`, tracked, excluding `.doctrine/`): no output (rc=1). `linux/eca|linux/chatgpt|W2 exception`: no output.
+- `just gate`: rc=0, treefmt 140 files 0 changed; only environmental nix warnings. `just coverage`: rc=0. `flake.lock` clean; justfile untouched.
+- Stale, out of scope: justfile:105 comment says the registry is set in `nix.nix`; it is now `features/agents.nix` (`agents.registry`). Justfile is off-limits this phase (user's `push-local`); fix when next committing the justfile.
+- Reconcile: DEC-027 / DEC-031 content (registry out of the base; eca/chatgpt exception ended). README done.
