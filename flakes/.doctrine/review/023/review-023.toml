@@ -1,0 +1,211 @@
+id    = 23
+slug  = "reconciliation-review-of-sl-010"
+title = "reconciliation review of SL-010"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-010 at fe348e8f plus the F-6 edit. Checked against design.md (locked r32), plan.toml EX/VT, DEC-042/043/044 and ADR-001 D4:
+- the move tables against the end-state files
+- the per-phase drv evidence in notes.md and evidence/
+- the source-delta registry (corrected) and selectors, mapped by hand (ISS-005)
+- doctrine check gate, just test, just coverage
+- VH-1, confirmed by the user
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-010"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Expected root's bash usable from every terminal after PHASE-04; observed broken under TERM=xterm-ghostty"
+detail = """
+Expected (design § Home side, DEC-042): root → NixOS default bash, rescue-safe.
+Observed (user, after switch): `sudo -i` from ghostty gave a broken bash until `TERM=kitty`.
+Cause: ghostty's terminfo lived only in the home profile (terminal.emulators is home-only); readline fails on an unknown TERM, root's old zsh coped. The design did not consider terminfo.
+Remedy landed: fe348e8f sets environment.enableAllTerminfo = true in modules/nixos/env.nix (user-approved; notes.md § FIX-1). Sleipnir +13 terminfo outputs only; coverage/test/gate green. VH-1 re-checked by the user with default TERM: pass.
+fe348e8f lies outside every phase's boundary row (it follows PHASE-05).
+"""
+disposition = "design-wrong"
+response = """
+Code is fixed (fe348e8f) and the user re-checked VH-1. What's wrong is the design: it treats root → bash as a shell choice only, and readline needs the system terminfo. Reconciliation Brief (per-slice): add environment.enableAllTerminfo to design.md's base-after list and to the P4 row. Reconcile also records fe348e8f's delta, which follows PHASE-05: record-delta PHASE-04 cannot span it without swallowing PHASE-05, so reconcile notes it in design.md § Phases instead.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Code is fixed (fe348e8f) and the user re-checked VH-1. What's wrong is the design: it treats root → bash as a shell choice only, and readline needs the system terminfo. Reconciliation Brief (per-slice): add environment.enableAllTerminfo to design.md's base-after list and to the P4 row. Reconcile also records fe348e8f's delta, which follows PHASE-05: record-delta PHASE-04 cannot span it without swallowing PHASE-05, so reconcile notes it in design.md § Phases instead.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Expected the source-delta registry to match landed commits; observed PHASE-01 at the pre-amend oid and PHASE-03 empty"
+detail = """
+~/.cfg/.doctrine/state/slice/010/boundaries.toml: PHASE-01 code_end_oid 91d62866 (the commit before the orchestrator amended the user's justfile out; landed is 6cf150c5), so conformance listed flakes/justfile. PHASE-03 start = end = 2eb8db8f (empty; landed a7b67202).
+Corrected during audit: `doctrine slice record-delta 10 PHASE-01 --start 18f3142c --end 6cf150c5`, `… PHASE-03 --start 2eb8db8f --end a7b67202`. Conformance no longer lists justfile; features/terminal/zsh.nix now appears.
+Residual: conformance still reports 0 conformant, because recorded paths carry the flakes/ prefix (ISS-005). Hand mapping: every code path lies under a design-target selector; the only off-selector paths are the PHASE-05 governance records and the slice's own notes/evidence.
+"""
+disposition = "fix-now"
+response = """
+Corrected in this audit with doctrine slice record-delta (PHASE-01 18f3142c..6cf150c5, PHASE-03 2eb8db8f..a7b67202). The registry is the load-bearing surface, and it now matches the landed commits. The prefix problem in conformance is ISS-005's, and remains open there.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Corrected in this audit with doctrine slice record-delta (PHASE-01 18f3142c..6cf150c5, PHASE-03 2eb8db8f..a7b67202). The registry is the load-bearing surface, and it now matches the landed commits. The prefix problem in conformance is ISS-005's, and remains open there.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Expected only root's shell to change (DEC-042 consequences); observed assigner and postgres also moved zsh → bash"
+detail = """
+Dropping users.defaultUserShell also changed every system user taking the default via useDefaultShell: assigner (oubliette) and postgres (notes.md PHASE-04 result, users-groups.json diff). Accepted by the PHASE-04 orchestrator as within DEC-042's intent (the base picks no shell); README § Hosts already says so. design.md § Home side and DEC-042's consequences name root only.
+"""
+disposition = "design-wrong"
+response = """
+The behaviour is correct under DEC-042 (the base picks no shell), and README § Hosts already describes it. The design and the decision under-describe it. Brief: design.md § Home side, root row, names assigner and postgres; DEC-042 consequences gain "system users taking the default shell (assigner, postgres) also get bash".
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The behaviour is correct under DEC-042 (the base picks no shell), and README § Hosts already describes it. The design and the decision under-describe it. Brief: design.md § Home side, root row, names assigner and postgres; DEC-042 consequences gain "system users taking the default shell (assigner, postgres) also get bash".
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "Expected PHASE-05 EX-1's danksearch clause to hold; observed no danksearch input exists"
+detail = """
+plan.toml PHASE-05 EX-1: "danksearch's input still commented". The input was removed in 07c4998e, before SL-010. README now says danksearch is gone; the deviation is recorded in notes.md § PHASE-05 result.
+"""
+disposition = "tolerated"
+response = """
+Plan criteria are append-only (immutable ids), so EX-1 cannot be corrected. The criterion's intent (README states danksearch's status truthfully) is met, and the deviation is recorded in notes.md. Nothing else depends on the clause.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Plan criteria are append-only (immutable ids), so EX-1 cannot be corrected. The criterion's intent (README states danksearch's status truthfully) is met, and the deviation is recorded in notes.md. Nothing else depends on the clause.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "Expected no redundant config in terminal.zsh's nixos half; observed pathsToLink /share/zsh duplicates NixOS's zsh module"
+detail = """
+NixOS's programs.zsh module already adds "/share/zsh" to environment.pathsToLink. The design (§ Home side row) moved the base's entry as-is, and PHASE-04 VT-1 checks for it. The list is deduplicated in the built path.
+"""
+disposition = "tolerated"
+response = """
+Harmless: environment.pathsToLink is deduplicated, so the built system has no duplicate. The design deliberately moved the base's entry as-is, so that P4 was a move rather than a redesign, and PHASE-04 VT-1 checks the keyword. Removing it later is a one-line change with no drv effect beyond list order. Not worth a backlog item.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Harmless: environment.pathsToLink is deduplicated, so the built system has no duplicate. The design deliberately moved the base's entry as-is, so that P4 was a move rather than a redesign, and PHASE-04 VT-1 checks the keyword. Removing it later is a one-line change with no drv effect beyond list order. Not worth a backlog item.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "Expected the base headers to cite their current decision; observed modules/{nixos,home}/default.nix cite DEC-027/DEC-031 only"
+detail = """
+modules/nixos/default.nix line 1 cites DEC-027; modules/home/default.nix line 1 cites DEC-031. DEC-042 (and DEC-044 for NixOS) now define what each base holds.
+"""
+disposition = "fix-now"
+response = """
+Fixed in this audit: modules/nixos/default.nix cites DEC-027, DEC-042, DEC-044; modules/home/default.nix cites DEC-031, DEC-042. Comment-only change: just drvs identical (evidence/fix2-drvs-after.txt = fix1-drvs-after.txt); nix fmt 0 changed.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in this audit: modules/nixos/default.nix cites DEC-027, DEC-042, DEC-044; modules/home/default.nix cites DEC-031, DEC-042. Comment-only change: just drvs identical (evidence/fix2-drvs-after.txt = fix1-drvs-after.txt); nix fmt 0 changed.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

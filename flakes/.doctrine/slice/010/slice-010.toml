@@ -1,7 +1,7 @@
 id = 10
 slug = "base-tidy"
 title = "Base tidy: optional pieces out of modules/ (RFC-001 W9)"
-status = "started"
+status = "reconcile"
 created = "2026-10-16"
 updated = "2026-10-16"
 tags = []

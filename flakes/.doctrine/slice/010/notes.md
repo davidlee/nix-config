@@ -6,20 +6,24 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · ready (pre-PHASE-01) · 6f4b21c0
+fresh-as-of: 2026-10-17 · audit (RV-023) · fe348e8f
 
 ### Produced
-- DEC-042, DEC-043, DEC-044 (accepted; shape SL-010)
-- RV-022 (design review pass; adversarial lane waived)
-- design.md (locked r32), plan.toml PHASE-01..05
+- DEC-042, DEC-043, DEC-044; RV-022 (design pass); RV-023 (audit)
+- PHASE-01..05 (6cf150c5, 2eb8db8f, a7b67202, 61b65e9c, e961cf0f); FIX-1 terminfo (fe348e8f); RV-023 F-6 header citations
+- bases reduced; parked/ holds hyprland, kmscon, shpool
 
 ### Learned
 - HM tailscale-systray is PartOf/WantedBy graphical-session.target (inert headless)
 - Draupnir logs straight into nu (user chsh'd); darwin layer PATH block is live
+- root on bash needs system terminfo for the user's terminals (RV-023 F-1)
+- local `emacs` override re-resolves emacs-overlay per eval: attribute home drv drift first
+- observations: registry pre-amend oid; lock drift; evidence tooling gaps; comma-split consequences
 
 ### Open
-- IMP-001 closes with PHASE-04
-- PHASE-04 VH-1 (user, after switch)
+- IMP-001 delivered by PHASE-04; close at /close
+- RV-023 brief: design.md + DEC-042 consequences (F-1, F-3) for /reconcile
+- root flake.lock emacs-overlay drift: user's call
 
 ## Design triage (2026-10-17)
 
@@ -532,3 +536,10 @@ Evidence (.doctrine/slice/010/evidence/):
 - fix1-drvs-sets-before.txt d775201a635e0b92fde81ce2ec799a3f9c5924ba4fbfe5b1e74890c1180a665c
 
 VH-1 now also covers: `sudo -i` from ghostty with the default TERM.
+
+## Audit (RV-023, 2026-10-17)
+
+VH-1 confirmed by the user on Sleipnir after switching: every item passed,
+including `sudo -i` from ghostty with the default TERM. Source-delta rows for
+PHASE-01 and PHASE-03 corrected (RV-023 F-2). Base header citations updated
+(F-6; drvs identical, evidence/fix2-drvs-after.txt).
