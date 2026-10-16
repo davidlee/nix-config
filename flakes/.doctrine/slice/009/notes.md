@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · PHASE-01 complete · d7860ab5
+fresh-as-of: 2026-10-17 · PHASE-02 complete · f1d4ca64
 
 ### Produced
 - research round (`research/research.md`, gitignored) → slice rescoped (user agreed)
@@ -14,18 +14,22 @@ fresh-as-of: 2026-10-16 · PHASE-01 complete · d7860ab5
 - minted: DEC-037..041
 - plan P1–P4 (6de5cfc3, 81bfb5cf); PHASE-01 landed (d7860ab5): § PHASE-01 below
 - ISS-010 (emacs-overlay re-lock on every lock write), found in PHASE-01
+- RV-020 (PHASE-01 code review): done, 6c20495e
+- PHASE-02 landed (f1d4ca64): § PHASE-02 below; IMP-010 resolved in code (close at reconcile)
 
 ### Learned
 - mem.fact.flakes.override-records-in-lock — lock-writing commands record overrides; git+file vs path:
 - mem.fact.doctrine.design-review-route — route major findings before review-disposed
 - mem.fact.flakes.fmt-relock — corrected: unpinned nested override re-resolves on every lock write (ISS-010)
 - mem.pattern.flakes.drv-gate — extended: record dev checkout state per snapshot; compare old/new trees back to back
+- mem.fact.nix.lazy-error-context — addErrorContext misses lazily forced option errors
 
 ### Open
 - reconcile list: design.md § Code impact and docs → Records at reconcile; plus DEC-034 stub set gains oubliette; design.md "three verbs" typo
 - oubliette's local HEAD drops `target` / `goad-walk`: once pushed and re-locked, flake.nix's two follows lines go (not this slice's change unless it lands first)
 - user's `push-local` recipe still uncommitted in justfile (left to the user)
 - VH-1 (Draupnir: drvs, probe, isolation) can run now
+- PHASE-03 baseline: `~/.cache/sl009/p2/after` (retake immediately before editing, per EN-1)
 
 ## Design triage (2026-10-16, design run exploring)
 
