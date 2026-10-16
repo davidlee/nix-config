@@ -64,6 +64,7 @@ verification = [
   { id = "VT-3", expects = "host config holds site and tuning pieces", test_file = "hosts/Sleipnir/config.nix", keywords = ["gai.conf", "rtcwake", "./dns.nix", "./oom.nix"], waived = false },
   { id = "VA-1", expects = "EX-5 gate diff reviewed against the P2 row; sudo rule reorder judged harmless per mem.fact.nix.sudo-rule-order" },
   { id = "VA-2", expects = "POL-001: git diff of the phase adds no identifier absent before it (values only move)" },
+  { id = "VA-3", expects = "/etc identity, which the probe does not measure: built /etc/gai.conf, stubby's config and the wired NetworkManager profile identical to the baseline; sudoers differs only by rule order" },
 ]
 specs        = []
 requirements = []
@@ -78,7 +79,7 @@ entrance_criteria = [
 ]
 exit_criteria = [
   { id = "EX-1", text = "features/desktop/core.nix holds the core record; its nixos half imports ./core/{wayland,wayland_packages,x11,xdg,qt,keyring,gui,v4l2loopback}.nix. The six whole files move with git mv. keyring.nix gains greetd's keyring PAM line from security.nix and drops polkit.enable (base sets it)." },
-  { id = "EX-2", text = "core/gui.nix collects the desktop halves of programs (GUI nix-ld libs, dconf, thunar, foot, 1Password GUI), 1password (GUI, browser allowlist), util (gvfs, devmon, gnome-disks, dconf), env (SSH_ASKPASS_REQUIRE), lib (hunspell, ffmpeg, glfw, pixman) and user (input group); header names each origin. core/v4l2loopback.nix takes the module, package and modprobe options from kernel.nix. modules/nixos/1password.nix deleted; its CLI package goes to programs.nix." },
+  { id = "EX-2", text = "core/gui.nix collects the desktop halves of programs (GUI nix-ld libs, dconf, thunar, foot, 1Password GUI), 1password (GUI, browser allowlist), util (gvfs, devmon, gnome-disks, dconf), env (SSH_ASKPASS_REQUIRE), lib (hunspell, ffmpeg, glfw, pixman) and user (input group); header names each origin. programs.dconf, enabled in both programs.nix and util.nix today, is set once. core/v4l2loopback.nix takes the module, package and modprobe options from kernel.nix. modules/nixos/1password.nix deleted; its CLI package goes to programs.nix." },
   { id = "EX-3", text = "xdg.nix's comment on umbriel's portal section points at the compositor.umbriel record's upstream module." },
   { id = "EX-4", text = "desktop.greeter is greeter.nix whole with no requires; settings.default comes from services.displayManager.defaultSession via lib.mkIf (design snippet); config.nix sets services.displayManager.defaultSession = \"niri\"." },
   { id = "EX-5", text = "features/compositor.nix lists sway (features/desktop/sway.nix git mv to features/compositor/sway.nix), niri (minus the noctalia package), cosmic, kde, mango and umbriel (umbriel.nix as a record in the mango shape), each with requires = [\"desktop.core\"]; features/shell.nix lists noctalia; features/default.nix appends compositor, shell after desktop; features/desktop.nix holds core, greeter, fonts with a rewritten header. Old modules/nixos files deleted." },
@@ -93,6 +94,7 @@ verification = [
   { id = "VT-3", expects = "core record imports its own modules", test_file = "features/desktop/core.nix", keywords = ["name = \"core\"", "./core/wayland_packages.nix", "./core/gui.nix", "./core/v4l2loopback.nix"], waived = false },
   { id = "VT-4", expects = "greeter default follows the host's defaultSession", test_file = "features/desktop.nix", keywords = ["name = \"greeter\"", "services.displayManager.defaultSession"], waived = false },
   { id = "VA-1", expects = "EX-8 gate diff reviewed against the P3 row" },
+  { id = "VA-3", expects = "/etc identity, which the probe does not measure: built /etc/pam.d/greetd and the noctalia-greeter config (option located at phase-plan time) identical to the baseline" },
   { id = "VA-2", expects = "Negative controls (lib.mkForce false, closure not option): desktop.core with the compositors, defaultSession mkForce null -> wayland-utils and seahorse absent from system-path, qt.enable false; desktop.greeter -> noctalia-greeter off, and once defaultSession = \"bogus\" refused at evaluation; compositor.umbriel -> programs.umbriel.enable false; shell.noctalia -> noctalia absent from system-path; SL-006 compositor controls re-run under compositor.* paths, niri's with defaultSession mkForce null" },
 ]
 specs        = []
@@ -111,7 +113,7 @@ exit_criteria = [
   { id = "EX-2", text = "features/hardware.nix after openrgb: bluetooth (bluetooth.nix whole), qmk (keyboard.nix whole), tablet (opentabletdriver, hardware.uinput, kernelModules uinput from util.nix), logitech (logitech.wireless from util.nix)." },
   { id = "EX-3", text = "features/services.nix: postgresql after printing (postgresql.nix whole, stray 80/443 kept until PHASE-06); webserver gains networking.firewall.allowedTCPPorts = [80 443] from network.nix." },
   { id = "EX-4", text = "Selection: workstation gains audio.pipewire; Sleipnir selects the four hardware features and services.postgresql. Old modules/nixos files deleted; config.nix imports nothing flat from modules/nixos." },
-  { id = "EX-5", text = "ls modules/nixos equals default.nix's list plus hyprland.nix and kmscon.nix (and default.nix)." },
+  { id = "EX-5", text = "ls modules/nixos shows exactly default.nix, the files it imports, and the parked hyprland.nix and kmscon.nix." },
   { id = "EX-6", text = "Gate vs PHASE-03: order changes only in systemPackages, kernelModules, allowedTCPPorts, extraGroups, loginLimits; every probe measure identical, ports included." },
   { id = "EX-7", text = "README tree listing and Printing's avahi.nix reference updated; committed; snapshot saved." },
 ]
