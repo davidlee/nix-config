@@ -5,10 +5,10 @@ id = 4
 slug = "wm-specific-packages"
 title = "Move WM-specific packages out of wayland_packages.nix"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "fixed"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 # outbound-only (ADR-004). Cross-kind structural edges (e.g. references with a role

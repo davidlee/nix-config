@@ -50,7 +50,7 @@ contested (drvs-sets counts duplicates). Concluded; all verified.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · PHASE-01..06 committed (0a7458d5..9fe49432); audit RV-016 done · awaiting /reconcile
+fresh-as-of: 2026-10-16 · SL-007 done; RV-016 reconciled (f58c9ca7); IMP-004 resolved
 
 ### Produced
 - DEC-026, DEC-027, DEC-028, DEC-029; design.md (sec-1..9); RV-015
@@ -75,7 +75,7 @@ fresh-as-of: 2026-10-16 · PHASE-01..06 committed (0a7458d5..9fe49432); audit RV
 - slice conformance / verify-vt are blind here until ISS-005 (`flakes/` prefix).
 
 ### Open
-- Next: /reconcile per RV-016 Reconciliation Brief (design §7, selectors, RFC-001, DEC-016, DEC-024), then /close (IMP-004 → done)
+- Closed. Next on the roadmap: RFC-001 W5 (home base / personal split) or W2/W6 toward W7
 - Follow-ons: IMP-022 (oom per host), IMP-002 (dns.nix private hostname), CHR-014 (i2c),
   ISS-005, IMP-017, IMP-003, ISS-008, QUE-001, QUE-004; candidate cleanup: split
   `features/desktop/core/gui.nix` by concern
