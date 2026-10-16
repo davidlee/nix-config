@@ -28,4 +28,27 @@
       ];
     };
   }
+
+  {
+    name = "feeds";
+    homeManager = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+        ## text readers
+        circumflex
+
+        ## feeds, content / social
+        russ # RSS
+        # tuir # reddit - BROKEN
+        tut # mastodon
+        tuisky # bluesky
+        wiki-tui # wikipedia
+        # slack-term
+        rssguard
+      ]);
+    };
+  }
 ]

@@ -1,6 +1,39 @@
 # Media features, in projection order. Shape: README § Feature tree.
 {lib, ...}: [
   {
+    name = "view";
+    homeManager = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      home.packages = with pkgs;
+        [
+          ## image / graphics / multimedia
+          chafa
+          viu
+        ]
+        ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+          ueberzugpp
+        ];
+    };
+  }
+
+  {
+    name = "convert";
+    homeManager = {
+      pkgs,
+      lib,
+      ...
+    }: {
+      home.packages = lib.optionals pkgs.stdenv.hostPlatform.isLinux (with pkgs; [
+        resvg
+        ffmpeg-full
+      ]);
+    };
+  }
+
+  {
     name = "players";
     platforms = lib.platforms.linux;
     homeManager = {pkgs, ...}: {

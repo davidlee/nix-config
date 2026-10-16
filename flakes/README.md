@@ -190,7 +190,8 @@ order is projection order.
 ```
 features/
   default.nix         [ hardware session virt non-nix-packages games ai audio services desktop compositor shell
-                        editor notes web media graphics comms terminal ]
+                        editor notes dev docs data files net web system text office security media graphics
+                        comms fun terminal ]
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -208,14 +209,25 @@ features/
   compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ]   each requires desktop.core
   compositor/         sway.nix
   shell.nix           [ noctalia walker ]
-  editor.nix          [ zed lem ]
-  notes.nix           [ joplin ]
-  web.nix             [ browsers ]
-  media.nix           [ players spotify obs ]         obs requires desktop.core
-  graphics.nix        [ paint modelling cad ]
-  comms.nix           [ chat mail ]
-  terminal.nix        [ emulators ]
-  profiles/           workstation.nix
+  editor.nix          [ (import ./editor/emacs.nix) neovim kakoune misc zed lem ]
+  editor/             emacs.nix  neovim/              the emacs record; modules the neovim record imports
+  notes.nix           [ terminal joplin ]
+  dev.nix             [ scm build runtimes runners tools ]
+  docs.nix            [ diagrams typeset markdown help ]
+  data.nix            [ structured hex ]
+  files.nix           [ manage disk archive search sync ]
+  net.nix             [ tools ]
+  web.nix             [ browsers terminal ]
+  system.nix          [ monitor process ]
+  text.nix            [ tools pagers dictionary ]
+  office.nix          [ calc calendar ]
+  security.nix        [ credentials research ]
+  media.nix           [ view convert players spotify obs ]  obs requires desktop.core
+  graphics.nix        [ paint modelling color cad ]
+  comms.nix           [ chat mail feeds ]
+  fun.nix             [ toys ]
+  terminal.nix        [ emulators utils ]
+  profiles/           workstation.nix  personal.nix
 ```
 
 - **Own file.** A feature moves to `features/<area>/<name>.nix` when it would
@@ -575,7 +587,7 @@ list, built via [nix-community/emacs-overlay](https://github.com/nix-community/e
 |------|------|
 | `emacs/emacs.nix` | the package list (`emacsWithPackages`) |
 | `emacs/flake.nix` | its own flake with its own nixpkgs/overlay pins, shared with the `~/.config/emacs` and satan devshells |
-| `modules/home/shared/emacs.nix` | installs it on PATH and as the `services.emacs` daemon |
+| `features/editor/emacs.nix` | the `editor.emacs` feature: installs it on PATH and as the `services.emacs` daemon |
 
 **Two package sources:**
 

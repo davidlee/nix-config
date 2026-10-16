@@ -2,7 +2,10 @@
 # selects itself. Anything not named here is off (tree features default to
 # false).
 {
-  imports = [../../features/profiles/workstation.nix];
+  imports = [
+    ../../features/profiles/workstation.nix
+    ../../features/profiles/personal.nix
+  ];
 
   # A property of this host, not a profile: capsule needs KVM and the local
   # oubliette checkout.

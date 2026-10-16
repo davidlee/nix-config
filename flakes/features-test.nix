@@ -386,8 +386,8 @@ in
         ++ map (_: [false true]) homeOnly;
     };
 
-    # P3 home features Sleipnir selects, directly or through workstation.
-    # Grows in P4 and P5.
+    # P3–P4 home features Sleipnir selects, directly or through workstation
+    # and personal. Grows in P5.
     testSleipnirHomeSelection = let
       r = resolve {
         system = "x86_64-linux";
@@ -412,6 +412,45 @@ in
         "notes.joplin#homeManager"
         "ai.claude-desktop#homeManager"
         "shell.walker#homeManager"
+        # P4: personal
+        "editor.emacs#homeManager"
+        "editor.neovim#homeManager"
+        "editor.kakoune#homeManager"
+        "editor.misc#homeManager"
+        "notes.terminal#homeManager"
+        "dev.scm#homeManager"
+        "dev.build#homeManager"
+        "dev.runtimes#homeManager"
+        "dev.runners#homeManager"
+        "dev.tools#homeManager"
+        "docs.diagrams#homeManager"
+        "docs.typeset#homeManager"
+        "docs.markdown#homeManager"
+        "docs.help#homeManager"
+        "data.structured#homeManager"
+        "data.hex#homeManager"
+        "files.manage#homeManager"
+        "files.disk#homeManager"
+        "files.archive#homeManager"
+        "files.search#homeManager"
+        "files.sync#homeManager"
+        "net.tools#homeManager"
+        "web.terminal#homeManager"
+        "system.monitor#homeManager"
+        "system.process#homeManager"
+        "text.tools#homeManager"
+        "text.pagers#homeManager"
+        "text.dictionary#homeManager"
+        "office.calc#homeManager"
+        "office.calendar#homeManager"
+        "security.credentials#homeManager"
+        "security.research#homeManager"
+        "media.view#homeManager"
+        "media.convert#homeManager"
+        "graphics.color#homeManager"
+        "comms.feeds#homeManager"
+        "fun.toys#homeManager"
+        "terminal.utils#homeManager"
       ];
     in {
       expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;

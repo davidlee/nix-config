@@ -1,16 +1,13 @@
 # The Linux home layer: the home base (../.) plus what every Linux home
 # needs. A Linux host's home.nix imports this directory; the darwin
-# counterpart is ../darwin. The modules below are temporary: SL-008 P4 moves
-# editors, graphics and office into features, P5 alarm.
+# counterpart is ../darwin. alarm is the one remaining temporary module; it
+# leaves in SL-008 P5.
 {config, ...}: {
   imports = [
     ../.
 
     ./alarm.nix
-    ./editors.nix
-    ./graphics.nix
     # ./helix.nix
-    ./office.nix
 
     # parked — its flake input is commented out in ../../../flake.nix
     # ./danksearch.nix

@@ -8,8 +8,6 @@
     ./programs.nix
     ./shpool.nix
     ./cli.nix
-    # editors and EDITOR/VISUAL, until they become editor.* features (SL-008 P4)
-    ./shared
   ];
 
   programs.home-manager.enable = true;

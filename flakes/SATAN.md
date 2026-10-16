@@ -16,7 +16,7 @@ relying on a line number.
 |---|---|---|---|
 | broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.config/emacs/apps/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`modules/home/linux/satan.nix:19-21`) |
 | corpus | `~/satan-corpus` | — | own repo; `just commit` there |
-| editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`modules/home/shared/emacs.nix:36-43`) |
+| editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`features/editor/emacs.nix`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `modules/home/linux/satan-attrd.nix` |
 | satan-patcher (= `~/dev/sloptower` symlink) | `~/dev/satan-patcher` | `path:` (`flake.nix:88-91`) | `modules/home/linux/satan-patcher.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `modules/home/linux/behaviour.nix` |

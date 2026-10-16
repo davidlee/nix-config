@@ -29,6 +29,15 @@
     };
   }
 
+  {
+    name = "color";
+    homeManager = {pkgs, ...}: {
+      home.packages = with pkgs; [
+        pastel
+      ];
+    };
+  }
+
   # openscad is portable: no platforms.
   {
     name = "cad";

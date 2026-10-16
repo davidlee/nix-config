@@ -250,3 +250,118 @@ Under `phase-03/controls/` (`<name>/` link maps, `<name>.result`). Each a tempor
 - README: the `default.nix` area list wraps onto a second line instead of one ~150-column line.
 
 Verdict: P3 row: order only — Sleipnir home packages and home-path-links identical, one derived-hash line (`.manpath`); system, coverage, Draupnir identical.
+
+## PHASE-04
+Status: executed; gate (T8) passes the P4 row; **STOP 6 raised in T9** (one
+sheet expectation in `scm-off` does not hold, see § Negative controls), not
+adjudicated by the worker. Uncommitted P4 delta on top of 1f037235. Worker
+model: opus.
+
+### Tests
+- T1 red (before any feature edit): only `testSleipnirHomeSelection` failed,
+  `expr` = 16 `true` (the P3 tags) then 38 `false` (the P4 tags), exactly as
+  predicted. Every other test green. Unchanged after T2 and T3.
+- T4: `just test` green (`runTests` `[]`, script tests ok).
+- T6: `nix fmt --no-write-lock-file -- --no-cache` 0 changed; flake.lock
+  unchanged; `just gate` exit 0.
+
+### Completeness (EX-5)
+Checker `~/.cache/multihost-gate/sl008/completeness.nix`, unchanged.
+- T0 mapping self-check against the HEAD archive
+  (`phase-04-before/completeness-mapping.json`): `mapping` sameDrvs and
+  sameNames true, 285/285 (x86_64-linux), 185/185 (aarch64-darwin).
+- T5 (`phase-04/completeness.json`), both systems: `mapping`, `union`, `base`,
+  `nixos` all sameDrvs = sameNames = true; `union.missing`/`extra` `[]`;
+  `missingFeatures` `[]`; `misplaced` `{}`; `union.counts` [285,285] Linux,
+  [185,185] darwin.
+
+### Gate snapshots
+Under `~/.cache/multihost-gate/sl008/`. HEAD 1f037235 + uncommitted P4 delta.
+- Before `phase-04-before/` (T0, immediately before the first edit; tree
+  clean but the vicinae deletion and untracked observation records). Counts
+  13 / 5 / 7. P3→T0 drift: `drvs` and `drvs-sets` identical to `phase-03/`.
+  Every eval re-resolved the nested emacs-overlay to 9e88531 (2026-10-16), in
+  the before and the after alike; no effect on any line.
+- After `phase-04/` (= **PHASE-05's baseline**). Drift check: HEAD archive
+  (`head-tree/`) evaluated now = T0 `drvs` → no drift; `phase-04-before/` is
+  the before.
+- `drvs`: only `homeConfigurations.{david,david@Sleipnir,david@Draupnir}`
+  differ. `nixosConfigurations.Sleipnir` **identical** (NixOS list inlined in
+  the old order), `darwinConfigurations.Draupnir`, `templates.*`,
+  `packages.*`, `legacyPackages.*` identical.
+- `drvs-sets` (both homes included), `coverage`, `diff -r system/`: identical.
+- Sleipnir home `packages`, `home-path-links`: identical. Every
+  `.config/systemd/user/` line identical.
+- `home-files-links`: one derived-hash line, `.manpath -> …vjxbqkqp…-hm_.manpath`
+  → `…iz8gx94w…-hm_.manpath`; content differs only in the `man-cache` hash
+  on the MANDB_MAP line; masked diff empty
+  (`phase-04/evidence/manpath.masked.diff`, raw `manpath.raw.diff`). Meets
+  the derived-hash rule (packages/home-path-links/units identical;
+  order-only passes).
+- Collision watch (`bin/(git|trash|emacs|emacsclient|nvim|vim|tmux|yazi|mcfly|viu|xxd)`):
+  before = after (`phase-04-before/collision-watch`); `bin/git` →
+  git-with-svn (gitFull, hiPrio), `bin/trash` → trashy (hiPrio). `bin/foot`
+  1 system / 1 home; swaybg, tailscale-systray, systembus-notify units 6
+  matching lines, unchanged.
+- `order-only` on `david@Sleipnir` (= `david`): ORDER-ONLY, 9/9 drvs in one
+  closure only, 0 sources. `nix-diff` (`phase-04/nix-diff.david@Sleipnir`)
+  bottoms out at `home-manager-path` `__json`, `man-paths` `__json`,
+  `david-fish-completions` `paths`, as in P3.
+- `order-only` on `david@Draupnir`: ORDER-ONLY, 12/12 drvs in one closure
+  only, 0 sources. First Draupnir home move of the slice. `nix-diff`
+  (`phase-04/nix-diff.david@Draupnir`) bottoms out at `home-manager-path`,
+  `home-manager-fonts`, `home-manager-applications` and `man-paths`
+  (`__json`), and `david-fish-completions` (`paths`). Not built (darwin).
+  Residual: `order-only` sorts every list, so it cannot see a buildEnv
+  winner change between byte-identical files at one path on darwin; the
+  Linux link maps show none on Sleipnir, and Draupnir's package multiset is
+  identical (`drvs-sets`).
+
+### Negative controls
+Under `phase-04/controls/` (`<name>/` link maps, `<name>.result`,
+`control.sh`). Each a temporary inline module in the host's `features.nix`
+imports, resolved without refusal. Restored by file copy; `cmp` equal to
+`*.orig`; all three home drvs equal to `phase-04/drvs`.
+- T0 positive pre-checks (`phase-04-before/home/`): `bin/{emacs,nvim,lazygit,jj,git,tmux}`
+  1 each; `.config/systemd/user/emacs.service` 1; `EDITOR` in
+  `hm-session-vars.sh` 1.
+- `emacs-off`: `bin/emacs` 0, `emacs.service` 0, `EDITOR` in
+  hm-session-vars.sh 0. Liveness `bin/nvim` 1. Pass.
+- `neovim-off`: `bin/nvim` 0. Liveness `bin/emacs` 1. Pass.
+- `scm-off`: `bin/jj` 0; `bin/git` present, target moved from
+  git-with-svn (gitFull) to plain `git-2.55.0` (the base's). `packages` diff
+  vs `phase-04/` removes exactly dev.scm's 19 drvs (incl. gitFull, gitui,
+  sublime-merge) and adds nothing. **Mismatch (STOP 6):** the sheet expects
+  no `^bin/(lazygit|jj) ->`; `bin/lazygit` is **still present**, same
+  target as before. Cause: the base also installs lazygit through
+  `programs.lazygit.enable = true` (`modules/home/nushell.nix:73`);
+  `config.programs.lazygit.package` is the same drv
+  (`l49sfspy…-lazygit-0.66.1.drv`) that dev.scm lists, and `packages` is a
+  unique set, so it shows one lazygit drv with or without dev.scm. Evidence
+  appended to `scm-off.result`. Left for the orchestrator.
+- `utils-off`: `bin/tmux` 0; liveness `bin/asciinema` 0 (1 in `phase-04/`). Pass.
+- `markdown-off` (Draupnir, eval only): `glow` in `home.packages` names 1
+  before, 0 with the control; liveness `jq` 1. Pass.
+- `head-tree/` kept (sheet removes it after T9; T9 has an open STOP).
+
+### Assumptions and deviations
+- A1–A8 taken as written. A1: base `cli.nix` in the design table's order with
+  one `## <bucket>` comment per group. A3: area list as given.
+- Comments: added group headers where a record mixes sources
+  (`## dev introspection`, `## shell scripts` in dev.tools; `## network` in
+  `modules/nixos/cli.nix`, where net.nix's linuxSystem list had none), and
+  a one-line note above `text.dictionary` on why sdcv/web1913 are unguarded.
+- `editor.neovim`'s record carries a comment (modules the record owns).
+- Git rename: the index keeps `modules/home/shared/emacs.nix →
+  features/editor/emacs.nix` (staged by `git mv`, content not yet staged);
+  against the working tree the rewrap falls under 50% similarity, so
+  `git diff HEAD -M` shows add + delete. nvim.nix and nvim-plugins.nix stay
+  pure renames.
+- `git grep` for stale paths: only `features/desktop/core.nix:11`
+  (`wayland_packages.nix`, a false positive on `_packages`) after T7.
+
+Verdict: P4 row: order only. Both homes' drvs-sets identical; Sleipnir
+packages and home-path-links identical, one derived-hash line (`.manpath`);
+Draupnir ORDER-ONLY; system identical; completeness equal on both systems.
+T9: four controls pass; `scm-off` fails its sheet expectation on
+`bin/lazygit` only (base `programs.lazygit`), STOP 6 for the orchestrator.

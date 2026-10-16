@@ -28,4 +28,16 @@
       };
     };
   }
+
+  {
+    name = "terminal";
+    homeManager = {pkgs, ...}: {
+      home.packages = with pkgs; [
+        ddgr # search duckduckgo
+        w3m-full
+        browsh
+        lynx
+      ];
+    };
+  }
 ]
