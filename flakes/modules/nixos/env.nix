@@ -15,6 +15,10 @@ _: {
       "$HOME/.pnpm-global/bin"
       "$HOME/.npm-global/bin"
     ];
+
+    # Terminfo for every terminal NixOS knows, so a shell on this host
+    # (root's bash included) works from any emulator, local or over ssh.
+    enableAllTerminfo = true;
   };
 
   # i18n / l10n

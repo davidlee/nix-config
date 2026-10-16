@@ -383,7 +383,9 @@ boot, kernel, env, maintenance, security, network (NetworkManager, a firewall
 with no open ports, nftables, `hostName`, `timeServers`), programs (nix-ld,
 rust-motd, root's helix) and the inspection set of cli tools. Root's login
 shell is NixOS's default, bash, and so are the system users that take the
-default (`assigner`, `postgres`); the user's own shell stays nushell.
+default (`assigner`, `postgres`); the user's own shell stays nushell. The
+base installs every terminal's terminfo (`environment.enableAllTerminfo`), so
+root's bash works from any emulator, local or over ssh.
 
 What left the base is now a feature: `services.ssh`, `files.locate`,
 `net.tailscale`, `services.avahi`, `virt.sandbox` (bubblewrap, distrobox) and

@@ -494,3 +494,41 @@ Docs and governance only; no `.nix` edits. Model: sonnet (bounded prose and CLI 
 - `git diff -- flake.lock | sha256sum` = `2fc8da01c950964c5bbc9e55c4685474cddedd9742b93cb3ad30544e46959130`
   (unchanged). Header comments of `modules/{nixos,home}/default.nix` left alone (F-plan-2). Research restamp
   and IMP-001 closure not touched.
+
+## FIX-1 — PHASE-04 regression: root's bash with unknown TERM (2026-10-17)
+
+Reported by the user after switching: `sudo -i` from ghostty gives a broken
+bash until `TERM=kitty`. Cause: ghostty's terminfo was only in the user's
+home profile (`terminal.emulators` is home-only); the system set had kitty's
+but not `xterm-ghostty`. Root's old zsh coped with the unknown TERM; bash's
+readline does not.
+
+Fix (user-approved): `environment.enableAllTerminfo = true` in the base
+(`modules/nixos/env.nix`). It belongs to the base: root's shell is set there,
+and the terminal reaching a shell may be remote (ssh from the Mac), so it is
+not tied to which emulators a host installs. Cost: 13 small terminfo
+outputs; the system eval now depends on those 13 packages evaluating
+(upstream's list, nixos/modules/config/terminfo.nix).
+
+Before/after (stdout-only, as p1–p4; checkout HEADs = PHASE-04 table, clean):
+- nixosConfigurations.Sleipnir: package set 565 → 578, the 13 additions being
+  exactly upstream's list (alacritty contour foot ghostty kitty mtm rio
+  rxvt-unicode ×2 st tmux wezterm yaft terminfo outputs);
+  `share/terminfo/x/xterm-ghostty` present in the ghostty output.
+- homes, darwin, packages: unchanged by the edit.
+- `just coverage` (incl. base@aarch64-linux, isolation) ok; `just test` ok;
+  `nix fmt` 0 changed.
+
+Side finding: fix1-drvs-before ≠ p4-drvs-after for the homes, although the
+source is identical at 61b65e9c, e961cf0f and the worktree. nix-diff of the
+generations: emacs-magit 20261013.900 → 20261016.1052. The `emacs` path
+override re-resolves emacs-overlay per run (the known lock-drift friction).
+External, unrelated to SL-010.
+
+Evidence (.doctrine/slice/010/evidence/):
+- fix1-drvs-after.txt af1f669b16794ed7cfca3c40eaaf0b6a40c493e3d236b49ad80282306cc8988c
+- fix1-drvs-before.txt 2dd17284608de71578caaa188daf29f31de411a5c459558a75f6616d7ae1a7c6
+- fix1-drvs-sets-after.txt f29dc2f144bfe186cffe332ec2ee997b5652cb276d8b873aceb13b3b9796d5ad
+- fix1-drvs-sets-before.txt d775201a635e0b92fde81ce2ec799a3f9c5924ba4fbfe5b1e74890c1180a665c
+
+VH-1 now also covers: `sudo -i` from ghostty with the default TERM.
