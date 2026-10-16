@@ -348,12 +348,25 @@ NixOS host imports first in its `config.nix`. It has no switch and is neither a
 feature nor a profile. Optional pieces are features; pieces bound to a
 machine's parts or a host's site live in `hosts/<host>/`.
 
+The **home base** is `modules/home/default.nix`, an import list on the same
+pattern. Home Manager cannot choose imports by platform, so it has two layers
+over it, `modules/home/linux/` and `modules/home/darwin/`, and each
+`hosts/<host>/home.nix` imports exactly one, then sets identity and
+`stateVersion`.
+
+```
+hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐
+                                                             ├──> modules/home/default.nix
+hosts/Draupnir/home.nix ──> modules/home/darwin/default.nix ─┘
+```
+
 | class | where | who gets it |
 |---|---|---|
 | base | `modules/nixos/default.nix` and the modules it lists | every NixOS host, by importing it in `config.nix` |
+| home base | `modules/home/default.nix` and its `linux/` or `darwin/` layer | every home, by importing one layer in `home.nix` |
 | feature | a record in `features/<area>.nix` | hosts that select it, directly or through a profile |
 | machine config | `hosts/<host>/machine.nix` | that host, because of its parts |
-| host config | `hosts/<host>/config.nix` and files beside it | that host, because of its site, account or tuning |
+| host config | `hosts/<host>/config.nix`, `home.nix` and files beside them | that host, because of its site, account or tuning |
 
 Adding a host means adding a directory. The justfile selects the
 configuration by `hostname -s`; override with `just host=<other> system-build`
