@@ -593,7 +593,9 @@ Walked the P7 table: availability (Sleipnir sets identical, Draupnir +57 in 07a,
 - `clangStdenv` in `dev.build`'s home.packages is a stdenv, not a tool (`stdenv-darwin` on Draupnir). Out of scope; recorded only.
 - `just probe`'s `packages` file is a unique drv set, so it cannot show a duplicate-entry removal; `pkgs_of` multiset diff is the proof for EX-3.
 
-### Pending user (VH-1, VH-2) -- NOT verified
+### Pending user (VH-1, VH-2) -- both resolved 2026-10-16
+
+2026-10-16 VH-2 VERIFIED by the user ("VH-2 accepted"). Draupnir link-map compare (current generation vs probe of 773f7dc9+, package-name join): two flips, both priority-decided and identical to Sleipnir's home -- `bin/git` + all git files `git` -> `git-with-svn` (`hiPrio gitFull`, dev.nix:34, newly available on darwin); `bin/cpp` `gcc-wrapper` -> `clang` (prio 5 < 10). Lost: plain `git` (wins no file). Gained: the expected PHASE-07 set incl. `stdenv-darwin` (IMP-027). The toolchain-in-home question (cpp) is IMP-027's. Probe fixes for darwin: 0c6ddad7. CHR-015 resolved. REV-007/REV-008 approved by the user ("accept revs"), apply at reconcile.
 
 2026-10-16 VH-2 first result: Draupnir home build failed -- binutils-wrapper-2.46 and gcc-wrapper-16.2.0 both priority 10, colliding on bin/strings (and ar, nm, strip, …). Fixed by skipping `binutils-wrapper` on aarch64-darwin in cli-broken.nix (gcc-wrapper ships the cctools tools there). Pre-check: listed bin/ of every Draupnir home package from cache.nixos.org (238 of 293 outputs listable); other duplicate names resolve by priority (git-with-svn -10, clang 5 < gcc-wrapper 10, net-tools 5 over inetutils 7) or are false positives (libressl is only `nc`). 55 uncached/bin-less outputs unchecked.
 
