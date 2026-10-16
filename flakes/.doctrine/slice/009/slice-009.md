@@ -43,12 +43,15 @@ integration, and HYP-001's (the resolver suffices) next real test.
 2. **IMP-010: validate `meta.nix`.** A small schema (`kind` enum, `system`,
    `home`, plus any field objective 1 adds), checked by `hosts.nix`, with
    resolver-style tests. A bad meta fails every evaluation, naming the file.
-3. **W2: agents as a feature.** An `agents` area (or record) holding the
-   registry alias (nixos half), eca and chatgpt (home halves, if they are
-   agents and not personal), selected by Sleipnir through a profile or host
+3. **ISS-006: a portable lock.** Lock-writing recipes stop recording
+   overrides; `agents` and the ~/dev inputs re-lock from their declared URLs
+   (user, 2026-10-16: in scope). drvs identity checks path-vs-remote source.
+4. **W2: agents as a feature.** An `agents` area holding the registry alias
+   (nixos half) and eca and chatgpt as `agents.*` features (user,
+   2026-10-16), selected by Sleipnir through a profile or host
    file. The overlay is applied according to the selection rather than
    unconditionally, if design confirms that is wanted (OQ-1).
-4. Sleipnir's selection and outputs are unchanged, proved by the drv gate
+5. Sleipnir's selection and outputs are unchanged, proved by the drv gate
    (`just drvs`, `drvs-sets`, `probe`, `coverage`), except where a behaviour
    change is named in the design.
 
@@ -67,10 +70,8 @@ integration, and HYP-001's (the resolver suffices) next real test.
   evaluation gets it, including the devshell `legacyPackages` behind
   `registry.agents` and `nix shell agents#…`. Conditional application changes
   `pkgs` for hosts that deselect it; is there such a host before W7?
-- **OQ-2** eca and chatgpt: `agents.*` features, or `personal`?
-- **OQ-3** ISS-006 (flake.lock pins `agents` and dev inputs as local paths):
-  in scope? It is the lock-side twin of ISS-003, and W7's VM cannot fetch a
-  path pinned to Sleipnir. Leaning in, if it stays small.
+- ~~OQ-2~~ eca and chatgpt are `agents.*` features (user, 2026-10-16).
+- ~~OQ-3~~ ISS-006 is in scope (user, 2026-10-16).
 - **OQ-4** Where override data lives: `meta.nix` (IDE-002) or a per-host
   file beside it, and whether `just` reads it by `nix eval` (cost per recipe)
   or something cheaper.
