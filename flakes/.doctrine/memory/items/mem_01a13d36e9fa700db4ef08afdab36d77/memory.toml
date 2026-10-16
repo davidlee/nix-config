@@ -6,7 +6,7 @@ status = "active"
 title = "Derivation-identity gate for refactors"
 summary = "Snapshot just drvs before and after; any diff is red unless expected or proven ordering-only"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 
 [scope]
 paths = ["flake.nix", "hosts.nix", "features.nix", "overlays.nix", "perSystem.nix", "hosts/", "features/profiles/"]

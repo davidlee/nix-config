@@ -15,3 +15,11 @@ mtime and once reported "0 changed" over 9 unformatted files. Use
 
 Also: `just -n` doesn't run backticks (prints `` `hostname` `` literally);
 use `just --evaluate host`.
+
+**Correction 2026-10-16 (ISS-010).** The "byte-identical" result above held
+only while emacs-overlay's upstream HEAD equalled the locked rev. Because
+flake.nix overrides `emacs/emacs-overlay` with an unpinned URL, every lock
+write (`nix flake lock`, `nix flake update <any input>`, `nix fmt`) re-resolves
+it once upstream moves. After a deliberate `nix flake update X`, check
+`git diff flake.lock` for an emacs-overlay bump; to keep it out, pin it back:
+`nix flake lock --override-input emacs/emacs-overlay github:nix-community/emacs-overlay/<old rev>`.

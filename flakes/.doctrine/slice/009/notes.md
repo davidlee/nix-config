@@ -6,21 +6,26 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · design locked · e670e193
+fresh-as-of: 2026-10-16 · PHASE-01 complete · d7860ab5
 
 ### Produced
 - research round (`research/research.md`, gitignored) → slice rescoped (user agreed)
-- design locked, design.md rev 28 (e670e193); RV-019 pass 1 (GPT) concluded, 3 findings fixed
-- minted: DEC-037 dev checkouts; DEC-038 remote declarations + lock; DEC-039 meta schema; DEC-040 overlay scope; DEC-041 agents area
-- prerequisite done by user: `just push-local` (all five ~/dev repos pushed); `push-local` recipe in justfile uncommitted (user's)
+- design locked (e670e193); RV-019 concluded, 3 findings fixed
+- minted: DEC-037..041
+- plan P1–P4 (6de5cfc3, 81bfb5cf); PHASE-01 landed (d7860ab5): § PHASE-01 below
+- ISS-010 (emacs-overlay re-lock on every lock write), found in PHASE-01
 
 ### Learned
 - mem.fact.flakes.override-records-in-lock — lock-writing commands record overrides; git+file vs path:
 - mem.fact.doctrine.design-review-route — route major findings before review-disposed
+- mem.fact.flakes.fmt-relock — corrected: unpinned nested override re-resolves on every lock write (ISS-010)
+- mem.pattern.flakes.drv-gate — extended: record dev checkout state per snapshot; compare old/new trees back to back
 
 ### Open
-- (none minted) reconcile list: design.md § Code impact and docs → Records at reconcile
-- ~/dev/oubliette has a dirty tracked file: P1 equality proof attributes it (RV-019 F-1)
+- reconcile list: design.md § Code impact and docs → Records at reconcile; plus DEC-034 stub set gains oubliette; design.md "three verbs" typo
+- oubliette's local HEAD drops `target` / `goad-walk`: once pushed and re-locked, flake.nix's two follows lines go (not this slice's change unless it lands first)
+- user's `push-local` recipe still uncommitted in justfile (left to the user)
+- VH-1 (Draupnir: drvs, probe, isolation) can run now
 
 ## Design triage (2026-10-16, design run exploring)
 

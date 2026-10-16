@@ -21,3 +21,12 @@ diff ~/.cache/multihost-gate/{before,after}
   emacs-overlay re-resolves to the newest GitHub rev on each eval, so
   home/darwin can drift over hours with no local change.
 - aarch64 hosts: eval only. Darwin evaluates from Linux.
+
+**Dev checkouts move under you (SL-009).** Read-only recipes override each
+present `~/dev` checkout (bin/dev-checkouts), and agents commit in them
+concurrently (oubliette moved three times in one phase). Record each listed
+checkout's HEAD and `git status --porcelain -uno` with every snapshot, and
+attribute a diff to a recorded move instead of demanding equality. To compare
+before/after fairly, evaluate a `git archive` copy of the old tree and the new
+tree back to back against the same checkout state. `FLAKES_DEV=/nonexistent`
+evaluates against the lock alone.
