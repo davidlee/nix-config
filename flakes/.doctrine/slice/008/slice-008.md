@@ -62,7 +62,8 @@ Settled in design (2026-10-16):
    - `profiles/` and `darwin/home.nix` are removed.
 3. **Features by function** (DEC-032).
    - Every remaining home module and every `modules/shared/cli/_packages`
-     file becomes a feature in a functional area: editor, notes, dev, docs,
+     file becomes one or more features, split by job where a host would
+     select the parts independently, in a functional area: editor, notes, dev, docs,
      data, files, net, web, system, text, security, media, graphics, comms,
      fun, terminal, and ai (claude-desktop).
    - `apps.cad` becomes `graphics.cad`.
@@ -70,7 +71,8 @@ Settled in design (2026-10-16):
      tailscale-systray, swaybg, systembus-notify.
    - walker becomes `shell.walker`.
 4. **Personal** (DEC-033).
-   - New areas `satan` and `attention`, plus `audio.alarm`.
+   - New areas `satan` and `attention`, plus `audio.alarm`, which Sleipnir
+     selects itself (it is bound to that machine's speakers).
    - Three profiles: `personal` (portable: the editors and the cli
      features), `personal-linux` and `personal-darwin`.
    - Sleipnir imports `personal-linux`. Draupnir gains a `features.nix`
@@ -138,7 +140,9 @@ DEC-030..036.
 
 - Per phase: `just drvs`, `drvs-sets`, `probe`, `coverage`, `gate`, each
   compared with the previous phase; ordering-only diffs proven by probe /
-  `nix-diff`; collision-winner flips → stop and `/consult`.
+  `nix-diff`; collision-winner flips → stop and `/consult`. Draupnir has no
+  probe: Sleipnir's stands proxy, and the user compares link maps on
+  Draupnir at its next home-switch (VH).
 - Resolver tests (`features-test.nix`) red first for each new feature and
   for the personal profile's selection.
 - Negative controls (one-off): deselecting each new feature removes its

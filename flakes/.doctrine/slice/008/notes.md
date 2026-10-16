@@ -87,16 +87,33 @@ the design run.
 - `data.formats` is too broad. Hex editors, markdown pagers, and maybe a
   json/yaml split out of it.
 
+## Review pass RV-017 (2026-10-16)
+
+Two codex reviewers (gpt-6-sol, read-only) ran in parallel: one technical, one
+on the taxonomy. Findings, dispositions and verifications are on RV-017
+(`doctrine review show RV-017`); user rulings settled F-8, F-9, F-10, F-11 and
+F-13, and DEC-032/DEC-033 were edited to match.
+
+**Would a further pass help?** Not before locking. The open risks are
+empirical, and a review on paper cannot settle them:
+- collision winners (P2–P5): the gate probe settles them on Sleipnir; the
+  Draupnir residue gets the VH link-map check at the next switch;
+- what P7 actually adds on darwin: the cache check settles it.
+A further pass would only re-probe the taxonomy, which is settled by the
+user's choices. If one is wanted, it should check plan-level gate coverage
+(each phase's proof row) once the plan exists, not the design.
+
 ## Harvest
 
-fresh-as-of: design run reviewing, revision 31; head 3ac8ff5d (no SL-008 commits yet)
+fresh-as-of: design run reviewing, revision 35; head 3ac8ff5d (no SL-008 commits yet)
 
 - **Produced**:
   - DEC-030..036 (accepted; each shapes SL-008);
   - QUE-001 answered (DEC-030);
   - IMP-023 (goad on darwin);
   - `design.md` materialised at revision 31;
-  - RV-017 (design review ledger, auto-opened, 0 findings).
+  - RV-017 (design review ledger: 17 findings from two codex reviewers, all
+    disposed; DEC-032/033 edited for the user's rulings).
 - **Learned**: these are facts for this slice. Promote them to memories at close.
   - HM `c58f54c`: `systemd.user.enable` defaults to isLinux, and the platform
     assertion sits under `mkIf`. So systemd-only halves are inert on darwin,

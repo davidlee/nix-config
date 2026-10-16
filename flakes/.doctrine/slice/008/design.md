@@ -33,13 +33,13 @@ feature.
 ├── … existing areas unchanged (hardware session virt non-nix-packages games ai audio services
 │     desktop compositor shell), except:
 ├── ai.claude-desktop                 L  S    modules/home/linux/ai.nix
-├── audio.alarm                       L  PL   modules/home/linux/alarm.nix + bin/spotify*; requires media.spotify
+├── audio.alarm                       L  S    modules/home/linux/alarm.nix + bin/spotify*; requires media.spotify
 ├── services.postgresql              (unchanged; S, and now also PL with mkDefault)
 ├── desktop.core                     changed  gains a homeManager half and L (§ Desktop and GUI)
 ├── shell.walker                      L  S    modules/home/linux/walker.nix
 ├── apps.cad                         moved → graphics.cad; apps area retired
 ├── editor.
-│   ├── emacs                            P    emacs.nix (+ emacs-all-the-icons-fonts), EDITOR/VISUAL
+│   ├── emacs                         g  P    emacs.nix (+ emacs-all-the-icons-fonts, guarded), EDITOR/VISUAL
 │   ├── neovim                           P    nvim.nix + nvim-plugins.nix
 │   ├── kakoune                       g  P    kakoune kakoune-lsp kakoune-cr
 │   ├── misc                          g  P    wordgrinder, micro-with-wl-clipboard
@@ -51,23 +51,26 @@ feature.
 ├── dev.
 │   ├── scm                           g  P    scm.nix minus git, + sublime-merge
 │   ├── build                         g  P    build.nix
-│   └── tools                         g  P    dev.nix home lists, gum, tokei, hyperfine, shellcheck, shfmt
+│   ├── runtimes                         P    nodejs_latest uv python3 mise
+│   ├── runners                       g  P    just overmind watch watcher watchexec fswatch viddy entr watchman
+│   └── tools                         g  P    exercism claude-monitor moreutils ccache gum tokei hyperfine
+│                                             shellcheck shfmt
 ├── docs.
-│   ├── diagrams                      g  P    graphviz d2 mermaid-cli structurizr-cli
-│   ├── typeset                       g  P    typst pandoc tdf ghostscript latex2html nerd-font-patcher
+│   ├── diagrams                      g  P    graphviz d2 mermaid-cli structurizr-cli yed drawio
+│   ├── typeset                       g  P    typst pandoc tdf ghostscript latex2html
+│   ├── markdown                         P    glow rich-cli marksman markdown-oxide
 │   └── help                          g  P    tealdeer cheat pinfo
 ├── data.
 │   ├── structured                    g  P    jq xq yq-go jc jless gron otree jqp csv-tui
-│   ├── markdown                         P    glow rich-cli marksman markdown-oxide
 │   └── hex                           g  P    hexyl xxd
 ├── files.
-│   ├── manage                        g  P    file managers, eza lsd pls tre bat bfs, trash-cli, trashy
+│   ├── manage                        g  P    file managers, eza lsd pls tre bat, trash-cli, trashy
 │   ├── disk                          g  P    ncdu gdu duf dust pydf, mmtui udiskie
 │   ├── archive                          P    unar _7zz unrar p7zip
-│   ├── search                        g  P    fd ripgrep ripgrep-all ast-grep sad vgrep fzy mcfly docfd
+│   ├── search                        g  P    fd bfs ripgrep ripgrep-all ast-grep sad vgrep fzy mcfly docfd
 │   │                                         nix-search-tv nix-search-cli fsearch
-│   └── sync                          g  P    syncthing aria2 backintime
-├── net.tools                         g  P    net.nix home lists minus curl wget openssl yt-dlp ddgr
+│   └── sync                          g  P    syncthing backintime
+├── net.tools                         g  P    net.nix home lists minus curl wget openssl ddgr; + aria2
 ├── web.
 │   ├── browsers                      L  W    browsers.nix (firefox, vivaldi, chromium, epiphany)
 │   └── terminal                         P    w3m-full browsh lynx ddgr
@@ -77,18 +80,23 @@ feature.
 ├── text.
 │   ├── tools                         g  P    sd choose play slides grex cicero-tui
 │   ├── pagers                        g  P    nvimpager most moor ov chroma fltrdr
-│   └── dictionary                    g  P    aspell gtt sdcv + the web1913 dictionary (from emacs.nix)
+│   └── dictionary                    g  P    aspell gtt; sdcv + the web1913 dictionary (from emacs.nix, unguarded)
 ├── office.
 │   ├── calc                             P    bc eva sc-im
 │   └── calendar                      g  P    calcure gcalcli mpris-timer
-├── security.tools                       P    nvdtools seclists git-crypt gpgme gpg-tui oath-toolkit
+├── security.
+│   ├── credentials                      P    git-crypt gpgme gpg-tui oath-toolkit
+│   └── research                         P    nvdtools seclists
 ├── media.
-│   ├── tools                         g  P    ffmpeg-full yt-dlp pastel chafa viu ueberzugpp resvg
-│   ├── players                       L  W    mpv vlc celluloid cmus asak playerctl viu
+│   ├── view                          g  P    chafa viu ueberzugpp
+│   ├── convert                       g  P    ffmpeg-full resvg
+│   ├── players                       L  W    mpv vlc celluloid cmus asak playerctl viu (viu, 2nd mpv dropped in P7)
 │   ├── spotify                       L  PL   spotify spotify-cli-linux spotifyd spotify-tray spotify-player
-│   └── obs                           L  S    obs-studio + wlrobs; requires desktop.core (v4l2loopback)
+│   └── obs                           L  S    obs-studio + wlrobs; requires desktop.core
 ├── graphics.
-│   ├── paint                         L  S    graphics.nix
+│   ├── paint                         L  S    krita mypaint inkscape gimp drawpile penpot-desktop (graphics.nix)
+│   ├── modelling                     L  S    blender (graphics.nix)
+│   ├── color                            P    pastel
 │   └── cad                              S    openscad (was apps.cad)
 ├── comms.
 │   ├── chat                          L  W    beeper signal-desktop signal-cli qrencode discord element-desktop
@@ -97,7 +105,7 @@ feature.
 ├── fun.toys                          g  P    figlet fastfetch fortune cmatrix nms
 ├── terminal.
 │   ├── emulators                     L  W    foot ghostty kitty
-│   └── utils                            P    tmux zmx clock-rs asciinema
+│   └── utils                         g  P    tmux zmx clock-rs asciinema nerd-font-patcher
 ├── attention.
 │   ├── behaviour                     L  PL   behaviour.nix (panopticon)
 │   ├── nudge                         L  PL   nudge.nix + nudge/*.nu
@@ -110,8 +118,9 @@ feature.
 
 **The taxonomy rule** (DEC-032): areas are grouped by function, not by whether
 an app is GUI or TUI. Each former cli file or GUI module maps to about one
-feature, and a few broad files are split (display, filetypes, fileutils,
-office). The membership of each feature is listed package by package in
+feature, and broad files are split by job (display, filetypes, fileutils,
+office, dev, security, graphics). A feature is split where a host would
+plausibly select its parts independently. The membership of each feature is listed package by package in
 § CLI and editor features. The user's polish notes (2026-10-16) are already
 applied: `terminal.utils`, `office.{calc,calendar}`, `text.dictionary`, and
 the split of `data`.
@@ -120,10 +129,14 @@ the split of `data`.
 - **`personal`** selects the editors and every cli-derived feature. These are
   portable records, so this preserves Draupnir's current packages.
 - **`personal-linux`** adds the Linux-only personal tools.
+- A product bundle (`web.browsers`, `terminal.emulators`, …) is one switch.
+  A host that wants less turns the feature off and lists packages in host
+  config; per-product features wait for a second workstation.
 - **`workstation`** adds what any desktop workstation of the user's wants:
   browsers, terminal emulators, chat, mail and media players.
-- **Sleipnir** selects taste and per-machine use: graphics, cad, obs, zed,
-  lem, joplin, claude-desktop and walker.
+- **Sleipnir** selects taste and per-machine use: graphics.{paint,modelling,cad}, obs,
+  zed, lem, joplin, claude-desktop and walker, and `audio.alarm`, which is
+  bound to this machine's speakers and Spotify Connect name.
 
 No feature on the tree is off, so no new coverage target is needed for an off
 feature. The new coverage target is the aarch64 home base (§ Verification
@@ -135,7 +148,7 @@ additions).
 features/profiles/
   workstation.nix      + web.browsers terminal.emulators comms.chat comms.mail media.players
   personal.nix         new  editor.{emacs,neovim,kakoune,misc}, the cli features   (portable)
-  personal-linux.nix   new  imports personal; satan.*, attention.*, audio.alarm, media.spotify,
+  personal-linux.nix   new  imports personal; satan.*, attention.*, media.spotify,
                             services.postgresql
   personal-darwin.nix  new  imports personal; nothing of its own yet (goad: IMP-023)
 
@@ -260,8 +273,16 @@ Projection order is still the list order (ADR-002 D5).
 
 The `map area [names]` form also removes the repeated `{ name; value = import … }`
 blocks. It is a refactor with no behaviour change. The resolver tests prove
-the tree is unchanged: `testSleipnirSelectsMigrated` and friends pass
-unchanged in P1.
+the tree is unchanged: `testSleipnirSelectsMigrated` and friends keep their
+expected values in P1.
+
+`system` is required, with no default: a caller that forgets it fails
+instead of passing every platform check. So P1 updates every direct call of
+`resolve` in `features-test.nix` (the `resolves` helper at `:23`, and the
+calls at `:42`, `:56`, `:69`, `:150`, `:185`, `:243`, `:271` and `:281`). Each
+gets the system its fixture means: `x86_64-linux` for Sleipnir and the
+generic fixtures, `aarch64-darwin` for the Mac fixtures. A structural-error
+fixture and its passing twin use the same system.
 
 ### Resolver tests (red first, P1)
 
@@ -273,8 +294,9 @@ unchanged in P1.
   every system.
 - `testBadPlatformsShapeFails`: `platforms = "linux"` (a string, not a list)
   is a structural error. Its twin, `["x86_64-linux"]`, resolves.
-- `resolves` and `fails` gain `system` (default `"x86_64-linux"`), like
-  `classes`.
+- `resolves` gains `system` (default `"x86_64-linux"`), like `classes`.
+  `fails` takes an expression, so its callers pass `system` to `resolve`
+  directly.
 
 ### Governance
 
@@ -434,9 +456,10 @@ most of their packages are Linux-only.
 | `comms.chat` | `office.nix`: beeper signal-desktop signal-cli qrencode discord element-desktop | W |
 | `comms.mail` | `office.nix`: thunderbird-latest | W |
 | `media.players` | `media.nix`: mpv playerctl viu asak cmus vlc celluloid | W |
-| `media.spotify` | `media.nix`: the five spotify packages | PL (required by `audio.alarm`) |
-| `media.obs` | `obs-studio.nix`; `requires = ["desktop.core"]` (wlrobs needs v4l2loopback) | S |
-| `graphics.paint` | `graphics.nix` (uses the `stable` module arg, unchanged) | S |
+| `media.spotify` | `media.nix`: the five spotify packages | PL |
+| `media.obs` | `obs-studio.nix`; `requires = ["desktop.core"]` | S |
+| `graphics.paint` | `graphics.nix`: krita, `stable.mypaint` (the `stable` module arg, unchanged), inkscape gimp drawpile penpot-desktop | S |
+| `graphics.modelling` | `graphics.nix`: blender (not `3d`: a leading digit needs quoting as a Nix attribute) | S |
 | `graphics.cad` | `features/apps.nix` record, renamed; no `platforms` (openscad is portable) | S |
 | `editor.zed` | `zed-editor.nix` | S |
 | `editor.lem` | `editors.nix`: lem-ncurses | S |
@@ -445,12 +468,26 @@ most of their packages are Linux-only.
 | `shell.walker` | `walker.nix` (walker HM module, runAsService) | S |
 
 `office.nix`'s `rssguard` goes to `comms.feeds`, and `mpris-timer` to
-`office.calendar`. Both are cli-derived features (§ CLI and editor features),
-and both keep their Linux guard.
+`office.calendar`, the area for keeping time. Both are cli-derived features
+(§ CLI and editor features), and both keep their Linux guard.
+
+`graphics.nix`'s yed and drawio go to `docs.diagrams`, with its Linux guard.
+`docs.diagrams` is created in P4, so in P3 `graphics.nix` shrinks to those
+two and stays imported by the Linux layer; P4 moves them and deletes it.
+They were Sleipnir's selection and become `personal`'s, which on Linux is
+the same host.
+
+**`requires` is not a prerequisite check.** `media.obs` requires
+`desktop.core` because wlrobs needs v4l2loopback, and v4l2loopback is in
+core's NixOS half (`features/desktop/core/v4l2loopback.nix`). `requires`
+checks only selection, so on a home-only Linux host both records would land
+and v4l2loopback would not. No such host exists. If one appears, `media.obs`
+needs a host-class check.
 
 **Who selects** (DEC-024): the workstation profile takes what any desktop
 workstation of the user's wants (a browser, a terminal, chat, mail, a media
-player). Sleipnir selects taste and per-machine use. `media.spotify` is selected by `personal-linux`, because `audio.alarm` requires it.
+player). Sleipnir selects taste and per-machine use. `media.spotify` is
+selected by `personal-linux`. `audio.alarm`, selected by Sleipnir, requires it:
 `bin/spotify-alarm` calls `spotify_player` from PATH (`spotify-alarm:47, :58`).
 
 ### Collision watch (gate)
@@ -461,9 +498,10 @@ duplicated rather than colliding, and the gate confirms each:
 - `swaybg` (core's `wayland_packages.nix`, and the core home service);
 - the cursors (system phinger/bibata, and `home.pointerCursor`).
 
-`mpv` and `viu` appear twice in `media.players`, as they do today. `viu` is
-also in `media.tools`. A home profile builds one `buildEnv`, so a duplicate is
-harmless. A flip in which package wins a colliding path means stop and
+Until P7, `mpv` appears twice in `media.players`, as it does today, and `viu`
+is in both `media.players` and `media.view`. A home profile builds one
+`buildEnv`, so a duplicate is harmless. P7 removes them (§ Behaviour
+changes). A flip in which package wins a colliding path means stop and
 `/consult` (`mem.fact.nix.systempath-collision-first-wins`).
 
 <!-- doctrine:section sec-4 -->
@@ -505,22 +543,29 @@ harmless.
 | source (`_packages/`) | → feature, or base / NixOS base |
 |---|---|
 | `build.nix` | `dev.build`, all of it |
-| `dev.nix` | `dev.tools`: common, ccache, watchman (guarded). The linuxSystem list (bubblewrap distrobox distrobox-tui valgrind strace) → NixOS base `modules/nixos/cli.nix` |
-| `display.nix` | less, fontconfig → base. nvimpager most moor ov chroma fltrdr → `text.pagers`. graphviz d2 mermaid-cli structurizr-cli → `docs.diagrams`. tokei → `dev.tools`. pastel chafa viu ueberzugpp resvg ffmpeg-full → `media.tools`. asciinema → `terminal.utils`. ghostscript latex2html nerd-font-patcher → `docs.typeset` |
-| `editors.nix` | wordgrinder, micro-with-wl-clipboard → `editor.misc`. kakoune kakoune-lsp kakoune-cr → `editor.kakoune`. nb tpnote tui-journal kb → `notes.terminal`. emacs-all-the-icons-fonts → `editor.emacs` |
-| `filetypes.nix` | jq xq yq-go jc jless gron otree jqp csv-tui → `data.structured`. glow rich-cli marksman markdown-oxide → `data.markdown`. hexyl xxd → `data.hex`. typst pandoc tdf → `docs.typeset`. gum → `dev.tools`. gcalcli → `office.calendar`. grex cicero-tui → `text.tools`. gtt → `text.dictionary`. circumflex → `comms.feeds` |
-| `fileutils.nix` | coreutils xz gnutar cpio zip unzip → base. File managers, eza lsd pls tre bat bfs, trash-cli, `hiPrio trashy` → `files.manage`. ncdu gdu duf dust pydf → `files.disk`. unar _7zz unrar p7zip → `files.archive`. syncthing aria2 backintime → `files.sync` |
+| `dev.nix` | nodejs_latest uv python3 mise → `dev.runtimes`. just overmind watch watcher watchexec fswatch viddy entr, watchman (guarded) → `dev.runners`. exercism claude-monitor moreutils, ccache (guarded) → `dev.tools`. The linuxSystem list (bubblewrap distrobox distrobox-tui valgrind strace) → NixOS base `modules/nixos/cli.nix` |
+| `display.nix` | less, fontconfig → base. nvimpager most moor ov chroma fltrdr → `text.pagers`. graphviz d2 mermaid-cli structurizr-cli → `docs.diagrams`. tokei → `dev.tools`. pastel → `graphics.color`. chafa viu ueberzugpp → `media.view`. resvg ffmpeg-full → `media.convert`. asciinema nerd-font-patcher → `terminal.utils`. ghostscript latex2html → `docs.typeset` |
+| `editors.nix` | wordgrinder, micro-with-wl-clipboard → `editor.misc`. kakoune kakoune-lsp kakoune-cr → `editor.kakoune`. nb tpnote tui-journal kb → `notes.terminal`. emacs-all-the-icons-fonts → `editor.emacs`, guarded (it is in linuxHome) |
+| `filetypes.nix` | jq xq yq-go jc jless gron otree jqp csv-tui → `data.structured`. glow rich-cli marksman markdown-oxide → `docs.markdown`. hexyl xxd → `data.hex`. typst pandoc tdf → `docs.typeset`. gum → `dev.tools`. gcalcli → `office.calendar`. grex cicero-tui → `text.tools`. gtt → `text.dictionary`. circumflex → `comms.feeds` |
+| `fileutils.nix` | coreutils xz gnutar cpio zip unzip → base. File managers, eza lsd pls tre bat, trash-cli, `hiPrio trashy` → `files.manage`. bfs → `files.search`. ncdu gdu duf dust pydf → `files.disk`. unar _7zz unrar p7zip → `files.archive`. syncthing backintime → `files.sync`. aria2 → `net.tools` |
 | `find.nix` | file findutils → base. The rest, and fsearch → `files.search` |
 | `frivolity.nix` | figlet fastfetch fortune cmatrix nms → `fun.toys`. russ tut tuisky wiki-tui → `comms.feeds` |
 | `help.nix` | `docs.help` |
-| `net.nix` | curl wget openssl → base. yt-dlp → `media.tools`. ddgr → `web.terminal`. The rest, and sn0int → `net.tools`. The linuxSystem list → NixOS base |
+| `net.nix` | curl wget openssl → base. ddgr → `web.terminal`. The rest (yt-dlp included), and sn0int → `net.tools`. The linuxSystem list → NixOS base |
 | `scm.nix` | git → base. The rest (`hiPrio gitFull`, gitui guarded) → `dev.scm`, plus sublime-merge (guarded) from `modules/home/linux/editors.nix` |
-| `security.nix` | gnupg → base. The rest → `security.tools` |
+| `security.nix` | gnupg → base. git-crypt gpgme gpg-tui oath-toolkit → `security.credentials`. nvdtools seclists → `security.research` |
 | `shell-ux.nix` | starship carapace fzf atuin zoxide skim → base. tmux zmx → `terminal.utils` |
 | `system.nix` | glances btop bottom htop gtop wtf tray-tui → `system.monitor`. pstree killall await procs pueue mprocs stress-ng → `system.process`. hyperfine → `dev.tools`. mmtui udiskie → `files.disk`. The linuxSystem list → NixOS base |
 | `text.nix` | gnused gawk → base. sd choose play slides → `text.tools`. aspell → `text.dictionary`. bc eva sc-im → `office.calc`. calcure → `office.calendar`. clock-rs → `terminal.utils` |
 | `www.nix` | `web.terminal` |
 | `zsh.nix` | zsh zstd zsh-autocomplete antidote → base. shellcheck shfmt → `dev.tools` |
+
+**A moved package keeps its bucket's guard.** A `linuxHome` package is
+guarded in its new feature even where the rest of the feature is common
+(emacs-all-the-icons-fonts in `editor.emacs`, gtt in `text.dictionary`,
+nerd-font-patcher in `terminal.utils`). A package from a home module keeps
+that module's reach: `sdcv` and the web1913 `home.file` come from
+`emacs.nix`, which both hosts import, so they stay unguarded.
 
 `modules/shared/cli/` is then removed. `modules/nixos/cli.nix` holds the
 linuxSystem list inline, with its `isx86` guards as they are until P7, so the
@@ -535,7 +580,8 @@ and as `drvs-sets`.
 
 - **`editor.emacs`** (`features/editor/emacs.nix`, its own file): today's
   `emacs.nix` with two changes:
-  - it gains emacs-all-the-icons-fonts and `home.sessionVariables.{EDITOR,VISUAL}`;
+  - it gains `home.sessionVariables.{EDITOR,VISUAL}`, and
+    emacs-all-the-icons-fonts under the Linux guard;
   - it loses `sdcv` and the web1913 `home.file`, which move to
     `text.dictionary`. Emacs's quick-sdcv needs both, and `personal` selects
     both. The dependency is soft (the editor works without it), so there is
@@ -555,8 +601,8 @@ and as `drvs-sets`.
 
 | feature | content on Draupnir (aarch64-darwin) |
 |---|---|
-| `editor.kakoune`, `notes.terminal`, `data.hex`, `docs.help`, `comms.feeds`, `files.sync` (syncthing aria2 stay), … | the common part only; may be empty |
-| `office.calc`, `data.markdown`, `files.archive`, `security.tools`, `web.terminal` | everything (wholly common) |
+| `editor.emacs`, `editor.kakoune`, `notes.terminal`, `text.dictionary`, `data.hex`, `docs.help`, `comms.feeds`, `files.sync`, … | the common part only; may be empty |
+| `office.calc`, `docs.markdown`, `files.archive`, `security.{credentials,research}`, `dev.runtimes`, `graphics.color`, `web.terminal` | everything (wholly common) |
 
 An empty `home.packages` is harmless, and P7 fills it from availability.
 
@@ -571,7 +617,7 @@ DEC-033. "Personal" means the machines the user owns. Sleipnir imports
 personal-linux ──imports──┐                  ┌──imports── personal-darwin
   satan.{harness,patcher,attrd}             │              (nothing yet; goad: IMP-023)
   attention.{behaviour,nudge,goad}          ▼
-  audio.alarm, media.spotify           personal
+  media.spotify                        personal
   services.postgresql (mkDefault)        editor.{emacs,neovim,kakoune,misc}
                                          every cli-derived feature
 ```
@@ -586,7 +632,7 @@ personal-linux ──imports──┐                  ┌──imports── pe
 | `attention.behaviour` | `features/attention/behaviour.nix` | none | panopticon services and timers |
 | `attention.nudge` | inline in `features/attention.nix`, assets in `features/attention/nudge/` | none | see below |
 | `attention.goad` | inline | none | systemd-only HM module; a darwin half later (IMP-023) |
-| `audio.alarm` | inline in `features/audio.nix`, assets in `features/audio/alarm/` | `media.spotify` | `spotify-alarm` calls `spotify_player` from PATH (`:47, :58`); device name `Sleipnir` stays hard-coded (W9) |
+| `audio.alarm` | inline in `features/audio.nix`, assets in `features/audio/alarm/` | `media.spotify` | selected by Sleipnir, not `personal-linux`: the Spotify Connect device name `Sleipnir` and the speaker stay hard-coded (W9). `spotify-alarm` calls `spotify_player` from PATH (`:47, :58`) |
 
 Each of these records carries `platforms = lib.platforms.linux`. Selecting one
 on Draupnir is refused at resolve time, not left inert.
@@ -621,7 +667,7 @@ for one host and checks that host's services.
 The `home.file` sources keep their basenames, so their store paths are
 unchanged. Its first comment, which says python comes from sway's
 `wpmPython`, is corrected. The scripts use only the standard library, and P4
-moves `python3` into `dev.tools`. Sleipnir selects `dev.tools` through
+moves `python3` into `dev.runtimes`. Sleipnir selects `dev.runtimes` through
 `personal`, and P7 pins the interpreter (§ Behaviour changes).
 
 ### Draupnir
@@ -691,7 +737,10 @@ on this machine (panopticon, satan-patcher, satan-attrd, goad).
   - `homeConfigurations."david@Draupnir"`.
 - **What fails.** Any reference to `inputs.<name>.packages` or
   `inputs.<name>.homeManagerModules` then fails evaluation, with a missing
-  attribute error that names the input.
+  attribute error that names the input. A reference to the input itself (its
+  `outPath`, say) still evaluates and is not caught. Every reference research
+  found uses one of those two attributes (research § Local-path input
+  references), so the check covers today's code, not every possible use.
 - **When it runs.** `just coverage` calls it, so it runs wherever coverage
   runs (outside `just drvs`, DEC-008).
 
@@ -700,8 +749,10 @@ Draupnir is included because, until a darwin feature needs a local input
 the recipe, and the change says why.
 
 Negative control (once, P6): temporarily select `attention.goad` in the
-target's modules, through a resolver call with `system = "x86_64-linux"`.
-The isolation recipe must then fail, naming `goad`.
+target's modules, through a resolver call with the target's own system,
+`aarch64-linux` (`goad`'s `platforms = lib.platforms.linux` admits it). The
+isolation recipe must then fail with the missing-attribute error on `goad`'s
+input, and on nothing else.
 
 ### Resolver tests
 
@@ -714,6 +765,7 @@ These are in addition to P1's platform tests (§ Platform scope).
 | `testPersonalLinuxOnDarwinFails` | P5 | `personal-linux` with `system = "aarch64-darwin"` is refused (satan.* platforms); with `x86_64-linux` it resolves |
 | `testDraupnirSelection` | P5 | replaces `testMacSelectsNothing`: Draupnir's real `features.nix`, its real classes and system; resolves; selects exactly `personal`'s set |
 | `testPersonalRequires` | P5 | `satan.patcher` without `services.postgresql`, `satan.harness` without `editor.emacs`, and `audio.alarm` without `media.spotify` are each refused |
+| `testAlarmIsHostSelected` | P5 | `personal-linux` alone, `x86_64-linux`: resolves and does not select `audio.alarm` |
 | `testObsRequiresCore` | P3 | `media.obs` without `desktop.core` is refused |
 | `testDesktopCoreLinuxOnly` | P3 | `desktop.core` on `aarch64-darwin` is refused |
 
@@ -728,17 +780,22 @@ deliberate change, and nothing outside the table may differ.
 
 | change | effect | proof |
 |---|---|---|
-| **cli availability** (DEC-036): every guarded feature's `optionals isLinux [ … ]` becomes one list, `filter (availableOn hostPlatform) (subtractLists brokenOn.${system} all)` | Draupnir gains the packages available on aarch64-darwin. Sleipnir is identical | Sleipnir `drvs-sets` home identical. Draupnir `drvs-sets` home count rises by exactly the evaluated delta, listed in the phase notes |
+| **cli availability** (DEC-036): every guarded feature's `optionals isLinux [ … ]` becomes one list, `filter (availableOn hostPlatform) (subtractLists (brokenOn.${system} or []) all)` | Draupnir gains the packages available on aarch64-darwin. Sleipnir is identical | Sleipnir `drvs-sets` home identical. Draupnir `drvs-sets` home count rises by exactly the evaluated delta, whose package names are listed in the phase notes. The home filter is exercised on x86_64-linux (Sleipnir) and aarch64-darwin (Draupnir). `coverage."home@aarch64-linux"` selects no feature, so it does not reach it; aarch64-linux homes with features are W7's |
 | **`brokenOn`** (one attrset, `features/cli-broken.nix`): `aarch64-darwin = [watchman atuin]`. atuin is there while ISS-007 stands; watchman's C++ tower fails on darwin (`dev.nix` comment) | they stay off the Mac | neither name is in Draupnir's `home.packages` |
 | **NixOS `isx86` guards** in `modules/nixos/cli.nix` (cpuid, x86info) → `availableOn` | none on x86_64 | Sleipnir system `drvs-sets` identical. `base@aarch64-linux` still evaluates |
 | **doctor interpreter**: the three `home.file` entries become `pkgs.writeScript` with an explicit `python3` shebang, or `source` plus a pinned interpreter | the doctor no longer depends on PATH `python3` | the scripts run (`sleipnir-doctor` exits 0 or reports checks) |
+| **duplicates removed**: the second `mpv` and `viu` from `media.players` (`viu` stays in `media.view`); `yazi` from `files.manage` and `mcfly` from `files.search`, which the base's `programs.yazi` and `programs.mcfly` already install | none, if the HM program's package is the one that wins today | Sleipnir home probe: `home-path-links` identical. If the bare `yazi` or `mcfly` wins a path today, that row is dropped and recorded, not forced |
 | **`break-remind.nix` deleted** | none (imported nowhere) | `git grep break-remind` under `flakes/` finds only the README parked note, if any |
 | **comments and docs**: the `workstation.nix` comment (dictate would not fail D6 on darwin; that profile is Linux-only now through `desktop.core`'s platforms); the README; DEC-024's darwin consequence | none | review |
 
 ### Before P7: the darwin build check
 
-`availableOn` reads `meta.platforms`, which says what a package supports, not
-what builds or is cached. Before P7 is committed:
+`lib.meta.availableOn` is metadata only. It is true when `meta.platforms`
+includes the platform or is absent, and false when `meta.badPlatforms`
+matches. It says nothing about whether a package builds, is cached, or works.
+What P7 guarantees is therefore narrow: the metadata filter, evaluation on
+Sleipnir and Draupnir (and the NixOS filter on `base@aarch64-linux`), and the
+cache check below. Before P7 is committed:
 1. Every package Draupnir gains is checked against the cache with
    `nix path-info --store https://cache.nixos.org <outPath>`.
 2. Packages that are not cached are listed in the phase notes.
@@ -746,7 +803,8 @@ what builds or is cached. Before P7 is committed:
    the next `darwin`/`home-switch`.
 
 Draupnir cannot be switched from Sleipnir, so the switch itself is the user's.
-This check is the stand-in.
+This check does not replace it: whether the added tools build locally and
+activate is known only at the user's next Draupnir `home-switch`.
 
 **Why not mark `platforms` on the cli features instead:** that would freeze
 today's guess. With `availableOn`, aarch64-linux (W7) gets the right set
@@ -767,9 +825,22 @@ either:
 
 A flipped collision winner means stop and `/consult`.
 
-**Darwin has no probe.** Draupnir's home and system are checked by `drvs`
-and `drvs-sets` only. Where Draupnir's home drv changes, its `drvs-sets` must
-match, and a `nix-diff` of its `home-manager-generation` must show order only.
+**Darwin has no probe.** A darwin home cannot be built on Sleipnir, so
+Draupnir's home and system are checked by `drvs` and `drvs-sets` only. Where
+Draupnir's home drv changes, its `drvs-sets` must match, and a `nix-diff` of
+its `home-manager-generation` must show order only. Neither shows a flipped
+collision winner. Two things close most of that gap:
+- **Sleipnir's probe stands proxy.** Draupnir's `home.packages` is Sleipnir's
+  list with the guarded entries removed, in the same feature and source
+  order; the darwin layer adds no `home.packages` of its own. So any
+  collision between two packages Draupnir has is also a collision on
+  Sleipnir, in the same relative order, and Sleipnir's `home-path-links`
+  would show it flip. The residue is packages whose file sets differ by
+  platform, and HM `programs.*` packages from the darwin layer (kitty).
+- **A link-map check at the next Draupnir switch (VH, by the user).** Before
+  activating, the user runs `bin/gate-probe` on Draupnir against the new
+  home and compares its `home-path-links` with the current generation's
+  `home-path`. A flipped winner there is fixed forward.
 
 **New files are tracked before evaluation** (`mem.fact.flakes.git-add-n`).
 Every new file is `git add -N`ed before the phase's gate runs.
@@ -782,9 +853,9 @@ snapshot immediately before editing.
 |---|---|---|---|
 | P1 | **resolver**: `platforms` key, `system` arg, tree takes `{lib}` (`map area`), tests; REVs on ADR-002 and ADR-005 raised | none | every `drvs` line identical; `just test` green, new tests red first |
 | P2 | **home base**: `modules/home/default.nix`, the linux and darwin layers, `cli.nix` still importing `modules/shared/cli`; `programs.home-manager.enable` into the base; `profiles/` and `darwin/home.nix` removed | order only: Sleipnir and Draupnir homes | Sleipnir home probe identical; Draupnir home `drvs-sets` identical and `nix-diff` order-only |
-| P3 | **desktop and GUI**: `desktop.core` home half (ISS-008, systembus-notify, wayland.nix), `platforms` on core; `web.browsers`, `terminal.emulators`, `comms.{chat,mail}`, `media.{players,spotify,obs}`, `graphics.{paint,cad}` (apps area gone), `editor.{zed,lem}`, `notes.joplin`, `ai.claude-desktop`, `shell.walker`; workstation + Sleipnir selections | order only: Sleipnir home (`home.packages`, user units). Draupnir identical | Sleipnir home probe identical; system identical |
-| P4 | **cli and editors**: every cli-derived feature, `editor.{emacs,neovim,kakoune,misc}`, `notes.terminal`; base `cli.nix` inline; `modules/shared/cli` removed; `modules/nixos/cli.nix` inline. `personal` created with these, imported by Sleipnir; Draupnir `features.nix` imports `personal` directly until P5 | order only: both homes; Sleipnir system `systemPackages` order (cli.nix inline) | completeness check (§ CLI and editor features); both homes' `drvs-sets` identical; Sleipnir probe identical; system `drvs-sets` identical |
-| P5 | **personal**: `satan.*`, `attention.*`, `audio.alarm`; `personal-linux`, `personal-darwin`; Sleipnir → `personal-linux` (its `media.spotify` and `services.postgresql` selections stay, now also defaulted by the profile), Draupnir → `personal-darwin`; doctor → host config | order only, plus nudge's script path in its unit | Sleipnir home probe identical except the nudge unit, whose only diff is the path; Draupnir identical to P4 |
+| P3 | **desktop and GUI**: `desktop.core` home half (ISS-008, systembus-notify, wayland.nix), `platforms` on core; `web.browsers`, `terminal.emulators`, `comms.{chat,mail}`, `media.{players,spotify,obs}`, `graphics.{paint,modelling,cad}` (apps area gone; `graphics.nix` keeps yed and drawio until P4), `editor.{zed,lem}`, `notes.joplin`, `ai.claude-desktop`, `shell.walker`; workstation + Sleipnir selections | order only: Sleipnir home (`home.packages`, user units). Draupnir identical | Sleipnir home probe identical; system identical |
+| P4 | **cli and editors**: every cli-derived feature, `editor.{emacs,neovim,kakoune,misc}`, `notes.terminal`; yed and drawio into `docs.diagrams`, `graphics.nix` deleted; base `cli.nix` inline; `modules/shared/cli` removed; `modules/nixos/cli.nix` inline. `personal` created with these, imported by Sleipnir; Draupnir `features.nix` imports `personal` directly until P5 | order only: both homes; Sleipnir system `systemPackages` order (cli.nix inline) | completeness check (§ CLI and editor features); both homes' `drvs-sets` identical; Sleipnir probe identical; system `drvs-sets` identical |
+| P5 | **personal**: `satan.*`, `attention.*`, `audio.alarm`; `personal-linux`, `personal-darwin`; Sleipnir → `personal-linux` (its `media.spotify` and `services.postgresql` selections stay, now also defaulted by the profile) and selects `audio.alarm`, Draupnir → `personal-darwin`; doctor → host config | order only, plus nudge's script path in its unit | Sleipnir home probe identical except the nudge unit, whose only diff is the path; Draupnir identical to P4 |
 | P6 | **verification**: `coverage."home@aarch64-linux"`, the coverage pick, the stub flake, `just isolation` | `coverage` gains one line | all `drvs` lines identical; the new target evaluates; isolation passes; the negative control fails as specified |
 | P7 | **behaviour** (§ Behaviour changes) | exactly that table | as in the table |
 
@@ -807,7 +878,7 @@ and check the closure, not just the option.
 | `attention.nudge` | no `nudge.service`/`.timer` |
 | `satan.patcher` | no `satan-patcher.service` |
 | `media.obs` | `programs.obs-studio` absent |
-| one cli feature on Draupnir (`data.markdown`) | `glow` absent from Draupnir's `home.packages` |
+| one cli feature on Draupnir (`docs.markdown`) | `glow` absent from Draupnir's `home.packages` |
 
 The refusal controls are checked once:
 - `web.browsers` selected on Draupnir is refused, naming `aarch64-darwin`;

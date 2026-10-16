@@ -1,0 +1,205 @@
+# Implementation plan for SL-008 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-008"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber. Criterion ids
+# are local to their phase, bare, and equally immutable.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Resolver platform scope"
+objective = "Feature records may carry platforms (DEC-030); the resolver takes the host's system and refuses a selected feature whose platforms omit it. The feature tree becomes a function of {lib} (map area). No configuration changes."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-008 design locked; slice status ready." },
+  { id = "EN-2", text = "Baseline captured on the unchanged config: just drvs, drvs-sets, probe (system and home), coverage, gate; paths recorded in notes.md." },
+  { id = "EN-3", text = "REVs raised (not applied): ADR-002 D1/D4 (platforms key) and D5 (DEC-035 wording); ADR-005 D6 extended and its Neutral clause pointed at DEC-030; DEC-006 signature gains system noted for reconcile (design § Platform scope / Governance)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features.nix: platforms joins the allowed descriptor keys; badShapes checks platforms is a list of strings (strings helper, beside requires); each selected record asserts lib.elem system (platforms or [system]) with a message naming feature path, system and platforms; system is a required argument; header and descriptor comments updated." },
+  { id = "EX-2", text = "hosts.nix select passes system = meta.system; tree = import ./features {inherit lib;}." },
+  { id = "EX-3", text = "features/default.nix is {lib}: map area [names], order unchanged; every area file begins {lib, ...}: or _:." },
+  { id = "EX-4", text = "features-test.nix: tree via {lib}; resolves gains system (default x86_64-linux); every direct resolve call (:23 :42 :56 :69 :150 :185 :243 :271 :281 at design time) passes the system its fixture means (aarch64-darwin for Mac fixtures); existing tests keep their expected values." },
+  { id = "EX-5", text = "New tests written red first, then green: testUnsupportedPlatformFails, testPlatformsAbsentMeansAll, testBadPlatformsShapeFails, each a [fixture twin] -> [false true] pair where applicable." },
+  { id = "EX-6", text = "Gate vs EN-2: every drvs line identical; just test green; committed (flakes/ scoped); snapshot saved as PHASE-02's baseline." },
+]
+verification = [
+  { id = "VT-1", expects = "platform tests exist and pass", test_file = "features-test.nix", keywords = ["testUnsupportedPlatformFails", "testPlatformsAbsentMeansAll", "testBadPlatformsShapeFails", "aarch64-darwin"], waived = false },
+  { id = "VT-2", expects = "resolver reads and enforces platforms", test_file = "features.nix", keywords = ["\"platforms\"", "does not support", "system"], waived = false },
+  { id = "VT-3", expects = "hosts pass their system to the resolver", test_file = "hosts.nix", keywords = ["meta.system", "import ./features {inherit lib;}"], waived = false },
+  { id = "VT-4", expects = "tree is a function of lib", test_file = "features/default.nix", keywords = ["{lib}", "map area"], waived = false },
+  { id = "VA-1", expects = "EX-6 gate diff: every drvs line identical" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Home base and platform layers"
+objective = "modules/home/default.nix becomes the home base (DEC-031) with linux and darwin layers; each host's home.nix imports one layer. profiles/ and darwin/home.nix go. cli.nix still imports modules/shared/cli."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 committed; its snapshot is the baseline, retaken immediately before editing (emacs-overlay drift)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "zsh.nix nushell.nix programs.nix shpool.nix cli.nix git mv from modules/home/shared/ up to modules/home/; modules/home/default.nix imports them and sets programs.home-manager.enable (removed from both hosts' home.nix)." },
+  { id = "EX-2", text = "modules/home/linux/default.nix imports ../. and sets systemd.user.sessionVariables = config.home.sessionVariables; temporarily imports the remaining linux/*.nix GUI modules that profiles/linux-desktop.nix imported." },
+  { id = "EX-3", text = "darwin/home.nix git mv to modules/home/darwin/default.nix; imports [../.]; header names the layout; ISS-007 atuin workarounds, kitty.darwinLaunchOptions and targets.darwin.defaults unchanged." },
+  { id = "EX-4", text = "hosts/Sleipnir/home.nix imports ../../modules/home/linux plus its personal and W2 imports, keeps identity, stateVersion and services.systembus-notify; hosts/Draupnir/home.nix imports ../../modules/home/darwin. profiles/linux-desktop.nix removed. New files git add -N before the gate." },
+  { id = "EX-5", text = "Gate vs EN-1: order only on both homes. Sleipnir home probe identical; Draupnir home drvs-sets identical and nix-diff of home-manager-generation order-only; system lines identical." },
+  { id = "EX-6", text = "README paths for moved files fixed; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "home base import list", test_file = "modules/home/default.nix", keywords = ["./zsh.nix", "./nushell.nix", "./programs.nix", "./shpool.nix", "./cli.nix", "programs.home-manager.enable"], waived = false },
+  { id = "VT-2", expects = "linux layer imports base and exports session variables", test_file = "modules/home/linux/default.nix", keywords = ["../.", "systemd.user.sessionVariables"], waived = false },
+  { id = "VT-3", expects = "darwin layer imports base", test_file = "modules/home/darwin/default.nix", keywords = ["../.", "darwinLaunchOptions"], waived = false },
+  { id = "VA-1", expects = "EX-5 gate diff reviewed against the P2 row, including the Draupnir nix-diff" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Desktop and GUI features"
+objective = "desktop.core gains a homeManager half for the ISS-008 items and platforms = linux; each Linux GUI home module becomes a feature by function (DEC-032); workstation and Sleipnir select them."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 committed; baseline retaken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/desktop/core/home.nix holds wayland.nix's pointerCursor and disabled kanshi verbatim, niri's tailscale-systray and swaybg service, and systembus-notify (out of hosts/Sleipnir/home.nix); core.nix gains the homeManager half and platforms = lib.platforms.linux; niri keeps nirius and vicinae; the ISS-008 comment goes." },
+  { id = "EX-2", text = "Features with platforms = lib.platforms.linux, per design § GUI features table: web.browsers, terminal.emulators, comms.chat, comms.mail, media.players, media.spotify, media.obs (requires desktop.core), graphics.paint, graphics.modelling, editor.zed, editor.lem, notes.joplin, ai.claude-desktop, shell.walker. graphics.cad replaces apps.cad (no platforms); features/apps.nix removed. graphics.nix shrinks to yed and drawio, still imported by the linux layer." },
+  { id = "EX-3", text = "workstation.nix selects web.browsers terminal.emulators comms.chat comms.mail media.players; hosts/Sleipnir/features.nix selects media.spotify, media.obs, graphics.{paint,modelling,cad}, editor.{zed,lem}, notes.joplin, ai.claude-desktop, shell.walker. Moved modules leave the linux layer's temporary imports." },
+  { id = "EX-4", text = "Tests red first, then green: testSleipnirHomeSelection (P3 features, #homeManager), testObsRequiresCore, testDesktopCoreLinuxOnly." },
+  { id = "EX-5", text = "Gate vs EN-1: Sleipnir home order only (home.packages, user units), probe identical; system identical; Draupnir identical. Collision watch: foot, swaybg and the cursors stay duplicated, no winner flips." },
+  { id = "EX-6", text = "README feature tree and paths updated; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "core home half and platform scope", test_file = "features/desktop/core.nix", keywords = ["homeManager", "lib.platforms.linux", "./core/home.nix"], waived = false },
+  { id = "VT-2", expects = "P3 resolver tests", test_file = "features-test.nix", keywords = ["testSleipnirHomeSelection", "testObsRequiresCore", "testDesktopCoreLinuxOnly"], waived = false },
+  { id = "VT-3", expects = "workstation selects the GUI bundles", test_file = "features/profiles/workstation.nix", keywords = ["web.browsers", "terminal.emulators", "comms.chat", "comms.mail", "media.players"], waived = false },
+  { id = "VA-1", expects = "EX-5 gate diff reviewed against the P3 row and the collision watch" },
+  { id = "VA-2", expects = "Negative controls (lib.mkForce false, closure not option): desktop.core home half with the compositors -> no swaybg.service or tailscale-systray.service, pointerCursor unset; compositor.niri alone -> swaybg and tailscale-systray still present (ISS-008 fixed); media.obs -> programs.obs-studio absent" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "CLI and editor features"
+objective = "Every modules/shared/cli/_packages list moves into a cli-derived feature, the base cli.nix or the NixOS base, keeping today's platform guards; the editors become features; personal is created. Package identity on both homes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 committed; baseline retaken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Each package lands exactly where design § Mapping says, one area file per new area, inline lists in source order (common before linuxHome), no platforms key; every linuxHome package keeps an optionals isLinux guard in its new feature; sdcv and the web1913 home.file stay unguarded in text.dictionary." },
+  { id = "EX-2", text = "modules/home/cli.nix holds the base cli inline (design table); modules/nixos/cli.nix holds the linuxSystem list inline with its isx86 guards; modules/shared/cli removed." },
+  { id = "EX-3", text = "features/editor/emacs.nix (emacs.nix + EDITOR/VISUAL + guarded emacs-all-the-icons-fonts, minus sdcv/web1913 and the shpool import); editor.neovim imports features/editor/neovim/{nvim,nvim-plugins}.nix; editor.kakoune, editor.misc; sublime-merge into dev.scm (guarded); yed and drawio into docs.diagrams (guarded), graphics.nix deleted." },
+  { id = "EX-4", text = "features/profiles/personal.nix selects the editors and every cli-derived feature; Sleipnir imports it; hosts/Draupnir/features.nix imports personal directly (until P5)." },
+  { id = "EX-5", text = "Completeness check, per system (x86_64-linux, aarch64-darwin), as package-name sets and drvs-sets: union of new lists + base + NixOS list equals union of the old buckets; result recorded in notes." },
+  { id = "EX-6", text = "Gate vs EN-1: both homes order only, drvs-sets identical; Sleipnir home probe identical; Sleipnir system drvs-sets identical (systemPackages order only); Draupnir nix-diff order only." },
+  { id = "EX-7", text = "testSleipnirHomeSelection extended; README Emacs path updated; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "emacs feature owns EDITOR and guards the fonts", test_file = "features/editor/emacs.nix", keywords = ["EDITOR", "VISUAL", "emacs-all-the-icons-fonts", "isLinux"], waived = false },
+  { id = "VT-2", expects = "dev area split by job", test_file = "features/dev.nix", keywords = ["\"scm\"", "\"build\"", "\"runtimes\"", "\"runners\"", "\"tools\"", "sublime-merge"], waived = false },
+  { id = "VT-3", expects = "base cli inline", test_file = "modules/home/cli.nix", keywords = ["starship", "coreutils", "findutils", "gnupg", "git", "atuin"], waived = false },
+  { id = "VT-4", expects = "personal profile selects editors", test_file = "features/profiles/personal.nix", keywords = ["editor.emacs", "editor.neovim", "editor.kakoune", "editor.misc", "mkDefault"], waived = false },
+  { id = "VA-1", expects = "EX-5 completeness check output, both systems" },
+  { id = "VA-2", expects = "EX-6 gate diff reviewed against the P4 row" },
+  { id = "VA-3", expects = "Negative controls: editor.emacs -> emacs absent from home-path, EDITOR unset in hm-session-vars.sh, emacs.service absent; editor.neovim -> nvim absent; dev.scm -> lazygit and jujutsu absent, git present; terminal.utils -> tmux absent; docs.markdown on Draupnir -> glow absent" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Personal features and profiles"
+objective = "satan.*, attention.* and audio.alarm become Linux-only features (DEC-033); personal-linux and personal-darwin import personal; Sleipnir imports personal-linux and selects audio.alarm; Draupnir imports personal-darwin; sleipnir-doctor becomes Sleipnir host config."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 committed; baseline retaken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/satan/{harness,patcher,attrd}.nix (harness requires editor.emacs; patcher, attrd require services.postgresql); features/attention/behaviour.nix, attention.nudge and attention.goad inline in features/attention.nix with nudge assets in features/attention/nudge/; audio.alarm inline in features/audio.nix (requires media.spotify), assets in features/audio/alarm/. All carry platforms = lib.platforms.linux; attention and satan are the last areas." },
+  { id = "EX-2", text = "nudge's unit runs ~/flakes/features/attention/nudge/main.nu; nudge.nix comments and the justfile test recipe updated in the same commit." },
+  { id = "EX-3", text = "personal-linux.nix imports personal and selects satan.*, attention.*, media.spotify, services.postgresql (mkDefault); personal-darwin.nix imports personal. Sleipnir imports personal-linux and selects audio.alarm (its plain media.spotify and postgresql selections stay); Draupnir imports personal-darwin." },
+  { id = "EX-4", text = "sleipnir-doctor.nix and its scripts git mv to hosts/Sleipnir/doctor.nix and hosts/Sleipnir/doctor/ (basenames kept); its python comment corrected; Sleipnir home.nix imports it." },
+  { id = "EX-5", text = "Tests red first, then green: testPersonalSelectsPortable, testPersonalLinuxOnDarwinFails, testDraupnirSelection (replaces testMacSelectsNothing), testPersonalRequires, testAlarmIsHostSelected; testSleipnirHomeSelection extended." },
+  { id = "EX-6", text = "Gate vs EN-1: Sleipnir home probe identical except the nudge unit, whose only diff is the script path (old path absent from the unit text); Draupnir identical to P4." },
+  { id = "EX-7", text = "SATAN.md and README paths updated; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "personal profile tests", test_file = "features-test.nix", keywords = ["testPersonalSelectsPortable", "testPersonalLinuxOnDarwinFails", "testDraupnirSelection", "testPersonalRequires", "testAlarmIsHostSelected"], waived = false },
+  { id = "VT-2", expects = "personal-linux selects the Linux personal tools", test_file = "features/profiles/personal-linux.nix", keywords = ["./personal.nix", "satan", "attention", "media.spotify", "services.postgresql"], waived = false },
+  { id = "VT-3", expects = "nudge runs from its new path", test_file = "features/attention.nix", keywords = ["features/attention/nudge/main.nu", "lib.platforms.linux"], waived = false },
+  { id = "VT-4", expects = "nudge test recipe follows the move", test_file = "justfile", keywords = ["features/attention/nudge/nudge-test.nu"], waived = false },
+  { id = "VA-1", expects = "EX-6 gate diff reviewed against the P5 row" },
+  { id = "VA-2", expects = "Negative controls: attention.nudge -> no nudge.service/.timer; satan.patcher -> no satan-patcher.service. Refusal controls: web.browsers selected on Draupnir refused naming aarch64-darwin; satan.patcher with services.postgresql = mkForce false refused" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-06"
+name      = "Home verification targets"
+objective = "coverage.\"home@aarch64-linux\" evaluates the home base headless and off x86; just coverage picks home targets; a committed stub flake and just isolation check that lean homes never reach the local-path inputs (DEC-034)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-05 committed; baseline retaken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "hosts.nix: coverage.\"home@aarch64-linux\" via homeManagerConfiguration directly (homeModule, ./modules/home/linux, stub identity, args \"home-base\")." },
+  { id = "EX-2", text = "justfile coverage pick branches on activationPackage; passes system_override plus home_override." },
+  { id = "EX-3", text = "features/stub/flake.nix ({ outputs = _: {}; }) tracked; just isolation evaluates coverage.\"home@aarch64-linux\" and homeConfigurations.\"david@Draupnir\" with panopticon, satan-patcher, satan-attrd and goad overridden to path:./features/stub; just coverage calls it." },
+  { id = "EX-4", text = "Negative control once (RV-017 F-5): attention.goad selected in the target's modules through a resolver call with system aarch64-linux; isolation fails with the missing-attribute error on goad's input and nothing else." },
+  { id = "EX-5", text = "Gate: all drvs lines identical; coverage gains exactly one line; isolation passes. README coverage list updated; committed; snapshot saved." },
+]
+verification = [
+  { id = "VT-1", expects = "home coverage target exists", test_file = "hosts.nix", keywords = ["home@aarch64-linux", "homeManagerConfiguration", "home-base"], waived = false },
+  { id = "VT-2", expects = "isolation recipe and home-aware coverage pick", test_file = "justfile", keywords = ["isolation", "activationPackage", "features/stub"], waived = false },
+  { id = "VT-3", expects = "stub flake", test_file = "features/stub/flake.nix", keywords = ["outputs"], waived = false },
+  { id = "VA-1", expects = "EX-4 negative control output recorded in notes" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-07"
+name      = "Behaviour changes"
+objective = "The only content-changing phase (design § Behaviour changes): cli guards become availableOn minus brokenOn (DEC-036), NixOS isx86 guards likewise, duplicates removed, doctor interpreter pinned, break-remind deleted, comments and docs refreshed."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-06 committed; baseline retaken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Every guarded feature's optionals isLinux list becomes one list filtered by lib.meta.availableOn hostPlatform minus (brokenOn.${system} or []); features/cli-broken.nix holds aarch64-darwin = [watchman atuin]." },
+  { id = "EX-2", text = "modules/nixos/cli.nix isx86 guards (cpuid, x86info) replaced by availableOn; Sleipnir system drvs-sets identical; base@aarch64-linux evaluates." },
+  { id = "EX-3", text = "Duplicates removed: second mpv and viu from media.players; yazi from files.manage and mcfly from files.search, each only if Sleipnir's home-path-links shows the HM program's package already wins (else the row is dropped and recorded)." },
+  { id = "EX-4", text = "sleipnir-doctor's three home.file scripts get an explicit python3 interpreter; sleipnir-doctor exits 0 or reports checks." },
+  { id = "EX-5", text = "modules/home/linux/break-remind.nix deleted; workstation.nix comment, README (features, profiles, darwin platforms paragraph, coverage list, Hosts home row, stale pointers) and DEC-024's darwin consequence refreshed." },
+  { id = "EX-6", text = "Sleipnir home drvs-sets identical except the EX-3 removals; Draupnir home drvs-sets count rises by exactly the evaluated delta, package names listed in notes; neither watchman nor atuin in Draupnir's home.packages." },
+  { id = "EX-7", text = "Close checks (design § Close): profiles/, darwin/home.nix and modules/shared/cli/ gone; modules/home and modules/home/linux hold only the listed files; the stale-path git grep finds nothing; just gate and just coverage (with isolation) green. Committed." },
+]
+verification = [
+  { id = "VT-1", expects = "broken list", test_file = "features/cli-broken.nix", keywords = ["aarch64-darwin", "watchman", "atuin"], waived = false },
+  { id = "VT-2", expects = "NixOS cli filtered by availability", test_file = "modules/nixos/cli.nix", keywords = ["availableOn"], waived = false },
+  { id = "VA-1", expects = "Darwin build check: every package Draupnir gains checked with nix path-info --store https://cache.nixos.org; uncached ones listed in notes" },
+  { id = "VA-2", expects = "EX-6/EX-7 gate and close checks reviewed against the P7 table" },
+  { id = "VH-1", expects = "User decides, per uncached package: add to brokenOn or accept a local build at the next Draupnir switch" },
+  { id = "VH-2", expects = "At the next Draupnir home-switch (RV-017 F-7): user runs bin/gate-probe on Draupnir against the new home and compares home-path-links with the current generation; a flipped collision winner is fixed forward" },
+]
+specs        = []
+requirements = []
