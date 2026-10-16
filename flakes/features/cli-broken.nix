@@ -13,8 +13,11 @@
 # - fsearch: meta.broken, which availableOn ignores.
 # - shell_cmds (killall) and yEd: not in cache.nixos.org; the user chose to
 #   skip them rather than build locally (SL-008 PHASE-07 VH-1).
+# - binutils (binutils-wrapper): its cctools tools (ar, nm, strip, strings, …)
+#   collide with gcc-wrapper's at equal priority, and gcc-wrapper already
+#   ships them on darwin.
 # gtt, udiskie, micro and fsearch fail to evaluate; availableOn sees only a package's own
 # meta.platforms, not its dependencies (SL-008 PHASE-07, EX-1 extension).
 {
-  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd"];
+  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd" "binutils-wrapper"];
 }
