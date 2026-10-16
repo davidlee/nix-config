@@ -308,3 +308,167 @@ checkout/restore). Evidence did not change with it. Orchestrator: do not commit 
 - VT-1 (4 keywords), VT-2 (3), VT-3 (1): each present once. `grep -c 'yazi\|nix-search-tv'
   modules/home/programs.nix` = 0; modules/home/zsh.nix gone; features/terminal/zsh.nix tracked;
   `grep zsh modules/home/{cli,default}.nix`: none. Stale-reference grep: no hits.
+
+## PHASE-04 baseline (EN-1)
+
+Date 2026-10-17; tree HEAD a7b67202957078faa5c2bc467e6a46c151c698b7 (PHASE-03 committed).
+`git status --short -- modules features hosts parked justfile flake.lock .doctrine/slice/010`:
+` M justfile` (user), ` M flake.lock` (pre-existing emacs-overlay drift from PHASE-03's re-run:
+lastModified 1792095206 -> 1792158883, rev 3d05567b -> e87b60e7; `git diff -- flake.lock | sha256sum`
+= 2fc8da01c950964c5bbc9e55c4685474cddedd9742b93cb3ad30544e46959130), ` M .doctrine/slice/010/slice-010.toml`
+(orchestrator). pi settings.json user edit present. None staged.
+
+| checkout | HEAD | porcelain -uno |
+|---|---|---|
+| oubliette | 63cc360b9c42aa4e531f4bccd53a46ff48f14eae | clean |
+| goad | 250b8ed9cf6f4cda9879fc45b2b3ceb2d52ea987 | clean |
+| panopticon | a6648a46e4f8de08f9d841163f1bb30c5750581d | clean |
+| satan-patcher | 4efa20542b77d4aad83079da267121a38b08e94f | clean |
+| satan-attrd | c8fd7eb51aeada64571270c98f94a30fb7337036 | clean |
+
+(= PHASE-03 table; no drift.)
+
+Evidence (.doctrine/slice/010/evidence/):
+- p4-drvs-before.txt 7d6e7f7bd25d895cc0b18b2402e65a5c3bd1734c1eafedf7d54c2b8bc14e7e75 (13 lines; = p3 after)
+- p4-drvs-sets-before.txt 52d35a0652b852e4b26abca6fc9c14de951c5670c3068f2051eab8be476493ba (= p3 after)
+- p4-cov-drvs-before.txt caa83df8ebc006bc72ce05060ec63df4e69cfee10c78cb6a2b49bcfbe4f3b5fd (8 targets; = p3 after)
+- p4-cov-sets-before.txt 9ab9f5246e2601fac02445812fdd122d927c8a81e34c97c49902dfcf2d33f372 (= p3 after)
+- p4-opts-before.txt e5315f1831dfc25eda3e1c59cec38500c9cf65c331c0c1a34037fe93c0423ef8 (59 lines, 0 ABSENT)
+  Script ~/.cache/multihost-gate/p4-opts.sh (outside the tree; same script for after), p3-opts.sh's
+  skeleton (`--no-eval-cache`, context-discarding apply). Systems (Sleipnir, base@aarch64-linux):
+  root/david shell (+ assigner/postgres on Sleipnir), defaultUserShell, programs.zsh.{enable,
+  enableCompletion,*Init}, pathsToLink (/share/zsh count + full list), environment.shells,
+  environment.etc names, default/useradd source drv, systemPackages counts by pname for zsh,
+  bash-interactive, nix-zsh-completions, nushell. Homes (david@Sleipnir, david@Draupnir,
+  home@aarch64-linux): systemd.user.enable, systemd.user.services names, xdg.configFile names,
+  home.packages counts for zmx/shpool, services.emacs.enable, programs.zsh.enable.
+  Baseline values of note: Sleipnir systemPackages zsh x5 (sheet guessed 4), bash-interactive x1;
+  base zsh x3; /share/zsh x3 in pathsToLink on both; root/assigner/postgres shell zsh.
+- probe: ~/.cache/multihost-gate/p4-before/{system,home} (`just probe`, host Sleipnir; `diff -rq`
+  against p3-after: identical).
+
+## PHASE-04 result (EX-3)
+
+Edits B1–B5 as planned, B1–B3 in one edit set: `terminal.zsh` gains `nixos = _: { programs.zsh.enable
+= true; environment.pathsToLink = ["/share/zsh"]; }` (record comment rewritten);
+`modules/nixos/programs.nix` loses `zsh.enable` and `pathsToLink`; `modules/nixos/env.nix` loses its
+`pathsToLink`; `modules/nixos/user.nix` loses `defaultUserShell` (refactor: the remaining one-key
+`users = { mutableUsers = true; }` block collapsed to `users.mutableUsers = true;`, DEC-042 comment);
+`git mv modules/home/shpool.nix parked/shpool.nix` + `# parked (DEC-043)…` header, dropped from
+`modules/home/default.nix`; `features/editor/emacs.nix` lists `zmx # session restore (IMP-001)`.
+B7 smoke evals (Sleipnir, base@aarch64-linux, Draupnir system, david@Draupnir) passed first time.
+
+Checkout HEADs/status after: identical to baseline. `git diff -- flake.lock | sha256sum` after:
+2fc8da01… (unchanged; no further emacs-overlay move this phase).
+
+| target | drvs | sets | verdict |
+|---|---|---|---|
+| nixosConfigurations.Sleipnir | differs | 565 → 565: `zsh-5.9.2` −4, `bash-interactive-5.3p15` +4 | attributed (root/assigner/postgres shell, useradd SHELL, pathsToLink) |
+| coverage.Sleipnir+{llama-cpp,openrgb,podman,rocm,speech,sunshine} | differ | counts unchanged; same −4/+4 each | attributed; same 15 differing drvs and identical masked env diffs as Sleipnir |
+| coverage.base@aarch64-linux | differs | 184 → 182: `zsh` −3, `nix-zsh-completions` −1, `bash-interactive` +2 | attributed (zsh removed, root bash) |
+| homeConfigurations.{david,david@Sleipnir} | differ | 341 → 342: `zmx-0.8.1` +1 | attributed (zmx duplicate; shpool unit gone) |
+| homeConfigurations.david@Draupnir | differs | 260 → 261: `zmx-0.8.1` +1 | attributed (zmx duplicate only; sets + nix-diff, no probe on Linux) |
+| coverage.home@aarch64-linux | differs | equal (43) | attributed (shpool unit gone) |
+| darwinConfigurations.Draupnir, packages, legacyPackages, templates | identical | equal | identical |
+
+Multiset method: `p4-names.sh before|after` (`~/.cache/multihost-gate/`) evaluates
+`map (p: p.name)` per target, before from `git+file:///home/david?dir=flakes&rev=a7b67202…` with the
+same overrides; every before eval reproduced its p4-*-before set hash exactly. n = m = 4 on Sleipnir
+and all six Sleipnir+* (zsh x5 → x1: shadow's defaultUserShell + root/assigner/postgres shells; zsh x1
+left from programs.zsh). Both homes: the added element is zmx's existing drvPath (Sleipnir
+`05n47w04…-zmx-0.8.1.drv` x2, Draupnir `mzlwny0h…-zmx-0.8.1.drv` x2).
+
+nix-diff (`~/.cache/multihost-gate/p4-nd-<target>.txt`), every differing drv's env compared with store
+hashes masked and `__json` expanded (`p4-envdiff.py`; summaries `p4-env-<target>.txt`):
+- **Sleipnir and Sleipnir+* (15 drvs)**: `system-path` chosenOutputs zsh x4 → bash-interactive x4,
+  pathsToLink one `/share/zsh` fewer; `user-environment` same pathsToLink change; `useradd`
+  `SHELL=/run/current-system/sw/bin/zsh` → `…/bash`; `users-groups.json` (`p4-usersdiff.py`, per
+  field): exactly `users.{root,assigner,postgres}.shell` `/run/current-system/sw/bin/zsh` → `…/bash`.
+  Masked-identical: activate, dry-activate, etc, dbus-1, system-units, user-units, the
+  accounts-daemon/dbus-broker/polkit units and restart triggers (downstream of system-path).
+  **No `etc-zshrc`/`zshenv`/`zprofile`/`zinputrc`/`etc-shells` drv differs**: /etc/zsh* text identical.
+- **base@aarch64-linux**: `etc` loses `zinputrc zprofile zshenv zshrc` entries and their drvs;
+  `etc-shells` loses the two zsh lines; `system-path` loses zsh x3, nix-zsh-completions, all three
+  `/share/zsh`, gains bash-interactive x2; `user-environment` pathsToLink −3 `/share/zsh`; useradd
+  SHELL → bash; users-groups.json: only `users.root.shell` → bash. Nothing added beyond bash.
+- **david@Sleipnir**: home-manager-path and man-paths +zmx chosenOutput; david-fish-completions
+  +`zmx-0.8.1-fish-completions` token; home-manager-files and hm-putter.json lose exactly
+  `.config/systemd/user/shpool.service` and `…/default.target.wants/shpool.service`
+  (and the `shpool.service` input drv). activation-script, hm_.manpath, man-cache masked-identical.
+- **david@Draupnir**: +zmx chosenOutput in home-manager-path, man-paths, home-manager-fonts,
+  home-manager-applications (all buildEnvs over home.packages); +zmx fish-completions token.
+  home-manager-files and hm-putter.json masked-identical (shpool was inert: systemd.user off).
+- **home@aarch64-linux**: home-manager-files and hm-putter.json lose the two shpool entries only.
+
+Built-artefact probe (Sleipnir; `~/.cache/multihost-gate/p4-{before,after}`): system/ `diff -rq`
+**empty** (system-path-links raw-identical: no collision winner flipped). Home: packages equal (the
+probe dedupes, so the zmx duplicate is invisible), home-path-links raw-identical, home-files-links
+lose the two shpool entries; `.manpath` hash otherwise. Draupnir: no probe (Darwin); proof is
+sets + nix-diff above.
+
+Option check (`p4-opts-after.txt` vs before; list lines compared element-wise):
+```
+nixosConfigurations.Sleipnir users.users.root.shell = "zsh" -> "bash-interactive"
+nixosConfigurations.Sleipnir users.users.david.shell = "nushell" (unchanged)
+nixosConfigurations.Sleipnir programs.zsh.enable = true (unchanged; now via terminal.zsh)
+coverage."base@aarch64-linux" users.users.root.shell = "zsh" -> "bash-interactive"
+coverage."base@aarch64-linux" users.users.david.shell = "nushell" (unchanged)
+coverage."base@aarch64-linux" programs.zsh.enable = true -> false
+```
+Sleipnir: defaultUserShell zsh → bash-interactive; zsh enableCompletion/shellInit/
+interactiveShellInit/promptInit/loginShellInit identical; pathsToLink zcount 3 → 2 (one element
+removed, nothing else); environment.shells and etc names unchanged; useradd drv changed;
+systemPackages zsh 5 → 1, bash-interactive 1 → 5. base: zcount 3 → 0; shells lose the two zsh
+entries; etc names lose zinputrc/zprofile/zshenv/zshrc only; zsh 3 → 0, nix-zsh-completions 1 → 0,
+bash-interactive 1 → 3. Homes: systemd.user.services lose `shpool` only (all three; Draupnir's
+`systemd.user.enable` stays false); xdg.configFile loses the two shpool unit names on Sleipnir and
+home@aarch64-linux only; zmx count 1 → 2 (Sleipnir, Draupnir), 0 → 0 (home@aarch64-linux);
+services.emacs.enable and programs.zsh.enable unchanged.
+
+**S1 (expected, attributed; orchestrator decision).** `users.users.assigner.shell` and
+`users.users.postgres.shell` move zsh → bash-interactive with root's, via `useDefaultShell` picking
+up NixOS's default (`programs/bash/bash.nix` `mkDefault pkgs.bashInteractive`). Within DEC-042's
+intent (the base no longer picks a shell); not set explicitly. Evidence: opts lines 3–4,
+users-groups.json field diff above.
+
+**Attributed deviations from EX-3's wording** (orchestrator decision: plan.toml unchanged):
+- `coverage.home@aarch64-linux` also differs (shpool is in the home base and the unit renders on
+  Linux): shpool unit + wants link removed, sets equal. Not in EX-3's target list; expected.
+- The zmx change is a **duplicate entry**, not an ordering change: home sets +1 (341 → 342,
+  260 → 261), the added element zmx's existing drvPath; built home-path links identical.
+- Systems' package *sets* change by design (zsh/bash-interactive multiset, above).
+
+Evidence (.doctrine/slice/010/evidence/):
+- p4-drvs-after.txt 26f923b32957061aa6849b44086e0e3ca2c0796d09a86154f974e23a3df13e64
+- p4-drvs-sets-after.txt 0fbe608cb4ea32df204267052a609f97cd55db0f3ae2928c7251eef737132b5b
+- p4-cov-drvs-after.txt eca95151f5fffce5ec724bbfdbb960faee180b8ed8ce5435d975b8942be12fa0
+- p4-cov-sets-after.txt 8bbfc1f12a3e7484a201ad10cedde5c0ff8ba7f12357faf7d19f7006577fd5a0
+- p4-opts-after.txt b4cf960eedc4c9e36c0f5925b1958df716495505d8a2324d549520586fa03140
+- scratch (not committed): ~/.cache/multihost-gate/p4-{names.sh,envdiff.py,usersdiff.py,tokdiff.py},
+  p4-names/, p4-nd-*.txt, p4-env-*.txt
+
+## PHASE-04 gates
+
+- `just test`: green. `just coverage`: green, isolation ok for home@aarch64-linux and david@Draupnir;
+  0 `evaluation warning` lines (PHASE-03: 0).
+- `nix fmt --no-write-lock-file -- --no-cache` on the 7 touched nix files: 0 changed (run after the
+  edits and again at the end).
+- flake.lock: `git diff -- flake.lock | sha256sum` 2fc8da01… before and after; the pre-existing
+  emacs-overlay drift (e87b60e7) is unchanged and not this phase's. Do not commit it.
+- TDD: before edits VT-1 `programs.zsh.enable = true` 0 (red), `/share/zsh` 1 (already satisfied by
+  the old record comment, so that keyword alone could not go red), VT-2 `zmx` 0 (red). After: 1, 2, 1.
+- VA-1: `grep -c defaultUserShell modules/nixos/user.nix` = 0; `git ls-files parked/shpool.nix`
+  lists it; `grep -c shpool modules/home/default.nix` = 0; drvs attribution: § PHASE-04 result.
+  Greps: no `defaultUserShell` in any .nix; `shpool` only in parked/shpool.nix, the
+  `features/terminal.nix` `# shpool # vs abduco` comment and review.features.local.md; `zsh` in
+  modules/nixos/*.nix only user.nix's `#shell = pkgs.zsh;` comment.
+- **VH-1 pending** (user, after the next `system-switch` + `home-switch`; not run, not marked):
+  `sudo -i` gives bash (`echo $0`; `getent passwd root` ends `/run/current-system/sw/bin/bash`);
+  the user's login is still nu (`getent passwd david`); zsh still starts with its config (`zsh -i`,
+  completions, mcfly); emacs session restore via zmx works; `systemctl --user status shpool` no
+  longer exists. `mutableUsers = true`: if root is still zsh after the switch, look at
+  update-users-groups first.
+- Changed paths: R `modules/home/shpool.nix` → `parked/shpool.nix` (staged by git mv, header edit
+  unstaged); M `modules/nixos/{user,programs,env}.nix`, `modules/home/default.nix`,
+  `features/terminal.nix`, `features/editor/emacs.nix`, `.doctrine/slice/010/notes.md`;
+  new untracked `.doctrine/slice/010/evidence/p4-*.txt` (10).

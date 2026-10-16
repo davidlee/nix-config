@@ -3,10 +3,8 @@
   username,
   ...
 }: {
-  users = {
-    mutableUsers = true; # can do without password being clobbered
-    defaultUserShell = pkgs.zsh;
-  };
+  # Root and default-shell users get NixOS's bash (DEC-042).
+  users.mutableUsers = true; # can do without password being clobbered
   users.users = {
     "${username}" = {
       homeMode = "755";

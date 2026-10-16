@@ -20,6 +20,7 @@
       ]
       ++ (with pkgs; [
         emacsclient-commands
+        zmx # session restore (IMP-001)
         vips
         mediainfo
         poppler-utils

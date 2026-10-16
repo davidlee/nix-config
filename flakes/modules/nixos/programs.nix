@@ -27,16 +27,11 @@
       settings = {
       };
     };
-
-    zsh = {
-      enable = true;
-    };
   };
 
   environment = {
     systemPackages = [
       pkgs.helix # root's editor
     ];
-    pathsToLink = ["/share/zsh"];
   };
 }

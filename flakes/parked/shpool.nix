@@ -1,3 +1,4 @@
+# parked (DEC-043): emacs uses zmx (IMP-001); not imported.
 {pkgs, ...}: {
   systemd.user.services.shpool = {
     Unit = {

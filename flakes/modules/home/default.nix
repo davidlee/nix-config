@@ -5,7 +5,6 @@
   imports = [
     ./nushell.nix
     ./programs.nix
-    ./shpool.nix
     ./cli.nix
   ];
 

@@ -44,7 +44,8 @@ in [
   }
 
   {
-    # zsh's home half; the system half (programs.zsh, /share/zsh) joins in PHASE-04.
+    # zsh: the home half (dotfiles, mcfly, plugins) and the system half
+    # (programs.zsh, /share/zsh completions). Root's shell is bash (DEC-042).
     name = "zsh";
     homeManager = {pkgs, ...}: {
       imports = [./terminal/zsh.nix];
@@ -53,6 +54,10 @@ in [
         zsh-autocomplete
         antidote
       ];
+    };
+    nixos = _: {
+      programs.zsh.enable = true;
+      environment.pathsToLink = ["/share/zsh"]; # completions from packages
     };
   }
 ]

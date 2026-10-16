@@ -15,7 +15,6 @@ _: {
       "$HOME/.pnpm-global/bin"
       "$HOME/.npm-global/bin"
     ];
-    pathsToLink = ["/share/zsh"]; # for autocompletion
   };
 
   # i18n / l10n
