@@ -258,6 +258,9 @@ evaluated. `flake.coverage` holds handwritten configurations that select such
 features, one per off feature (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`,
 `"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+speech"`, `"Sleipnir+sunshine"`), off
 every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
+`coverage."base@aarch64-linux"` is the NixOS base alone (no host, feature
+or machine config) on aarch64-linux: it proves the base evaluates headless
+and off x86. Like the rest it is evaluated, never built.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 
 **docker and podman.** Docker is rootless only: `modules/nixos/security.nix`

@@ -19,8 +19,9 @@
 # to every `stable ? …` default (mem.fact.nix.callpackage-autoargs).
 #
 # `coverage` holds ADR-005 targets: configurations that select a feature no
-# switchable host selects, so `just coverage` proves it still evaluates. They
-# are off every switch path and outside `just drvs`.
+# switchable host selects, or (`base@aarch64-linux`) the NixOS base alone, so
+# `just coverage` proves they still evaluate. They are off every switch path
+# and outside `just drvs`.
 {
   inputs,
   self,
@@ -246,5 +247,22 @@ in {
         feature.virt.docker.enable = false;
       }
     ]);
+
+    # The NixOS base alone on aarch64-linux (DEC-027): proves it evaluates
+    # headless and off x86, with no host, feature or machine config. Builds nothing.
+    coverage."base@aarch64-linux" = lib.nixosSystem {
+      specialArgs = args "base";
+      modules = [
+        ./modules/nixos
+        (platformModule {system = "aarch64-linux";})
+        {
+          system.stateVersion = "24.11";
+          fileSystems."/" = {
+            device = "/dev/disk/by-label/nixos";
+            fsType = "ext4";
+          };
+        }
+      ];
+    };
   };
 }

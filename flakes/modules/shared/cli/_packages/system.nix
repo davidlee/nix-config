@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   ## userland system/process monitors (portable)
   common = with pkgs; [
     glances
@@ -35,32 +39,37 @@
 
   ## machine/admin substrate: hardware inspection, systemd/log tooling,
   ## low-level debugging/tracing, privileged automation
-  linuxSystem = with pkgs; [
-    ## hardware & disk inspection
-    hdparm
-    cpuid
-    cpuinfo
-    dmidecode
-    lshw
-    pciutils
-    smartmontools
-    smem
-    sysprof
-    sysstat
-    usbutils
-    x86info
-    lm_sensors
+  linuxSystem = with pkgs;
+    [
+      ## hardware & disk inspection
+      hdparm
+    ]
+    ++ lib.optional pkgs.stdenv.hostPlatform.isx86 pkgs.cpuid
+    ++ [
+      cpuinfo
+      dmidecode
+      lshw
+      pciutils
+      smartmontools
+      smem
+      sysprof
+      sysstat
+      usbutils
+    ]
+    ++ lib.optional pkgs.stdenv.hostPlatform.isx86 pkgs.x86info
+    ++ [
+      lm_sensors
 
-    ## low-level debugging/tracing
-    atop
-    iotop
+      ## low-level debugging/tracing
+      atop
+      iotop
 
-    ## systemd / logs
-    isd
-    lazyjournal
-    systemctl-tui
+      ## systemd / logs
+      isd
+      lazyjournal
+      systemctl-tui
 
-    ## privileged automation
-    ydotool
-  ];
+      ## privileged automation
+      ydotool
+    ];
 }
