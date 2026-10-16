@@ -128,12 +128,12 @@ stands in. They talk to the compositor over `umbriel msg` and
 
 | niri | umbriel |
 |---|---|
-| `~/.local/bin/raise-cycle-spawn` (niri IPC) | `scripts/raise-cycle-spawn` |
+| `~/.local/bin/raise-cycle-spawn` (niri IPC) | `scripts/raise-cycle-or-spawn` — cycles most to least recent; a press within 1.5 s continues the run |
 | `~/.local/bin/niri-scratch-spawn` (nirius) | `scripts/scratchpad-spawn` — only the launch-if-absent half |
 | `~/.local/bin/rename-niri-workspace` | `scripts/named-workspace add\|drop` — creates and removes, never renames |
 | built-in `screenshot`, `screenshot-screen`, `screenshot-window` | `scripts/screenshot area\|screen\|window` (grim/slurp/satty) |
 
-`scripts/umbriel-windows` normalises the window list for the other three, and
+`scripts/umbriel-windows` normalises the window list for the shell scripts, and
 is the only place an IPC schema change bites. Verified against umbriel 0.1.0:
 `umbriel windows --json` returns a bare array of objects carrying `id`,
 `app_id`, `active`, `focused`, `x`/`y`/`w`/`h`, `floating`, `scratchpad` and `workspace`.

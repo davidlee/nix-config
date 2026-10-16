@@ -5,8 +5,8 @@
 # has no per-file autostart.
 #
 # Two scripts stand in for what niri did over its own IPC:
-#   scripts/raise-cycle-spawn  — ~/.local/bin/raise-cycle-spawn
-#   scripts/scratchpad-spawn   — ~/.local/bin/niri-scratch-spawn + nirius
+#   scripts/raise-cycle-or-spawn — ~/.local/bin/raise-cycle-spawn
+#   scripts/scratchpad-spawn     — ~/.local/bin/niri-scratch-spawn + nirius
 # Both are thin: scratchpad show/hide is native, and only the
 # launch-it-if-it-is-not-running half needs a script.
 # ======================================================================
@@ -20,9 +20,9 @@
 # --- meh-key raise-or-run ---------------------------------------------
 # emacsclient expects systemd to have started the server
 "Ctrl+Alt+Shift+Grave" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
-"Mod+Apostrophe"   = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn com.mitchellh.ghostty ghostty"
-"Ctrl+Alt+Shift+K" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn kitty kitty"
-"Ctrl+Alt+Shift+D" = "spawn:~/.config/umbriel/scripts/raise-cycle-spawn org.kde.dolphin dolphin"
+"Mod+Apostrophe"   = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
+"Ctrl+Alt+Shift+K" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
+"Ctrl+Alt+Shift+D" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn org.kde.dolphin dolphin"
 "Ctrl+Alt+Shift+O" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn obsidian ~/.local/bin/obsidian"
 "Ctrl+Alt+Shift+T" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn thunderbird thunderbird"
 "Ctrl+Alt+Shift+F" = "spawn:~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"

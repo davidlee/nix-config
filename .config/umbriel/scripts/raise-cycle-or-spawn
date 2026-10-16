@@ -1,13 +1,43 @@
 #!/usr/bin/env python3
-"""Focus the next window with an app ID, or launch the command if none exists.
+"""Raise, cycle, or spawn windows with an app ID.
 
 Usage: raise-cycle-or-spawn <app-id> <command> [args...]
+
+  no match                       -> launch the command
+  focused window is not a match  -> focus the most recent match
+  focused window is a match      -> focus the next match, most to least recent
+
+`umbriel windows` lists windows most recently focused first, and focusing one
+moves it to the front. A run of presses therefore walks a snapshot of that
+order, saved in $XDG_RUNTIME_DIR. A press continues the run if it comes within
+CYCLE_TIMEOUT seconds of the last and focus is still where the run left it.
 """
 
 import json
 import os
+import pathlib
 import subprocess
 import sys
+import time
+
+CYCLE_TIMEOUT = 1.5
+STATE_PATH = pathlib.Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "raise-cycle-or-spawn.json")
+
+
+def choose(matches, active, cycle, now):
+    """Return (id to focus, cycle to save) for MRU-ordered match ids."""
+    continuing = cycle is not None and now - cycle["time"] < CYCLE_TIMEOUT and cycle["focused"] == active
+    order = [w for w in cycle["order"] if w in matches] if continuing else matches
+    start = order.index(active) + 1 if active in order else 0
+    target = order[start % len(order)]
+    return target, {"order": order, "focused": target, "time": now}
+
+
+def load_cycles():
+    try:
+        return json.loads(STATE_PATH.read_text())
+    except (OSError, ValueError):
+        return {}
 
 
 def main():
@@ -18,19 +48,18 @@ def main():
     app_id = sys.argv[1]
     command = sys.argv[2:]
     windows = json.loads(subprocess.check_output(["umbriel", "windows", "--json"]))
-    matches = [window for window in windows if window["app_id"] == app_id]
+    matches = [window["id"] for window in windows if window["app_id"] == app_id]
 
     if not matches:
         os.execvp(command[0], command)
 
     # `focused` can be true on several workspaces; `active` is keyboard focus.
-    active_window = next((window for window in windows if window["active"]), None)
-    if active_window in matches:
-        next_index = (matches.index(active_window) + 1) % len(matches)
-    else:
-        next_index = 0
+    active = next((window["id"] for window in windows if window["active"]), None)
+    cycles = load_cycles()
+    target, cycles[app_id] = choose(matches, active, cycles.get(app_id), time.monotonic())
+    STATE_PATH.write_text(json.dumps(cycles))
 
-    subprocess.run(["umbriel", "msg", f"window-focus:{matches[next_index]['id']}"], check=True)
+    subprocess.run(["umbriel", "msg", f"window-focus:{target}"], check=True)
     return 0
 
 
