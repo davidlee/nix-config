@@ -16,15 +16,20 @@
 #   systemctl --user status satan-attrd
 #   journalctl --user -u satan-attrd -f
 #   psql -d satan_memory -c 'SELECT count(*) FROM satan_outcome_inbox;'
-{
-  inputs,
-  pkgs,
-  ...
-}: {
-  imports = [inputs.satan-attrd.homeManagerModules.default];
+{lib, ...}: {
+  name = "attrd";
+  platforms = lib.platforms.linux;
+  requires = ["services.postgresql"];
+  homeManager = {
+    inputs,
+    pkgs,
+    ...
+  }: {
+    imports = [inputs.satan-attrd.homeManagerModules.default];
 
-  services.satan-attrd = {
-    enable = true;
-    package = inputs.satan-attrd.packages.${pkgs.stdenv.hostPlatform.system}.satan-attrd;
+    services.satan-attrd = {
+      enable = true;
+      package = inputs.satan-attrd.packages.${pkgs.stdenv.hostPlatform.system}.satan-attrd;
+    };
   };
 }

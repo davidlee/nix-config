@@ -1,6 +1,5 @@
-# Draupnir's feature selection. personal's records are portable (no
-# platforms), so the Mac keeps exactly its packages. P5 swaps this import
-# for personal-darwin.
+# Draupnir's feature selection: personal-darwin, which adds nothing to
+# personal yet, so the Mac keeps exactly its packages.
 {
-  imports = [../../features/profiles/personal.nix];
+  imports = [../../features/profiles/personal-darwin.nix];
 }

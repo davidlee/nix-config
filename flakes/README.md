@@ -191,7 +191,7 @@ order is projection order.
 features/
   default.nix         [ hardware session virt non-nix-packages games ai audio services desktop compositor shell
                         editor notes dev docs data files net web system text office security media graphics
-                        comms fun terminal ]
+                        comms fun terminal attention satan ]
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -200,8 +200,8 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
-  audio.nix           [ pipewire mpd speech dictate ] speech: coverage target
-  audio/              dictate  dictate-test           assets, beside their feature
+  audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
+  audio/              dictate  dictate-test  alarm/   assets, beside their feature
   services.nix        [ printing postgresql webserver sunshine ] sunshine: coverage target
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
@@ -227,7 +227,10 @@ features/
   comms.nix           [ chat mail feeds ]
   fun.nix             [ toys ]
   terminal.nix        [ emulators utils ]
-  profiles/           workstation.nix  personal.nix
+  attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
+  attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
+  satan.nix           [ harness patcher attrd ]       each its own file under satan/
+  profiles/           workstation.nix  personal.nix  personal-linux.nix  personal-darwin.nix
 ```
 
 - **Own file.** A feature moves to `features/<area>/<name>.nix` when it would
@@ -380,7 +383,7 @@ Measurements and open options: [DICTATE.md](./DICTATE.md).
 
 ### Sleipnir Doctor
 
-`modules/home/nixos/sleipnir-doctor.nix` — at-a-glance system health check. Run `sleipnir-doctor`.
+`hosts/Sleipnir/doctor.nix` (host config; scripts in `hosts/Sleipnir/doctor/`) — at-a-glance system health check. Run `sleipnir-doctor`.
 
 Built-in checks cover disk, memory, swap, thermals, OOM kills, kernel mismatch, time sync, load, zombies, systemd failed units, daemon liveness, nix store/generations/GC roots/journal, network, and git status.
 
@@ -576,7 +579,7 @@ system message, first.
 
 ### Spotify Alarm
 
-See [ALARM.md](./ALARM.md). `modules/home/nixos/alarm.nix` — plays a playlist through speakers at scheduled times via `spotifyd` + `spotify_player` + systemd user timers.
+See [ALARM.md](./ALARM.md). `features/audio.nix` (`audio.alarm`, selected by Sleipnir) — plays a playlist through speakers at scheduled times via `spotifyd` + `spotify_player` + systemd user timers.
 
 ### Emacs
 

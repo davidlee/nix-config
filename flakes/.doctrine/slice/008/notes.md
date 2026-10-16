@@ -365,3 +365,100 @@ packages and home-path-links identical, one derived-hash line (`.manpath`);
 Draupnir ORDER-ONLY; system identical; completeness equal on both systems.
 T9: four controls pass; `scm-off` fails its sheet expectation on
 `bin/lazygit` only (base `programs.lazygit`), STOP 6 for the orchestrator.
+
+### Orchestrator verdict
+STOP 6 (scm-off kept bin/lazygit) adjudicated as a mis-specified control
+expectation: the home base also installs the same lazygit drv via
+programs.lazygit (modules/home/nushell.nix:73); not a regression.
+Committed 5ddfdf05.
+
+## PHASE-05
+Status: executed; gate (T6) passes the P5 row; controls (T7) pass. No STOP.
+Uncommitted P5 delta on top of 5ddfdf05. Worker model: sonnet (orchestrator
+rationale: whole-record moves with fully tabulated tests; gate judgement not
+delegated). Where the sheet and design.md/plan.toml differ, the latter win;
+no difference was found.
+
+### Tests
+- T1 red (before any record existed; `personal-linux.nix` written first, D1):
+  `testSleipnirHomeSelection` 54 `true` then 7 `false`; `testPersonalRequires`
+  `[false x6]`; `testPersonalLinuxOnDarwinFails` `[false false]`;
+  `testAlarmIsHostSelected` `[false false]`. `testPersonalSelectsPortable` and
+  `testDraupnirSelection` green (guards, D3). Every other test green. All as
+  predicted.
+- T2: only `testSleipnirHomeSelection` still red (54 true, 7 false); the three
+  profile tests green; script tests (incl. nudge from its new path) not yet
+  reached (the run stops at the failed check), then ok after T3.
+- T3: `just test` fully green (resolver, factories, snooze, dictate, nudge).
+  Sleipnir and Draupnir home drvPaths evaluate; Draupnir's equals the T0 one.
+- T4: `nix fmt` (first run reformatted my 5 new/rewrapped files; second run 0
+  changed), flake.lock unchanged, `just gate` exit 0, no statix/deadnix output.
+
+### Gate snapshots
+Under `~/.cache/multihost-gate/sl008/`. HEAD 5ddfdf05 + uncommitted P5 delta.
+- Before `phase-05-before/` (T0). Counts 13/5/7. P4->T0 drift: `drvs` and
+  `drvs-sets` identical to `phase-04/`. Drift check (HEAD archive evaluated
+  after the after-snapshot) = T0 `drvs`: no drift; `head-tree/` removed.
+- After `phase-05/` (= **PHASE-06's baseline**).
+- `drvs`: only `homeConfigurations.david` and `homeConfigurations."david@Sleipnir"`
+  differ (`0d322z0i…` -> `pyfwib7y…`). `david@Draupnir`, `nixosConfigurations.Sleipnir`,
+  `darwinConfigurations.Draupnir`, templates, packages, legacyPackages identical.
+- `drvs-sets`, `coverage`: identical. `diff -r system/`: empty.
+- Sleipnir `packages`, `home-path-links`: identical.
+- `home-files-links`: two lines differ. (a) `.config/systemd/user/nudge.service`
+  (new store path); `nudge.timer` and `timers.target.wants/nudge.timer`
+  identical. (b) derived-hash line `.manpath -> …iz8gx94w…-hm_.manpath` ->
+  `…i6simqcf…-hm_.manpath`; masked diff empty
+  (`phase-05/evidence/manpath.masked.diff`, 0 bytes; raw 210 bytes). Meets the
+  rule: packages/home-path-links/units identical, `order-only` names only
+  nudge.service. Every other unit line identical.
+- nudge unit diff (`evidence/nudge.service.diff`): `ExecStart` only,
+  `…/flakes/modules/home/linux/nudge/main.nu` -> `…/flakes/features/attention/nudge/main.nu`;
+  old-path count 0, new-path count 1.
+- Collision watch (15 lines): before = after. `bin/foot` 1 system / 1 home.
+- `order-only` on `david@Sleipnir` (`phase-05/order-only.david@Sleipnir`):
+  NOT ORDER-ONLY, 10 drvs each side, unmatched exactly `- nudge.service` /
+  `+ nudge.service`, 0 sources. `nix-diff` of the two `nudge.service` drvs
+  (`evidence/nix-diff.nudge.service`): only the `text` ExecStart path. Full
+  diff `nix-diff.david@Sleipnir`.
+- Draupnir's line did not move, so no order-only on it.
+
+### Negative controls
+Under `phase-05/controls/` (`control.sh`, `*.orig`, `<name>.result`; probe
+dirs for the two Sleipnir ones). Restored by file copy; `cmp` equal; home
+drvs equal `phase-05/drvs`.
+- T0 pre-checks (`phase-05-before/home/home-files-links`): nudge.{service,timer}
+  + timers.target.wants/nudge.timer 3 lines; satan-{patcher,attrd}.service
+  4 lines; panopticon-sway.service 1. Owners: `services.nudge`/`timers.nudge`
+  only in nudge.nix; `satan-patcher` only the flake input and satan-patcher.nix;
+  `nudge` and `satan-patcher` both in `config.systemd.user.services`.
+- `nudge-off` (Sleipnir): nudge lines 0; liveness panopticon-sway 1. Pass.
+- `patcher-off` (Sleipnir): satan-patcher lines 0; liveness satan-attrd 2
+  (service + wants). Pass.
+- `browsers-on-mac` (Draupnir): before the control the home drvPath equals
+  `phase-05/drvs`; with it, `feature selection failed:` and exactly one bullet,
+  `feature.web.browsers is selected but does not support aarch64-darwin (platforms: …)`. Pass.
+- `postgres-off` (Sleipnir): pre-check drvPath matches; with the control,
+  exactly two bullets, `satan.patcher` and `satan.attrd` each `requires
+  feature.services.postgresql, which is not selected`. Pass.
+
+Verdict: P5 row: order only plus the nudge path. Sleipnir packages and
+home-path-links identical; home-files-links differs on nudge.service
+(ExecStart path only) and `.manpath` (derived hash, masked diff empty);
+Draupnir, system, coverage identical.
+
+### Assumptions and deviations
+- A1–A9 taken as written. Git kept the pure renames (nudge/, alarm and doctor
+  scripts); the rewrapped modules show as renames with modification in the
+  index but fall below similarity against the working tree (R7, cosmetic).
+- A9: `modules/home/linux/bin/` held a second untracked generated dir,
+  `.ruff_cache`; moved with `__pycache__` into `phase-05/evidence/`, then
+  `rmdir bin`. Not in the sheet.
+- `ALARM.md:3` also named `modules/home/nixos/alarm.nix` (sheet listed `:7,9`);
+  fixed so the sheet's own stale-path grep is empty.
+- justfile `test` comment reworded (nudge is now under `features/`, so the
+  "and modules/home/linux/nudge/" clause is dropped).
+- `testAlarmIsHostSelected` and `testPersonalSelectsPortable` use `ok &&`
+  guards; the unguarded resolve inside is only reached when `ok`.
+- R6: `~/.config/emacs/CHANGELOG.md:568` names the old directory (history),
+  not touched.

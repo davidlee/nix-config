@@ -1,8 +1,7 @@
 # Outer profile for the user's own machines (DEC-033). Sets defaults only
 # (mkDefault), so a host that imports it can override any of them with a plain
 # definition. Portable: the editors and every cli-derived feature; none of
-# their records has platforms. Sleipnir imports it, and Draupnir too until
-# SL-008 P5 adds personal-darwin.
+# their records has platforms. personal-linux and personal-darwin import it.
 {lib, ...}: {
   feature.editor.emacs.enable = lib.mkDefault true;
   feature.editor.neovim.enable = lib.mkDefault true;

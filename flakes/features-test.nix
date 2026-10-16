@@ -32,12 +32,20 @@ lib: let
   # tests identify it by the logical part.
   logical = m: lib.head (builtins.match ".*\\((.*)\\)" m._file);
   tags = map logical;
+  # The record behind a tag: "<area>.<name>#<class>" -> the feature attrset.
+  recordOf = tag: let
+    m = builtins.match "([^.]+)\\.([^#]+)#.*" tag;
+    treeArea = (lib.findFirst (a: a.name == lib.elemAt m 0) null real).value;
+  in
+    lib.findFirst (f: f.name == lib.elemAt m 1) null treeArea;
 
   hm = {homeManager = {};};
   nixos = {nixos = {};};
   both = ["nixos" "homeManager"];
 
   workstation = ./features/profiles/workstation.nix;
+  personal = ./features/profiles/personal.nix;
+  personalLinux = ./features/profiles/personal-linux.nix;
 
   # Real tree, both linux classes: is snooze in [ nixos homeManager ]?
   snoozeIn = modules: let
@@ -319,19 +327,101 @@ in
       expected = ["modules"];
     };
 
-    testMacSelectsNothing = {
-      expr =
-        (resolve {
-          system = "aarch64-darwin";
-          tree = real;
-          classes = ["darwin" "homeManager"];
-          modules = [];
-        }).modules;
-      expected = {
-        nixos = [];
-        homeManager = [];
-        darwin = [];
+    # Draupnir's real selection is personal-darwin, which adds nothing to
+    # personal yet: it resolves the same as personal alone. Classes are the
+    # host's own (meta has home = true). The second element keeps the first
+    # from passing on two empty sets.
+    testDraupnirSelection = let
+      args = {
+        inherit ((import ./hosts/Draupnir/meta.nix)) system;
+        tree = real;
+        classes = ["darwin" "homeManager"];
       };
+      draupnir = (resolve (args // {modules = [./hosts/Draupnir/features.nix];})).modules;
+      personalOnly = (resolve (args // {modules = [personal];})).modules;
+    in {
+      expr = [
+        (lib.mapAttrs (_: tags) draupnir == lib.mapAttrs (_: tags) personalOnly)
+        (lib.elem "editor.emacs#homeManager" (tags draupnir.homeManager))
+      ];
+      expected = [true true];
+    };
+
+    # personal is portable: it resolves on a Mac and selects no record that
+    # carries platforms. Guarded (`ok &&`): an unguarded resolve that throws
+    # would end the run instead of reading false.
+    testPersonalSelectsPortable = let
+      args = {
+        modules = [personal];
+        system = "aarch64-darwin";
+        tree = real;
+        classes = ["darwin" "homeManager"];
+      };
+      ok = resolves args;
+      r = (resolve args).modules;
+      hmTags = tags r.homeManager;
+      allTags = hmTags ++ tags r.darwin ++ tags r.nixos;
+    in {
+      expr = [
+        ok
+        (ok && lib.elem "editor.emacs#homeManager" hmTags)
+        (ok && lib.elem "editor.neovim#homeManager" hmTags)
+        (ok && !lib.any (t: (recordOf t) ? platforms) allTags)
+      ];
+      expected = [true true true true];
+    };
+
+    # satan.patcher needs the queue's postgres; satan.harness needs emacsclient;
+    # audio.alarm calls spotify_player. No host file, whose plain selections
+    # would satisfy the requires.
+    testPersonalRequires = {
+      expr = map (sel:
+        resolves {
+          tree = real;
+          modules = map on sel;
+        }) [
+        ["satan.patcher"]
+        ["satan.patcher" "services.postgresql"]
+        ["satan.harness"]
+        ["satan.harness" "editor.emacs"]
+        ["audio.alarm"]
+        ["audio.alarm" "media.spotify"]
+      ];
+      expected = [false true false true false true];
+    };
+
+    # Both linux classes on both systems, so only `platforms` can refuse (as
+    # testDesktopCoreLinuxOnly).
+    testPersonalLinuxOnDarwinFails = {
+      expr = map (system:
+        resolves {
+          tree = real;
+          modules = [personalLinux];
+          inherit system;
+        }) ["aarch64-darwin" "x86_64-linux"];
+      expected = [false true];
+    };
+
+    # audio.alarm is bound to one machine's speakers, so a host selects it:
+    # personal-linux resolves without it.
+    testAlarmIsHostSelected = let
+      args = {
+        tree = real;
+        modules = [personalLinux];
+      };
+      ok = resolves args;
+    in {
+      expr = [
+        ok
+        (ok
+          && !(lib.elem "audio.alarm#homeManager" (tags
+            (resolve (args
+              // {
+                system = "x86_64-linux";
+                classes = both;
+              })).modules.homeManager)))
+      ];
+      expected = [true true];
     };
 
     # Sleipnir's own selection projects capsule's NixOS half, and no home half.
@@ -386,8 +476,8 @@ in
         ++ map (_: [false true]) homeOnly;
     };
 
-    # P3–P4 home features Sleipnir selects, directly or through workstation
-    # and personal. Grows in P5.
+    # P3–P5 home features Sleipnir selects, directly or through workstation,
+    # personal and personal-linux.
     testSleipnirHomeSelection = let
       r = resolve {
         system = "x86_64-linux";
@@ -451,6 +541,14 @@ in
         "comms.feeds#homeManager"
         "fun.toys#homeManager"
         "terminal.utils#homeManager"
+        # P5: personal-linux, host
+        "satan.harness#homeManager"
+        "satan.patcher#homeManager"
+        "satan.attrd#homeManager"
+        "attention.behaviour#homeManager"
+        "attention.nudge#homeManager"
+        "attention.goad#homeManager"
+        "audio.alarm#homeManager"
       ];
     in {
       expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;

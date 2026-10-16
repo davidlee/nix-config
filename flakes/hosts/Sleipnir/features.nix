@@ -4,7 +4,7 @@
 {
   imports = [
     ../../features/profiles/workstation.nix
-    ../../features/profiles/personal.nix
+    ../../features/profiles/personal-linux.nix
   ];
 
   # A property of this host, not a profile: capsule needs KVM and the local
@@ -28,7 +28,11 @@
     logitech.enable = true;
   };
 
-  feature.audio.mpd.enable = true; # /media/music
+  feature.audio = {
+    mpd.enable = true; # /media/music
+    # This machine's speakers and Spotify Connect name (ALARM.md).
+    alarm.enable = true;
+  };
   # printers: site-bound (IMP-017)
   feature.services = {
     printing.enable = true;
@@ -36,8 +40,8 @@
     webserver.enable = true;
   };
 
-  # Taste and per-machine use (DEC-024). spotify: also personal-linux's from
-  # SL-008 P5.
+  # Taste and per-machine use (DEC-024). personal-linux also defaults spotify
+  # and postgresql.
   feature.media = {
     spotify.enable = true;
     obs.enable = true;
