@@ -1,7 +1,7 @@
 id = 9
 slug = "vm-enablers-agents"
 title = "VM enablers and agents onto the tree (RFC-001 W6 + W2)"
-status = "started"
+status = "audit"
 created = "2026-10-16"
 updated = "2026-10-16"
 tags = []

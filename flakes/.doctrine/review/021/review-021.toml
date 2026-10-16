@@ -1,0 +1,181 @@
+id    = 21
+slug  = "reconciliation-review-of-sl-009"
+title = "reconciliation review of SL-009"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance self-audit of SL-009 (P1–P4) at 61680d0c. Checked against design.md sec-1..6, plan.toml EX/VA, and DEC-037..041. Read the P3/P4 diffs in full. Re-ran doctrine check gate, just gate, just coverage, the jq lock guard and the close grep, all green. Read slice conformance and verify-vt by agent, because of the ISS-005 prefix. Took P1/P2 evidence from notes.md and RV-020. VH-1 not run (user).
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-009"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Expected comments to follow moved code; justfile:105 still said the agents registry lives in nix.nix"
+detail = """
+The drvs recipe's comment explained the nixos pin by "the `agents` registry points at this flake's source (nix.nix)". PHASE-04 moved the registry to features/agents.nix (agents.registry). The phase sheet kept the justfile off-limits because of the user's uncommitted push-local recipe, so the worker noted the stale comment but did not fix it (notes.md § PHASE-04).
+"""
+disposition = "fix-now"
+response = """
+Fixed in 61680d0c: the comment now names agents.registry and is rewrapped to 80 columns. The commit staged a filtered copy of the justfile, so the user's push-local recipe stays unstaged. `just gate` green afterwards.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in 61680d0c: the comment now names agents.registry and is rewrapped to 80 columns. The commit staged a filtered copy of the justfile, so the user's push-local recipe stays unstaged. `just gate` green afterwards.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "nit"
+title = "Expected design § Phases to place the config.nix comment in one phase; the P4 row names it, §4/§6 and plan P3 EX-2 put it in P3"
+detail = """
+design.md sec-5 table, P4 row: "agents area, README, `config.nix` comment". sec-4 ("The comment in hosts/Sleipnir/config.nix:10-11 about mkAfter ordering is updated" under the overlay section), sec-6 code-impact (config.nix → P3) and plan.toml PHASE-03 EX-2 all assign it to P3, which delivered it (1f4d6bd8). There is also a count typo: sec-6 calls bin/dev-checkouts "its three verbs"; sec-2 defines four (override, stub, ahead, names).
+"""
+disposition = "design-wrong"
+response = """
+The design's sec-5 P4 row was wrong; the code followed sec-4, sec-6 and plan P3 EX-2. Reconcile edits design.md directly: drop "`config.nix` comment" from the P4 row (sec-5), and change "its three verbs" to "its four verbs" (sec-6). Reconciliation Brief § Per-slice, items 1–2.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The design's sec-5 P4 row was wrong; the code followed sec-4, sec-6 and plan P3 EX-2. Reconcile edits design.md directly: drop "`config.nix` comment" from the P4 row (sec-5), and change "its three verbs" to "its four verbs" (sec-6). Reconciliation Brief § Per-slice, items 1–2.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "Expected governance records to describe the delivered system; DEC-016/018/027/031/034, ISS-003/006, IMP-010, IDE-002, HYP-001 and RFC-001 predate SL-009"
+detail = """
+design.md § Records at reconcile lists the records the slice changes. With every phase landed:
+- ISS-003 (system_override fails without ~/dev/oubliette), ISS-006 (lock pins local paths): fixed in PHASE-01 (lock guard green; absence run evaluates). Still open.
+- IMP-010 (meta validation): fixed in PHASE-02. Still open.
+- IDE-002: not adopted (DEC-037). Still open.
+- DEC-016: its overlay clause and its "every Mac evaluation must override agents" consequence no longer hold (DEC-040; the lock names no Linux path).
+- DEC-018: legacyPackages is now the overlay's only carrier.
+- DEC-027, DEC-031: the registry is out of the NixOS base; the eca/chatgpt W2 exception has ended (features/agents.nix).
+- DEC-034: the stub set is the dev-checkout list, which now includes oubliette.
+- HYP-001: evidence that W2 needed no factory selection read.
+- RFC-001: W2 and W6 done.
+"""
+disposition = "design-wrong"
+response = """
+These are the planned governance updates (design § Records at reconcile), confirmed against the delivered code. Each one is in the Reconciliation Brief § Governance/spec, with its write surface: a backlog status move for ISS-003, ISS-006, IMP-010 and IDE-002; record revision for DEC-016, DEC-018, DEC-027, DEC-031, DEC-034, HYP-001 and RFC-001.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+These are the planned governance updates (design § Records at reconcile), confirmed against the delivered code. Each one is in the Reconciliation Brief § Governance/spec, with its write surface: a backlog status move for ISS-003, ISS-006, IMP-010 and IDE-002; record revision for DEC-016, DEC-018, DEC-027, DEC-031, DEC-034, HYP-001 and RFC-001.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Expected slice conformance and verify-vt to attribute the slice's paths; both read every path as undeclared or unattributable"
+detail = """
+`doctrine slice conformance 9`: 28 undeclared, 20 undelivered, 0 conformant. `doctrine slice verify-vt 9`: every VT UNATTRIBUTABLE ("not modified by this slice"). The registry records git paths with the `flakes/` prefix (the git worktree is $HOME), while selectors are flakes-relative. This is ISS-005.
+Judged by agent: each of the 20 undelivered selectors matches one undeclared `flakes/<path>` exactly. The other 8 undeclared paths are .doctrine bookkeeping (notes, slice toml, ISS-010, one memory). No path was edited outside the design's code-impact table. Every VT keyword is present in its file.
+"""
+disposition = "follow-up"
+response = """
+The defect is in the tooling, not the slice, and ISS-005 already owns it. This audit judged by agent instead (see the finding detail): every undelivered selector matches a prefixed undeclared path, and every VT keyword is present. Nothing to reconcile in SL-009.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+The defect is in the tooling, not the slice, and ISS-005 already owns it. This audit judged by agent instead (see the finding detail): every undelivered selector matches a prefixed undeclared path, and every VT keyword is present. Nothing to reconcile in SL-009.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected the flake's oubliette follows to match oubliette's inputs; local oubliette dropped target/goad-walk, so every override run warns"
+detail = """
+`just gate` and `just coverage` warn "input 'oubliette' has an override for a non-existent input 'target'" (and 'goad-walk'). flake.nix:132-133 declares `target.follows` and `goad-walk.follows`. The locked oubliette (61701fe) still has both inputs. The local checkout's SL-004 work (1284c5a, "no target is in its lock") removed them. Harmless today; the follows lines must go when oubliette is pushed and re-locked. The cause is outside SL-009 (another agent's oubliette slice), and notes.md § Harvest Open already records it.
+"""
+disposition = "follow-up"
+response = """
+The cause is outside this slice (oubliette SL-004), and fixing it depends on oubliette being pushed. Captured as ISS-011, with the fix and how to verify it.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+The cause is outside this slice (oubliette SL-004), and fixing it depends on oubliette being pushed. Captured as ISS-011, with the fix and how to verify it.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
