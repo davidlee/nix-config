@@ -167,3 +167,144 @@ Evidence (.doctrine/slice/010/evidence/):
   features/desktop/core/{gui,home}.nix, features/profiles/{workstation,personal-linux}.nix,
   hosts/Sleipnir/{features,dns}.nix, .doctrine/slice/010/notes.md;
   A (untracked) .doctrine/slice/010/evidence/p2-*.txt (10 files).
+
+## PHASE-03 baseline (EN-1)
+
+Date 2026-10-17; tree HEAD 2eb8db8f8d0ed8cc42c082e0d69c21b64ef7c676 (PHASE-02 committed).
+`git status --short -- modules features hosts parked justfile flake.lock`: only ` M justfile` (user
+edit; not staged). pi settings.json user edit present, not staged.
+
+| checkout | HEAD | porcelain -uno |
+|---|---|---|
+| oubliette | 63cc360b9c42aa4e531f4bccd53a46ff48f14eae | clean |
+| goad | 250b8ed9cf6f4cda9879fc45b2b3ceb2d52ea987 | clean |
+| panopticon | a6648a46e4f8de08f9d841163f1bb30c5750581d | clean |
+| satan-patcher | 4efa20542b77d4aad83079da267121a38b08e94f | clean |
+| satan-attrd | c8fd7eb51aeada64571270c98f94a30fb7337036 | clean |
+
+(= PHASE-02 table; no drift.)
+
+Evidence (.doctrine/slice/010/evidence/):
+- p3-drvs-before.txt 645995ea8e8b36d499b44c1057876893f607ab258b138ef267e6b47ab7ee8191 (= p2 after)
+- p3-drvs-sets-before.txt 52d35a0652b852e4b26abca6fc9c14de951c5670c3068f2051eab8be476493ba (= p2 after)
+- p3-cov-drvs-before.txt 35b1e0aca1d3686feecdf3a45524ac8c622e0a126c8bc62efb49b81db299624a (8 targets; = p2 after)
+- p3-cov-sets-before.txt 933bd38e5a0925b31d3b07980a50828fea7df0eab18fb3887a02d2eec82bb799 (= p2 after)
+- p3-opts-before.txt 168c66ae245357662a74e7a5a19fd737ccacdb0924201d3f14d322fc376ff6da (102 lines, 0 ABSENT)
+  Script ~/.cache/multihost-gate/p3-opts.sh (outside the tree; same script for after): 34 options x
+  {david@Sleipnir, david@Draupnir, home@aarch64-linux}; besides the sheet's list it covers the other
+  shells' rendered init (bash.initExtra, nushell.extraConfig/extraEnv, fish.*ShellInit), which yazi's
+  integrations also write to. Two script gotchas: string options carry store-path context, so the
+  default `--apply` discards it (`builtins.unsafeDiscardStringContext`); and the eval cache returns a
+  corrupt "store path … has a name longer than" error for those strings on a second run, so every
+  eval uses `--no-eval-cache`.
+- probe: ~/.cache/multihost-gate/p3-before/{system,home} (`just probe`, host Sleipnir; `diff -rq`
+  against p2-after: identical).
+
+## PHASE-03 result (EX-3) — F-P3-1 resolved (see § F-P3-1 resolution)
+
+Edits B1–B7 done as planned (`git mv` modules/home/zsh.nix → features/terminal/zsh.nix; yazi →
+files.manage; nix-search-tv integration → files.search; terminal.zsh record; personal selects it;
+zstd moved under `## fileutils` after `xz`). Checkout HEADs/status after: identical to baseline.
+
+| target | drvs | sets | verdict |
+|---|---|---|---|
+| nixosConfigurations.Sleipnir, darwinConfigurations.Draupnir | identical | equal | identical |
+| coverage.Sleipnir+* (6), coverage.base@aarch64-linux | identical | equal | identical |
+| packages / legacyPackages / templates | identical | — | identical |
+| homeConfigurations.{david,david@Sleipnir} | differs | equal (341) | ordering-only |
+| homeConfigurations.david@Draupnir | differs | equal (260) | ordering-only (sets + nix-diff; no probe on Linux) |
+| coverage.home@aarch64-linux | differs | 50 → 44 | removals **plus a yazi wrapper rename (F-P3-1)** |
+
+Ordering-only proof (both populated homes). `nix-diff`: every differing drv checked with
+`nix derivation show`, store hashes masked, inputDrvs sorted. Masked-identical: activation-script,
+hm-putter.json, home-manager-files, hm_.manpath, man-cache (and Draupnir's
+hm_LibraryFonts…version). Differing only by permutation: home-manager-path, man-paths (and
+Draupnir's home-manager-fonts, home-manager-applications): `__json.chosenOutputs` same multiset,
+341/260 entries; david-fish-completions `paths` and home-manager-generation `extraDependencies`:
+same tokens. No inputDrv added or removed anywhere; no .zshrc/.zshenv/.zprofile/.zlogin drv in the
+diff. Moved entries in home-path (LIS complement): carapace, fzf, atuin (Sleipnir), zoxide, zstd,
+gcc-wrapper, zsh, zsh-autocomplete, antidote, eza, lazygit, mcfly.
+
+Built-artefact probe (`~/.cache/multihost-gate/p3-{before,after}`, Sleipnir): system/ `diff -rq`
+empty. Home: packages equal sorted; home-path-links **raw-identical** (no collision winner
+flipped); home-files-links raw-identical except `.manpath` (the known derived-hash artefact).
+Draupnir: the same twelve entries move; Linux shows no winner change for them, but Darwin
+contents are unprobed (sets + nix-diff only).
+
+Option spot-checks (`p3-opts-after.txt` vs before): every david@Sleipnir and david@Draupnir line
+identical, including `programs.zsh.initContent`, `programs.zsh.{env,profile,login}Extra`,
+bash.initExtra, nushell.extraConfig, fish.*ShellInit (init order preserved), yazi
+plugins/wrapper/integrations, mcfly flags, nix-search-tv integration true. home@aarch64-linux:
+zsh.enable/mcfly.enable/mcfly.fzf.enable → false, zsh options → defaults, initContent loses
+initEarly/init/mcfly/yazi fragments, MCFLY_* session vars gone, home.file loses the zsh dotfiles,
+yazi.plugins → [], and **yazi.shellWrapperName "y" → "yy"**.
+
+home@aarch64-linux nix-diff: removed antidote, mcfly, mcfly-fzf, zsh, zsh-autocomplete (+ their
+fish completions and man paths), hm_.configzsh.{zlogin,zprofile,zshenv,zshrc}, hm_.zshenv,
+hm_yaziinit.lua, the eight yazi plugin dirs; `y.fish` → **`yy.fish` (added)**; config.nu changes
+`def --env y` → `def --env yy`; config.fish loses mcfly.
+
+**F-P3-1 (STOP, not attributable as removal).** `modules/home/nushell.nix` (home base, outside this
+phase's file set; planner's sheet did not list it) also sets `programs.yazi = { enable = true;
+enableNushellIntegration = true; }`. So yazi does not leave the base: on a home without
+`files.manage` it stays enabled, with HM's stateVersion<26.05 default wrapper `yy` instead of `y`,
+no plugins, and HM prints a deprecation warning for the unset `shellWrapperName` on every eval of
+that home (seen in `just coverage`). Sleipnir/Draupnir unaffected (files.manage sets "y").
+Proposed fix (orchestrator's call): drop the `yazi = {…};` block from modules/home/nushell.nix —
+files.manage already sets enable + enableNushellIntegration, so the populated homes should stay
+identical and home@aarch64-linux would become removal-only (yazi package too). Needs a re-run of
+C2–C5.
+
+Evidence (.doctrine/slice/010/evidence/):
+- p3-drvs-after.txt 7d6e7f7bd25d895cc0b18b2402e65a5c3bd1734c1eafedf7d54c2b8bc14e7e75
+- p3-drvs-sets-after.txt 52d35a0652b852e4b26abca6fc9c14de951c5670c3068f2051eab8be476493ba (= before)
+- p3-cov-drvs-after.txt cb2b33e8812d158ac5ebf2b6706c94d3646567a6b22ca824d7fb41cc8b9a8634 (only home@aarch64-linux differs)
+- p3-cov-sets-after.txt b3b2b266ad3e90217b8aa829193cfcbb6cc74a87bd2a634931601166a0075177 (only home@aarch64-linux: 50 → 44)
+- p3-opts-after.txt 8827c4d4f595cf513362543504d3dd42363b9f3482d3db60d208ee954b2cc6e9
+- nix-diff outputs (scratch, not committed): ~/.cache/multihost-gate/p3-nd-{sleipnir,draupnir,home-aarch64}.txt
+
+### F-P3-1 resolution (2026-10-17)
+
+Orchestrator decision: delete the `yazi = {…};` block from `modules/home/nushell.nix` (files.manage
+already sets enable + enableNushellIntegration). C2-C5 re-run against the existing p3-*-before
+evidence; the p3-*-after files above were overwritten (the table/hashes above describe the superseded
+first run; use these).
+
+| target | verdict |
+|---|---|
+| systems, Sleipnir+*, base@aarch64-linux, packages/legacyPackages/templates | identical (drvs + sets) |
+| homeConfigurations.{david,david@Sleipnir,david@Draupnir} | drv lines and sets (341/341/260) identical to the previous after-state: ordering-only vs before, same proof as above |
+| coverage.home@aarch64-linux | **removed-only**, sets 50 -> 43 |
+
+home@aarch64-linux nix-diff (`~/.cache/multihost-gate/p3-nd-home-aarch64.txt`): input drvs removed
+only: antidote, mcfly, mcfly-fzf, yazi, zsh, zsh-autocomplete (+ fish completions, man paths),
+hm_.configzsh.{zlogin,zprofile,zshenv,zshrc}, hm_.zshenv, hm_yaziinit.lua, the eight yazi plugin
+dirs, y.fish (no yy.fish). Nothing added. Rendered nushell/bash/fish init: no added lines vs before.
+opts: yazi.enable false, plugins [], zsh/mcfly off, MCFLY_* vars gone; david@Sleipnir/Draupnir
+option lines identical to before. Probe (Sleipnir): identical to the previous after-probe; system/
+`diff -r` empty vs before; home-files-links differ only in `.manpath`.
+The yazi `shellWrapperName` warning is gone (`just coverage`: 0 matches).
+
+Evidence hashes (sha256, overwritten after-files):
+- p3-drvs-after.txt 7d6e7f7bd25d895cc0b18b2402e65a5c3bd1734c1eafedf7d54c2b8bc14e7e75
+- p3-drvs-sets-after.txt 52d35a0652b852e4b26abca6fc9c14de951c5670c3068f2051eab8be476493ba
+- p3-cov-drvs-after.txt caa83df8ebc006bc72ce05060ec63df4e69cfee10c78cb6a2b49bcfbe4f3b5fd
+- p3-cov-sets-after.txt 9ab9f5246e2601fac02445812fdd122d927c8a81e34c97c49902dfcf2d33f372
+- p3-opts-after.txt 6174e4c680efc8f70857c051b6b5b50d974b480f92ea014149ba2beaf9e8c555
+
+Gates after the fix: `just test` green; `just coverage` green, no shellWrapperName warning;
+`nix fmt` on modules/home/nushell.nix: 0 changed. **flake.lock drift**: the emacs-overlay entry moved
+(lastModified 1792095206 -> 1792158883, rev 3d05567b -> e87b60e7) at 02:56 during the re-run, from an
+eval/test command re-resolving it (known mem.fact.flakes.fmt-relock risk); not reverted (no
+checkout/restore). Evidence did not change with it. Orchestrator: do not commit flake.lock.
+
+## PHASE-03 gates
+
+- `just test`: green. `just coverage` (incl. isolation: home@aarch64-linux, david@Draupnir ok): green,
+  with the new yazi `shellWrapperName` warning from home@aarch64-linux (F-P3-1).
+- `nix fmt --no-write-lock-file -- --no-cache` on the 7 touched nix files: 1 changed
+  (modules/home/programs.nix `{...}:` → `_:`); `just drvs` re-taken after: unchanged.
+- `git diff --stat -- flake.lock`: empty.
+- VT-1 (4 keywords), VT-2 (3), VT-3 (1): each present once. `grep -c 'yazi\|nix-search-tv'
+  modules/home/programs.nix` = 0; modules/home/zsh.nix gone; features/terminal/zsh.nix tracked;
+  `grep zsh modules/home/{cli,default}.nix`: none. Stale-reference grep: no hits.

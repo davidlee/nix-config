@@ -1,0 +1,8 @@
+coverage.Sleipnir+llama-cpp /nix/store/57krhfmqm8qzz4vklpc4f44wznhd208n-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.Sleipnir+openrgb /nix/store/d8y676plyfxplbgl8jvqpqnsn3wajm90-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.Sleipnir+podman /nix/store/pql1hszlk3yy37i3ilzb4sd58gr5y06x-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.Sleipnir+rocm /nix/store/bjfclx4w7sdzv32d3w2cbzd6kj1zrx3n-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.Sleipnir+speech /nix/store/84d5ck8fzdzshg9fj2ssfg993mcbcl7w-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.Sleipnir+sunshine /nix/store/s2wc5f22a8hvhnps92r3jyh2hvb70z8w-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+coverage.base@aarch64-linux /nix/store/2r3k0s0x0kmw3mbhg5m1hfqh5apfpgkw-nixos-system-base-26.11.20261011.7fd4004.drv
+coverage.home@aarch64-linux /nix/store/10vf1bdn52y2mdk0xg6p22cbza9v60mh-home-manager-generation.drv

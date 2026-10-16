@@ -1,0 +1,13 @@
+nixosConfigurations.Sleipnir /nix/store/7qgaav63aba4a2hx1gdy3ikxnycdpjlq-nixos-system-Sleipnir-26.11.20261011.7fd4004.drv
+homeConfigurations.david /nix/store/7nc2my9f2y6v0gc1dbk9mc6n487gykz5-home-manager-generation.drv
+homeConfigurations.david@Draupnir /nix/store/ng8h244c47q1kri2fziifhvfx6fb7cjw-home-manager-generation.drv
+homeConfigurations.david@Sleipnir /nix/store/7nc2my9f2y6v0gc1dbk9mc6n487gykz5-home-manager-generation.drv
+darwinConfigurations.Draupnir /nix/store/mcr71bhdn8kx1gby2w2vpczij877751r-darwin-system-26.11.4cff07d.drv
+packages.aarch64-darwin 0 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+packages.aarch64-linux 200 48ecfd555192491f175352985e63e0c4fa67919c873494e0a1c22b0bcc98b47a
+packages.x86_64-linux 203 c1c37befe233d7fab03966ffc55686ae56940554be11b9215690911740e3401b
+legacyPackages.aarch64-darwin none
+legacyPackages.aarch64-linux /nix/store/n2bxsryg17gdaxy71d9ab9gxl1vrqg6z-stdenv-linux.drv /nix/store/bv0g75pxm16074k119iz2pmfy87h4qj1-codex-0.159.1.drv /nix/store/hlib2p8awifymp379cwpjh6iwa0d0c32-claude-code-2.1.285.drv
+legacyPackages.x86_64-linux /nix/store/109gn1ryh0xvy67zcxjrbk7vm6h8jjfl-stdenv-linux.drv /nix/store/bdj087vfca7yyxdn8s87fpr6pg0c6q2x-codex-0.159.1.drv /nix/store/ysiczvykdyp6ykbbclgrd1sb5xjvacvj-claude-code-2.1.285.drv
+templates.agents /nix/store/bwgzwfmxyvbsnw1srszgwlg1lz628m1s-agents Dev shell with jailed LLM agents
+templates.default /nix/store/bwgzwfmxyvbsnw1srszgwlg1lz628m1s-agents Dev shell with jailed LLM agents

@@ -1,3 +1,4 @@
+# terminal.zsh's home half (DEC-042); imported by features/terminal.nix.
 {
   lib,
   config,

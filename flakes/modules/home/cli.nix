@@ -18,15 +18,10 @@
       zoxide
       skim # $ sk
 
-      ## zsh
-      zsh
-      zstd
-      zsh-autocomplete
-      antidote
-
       ## fileutils
       coreutils
       xz
+      zstd
       gnutar
       cpio
       zip

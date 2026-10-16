@@ -3,7 +3,6 @@
 # imports this.
 {...}: {
   imports = [
-    ./zsh.nix
     ./nushell.nix
     ./programs.nix
     ./shpool.nix

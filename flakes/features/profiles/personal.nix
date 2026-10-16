@@ -41,4 +41,5 @@
   feature.comms.feeds.enable = lib.mkDefault true;
   feature.fun.toys.enable = lib.mkDefault true;
   feature.terminal.utils.enable = lib.mkDefault true;
+  feature.terminal.zsh.enable = lib.mkDefault true;
 }

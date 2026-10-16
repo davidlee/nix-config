@@ -42,4 +42,17 @@ in [
         ];
     };
   }
+
+  {
+    # zsh's home half; the system half (programs.zsh, /share/zsh) joins in PHASE-04.
+    name = "zsh";
+    homeManager = {pkgs, ...}: {
+      imports = [./terminal/zsh.nix];
+      home.packages = with pkgs; [
+        zsh
+        zsh-autocomplete
+        antidote
+      ];
+    };
+  }
 ]
