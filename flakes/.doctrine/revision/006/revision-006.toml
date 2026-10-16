@@ -2,7 +2,7 @@ id      = 6
 slug    = "adr-002-d3-a-big-record-may-import-modules-of-its-own"
 title   = "ADR-002 D3: a big record may import modules of its own"
 status  = "proposed"   # work lifecycle: proposed | started | done | abandoned
-approval = "none"      # SEPARATE axis, orthogonal to status: none | requested | approved | rejected
+approval = "approved"
 updated = "2026-10-16"
 tags    = []
 
