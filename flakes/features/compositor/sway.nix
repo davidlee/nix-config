@@ -17,7 +17,6 @@
       sway-overfocus
       sway-scratch
       sway-new-workspace
-      sway-easyfocus
       swaylock
       swaylock-fancy
       swaynotificationcenter

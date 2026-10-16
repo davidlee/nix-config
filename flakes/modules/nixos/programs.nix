@@ -19,9 +19,6 @@
         util-linux
         xz
         systemd
-
-        # root's editor
-        helix
       ];
     };
     _1password.enable = true;
@@ -38,7 +35,10 @@
   };
 
   environment = {
-    systemPackages = [pkgs._1password-cli];
+    systemPackages = [
+      pkgs._1password-cli
+      pkgs.helix # root's editor
+    ];
     pathsToLink = ["/share/zsh"];
   };
 }

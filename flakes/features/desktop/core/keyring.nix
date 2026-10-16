@@ -2,9 +2,6 @@
   security = {
     pam.services = {
       greetd.enableGnomeKeyring = true;
-      greedt = {
-        enableGnomeKeyring = true;
-      };
       greetd-password = {
         enable = true;
         enableGnomeKeyring = true;

@@ -58,15 +58,4 @@
       ];
     }
   ];
-
-  # Rust support in the kernel build; SL-007 PHASE-06 removes it if harmless.
-  boot.kernelPatches = [
-    {
-      name = "Rust Support";
-      patch = null;
-      features = {
-        rust = true;
-      };
-    }
-  ];
 }

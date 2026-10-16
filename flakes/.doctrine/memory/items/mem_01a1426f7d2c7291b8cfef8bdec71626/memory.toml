@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1426f7d2c7291b8cfef8bdec71626"
+memory_key = "mem.fact.nix.kernel-rust-by-default"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "nixpkgs kernels build Rust by default; a features.rust kernelPatch only costs the cache"
+summary = "rustByDefault (kernel >= 6.12, x86_64/aarch64) makes a features.rust=true kernelPatch config-identical but uncached; drop it"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["nix", "kernel"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "6abb82a95ff39cc2841baa72fd75fcf25c2c7f8c"
+ref_name = "refs/heads/main"
+checkout_state_id = "16e14be8a311da84da80469600e39fa589a136bc14a37e405d4c249043843ad6"
+base_commit = "22f183298ee8857d3eed7b5c080644ee441c3d2d"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-007"
+

@@ -36,7 +36,6 @@
 
     # broken
     stable.wf-recorder
-    wf-config
 
     ## color pickers
     wl-color-picker
@@ -45,7 +44,6 @@
 
     gnome-system-monitor
     gnome-calendar
-    gnomeExtensions.appindicator
 
     # file managers
     nemo
@@ -56,11 +54,8 @@
     phinger-cursors
     adwaita-icon-theme
     bibata-cursors
-    marble-shell-theme
 
     # bars & widgets
-    wob
-    i3status
     wttrbar
     # gnome-weather
 

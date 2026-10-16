@@ -4,7 +4,7 @@
 # regenerate-hardware`) and must not be edited. Generic hardware support that
 # any host may select is a feature (features/hardware.nix), not machine config.
 #
-# Here too: the Radeon GPU (once modules/nixos/radeon.nix), its devices'
+# Here too: the Radeon GPU (formerly its own base module), its devices'
 # kernel blacklist, the NIC's NetworkManager profile, and nix build limits and
 # swap sized to its CPU, RAM and disk.
 {

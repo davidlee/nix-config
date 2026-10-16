@@ -109,3 +109,32 @@ HEAD 0a7458d5 + uncommitted PHASE-02 delta. Snapshot `~/.cache/multihost-gate/sl
 - VA-2 POL-001: `phase-02/pol001-added-tokens.txt` — added-only tokens are comment words, attr paths, file paths and ids (POL-001, IMP-002, IMP-022, DEC-029, SL-007, PHASE-06). `1qncxpyinu9`, `76.76.`, `2606:1a40`, `192.168`, `enp8s0`, `controld` each removed = added. Values only moved.
 - README edits came after the snapshot; they do not change any evaluated drv (`just drvs` pins the registry), so no re-run.
 - `just gate` green (tests + treefmt); statix and deadnix clean on every touched file.
+
+### PHASE-06 verdict: exactly the § Behaviour changes table
+
+HEAD 22f18329 + PHASE-06 delta. Snapshot `~/.cache/multihost-gate/sl007/phase-06/` (drvs, drvs-sets, coverage, system/, home/, etc, etc-linkmap-p6.txt, kconfig-*, controls/, nix-diff-toplevel.txt). Worker: opus.
+
+**EN-2 / VA-3 kernel .config, compared before any edit: byte-identical.**
+
+| | with Rust kernelPatch | plain `linuxPackages_latest` |
+|---|---|---|
+| drv | `bgk4w9h9ghcdm0dayhdhgfbzqjxgmvls-linux-config-7.2.9.drv` | `zrwj0xq9xnas4lm4f0lrg37smrpgqhwc-linux-config-7.2.9.drv` |
+| out | `qgq1g99558k1mx0x4qwq2xjg5d1h6mj8-linux-config-7.2.9` | `xjk678mq2by79ij74b6smawwpcypykal-linux-config-7.2.9` |
+| sha256 | `f60534634b18c9e52bbef1c1e71ff0dd703e788e74584b731d3fbf8164c340ff` | same |
+
+`diff` rc=0 (orchestrator re-checked with `cmp`). Plain config has `CONFIG_RUST=y`. Cause: nixpkgs `common-config.nix:48` `rustByDefault` (kernel >= 6.12 on x86_64); the patch only turns intermediate `RUST? y` into `RUST y`, making an uncached kernel drv. After removal the Sleipnir kernel drv equals `linuxPackages_latest` (`cic6a72y…-linux-7.2.9.drv`), output on cache.nixos.org.
+
+**EX-2 / VA-1 gate vs PHASE-05.**
+- drvs: only `nixosConfigurations.Sleipnir`; coverage: six `Sleipnir+*` and `base@aarch64-linux` (B5/B6 live in `modules/nixos`).
+- drvs-sets: Sleipnir 570 -> 565 (-5 IMP-004 prune, -1 duplicate sway-easyfocus, +1 helix). Home, Draupnir identical.
+- system/packages: wob, i3status, wf-config, gnomeExtensions.appindicator, marble-shell-theme gone; helix added; `ld-library-path` drv lost helix. system-path-links: only those removals plus helix's `bin/hx`, desktop file, completion, icon; no surviving link retargeted; mimeinfo/icon-theme caches regenerated.
+- /etc (`nix/registry.json` ignored): `pam.d/greedt` gone; dbus-1, systemd units, terminfo identical after store-hash normalisation; `sysctl.d/55-nixos-aslr-entropy.conf` content identical, drv moved via linux-config input (kernel-bound, B7).
+- dev group: no probe or drv change — the probe lists existing groups and `dev` never existed; evaluated `extraGroups` no longer contains it.
+- firewall: rendered `nftables.service` byte-identical (NixOS dedups); option `allowedTCPPorts` = `[22,80,443,27015,27036,27037,27040]`, no duplicates.
+- Everything else in the probe (ports, kernelParams, udev, fontconfig, home/*) identical.
+
+**VA-2** webserver `mkForce false`: allowedTCPPorts `[22,27015,27036,27037,27040]`, caddy absent. Controls copied to phase-06 with post-edit host files (phase-05 `restore()` would re-add the kernelPatch); restore verified via `git diff -- hosts/Sleipnir`.
+
+**EX-3 / VA-4** `modules/nixos` = default.nix + its 16 imports + parked hyprland.nix, kmscon.nix. Close grep empty after rewording `hosts/Sleipnir/machine.nix` comment (named the old radeon.nix path; not a table row, needed for EX-3). Removal greps empty; sway-easyfocus once; no `greedt`/`kernelPatches`. `just gate` rc=0; statix, deadnix clean.
+
+Learned: probes cannot show B4/B5 (dedup, undefined groups) — evidence is option-level eval. Sourcing `controls/run.sh` overwrites `$S`; use its `$C`.

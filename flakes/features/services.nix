@@ -53,8 +53,6 @@
           enableTCPIP = false;
         };
       };
-      # Stray ports, kept for no behaviour change; they leave in SL-007 PHASE-06.
-      networking.firewall.allowedTCPPorts = [80 443];
     };
   }
 

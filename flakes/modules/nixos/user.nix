@@ -12,7 +12,7 @@
       homeMode = "755";
       isNormalUser = true;
       description = "David Lee";
-      extraGroups = ["networkmanager" "wheel" "dev"];
+      extraGroups = ["networkmanager" "wheel"];
       home = "/home/${username}";
       #shell = pkgs.zsh;
       shell = pkgs.nushell;
