@@ -105,16 +105,20 @@ user's choices. If one is wanted, it should check plan-level gate coverage
 
 ## Harvest
 
-fresh-as-of: design run reviewing, revision 35; head 3ac8ff5d (no SL-008 commits yet)
+fresh-as-of: slice ready (design locked rev 38, plan committed, PHASE-01 not started); head 8e8b9807
 
 - **Produced**:
   - DEC-030..036 (accepted; each shapes SL-008);
   - QUE-001 answered (DEC-030);
   - IMP-023 (goad on darwin);
-  - `design.md` materialised at revision 31;
+  - `design.md` locked at run revision 38;
+  - `plan.toml`/`plan.md`: seven phases, sheets materialised;
   - RV-017 (design review ledger: 17 findings from two codex reviewers, all
-    disposed; DEC-032/033 edited for the user's rulings).
+    disposed; DEC-032/033 edited for the user's rulings; pass waived by the
+    user with F-16/F-17 fixed but not re-verified by the reviewer).
 - **Learned**: these are facts for this slice. Promote them to memories at close.
+  - A Nix attribute segment cannot start with a digit unquoted
+    (`feature.graphics.3d` fails to parse), so feature names avoid it.
   - HM `c58f54c`: `systemd.user.enable` defaults to isLinux, and the platform
     assertion sits under `mkIf`. So systemd-only halves are inert on darwin,
     while tailscale-systray, systembus-notify, swayosd and mangohud fail.
@@ -126,8 +130,6 @@ fresh-as-of: design run reviewing, revision 35; head 3ac8ff5d (no SL-008 commits
   - ISS-008 → fixed in P3.
   - REVs on ADR-002 (D1, D4, D5) and ADR-005 D6, plus the DEC-006 edit:
     raise before P1.
-- **Uncommitted**: everything under `.doctrine/slice/008/`, DEC-030..036,
-  IMP-023 and the QUE-001 settle. Commit with the design lock (or before
-  review, if the user wants).
+- **Uncommitted**: nothing of SL-008's (b120346a, 8e8b9807).
 - **Other untracked items, not SL-008's**: IDE-003..005, IMP-020/021 and
   ISS-009. Leave them alone.
