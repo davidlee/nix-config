@@ -472,3 +472,25 @@ Evidence (.doctrine/slice/010/evidence/):
   unstaged); M `modules/nixos/{user,programs,env}.nix`, `modules/home/default.nix`,
   `features/terminal.nix`, `features/editor/emacs.nix`, `.doctrine/slice/010/notes.md`;
   new untracked `.doctrine/slice/010/evidence/p4-*.txt` (10).
+
+## PHASE-05 result
+
+Docs and governance only; no `.nix` edits. Model: sonnet (bounded prose and CLI edits).
+
+- README.md: feature-tree listing (`sandbox`, `avahi`, `ssh`, `locate`, `tailscale`, `zsh`, `terminal/zsh.nix`
+  row); § Parked rewritten (`parked/`, DEC-043, ADR-005; hyprland/kmscon do not evaluate; shpool evaluates but
+  is unused; danksearch gone); § Hosts states the reduced NixOS and home bases and names the records that took
+  over, with the no-sshd warning (DEC-044); § Printing cites `services.avahi`.
+- `.doctrine/rfc/001/rfc-001.md` (direct edit): SL-010 bullet in Where things stand, Target shape (`parked/`
+  row; `ssh` dropped from the base bullet), W7 (headless selects `services.ssh`, probably `files.locate`), W9
+  (base tidy done), References (DEC-042..044). Status and toml untouched.
+- DEC-027 and DEC-031: one SL-010 consequence each via `doctrine knowledge edit decision --consequences`;
+  `doctrine show` confirms 3 items each, intact. `doctrine validate`: corpus clean.
+- VT-1 (README grep counts): before all 0; after parked/ 2, services.avahi 2, terminal.zsh 2, net.tailscale 1,
+  files.locate 1, services.ssh 2, virt.sandbox 1. (`verify-vt` is UNATTRIBUTABLE per ISS-005; judged by grep.)
+- EX-3 stale-reference grep: prints nothing (before: README.md:343, 344, 555).
+- Deviation (EX-1, orchestrator decision): README does not claim a "commented danksearch input"; the input and
+  module are both gone (removed in `07c4998e`), so README says so in one clause.
+- `git diff -- flake.lock | sha256sum` = `2fc8da01c950964c5bbc9e55c4685474cddedd9742b93cb3ad30544e46959130`
+  (unchanged). Header comments of `modules/{nixos,home}/default.nix` left alone (F-plan-2). Research restamp
+  and IMP-001 closure not touched.

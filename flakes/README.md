@@ -216,7 +216,7 @@ features/
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
-  virt.nix            [ (import ./virt/capsule.nix) qemu docker podman ]
+  virt.nix            [ (import ./virt/capsule.nix) sandbox qemu docker podman ]
   virt/capsule.nix    a feature big enough for its own file
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
@@ -224,7 +224,7 @@ features/
   agents.nix          [ registry eca chatgpt ]        registry: nixos only; eca: linux only (personal-linux)
   audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
   audio/              dictate  dictate-test  alarm/   assets, beside their feature
-  services.nix        [ printing postgresql webserver sunshine ] sunshine: coverage target
+  services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
   desktop/core/       wayland.nix  xdg.nix  gui.nix …  home.nix   modules the core record imports; home.nix its home half
@@ -237,8 +237,8 @@ features/
   dev.nix             [ scm build runtimes runners tools ]
   docs.nix            [ diagrams typeset markdown help ]
   data.nix            [ structured hex ]
-  files.nix           [ manage disk archive search sync ]
-  net.nix             [ tools ]
+  files.nix           [ manage disk archive search sync locate ]
+  net.nix             [ tools tailscale ]             tailscale: linux only
   web.nix             [ browsers terminal ]
   system.nix          [ monitor process ]
   text.nix            [ tools pagers dictionary ]
@@ -248,7 +248,8 @@ features/
   graphics.nix        [ paint modelling color cad ]
   comms.nix           [ chat mail feeds ]
   fun.nix             [ toys ]
-  terminal.nix        [ emulators utils ]
+  terminal.nix        [ emulators utils zsh ]
+  terminal/           zsh.nix                         the zsh record's home module
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness patcher attrd ]       each its own file under satan/
@@ -340,12 +341,19 @@ host selects; `Sleipnir+podman` swaps it in for docker (IMP-018).
 `just test` runs the resolver tests (`features-test.nix`, as
 `checks.<system>.features`) before the script tests.
 
-**Parked is not a feature.** `modules/nixos/{hyprland,kmscon}.nix` and
-`modules/home/linux/danksearch.nix` stay commented out in their import lists.
-They do not evaluate — `hyprlandPlugins.hyprexpo` is gone, `services.kmscon.fonts`
-was removed upstream, danksearch's flake input is commented out — so a feature
-would promise a switch that breaks the build when flipped. Repair first, then
-promote to a feature.
+**Parked is not a feature.** Parked modules live in `parked/` at the flake
+root (DEC-043). Nothing imports them, so nothing evaluates them. They are not
+features (ADR-005).
+
+- `hyprland.nix` and `kmscon.nix` do not evaluate: `hyprlandPlugins.hyprexpo`
+  is gone and `services.kmscon.fonts` was removed upstream. A feature would
+  promise a switch that breaks the build when flipped. `hosts/Sleipnir/config.nix`
+  keeps their `../../parked/…` import lines commented out. Repair first, then
+  promote to a feature.
+- `shpool.nix` evaluates but is unused: emacs session restore uses zmx
+  (`editor.emacs`, IMP-001).
+
+danksearch is gone: neither its module nor its flake input exists.
 
 ### Hosts
 
@@ -370,11 +378,28 @@ NixOS host imports first in its `config.nix`. It has no switch and is neither a
 feature nor a profile. Optional pieces are features; pieces bound to a
 machine's parts or a host's site live in `hosts/<host>/`.
 
+The base holds what every NixOS host needs (DEC-042, DEC-044): nix, user,
+boot, kernel, env, maintenance, security, network (NetworkManager, a firewall
+with no open ports, nftables, `hostName`, `timeServers`), programs (nix-ld,
+rust-motd, root's helix) and the inspection set of cli tools. Root's login
+shell is NixOS's default, bash, and so are the system users that take the
+default (`assigner`, `postgres`); the user's own shell stays nushell.
+
+What left the base is now a feature: `services.ssh`, `files.locate`,
+`net.tailscale`, `services.avahi`, `virt.sandbox` (bubblewrap, distrobox) and
+`terminal.zsh` (the system zsh). Dev libraries, cargo, valgrind, sysprof,
+1Password, udisks2 and ydotool became nixos halves of existing features.
+A NixOS host that does not select `services.ssh` runs no sshd.
+
 The **home base** is `modules/home/default.nix`, an import list on the same
 pattern. Home Manager cannot choose imports by platform, so it has two layers
 over it, `modules/home/linux/` and `modules/home/darwin/`, and each
 `hosts/<host>/home.nix` imports exactly one, then sets identity and
 `stateVersion`.
+
+The home base holds nushell, direnv and the base cli, which has no zsh bucket.
+zsh is `terminal.zsh` (home half `features/terminal/zsh.nix`). yazi comes only
+from `files.manage`. shpool is parked.
 
 ```
 hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐
@@ -552,7 +577,7 @@ journalctl --user -u snooze-nag -f
 
 `features/services.nix` (`services.printing`) — CUPS with drivers for Brother HL-L2445DW (laser) and Canon TR8600 (inkjet via gutenprint).
 
-**Printers:** both discovered via Avahi/mDNS (the base's `modules/nixos/avahi.nix`). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
+**Printers:** both discovered via Avahi/mDNS (the `services.avahi` feature, which `services.printing` requires; Sleipnir selects it explicitly in `hosts/Sleipnir/features.nix`, since `requires` never selects). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
 
 **GUI:** `system-config-printer` for queue management, or `http://localhost:631` for the CUPS web interface.
 

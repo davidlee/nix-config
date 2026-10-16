@@ -15,7 +15,7 @@ context = "RFC-001 W5; DEC-027 set the NixOS base pattern; HM cannot choose impo
 choice = "modules/home/default.nix is the home base, an import list: zsh, nushell, programs (direnv, yazi), shpool, programs.home-manager.enable, and the base cli (shell-ux and zsh buckets plus core userland: coreutils findutils file gnused gawk gnutar xz unzip zip cpio curl wget openssl less git gnupg). modules/home/linux/default.nix (imports the base; systemd.user.sessionVariables) and modules/home/darwin/default.nix (imports the base; today's darwin/home.nix verbatim) are platform layers. Each hosts/<h>/home.nix imports exactly one layer and keeps identity and stateVersion. profiles/ and darwin/home.nix go; modules/home/ ends holding only the base (the eca/chatgpt exception ended with DEC-041, SL-009)."
 alternatives = ["shared base plus platform layers chosen in the factory (DEC-016/007 revision)", "keep darwin/home.nix where it is", "emacs and neovim in the base"]
 rationale = "Mirrors DEC-027: no factory change, the host shows its trace, the directory is the base. Editors and most cli are optional (a VM may not want them; nightly neovim may break), so they are features."
-consequences = ["EDITOR/VISUAL move to editor.emacs; the base sets no EDITOR.", "The aarch64 home target evaluates the base plus the linux layer."]
+consequences = ["EDITOR/VISUAL move to editor.emacs; the base sets no EDITOR.", "The aarch64 home target evaluates the base plus the linux layer.", "SL-010: DEC-042 amends this choice. zsh (module and package bucket) moved to terminal.zsh; yazi to files.manage; the nix-search-tv integration to files.search; shpool to parked/ (DEC-043)."]
 decided_by = "user (2026-10-16)"
 decided_on = "2026-10-16"
 
