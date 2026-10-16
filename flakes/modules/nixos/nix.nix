@@ -3,10 +3,11 @@
   inputs,
   ...
 }: {
-  system.stateVersion = "24.11";
   nixpkgs.config.allowUnfree = true;
 
   nix = {
+    package = pkgs.lixPackageSets.stable.lix;
+
     # Dedicated `agents` registry alias -> this flake, so ad-hoc
     # `nix shell agents#codex` (claude, gemini, opencode, pi, crush,
     # zerostack, dirge) and nix run/build resolve to self.legacyPackages —

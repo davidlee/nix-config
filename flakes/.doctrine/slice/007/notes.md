@@ -76,3 +76,19 @@ fresh-as-of: 2026-10-16 · design locked (run rev 40); plan PHASE-01..06, slice 
 ### Open
 - Next: /phase-plan PHASE-01 (baseline capture first)
 - IMP-004 (prune, P6), IMP-017, IMP-002, IMP-003, ISS-008, QUE-001, QUE-004
+
+## Gate snapshots
+
+HEAD f9c57b3a (uncommitted worktree delta for PHASE-01).
+
+- baseline (unchanged tree): `~/.cache/multihost-gate/sl007/baseline/` — drvs 13 lines, drvs-sets 5, coverage 6, system/ + home/ probe; re-probe into `baseline-recheck` identical (deterministic); `just gate` green.
+- PHASE-01: `~/.cache/multihost-gate/sl007/phase-01/` (PHASE-02's baseline). Same line counts.
+
+### PHASE-01 verdict: order-only (P1 row)
+- drvs: only `nixosConfigurations.Sleipnir` differs, plus the six `coverage.Sleipnir+*` lines (same base). Home, Draupnir, packages, legacyPackages, templates identical.
+- drvs-sets: Sleipnir count 570 unchanged; hash differs only through the reordered `ld-library-path.drv`.
+- probe: `diff -r system home` empty except `system/packages` (one drv, ld-library-path, moved). `system-path-links` identical (no collision winner flipped).
+- nix-diff of toplevel (`phase-01/nix-diff-toplevel.txt`) traces every difference to list order: nix-ld `ld-library-path` (120 entries, same multiset, different order; `nix-diff-ld-library-path.txt`), sudoers (`nft list table inet capsule-forward` rule now after the wheel rtcwake rule; commands do not overlap), boot.json kernelParams order (`boot.shell_on_fail` / `amdgpu.gpu_recovery=1` swapped).
+- Cosmetic: alejandra collapsed config.nix's arg list to `{inputs, ...}:` (`pkgs` unused after nix.package moved); drvs re-run stable after formatting.
+- `just gate` green (tests + treefmt).
+- Friction: `nix-diff` env diffs dump huge single lines; use `cut -c1-200` and decode `__json` via `nix derivation show | jq`.

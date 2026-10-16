@@ -287,6 +287,18 @@ that machine's parts (microcode, mount options), beside the generated
 | `nixos` | `nixosConfigurations.<host>` | standalone, `homeConfigurations."david@<host>"` from `home.nix`, when `home = true` |
 | `darwin` | `darwinConfigurations.<host>` | standalone, as for `nixos`, when `home = true` |
 
+The NixOS **base** is `modules/nixos/default.nix`: an import list that every
+NixOS host imports first in its `config.nix`. It has no switch and is neither a
+feature nor a profile. Optional pieces are features; pieces bound to a
+machine's parts or a host's site live in `hosts/<host>/`.
+
+| class | where | who gets it |
+|---|---|---|
+| base | `modules/nixos/default.nix` and the modules it lists | every NixOS host, by importing it in `config.nix` |
+| feature | a record in `features/<area>.nix` | hosts that select it, directly or through a profile |
+| machine config | `hosts/<host>/machine.nix` | that host, because of its parts |
+| host config | `hosts/<host>/config.nix` and files beside it | that host, because of its site, account or tuning |
+
 Adding a host means adding a directory. The justfile selects the
 configuration by `hostname -s`; override with `just host=<other> system-build`
 (or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
