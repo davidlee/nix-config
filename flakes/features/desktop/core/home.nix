@@ -1,7 +1,7 @@
 # desktop.core's home half (ISS-008): what every graphical session here uses,
-# whichever compositor runs it. tailscale-systray needs the base's tailscale
-# daemon; swaybg is bound to graphical-session.target; systembus-notify
-# forwards system-bus notifications to the session's notification daemon.
+# whichever compositor runs it. swaybg is bound to graphical-session.target;
+# systembus-notify forwards system-bus notifications to the session's
+# notification daemon. The tailscale tray is net.tailscale's home half.
 {
   pkgs,
   username,
@@ -46,8 +46,6 @@
       defaultCursor = "phinger-cursors-light";
     };
   };
-
-  services.tailscale-systray.enable = true;
 
   systemd.user.services.swaybg = {
     Unit = {

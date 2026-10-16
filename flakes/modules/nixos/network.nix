@@ -3,8 +3,6 @@
   options,
   ...
 }: {
-  services.tailscale.enable = true;
-
   networking = {
     networkmanager.enable = true;
 
@@ -14,10 +12,7 @@
     useDHCP = false;
     dhcpcd.enable = false;
 
-    firewall = {
-      enable = true;
-      allowedTCPPorts = [22];
-    };
+    firewall.enable = true;
 
     nftables.enable = true;
   };

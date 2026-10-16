@@ -1,5 +1,5 @@
-# The NixOS base's Linux machine and admin substrate, owned by
-# environment.systemPackages.
+# The NixOS base's inspection set: tracing, hardware and disk inspection,
+# resource monitors and systemd/log tools, owned by environment.systemPackages.
 {
   pkgs,
   lib,
@@ -7,20 +7,7 @@
 }: {
   environment.systemPackages = with pkgs;
     [
-      ## sandbox/container substrate
-      bubblewrap
-      distrobox
-      distrobox-tui
-      #devcontainer
-
-      valgrind
       strace
-
-      ## network
-      iptraf-ng
-      nethogs
-      nmon
-      vnstat
 
       ## hardware & disk inspection
       hdparm
@@ -33,7 +20,6 @@
       pciutils
       smartmontools
       smem
-      sysprof
       sysstat
       usbutils
     ]
@@ -49,8 +35,5 @@
       isd
       lazyjournal
       systemctl-tui
-
-      ## privileged automation
-      ydotool
     ];
 }

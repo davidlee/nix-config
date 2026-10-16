@@ -38,7 +38,7 @@ _: {
         FallbackDNS = "76.76.2.22 2606:1a40::22";
         DNSSEC = false; # stubby is local proxy; ControlD validates upstream
         DNSOverTLS = false;
-        MulticastDNS = false; # avahi handles mDNS
+        MulticastDNS = false; # services.avahi handles mDNS
       };
     };
   };

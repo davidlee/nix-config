@@ -35,6 +35,8 @@
   };
   # printers: site-bound (IMP-017)
   feature.services = {
+    # mDNS for printer discovery; printing requires it, requires never selects (ADR-001 D4)
+    avahi.enable = true;
     printing.enable = true;
     postgresql.enable = true;
     webserver.enable = true;

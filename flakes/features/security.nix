@@ -10,6 +10,10 @@ _: [
         oath-toolkit
       ];
     };
+    nixos = {pkgs, ...}: {
+      programs._1password.enable = true;
+      environment.systemPackages = [pkgs._1password-cli];
+    };
   }
 
   {

@@ -6,6 +6,7 @@
 #   env.nix       SSH_ASKPASS_REQUIRE
 #   lib.nix       hunspell dictionaries, ffmpeg, glfw, pixman
 #   user.nix      the "input" group
+#   cli.nix       ydotool
 {
   pkgs,
   username,
@@ -176,6 +177,9 @@
       ffmpeg
       glfw
       pixman
+
+      ## privileged automation
+      ydotool
     ];
 
     variables.SSH_ASKPASS_REQUIRE = "prefer";

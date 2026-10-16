@@ -31,5 +31,26 @@ in [
           sn0int
         ];
     };
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        iptraf-ng
+        nethogs
+        nmon
+        vnstat
+      ];
+    };
+  }
+
+  # Daemon and tray travel together (DEC-042). The tray is PartOf/WantedBy
+  # graphical-session.target, so it stays inert on a headless host.
+  {
+    name = "tailscale";
+    platforms = lib.platforms.linux;
+    nixos = _: {
+      services.tailscale.enable = true;
+    };
+    homeManager = _: {
+      services.tailscale-systray.enable = true;
+    };
   }
 ]

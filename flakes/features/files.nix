@@ -57,6 +57,10 @@ in [
           udiskie
         ];
     };
+    # udiskie's backend
+    nixos = _: {
+      services.udisks2.enable = true;
+    };
   }
 
   {
@@ -111,6 +115,27 @@ in [
         ++ available pkgs [
           backintime
         ];
+    };
+  }
+
+  {
+    name = "locate";
+    nixos = {pkgs, ...}: {
+      services.locate = {
+        enable = true;
+        package = pkgs.plocate;
+        interval = "hourly";
+        prunePaths = [
+          "/tmp"
+          "/var/tmp"
+          "/var/cache"
+          "/var/lock"
+          "/var/run"
+          "/var/spool"
+          "/nix/store"
+          "/nix/var/log/nix"
+        ];
+      };
     };
   }
 ]

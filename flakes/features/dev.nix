@@ -65,6 +65,19 @@ in [
           binutils
         ];
     };
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        glib
+        libffi
+        libiconv
+        libyaml
+        openssl
+        openssl.dev
+        pkg-config
+        zlib
+        icu
+      ];
+    };
   }
 
   {
@@ -75,6 +88,12 @@ in [
         uv
         python3
         mise
+      ];
+    };
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        cargo
+        cargo-update
       ];
     };
   }
@@ -127,6 +146,13 @@ in [
           ## load test / benchmark
           hyperfine
         ];
+    };
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        valgrind
+        sysprof
+      ];
+      services.sysprof.enable = true;
     };
   }
 ]

@@ -1,7 +1,19 @@
 # Services features, in projection order. Shape: README § Feature tree.
 _: [
   {
+    name = "avahi";
+    nixos = _: {
+      services.avahi = {
+        enable = true;
+        nssmdns4 = true;
+        openFirewall = true;
+      };
+    };
+  }
+
+  {
     name = "printing";
+    requires = ["services.avahi"];
     nixos = {pkgs, ...}: {
       services.printing = {
         enable = true;
@@ -78,6 +90,28 @@ _: [
           };
         };
       };
+    };
+  }
+
+  # Port 22 lives with the daemon that listens on it (DEC-044).
+  {
+    name = "ssh";
+    nixos = _: {
+      services = {
+        fail2ban.enable = true;
+        openssh = {
+          enable = true;
+          settings = {
+            GatewayPorts = "yes";
+            PasswordAuthentication = false;
+            KbdInteractiveAuthentication = false;
+            X11Forwarding = false;
+            PermitRootLogin = "no";
+            UseDns = true;
+          };
+        };
+      };
+      networking.firewall.allowedTCPPorts = [22];
     };
   }
 

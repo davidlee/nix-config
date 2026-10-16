@@ -3,21 +3,15 @@
 # machine- and host-bound pieces live in hosts/<host>/.
 {
   imports = [
-    ./avahi.nix
     ./boot.nix
-    ./cargo.nix
     ./env.nix
     ./kernel.nix
-    ./lib.nix
-    ./locate.nix
     ./maintenance.nix
     ./network.nix
     ./nix.nix
     ./programs.nix
     ./security.nix
-    ./ssh.nix
     ./user.nix
-    ./util.nix
     ./cli.nix
   ];
 }

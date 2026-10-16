@@ -21,7 +21,6 @@
         systemd
       ];
     };
-    _1password.enable = true;
 
     rust-motd = {
       enable = true;
@@ -36,7 +35,6 @@
 
   environment = {
     systemPackages = [
-      pkgs._1password-cli
       pkgs.helix # root's editor
     ];
     pathsToLink = ["/share/zsh"];

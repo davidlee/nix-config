@@ -2,6 +2,19 @@
 _: [
   (import ./virt/capsule.nix)
 
+  # Sandbox/container substrate, without a container engine.
+  {
+    name = "sandbox";
+    nixos = {pkgs, ...}: {
+      environment.systemPackages = with pkgs; [
+        bubblewrap
+        distrobox
+        distrobox-tui
+        #devcontainer
+      ];
+    };
+  }
+
   {
     name = "qemu";
     nixos = {
