@@ -1,0 +1,210 @@
+id    = 16
+slug  = "reconciliation-review-of-sl-007"
+title = "reconciliation review of SL-007"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-007 PHASE-01–06 (0a7458d5..9fe49432) against design.md (§ Shape, base, machine/host, desktop/compositor/shell, audio/hardware/services, aarch64, behaviour changes, phases and verification, code impact), plan.toml criteria, ADR-001/002/005, POL-001 and REV-006. Evidence: the three orchestrator hand-backs, notes.md gate snapshots, plus auditor re-runs of just gate, just drvs, slice verify-vt, slice conformance (prefix-normalised), the close grep and the VA-4 removal grep.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-007"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "rtcwake sudo rule: comment should name its caller; observed caller dropped and rule reported dead"
+detail = """
+Expected (design § Machine and host config, config.nix sketch): "rtcwake sudo rule for snooze — moved verbatim".
+Observed: hosts/Sleipnir/config.nix:44 now reads "wheel may run rtcwake (scheduled wake from suspend) without a password." PHASE-02's hand-back claimed nothing in the repo calls rtcwake and that the rule may be dead.
+Evidence: ~/.local/bin/snooze:16 (tracked in the home repo) runs `sudo rtcwake -m mem -s $SEC` — the hand-run "suspend until 07:00" command. The rule is live; the comment lost the only pointer to its consumer, inviting a future wrongful removal.
+"""
+disposition = "fix-now"
+response = """
+Comment at hosts/Sleipnir/config.nix:44 now names the caller (~/.local/bin/snooze, `sudo rtcwake -m mem -s …`). Comment-only: `just drvs` identical to the phase-06 snapshot. The PHASE-02 "may be dead" claim is refuted; no backlog item.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Comment at hosts/Sleipnir/config.nix:44 now names the caller (~/.local/bin/snooze, `sudo rtcwake -m mem -s …`). Comment-only: `just drvs` identical to the phase-06 snapshot. The PHASE-02 "may be dead" claim is refuted; no backlog item.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Design §7 expects firewall ruleset to lose postgresql's duplicate ports and dev to vanish visibly; observed neither leaves a build-level trace"
+detail = """
+Expected (design § Behaviour changes, rows "postgresql's stray 80/443" and "undefined dev group"): "firewall ruleset loses the duplicates"; "extraGroups loses dev".
+Observed (PHASE-06 hand-back, notes.md): nftables.service is byte-identical before and after — NixOS already deduplicates allowedTCPPorts when rendering. The dev group never existed, so the probe (which lists only existing groups) and every drv are unchanged. Evidence is option-level only: extraGroups lacks "dev"; allowedTCPPorts = [22,80,443,27015,27036,27037,27040]; with webserver forced off 80/443 are absent (VA-2).
+The code change is right; the design's stated *effect* for these two rows is wrong. Plan VA-1's wording ("firewall duplicates gone") is immutable and is met at option level.
+"""
+disposition = "design-wrong"
+response = """
+Code is correct; design § Behaviour changes misstates the observable effect of two rows. Reconcile edits design.md §7 (Reconciliation Brief, per-slice): postgresql row → "allowedTCPPorts loses the duplicates at option level; rendered ruleset unchanged (NixOS dedups)"; dev row → "option-level only; the group never existed". Plan VA-1 stays as authored (immutable); met at option level, evidence in notes.md.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Code is correct; design § Behaviour changes misstates the observable effect of two rows. Reconcile edits design.md §7 (Reconciliation Brief, per-slice): postgresql row → "allowedTCPPorts loses the duplicates at option level; rendered ruleset unchanged (NixOS dedups)"; dev row → "option-level only; the group never existed". Plan VA-1 stays as authored (immutable); met at option level, evidence in notes.md.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "nit"
+title = "PHASE-06 EX-2 says nothing else differs; observed coverage lines and the sysctl aslr drv also changed"
+detail = """
+Expected: PHASE-06 EX-2 "the probe diff is exactly the table's rows; nothing else differs".
+Observed: all six coverage.Sleipnir+* lines and coverage.base@aarch64-linux changed; /etc sysctl.d/55-nixos-aslr-entropy.conf drv moved (content identical).
+Assessment: each is a direct consequence of a table row — the user.nix/programs.nix edits are in the base, which every coverage target evaluates; the sysctl drv takes linux-config as input (kernel row). No unlisted behaviour.
+"""
+disposition = "aligned"
+response = """
+Every extra difference is a consequence of a listed row: base edits reach every coverage target; the sysctl aslr drv takes linux-config (kernel row). Content identical. No unlisted behaviour.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Every extra difference is a consequence of a listed row: base edits reach every coverage target; the sysctl aslr drv takes linux-config (kernel row). Content identical. No unlisted behaviour.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "slice conformance should map edits to design-target selectors; observed 62 undeclared, 7 undelivered, 0 conformant"
+detail = """
+Expected: conformance reports the slice's edits against its design-target selectors (modules/nixos/**, hosts/Sleipnir/**, features/**, hosts.nix, features-test.nix, README.md, modules/shared/cli/_packages/system.nix).
+Observed: every path carries the git-root prefix `flakes/` (worktree is $HOME), so nothing matches; likewise verify-vt reports every VT UNATTRIBUTABLE though every keyword is present. This is ISS-005, already open. The mechanical conformance signal is therefore unavailable for SL-007; the auditor normalised the prefix by hand (see F-5).
+"""
+disposition = "follow-up"
+response = """
+Tooling defect owned by existing ISS-005 (source-delta paths git-root-relative vs ~/flakes-relative selectors). Not slice governance. Conformance and verify-vt were read by hand with the prefix normalised for this audit (F-5); no new backlog item needed.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Tooling defect owned by existing ISS-005 (source-delta paths git-root-relative vs ~/flakes-relative selectors). Not slice governance. Conformance and verify-vt were read by hand with the prefix normalised for this audit (F-5); no new backlog item needed.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "Edits should fall within design-target selectors; observed SATAN.md and sleipnir-doctor.nix touched undeclared"
+detail = """
+Expected: every edited path under a design-target selector (design § Code impact).
+Observed, after stripping the flakes/ prefix: SATAN.md:78 (postgres pointer → features/services.nix, PHASE-04) and modules/home/linux/sleipnir-doctor.nix:1-2 (comment → features/compositor/sway.nix, PHASE-03). Both are pointer updates forced by moved files, required for the design's close grep to stay clean. The remaining undeclared paths are .doctrine/ artefacts the lifecycle itself writes (ADR-002, REV-006, notes, memory) — expected.
+Not scope creep; the selector registry and design § Code impact simply omit them.
+"""
+disposition = "design-wrong"
+response = """
+Not scope creep: pointer updates forced by moved files, needed for the close grep. Reconcile adds the two paths to the selector registry (`doctrine slice selector add SL-007 SATAN.md modules/home/linux/sleipnir-doctor.nix` as design-target) and mirrors them in design.md § Code impact. See Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Not scope creep: pointer updates forced by moved files, needed for the close grep. Reconcile adds the two paths to the selector registry (`doctrine slice selector add SL-007 SATAN.md modules/home/linux/sleipnir-doctor.nix` as design-target) and mirrors them in design.md § Code impact. See Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Design § Code impact governance-at-close writes should land with the slice; observed RFC-001, DEC-016, DEC-024, IMP-004 still stale"
+detail = """
+Expected (design § Code impact, "Governance at close"): RFC-001 W4 row done, W5 told to follow the base pattern (DEC-027); IMP-004 closed; DEC-016's stale `features` specialArg corrected; DEC-024's consequences refreshed.
+Observed: RFC-001 W4 row still "(next)"; IMP-004 open; DEC-016 choice still lists specialArgs = {inputs username hostname features}; DEC-024 consequences still say a host importing workstation "gets fonts and dictate only" — it now also gets desktop.core and audio.pipewire, NixOS-only records, so the profile is Linux-only (design § Shape).
+"""
+disposition = "design-wrong"
+response = """
+Governance trails delivered truth. Reconcile via REV: RFC-001 W4 row done + W5 note (follow the base pattern, DEC-027); DEC-016 choice drops `features` from specialArgs; DEC-024 consequences refreshed (workstation also brings desktop.core and audio.pipewire, NixOS-only, so the profile is Linux-only). IMP-004 closed at /close. See Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Governance trails delivered truth. Reconcile via REV: RFC-001 W4 row done + W5 note (follow the base pattern, DEC-027); DEC-016 choice drops `features` from specialArgs; DEC-024 consequences refreshed (workstation also brings desktop.core and audio.pipewire, NixOS-only, so the profile is Linux-only). IMP-004 closed at /close. See Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

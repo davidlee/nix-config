@@ -41,7 +41,8 @@
     precedence ::ffff:0:0/96  100
   '';
 
-  # wheel may run rtcwake (scheduled wake from suspend) without a password.
+  # wheel may run rtcwake without a password: ~/.local/bin/snooze suspends
+  # until a set wake time with `sudo rtcwake -m mem -s …`.
   # ORDER IS SIGNIFICANT: sudoers is last-match-wins
   security.sudo.extraRules = [
     {

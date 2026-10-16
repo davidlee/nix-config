@@ -1,7 +1,7 @@
 id = 7
 slug = "nixos-base-host-split"
 title = "NixOS base / host split"
-status = "started"
+status = "reconcile"
 created = "2026-10-15"
 updated = "2026-10-16"
 tags = []

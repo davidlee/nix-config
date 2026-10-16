@@ -50,32 +50,36 @@ contested (drvs-sets counts duplicates). Concluded; all verified.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · design locked (run rev 40); plan PHASE-01..06, slice ready · d3d90c6b
+fresh-as-of: 2026-10-16 · PHASE-01..06 committed (0a7458d5..9fe49432); audit RV-016 done · awaiting /reconcile
 
 ### Produced
-- DEC-026 (taxonomy; amended: greeter has no requires, host defaultSession), DEC-027 (NixOS base), DEC-028 (placement), DEC-029 (ControlD DNS → hosts/Sleipnir/dns.nix, POL-001)
-- design.md (sec-1..9); RV-015 (two passes: F-1..F-5, F-6..F-15)
-- REV-006 (ADR-002 D3: big record may import its own modules; SL-007 related)
-- plan.toml / plan.md (PHASE-01..06); ASM-001 (aarch64 eval suffices for W4)
-- IMP-016 note: candidate `gui` area (user)
-- SL-007 governed_by POL-001; references IMP-002
-- RFC-001 updated (W3 done, W4 next); IMP-022 (oom per host), CHR-014 (i2c)
-- research/research.md (gitignored)
+- DEC-026, DEC-027, DEC-028, DEC-029; design.md (sec-1..9); RV-015
+- REV-006 approved (user, e45ee531) and applied: ADR-002 D3 + README own-file rule (ae61a072)
+- plan.toml / plan.md (PHASE-01..06); ASM-001
+- code: base `modules/nixos/default.nix`; `hosts/Sleipnir/{machine,dns,oom,config}.nix`;
+  features `desktop.{core,greeter}`, `compositor.*`, `shell.noctalia`, `audio.pipewire`,
+  `hardware.{bluetooth,qmk,tablet,logitech}`, `services.postgresql`; `coverage."base@aarch64-linux"`
+- memory `mem.fact.nix.kernel-rust-by-default` (9fe49432)
+- RV-016 (audit, 6 findings: F-1 fixed in audit; F-2, F-5, F-6 → reconciliation brief)
+- observations (friction) from the capsule run: gate-probe blind spots, /etc registry.json
+  false positive, planner turn cap, stale controls/run.sh restore()
 
 ### Learned
-- nixpkgs enables kernel Rust by default ≥ 6.12 on x86_64/aarch64 (`rustByDefault`,
-  kernel/common-config.nix); a `features.rust` kernelPatch only forces a custom
-  (uncached) kernel build. Candidate memory after P6 verifies it.
-- `services.displayManager.defaultSession` is asserted against installed session
-  names (nixpkgs display-managers/default.nix:196); noctalia-greeter does not read it.
-  Any negative control that deselects the named compositor must null it.
-- nixpkgs cosmic.nix enables bluetooth, avahi (mkDefault) and rtkit, so those
-  feature switches leak while cosmic is selected.
-- `drvs-sets` counts list entries including duplicates (justfile `_drvs`).
+- Probe blind spots: changes NixOS deduplicates (allowedTCPPorts) and nonexistent groups
+  leave no build trace; evidence is option-level (RV-016 F-2).
+- `/etc` comparisons must exclude `nix/registry.json` (flake source path changes every edit).
+- Moving `nix-ld.libraries` entries always changes the `ld-library-path` drv (order-only).
+- With cosmic selected, rtkit/bluetooth negative controls are masked (design sec-5).
+- Negative-control host overrides: wrap the host attrset in `imports = [ … ]`.
+- `rtcwake` sudo rule is live: `~/.local/bin/snooze` (RV-016 F-1).
+- slice conformance / verify-vt are blind here until ISS-005 (`flakes/` prefix).
 
 ### Open
-- Next: /phase-plan PHASE-01 (baseline capture first)
-- IMP-004 (prune, P6), IMP-017, IMP-002, IMP-003, ISS-008, QUE-001, QUE-004
+- Next: /reconcile per RV-016 Reconciliation Brief (design §7, selectors, RFC-001, DEC-016, DEC-024), then /close (IMP-004 → done)
+- Follow-ons: IMP-022 (oom per host), IMP-002 (dns.nix private hostname), CHR-014 (i2c),
+  ISS-005, IMP-017, IMP-003, ISS-008, QUE-001, QUE-004; candidate cleanup: split
+  `features/desktop/core/gui.nix` by concern
+- Untracked doctrine files on disk outside this slice (backlog slug symlinks, POL-001 symlink, observations)
 
 ## Gate snapshots
 
