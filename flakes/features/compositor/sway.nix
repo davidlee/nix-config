@@ -1,6 +1,7 @@
-# The sway compositor, system and user halves; listed in ../desktop.nix.
+# The sway compositor, system and user halves; listed in ../compositor.nix.
 {
   name = "sway";
+  requires = ["desktop.core"];
   nixos = {pkgs, ...}: {
     programs = {
       sway = {

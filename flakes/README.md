@@ -188,7 +188,7 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ai audio services apps desktop ]
+  default.nix         [ hardware session virt non-nix-packages games ai audio services apps desktop compositor shell ]
   hardware.nix        [ openrgb ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -201,8 +201,12 @@ features/
   audio/              dictate  dictate-test           assets, beside their feature
   services.nix        [ printing webserver sunshine ] sunshine: coverage target
   apps.nix            [ cad ]
-  desktop.nix         [ (import ./desktop/sway.nix) niri cosmic kde mango (import ./desktop/fonts.nix) ]
-  desktop/            sway.nix  fonts.nix             features big enough for their own file
+  desktop.nix         [ (import ./desktop/core.nix) greeter (import ./desktop/fonts.nix) ]
+  desktop/            core.nix  fonts.nix             features big enough for their own file
+  desktop/core/       wayland.nix  xdg.nix  gui.nix … modules the core record imports
+  compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ]   each requires desktop.core
+  compositor/         sway.nix
+  shell.nix           [ noctalia ]
   profiles/           workstation.nix
 ```
 
@@ -210,7 +214,10 @@ features/
   dominate its area file (about 100 lines is a prompt to reconsider, not a
   rule). The file holds the whole record, every half; never split a feature
   by platform. Moving one between files touches no host or profile, though
-  relative paths inside it may change.
+  relative paths inside it may change. A record too big for one file may
+  import modules of its own from `features/<area>/<name>/`, listed
+  explicitly in the half that uses them (no discovery); they belong to that
+  record and to no other (`desktop.core`).
 - **Assets** (scripts, tests, data) sit near their feature. Add no directory
   that does not help navigation.
 - **Errors** name both places: `features/session.nix:20 (session.snooze#nixos)`.

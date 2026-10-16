@@ -1,15 +1,6 @@
 {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
-    # dictionaries
-    hunspellDicts.en_AU
-    hunspellDicts.en_AU-large
-    hunspellDicts.en_GB-large
-    hunspellDicts.en_US
-    hunspellDicts.en_US-large
-
     ### libs
-    ffmpeg
-    glfw
     glib
     libffi
     libiconv
@@ -19,7 +10,6 @@
     pkg-config
     # raylib
     zlib
-    pixman
     icu
     # SDL
     # SDL2

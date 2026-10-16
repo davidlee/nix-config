@@ -1,7 +1,7 @@
 {pkgs, ...}: {
   security = {
-    polkit.enable = true;
     pam.services = {
+      greetd.enableGnomeKeyring = true;
       greedt = {
         enableGnomeKeyring = true;
       };

@@ -309,21 +309,25 @@ in
         "audio.mpd#nixos"
         "services.printing#nixos"
         "services.webserver#nixos"
-        "desktop.cosmic#nixos"
-        "desktop.kde#nixos"
-        "desktop.mango#nixos"
+        "compositor.cosmic#nixos"
+        "compositor.kde#nixos"
+        "compositor.mango#nixos"
         "desktop.fonts#nixos" # through the workstation profile
+        "desktop.core#nixos" # through the workstation profile
+        "desktop.greeter#nixos"
+        "compositor.umbriel#nixos"
+        "shell.noctalia#nixos"
       ];
       bothHalves = [
-        "desktop.sway#nixos"
-        "desktop.niri#nixos"
+        "compositor.sway#nixos"
+        "compositor.niri#nixos"
       ];
       homeOnly = [
         "games.mangohud#homeManager"
         "audio.dictate#homeManager" # through the workstation profile
         "apps.cad#homeManager"
-        "desktop.sway#homeManager"
-        "desktop.niri#homeManager"
+        "compositor.sway#homeManager"
+        "compositor.niri#homeManager"
       ];
     in {
       expr = sleipnirSelects (nixosOnly ++ bothHalves ++ homeOnly);
@@ -341,6 +345,16 @@ in
           tree = real;
           modules = map on sel;
         }) [["games.gamescope"] ["games.gamescope" "games.steam"]];
+      expected = [false true];
+    };
+
+    # Compositors run on the shared stack; no host file.
+    testCompositorRequiresCore = {
+      expr = map (sel:
+        resolves {
+          tree = real;
+          modules = map on sel;
+        }) [["compositor.sway"] ["compositor.sway" "desktop.core"]];
       expected = [false true];
     };
 

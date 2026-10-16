@@ -27,6 +27,5 @@
         value = 1;
       }
     ];
-    pam.services.greetd.enableGnomeKeyring = true;
   };
 }

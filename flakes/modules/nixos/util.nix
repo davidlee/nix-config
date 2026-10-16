@@ -1,12 +1,5 @@
 _: {
-  programs = {
-    dconf.enable = true;
-    gnome-disks.enable = true;
-  };
-
   services = {
-    devmon.enable = true;
-    gvfs.enable = true;
     udisks2.enable = true;
     sysprof.enable = true;
   };

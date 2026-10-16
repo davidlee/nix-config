@@ -10,7 +10,8 @@
   # that has a section of its own.
   #
   # We own `common`, `kde` and `sway` below. `niri` and `mango` define their
-  # sections in their upstream flake modules and `umbriel` in ./umbriel.nix;
+  # sections in their upstream flake modules and `umbriel` in the upstream
+  # module the `compositor.umbriel` record imports (../../compositor.nix);
   # mkMerge adds the key to those without disturbing what they set.
   desktops = ["common" "kde" "niri" "sway" "mango" "umbriel"];
 

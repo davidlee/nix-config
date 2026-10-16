@@ -25,12 +25,16 @@
   };
   feature.apps.cad.enable = true; # not in a profile until IMP-016
 
+  feature.desktop.greeter.enable = true; # the login screen; default session in config.nix
+  feature.shell.noctalia.enable = true;
+
   # Taste, toggled often (DEC-024): every compositor installed.
-  feature.desktop = {
+  feature.compositor = {
     sway.enable = true;
     niri.enable = true;
     cosmic.enable = true;
     kde.enable = true;
     mango.enable = true;
+    umbriel.enable = true;
   };
 }

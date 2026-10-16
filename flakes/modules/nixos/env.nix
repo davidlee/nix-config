@@ -2,7 +2,6 @@ _: {
   environment = {
     variables = {
       NIXOS = "true";
-      SSH_ASKPASS_REQUIRE = "prefer";
     };
 
     # pam_env sets these at login, before the compositor starts, so GUI apps

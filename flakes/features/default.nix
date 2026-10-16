@@ -43,4 +43,12 @@
     name = "desktop";
     value = import ./desktop.nix;
   }
+  {
+    name = "compositor";
+    value = import ./compositor.nix;
+  }
+  {
+    name = "shell";
+    value = import ./shell.nix;
+  }
 ]
