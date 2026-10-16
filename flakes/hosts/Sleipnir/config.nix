@@ -7,8 +7,7 @@
   system.stateVersion = "24.11"; # the release this host was first installed with
   services.displayManager.defaultSession = "niri"; # preselected at the greeter
 
-  # Sleipnir-only package fixes. mkNixos (../../hosts.nix) appends the agents
-  # overlay after these with mkAfter; without it, it would apply first.
+  # Sleipnir-only package fixes.
   nixpkgs.overlays = with inputs.self.overlays; [
     llama-prism
     whisper-rocm

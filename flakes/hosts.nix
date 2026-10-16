@@ -79,8 +79,6 @@
   # Injected into system evaluations.
   platformModule = meta: {
     nixpkgs.hostPlatform = meta.system;
-    # mkAfter: host config.nix overlays (package fixes) apply first.
-    nixpkgs.overlays = lib.mkAfter [(agentsOverlay meta.system)];
     imports = [(stableModule meta.system)];
   };
 
@@ -103,7 +101,6 @@
     nixpkgs.overlays = [
       inputs.lem.overlays.default
       inputs.claude-desktop.overlays.default
-      (agentsOverlay system)
       inputs.llm-agents.overlays.shared-nixpkgs
     ];
     imports = [(stableModule system)];

@@ -129,3 +129,14 @@ identical. `just gate` and `just coverage` green.
   emacs-overlay (ISS-010). Lock restored from HEAD before commit; gate re-run
   green on it. drvs were unaffected: the after snapshot equals base, which was
   taken on the pristine lock.
+
+## PHASE-03
+
+Agents overlay removed from system and home pkgs; kept on `legacyPackages` (DEC-040).
+
+- Edits: `hosts.nix` (dropped `nixpkgs.overlays = lib.mkAfter [...]` and its comment in `platformModule`; dropped `(agentsOverlay system)` from `homeModule`), `hosts/Sleipnir/config.nix` (comment reworded; no mkAfter append exists). `homeModule` comment ("keeps the order") still true; left.
+- Snapshots: `~/.cache/sl009/p3/{before,after}`.
+- Checkouts identical before/after (oubliette 63cc360b, goad 250b8ed9, panopticon a6648a46, satan-patcher 4efa2054, satan-attrd c8fd7eb5; all clean).
+- `drvs`, `drvs-sets`, `checkouts`: no diff (EX-3, VA-2 met). No attribution needed.
+- VA-1: `agentsOverlay` appears only at its definition (:36) and `legacyPackages` (:203); no `mkAfter` in hosts.nix.
+- `just gate`: rc=0, treefmt 0 changed (alejandra/statix/deadnix clean). Only nix-level environmental warnings (dirty tree, oubliette overrides for goad-walk/target, lock not written); none from the edits. `flake.lock` clean.
