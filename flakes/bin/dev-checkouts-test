@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Behaviour tests for dev-checkouts. Each case builds a throwaway checkout root
 # (FLAKES_DEV) holding some of the listed inputs, then asserts what each verb
-# prints. No network: "ahead" clones a local bare repository.
+# prints. The fleet is the one input outside that root (FLAKES_FLEET), so every
+# case aims it into the throwaway tree too: this host's /srv/fleet must not
+# reach a case. No network: "ahead" clones a local bare repository.
 #
 #   ./dev-checkouts-test
 
@@ -14,6 +16,7 @@ stub=path:$repo/features/stub
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
+export FLAKES_FLEET=$work/fleet
 
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
@@ -60,17 +63,27 @@ check 'override: present checkouts, in list order, as git+file' \
   "--override-input goad git+file://$some/goad --override-input panopticon git+file://$some/panopticon" "$out"
 
 # a directory without .git is not a checkout
-mkdir -p "$some/oubliette"
+mkdir -p "$some/satan-attrd"
 dc "$some" override
 check 'override: a directory without .git is not present' \
   "--override-input goad git+file://$some/goad --override-input panopticon git+file://$some/panopticon" "$out"
 
 dc "$none" stub
 check 'stub: every listed input, present or not' \
-  "--override-input oubliette $stub --override-input goad $stub --override-input panopticon $stub --override-input satan-patcher $stub --override-input satan-attrd $stub" "$out"
+  "--override-input fleet $stub --override-input goad $stub --override-input panopticon $stub --override-input satan-patcher $stub --override-input satan-attrd $stub" "$out"
 
 dc "$none" names
-check 'names: the list, space-separated' 'oubliette goad panopticon satan-patcher satan-attrd' "$out"
+check 'names: the list, space-separated' 'fleet goad panopticon satan-patcher satan-attrd' "$out"
+
+# the fleet's checkout is FLAKES_FLEET, not <root>/fleet, and keeps list order
+git init -q "$FLAKES_FLEET"
+dc "$some" override
+check 'override: the fleet from its own path, first' \
+  "--override-input fleet git+file://$FLAKES_FLEET --override-input goad git+file://$some/goad --override-input panopticon git+file://$some/panopticon" "$out"
+git init -q "$none/fleet"
+dc "$none" override
+check 'override: <root>/fleet is not the fleet' "--override-input fleet git+file://$FLAKES_FLEET" "$out"
+rm -rf "$FLAKES_FLEET" "$none/fleet"
 
 # The overrides travel as one space-separated string, so a root with a space
 # would split into wrong flags. Refused, naming the root.
@@ -79,6 +92,9 @@ dc "$spaced" override
 check 'whitespace root: refused' 1 "$rc"
 check 'whitespace root: names it' 1 "$(grep -c "$spaced" <<<"$err" || true)"
 check 'whitespace root: prints no flags' '' "$out"
+out=$(FLAKES_DEV=$none FLAKES_FLEET="$work/has space/fleet" "$script" override 2>"$work/err") && rc=0 || rc=$?
+check 'whitespace fleet: refused' 1 "$rc"
+check 'whitespace fleet: names it' 1 "$(grep -c "has space/fleet" "$work/err" || true)"
 
 # ahead: one warning per present checkout ahead of its upstream, on stderr
 ahead=$(root ahead)
@@ -103,9 +119,9 @@ check 'ahead: no upstream is not an error' 0 "$rc"
 
 # a git worktree (its .git is a file) is a checkout
 tree=$(root tree)
-git -C "$ahead/goad" worktree add -q "$tree/oubliette" 2>/dev/null
+git -C "$ahead/goad" worktree add -q "$tree/panopticon" 2>/dev/null
 dc "$tree" override
-check 'override: a worktree checkout is present' "--override-input oubliette git+file://$tree/oubliette" "$out"
+check 'override: a worktree checkout is present' "--override-input panopticon git+file://$tree/panopticon" "$out"
 
 dc "$none" bogus
 check 'unknown verb: refused' 1 "$rc"

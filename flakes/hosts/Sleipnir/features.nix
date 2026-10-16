@@ -7,8 +7,8 @@
     ../../features/profiles/personal-linux.nix
   ];
 
-  # A property of this host, not a profile: capsule needs KVM and the local
-  # oubliette checkout.
+  # A property of this host, not a profile: capsule needs KVM and the fleet
+  # checkout at /srv/fleet.
   feature.virt.capsule.enable = true;
   # Also a host property: qemu needs KVM (DEC-021).
   feature.virt.qemu.enable = true;

@@ -108,30 +108,25 @@
 
     # The capsule's host-side perimeter as systemd units under dedicated uids
     # (nixosModules.capsule-perimeter, wired in features/virt/capsule.nix, which
-    # also takes microvm.nix's host module through this input rather than locking
-    # a second copy). The VM itself is still built from the local checkout by
-    # `vm capsule` or created imperatively with `microvm -c`; this input carries
-    # the host half only. Was github:davidlee/microvm-spike.
+    # also takes microvm.nix's host module through oubliette rather than locking
+    # a second copy). The fleet is this host's declaration of its capsules — a
+    # private consumer of oubliette's mkFleet at /srv/fleet (oubliette SL-004);
+    # oubliette itself declares no target and arrives as the fleet's input. The
+    # VMs are created imperatively with `microvm -c <slot> -f /srv/fleet`; this
+    # input carries the host half only. Was github:davidlee/oubliette, and
+    # before that github:davidlee/microvm-spike.
     #
-    # `target.follows` is a fetchability shim, not a version choice.
-    # `target` is the repo oubliette confines (doctrine); following nixpkgs
-    # keeps a second copy of it out of the lock.
-    # Nothing here reads it: it feeds oubliette's
-    # nixosConfigurations.capsule (the guest's tool set), which this flake never
-    # evaluates. Importing microvm.nix's *host* module does not change that;
-    # declaring a `microvm.vms.<name>` would, which is why the VMs stay
-    # imperative (oubliette NOTES item 11).
+    # No `follows` shim on the fleet's targets (doctrine, goad-walk): the
+    # perimeter module evaluates each target's guest image, which reads the
+    # target flake's `packages`, so a target that follows nixpkgs fails eval
+    # (`attribute 'packages' missing`). Their revs are the fleet's lock.
     #
     # A dependency's nixConfig is ignored, so oubliette's
     # microvm.cachix.org substituter does not apply here. Only matters if this
     # config ever builds the VM.
-    oubliette = {
-      url = "github:davidlee/oubliette";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        target.follows = "nixpkgs";
-        goad-walk.follows = "nixpkgs";
-      };
+    fleet = {
+      url = "git+ssh://git@github.com/davidlee/oubliette-fleet";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     noctalia = {

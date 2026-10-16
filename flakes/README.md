@@ -141,14 +141,17 @@ sources instead, so an edit lands without a push and a re-lock:
 
 ```
 tree_override   agents/, emacs/                       in this repo, always present
-dev_override    oubliette goad panopticon satan-*     ~/dev/<input>, where checked out
+dev_override    fleet goad panopticon satan-*         ~/dev/<input>, where checked out
+                fleet: $FLAKES_FLEET (default /srv/fleet)
 ```
 
 `bin/dev-checkouts` holds the list, and is the only place it is written.
 A checkout is present when `$FLAKES_DEV/<input>/.git` exists (default
 `~/dev`), so a machine without one, such as the Mac, uses the lock and needs
-nothing. Overrides are `git+file`: only tracked files reach the store, as
-GitHub would give them.
+nothing. `fleet`, this host's private capsule declarations (a consumer of
+oubliette's `mkFleet`), is the one exception: it lives at `$FLAKES_FLEET`.
+Overrides are `git+file`: only tracked files reach the store, as GitHub
+would give them.
 
 Lock-writing recipes never override. To move the lock to your local work,
 push, then `just update-local`, which warns about any checkout ahead of its

@@ -1,6 +1,5 @@
-# The host side of oubliette's agent capsule — the repo is still checked out at
-# ~/dev/microvm-spike, which is what the module's `repo` and `allowlist` defaults
-# spell, so the directory outlives the rename. The allowlist egress
+# The host side of oubliette's agent capsule, as declared by this host's fleet
+# (/srv/fleet, a private consumer of oubliette's mkFleet). The allowlist egress
 # proxy, as a unit under its own system uid instead of as a child of
 # `capsule-host` running as me. tinyproxy parses guest-authored HTTP, which does
 # not belong on an account holding ~/.ssh, ~/.claude and every repo on the
@@ -41,17 +40,19 @@
     imports = [
       # microvm.nix's host half: the `microvm@` and `microvm-tap-interfaces@`
       # templates the perimeter module hangs its per-capsule drop-ins off, plus
-      # /var/lib/microvms. Taken through oubliette rather than as an input of
-      # its own so there is one locked microvm.nix on this machine, and because its
-      # `nixpkgs` already follows this flake's.
+      # /var/lib/microvms. Taken through the fleet's oubliette rather than as an
+      # input of its own so there is one locked microvm.nix on this machine, and
+      # because its `nixpkgs` already follows this flake's.
       #
-      # `microvm.vms.<name>` stays unused on purpose: declaring a VM here would
-      # make this config evaluate the guest closure, which is the thing
-      # `target.follows` exists to prevent. The VM is created imperatively
-      # (`microvm -c capsule -f …#capsule`) and started by hand — nothing
-      # autostarts, since a capsule at boot is a capsule nobody asked for.
-      inputs.oubliette.inputs.microvm.nixosModules.host
-      inputs.oubliette.nixosModules.capsule-perimeter
+      # `microvm.vms.<name>` stays unused on purpose: install-microvm-<name>
+      # would re-point a slot's `current` on every rebuild (oubliette NOTES item
+      # 49, refused by the module). The perimeter module does evaluate each
+      # target's guest image, so the fleet's targets are real inputs, not
+      # shims (flake.nix). VMs are created imperatively (`just up <slot>` in
+      # /srv/fleet) and started by hand — nothing autostarts, since a capsule at
+      # boot is a capsule nobody asked for.
+      inputs.fleet.inputs.oubliette.inputs.microvm.nixosModules.host
+      inputs.fleet.nixosModules.capsule-perimeter
     ];
 
     microvm.host.enable = true;
@@ -108,7 +109,7 @@
       };
     };
 
-    # Read-only, and it is what lets ~/dev/microvm-spike's capsule-host
+    # Read-only, and it is what lets the devshell's capsule-host
     # verify that the FORWARD drop on the tap (above) is actually
     # loaded, rather than trusting that the host config still says so.
     # Without this the check degrades to "unverifiable", which is
