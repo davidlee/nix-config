@@ -1,0 +1,111 @@
+id = 9
+slug = "vm-enablers-agents"
+title = "VM enablers and agents onto the tree (RFC-001 W6 + W2)"
+status = "design"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "justfile"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts/*/meta.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts/Sleipnir/home.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "overlays/agents.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/nixos/nix.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/home/linux/eca.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "modules/home/linux/chatgpt.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features-test.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flake.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "flake.lock"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "README.md"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "bin/gate-probe"
+intent = "scope-relevant"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-001"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-003"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-004"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "IDE-002"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "ISS-006"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "RFC-001"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.
