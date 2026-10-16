@@ -102,9 +102,9 @@ coverage_pick := 'c: if c ? activationPackage then c.activationPackage.drvPath e
 #
 # Two inputs vary with the repo rather than the config, so they are pinned
 # here, or every edit/commit would read as a change:
-# - nixos: the `agents` registry points at this flake's source (nix.nix), so
-#   any file under flakes/ changes the system drv. Pinned only where the entry
-#   exists, so the gate never invents it.
+# - nixos: the `agents` registry (agents.registry) points at this flake's
+#   source, so any file under flakes/ changes the system drv. Pinned only
+#   where the entry exists, so the gate never invents it.
 # - darwin: configurationRevision embeds the git rev (`-dirty` included).
 drvs: check-flake-root
   @just _drvs nixosConfigurations '{{nixos_pick}}' "{{local_override}}"
