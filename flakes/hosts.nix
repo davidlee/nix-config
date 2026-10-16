@@ -1,7 +1,6 @@
 # Host factories. Every directory under ./hosts with a meta.nix is a host;
-# meta.nix is plain data:
-#
-#   { kind = "nixos" | "darwin"; system = "x86_64-linux"; home = true; }
+# meta.nix is plain data, validated by ./host-meta.nix before anything else
+# is resolved, so a bad one fails every evaluation, naming the file.
 #
 # `home` adds a standalone home-manager config,
 # homeConfigurations."<username>@<hostname>", from hosts/<host>/home.nix, on
@@ -37,15 +36,20 @@
   agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
   linuxSystems = lib.filter (lib.hasSuffix "-linux") config.systems;
 
-  hosts = lib.mapAttrs (name: _: import ./hosts/${name}/meta.nix) (
-    lib.filterAttrs (name: type: type == "directory" && builtins.pathExists ./hosts/${name}/meta.nix)
-    (builtins.readDir ./hosts)
-  );
+  validate = import ./host-meta.nix lib;
+  # deepSeq: reading any host validates them all.
+  hosts = let
+    metas = lib.mapAttrs (name: _: validate "hosts/${name}/meta.nix" (import ./hosts/${name}/meta.nix)) (
+      lib.filterAttrs (name: type: type == "directory" && builtins.pathExists ./hosts/${name}/meta.nix)
+      (builtins.readDir ./hosts)
+    );
+  in
+    builtins.deepSeq metas metas;
   hostsOf = kind: lib.filterAttrs (_: meta: meta.kind == kind) hosts;
 
   # The evaluations a host has, i.e. the classes a feature may land in:
   # its kind (which names its system class), plus homeManager with a home.
-  classesOf = meta: [meta.kind] ++ lib.optional (meta.home or false) "homeManager";
+  classesOf = meta: [meta.kind] ++ lib.optional meta.home "homeManager";
 
   # extra: outer modules beyond the host's own features.nix.
   select = hostname: meta: extra: let
@@ -138,7 +142,7 @@
 
   homes =
     lib.mapAttrs' (hostname: lib.nameValuePair "${username}@${hostname}")
-    (configure mkHome (lib.filterAttrs (_: meta: meta.home or false) hosts));
+    (configure mkHome (lib.filterAttrs (_: meta: meta.home) hosts));
 
   darwinConfigurations = configure mkDarwin (hostsOf "darwin");
 
@@ -165,7 +169,7 @@
         ];
       }).system.drvPath;
     expect = what: ok: ok || throw "checks.factories: ${what}";
-    classes = map classesOf [
+    classes = map (meta: classesOf (validate "checks.factories" ({system = "x86_64-linux";} // meta))) [
       {kind = "nixos";}
       {
         kind = "nixos";

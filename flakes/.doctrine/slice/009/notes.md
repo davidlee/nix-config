@@ -97,3 +97,31 @@ their origin rev the whole time.
   work is pushed and re-locked, `flake.nix`'s two follows lines go.
 - justfile committed from a filtered copy: the user's `push-local` recipe
   stays unstaged.
+
+## PHASE-02 — validate meta.nix (2026-10-17)
+
+Snapshots: `~/.cache/sl009/p2/{base,after}` (drvs, drvs-sets, checkouts).
+Checkouts unchanged between them (oubliette 9654a71 with `host/services.nix`
+modified; the other four clean at their locked revs). drvs and drvs-sets
+identical. `just gate` and `just coverage` green.
+
+- **Validation is strict on purpose.** Module option values are lazy, so
+  `addErrorContext` around the evalModules result alone does not name the file
+  for a missing `system`: the throw happens later, when the field is forced,
+  outside the context. `host-meta.nix` `deepSeq`s the config inside the
+  context. Checked by eye: unknown key, wrong type and missing option all
+  name the file.
+- VA-1: `kind = "nixso"` in `hosts/Draupnir/meta.nix` (temporary edit,
+  reverted) fails `nix eval .#homeConfigurations` with
+  "- In `hosts/Draupnir/meta.nix': "nixso"", and fails
+  `nixosConfigurations.Sleipnir` too (the `hosts` deepSeq).
+- Tests mutation-checked: replacing the enum with `str` and bool with
+  `anything` reds testMetaUnknownKindFails and testMetaHomeTypeFails.
+- `checks.factories`' `classesOf` fixtures go through the validator (they
+  lacked `home`, which `classesOf` now reads directly).
+- justfile gains one line (`checks.host-meta` in `test`), as EX-1 requires;
+  committed from a filtered copy so `push-local` stays unstaged.
+- Slip: `nix fmt -- <files>` (no `--no-write-lock-file`) re-locked
+  emacs-overlay (ISS-010). Lock restored from HEAD before commit; gate re-run
+  green on it. drvs were unaffected: the after snapshot equals base, which was
+  taken on the pristine lock.

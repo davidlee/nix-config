@@ -53,6 +53,7 @@ test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
   nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
   bin/dev-checkouts-test
   features/session/snooze-nag-test
   features/audio/dictate-test

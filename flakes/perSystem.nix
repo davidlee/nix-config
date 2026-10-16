@@ -20,4 +20,12 @@
     if failures == []
     then pkgs.runCommand "features-test" {} "touch $out"
     else throw "features-test.nix failed:\n${lib.generators.toPretty {} failures}";
+
+  # hosts/<h>/meta.nix schema tests (host-meta.nix), shaped like checks.features.
+  checks.host-meta = let
+    failures = import ./host-meta-test.nix lib;
+  in
+    if failures == []
+    then pkgs.runCommand "host-meta-test" {} "touch $out"
+    else throw "host-meta-test.nix failed:\n${lib.generators.toPretty {} failures}";
 }
