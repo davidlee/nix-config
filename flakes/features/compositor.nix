@@ -1,6 +1,6 @@
 # Compositors, in projection order (DEC-026). Shape: README § Feature tree.
 # Each runs on the shared Wayland stack, so each requires desktop.core.
-[
+_: [
   (import ./compositor/sway.nix)
 
   # The home half's tailscale-systray and swaybg wallpaper also serve umbriel (ISS-008).

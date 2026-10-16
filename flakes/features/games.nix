@@ -1,5 +1,5 @@
 # Games features, in projection order. Shape: README § Feature tree.
-[
+_: [
   {
     name = "steam";
     nixos = {pkgs, ...}: {

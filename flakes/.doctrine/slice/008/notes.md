@@ -133,3 +133,46 @@ fresh-as-of: slice ready (design locked rev 38, plan committed, PHASE-01 not sta
 - **Uncommitted**: nothing of SL-008's (b120346a, 8e8b9807).
 - **Other untracked items, not SL-008's**: IDE-003..005, IMP-020/021 and
   ISS-009. Leave them alone.
+
+## PHASE-01
+
+### EN-3 governance (2026-10-16, raised, not approved or applied)
+
+- REV-007 (`doctrine show REV-007`): ADR-002 D1/D4 (`platforms` key, read and
+  shape-checked by the resolver) and D5 (DEC-035 wording: reorders proved
+  harmless by the gate). Also notes D2's "written `{ name; value; }` pairs"
+  wording, which the `{lib}: map area [names]` tree outdates.
+- REV-008 (`doctrine show REV-008`): ADR-005 D6 extended (a selected feature
+  whose `platforms` omit the host's system is an error). The "no support
+  metadata until needed" clause the design calls Neutral is D6's last clause
+  in the accepted ADR; the D6 rewrite replaces it with a pointer to DEC-030.
+- Both stay `proposed`, `approval=none`. Approval (a user act) and apply
+  happen at `/reconcile`, as REV-006 for SL-007.
+- **For reconcile:** DEC-006's signature gains `system`:
+  `lib: { tree, classes, system, modules } -> { modules }` (its body text also
+  still describes the long-gone `flags` result). Edit at reconcile, with the
+  README § Features paragraph on `platforms` and the darwin/QUE-001 note.
+
+### Gate snapshots
+
+`~/.cache/multihost-gate/sl008/` — baseline/ (EN-2) and phase-01/ (EX-6;
+PHASE-02's baseline). Worker fills in counts and verdict below.
+
+**Baseline (EN-2)** `~/.cache/multihost-gate/sl008/baseline/`, taken at HEAD
+8e4ca4a7 immediately before the first edit; `just gate` green. Lines: drvs 13,
+drvs-sets 5, coverage 7; probe wrote `system/` and `home/`.
+
+**Phase-01 (EX-6)** `~/.cache/multihost-gate/sl008/phase-01/` (PHASE-02's
+baseline), HEAD 8e4ca4a7 + uncommitted P1 delta. Counts identical (13/5/7).
+`diff` of drvs, drvs-sets, coverage, `diff -r` of system/ and home/: all empty.
+`just test` and `just gate` green; `nix fmt --no-cache` 0 changed after the
+final edit; flake.lock unchanged. Verdict: **P1 row: none — identical.**
+(Emacs-overlay drift was visible in lock-warnings during the phase but moved no
+drv line.)
+
+**Red evidence (T3a)**: before allowing the key, `testBadPlatformsShapeFails`
+gave `[false false false]` (expected `[false false true]`) and
+`testUnsupportedPlatformFails` gave `[false false]` (expected `[false true]`):
+`platforms` was an unknown key. After allowing the key: `[true true true]` and
+`[true true]`, each red for its own reason. Shape check, then selection check,
+turned both green. `testPlatformsAbsentMeansAll` passes throughout (guard).

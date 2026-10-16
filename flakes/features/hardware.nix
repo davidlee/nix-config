@@ -1,5 +1,5 @@
 # Hardware features, in projection order. Shape: README § Feature tree.
-[
+_: [
   {
     name = "openrgb";
     nixos = {pkgs, ...}: {

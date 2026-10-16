@@ -32,7 +32,7 @@
 
   username = "david";
   resolve = import ./features.nix lib;
-  tree = import ./features;
+  tree = import ./features {inherit lib;};
   # system -> overlay. See ./overlays/agents.nix.
   agentsOverlay = import ./overlays/agents.nix {inherit inputs;};
   linuxSystems = lib.filter (lib.hasSuffix "-linux") config.systems;
@@ -54,6 +54,7 @@
     resolve {
       inherit tree;
       classes = classesOf meta;
+      inherit (meta) system;
       modules = lib.optional (builtins.pathExists host) host ++ extra;
     };
 

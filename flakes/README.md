@@ -171,12 +171,12 @@ halves together. It is never itself a module.
 
 ```nix
 # features/session.nix
-[
+_: [
   {
     name = "snooze";
     homeManager = _: { … };      # user half: the nag
     nixos = _: { … };            # system half: the wake alarm
-    # darwin = …;  requires = [ "<area>.<name>" ];   (both optional)
+    # darwin = …;  requires = [ "<area>.<name>" ];   platforms = [ "<system>" … ];   (all optional)
   }
 ]
 ```
@@ -184,7 +184,8 @@ halves together. It is never itself a module.
 Features are grouped into **areas**, and reached only from written lists,
 never by listing directories. An area is a namespace with one file,
 `features/<area>.nix`: the list of its features. `features/default.nix`
-lists the areas as `{ name; value; }` pairs. List order is projection order.
+maps a written list of area names to their files (`{lib}: map area [ … ]`). List
+order is projection order.
 
 ```
 features/
@@ -239,19 +240,21 @@ Nothing is selected automatically. The resolver refuses to return anything
 — so a home-only build fails just like a system one — when a selected
 feature's `requires` entry is not selected, when a selected feature has no
 module for any of the host's evaluations (a home-only feature on the Mac),
-or when any hand-written `assertions` entry in an outer module is false.
+when a selected feature's `platforms` omit the host's system, or when any hand-written `assertions` entry in an outer module is false.
 Structural errors fail every host, because they are checked over every
 feature: an area or feature that is not a record (a path listed where
 `(import …)` was meant), a missing, empty, duplicate or dotted name,
-`requires` that is not a list of strings, an unknown key, an unknown
+`requires` or `platforms` that is not a list of strings, an unknown key, an unknown
 `requires` path, or an outer option at a feature's path (a second switch for it). The modules
 of unselected features are never evaluated, so a broken module blocks no
-host; only the record itself (its keys, `name`, `requires`) is read.
+host; only the record itself (its keys, `name`, `requires`, `platforms`) is read.
 
 A darwin host with a home has a `homeManager` evaluation too, so a feature's
 `homeManager` half reaches the Mac (IMP-012). The flip side: a Linux-only
-`homeManager` half selected there is not refused, because it does land
-somewhere (QUE-001).
+`homeManager` half must say so with `platforms` (absent means every system;
+DEC-030). A selected feature whose `platforms` omit the host's system is
+refused. Such records carry `platforms = lib.platforms.linux`, from SL-008
+phase 3 on.
 
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such

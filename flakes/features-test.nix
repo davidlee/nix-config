@@ -5,7 +5,7 @@
 # membership, never equality, so adding a feature does not turn them red.
 lib: let
   resolve = import ./features.nix lib;
-  real = import ./features;
+  real = import ./features {inherit lib;};
 
   area = name: features: {
     inherit name;
@@ -18,10 +18,12 @@ lib: let
   # message, so each failing fixture is paired with a passing twin that
   # differs only in the property under test: [ fixture twin ] -> [ false true ].
   fails = e: !(builtins.tryEval e).success;
+  # Defaults: both linux classes on x86_64-linux; `args` override.
   resolves = args:
     !fails
     (resolve ({
         classes = both;
+        system = "x86_64-linux";
         modules = [];
       }
       // args)).modules;
@@ -40,6 +42,7 @@ lib: let
   # Real tree, both linux classes: is snooze in [ nixos homeManager ]?
   snoozeIn = modules: let
     r = resolve {
+      system = "x86_64-linux";
       tree = real;
       classes = both;
       inherit modules;
@@ -54,6 +57,7 @@ lib: let
   # feature projected into home ].
   sleipnirWith = extra: let
     r = resolve {
+      system = "x86_64-linux";
       tree = real;
       classes = both;
       modules = [./hosts/Sleipnir/features.nix] ++ extra;
@@ -67,6 +71,7 @@ lib: let
 
   prerequisite = selected:
     resolve {
+      system = "x86_64-linux";
       tree = [(area "a" [(feat "x" (hm // {requires = ["a.y"];})) (feat "y" hm)])];
       classes = both;
       modules = map on selected;
@@ -86,6 +91,39 @@ in
     testUnknownPrerequisiteFails = {
       expr = map (p: resolves {tree = [(area "a" [(feat "x" (hm // {requires = [p];})) (feat "y" hm)])];}) ["no.such" "a.y"];
       expected = [false true];
+    };
+
+    # `platforms` absent means every system (DEC-030). Cannot be red against a
+    # resolver that ignores platforms: it guards against an over-eager check.
+    testPlatformsAbsentMeansAll = {
+      expr = map (system:
+        resolves {
+          tree = one hm;
+          modules = [(on "a.x")];
+          inherit system;
+        }) ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
+      expected = [true true true true];
+    };
+
+    testUnsupportedPlatformFails = {
+      expr = map (system:
+        resolves {
+          tree = one (hm // {platforms = ["x86_64-linux"];});
+          modules = [(on "a.x")];
+          inherit system;
+        }) ["aarch64-darwin" "x86_64-linux"];
+      expected = [false true];
+    };
+
+    # Selected on purpose: the shape check must fire before the selection check
+    # takes `lib.elem` over a string (a type error tryEval cannot catch).
+    testBadPlatformsShapeFails = {
+      expr = map (p:
+        resolves {
+          tree = one (hm // {platforms = p;});
+          modules = [(on "a.x")];
+        }) ["x86_64-linux" [1] ["x86_64-linux"]];
+      expected = [false false true];
     };
 
     # Checked on every record, selected or not.
@@ -148,6 +186,7 @@ in
     testUnselectedNotForced = {
       expr = let
         r = resolve {
+          system = "x86_64-linux";
           tree = [
             (area "a" [
               (feat "broken" {nixos = throw "forced an unselected feature";})
@@ -174,6 +213,7 @@ in
         resolves {
           tree = one hm;
           inherit classes;
+          system = "aarch64-darwin";
           modules = [(on "a.x")];
         }) [["darwin"] ["darwin" "homeManager"]];
       expected = [false true];
@@ -183,6 +223,7 @@ in
       expr =
         tags
         (resolve {
+          system = "x86_64-linux";
           tree = [
             (area "zeta" [(feat "z2" nixos) (feat "z1" nixos)])
             (area "alpha" [(feat "a1" nixos)])
@@ -241,6 +282,7 @@ in
     testProvenance = {
       expr = let
         r = resolve {
+          system = "x86_64-linux";
           tree = real;
           classes = both;
           modules = [workstation ./hosts/Sleipnir/features.nix];
@@ -269,6 +311,7 @@ in
     # The selection reaches no evaluation except as modules.
     testResultIsModulesOnly = {
       expr = builtins.attrNames (resolve {
+        system = "x86_64-linux";
         tree = real;
         classes = both;
         modules = [];
@@ -279,6 +322,7 @@ in
     testMacSelectsNothing = {
       expr =
         (resolve {
+          system = "aarch64-darwin";
           tree = real;
           classes = ["darwin" "homeManager"];
           modules = [];

@@ -1,6 +1,6 @@
 # Desktop shells, in projection order (DEC-026). Shape: README § Feature tree.
 # A shell draws the bar, launcher and notifications inside a compositor session.
-[
+_: [
   {
     name = "noctalia";
     nixos = {

@@ -1,5 +1,5 @@
 # AI features, in projection order. Shape: README § Feature tree.
-[
+_: [
   {
     name = "llama-cpp";
     # llama.cpp server in router mode, serving Bonsai 2 27B on the GPU via ROCm.

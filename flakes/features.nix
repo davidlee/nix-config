@@ -3,25 +3,28 @@
 # nixpkgs, separate `switch`), so an option declared in one is invisible to
 # the others; hosts.nix resolves here and hands each evaluation its share.
 #
-#   lib -> { tree, classes, modules } -> { modules }   (or throws)
+#   lib -> { tree, classes, system, modules } -> { modules }   (or throws)
 #
 # The feature tree (./features) gives one `feature.<area>.<name>.enable`
 # option per feature, set by the host and the profiles it imports. Selected
 # features are projected into `modules.<class>` in tree order, for the
 # factories to append. No downstream module sees the selection.
 #
-# tree     [ { name = area; value = [ feature … ]; } … ]
+# tree     [ { name = area; value = [ feature … ]; } … ], i.e. `import ./features {inherit lib;}`
 # classes  this host's evaluations, e.g. [ "nixos" "homeManager" ]
+# system   this host's system, e.g. "x86_64-linux"
 # modules  outer modules: the host's features.nix (if any), plus extras
 #
-# A feature is { name, nixos?, homeManager?, darwin?, requires? }. The
-# resolver reads only key names, `name`, `requires` and the position of
-# `name`; class values are never forced here, so an unselected feature's
+# A feature is { name, nixos?, homeManager?, darwin?, requires?, platforms? }.
+# `platforms` lists the systems it supports; absent means every system
+# (DEC-030). The resolver reads only key names, `name`, `requires`,
+# `platforms` and the position of `name`; class values are never forced here, so an unselected feature's
 # implementation is never evaluated. Every check is enforced: a failure
 # throws, so nothing in the result can be read.
 lib: {
   tree,
   classes,
+  system,
   modules,
 }: let
   inherit (lib) concatMap concatStringsSep filter mkEnableOption mkOption types;
@@ -56,8 +59,9 @@ lib: {
     };
   };
 
-  # Per selected feature: its prerequisites are selected, and it has a module
-  # for at least one of this host's classes (ADR-005 D6).
+  # Per selected feature: its prerequisites are selected, it has a module
+  # for at least one of this host's classes (ADR-005 D6), and its platforms
+  # include this host's system (DEC-030).
   checks = {config, ...}: let
     enabled = path: lib.getAttrFromPath (lib.splitString "." path ++ ["enable"]) config.feature;
   in {
@@ -72,6 +76,10 @@ lib: {
             assertion = lib.any (c: r.descriptor ? ${c}) classes;
             message = "feature.${r.path} is selected but has no module for this host's evaluations (${concatStringsSep ", " classes})";
           }
+          {
+            assertion = lib.elem system (r.descriptor.platforms or [system]);
+            message = "feature.${r.path} is selected but does not support ${system} (platforms: ${concatStringsSep ", " (r.descriptor.platforms or [])})";
+          }
         ]
       ))
     records;
@@ -81,11 +89,11 @@ lib: {
   inherit (outer) config;
 
   # Structural errors, over every record, selected or not. They read only
-  # names, descriptor key names, `requires` and option declarations, never a
+  # names, descriptor key names, `requires`, `platforms` and option declarations, never a
   # class value or a config value (ADR-002 D4), so all are safe to compute
   # together; `checks` looks paths up by splitting on ".", so it must not run
   # until these pass. Everything after `badShapes` reads area and feature
-  # names, area lists and `requires` lists, and a missing attribute or a type
+  # names, area lists, `requires` and `platforms` lists, and a missing attribute or a type
   # error aborts uncatchably, so a shape those reads cannot take is reported
   # alone.
   strings = xs: lib.isList xs && lib.all lib.isString xs;
@@ -100,7 +108,9 @@ lib: {
         then ["feature #${toString i} in area ${area.name} is not a record"]
         else if !lib.isString (f.name or null)
         then ["feature #${toString i} in area ${area.name} has no string name"]
-        else lib.optional (!strings (f.requires or [])) "feature ${area.name}.${f.name}: requires is not a list of strings")
+        else
+          lib.optional (!strings (f.requires or [])) "feature ${area.name}.${f.name}: requires is not a list of strings"
+          ++ lib.optional (!strings (f.platforms or [])) "feature ${area.name}.${f.name}: platforms is not a list of strings")
       area.value))
   tree);
   areas = map (a: a.name) tree;
@@ -117,7 +127,7 @@ lib: {
       ++ map (a: "area name \"${a}\" is empty or contains \".\"") (filter badName areas)
       ++ map (r: "feature name \"${r.name}\" in area ${r.area} is empty or contains \".\"") (filter (r: badName r.name) records)
       ++ concatMap (r: let
-        bad = lib.subtractLists ["name" "nixos" "homeManager" "darwin" "requires"] (builtins.attrNames r.descriptor);
+        bad = lib.subtractLists ["name" "nixos" "homeManager" "darwin" "requires" "platforms"] (builtins.attrNames r.descriptor);
       in
         lib.optional (bad != []) "unknown descriptor key(s) ${concatStringsSep ", " bad} in feature ${r.path}")
       records

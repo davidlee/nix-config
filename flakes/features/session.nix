@@ -1,5 +1,5 @@
 # Session features, in projection order. Shape: README § Feature tree.
-[
+_: [
   # Snooze: the bedtime nag, and the RTC alarm that wakes the machine again.
   #
   # The nag is the home half. It suspends the machine, eventually: an active

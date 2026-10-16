@@ -1,6 +1,6 @@
 # Package management outside Nix: third-party app formats, in projection
 # order. Shape: README § Feature tree.
-[
+_: [
   {
     name = "appimage";
     nixos = _: {
