@@ -1,0 +1,38 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 43
+slug = "parked-dir"
+title = "Parked modules live in parked/, outside modules/"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "modules/ held parked files that do not evaluate (hyprland, kmscon) beside the base, blurring 'the directory is the base' (DEC-027). shpool is unused since emacs moved to zmx (IMP-001)."
+choice = "Parked modules move to parked/ at the flake root, not deleted: hyprland.nix, kmscon.nix, shpool.nix. Commented references point there. Dead files (helix, slk, bough, treefmt.nix.txt) are deleted. editor.emacs lists zmx explicitly."
+alternatives = ["Delete parked modules (deferred by user)", "Keep them in modules/ commented out"]
+rationale = "modules/ then holds only base, so classification stays visible in the tree; parked code is kept for repair without pretending to be a feature (ADR-005)."
+consequences = ["README § Parked is not a feature names parked/", "Both homes lose the shpool user service"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "IMP-001"
+
+[[relation]]
+label = "shapes"
+target = "SL-010"

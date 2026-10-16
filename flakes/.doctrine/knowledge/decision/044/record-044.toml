@@ -1,0 +1,38 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 44
+slug = "ssh-locate-features"
+title = "ssh and locate are features (amends DEC-042)"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-042 kept ssh (openssh, fail2ban, firewall port 22) and locate (plocate, hourly) in the NixOS base. Both are optional per host. SL-010."
+choice = "services.ssh: services.openssh with its settings, fail2ban, networking.firewall.allowedTCPPorts [22] (out of network.nix). files.locate: services.locate (plocate, hourly, prunePaths). Both nixos-only records, selected by personal-linux (later also W7's headless profile). NixOS base: nix, user, network, boot, kernel, env, maintenance, security, programs (nix-ld, rust-motd, root's helix), cli inspection set."
+alternatives = ["locate as a nixos half of files.search (rejected: indexing should toggle on its own)", "ssh stays base (rejected by user: optional)"]
+rationale = "Neither is needed by every host; separate records keep each toggle explicit. Port 22 belongs with the daemon that listens on it."
+consequences = ["A NixOS host without services.ssh has no sshd: select it before relying on remote access", "Sleipnir keeps both via personal-linux; ordering-only drv diff expected"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-042"
+
+[[relation]]
+label = "shapes"
+target = "SL-010"

@@ -1,0 +1,43 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 42
+slug = "base-reduced"
+title = "Bases hold only what every host needs; optional pieces are features (amends DEC-027, DEC-031)"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-027 and DEC-031 listed optional pieces in the NixOS and home bases (dev libs, cargo, debug/admin tools, 1Password, tailscale, avahi, udisks2, sysprof, yazi, zsh, shpool). W7's headless guest imports the base. SL-010."
+choice = "NixOS base keeps nix, user, ssh, network (NetworkManager, firewall, nftables, hostName, timeServers), boot, kernel, env, locate, maintenance, security, programs (nix-ld, rust-motd, root's helix) and cli's inspection set (pciutils usbutils lshw dmidecode smartmontools lm_sensors sysstat atop iotop strace isd lazyjournal systemctl-tui cpuinfo smem hdparm, cpuid/x86info guarded). Root's shell is NixOS's default bash (defaultUserShell dropped). Moved, as nixos halves of existing features: build libs → dev.build; cargo → dev.runtimes; valgrind + sysprof (package and service) → dev.tools; iptraf-ng nethogs nmon vnstat → net.tools; udisks2 → files.disk; 1Password (programs._1password, _1password-cli) → security.credentials; ydotool → desktop.core. New records: virt.sandbox (bubblewrap, distrobox, distrobox-tui; workstation), net.tailscale (daemon + tailscale-systray; personal-linux), services.avahi (required by services.printing; selected by Sleipnir), terminal.zsh (nixos programs.zsh + pathsToLink; home zsh.nix, mcfly, zsh, zsh-autocomplete, antidote; personal). Home base keeps zsh-free shell-ux, nushell, direnv, base cli; yazi → files.manage, nix-search-tv integration → files.search; shpool parked."
+alternatives = ["Every base module becomes a feature (rejected: a switch nothing turns off; option 2)", "Move system packages into home halves (rejected: changes where binaries land and every drv)", "Root shell nushell or fish (rejected: non-POSIX; breaks $SHELL -c and rescue)"]
+rationale = "A smaller base makes a host cheaper (RFC-001 goal); nixos halves on already-selected features keep Sleipnir's build identical up to ordering; tailscale's halves together keep the tray only where the daemon is, with no selection read (ADR-004 untouched)."
+consequences = ["Sleipnir: root's shell becomes bash; shpool user service gone", "coverage base@aarch64-linux and home@aarch64-linux shrink", "Sleipnir must select services.avahi explicitly beside printing (ADR-001 D4); hosts/Sleipnir/dns.nix relies on it"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-027"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-031"
+
+[[relation]]
+label = "shapes"
+target = "SL-010"

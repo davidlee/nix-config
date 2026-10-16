@@ -1,0 +1,130 @@
+# Implementation plan for SL-010 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-010"
+
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# Ids immutable; edits append, never renumber.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Parked and dead files"
+objective = "modules/ holds no parked or dead file: hyprland and kmscon move to parked/, helix/slk/bough and treefmt.nix.txt are deleted (DEC-043; design § Parked and dead files). No derivation changes."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-010 design locked; slice status ready; plan committed." },
+  { id = "EN-2", text = "Baseline on the unchanged tree: just drvs and just drvs-sets snapshots, with each bin/dev-checkouts checkout's HEAD and `git status --porcelain -uno`, recorded in notes.md (mem.pattern.flakes.drv-gate). The user's uncommitted justfile and pi settings.json edits are not staged by any phase." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "git mv modules/nixos/{hyprland,kmscon}.nix parked/; git rm modules/home/linux/{helix,slk,bough}.nix modules/treefmt.nix.txt; commented ./helix.nix and ./danksearch.nix lines gone from modules/home/linux/default.nix (its header comment adjusted)." },
+  { id = "EX-2", text = "hosts/Sleipnir/config.nix parked comments point at ../../parked/{hyprland,kmscon}.nix." },
+  { id = "EX-3", text = "just drvs identical to EN-2 (or any diff attributed to a recorded checkout move / emacs-overlay re-resolve); just test and just coverage green." },
+]
+verification = [
+  { id = "VT-1", expects = "parked comments name the new directory", test_file = "hosts/Sleipnir/config.nix", keywords = ["../../parked/hyprland.nix", "../../parked/kmscon.nix"], waived = false },
+  { id = "VA-1", text = "ls modules/nixos modules/home/linux shows no hyprland, kmscon, helix, slk, bough; modules/treefmt.nix.txt absent; parked/ holds hyprland.nix and kmscon.nix tracked." },
+  { id = "VA-2", text = "drvs diff vs EN-2 empty or attributed in notes.md." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "NixOS moves"
+objective = "Optional NixOS pieces leave the base for nixos halves of existing features and for new records virt.sandbox, net.tailscale, services.avahi, services.ssh, files.locate (DEC-042, DEC-044; design § NixOS side). Pure move: every selection preserved."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 completed; fresh just drvs snapshot (with checkout state) taken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "nixos halves added: dev.build (lib.nix's packages), dev.runtimes (cargo, cargo-update), dev.tools (valgrind, sysprof, services.sysprof.enable), net.tools (iptraf-ng nethogs nmon vnstat), files.disk (services.udisks2.enable), security.credentials (programs._1password.enable, _1password-cli); ydotool in features/desktop/core/gui.nix." },
+  { id = "EX-2", text = "New records: virt.sandbox (bubblewrap distrobox distrobox-tui) in features/virt.nix; net.tailscale (platforms linux; nixos services.tailscale.enable; homeManager services.tailscale-systray.enable, removed from desktop/core/home.nix with its header comment updated) in features/net.nix; services.avahi (avahi.nix's settings) and services.ssh (ssh.nix's openssh + fail2ban, firewall allowedTCPPorts [22]) in features/services.nix; files.locate (locate.nix's services.locate) in features/files.nix. services.printing gains requires = [\"services.avahi\"]." },
+  { id = "EX-3", text = "Base: modules/nixos/{lib,cargo,util,avahi,ssh,locate}.nix deleted and dropped from default.nix; cli.nix, programs.nix, network.nix reduced per design (network.nix keeps firewall.enable with no allowedTCPPorts)." },
+  { id = "EX-4", text = "Selections: workstation += virt.sandbox; personal-linux += net.tailscale, services.ssh, files.locate; hosts/Sleipnir/features.nix += services.avahi beside printing; hosts/Sleipnir/dns.nix MulticastDNS comment names services.avahi." },
+  { id = "EX-5", text = "just drvs vs EN-1: Sleipnir system and home and every coverage Sleipnir+* target identical or ordering-only, proven with just drvs-sets (and nix-diff where sets differ) and recorded in notes.md; base@aarch64-linux differs only by the removed pieces (nix-diff summary in notes.md); Draupnir system and home identical; option spot-checks for /etc-only effects (services.avahi.enable, services.openssh.enable, services.tailscale.enable, services.locate.enable, services.udisks2.enable, networking.firewall.allowedTCPPorts) equal on Sleipnir before and after." },
+  { id = "EX-6", text = "just test and just coverage (incl. isolation) green; nix fmt on touched files without committing the emacs-overlay re-lock." },
+]
+verification = [
+  { id = "VT-1", expects = "base import list without the moved modules", test_file = "modules/nixos/default.nix", keywords = ["./nix.nix", "./user.nix", "./network.nix", "./cli.nix"], waived = false },
+  { id = "VT-2", expects = "new services records and the printing edge", test_file = "features/services.nix", keywords = ["name = \"avahi\"", "name = \"ssh\"", "requires = [\"services.avahi\"]", "fail2ban", "allowedTCPPorts = [22]"], waived = false },
+  { id = "VT-3", expects = "tailscale record with both halves", test_file = "features/net.nix", keywords = ["name = \"tailscale\"", "services.tailscale.enable", "services.tailscale-systray.enable", "nethogs"], waived = false },
+  { id = "VT-4", expects = "sandbox record", test_file = "features/virt.nix", keywords = ["name = \"sandbox\"", "bubblewrap", "distrobox-tui"], waived = false },
+  { id = "VT-5", expects = "locate record and udisks2 on files.disk", test_file = "features/files.nix", keywords = ["name = \"locate\"", "plocate", "udisks2.enable"], waived = false },
+  { id = "VT-6", expects = "profile selections", test_file = "features/profiles/personal-linux.nix", keywords = ["feature.net.tailscale.enable", "feature.services.ssh.enable", "feature.files.locate.enable"], waived = false },
+  { id = "VA-1", text = "drvs/drvs-sets/nix-diff evidence in notes.md supports EX-5; grep shows no tailscale-systray left in features/desktop/core/home.nix." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Home moves"
+objective = "Optional home pieces leave the home base: yazi → files.manage, nix-search-tv integration → files.search, zsh's home half (zsh.nix, mcfly, zsh packages) → new terminal.zsh, selected by personal (DEC-042; design § Home side). Pure move."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 completed; fresh just drvs snapshot (with checkout state) taken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "programs.yazi block → files.manage homeManager half; programs.nix-search-tv.enableTelevisionIntegration → files.search; modules/home/programs.nix keeps direnv only." },
+  { id = "EX-2", text = "git mv modules/home/zsh.nix features/terminal/zsh.nix; terminal.zsh record inline in features/terminal.nix whose homeManager half imports ./terminal/zsh.nix and adds zsh zsh-autocomplete antidote; those three gone from modules/home/cli.nix (zstd stays); ./zsh.nix gone from modules/home/default.nix; personal += feature.terminal.zsh.enable." },
+  { id = "EX-3", text = "just drvs vs EN-1: Sleipnir and Draupnir homes identical or ordering-only (drvs-sets / nix-diff evidence in notes.md); home@aarch64-linux differs only by the removed pieces; systems identical." },
+  { id = "EX-4", text = "just test and just coverage green; nix fmt on touched files." },
+]
+verification = [
+  { id = "VT-1", expects = "terminal.zsh record", test_file = "features/terminal.nix", keywords = ["name = \"zsh\"", "./terminal/zsh.nix", "zsh-autocomplete", "antidote"], waived = false },
+  { id = "VT-2", expects = "yazi and nix-search-tv on files features", test_file = "features/files.nix", keywords = ["programs.yazi", "shellWrapperName = \"y\"", "enableTelevisionIntegration"], waived = false },
+  { id = "VT-3", expects = "personal selects terminal.zsh", test_file = "features/profiles/personal.nix", keywords = ["feature.terminal.zsh.enable"], waived = false },
+  { id = "VA-1", text = "drvs evidence in notes.md supports EX-3." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Behaviour changes"
+objective = "The intended behaviour diffs, together: root's login shell becomes NixOS's default bash, system zsh moves to terminal.zsh's nixos half, shpool is parked, editor.emacs lists zmx (DEC-042, DEC-043; design § Home side, § Phases)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 completed; fresh just drvs snapshot (with checkout state) taken immediately before editing." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "users.defaultUserShell dropped from modules/nixos/user.nix; programs.zsh.enable and pathsToLink \"/share/zsh\" removed from modules/nixos/{programs,env}.nix and set once in terminal.zsh's nixos half." },
+  { id = "EX-2", text = "git mv modules/home/shpool.nix parked/; ./shpool.nix gone from modules/home/default.nix; zmx in features/editor/emacs.nix home.packages (terminal.utils keeps its own entry)." },
+  { id = "EX-3", text = "just drvs vs EN-1: diffs only Sleipnir system (root shell, zsh pathsToLink/zshrc), both homes (shpool unit gone; home-manager-path ordering from zmx), base@aarch64-linux (no zsh), coverage Sleipnir+* (same as Sleipnir); each attributed via nix-diff in notes.md. Option check: users.users.root.shell is bash and programs.zsh.enable is true on Sleipnir (via terminal.zsh), false on base@aarch64-linux." },
+  { id = "EX-4", text = "just test and just coverage green; nix fmt on touched files." },
+]
+verification = [
+  { id = "VT-1", expects = "zsh system half on terminal.zsh", test_file = "features/terminal.nix", keywords = ["programs.zsh.enable = true", "/share/zsh"], waived = false },
+  { id = "VT-2", expects = "emacs depends on zmx", test_file = "features/editor/emacs.nix", keywords = ["zmx"], waived = false },
+  { id = "VA-1", text = "modules/nixos/user.nix has no defaultUserShell; parked/shpool.nix tracked; modules/home/default.nix has no shpool; drvs attribution in notes.md." },
+  { id = "VH-1", text = "After the user's next system-switch and home-switch: `sudo -i` gives bash, the user's login is still nu, zsh still starts with its config, emacs session restore via zmx works." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Docs and governance"
+objective = "README, RFC-001 and DEC-027/DEC-031 describe the reduced bases, the new records and parked/ (design § Code impact and docs)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 completed." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "README: feature-tree listing gains virt.sandbox, net.tailscale, services.{avahi,ssh}, files.locate, terminal.zsh; base description (§ Hosts) matches DEC-042/044; § Parked is not a feature names parked/ (hyprland, kmscon, shpool; danksearch's input still commented); § Printing names services.avahi; § Feature tree terminal/ dir row." },
+  { id = "EX-2", text = "RFC-001: W9 row and 'Where things stand' record SL-010; DEC-027 and DEC-031 consequences cite DEC-042 (and DEC-044 for DEC-027)." },
+  { id = "EX-3", text = "No stale references: grep for modules/nixos/{avahi,ssh,locate,lib,cargo,util}.nix, modules/home/{zsh,shpool}.nix outside .doctrine history returns none in README, comments or features." },
+]
+verification = [
+  { id = "VT-1", expects = "README names parked/ and the new records", test_file = "README.md", keywords = ["parked/", "services.avahi", "terminal.zsh", "net.tailscale", "files.locate", "services.ssh", "virt.sandbox"], waived = false },
+  { id = "VA-1", text = "EX-3 grep clean; doctrine show DEC-027 / DEC-031 show the new consequence." },
+]
+specs        = []
+requirements = []

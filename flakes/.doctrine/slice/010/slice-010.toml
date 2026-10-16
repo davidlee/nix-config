@@ -1,0 +1,120 @@
+id = 10
+slug = "base-tidy"
+title = "Base tidy: optional pieces out of modules/ (RFC-001 W9)"
+status = "plan"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "modules/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts/Sleipnir/config.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "parked/**"
+intent = "design-target"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/**"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/**"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/treefmt.nix.txt"
+intent = "design-target"
+
+[[selector]]
+selector = "features/dev.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/net.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/files.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/security.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/services.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/virt.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/terminal.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/terminal/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/desktop/core/gui.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/desktop/core/home.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/editor/emacs.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/**"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/dns.nix"
+intent = "design-target"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "related"
+target = "IMP-001"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.
