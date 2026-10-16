@@ -12,6 +12,6 @@ oubliette's capsule-proxy restarts) are pinned last.
 
 Check the rendered order with
 `nix eval --raw .#nixosConfigurations.<h>.config.security.sudo.configFile`
-(with `just --evaluate system_override`). Oubliette's
+(with `just --evaluate local_override`). Oubliette's
 `host/services.nix:690` comment describes an older state in which wheel
 landed after a plain rule.

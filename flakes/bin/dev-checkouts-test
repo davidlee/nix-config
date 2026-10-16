@@ -95,6 +95,18 @@ check 'ahead: names it' 1 "$(grep -c 'goad' <<<"$err")"
 check 'ahead: prints nothing on stdout' '' "$out"
 check 'ahead: is not an error' 0 "$rc"
 
+# ahead: a present checkout with no upstream is named, not an error
+lone=$(root lone satan-patcher)
+dc "$lone" ahead
+check 'ahead: no upstream is named' 1 "$(grep -c 'satan-patcher has no upstream' <<<"$err")"
+check 'ahead: no upstream is not an error' 0 "$rc"
+
+# a git worktree (its .git is a file) is a checkout
+tree=$(root tree)
+git -C "$ahead/goad" worktree add -q "$tree/oubliette" 2>/dev/null
+dc "$tree" override
+check 'override: a worktree checkout is present' "--override-input oubliette git+file://$tree/oubliette" "$out"
+
 dc "$none" bogus
 check 'unknown verb: refused' 1 "$rc"
 check 'unknown verb: prints usage' 1 "$(grep -c '^usage:' <<<"$err")"

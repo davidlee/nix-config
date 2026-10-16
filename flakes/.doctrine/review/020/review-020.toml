@@ -1,0 +1,109 @@
+id    = 20
+slug  = "phase-01-code-review-d7860ab5"
+title = "PHASE-01 code review (d7860ab5)"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "code-review"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Quick per-phase pass over `git show d7860ab5 -- flakes/`: bin/dev-checkouts and its tests, justfile override composition across every recipe, bin/gate-probe, the flake.nix declarations, the flake.lock node diff, and the README sections. Checked against PHASE-01 EX-1..EX-10 and design § Dev checkouts. Behavioural claims checked by running the tests, by mutating the script, and against live checkout upstreams. RV-019 staleness out of scope.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-009"
+phase = "PHASE-01"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "ahead should warn when update-local would lock other than the local HEAD; it compares against @{upstream} only"
+detail = """
+Expected: `dev-checkouts ahead` warns whenever `update-local` would lock something other than the checkout's local work.
+Observed: bin/dev-checkouts:44 counts `@{upstream}..HEAD`. `update-local` runs `nix flake update <input>` on `github:davidlee/<repo>`, which locks the remote's default branch. A checkout on a feature branch, pushed to its own upstream, reports nothing, and the lock takes main.
+The ref is also the local remote-tracking ref (not fetched), so a remote that moved is not seen. Seen in that direction only it is harmless: the lock takes the newer remote.
+Today: all five checkouts track origin/main (checked 2026-10-16), so this is latent. Design § Dev checkouts (design.md:51) specifies "ahead of its upstream", so the code matches the design.
+"""
+disposition = "tolerated"
+response = """
+Tolerated. The code implements the design (design.md:51, "ahead of its upstream"). Every checkout tracks origin/main, the branch the GitHub declarations lock. Comparing against the remote default branch would need `origin/HEAD`, which three of the five clones don't set (panopticon, satan-patcher, satan-attrd), so the check would grow fallback logic to guard a workflow nobody uses. Revisit if a dev checkout is ever developed on a long-lived branch.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tolerated. The code implements the design (design.md:51, "ahead of its upstream"). Every checkout tracks origin/main, the branch the GitHub declarations lock. Comparing against the remote default branch would need `origin/HEAD`, which three of the five clones don't set (panopticon, satan-patcher, satan-attrd), so the check would grow fallback logic to guard a workflow nobody uses. Revisit if a dev checkout is ever developed on a long-lived branch.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "dev-checkouts-test should cover every ahead branch; the no-upstream warning and a worktree .git file are untested"
+detail = """
+Expected: each behaviour branch of the script has a test.
+Observed: bin/dev-checkouts:45 (no upstream → "has no upstream" warning, exit 0) has no case in bin/dev-checkouts-test. Neither does a checkout whose `.git` is a file (a git worktree), the reason `present` uses `-e`, not `-d` (handover lens). Both are cheap: `git init` without a remote for the first, `git worktree add` for the second.
+"""
+disposition = "fix-now"
+response = "Adding both cases to bin/dev-checkouts-test."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Adding both cases to bin/dev-checkouts-test."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "nit"
+title = "README isolation paragraph should be wrapped like its neighbours; one line is 115 chars"
+detail = """
+README.md:328, "checkout input (§ Dev checkouts) overridden to the empty `features/stub` flake, so a lean home that reaches one", was not re-wrapped after the edit. The surrounding prose wraps at ~78 chars.
+"""
+disposition = "fix-now"
+response = "Re-wrap the paragraph."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Re-wrap the paragraph."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

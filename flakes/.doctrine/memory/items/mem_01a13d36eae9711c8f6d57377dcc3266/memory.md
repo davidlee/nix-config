@@ -2,7 +2,7 @@
 after `nix flake update emacs` (emacs → ee8d509c), `nix flake lock` and `nix fmt`
 leave `flake.lock` byte-identical. The emacs input is fetched from GitHub, so
 after any `emacs/flake.nix` change that must reach the lock: push, then
-`nix flake update emacs`. Until then `home_override` builds from the local checkout.
+`nix flake update emacs`. Until then `tree_override` (read-only recipes) builds from the local checkout.
 Still check `git diff --stat flake.lock` before committing, out of habit.
 
 **treefmt cache.** `nix fmt` (treefmt: alejandra, statix, deadnix) caches by

@@ -325,8 +325,9 @@ they are evaluated, never built.
 exercised by the two hosts' homes only; aarch64-linux homes with features are
 future work.
 `just isolation` evaluates that target and Draupnir's home with every dev
-checkout input (§ Dev checkouts) overridden to the empty `features/stub` flake, so a lean home that reaches one
-fails to evaluate, naming it. `just coverage` runs it.
+checkout input (§ Dev checkouts) overridden to the empty `features/stub`
+flake, so a lean home that reaches one fails to evaluate, naming it.
+`just coverage` runs it.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 
 **docker and podman.** Docker is rootless only: `modules/nixos/security.nix`
