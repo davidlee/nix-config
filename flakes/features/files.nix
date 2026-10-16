@@ -20,7 +20,6 @@ in [
           mc
           ranger
           xplr
-          yazi
           lf
           superfile
 
@@ -87,7 +86,6 @@ in [
           nix-search-cli
           fd
           fzy
-          mcfly
           ripgrep
           vgrep
           sad

@@ -41,10 +41,6 @@ in [
         # youtube-tui
         # ytermusic
 
-        ## GUI
-        ## image viewers
-        viu
-
         ## cli audio
         asak
         cmus
@@ -54,7 +50,6 @@ in [
         # kodi-wayland
         # kodi-cli
         celluloid
-        mpv
 
         ## video
         # shortcut

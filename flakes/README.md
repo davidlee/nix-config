@@ -230,6 +230,8 @@ features/
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness patcher attrd ]       each its own file under satan/
+  available.nix       the cli availability filter: availableOn minus cli-broken.nix (DEC-036)
+  cli-broken.nix      per-system names the cli features skip though availableOn accepts them (plain data)
   profiles/           workstation.nix  personal.nix  personal-linux.nix  personal-darwin.nix
   stub/               flake.nix                       empty flake: just isolation's stand-in for local inputs
 ```
@@ -279,6 +281,15 @@ DEC-030). A selected feature whose `platforms` omit the host's system is
 refused. Such records carry `platforms = lib.platforms.linux`, from SL-008
 phase 3 on.
 
+The cli features are portable records. Each lists its packages through
+`features/available.nix`, which keeps those that `lib.meta.availableOn`
+accepts for the host's platform, minus the names `features/cli-broken.nix`
+lists for its system (DEC-036). So the Mac gets the cli packages available on
+aarch64-darwin, and Sleipnir's set is unchanged. `availableOn` reads metadata
+only: it cannot tell that a package fails to build or is not in the binary
+cache. Packages that fail to evaluate or build on darwin go in `cli-broken.nix`.
+The NixOS base's `cpuid` and `x86info` use plain `availableOn`.
+
 **Coverage.** A feature that no host selects would otherwise never be
 evaluated. `flake.coverage` holds handwritten configurations that select such
 features, one per off feature (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`,
@@ -289,6 +300,9 @@ or machine config) on aarch64-linux: it proves the base evaluates headless
 and off x86. `coverage."home@aarch64-linux"` is its home counterpart: the
 home base and Linux layer alone (no host, feature or identity). Like the rest
 they are evaluated, never built.
+`home@aarch64-linux` selects no feature, so the availability filter is
+exercised by the two hosts' homes only; aarch64-linux homes with features are
+future work.
 `just isolation` evaluates that target and Draupnir's home with panopticon,
 satan-patcher, satan-attrd and goad (the inputs that are local paths)
 overridden to the empty `features/stub` flake, so a lean home that reaches one

@@ -545,3 +545,73 @@ stdenv-darwin / binutils-wrapper: from `dev.build` (features/dev.nix ~58-66): `c
 
 ### VA-1 (cache.nixos.org, aarch64-darwin outPaths of the 57 gained)
 55 cached. UNCACHED (for VH-1): `killall-shell_cmds-329` /nix/store/wpjr4ml6rry1arkkpqx9i6ha1kx0724c-killall-shell_cmds-329; `yEd-3.25.1` /nix/store/7k8hz835dpfnyackb56g7my96j6rzik3-yEd-3.25.1. Evidence `phase-07a/evidence/va1-cache`. User choice: add to `cli-broken.nix` aarch64-darwin, or accept a local build.
+
+### Block B status: T4-T7 done, uncommitted; one item blocked (break-remind deletion). Worker: opus (orchestrator rationale: Block B carries the correctness judgement: collision-winner call for yazi/mcfly, classification of every Sleipnir probe diff, the Close checks).
+
+Blocked: `git -C ~ rm flakes/modules/home/linux/break-remind.nix` was denied by the auto-mode classifier ("Irreversible Local Destruction"), although the sheet allows it. The file is still in the tree and tracked; nothing imports it, so no eval is affected. The orchestrator must run that one command. Until then `ls modules/home/linux` shows `break-remind.nix` in addition to the listed files; every other Close check passes. Evidence the file is dead: `git grep break-remind -- flakes ':!flakes/.doctrine'` finds only the file itself.
+
+Files changed (source): features/media.nix, features/files.nix, hosts/Sleipnir/doctor.nix, features/profiles/workstation.nix, features/profiles/personal-darwin.nix, hosts/Draupnir/features.nix, README.md.
+
+#### Gate snapshots (Block B)
+- Before: `~/.cache/multihost-gate/sl008/phase-07a/`. Drift check: the tree was clean at HEAD 8cb4a79b, and a fresh `just drvs` matched `phase-07a/drvs` line for line before any edit: no drift (the emacs-overlay rev did move, 3d05567 -> 9e88531, without effect on the drvs). After: `.../phase-07b/` (drvs 13, drvs-sets 5, coverage 8, probe `system/` `home/`, `pkgs.*`, `evidence/`).
+- `drvs` vs 07a: only `homeConfigurations.{david,david@Sleipnir,david@Draupnir}` differ (intended). `nixosConfigurations.*`, `darwinConfigurations.Draupnir`, `packages`, `legacyPackages`, `templates` identical.
+- `drvs-sets` vs 07a: nixos and darwin lines identical; Sleipnir home and `david` 345 -> 341; Draupnir home 265 -> 263.
+- `coverage`: 8 lines identical to 07a; exit 0; `coverage.err` ends with both `isolation: ... ok` lines.
+- Probe: `system/` `diff -r` empty. Home `packages` (a unique drv set) identical, as expected (the removed drvs stay present once). `home-path-links` identical (also the collision-watch lines vs `phase-07-pre/collision-watch`). User-unit lines identical.
+- `just gate` exit 0; `nix fmt` 0 changed on both runs; `flake.lock` unchanged.
+
+#### Intended differences
+Sleipnir `pkgs_of` multiset diff vs 07a (4 lines removed, nothing added):
+- `mcfly-0.9.3` (drv 6fnj2km2...) , `/nix/store/azpm0dj1...-mcfly-0.9.3`: files.search entry. HM's `programs.mcfly` entry (same drv) remains.
+- `yazi-26.9.1` (drv 6h4csnqs...), `4gqw5a1s...-yazi-26.9.1`: files.manage entry. HM's `programs.yazi` entry (same drv) remains.
+- `mpv-with-scripts-0.41.0` (drv i021kmw9...): the second mpv in media.players (same drv twice in one list).
+- `viu-1.6.1` (drv znzdxkhd...): media.players' viu; media.view's remains.
+Sleipnir `home-files-links` diff vs 07a (3 lines; EX-4 and one derived):
+- `.local/bin/sleipnir-doctor`: `.../992l01z8...-hm_sleipnirdoctor` -> `.../5npyrkb5...-sleipnir-doctor`.
+- `.config/sleipnir-doctor/checks.d/panopticon`: `.../bq60qbsr...-hm_sleipnirdoctorpanopticon` -> `.../62wfjadh...-sleipnir-doctor-panopticon`. Both shebangs now `#!/nix/store/lb41b0an...-python3-3.14.7/bin/python3.14`.
+- `.manpath`: `hm_.manpath` hash moved because `home-path` (hence its `man-cache`) has a new derivation. Content differs only in the `man-cache` store hash: masked diff empty, `phase-07b/evidence/manpath-raw`, `manpath-masked` (P4 derived-hash rule).
+- `checks.d/emacs` unchanged (bash provider, left as is).
+Draupnir `pkgs_of` diff vs 07a: exactly the same `mcfly` and `yazi` removals (Draupnir drvs ww6hwm4b / pfma0xm7 variants); its mpv and viu were not selected (media.players is Linux-only). Draupnir keeps one `yazi` and two `mcfly` entries, from HM programs. Draupnir gains nothing in Block B.
+
+#### EX-3 decisions
+- yazi: current winner `bin/yazi`, `bin/ya` -> `4gqw5a1syvf51b4h4l3vc1q57ylfbvwv-yazi-26.9.1`. `programs.yazi.package.outPath` = the same path; both entries in `pkgs.Sleipnir` had the same drv. TAKEN (removed from files.manage). Evidence `phase-07a/evidence/hm-programs`; after removal the links are identical.
+- mcfly: winner `bin/mcfly` -> `azpm0dj1...-mcfly-0.9.3` = `programs.mcfly.package.outPath`; same drv. TAKEN (removed from files.search).
+- mpv (second) and viu (players): same drv twice in one list; removed. No row dropped.
+- Because the bare and HM packages are the same derivation, removal cannot flip a winner on Sleipnir; `home-path-links` identical confirms it. Draupnir: HM programs are in the base, so the same holds there (an identical drv on aarch64-darwin too, from the two entries in `pkgs.Draupnir`).
+
+#### Close checks (design § Close)
+- `profiles/`, `darwin/home.nix`, `modules/shared/cli/`: gone.
+- `modules/home`: cli darwin default linux nushell programs shpool zsh (.nix). `modules/home/linux`: default eca chatgpt bough slk helix, plus `break-remind.nix` pending the blocked `git rm`.
+- Stale-path `git grep -En` (design pattern): nothing. `isLinux`/`isx86` in `features` and `modules/nixos/cli.nix`: nothing.
+- `sleipnir-doctor` run from the built store path: exit 0, 73 lines of checks (`phase-07b/evidence/doctor-run.out`); panopticon provider exit 0, JSON (`panopticon-run.out`); shebang evidence `doctor-shebang`.
+
+#### VA-2 verdict
+Walked the P7 table: availability (Sleipnir sets identical, Draupnir +57 in 07a, none in B), brokenOn (watchman/atuin and the four added names absent), isx86 (system lines identical, `base@aarch64-linux` coverage line identical), doctor (runs), duplicates (home-path-links identical), break-remind (only the blocked delete remains), docs (README, workstation.nix, Draupnir features, personal-darwin). Every difference is in the table. Verdict: matches the table, with the break-remind `git rm` outstanding.
+
+#### Plan adaptations and decisions (Block B)
+- EX-4 says "three"; `sleipnir-doctor-emacs` is bash (orchestrator ruling): only the two python scripts get the pinned interpreter. Shape: `pkgs.writeScript` over `builtins.replaceStrings` of the shebang with `pkgs.python3.interpreter`, one helper `pinnedPython` in doctor.nix (A8).
+- EX-3: both yazi and mcfly taken (above).
+- README: feature tree gains `available.nix` and `cli-broken.nix`; the platforms paragraph gains the availability-filter paragraph; the Coverage paragraph (P6 wording) gains the `home@aarch64-linux` sentence. Hosts table needed no change (still accurate).
+
+#### Findings
+- `clangStdenv` in `dev.build`'s home.packages is a stdenv, not a tool (`stdenv-darwin` on Draupnir). Out of scope; recorded only.
+- `just probe`'s `packages` file is a unique drv set, so it cannot show a duplicate-entry removal; `pkgs_of` multiset diff is the proof for EX-3.
+
+### Pending user (VH-1, VH-2) -- NOT verified
+VH-1 (user decides, per uncached package): `killall-shell_cmds-329` (/nix/store/wpjr4ml6rry1arkkpqx9i6ha1kx0724c-killall-shell_cmds-329) and `yEd-3.25.1` (/nix/store/7k8hz835dpfnyackb56g7my96j6rzik3-yEd-3.25.1); Block B changed no Draupnir package other than the yazi/mcfly removals (identical drvs remain via HM, already cached or built as before). For each: add its name to `features/cli-broken.nix` `aarch64-darwin`, or accept a local build at the next Draupnir `home-switch`. Commands to re-check: `awk '/^>/{print $4, $2}' ~/.cache/multihost-gate/sl008/phase-07a/evidence/draupnir-delta | while read out name; do nix path-info --store https://cache.nixos.org "$out" >/dev/null 2>&1 && echo "cached $name" || echo "UNCACHED $name $out"; done`. Expected: exactly the two UNCACHED lines above (cache state may have moved). Mark verified only on the user's choice.
+
+VH-2 (on Draupnir, before activating the new home):
+```sh
+cd ~/flakes
+just home-build        # or: nix build "path:$PWD#homeConfigurations.\"david@Draupnir\".activationPackage" $(just --evaluate home_override) --no-write-lock-file --out-link result-home
+bin/gate-probe ~/probe-new 'homeConfigurations."david@Draupnir"'   # writes ~/probe-new/home-path-links
+cur=$(readlink -f ~/.local/state/nix/profiles/home-manager)/home-path   # confirm it exists; else $(readlink -f ~/.nix-profile)
+mk() { (cd "$1" && find -L . ! -type d -printf '%P\n' | LC_ALL=C sort | while IFS= read -r f; do printf '%s -> %s\n' "$f" "$(realpath -m -- "$f")"; done); }
+mk "$cur" > ~/probe-cur-links
+diff ~/probe-cur-links ~/probe-new/home-path-links
+```
+Look for: lines `bin/X -> A` on the left and `bin/X -> B` on the right where the package name differs (a flipped collision winner). Expected: every pre-existing link points at the same package name (store hashes may differ where a dependency moved); new links only for the 57 gained packages (and 07a's gains list). Inspect binutils-wrapper (gained, from dev.build) against darwin's cctools: `ld`, `ar`, `as`, `nm`, `strip`, `ranlib`, `size`, `strings`, `objdump`, `lipo`-class names are the likely collisions; also GNU vs BSD tools from gained `killall-shell_cmds`, `procs`, `htop`. A flipped winner is fixed forward with hiPrio/lowPrio (design :839-844, RV-017 F-7). Not verified by the worker.
+
+### For the orchestrator
+- Run `git -C ~ rm flakes/modules/home/linux/break-remind.nix` (denied to the worker), then re-check `ls modules/home/linux`.
+- DEC-024 replacement `consequences` -- PENDING USER ASSENT; to be applied at reconcile (DEC-024 not edited): "A host importing workstation gets the Wayland desktop stack (desktop.core), pipewire, docker, snooze, the app formats, fonts and dictate. The profile is Linux-only through desktop.core's platforms (DEC-030), so a darwin host cannot import it: the resolver refuses a selected feature whose platforms omit the host's system."

@@ -13,7 +13,7 @@
   feature.comms.chat.enable = lib.mkDefault true;
   feature.comms.mail.enable = lib.mkDefault true;
   feature.media.players.enable = lib.mkDefault true;
-  # Linux-only home half: a darwin host importing this profile would select it
-  # and fail ADR-005 D6 / hit QUE-001.
+  # The whole profile is Linux-only, through desktop.core's platforms (DEC-030),
+  # so a darwin host cannot import it and dictate never reaches one.
   feature.audio.dictate.enable = lib.mkDefault true;
 }
