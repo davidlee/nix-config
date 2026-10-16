@@ -6,13 +6,20 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-17 · ready (pre-PHASE-01) · 6f4b21c0
 
 ### Produced
+- DEC-042, DEC-043, DEC-044 (accepted; shape SL-010)
+- RV-022 (design review pass; adversarial lane waived)
+- design.md (locked r32), plan.toml PHASE-01..05
 
 ### Learned
+- HM tailscale-systray is PartOf/WantedBy graphical-session.target (inert headless)
+- Draupnir logs straight into nu (user chsh'd); darwin layer PATH block is live
 
 ### Open
+- IMP-001 closes with PHASE-04
+- PHASE-04 VH-1 (user, after switch)
 
 ## Design triage (2026-10-17)
 
