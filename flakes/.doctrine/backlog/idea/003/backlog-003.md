@@ -37,3 +37,11 @@ Open:
   package's database setup works before relying on it.
 - The master key stays out of every client's reach, Emacs included.
 - The satan ADR-017 authority ledger changes owner for credential resolution.
+- **Serve on a unix socket, with access controlled by its file mode.**
+  Required by oubliette's Plan F (`docs/plan-f-assistant.md`, oubliette
+  `fb241c4`): the SATAN room reaches LiteLLM through a forwarder in its network
+  namespace that connects to the socket, so nothing routes from guest to host.
+  The socket's owner, group and mode are this repo's to set, and they decide
+  which local clients may reach the proxy. Check that LiteLLM (or the nixpkgs
+  service) can listen on a unix socket; if not, it needs a TCP-to-socket shim
+  bound to loopback only.
