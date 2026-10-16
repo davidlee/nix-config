@@ -38,6 +38,14 @@ intent = "design-target"
 selector = "modules/shared/cli/_packages/system.nix"
 intent = "design-target"
 
+[[selector]]
+selector = "SATAN.md"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/linux/sleipnir-doctor.nix"
+intent = "design-target"
+
 [[relation]]
 label = "governed_by"
 target = "ADR-001"

@@ -90,3 +90,45 @@ selectors, F-6 governance). F-3 is aligned, and F-4 belongs to ISS-005.
   profile is Linux-only (ADR-005 D6). Replace "fonts and dictate only".
 - **F-6 — IMP-004:** status → done at `/close` (the prune landed in
   PHASE-06, commit 9fe49432).
+
+## Reconciliation Outcome
+
+The user agreed to every brief item and asked for a currency pass over RFC-001
+(2026-10-16). Following the SL-005 and SL-006 precedent, RFC-001 is edited
+directly and the DEC records with `doctrine knowledge edit decision`. No ADR
+or spec is touched, so no REV was opened.
+
+### Direct edits applied
+- F-2: design.md § Behaviour changes. The postgresql and dev rows now state
+  option-level effects; the rendered ruleset and build outputs are unchanged.
+- F-5: `doctrine slice selector add --intent design-target 7 SATAN.md
+  modules/home/linux/sleipnir-doctor.nix`, mirrored as a row in design.md
+  § Code impact.
+- F-6, RFC-001:
+  - W4 → done, SL-007 (row and diagram ✓); W5 told to follow DEC-027.
+  - "Where things stand" gains SL-007, and "Still flat" is now the home side
+    only.
+  - Target shape gains the base, host-config files and record-owned modules
+    (ADR-002 D3).
+  - The base bullet is answered for NixOS; W7 notes the aarch64 base target
+    and non-inherited host config.
+  - A working rule for checking `/etc` and option-level evidence.
+  - Open questions: HYP-001 notes SL-007's support.
+  - `agents` is pinned as a local path (ISS-006).
+  - References gain DEC-027..029, CHR-014, IMP-002, IMP-022 and ISS-006.
+- F-6, DEC-016: `features` dropped from the specialArgs in its choice. A
+  mistyped command briefly cleared the choice field; the original was
+  restored from HEAD, and the word diff shows only that token changed.
+- F-6, DEC-024: the choice lists the current workstation and host
+  selections, including `virt.{capsule,qemu}` and podman unselected. The
+  consequences say the profile brings the desktop stack and is Linux-only
+  (ADR-005 D6).
+- F-1: fixed during the audit (b079a0dd).
+
+### Deferred to /close
+- IMP-004 → done (the prune landed in 9fe49432).
+
+### Withdrawn / tolerated
+- F-3: aligned, no write. F-4: no write; ISS-005 owns it.
+
+Reconcile pass complete — handoff to /close.

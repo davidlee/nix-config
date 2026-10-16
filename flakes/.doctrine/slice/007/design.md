@@ -449,8 +449,8 @@ phase that changes it, and its allowed diff is exactly this list:
 | IMP-004 prune: `wob`, `i3status`, `wf-config`, `gnomeExtensions.appindicator`, `marble-shell-theme` | `features/desktop/core/wayland_packages.nix` | 5 fewer system packages; none used (research: repo and dotfile grep) |
 | duplicate `sway-easyfocus` | `features/compositor/sway.nix:15,19` | one entry fewer; unique set unchanged |
 | keyring `greedt` typo | `features/desktop/core/keyring.nix` | `/etc/pam.d/greedt` gone; `greetd` keeps keyring unlock through the `greetd` entry |
-| postgresql's stray 80/443 | `services.postgresql` record | ports unchanged (`services.webserver` opens them); firewall ruleset loses the duplicates |
-| undefined `dev` group | `modules/nixos/user.nix` | `extraGroups` loses `dev` |
+| postgresql's stray 80/443 | `services.postgresql` record | ports unchanged (`services.webserver` opens them); `allowedTCPPorts` loses the duplicates at option level; the rendered ruleset is unchanged, since NixOS already deduplicates (RV-016 F-2) |
+| undefined `dev` group | `modules/nixos/user.nix` | `extraGroups` loses `dev`, at option level only: the group never existed, so no build output changes (RV-016 F-2) |
 | `helix` from nix-ld libraries to `systemPackages` | `modules/nixos/programs.nix` | nix-ld env loses helix; root gets `hx` on PATH, which is what "root's editor" meant |
 | drop the Rust `kernelPatch` | `hosts/Sleipnir/config.nix` | kernel becomes the cached `linuxPackages_latest` build |
 
@@ -575,6 +575,7 @@ over tracked files under `flakes/` (excluding `.doctrine/`) finds nothing;
 | `features-test.nix` | renames, new tags, the compositor `requires` test | P3–P4 |
 | `hosts.nix` | `coverage."base@aarch64-linux"` | P5 |
 | `README.md` | per phase (below) | each |
+| `SATAN.md`, `modules/home/linux/sleipnir-doctor.nix` | pointers follow moved files (RV-016 F-5) | P3–P4 |
 | ADR-002 D3 | revised by REV-006 | P3 |
 
 `hosts.nix`'s factories do not change (DEC-027).
