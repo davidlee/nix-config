@@ -38,7 +38,10 @@ set -euo pipefail
 out=${1:?usage: gate-probe <outdir> [<flake attr>]}
 attr=${2:-nixosConfigurations.Sleipnir}
 user=david
-flake=$(cd "$(dirname "$0")/.." && pwd)
+root=$(cd "$(dirname "$0")/.." && pwd)
+# as the justfile's `flake`: the Mac's bare dotfiles repo defeats git discovery
+flake=$root
+[[ $(uname) == Darwin ]] && flake=path:$root
 
 sorted='lib.sort lib.lessThan'
 drvs="ps: lib.unique ($sorted (map (p: p.drvPath) ps))"
@@ -85,7 +88,7 @@ homeConfigurations.*)
   ;;
 esac
 
-read -ra overrides <<<"$(just --justfile "$flake/justfile" --evaluate "$override")"
+read -ra overrides <<<"$(just --justfile "$root/justfile" --evaluate "$override")"
 mkdir -p "$out"
 probe=$(nix eval --json "$flake#$attr" "${overrides[@]}" --no-write-lock-file --apply "$apply")
 

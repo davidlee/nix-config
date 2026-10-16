@@ -142,13 +142,14 @@ drvs-sets: check-flake-root
   @just _drvs darwinConfigurations 'c: set c.config.environment.systemPackages' "{{home_override}}"
 
 # Built-artefact measures drvs cannot show (mem.pattern.flakes.drv-gate):
-# Sleipnir's system and home under <outdir>/{system,home}, or one attr.
+# the host's system and home under <outdir>/{system,home}, or one attr. A
+# darwin host has no system mode (gate-probe measures NixOS): home only.
 probe outdir attr="": check-flake-root
   #!/usr/bin/env bash
   set -euo pipefail
   if [ -n '{{attr}}' ]; then exec bin/gate-probe '{{outdir}}' '{{attr}}'; fi
-  bin/gate-probe '{{outdir}}/system' nixosConfigurations.Sleipnir
-  bin/gate-probe '{{outdir}}/home' 'homeConfigurations."david@Sleipnir"'
+  if [ '{{os()}}' != macos ]; then bin/gate-probe '{{outdir}}/system' 'nixosConfigurations.{{host}}'; fi
+  bin/gate-probe '{{outdir}}/home' 'homeConfigurations."david@{{host}}"'
 
 # pick: config -> string. `set` hashes a package list independent of order.
 _drvs output pick overrides:
