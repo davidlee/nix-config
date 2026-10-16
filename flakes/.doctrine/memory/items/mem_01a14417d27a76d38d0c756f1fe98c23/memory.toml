@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14417d27a76d38d0c756f1fe98c23"
+memory_key = "mem.fact.flakes.availableon-limits"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "availableOn sees only a package's own meta"
+summary = "lib.meta.availableOn ignores dependencies and meta.broken; features/cli-broken.nix is the per-system escape hatch"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = ["features/available.nix", "features/cli-broken.nix"]
+globs = []
+commands = []
+tags = ["nix", "darwin"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "8e4982ebc56dbc3d5fce8f5d5ac731dc837d5d0e"
+ref_name = "refs/heads/main"
+checkout_state_id = "493127ddbcc09623cec14be44d00e6cdf788cdb05238bfdb6d264ae11b643ea7"
+base_commit = "1f63bb9558e32a1971bbddeb075d5df05d31f883"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-008"
+

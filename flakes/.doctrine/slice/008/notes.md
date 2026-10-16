@@ -105,7 +105,7 @@ user's choices. If one is wanted, it should check plan-level gate coverage
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · audit (RV-018) · d2f5f0f3
+fresh-as-of: 2026-10-16 · close
 
 ### Produced
 - PHASE-01..07 done — resolver platforms, home base + layers, features by function, personal profiles, home coverage + isolation, availability filter (commits 1391fcc6, c4020d9a, 1f037235, 5ddfdf05, 0d7dd406, ff4a0746, 8cb4a79b..d2f5f0f3)
@@ -114,21 +114,12 @@ fresh-as-of: 2026-10-16 · audit (RV-018) · d2f5f0f3
 - minted: IMP-026 — lazygit to dev.scm; IMP-027 — clangStdenv/binutils in dev.build; CHR-015 — Draupnir link-map check (VH-2)
 - owned elsewhere: CHR-001 — modules/DESIGN.md; IMP-019 — probe .manpath normalisation
 
-### Learned (promote to memories at close)
-- `lib.meta.availableOn` reads only a package's own meta.platforms (and badPlatforms), not its dependencies' nor `meta.broken`: gtt, udiskie, micro, fsearch pass it on aarch64-darwin and fail to evaluate
-- `lib.getName` gives the pname (`micro`, not `micro-wrapped`; `shell_cmds` for killall)
-- `.manpath`'s store hash follows `home-path`'s drv, so any home reorder moves it; masked diff is the proof
-- goad's real flake has no aarch64-linux packages
-- a feature attribute segment cannot start with a digit unquoted
-- HM c58f54c: systemd-only halves are inert on darwin; tailscale-systray, systembus-notify, swayosd, mangohud assert Linux
-- a relative `path:` override resolves against the `$HOME` git root; use `justfile_directory()`
+### Learned
+- promoted at close: mem.fact.flakes.availableon-limits, mem.fact.flakes.home-gate-derived-hash, mem.fact.flakes.hm-darwin-halves
 
 ### Open
-- REV-007, REV-008 — apply at reconcile (user decided)
-- DEC-006, DEC-024, DEC-036 — record edits at reconcile (RV-018 brief)
-- QUE-001 — mark answered by DEC-030
-- IMP-016, ISS-008 — resolve at close
-- CHR-015 — PHASE-07 VH-2, the user's check at the next Draupnir home-switch
+- none for SL-008. Follow-ups: IMP-026, IMP-027, CHR-001, IMP-019. RV-017 (design review) left `active · await=raiser` (pass waived).
+- closed: REV-007/008 done; DEC-006/024/036, RFC-001 reconciled; CHR-015, IMP-016, ISS-008 resolved; VH-1 user choice, VH-2 user-verified.
 
 ## PHASE-01
 

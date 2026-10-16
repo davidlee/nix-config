@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14417d2c172e4b708c8b660d27249"
+memory_key = "mem.fact.flakes.hm-darwin-halves"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Home Manager halves on darwin"
+summary = "systemd-only HM config is inert on darwin; some HM modules assert Linux, so their features need platforms = linux"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = ["features"]
+globs = []
+commands = []
+tags = ["darwin", "home-manager"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "8e4982ebc56dbc3d5fce8f5d5ac731dc837d5d0e"
+ref_name = "refs/heads/main"
+checkout_state_id = "b192d2b63c4bf8c67f82265ee77ef07dce1ef9321c697ed7dab99c2df77559df"
+base_commit = "1f63bb9558e32a1971bbddeb075d5df05d31f883"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-008"
+

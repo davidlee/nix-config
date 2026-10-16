@@ -1,0 +1,4 @@
+- Home Manager (c58f54c): `systemd.user.*` config is silently inert on darwin — no error, no effect.
+- Some HM modules assert Linux at eval: tailscale-systray, systembus-notify, swayosd, mangohud. A feature using them needs `platforms = lib.platforms.linux` (DEC-030) or Draupnir's home fails to evaluate when selected.
+- goad's flake exposes no aarch64-linux packages; the `home@aarch64-linux` coverage target must not select it.
+- A feature attribute segment cannot start with a digit unquoted.

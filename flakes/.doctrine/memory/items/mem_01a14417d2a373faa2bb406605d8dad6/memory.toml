@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14417d2a373faa2bb406605d8dad6"
+memory_key = "mem.fact.flakes.home-gate-derived-hash"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Home gate: derived-hash lines and Mac probing"
+summary = ".manpath tracks home-path's drv hash; probe/override paths need justfile_directory() and path: on the Mac"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = ["bin/gate-probe", "justfile"]
+globs = []
+commands = []
+tags = ["nix", "gate"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "8e4982ebc56dbc3d5fce8f5d5ac731dc837d5d0e"
+ref_name = "refs/heads/main"
+checkout_state_id = "355f2ac57d41fb3c1e63166f5f4df8a6abe787afc733c9c95542c69b337b5a38"
+base_commit = "1f63bb9558e32a1971bbddeb075d5df05d31f883"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-008"
+
