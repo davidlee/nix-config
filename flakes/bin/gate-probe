@@ -4,9 +4,9 @@
 #
 #   gate-probe <outdir> [<flake attr>]   default: nixosConfigurations.Sleipnir
 #
-# A homeConfigurations.* attr selects home mode (home_override); anything
-# else is system mode (system_override), as `just drvs` evaluates them. No
-# agents registry pin (justfile nixos_pick): nix.registry reaches none of these.
+# A homeConfigurations.* attr selects home mode; anything else is system
+# mode. Both evaluate with the justfile's local_override, as `just drvs`
+# does. No agents registry pin (justfile nixos_pick): nix.registry reaches none of these.
 # Writes, one file each:
 #
 # system
@@ -47,7 +47,6 @@ sorted='lib.sort lib.lessThan'
 drvs="ps: lib.unique ($sorted (map (p: p.drvPath) ps))"
 case $attr in
 homeConfigurations.*)
-  override=home_override
   apply="c: let
     cfg = c.config;
     inherit (c.pkgs) lib;
@@ -58,7 +57,6 @@ homeConfigurations.*)
   }"
   ;;
 *)
-  override=system_override
   apply="c: let
     cfg = c.config;
     inherit (c.pkgs) lib;
@@ -88,7 +86,7 @@ homeConfigurations.*)
   ;;
 esac
 
-read -ra overrides <<<"$(just --justfile "$root/justfile" --evaluate "$override")"
+read -ra overrides <<<"$(just --justfile "$root/justfile" --evaluate local_override)"
 mkdir -p "$out"
 probe=$(nix eval --json "$flake#$attr" "${overrides[@]}" --no-write-lock-file --apply "$apply")
 

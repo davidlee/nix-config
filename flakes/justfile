@@ -5,23 +5,23 @@
 # push. The committed flake pins the GitHub source for portability (darwin has
 # no local checkout to override against); these NixOS-only targets override it.
 # emacs_override := "--override-input emacs-config path:" + home_directory() + "/.config/emacs"
-# flakes/agents: build from the checkout so an agents/ edit lands without
-# push + `nix flake update agents`. Every evaluation consumes it (agentsOverlay
-# in mkNixos, mkHome and the flake outputs), and flake.lock pins a Linux path
-# absent on the Mac, so every recipe that evaluates the flake carries it.
-agents_override := "--override-input agents path:" + justfile_directory() + "/agents"
 
-system_override := "--override-input oubliette git+file:///home/david/dev/oubliette/ " + agents_override
+# Every input is declared by its remote URL and locked from it (DEC-038).
+# Read-only recipes build from local sources instead, so an edit lands without
+# push + `nix flake update`; lock-writing recipes (update-*) never override.
+#
+# In-tree inputs (agents/, emacs/), present wherever this justfile is.
+tree_override := "--override-input agents path:" + justfile_directory() + "/agents" + " --override-input emacs path:" + justfile_directory() + "/emacs"
 
-# flakes/emacs is locked from GitHub (portable); switch from the checkout so an
-# emacs.nix edit lands without push + `nix flake update emacs`.
-home_override := "--override-input emacs path:" + justfile_directory() + "/emacs " + agents_override
+# Dev checkouts present on this machine (bin/dev-checkouts, DEC-037): empty
+# where ~/dev has none (the Mac), so no recipe needs one.
+dev_override := `bin/dev-checkouts override`
+local_override := tree_override + " " + dev_override
 
-# just isolation: the local-path inputs (a path: or git+file: URL on this
-# machine), each overridden to an empty flake, so a reference to one's
-# packages or homeManagerModules fails evaluation and names it (DEC-034).
-stub := "path:" + justfile_directory() + "/features/stub"
-stub_override := "--override-input panopticon " + stub + " --override-input satan-patcher " + stub + " --override-input satan-attrd " + stub + " --override-input goad " + stub
+# just isolation: every dev-checkout input overridden to an empty flake, so a
+# reference to one's packages or homeManagerModules fails evaluation and names
+# it (DEC-034).
+stub_override := `bin/dev-checkouts stub`
 
 # The Mac needs an explicit path: reference, because the dotfiles repository
 # at ~/.git is bare and git discovery fails there ("this operation must be
@@ -47,11 +47,13 @@ choose:
 fmt: check-flake-root
   nix fmt
 
-# resolver tests (features-test.nix), factory checks (hosts.nix), then
-# behaviour tests for the plain scripts under features/
+# the lock holds no local source (ISS-006), resolver tests (features-test.nix),
+# factory checks (hosts.nix), then behaviour tests for the plain scripts
 test:
-  nix build ".#checks.$(nix config show system).features" {{agents_override}} --no-link --no-write-lock-file
-  nix build ".#checks.$(nix config show system).factories" {{home_override}} --no-link --no-write-lock-file
+  @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
+  nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
+  bin/dev-checkouts-test
   features/session/snooze-nag-test
   features/audio/dictate-test
   nu features/attention/nudge/nudge-test.nu
@@ -60,28 +62,28 @@ test:
 # read-only flake check (alejandra, statix, deadnix), then the tests.
 # --no-write-lock-file: a check never re-locks (CHR-008).
 gate: test
-  nix build ".#checks.$(nix config show system).treefmt" {{agents_override}} --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).treefmt" {{local_override}} --no-link --no-write-lock-file
 
 nixos-start-docker-daemon:
   systemctl --user start docker
 
 run cmd *args:
-  sudo ./run.sh {{cmd}} {{host}} {{system_override}} {{args}}
+  sudo ./run.sh {{cmd}} {{host}} {{local_override}} {{args}}
 
 check-flake-root:
   @if [ -d .git ] && [ ! -e .git/HEAD ]; then echo "invalid .git directory at flake root shadows parent git repo: remove ./.git or move it aside"; exit 1; fi
 
 system-switch: check-flake-root #check-no-root-pub
-  sudo ./run.sh switch {{host}} {{system_override}}
+  sudo ./run.sh switch {{host}} {{local_override}}
 
 system-build: check-flake-root
-  sudo ./run.sh build {{host}} {{system_override}}
+  sudo ./run.sh build {{host}} {{local_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  home-manager switch --flake '{{flake}}#david@{{host}}' {{home_override}}
+  home-manager switch --flake '{{flake}}#david@{{host}}' {{local_override}}
 
 home-build: check-flake-root #check-no-root-pub
-  home-manager build --flake '{{flake}}#david@{{host}}' {{home_override}}
+  home-manager build --flake '{{flake}}#david@{{host}}' {{local_override}}
 
 doctor:
   sleipnir-doctor
@@ -94,8 +96,8 @@ coverage_pick := 'c: if c ? activationPackage then c.activationPackage.drvPath e
 
 # drvPath of every configuration, evaluation only — the refactor gate
 # (mem.pattern.flakes.drv-gate): snapshot before a change, diff after.
-# Each family uses its switch target's overrides; new hosts are picked up
-# automatically.
+# Every family evaluates with local_override, as the switch recipes do; new
+# hosts are picked up automatically.
 #
 # Two inputs vary with the repo rather than the config, so they are pinned
 # here, or every edit/commit would read as a change:
@@ -104,20 +106,20 @@ coverage_pick := 'c: if c ? activationPackage then c.activationPackage.drvPath e
 #   exists, so the gate never invents it.
 # - darwin: configurationRevision embeds the git rev (`-dirty` included).
 drvs: check-flake-root
-  @just _drvs nixosConfigurations '{{nixos_pick}}' "{{system_override}}"
-  @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{home_override}}"
-  @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{home_override}}"
-  @just _drvs packages 'ps: set (builtins.attrValues ps)' "{{agents_override}}"
-  @just _drvs legacyPackages 'lp: if lp ? stdenv then builtins.concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"]) else "none"' "{{agents_override}}"
+  @just _drvs nixosConfigurations '{{nixos_pick}}' "{{local_override}}"
+  @just _drvs homeConfigurations 'c: c.activationPackage.drvPath' "{{local_override}}"
+  @just _drvs darwinConfigurations 'c: (c.extendModules { modules = [({lib, ...}: { system.configurationRevision = lib.mkForce null; })]; }).system.drvPath' "{{local_override}}"
+  @just _drvs packages 'ps: set (builtins.attrValues ps)' "{{local_override}}"
+  @just _drvs legacyPackages 'lp: if lp ? stdenv then builtins.concatStringsSep " " (map (n: lp.${n}.drvPath) ["stdenv" "codex" "claude"]) else "none"' "{{local_override}}"
   @just _drvs templates 't: "${t.path} ${t.description}"' ""
 
 # ADR-005 coverage targets: evaluate off features, and the NixOS and home
 # bases off x86, outside the switch path; pinned like drvs. Then isolation.
 coverage: check-flake-root
-  @just _drvs coverage '{{coverage_pick}}' "{{system_override}} {{home_override}}"
+  @just _drvs coverage '{{coverage_pick}}' "{{local_override}}"
   @just isolation
 
-# Lean homes never reach a local-path input (DEC-034): the home base, and
+# Lean homes never reach a dev-checkout input (DEC-034): the home base, and
 # Draupnir until a darwin feature needs one (IMP-023 removes that leg).
 # Reports on stderr, so `just coverage`'s stdout stays one line per target.
 isolation: check-flake-root
@@ -125,7 +127,7 @@ isolation: check-flake-root
   set -uo pipefail
   fail=0
   for attr in 'coverage."home@aarch64-linux"' 'homeConfigurations."david@Draupnir"'; do
-    if err=$(nix eval --raw '{{flake}}#'"$attr"'.activationPackage.drvPath' {{home_override}} {{stub_override}} --no-write-lock-file 2>&1 >/dev/null); then
+    if err=$(nix eval --raw '{{flake}}#'"$attr"'.activationPackage.drvPath' {{tree_override}} {{stub_override}} --no-write-lock-file 2>&1 >/dev/null); then
       echo "isolation: $attr ok" >&2
     else
       printf '%s\n' "$err" >&2; echo "isolation: $attr FAILED" >&2; fail=1
@@ -137,9 +139,9 @@ isolation: check-flake-root
 # lists. When drvs differs but these match, the package change is
 # ordering-only. Other merged lists (groups, sudo rules, …) still need nix-diff.
 drvs-sets: check-flake-root
-  @just _drvs nixosConfigurations 'c: set c.config.environment.systemPackages' "{{system_override}}"
-  @just _drvs homeConfigurations 'c: set c.config.home.packages' "{{home_override}}"
-  @just _drvs darwinConfigurations 'c: set c.config.environment.systemPackages' "{{home_override}}"
+  @just _drvs nixosConfigurations 'c: set c.config.environment.systemPackages' "{{local_override}}"
+  @just _drvs homeConfigurations 'c: set c.config.home.packages' "{{local_override}}"
+  @just _drvs darwinConfigurations 'c: set c.config.environment.systemPackages' "{{local_override}}"
 
 # Built-artefact measures drvs cannot show (mem.pattern.flakes.drv-gate):
 # the host's system and home under <outdir>/{system,home}, or one attr. A
@@ -157,10 +159,10 @@ _drvs output pick overrides:
 
 # Build first as the login user; only activation needs root.
 darwin-build host=host:
-  nix build '{{flake}}#darwinConfigurations.{{host}}.system' {{home_override}} --out-link result-darwin --no-write-lock-file
+  nix build '{{flake}}#darwinConfigurations.{{host}}.system' {{local_override}} --out-link result-darwin --no-write-lock-file
 
 darwin-switch host=host: (darwin-build host)
-  sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake '{{flake}}#{{host}}' {{home_override}} --no-write-lock-file
+  sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake '{{flake}}#{{host}}' {{local_override}} --no-write-lock-file
 
 everything: fmt update-system update-home system-switch home-switch
 
@@ -170,13 +172,15 @@ update: update-system update-home
 ##
 
 update-system:
-  nix flake update nixpkgs {{system_override}}
+  nix flake update nixpkgs
 
 update-home:
-  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix {{home_override}}
+  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
 
+# re-lock everything under development from its remote: push first
 update-local:
-  nix flake update satan satan-attrd panopticon satan-patcher {{system_override}}
+  bin/dev-checkouts ahead
+  nix flake update satan agents emacs $(bin/dev-checkouts names)
 
 # bump agents/zerostack.nix to its github default-branch HEAD; commit+push to ship
 update-zerostack:

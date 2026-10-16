@@ -8,10 +8,13 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1790752361,
-        "narHash": "sha256-jYOjJUzmxhMJyBh3kizAa5q3PrZp9qVLlATQT0+w+QQ=",
-        "path": "/home/david/flakes/agents",
-        "type": "path"
+        "dir": "flakes/agents",
+        "lastModified": 1792144203,
+        "narHash": "sha256-cB9G0aty3OyFSqJE4YXTMuNQJEx03TBr3iM1kjjF3m4=",
+        "owner": "davidlee",
+        "repo": "nix-config",
+        "rev": "5027b12f8e345d9ce830e8d286c031aeeb0a0da7",
+        "type": "github"
       },
       "original": {
         "dir": "flakes/agents",
@@ -1204,15 +1207,15 @@
       "locked": {
         "lastModified": 1790845891,
         "narHash": "sha256-RpQhb0LyNr+fjF8A4K9SHHgStCnytBRm+YbJdIDVM64=",
-        "ref": "refs/heads/main",
+        "owner": "davidlee",
+        "repo": "goad",
         "rev": "250b8ed9cf6f4cda9879fc45b2b3ceb2d52ea987",
-        "revCount": 606,
-        "type": "git",
-        "url": "file:///home/david/dev/goad"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/david/dev/goad"
+        "owner": "davidlee",
+        "repo": "goad",
+        "type": "github"
       }
     },
     "home-manager": {
@@ -2491,12 +2494,12 @@
         ]
       },
       "locked": {
-        "dirtyRev": "1a27efc69d4a6e21eeaa98c576cc8f3f7683ac59-dirty",
-        "dirtyShortRev": "1a27efc-dirty",
-        "lastModified": 1790823545,
-        "narHash": "sha256-Mdi/T6rcaA/XL3L6P+MDRHl90gOCe6JOu7VHyl/sgog=",
-        "type": "git",
-        "url": "file:///home/david/dev/oubliette/"
+        "lastModified": 1792146616,
+        "narHash": "sha256-iG3VpHEHR6p6aWyAPCG2kMiUcJgbWIjS+Bnur0GaCec=",
+        "owner": "davidlee",
+        "repo": "oubliette",
+        "rev": "61701fe312e502a78ed19fe26109a615d4ae4793",
+        "type": "github"
       },
       "original": {
         "owner": "davidlee",
@@ -2517,14 +2520,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1790937930,
-        "narHash": "sha256-mAM/PJUIryaUmI1RkjGNnJupqDfDfqy4ZKjmkJ8fI+E=",
-        "path": "/home/david/dev/panopticon",
-        "type": "path"
+        "lastModified": 1790932576,
+        "narHash": "sha256-eRWnLmI0iBYAqFBMcMDVePwYhzzMSj8k1I9kpExjNRQ=",
+        "owner": "davidlee",
+        "repo": "panopticon",
+        "rev": "a6648a46e4f8de08f9d841163f1bb30c5750581d",
+        "type": "github"
       },
       "original": {
-        "path": "/home/david/dev/panopticon",
-        "type": "path"
+        "owner": "davidlee",
+        "repo": "panopticon",
+        "type": "github"
       }
     },
     "pub": {
@@ -2718,14 +2724,17 @@
         "spec-driver": "spec-driver"
       },
       "locked": {
-        "lastModified": 1790749964,
-        "narHash": "sha256-dDcIOjVNvOlIamEaCN1voVk2tymBvXa7HJBasXFrAvY=",
-        "path": "/home/david/dev/satan-attrd",
-        "type": "path"
+        "lastModified": 1792133472,
+        "narHash": "sha256-tDtwFKvJlMEFIjsGTnSjCjENZd5UVKWRS1GZSLqQ/kg=",
+        "owner": "davidlee",
+        "repo": "satan-attrd",
+        "rev": "c8fd7eb51aeada64571270c98f94a30fb7337036",
+        "type": "github"
       },
       "original": {
-        "path": "/home/david/dev/satan-attrd",
-        "type": "path"
+        "owner": "davidlee",
+        "repo": "satan-attrd",
+        "type": "github"
       }
     },
     "satan-patcher": {
@@ -2737,13 +2746,16 @@
       },
       "locked": {
         "lastModified": 1790749964,
-        "narHash": "sha256-ha5nEH93RlXEMPf5LDT6aBvPbCNFOlh8tGS3ZlWYWAM=",
-        "path": "/home/david/dev/satan-patcher",
-        "type": "path"
+        "narHash": "sha256-7pQ7CO6IFzvORwvKpwd+Rx+gjdJ1CjdFhY3YJeIveT4=",
+        "owner": "davidlee",
+        "repo": "sloptower",
+        "rev": "4efa20542b77d4aad83079da267121a38b08e94f",
+        "type": "github"
       },
       "original": {
-        "path": "/home/david/dev/satan-patcher",
-        "type": "path"
+        "owner": "davidlee",
+        "repo": "sloptower",
+        "type": "github"
       }
     },
     "scenefx": {

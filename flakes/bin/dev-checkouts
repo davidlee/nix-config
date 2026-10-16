@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# The flake inputs developed in a local checkout (DEC-037), and the one place
+# that list is written. Every input is declared by its remote URL; a checkout
+# on this machine overrides it for read-only recipes only (DEC-038).
+#
+#   dev-checkouts override   --override-input <i> git+file://<root>/<i>, per present checkout
+#   dev-checkouts stub       --override-input <i> path:<repo>/features/stub, per listed input
+#   dev-checkouts ahead      warn (stderr) per present checkout ahead of its upstream
+#   dev-checkouts names      the listed inputs
+#
+# The root is $FLAKES_DEV, default ~/dev; <root>/<i>/.git marks a checkout.
+# git+file, not path:, so only tracked files reach the store, as a GitHub
+# fetch of the same revision gives a machine without the checkout.
+set -euo pipefail
+
+inputs=(oubliette goad panopticon satan-patcher satan-attrd)
+root=${FLAKES_DEV:-$HOME/dev}
+repo=$(cd "$(dirname "$0")/.." && pwd)
+
+usage() { echo "usage: dev-checkouts override|stub|ahead|names" >&2; }
+
+# The flags travel as one space-separated string (justfile, gate-probe), so a
+# root with whitespace would split into wrong flags.
+if [[ $root =~ [[:space:]] ]]; then
+  echo "dev-checkouts: checkout root '$root' contains whitespace; set FLAKES_DEV" >&2
+  exit 1
+fi
+
+present() { [[ -e $root/$1/.git ]]; }
+
+flags=()
+case ${1:-} in
+override)
+  for i in "${inputs[@]}"; do
+    if present "$i"; then flags+=(--override-input "$i" "git+file://$root/$i"); fi
+  done
+  ;;
+stub)
+  for i in "${inputs[@]}"; do flags+=(--override-input "$i" "path:$repo/features/stub"); done
+  ;;
+ahead)
+  for i in "${inputs[@]}"; do
+    present "$i" || continue
+    if ! n=$(git -C "$root/$i" rev-list --count '@{upstream}..HEAD' 2>/dev/null); then
+      echo "dev-checkouts: $i has no upstream; update-local locks its remote" >&2
+    elif ((n > 0)); then
+      echo "dev-checkouts: $i is $n commit(s) ahead of its upstream; update-local locks the remote" >&2
+    fi
+  done
+  ;;
+names)
+  flags=("${inputs[@]}")
+  ;;
+*)
+  usage
+  exit 1
+  ;;
+esac
+
+if ((${#flags[@]})); then echo "${flags[*]}"; fi

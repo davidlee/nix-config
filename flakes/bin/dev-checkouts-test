@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Behaviour tests for dev-checkouts. Each case builds a throwaway checkout root
+# (FLAKES_DEV) holding some of the listed inputs, then asserts what each verb
+# prints. No network: "ahead" clones a local bare repository.
+#
+#   ./dev-checkouts-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/dev-checkouts
+repo=$(cd "$here/.." && pwd)
+stub=path:$repo/features/stub
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# root <name> <input>… — a fresh checkout root holding a git repo per input
+root() {
+  local dir=$work/$1
+  shift
+  mkdir -p "$dir"
+  for input in "$@"; do git init -q "$dir/$input"; done
+  printf '%s' "$dir"
+}
+
+# dc <root> <verb> — run the script; leaves $out, $err and $rc
+dc() {
+  rc=0
+  out=$(FLAKES_DEV=$1 "$script" "$2" 2>"$work/err") || rc=$?
+  err=$(<"$work/err")
+}
+
+# ------------------------------------------------------------------ cases
+
+none=$(root none)
+dc "$none" override
+check 'override: nothing present, nothing printed' '' "$out"
+check 'override: nothing present is not an error' 0 "$rc"
+
+some=$(root some panopticon goad)
+dc "$some" override
+check 'override: present checkouts, in list order, as git+file' \
+  "--override-input goad git+file://$some/goad --override-input panopticon git+file://$some/panopticon" "$out"
+
+# a directory without .git is not a checkout
+mkdir -p "$some/oubliette"
+dc "$some" override
+check 'override: a directory without .git is not present' \
+  "--override-input goad git+file://$some/goad --override-input panopticon git+file://$some/panopticon" "$out"
+
+dc "$none" stub
+check 'stub: every listed input, present or not' \
+  "--override-input oubliette $stub --override-input goad $stub --override-input panopticon $stub --override-input satan-patcher $stub --override-input satan-attrd $stub" "$out"
+
+dc "$none" names
+check 'names: the list, space-separated' 'oubliette goad panopticon satan-patcher satan-attrd' "$out"
+
+# The overrides travel as one space-separated string, so a root with a space
+# would split into wrong flags. Refused, naming the root.
+spaced=$(root 'has space' goad)
+dc "$spaced" override
+check 'whitespace root: refused' 1 "$rc"
+check 'whitespace root: names it' 1 "$(grep -c "$spaced" <<<"$err" || true)"
+check 'whitespace root: prints no flags' '' "$out"
+
+# ahead: one warning per present checkout ahead of its upstream, on stderr
+ahead=$(root ahead)
+git init -q --bare "$work/upstream.git"
+for input in goad satan-attrd; do
+  git clone -q "$work/upstream.git" "$ahead/$input" 2>/dev/null
+  git -C "$ahead/$input" commit -q --allow-empty -m base
+  git -C "$ahead/$input" push -q origin HEAD 2>/dev/null
+done
+git -C "$ahead/goad" commit -q --allow-empty -m unpushed
+dc "$ahead" ahead
+check 'ahead: warns only for the checkout ahead of its upstream' 1 "$(grep -c . <<<"$err")"
+check 'ahead: names it' 1 "$(grep -c 'goad' <<<"$err")"
+check 'ahead: prints nothing on stdout' '' "$out"
+check 'ahead: is not an error' 0 "$rc"
+
+dc "$none" bogus
+check 'unknown verb: refused' 1 "$rc"
+check 'unknown verb: prints usage' 1 "$(grep -c '^usage:' <<<"$err")"
+
+# FLAKES_DEV unset: the root is ~/dev
+mkdir -p "$work/home/dev"
+git init -q "$work/home/dev/goad"
+out=$(env -u FLAKES_DEV HOME="$work/home" "$script" override)
+check 'default root: ~/dev' "--override-input goad git+file://$work/home/dev/goad" "$out"
+
+exit "$failed"

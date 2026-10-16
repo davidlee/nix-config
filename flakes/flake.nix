@@ -11,9 +11,8 @@
     # instead of vendoring their own. Also consumed directly by
     # overlays/agents.nix, which every system and home evaluation applies.
     #
-    # Meant to be locked from GitHub (portable, like `emacs`), but the lock
-    # holds a local path (ISS-006); `agents_override` in the Justfile, on
-    # every recipe, switches to the local checkout so an agents/ edit lands
+    # Locked from GitHub, like `emacs`; the justfile's read-only recipes build
+    # from the in-tree checkout (tree_override), so an agents/ edit lands
     # without push + `nix flake update agents`.
     agents.url = "github:davidlee/nix-config?dir=flakes/agents";
 
@@ -42,8 +41,8 @@
     # Wrapped Emacs (the manual package list), shared with the ~/.config/emacs and
     # satan devshells — one derivation, one set of pins (its own nixpkgs and
     # overlay). GitHub for portability: darwin has no /home/david. The
-    # justfile's switch targets override it with the local checkout, so an
-    # emacs.nix edit lands without a push.
+    # justfile's read-only recipes override it with the in-tree checkout, so
+    # an emacs.nix edit lands without a push.
     emacs = {
       url = "github:davidlee/nix-config?dir=flakes/emacs";
       # Override the upstream flake's moving tarball with a revision-locked fetch.
@@ -71,8 +70,10 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
+    # Developed in ~/dev checkouts (bin/dev-checkouts): declared and locked by
+    # remote; read-only recipes override each with a present checkout.
     panopticon = {
-      url = "path:/home/david/dev/panopticon";
+      url = "github:davidlee/panopticon";
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
         pub.follows = "agents";
@@ -81,7 +82,6 @@
     };
 
     satan = {
-      # url = "path:/home/david/dev/satan";
       url = "github:davidlee/satan";
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
@@ -91,12 +91,12 @@
     };
 
     satan-patcher = {
-      url = "path:/home/david/dev/satan-patcher";
+      url = "github:davidlee/sloptower";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
     satan-attrd = {
-      url = "path:/home/david/dev/satan-attrd";
+      url = "github:davidlee/satan-attrd";
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
         pub.follows = "agents";
@@ -104,9 +104,7 @@
       };
     };
 
-    goad = {
-      url = "git+file:///home/david/dev/goad";
-    };
+    goad.url = "github:davidlee/goad";
 
     # The capsule's host-side perimeter as systemd units under dedicated uids
     # (nixosModules.capsule-perimeter, wired in features/virt/capsule.nix, which
@@ -116,10 +114,8 @@
     # the host half only. Was github:davidlee/microvm-spike.
     #
     # `target.follows` is a fetchability shim, not a version choice.
-    # `target` is the repo oubliette confines — doctrine, as
-    # `git+file:///home/david/dev/doctrine`, a path that exists on Sleipnir and
-    # nowhere else, so locking or updating this input from darwin would try to
-    # fetch something that isn't there — same class of problem as `agents` above.
+    # `target` is the repo oubliette confines (doctrine); following nixpkgs
+    # keeps a second copy of it out of the lock.
     # Nothing here reads it: it feeds oubliette's
     # nixosConfigurations.capsule (the guest's tool set), which this flake never
     # evaluates. Importing microvm.nix's *host* module does not change that;

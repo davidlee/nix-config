@@ -72,9 +72,9 @@ just home-switch       # home
 ```
 
 The recipes pick the host by `hostname -s`; pass `host=Draupnir` while the
-machine still has another name. Every recipe overrides two inputs with local
-checkouts: `emacs/`, so package-list fixes apply without a push, and
-`agents/`, which `flake.lock` pins at a Linux-only path (ISS-006).
+machine still has another name. The recipes build `emacs/` and `agents/` from
+the checkout; the Mac has no `~/dev`, so every other input comes from the lock
+(§ Dev checkouts).
 
 On the Mac the flake is referenced as `path:<justfile dir>`, because the
 dotfiles repository at `~/.git` is bare; automatic Git discovery otherwise
@@ -132,6 +132,27 @@ activation finishing.
   necessarily the noted one. It restores embedded home-manager and its
   packages, and sets the hostname back to `Davids-MacBook-Pro`, so name the
   host explicitly (`just host=Draupnir …`) until the next switch.
+
+### Dev checkouts
+
+Every flake input is declared by its remote URL, and `flake.lock` holds no
+local path (`just test` refuses one). Read-only recipes build from local
+sources instead, so an edit lands without a push and a re-lock:
+
+```
+tree_override   agents/, emacs/                       in this repo, always present
+dev_override    oubliette goad panopticon satan-*     ~/dev/<input>, where checked out
+```
+
+`bin/dev-checkouts` holds the list, and is the only place it is written.
+A checkout is present when `$FLAKES_DEV/<input>/.git` exists (default
+`~/dev`), so a machine without one, such as the Mac, uses the lock and needs
+nothing. Overrides are `git+file`: only tracked files reach the store, as
+GitHub would give them.
+
+Lock-writing recipes never override. To move the lock to your local work,
+push, then `just update-local`, which warns about any checkout ahead of its
+upstream and re-locks every input under development from its remote.
 
 ### Features
 
@@ -303,9 +324,8 @@ they are evaluated, never built.
 `home@aarch64-linux` selects no feature, so the availability filter is
 exercised by the two hosts' homes only; aarch64-linux homes with features are
 future work.
-`just isolation` evaluates that target and Draupnir's home with panopticon,
-satan-patcher, satan-attrd and goad (the inputs that are local paths)
-overridden to the empty `features/stub` flake, so a lean home that reaches one
+`just isolation` evaluates that target and Draupnir's home with every dev
+checkout input (§ Dev checkouts) overridden to the empty `features/stub` flake, so a lean home that reaches one
 fails to evaluate, naming it. `just coverage` runs it.
 `nix flake check` warns about the unknown `coverage` output; that is expected.
 

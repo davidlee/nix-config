@@ -61,3 +61,34 @@ Source: `research/research.md` (X-1..X-7, deltas 1–8). Rescope agreed by user.
   the overlay changes any drv (P3), and whether git+file changes panopticon's
   or satan-*'s consumers (P1). Both are settled by each phase's drv gate, not
   by more review, so no further pass is planned.
+
+## PHASE-01 — dev checkouts and the lock (2026-10-16)
+
+Snapshots: `~/.cache/sl009/p1/{base,A,B,absent}` (drvs, drvs-sets, probe,
+checkouts = HEAD + dirty state of each listed checkout). Agents were committing
+in `~/dev/oubliette` throughout: HEAD 61701fe (base, A) → 1284c5a (B, absent)
+→ 09f4df8 (coverage), dirty at every snapshot. The other four were clean at
+their origin rev the whole time.
+
+| run | vs | diff | attribution |
+|---|---|---|---|
+| A (justfile + script) | base | Sleipnir system: `capsule-*` only. Sleipnir home: panopticon pkg + units, satan-patcher unit, `.manpath` | home: path: → git+file drops ignored files (expected, design P1 row). system: oubliette lock pinned 1a27efc-dirty; override now reads 61701fe-dirty |
+| B (declarations + re-lock) | A | Sleipnir system: `capsule-*` only; home identical | oubliette moved 61701fe → 1284c5a |
+| absent (`FLAKES_DEV=/nonexistent`) | B | Sleipnir system: `capsule-*` (+`capsule-adopt`) only; home, darwin, packages, legacyPackages identical | oubliette lock = origin 61701fe (clean) vs local 1284c5a-dirty. Every clean checkout gives the same drvs from GitHub |
+| coverage | base | all six `Sleipnir+…` | oubliette drift: back-to-back runs of the pre-phase tree (scratch copy, old lock) and this tree against the same checkout state are identical |
+
+- Lock guard red on the pre-relock lock (`just test`: "flake.lock locks a
+  local source"), green after. Re-lock revs = local HEAD = origin for goad,
+  panopticon, satan-patcher, satan-attrd; oubliette = origin 61701fe.
+- The re-lock also bumped `emacs/emacs-overlay`; pinned back to 3d05567 with
+  `nix flake lock --override-input emacs/emacs-overlay github:…/3d05567…`
+  (a github node, not a local one). Pre-existing: any lock write re-resolves
+  it (ISS-010).
+- isolation passes; negative control (home base imports
+  `inputs.goad.homeManagerModules.default`) fails both targets at that line;
+  reverted.
+- With the override, oubliette 1284c5a+ warns "override for a non-existent
+  input 'target' / 'goad-walk'": its new HEAD dropped both inputs. When that
+  work is pushed and re-locked, `flake.nix`'s two follows lines go.
+- justfile committed from a filtered copy: the user's `push-local` recipe
+  stays unstaged.
