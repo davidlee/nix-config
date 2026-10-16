@@ -1,7 +1,7 @@
 id = 9
 slug = "vm-enablers-agents"
 title = "VM enablers and agents onto the tree (RFC-001 W6 + W2)"
-status = "design"
+status = "plan"
 created = "2026-10-16"
 updated = "2026-10-16"
 tags = []
@@ -12,11 +12,11 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts/*/meta.nix"
@@ -24,7 +24,7 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "hosts/Sleipnir/home.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "overlays/agents.nix"
@@ -32,15 +32,15 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "modules/nixos/nix.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/eca.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "modules/home/linux/chatgpt.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/**"
@@ -48,23 +48,59 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "features-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "flake.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "flake.lock"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "bin/gate-probe"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/dev-checkouts"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/dev-checkouts-test"
+intent = "design-target"
+
+[[selector]]
+selector = "host-meta.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "host-meta-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "perSystem.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/config.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/personal-linux.nix"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"

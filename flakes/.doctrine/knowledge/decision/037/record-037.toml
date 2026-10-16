@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 37
+slug = "dev-checkouts-are-machine-data-the-justfile-overrides-only-checkouts-present"
+title = "Dev checkouts are machine data: the justfile overrides only checkouts present"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "ISS-003 and ISS-006: local checkouts were flake inputs (declared path:, or overridden into the lock), so recipes failed where ~/dev/oubliette was absent and the lock held Linux paths. IDE-002 proposed per-host override data in meta.nix."
+choice = "One justfile list of dev inputs (oubliette goad panopticon satan-patcher satan-attrd). dev_override adds --override-input <i> git+file://$FLAKES_DEV/<i> (default ~/dev) for each checkout whose .git exists. tree_override covers the in-tree agents and emacs (path:). local_override = tree + dev replaces agents_override/home_override/system_override in every read-only recipe and in bin/gate-probe."
+alternatives = ["IDE-002: override data in hosts/<h>/meta.nix, flags derived by nix eval", "keep path: overrides for the path-declared inputs"]
+rationale = "Checkout presence depends on the machine running just, not the Nix host config; testing it directly needs no data and no nix eval per recipe. git+file takes tracked files only, matching what a github: fetch gives the Mac."
+consequences = ["IDE-002 not adopted", "FLAKES_DEV=/nonexistent simulates a machine with no checkouts", "Sleipnir drvs consuming panopticon/satan-* may change once (ignored files no longer copied): a named diff", "the input list duplicates names from flake.nix"]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-009"

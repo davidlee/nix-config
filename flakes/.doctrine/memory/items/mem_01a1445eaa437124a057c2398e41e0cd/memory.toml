@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1445eaa437124a057c2398e41e0cd"
+memory_key = "mem.fact.doctrine.design-review-route"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Design review-disposed needs a route on major findings"
+summary = "doctrine design refuses review-disposed while a major/blocker RV finding has no route; reopen, dispose again with --route, verify, conclude"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = []
+globs = []
+commands = ["doctrine design apply", "doctrine review dispose"]
+tags = ["doctrine", "review"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "70d2bf6a98895d27d9fcd5bcd1e4b18d8f5b2c58"
+ref_name = "refs/heads/main"
+checkout_state_id = "8b62adc4586f96b3e8df2a2805e47c43dd12005da3844899c5ac12304075f223"
+base_commit = "5027b12f8e345d9ce830e8d286c031aeeb0a0da7"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-009"
+

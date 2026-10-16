@@ -1,0 +1,119 @@
+id    = 19
+slug  = "design-review-of-sl-009"
+title = "design review of SL-009"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "pass 1: three GPT findings fixed in design.md rev 28 and verified; no open findings"
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "pass 1: three findings fixed and verified; F-1 routed review"
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-009"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "P1 equality proof assumes clean checkouts"
+detail = "GPT (gpt-6-sol) design review. design.md P1 requires drvs with checkouts to match FLAKES_DEV=/nonexistent 'clean at the pushed revision', but ~/dev/oubliette has a modified tracked file (verified: git status shows M .doctrine/backlog/idea/001/backlog-001.toml). git+file includes dirty tracked changes, so the equality fails for reasons outside the migration."
+disposition = "fix-now"
+response = "Fixed in design text: P1 proof requires equality only where a checkout is clean at its locked revision; other diffs attributed to dirty/ahead checkouts (design.md § Phases and verification, rev 28)."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Fixed: P1 proof now requires equality only where a checkout is clean at its locked revision and attributes every other diff to a dirty or ahead checkout (design.md § Phases and verification)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in materialised design.md (rev 28)"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "reopened only to attach a route (the engine requires a route on major findings)"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design text: P1 proof requires equality only where a checkout is clean at its locked revision; other diffs attributed to dirty/ahead checkouts (design.md § Phases and verification, rev 28)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 28"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "update-local has no source for the dev input names"
+detail = "GPT review. bin/dev-checkouts is the only place the list is written, with verbs override/stub/ahead; update-local needs 'nix flake update satan agents emacs <the dev list>' and no verb prints names."
+disposition = "fix-now"
+response = "Fixed: bin/dev-checkouts gains a 'names' verb; update-local runs nix flake update satan agents emacs $(bin/dev-checkouts names) (§ Dev checkouts and the lock)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Fixed: bin/dev-checkouts gains a 'names' verb; update-local runs nix flake update satan agents emacs $(bin/dev-checkouts names) (§ Dev checkouts and the lock)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in materialised design.md (rev 28)"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Whitespace in the checkout root breaks the flag string"
+detail = "GPT review. FLAKES_DEV paths are emitted into a space-delimited flag string, re-split by just recipes and by bin/gate-probe:91 (read -ra)."
+disposition = "fix-now"
+response = "Fixed: the script refuses a checkout root containing whitespace, naming it (§ Dev checkouts and the lock)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Fixed: the script refuses a checkout root containing whitespace, naming it (§ Dev checkouts and the lock)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in materialised design.md (rev 28)"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

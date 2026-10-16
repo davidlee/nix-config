@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 38
+slug = "every-flake-input-is-declared-remote-lock-writing-recipes-never-override"
+title = "Every flake input is declared remote; lock-writing recipes never override"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "ISS-006: goad, panopticon, satan-patcher and satan-attrd were declared as ~/dev paths, and update-* recipes passed --override-input, which a lock-writing command records (agents, oubliette locked to local sources)."
+choice = "panopticon, satan-patcher (github:davidlee/sloptower), satan-attrd and goad are declared github:davidlee/<repo>. update-system/update-home/update-local pass no overrides; update-local re-locks every developed input (the dev list, satan, agents, emacs) and warns when a checkout is ahead of origin, but never pushes (push-local stays separate). just test fails if flake.lock holds a path or file:// node."
+alternatives = ["update-local depends on push-local (rejected by user: a bare just would push every repo)", "keep the four inputs path-declared and fix only agents and oubliette"]
+rationale = "A lock with no local source is portable to every machine; lock updates happen on Sleipnir and are committed (ISS-006 direction). Pushing is outward-facing and stays an explicit act."
+consequences = ["a ~/dev change reaches the lock only after a push and update-local", "the Mac builds pushed revisions", "ISS-006 and ISS-003 resolve"]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-009"

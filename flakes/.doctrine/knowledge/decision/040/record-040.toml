@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 40
+slug = "the-agents-overlay-applies-only-to-legacypackages"
+title = "The agents overlay applies only to legacyPackages"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-016 injects agentsOverlay into every NixOS/darwin evaluation (mkAfter) and every home overlay list. No module uses a name it injects; eca uses the agents input directly and chatgpt uses llm-agents. Its one consumer is legacyPackages behind nix.registry.agents (DEC-018)."
+choice = "Remove agentsOverlay from platformModule and homeModule in hosts.nix; keep it on legacyPackages. No selection-driven overlay and no resolver change."
+alternatives = ["apply the overlay according to the feature selection (needs the resolver to expose selection; amends DEC-025)", "leave it everywhere"]
+rationale = "An overlay with no consumer only adds evaluation cost and callPackage auto-arg exposure; scoping it to its consumer needs no selection read, so ADR-001 and DEC-025 stand."
+consequences = ["amends DEC-016 (overlay clause) and its consequence that every Mac evaluation must override agents", "DEC-018 restated: legacyPackages carries the overlay", "proved by the drv gate in its own phase", "weak evidence for HYP-001: W2 needed no factory selection read"]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-009"

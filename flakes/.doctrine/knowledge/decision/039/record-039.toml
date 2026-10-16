@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 39
+slug = "hostshmetanix-is-validated-by-an-evalmodules-schema-before-any-resolution"
+title = "hosts/<h>/meta.nix is validated by an evalModules schema before any resolution"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "IMP-010: meta.nix was a bare import; a misspelled kind dropped the host from system configs but still produced a home and a bogus resolution (hosts.nix:48,63,139-141)."
+choice = "host-meta.nix (repo root): lib.evalModules with kind (enum nixos|darwin), system (str), home (bool, default false); unknown keys refused; the definition carries _file so errors name hosts/<h>/meta.nix. hosts.nix validates and forces every host before selections. Tests in host-meta-test.nix (failing fixture paired with a passing twin), wired as checks.host-meta."
+alternatives = ["hand-rolled checks in the features.nix style"]
+rationale = "evalModules gives typed enums, unknown-option errors and file attribution for a three-field schema; IMP-010 proposed it; it leaves room for new kinds (lima/microvm)."
+consequences = ["meta.home or false becomes meta.home", "a bad meta fails every evaluation"]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-009"
