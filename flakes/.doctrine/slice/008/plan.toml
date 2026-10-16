@@ -43,7 +43,7 @@ exit_criteria = [
 verification = [
   { id = "VT-1", expects = "platform tests exist and pass", test_file = "features-test.nix", keywords = ["testUnsupportedPlatformFails", "testPlatformsAbsentMeansAll", "testBadPlatformsShapeFails", "aarch64-darwin"], waived = false },
   { id = "VT-2", expects = "resolver reads and enforces platforms", test_file = "features.nix", keywords = ["\"platforms\"", "does not support", "system"], waived = false },
-  { id = "VT-3", expects = "hosts pass their system to the resolver", test_file = "hosts.nix", keywords = ["meta.system", "import ./features {inherit lib;}"], waived = false },
+  { id = "VT-3", expects = "hosts pass their system to the resolver", test_file = "hosts.nix", keywords = ["meta.system", "./features", "inherit lib"], waived = false },
   { id = "VT-4", expects = "tree is a function of lib", test_file = "features/default.nix", keywords = ["{lib}", "map area"], waived = false },
   { id = "VA-1", expects = "EX-6 gate diff: every drvs line identical" },
 ]
