@@ -1,9 +1,9 @@
 id = 7
 slug = "nixos-base-host-split"
 title = "NixOS base / host split"
-status = "design"
+status = "plan"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [relationships]
@@ -72,6 +72,10 @@ label = "references"
 role = "concerns"
 descriptor = "ControlD hostname moves to hosts/Sleipnir/dns.nix (DEC-029)"
 target = "IMP-002"
+
+[[relation]]
+label = "related"
+target = "REV-006"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

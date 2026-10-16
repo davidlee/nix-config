@@ -85,8 +85,9 @@ P6 behaviour changes. Detail in design.md.
 `modules/nixos/**`, `hosts/Sleipnir/{config,machine,features,dns}.nix`,
 `features/**` (new `compositor` and `shell` areas, new records),
 `features/profiles/**`, `flake.coverage` (aarch64 base target),
-`features-test.nix`, `README.md`. Not `hosts.nix` (DEC-027: no factory
-change). POL-001 governs what the moved files may carry.
+`features-test.nix`, `README.md`; ADR-002 D3 via REV-006 (a big record may
+import modules of its own, for `desktop.core`). Not `hosts.nix` (DEC-027: no
+factory change). POL-001 governs what the moved files may carry.
 
 ## Risks and assumptions
 
@@ -110,7 +111,8 @@ change). POL-001 governs what the moved files may carry.
 - Behaviour-change phase: probe diff equals exactly the listed changes.
 - At close: every `modules/nixos/*.nix` is base (or parked), and every other
   piece is a feature, machine config or Sleipnir host config; the base is
-  named in one place; RFC-001 W4 and IMP-004 updated.
+  named in one place; RFC-001 W4 and IMP-004 updated; REV-006 applied;
+  DEC-024's consequences refreshed (the workstation profile is Linux-only).
 
 ## Summary
 

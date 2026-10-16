@@ -86,7 +86,12 @@ Why the edges are as drawn:
   evaluation (P5).
 
 `desktop.core` is selected by the workstation profile because any desktop
-workstation of the user's wants it (DEC-024). The greeter, compositors and
+workstation of the user's wants it (DEC-024). Like `virt.docker` and
+`non-nix-packages.*` already, `desktop.core` and `audio.pipewire` are
+NixOS-only records, so the profile stays Linux-only: a darwin host importing
+it would be refused (ADR-005 D6). No darwin host imports it today. DEC-024's
+consequences still say a new host gets "fonts and dictate only" and are
+refreshed at close. The greeter, compositors and
 shell are taste, and the hardware features are bound to this machine's
 peripherals (DEC-011, DEC-021), so Sleipnir selects them.
 
@@ -165,9 +170,13 @@ plain import list in the shape of `darwin/default.nix`:
 }
 ```
 
-The list keeps `config.nix`'s current relative order (alphabetical, `cli`
-last), so moving the imports into it changes nothing by itself. Each host's
-`config.nix` imports `../../modules/nixos` where the flat list was.
+The list keeps the base modules' relative order from `config.nix`
+(alphabetical, `cli` last). In `config.nix` they are interleaved with
+non-base modules (`1password`, `audio`, …, `xdg`), so grouping them under one
+import reorders merged lists relative to those; P1's gate row allows exactly
+that. Each host's `config.nix` imports `../../modules/nixos` first, then
+whatever it still imports flat, in the current order (§ Phases and
+verification draws each interim state).
 
 ### What each mixed module keeps, and where the rest goes
 
@@ -194,10 +203,12 @@ Lines are cited at the current revision. "core" is `desktop.core`;
 **Invariants.**
 - No base module reads the feature selection (ADR-001; there is no
   `features` argument to read).
-- No base module duplicates something a feature switches (ADR-001 D6). Where
-  a value is set in both today with the same result (`polkit` in `keyring`
-  and `security`, `avahi.enable` in `audio`), both stay: removing one is a
-  behaviour change outside P6's list.
+- No base module duplicates something a feature switches (ADR-001 D6), and
+  no feature restates a base setting. Two known cases set the same value:
+  `polkit.enable` in `keyring.nix` (base: `security.nix`) and `avahi.enable`
+  in `audio.nix` (base: `avahi.nix`). The feature's copy is dropped in the
+  phase that moves it (P3, P4). The configuration is identical, and the gate
+  proves it.
 - `zsh` stays in the base with `user.nix`, which sets
   `defaultUserShell = pkgs.zsh`.
 
@@ -286,8 +297,8 @@ from `features/desktop/core/`:
       ./core/x11.nix
       ./core/xdg.nix
       ./core/qt.nix
-      ./core/keyring.nix          # + greetd keyring PAM from security.nix
-      ./core/apps.nix             # programs/1password/util/env/lib/user desktop halves
+      ./core/keyring.nix          # + greetd keyring PAM from security.nix; minus polkit
+      ./core/gui.nix              # GUI programs and libraries, session glue
       ./core/v4l2loopback.nix     # from kernel.nix
     ];
   };
@@ -295,14 +306,21 @@ from `features/desktop/core/`:
 ```
 
 Each whole-file module moves with `git mv` under its own name, so its
-history follows. `apps.nix` and `v4l2loopback.nix` are new: they collect the
-desktop halves of split files. `xdg.nix`'s comment on where `umbriel`
+history follows. `gui.nix` and `v4l2loopback.nix` are new: they collect the
+desktop halves of split files. `gui.nix` holds GUI programs and libraries
+and the session glue they need, from `programs`, `1password`, `util`, `lib`,
+`env` and `user`; its header names each part's origin. It is not called
+`apps`, the name of an existing area whose meaning IMP-016 has yet to settle. `xdg.nix`'s comment on where `umbriel`
 defines its portal section (`:13`, "./umbriel.nix") is corrected to the
 `compositor.umbriel` record's upstream module. The
 `imports` list is explicit (ADR-002 D7) and the record is still one record
-with one half. It is the first record to compose modules this way. The
-README rule changes to "a big record may import modules of its own from
-`features/<area>/<name>/`".
+with one half. It is the first record to compose modules this way, which
+ADR-002 D3 ("the own file holds the whole record") does not yet admit.
+REV-006 revises D3: a record too big for one file may import modules of its
+own from `features/<area>/<name>/`, listed explicitly, belonging to that
+record only. The revision is applied in P3 with the README's "own file" rule,
+so the two never disagree. An unselected record's `imports` sit inside a
+class value and are never forced, so ADR-002 D4's boundary holds.
 
 **`desktop.greeter`**: `greeter.nix` whole, no `requires` (DEC-026). Its
 hard-coded `default = "niri"` (`:19`) becomes the host's choice:
@@ -354,7 +372,7 @@ own file.
 
 | feature | content | selected by | position |
 |---|---|---|---|
-| `audio.pipewire` | `audio.nix` whole; `security.rtkit`; the `@users` rtprio `loginLimits`; `boot.kernelModules` `snd-seq`, `snd-rawmidi`, `snd-aloop`; user groups `audio`, `jackaudio` | workstation | first in `features/audio.nix` |
+| `audio.pipewire` | `audio.nix` minus `avahi.enable` (base); `security.rtkit`; the `@users` rtprio `loginLimits`; `boot.kernelModules` `snd-seq`, `snd-rawmidi`, `snd-aloop`; user groups `audio`, `jackaudio` | workstation | first in `features/audio.nix` |
 | `hardware.bluetooth` | `bluetooth.nix` whole | Sleipnir | after `openrgb` |
 | `hardware.qmk` | `keyboard.nix` whole | Sleipnir | |
 | `hardware.tablet` | `hardware.opentabletdriver`, `hardware.uinput`, `boot.kernelModules = ["uinput"]` | Sleipnir | |
@@ -367,8 +385,14 @@ own file.
 - No `requires` edges. `audio.mpd` and `audio.dictate` need pipewire to do
   anything, but both are selected wherever it is, and the decisions add no
   edge (ADR-001 D4 only obliges profiles to carry the edges that exist).
-- `rtkit` is also enabled by some desktop modules upstream; setting it in
-  `audio.pipewire` matches what `audio.nix` already does.
+- `compositor.cosmic` overlaps three of these switches upstream (nixpkgs
+  `services/desktop-managers/cosmic.nix`): it sets `hardware.bluetooth.enable`
+  and `services.avahi.enable` with `mkDefault`, and `security.rtkit.enable`
+  plainly. While cosmic is selected, switching `hardware.bluetooth` off
+  removes this host's bluetooth settings, blueman and tools but leaves the
+  bluetooth stack on, and switching `audio.pipewire` off leaves rtkit on.
+  Accepted, not engineered around: the user plans to drop cosmic after this
+  slice. The negative controls state it (§ Phases and verification).
 
 <!-- doctrine:section sec-6 -->
 ## Base evaluation on aarch64
@@ -422,7 +446,7 @@ phase that changes it, and its allowed diff is exactly this list:
 
 | change | site after P1–P5 | expected effect |
 |---|---|---|
-| IMP-004 prune: `wob`, `i3status`, `wf-config`, `gnomeExtensions.appindicator`, `marble-shell-theme` | `features/desktop/core/wayland.nix` | 5 fewer system packages; none used (research: repo and dotfile grep) |
+| IMP-004 prune: `wob`, `i3status`, `wf-config`, `gnomeExtensions.appindicator`, `marble-shell-theme` | `features/desktop/core/wayland_packages.nix` | 5 fewer system packages; none used (research: repo and dotfile grep) |
 | duplicate `sway-easyfocus` | `features/compositor/sway.nix:15,19` | one entry fewer; unique set unchanged |
 | keyring `greedt` typo | `features/desktop/core/keyring.nix` | `/etc/pam.d/greedt` gone; `greetd` keeps keyring unlock through the `greetd` entry |
 | postgresql's stray 80/443 | `services.postgresql` record | ports unchanged (`services.webserver` opens them); firewall ruleset loses the duplicates |
@@ -464,6 +488,17 @@ files (`mem.fact.flakes.git-add-n`): every new file (`modules/nixos/default.nix`
 `features/desktop/core.nix`, `features/desktop/core/*`) is `git add -N`ed
 before the phase's gate runs.
 
+**What `config.nix` still imports flat** from `modules/nixos/` after each
+phase (the base import, `hardware-configuration.nix` and `machine.nix` are
+always there):
+
+| after | flat imports left | gone this phase, to |
+|---|---|---|
+| P1 | `1password audio bluetooth greeter keyboard keyring oom postgresql qt radeon umbriel wayland wayland_packages x11 xdg` | base modules → `default.nix` |
+| P2 | as P1, minus `oom radeon` | `oom` → `./oom.nix`, radeon → `machine.nix`; `./dns.nix` added |
+| P3 | `audio bluetooth keyboard postgresql` | desktop files → `desktop.core`, `desktop.greeter`, `compositor.umbriel`; `1password` split (CLI → `programs.nix`, GUI → core) |
+| P4 | none | → `audio.pipewire`, `hardware.bluetooth`, `hardware.qmk`, `services.postgresql` |
+
 One commit per phase. Anything not in a phase's row is red: `nix-diff` it
 and stop. Home, Draupnir, packages, legacyPackages and templates lines are
 identical at every phase unless the row says otherwise.
@@ -497,16 +532,21 @@ and check the closure, not the option:
 
 | feature | signature gone |
 |---|---|
-| `desktop.core` (with greeter, compositors, shell, which require it) | `wayland-utils` and `seahorse` absent from system-path; `qt.enable` false |
+| `desktop.core`, with the compositors (which require it); greeter and shell stay on | `wayland-utils` and `seahorse` absent from system-path; `qt.enable` false |
 | `desktop.greeter` | `noctalia-greeter` display manager off. Also, once: `defaultSession = "bogus"` is refused at evaluation |
 | `compositor.umbriel` | `programs.umbriel.enable` false |
 | `shell.noctalia` | noctalia absent from system-path |
 | `audio.pipewire` | `pavucontrol`, `ncpamixer` absent; no `@users` rtprio limit |
-| `hardware.bluetooth` / `qmk` / `tablet` / `logitech` | `bluetui` / `qmk` / `opentabletdriver` / `ltunify` absent from system-path |
+| `hardware.bluetooth` / `qmk` / `tablet` / `logitech` | `bluetui` / `qmk` / `opentabletdriver` / `ltunify` absent from system-path. For bluetooth also `services.blueman.enable` false, and `hardware.bluetooth.enable` still true while cosmic is selected (§ Audio, hardware and service features); deselect cosmic too and it is false |
 | `services.postgresql` | `postgresql` unit absent |
 | `services.webserver` | 80 and 443 absent from `ports`. This only holds from P6, because postgresql opens them until then; re-run in P6 |
 
 The existing compositor controls (SL-006) are re-run under the new paths.
+Every control that deselects niri (the `desktop.core` control and niri's own)
+also sets `services.displayManager.defaultSession = lib.mkForce null`:
+otherwise the NixOS assertion that it names an installed session refuses
+evaluation before any signature is checked. That refusal is itself checked
+once, under `desktop.greeter`.
 
 **Close:** every `modules/nixos/*.nix` is in `default.nix` or parked;
 `git grep -En 'feature\.desktop\.(sway|niri|cosmic|kde|mango)|modules/nixos/(1password|audio|bluetooth|greeter|keyboard|keyring|oom|postgresql|qt|radeon|umbriel|wayland|wayland_packages|x11|xdg)\.nix'`
@@ -535,13 +575,14 @@ over tracked files under `flakes/` (excluding `.doctrine/`) finds nothing;
 | `features-test.nix` | renames, new tags, the compositor `requires` test | P3–P4 |
 | `hosts.nix` | `coverage."base@aarch64-linux"` | P5 |
 | `README.md` | per phase (below) | each |
+| ADR-002 D3 | revised by REV-006 | P3 |
 
 `hosts.nix`'s factories do not change (DEC-027).
 
 **README**, updated in the phase that makes each statement true:
 - Features: the tree listing gains `compositor/`, `shell/`, `desktop/core/`
   and the new records. The "own file" rule gains the record-imports-modules
-  form. "Parked is not a feature" is unchanged.
+  form, worded as REV-006 words ADR-002 D3 (P3). "Parked is not a feature" is unchanged.
 - Hosts: a "base" paragraph (P1): what the base is, where it lives, that a
   host imports it, and the four-class table from § Shape.
 - Coverage (P5): the aarch64 base target.
@@ -550,6 +591,8 @@ over tracked files under `flakes/` (excluding `.doctrine/`) finds nothing;
 
 **Governance at close:** RFC-001 W4 row done, with W5 told to follow the
 same base pattern (DEC-027); IMP-004 closed; DEC-016's stale `features`
-argument corrected in passing (research, revision candidates). There is no
-ADR change: areas, records and profiles keep their ADR-002 shape.
+argument corrected in passing (research, revision candidates); DEC-024's
+consequences refreshed (below). ADR-002 D3 is revised by REV-006 in P3
+(§ Desktop, compositor and shell); areas, records and profiles otherwise
+keep their ADR-002 shape.
 

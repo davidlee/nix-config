@@ -10,6 +10,12 @@ raiser    = "raiser"
 responder = "responder"
 rounds_base = 0
 contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Second pass, rev 36 to 38: all nine sections re-read against the code (modules/nixos, features/, hosts.nix, justfile, nixpkgs cosmic and niri modules), plus a user-relayed external agent pass (F-6..F-11, F-15). Probes: vacuous negative controls, aarch64 breakers in the base closure (agents overlay builds for aarch64; no further x86-only packages found in base lists beyond cpuid and x86info), the record-imports-modules form against ADR-002, and the interim config.nix states between P1 and P4."
 
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-007"
@@ -128,6 +134,326 @@ response = """Integrated (user: 'go', 2026-10-16): DEC-026 amended; sec-1 drops 
 [[finding.turn]]
 act = "verify"
 role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "major"
+title = "desktop.core imports modules of its own, against ADR-002 D3"
+detail = """
+Raised by an external agent pass (user-relayed); verified. sec-4 makes desktop.core's record import eight modules from features/desktop/core/. ADR-002 D3 says "The own file holds the whole record. Assets sit near their feature", and CHR-012 tightened D3 to one file per feature. sec-9 says "There is no ADR change" and changes only the README rule, which leaves README and ADR-002 disagreeing. The files-as-interface question is the slice's organising principle, so it must be decided explicitly: revise ADR-002 D3 to admit "a big record may import modules of its own from features/<area>/<name>/", or justify the eight modules under the existing rule.
+"""
+disposition = "fix-now"
+route = "review"
+response = """
+User chose to revise ADR-002 D3 (2026-10-16), not to inline the eight modules or call them assets. REV-006 (proposed; SL-007 related) carries the before and after wording: a record too big for one file may import modules of its own from features/<area>/<name>/, listed explicitly, belonging to that record only. It is applied in P3 with the README rule, so the README and the ADR never disagree. sec-4 states it and why D4's boundary holds; sec-9 replaces "no ADR change" and adds a code-impact row; the README bullet is tied to REV-006's wording. Sweep: no other record in the design imports modules of its own.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = """
+User chose to revise ADR-002 D3 (2026-10-16), not to inline the eight modules or call them assets. REV-006 (proposed; SL-007 related) carries the before and after wording: a record too big for one file may import modules of its own from features/<area>/<name>/, listed explicitly, belonging to that record only. It is applied in P3 with the README rule, so the README and the ADR never disagree. sec-4 states it and why D4's boundary holds; sec-9 replaces "no ADR change" and adds a code-impact row; the README bullet is tied to REV-006's wording. Sweep: no other record in the design imports modules of its own.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "core/apps.nix is a grab-bag whose name clashes with the apps area"
+detail = """
+Raised by an external agent pass (user-relayed); verified. sec-4's ./core/apps.nix collects the desktop halves of six unrelated files (programs, 1password, util, env, lib, user). It is named "apps" while an apps area exists whose meaning is unsettled (IMP-016). Against the cohesion and IA principle (slice notes). Name it for what it holds, or split it by origin as v4l2loopback.nix was.
+"""
+disposition = "fix-now"
+response = """
+Renamed to core/gui.nix: GUI programs and libraries plus the session glue they need, header naming each part's origin (user: "gui makes sense in isolation"). sec-4 says why it is not called apps. The user's further thought, a gui area (gui.core, gui.graphics, gui.office), belongs to IMP-016 and is noted there, not decided here.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Renamed to core/gui.nix: GUI programs and libraries plus the session glue they need, header naming each part's origin (user: "gui makes sense in isolation"). sec-4 says why it is not called apps. The user's further thought, a gui area (gui.core, gui.graphics, gui.office), belongs to IMP-016 and is noted there, not decided here.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "IMP-004 prune site is wayland_packages.nix, not wayland.nix"
+detail = """
+Raised by an external agent pass (user-relayed); verified. sec-7's first row puts wob, i3status, wf-config, gnomeExtensions.appindicator, marble-shell-theme at features/desktop/core/wayland.nix. After RV-015 F-1 the files move separately, and all five are in modules/nixos/wayland_packages.nix (lines 39, 48, 59, 62, 63), so the site is features/desktop/core/wayland_packages.nix.
+"""
+disposition = "fix-now"
+response = """
+sec-7 site corrected to features/desktop/core/wayland_packages.nix. Sweep: no other row in sec-7 or sec-9 names a merged wayland file.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+sec-7 site corrected to features/desktop/core/wayland_packages.nix. Sweep: no other row in sec-7 or sec-9 names a merged wayland file.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "Same-value duplicates (avahi in audio, polkit in keyring) are not behaviour changes"
+detail = """
+Raised by an external agent pass (user-relayed); verified. sec-2's invariant keeps avahi.enable in audio.nix and polkit.enable in keyring.nix because "removing one is a behaviour change outside P6's list". Both set the same boolean the base sets (avahi.nix, security.nix:19), so removing the feature-side copy leaves the configuration identical; the gate proves it. Keeping them makes audio.pipewire and desktop.core restate base settings, against cohesion. Drop them in the phase that moves each record (P4, P3).
+"""
+disposition = "fix-now"
+response = """
+sec-2's invariant now says no feature restates a base setting: polkit.enable leaves keyring.nix in P3 and avahi.enable leaves audio.nix in P4, with an identical configuration the gate proves. sec-4's keyring line and sec-5's audio.pipewire row say so. Sweep over today's flat imports: rtkit is set in audio.nix and security.nix, but it moves out of the base into audio.pipewire, so no base copy remains; the sweep covered rtkit, polkit and avahi only; any other same-value pair the phases do not touch simply stays, harmlessly.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+sec-2's invariant now says no feature restates a base setting: polkit.enable leaves keyring.nix in P3 and avahi.enable leaves audio.nix in P4, with an identical configuration the gate proves. sec-4's keyring line and sec-5's audio.pipewire row say so. Sweep over today's flat imports: rtkit is set in audio.nix and security.nix, but it moves out of the base into audio.pipewire, so no base copy remains; no other same-value pair between a feature-bound file and the base was found.
+"""
+
+[[finding.turn]]
+act = "amend"
+role = "responder"
+note = "narrow the sweep claim to what was checked"
+disposition = "fix-now"
+response = """
+sec-2's invariant now says no feature restates a base setting: polkit.enable leaves keyring.nix in P3 and avahi.enable leaves audio.nix in P4, with an identical configuration the gate proves. sec-4's keyring line and sec-5's audio.pipewire row say so. Sweep over today's flat imports: rtkit is set in audio.nix and security.nix, but it moves out of the base into audio.pipewire, so no base copy remains; the sweep covered rtkit, polkit and avahi only; any other same-value pair the phases do not touch simply stays, harmlessly.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "minor"
+title = "Workstation profile is Linux-only; DEC-024's consequences are stale"
+detail = """
+Raised by an external agent pass (user-relayed); verified in part. The pass said SL-007 makes the workstation profile Linux-only by adding desktop.core and audio.pipewire (NixOS-only records), so a darwin host importing it would be refused. It already is: docker, appimage and flatpak are NixOS-only records the profile selects (features/virt.nix:49, features/non-nix-packages.nix:5,15). The verified defect is that DEC-024's consequences ("A future host importing workstation gets fonts and dictate only", and the darwin hazard named as dictate/QUE-001) lag the profile, and SL-007 adds two more NixOS-only selections without saying so. No host is affected today (Draupnir imports no profile).
+"""
+disposition = "fix-now"
+response = """
+Accepted in part. The profile was already Linux-only (docker, appimage, flatpak are NixOS-only records), so SL-007 does not make it so. What lags is DEC-024's consequences. sec-1 now says the profile stays Linux-only and that a darwin host importing it is refused (ADR-005 D6); sec-9 adds the DEC-024 consequences refresh to governance at close.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted in part. The profile was already Linux-only (docker, appimage, flatpak are NixOS-only records), so SL-007 does not make it so. What lags is DEC-024's consequences. sec-1 now says the profile stays Linux-only and that a darwin host importing it is refused (ADR-005 D6); sec-9 adds the DEC-024 consequences refresh to governance at close.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "nit"
+title = "compositor.kde and compositor.cosmic are desktop environments"
+detail = """
+Raised by an external agent pass (user-relayed). The compositor area name stretches for kde and cosmic, which are full desktop environments. The pass recommends no change.
+"""
+disposition = "tolerated"
+response = """
+Acknowledged. DEC-026 chose the area name knowingly. The user plans to drop every compositor except umbriel after this slice, which removes both stretched members. No change.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Acknowledged. DEC-026 chose the area name knowingly. The user plans to drop every compositor except umbriel after this slice, which removes both stretched members. No change.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-12"
+status = "verified"
+severity = "minor"
+title = 'Desktop negative controls cannot evaluate with defaultSession = "niri"'
+detail = """
+sec-8's desktop.core control deselects core "with greeter, compositors, shell, which require it". Since F-5 the greeter has no requires, so that text lags DEC-026. More importantly, sec-3 has config.nix set services.displayManager.defaultSession = "niri", and NixOS asserts the name is an installed session. Deselecting the compositors (the core control) or niri (the SL-006 compositor controls, re-run under the new paths) fails evaluation on that assertion before any signature is checked. Each such control must also override defaultSession (mkForce null), and the core row must say whether the greeter stays on.
+"""
+disposition = "fix-now"
+response = """
+sec-8: the desktop.core control now deselects the compositors only, and the greeter and shell stay on (F-5 removed the greeter's requires). Every control that deselects niri also sets services.displayManager.defaultSession to mkForce null, and the reason is stated; the deliberate bogus-session refusal stays under desktop.greeter.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+sec-8: the desktop.core control now deselects the compositors only, and the greeter and shell stay on (F-5 removed the greeter's requires). Every control that deselects niri also sets services.displayManager.defaultSession to mkForce null, and the reason is stated; the deliberate bogus-session refusal stays under desktop.greeter.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-13"
+status = "verified"
+severity = "minor"
+title = "cosmic re-enables bluetooth, rtkit and avahi, so feature switches leak"
+detail = """
+nixpkgs services/desktop-managers/cosmic.nix sets hardware.bluetooth.enable = mkDefault true (:166), security.rtkit.enable = true (:156) and services.avahi.enable = mkDefault true (:169). With compositor.cosmic selected, switching hardware.bluetooth off leaves the bluetooth stack enabled, and switching audio.pipewire off leaves rtkit on. The bluetooth control's signature (bluetui absent) passes while the radio stays on, so it cannot notice that the switch does not switch. sec-5 mentions rtkit's upstream overlap but not bluetooth, and does not state what the switch means while cosmic is selected.
+"""
+disposition = "fix-now"
+response = """
+Accepted as a known overlap, not engineered around: the user plans to drop cosmic after this slice. sec-5 names the three upstream settings (cosmic.nix:156, 166, 169) and what each switch then leaves on. The bluetooth control in sec-8 also checks blueman off, and reports hardware.bluetooth.enable as true while cosmic is selected and false with cosmic deselected too, so it no longer passes vacuously on the radio. Sweep: the kde record here sets none of the three (packages only); mango's upstream module was not checked; niri sets gnome-keyring by mkDefault, which the desktop.core control avoids by deselecting niri with it.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Accepted as a known overlap, not engineered around: the user plans to drop cosmic after this slice. sec-5 names the three upstream settings (cosmic.nix:156, 166, 169) and what each switch then leaves on. The bluetooth control in sec-8 also checks blueman off, and reports hardware.bluetooth.enable as true while cosmic is selected and false with cosmic deselected too, so it no longer passes vacuously on the radio. Sweep: kde and mango records here set none of the three; niri sets gnome-keyring by mkDefault, which the desktop.core control avoids by deselecting niri with it.
+"""
+
+[[finding.turn]]
+act = "amend"
+role = "responder"
+note = "narrow the sweep claim to what was checked"
+disposition = "fix-now"
+response = """
+Accepted as a known overlap, not engineered around: the user plans to drop cosmic after this slice. sec-5 names the three upstream settings (cosmic.nix:156, 166, 169) and what each switch then leaves on. The bluetooth control in sec-8 also checks blueman off, and reports hardware.bluetooth.enable as true while cosmic is selected and false with cosmic deselected too, so it no longer passes vacuously on the radio. Sweep: the kde record here sets none of the three (packages only); mango's upstream module was not checked; niri sets gnome-keyring by mkDefault, which the desktop.core control avoids by deselecting niri with it.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-14"
+status = "verified"
+severity = "minor"
+title = "P1 does change module order; the interim config.nix is not drawn"
+detail = """
+sec-2 says the base list "keeps config.nix's current relative order ... so moving the imports into it changes nothing by itself". In config.nix the base modules are interleaved alphabetically with non-base ones (1password, audio, bluetooth, greeter, keyboard, keyring, oom, postgresql, qt, radeon, umbriel, wayland, wayland_packages, x11, xdg). Replacing them with a single ../../modules/nixos import moves every base module relative to those, which reorders merged lists. P1's row allows an order-only diff, so the gate copes, but the prose overclaims. Nor does the design show what config.nix still imports flat between P1 and P4: each phase removes some flat imports, and a reader has to reconstruct the interim states.
+"""
+disposition = "fix-now"
+response = """
+sec-2 no longer claims P1 changes nothing: grouping the interleaved base modules under one import reorders merged lists relative to the remaining flat imports, which P1's gate row allows. The base import goes first and the remaining flat imports keep their order. sec-8 gains a table of what config.nix imports flat after each of P1 to P4, and where each departing file goes.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+sec-2 no longer claims P1 changes nothing: grouping the interleaved base modules under one import reorders merged lists relative to the remaining flat imports, which P1's gate row allows. The base import goes first and the remaining flat imports keep their order. sec-8 gains a table of what config.nix imports flat after each of P1 to P4, and where each departing file goes.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
+
+[[finding]]
+id = "F-15"
+status = "verified"
+severity = "minor"
+title = "P6 package count: 6 or 5?"
+detail = """
+Raised by an external agent pass (user-relayed). sec-8 expects the drvs-sets system count to drop by 6 (5 pruned + 1 duplicate), while sec-7 says removing the duplicate sway-easyfocus leaves the unique set unchanged. The pass reads this as a contradiction and expects a drop of 5, plus 1 for helix.
+"""
+disposition = "aligned"
+response = """
+No contradiction. drvs-sets prints the list length, duplicates included (justfile:129, builtins.length of the systemPackages list), next to a hash of the sorted drvPaths. Dropping the duplicate sway-easyfocus entry shortens the list by one while the set of unique packages is unchanged, which is what sec-7 says. So sec-8's count (minus 6, plus 1) is right. No change.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+No contradiction. drvs-sets prints the list length, duplicates included (justfile:129, builtins.length of the systemPackages list), next to a hash of the sorted drvPaths. Dropping the duplicate sway-easyfocus entry shortens the list by one while the set of unique packages is unchanged, which is what sec-7 says. So sec-8's count (minus 6, plus 1) is right. No change.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "re-read the revised sections against the finding"
 
 # Findings are append-only `[[finding]]` tables, added by `review raise`.
 # Empty here at creation — a fresh review is Active, awaiting the raiser.

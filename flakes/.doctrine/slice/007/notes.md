@@ -43,13 +43,20 @@ the record-imports-modules form for desktop.core against ADR-002 D1/D7 and
 the README "own file" rule; and what config.nix still imports flat during
 P1–P4 (interim states the phase table does not draw).
 
+RV-015 second pass (run rev 36→38): agent pass on those probes (F-12..F-14)
+plus a user-relayed external agent pass (F-6..F-11, F-15). F-6 (major):
+user chose to revise ADR-002 D3 → REV-006 (proposed, applied in P3). F-15
+contested (drvs-sets counts duplicates). Concluded; all verified.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-16 · design reviewing (run rev 36, 9 sections, RV-015 F-1..F-5 verified) · 8d8ed761 + uncommitted
+fresh-as-of: 2026-10-16 · design reviewing (run rev 38, 9 sections, RV-015 F-1..F-15 verified, pass concluded) · 4b27ca22 + uncommitted
 
 ### Produced
 - DEC-026 (taxonomy; amended: greeter has no requires, host defaultSession), DEC-027 (NixOS base), DEC-028 (placement), DEC-029 (ControlD DNS → hosts/Sleipnir/dns.nix, POL-001)
-- design.md (sec-1..9); RV-015 (agent self-pass + user-raised F-5)
+- design.md (sec-1..9); RV-015 (two passes: F-1..F-5, F-6..F-15)
+- REV-006 (ADR-002 D3: big record may import its own modules; SL-007 related)
+- IMP-016 note: candidate `gui` area (user)
 - SL-007 governed_by POL-001; references IMP-002
 - RFC-001 updated (W3 done, W4 next); IMP-022 (oom per host), CHR-014 (i2c)
 - research/research.md (gitignored)
@@ -60,7 +67,11 @@ fresh-as-of: 2026-10-16 · design reviewing (run rev 36, 9 sections, RV-015 F-1.
   (uncached) kernel build. Candidate memory after P6 verifies it.
 - `services.displayManager.defaultSession` is asserted against installed session
   names (nixpkgs display-managers/default.nix:196); noctalia-greeter does not read it.
+  Any negative control that deselects the named compositor must null it.
+- nixpkgs cosmic.nix enables bluetooth, avahi (mkDefault) and rtkit, so those
+  feature switches leak while cosmic is selected.
+- `drvs-sets` counts list entries including duplicates (justfile `_drvs`).
 
 ### Open
-- Design not locked: fresh review pass pending (probes: § Review passes above)
+- Design not locked: awaiting section attestations, RV-015 disposition, acceptance
 - IMP-004 (prune, P6), IMP-017, IMP-002, IMP-003, ISS-008, QUE-001, QUE-004

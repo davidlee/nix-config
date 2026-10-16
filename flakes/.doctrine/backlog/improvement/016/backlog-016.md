@@ -23,3 +23,8 @@ Decide which areas and features these become: one `apps` area, or several
 areas by kind. Then migrate `apps.cad`. Do this alongside RFC-001 W5 (home
 base / personal split), since most of these modules are home base or
 personal. QUE-001 (platform scope) applies: they are Linux-only home halves.
+
+**Candidate shape** (user, 2026-10-16, during SL-007 review RV-015 F-7):
+a `gui` area — `gui.core`, `gui.graphics`, `gui.office`, … SL-007 names the
+desktop stack's GUI-programs module `features/desktop/core/gui.nix` and
+avoids the name "apps", so this item is not prejudged either way.
