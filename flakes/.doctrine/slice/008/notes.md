@@ -104,35 +104,31 @@ user's choices. If one is wanted, it should check plan-level gate coverage
 (each phase's proof row) once the plan exists, not the design.
 
 ## Harvest
+<!-- single-copy: updated in place each harvest; ids only, never restated content -->
+fresh-as-of: 2026-10-16 · audit (RV-018) · d2f5f0f3
 
-fresh-as-of: slice ready (design locked rev 38, plan committed, PHASE-01 not started); head 8e8b9807
+### Produced
+- PHASE-01..07 done — resolver platforms, home base + layers, features by function, personal profiles, home coverage + isolation, availability filter (commits 1391fcc6, c4020d9a, 1f037235, 5ddfdf05, 0d7dd406, ff4a0746, 8cb4a79b..d2f5f0f3)
+- RV-018 — audit ledger, 18 findings, reconciliation brief in review-018.md
+- registry: PHASE-01 source delta bootstrapped (`slice record-delta 8 PHASE-01 --commit 1391fcc6`)
+- minted: IMP-026 — lazygit to dev.scm; IMP-027 — clangStdenv/binutils in dev.build; CHR-015 — Draupnir link-map check (VH-2)
+- owned elsewhere: CHR-001 — modules/DESIGN.md; IMP-019 — probe .manpath normalisation
 
-- **Produced**:
-  - DEC-030..036 (accepted; each shapes SL-008);
-  - QUE-001 answered (DEC-030);
-  - IMP-023 (goad on darwin);
-  - `design.md` locked at run revision 38;
-  - `plan.toml`/`plan.md`: seven phases, sheets materialised;
-  - RV-017 (design review ledger: 17 findings from two codex reviewers, all
-    disposed; DEC-032/033 edited for the user's rulings; pass waived by the
-    user with F-16/F-17 fixed but not re-verified by the reviewer).
-- **Learned**: these are facts for this slice. Promote them to memories at close.
-  - A Nix attribute segment cannot start with a digit unquoted
-    (`feature.graphics.3d` fails to parse), so feature names avoid it.
-  - HM `c58f54c`: `systemd.user.enable` defaults to isLinux, and the platform
-    assertion sits under `mkIf`. So systemd-only halves are inert on darwin,
-    while tailscale-systray, systembus-notify, swayosd and mangohud fail.
-  - Area files are plain lists without `lib`.
-  - `bin/spotify-alarm` calls `spotify_player` from PATH.
-  - nudge runs `.nu` from the live checkout path.
-- **Open (to resolve at close)**:
-  - IMP-016 → resolved by DEC-032.
-  - ISS-008 → fixed in P3.
-  - REVs on ADR-002 (D1, D4, D5) and ADR-005 D6, plus the DEC-006 edit:
-    raise before P1.
-- **Uncommitted**: nothing of SL-008's (b120346a, 8e8b9807).
-- **Other untracked items, not SL-008's**: IDE-003..005, IMP-020/021 and
-  ISS-009. Leave them alone.
+### Learned (promote to memories at close)
+- `lib.meta.availableOn` reads only a package's own meta.platforms (and badPlatforms), not its dependencies' nor `meta.broken`: gtt, udiskie, micro, fsearch pass it on aarch64-darwin and fail to evaluate
+- `lib.getName` gives the pname (`micro`, not `micro-wrapped`; `shell_cmds` for killall)
+- `.manpath`'s store hash follows `home-path`'s drv, so any home reorder moves it; masked diff is the proof
+- goad's real flake has no aarch64-linux packages
+- a feature attribute segment cannot start with a digit unquoted
+- HM c58f54c: systemd-only halves are inert on darwin; tailscale-systray, systembus-notify, swayosd, mangohud assert Linux
+- a relative `path:` override resolves against the `$HOME` git root; use `justfile_directory()`
+
+### Open
+- REV-007, REV-008 — apply at reconcile (user decided)
+- DEC-006, DEC-024, DEC-036 — record edits at reconcile (RV-018 brief)
+- QUE-001 — mark answered by DEC-030
+- IMP-016, ISS-008 — resolve at close
+- CHR-015 — PHASE-07 VH-2, the user's check at the next Draupnir home-switch
 
 ## PHASE-01
 

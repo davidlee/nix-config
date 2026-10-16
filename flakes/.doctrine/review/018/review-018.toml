@@ -1,0 +1,515 @@
+id    = 18
+slug  = "reconciliation-review-of-sl-008"
+title = "reconciliation review of SL-008"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Conformance self-audit of SL-008 at d2f5f0f3 against design.md (locked rev 38), plan.toml PHASE-01..07, ADR-002/ADR-005 (REV-007/008), DEC-006/024/030..036, and the phase gate evidence in notes.md and ~/.cache/multihost-gate/sl008/. Ran: doctrine slice conformance 8 (after bootstrapping the PHASE-01 registry row; read through ISS-005 by hand), slice verify-vt 8 (keywords present; attribution by agent), slice research 8, doctrine check gate (rc 0), just test (green), just gate (rc 0, treefmt 0 changed), just coverage (rc 0, 8 lines, isolation ok on both targets), design § Close checks (all pass). Adjudicated the orchestrators' leads (lazygit, coverage pkgs duplication, clangStdenv, modules/DESIGN.md, research restamp, per-phase plan adaptations, P7 EX-4 count, brokenOn growth) and the user's prior decisions (REV-007/008, DEC-024, DEC-006, VH-1, VH-2 deferral, derived-hash probe rule). 18 findings, no blocker; brief written in review-018.md."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-008"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Source-delta registry: PHASE-01 row expected 1391fcc6, observed an empty range (8e4ca4a7..8e4ca4a7)"
+detail = """
+Expected: every completed phase carries its source delta in the registry (`~/.cfg/.doctrine/state/slice/008/boundaries.toml`), so `slice conformance` folds every phase.
+Observed: PHASE-01's boundary had code_start_oid = code_end_oid = 8e4ca4a7 (the handover commit, P1's parent), so P1's delta (features.nix, hosts.nix, features/*, features-test.nix, REV-007/008) was empty. `conformance 8` did not list `flakes/features.nix` at all; `conformance 8 --against 1391fcc6^..d2f5f0f3` did. The conformance read was silently partial.
+Audit action: `doctrine slice record-delta 8 PHASE-01 --commit 1391fcc6` (the skill's prescribed bootstrap). After it, `flakes/features.nix` appears and undeclared is 150 (137 before)."""
+disposition = "fix-now"
+response = "Fixed during the audit with the registry verb the skill prescribes: `doctrine slice record-delta 8 PHASE-01 --commit 1391fcc6`. The registry now folds every phase; conformance lists flakes/features.nix. No source or governance touched."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Fixed during the audit with the registry verb the skill prescribes: `doctrine slice record-delta 8 PHASE-01 --commit 1391fcc6`. The registry now folds every phase; conformance lists flakes/features.nix. No source or governance touched."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Conformance: expected matched paths, observed 150 undeclared / 18 undelivered / 0 conformant (ISS-005 prefix)"
+detail = """
+Expected: delivered paths match the design-target selectors (conformant).
+Observed: `doctrine slice conformance 8` reports every path undeclared (`flakes/…`, git-root-relative) and every selector undelivered (`features.nix`, doctrine-root-relative) — conformant 0. This is ISS-005 (open): the registry's paths carry the `flakes/` prefix because the git worktree is `$HOME`.
+Judged by hand (strip `flakes/`, match against `slice selector list 8`): every SL-008 source path matches a design-target selector except the three docs in the next finding; every selector was delivered (profiles/**, darwin/home.nix and modules/shared/cli/** as deletions). Remaining undeclared paths are expected or foreign:
+- doctrine artefacts: `.doctrine/revision/007*`, `.doctrine/revision/008*`, `.doctrine/slice/008/notes.md`;
+- foreign, user commits inside the P7 range: e7bfec60 `.config/umbriel/{MAPPING.md,apps.toml,scripts/*}`; 8dbfd01c `flakes/.config/vicinae/settings.json` (deleted).
+VT attribution (`slice verify-vt 8`) is UNATTRIBUTABLE for every VT for the same reason; every keyword is present and each test_file is in its phase commit (judged by agent)."""
+disposition = "tolerated"
+response = "Tolerated: a known tooling defect, ISS-005 (open; upstream doctrine fix is to strip the doctrine root's prefix). Judged by agent instead, as ISS-005 and CLAUDE.md direct: every SL-008 source path is covered except F-3's three docs; every selector delivered; the rest is doctrine artefacts or the named foreign commits (e7bfec60 umbriel, 8dbfd01c vicinae). No selector rewrite to `flakes/…` — that would break prime and the staleness hash, which resolve doctrine-root-relative."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Tolerated: a known tooling defect, ISS-005 (open; upstream doctrine fix is to strip the doctrine root's prefix). Judged by agent instead, as ISS-005 and CLAUDE.md direct: every SL-008 source path is covered except F-3's three docs; every selector delivered; the rest is doctrine artefacts or the named foreign commits (e7bfec60 umbriel, 8dbfd01c vicinae). No selector rewrite to `flakes/…` — that would break prime and the staleness hash, which resolve doctrine-root-relative."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Undeclared touches: ALARM.md, agents/README.md, _templates/agents/_envrc edited but in no design-target selector"
+detail = """
+Expected: every edited path is covered by a design-target selector (design.md § Design-target selectors).
+Observed: three doc files were edited to fix paths the moves broke, and no selector covers them:
+- `ALARM.md` (P5: `modules/home/nixos/alarm.nix` → features/audio.nix; notes § PHASE-05 "ALARM.md:3 also named…");
+- `agents/README.md`, `_templates/agents/_envrc` (P2: relative-path / doc-path fixes; notes § PHASE-02 Decisions; the template drv change was proved comment-only).
+The edits are correct and in scope (design § Docs: "each move's paths are fixed in the same phase as the move"); the selector registry and the § Code impact files table omit them."""
+disposition = "design-wrong"
+response = "The edits are right; the declared scope is short. Reconciliation brief, per-slice: `doctrine slice selector add 8 ALARM.md agents/README.md _templates/agents/_envrc --intent design-target` (load-bearing), mirrored in design.md § Design-target selectors and the § Code impact Files table."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "The edits are right; the declared scope is short. Reconciliation brief, per-slice: `doctrine slice selector add 8 ALARM.md agents/README.md _templates/agents/_envrc --intent design-target` (load-bearing), mirrored in design.md § Design-target selectors and the § Code impact Files table."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = 'Gate rule: design/plan say "Sleipnir home probe identical"; P2–P5 each had a derived-hash .manpath line'
+detail = """
+Expected (design.md § Phases and verification table P2–P5, plan EX-5/EX-6 of PHASE-02..05): "Sleipnir home probe identical".
+Observed: every phase P2–P5 (and P7) shows one `home-files-links` line differing: `.manpath -> …-hm_.manpath`, whose content differs only in the `man-cache` store hash on the MANDB_MAP line, derived from the reordered `home-path` drv (masked diffs empty: `~/.cache/multihost-gate/sl008/phase-0N/evidence/manpath.masked.diff`). P2 also showed `david-fish-completions` (space-separated `paths` string) differ by order only; the realised outputs `diff -r` empty.
+The seat ruled (P2 orchestrator verdict, carried into P3+): link maps, packages, home-path-links and user units must be identical; derived-hash lines are allowed with evidence. That is narrower-than-literal compliance and differs from the plan's EX wording. The design text should state the rule actually applied; plan criteria are immutable and stay as written, with the divergence recorded here. IMP-019 (probe normalises .manpath) is the existing tooling follow-up."""
+disposition = "design-wrong"
+response = "The seat's rule was applied consistently with evidence each phase and is the rule the user accepted. Reconciliation brief, per-slice: design.md § Phases and verification states the applied rule (packages, home-path-links and user units identical; a derived-hash line such as .manpath allowed when its masked diff is empty; built outputs diff -r empty where a drv differs only by an unsorted string). Plan EX wording is immutable and stays; this finding records the divergence. Tooling follow-up already exists: IMP-019."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "The seat's rule was applied consistently with evidence each phase and is the rule the user accepted. Reconciliation brief, per-slice: design.md § Phases and verification states the applied rule (packages, home-path-links and user units identical; a derived-hash line such as .manpath allowed when its masked diff is empty; built outputs diff -r empty where a drv differs only by an unsorted string). Plan EX wording is immutable and stays; this finding records the divergence. Tooling follow-up already exists: IMP-019."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "Doctor interpreter: design §7 and P7 EX-4 say three scripts pinned; two are (the third is bash)"
+detail = """
+Expected (design.md § Behaviour changes, "doctor interpreter" row; plan PHASE-07 EX-4): "the three home.file entries become pkgs.writeScript with an explicit python3 shebang".
+Observed: `hosts/Sleipnir/doctor.nix` pins `sleipnir-doctor` and `sleipnir-doctor-panopticon` via `pinnedPython` (replaceStrings of the `#!/usr/bin/env python3` shebang with `pkgs.python3.interpreter`). `sleipnir-doctor-emacs` is a bash script, left unchanged (orchestrator ruling, notes § PHASE-07 Block B). Behaviour is correct: the doctor runs from the store (exit 0, 73 checks; panopticon provider exit 0). The design's count was wrong."""
+disposition = "design-wrong"
+response = 'Code is right (a bash script needs no python pin). Reconciliation brief, per-slice: design.md § Behaviour changes, doctor row — "the two python home.file scripts"; sleipnir-doctor-emacs (bash) unchanged. Plan PHASE-07 EX-4 stays; divergence recorded here.'
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = 'Code is right (a bash script needs no python pin). Reconciliation brief, per-slice: design.md § Behaviour changes, doctor row — "the two python home.file scripts"; sleipnir-doctor-emacs (bash) unchanged. Plan PHASE-07 EX-4 stays; divergence recorded here.'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "brokenOn: design §7, P7 EX-1 and DEC-036 name [watchman atuin]; cli-broken.nix holds eight names"
+detail = """
+Expected (design.md § Behaviour changes, brokenOn row; plan PHASE-07 EX-1; DEC-036 choice "(watchman; atuin while ISS-007 stands)"): `aarch64-darwin = [watchman atuin]`.
+Observed `features/cli-broken.nix`: `["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd"]`, each with a reason comment.
+- gtt (alsa-lib), udiskie (libappindicator-gtk3), micro (wayland), fsearch (meta.broken): fail to evaluate on aarch64-darwin although availableOn accepts them — availableOn reads only the package's own meta.platforms (orchestrator ruling in P7 Block A, DEC-036-conformant).
+- shell_cmds (killall) and yEd: not in cache.nixos.org; the user chose to skip them (VH-1, d2f5f0f3).
+Also: `features/available.nix` (the filter helper) is a new file the design's § Code impact table does not list.
+The mechanism is exactly DEC-036's; only the list's contents and the helper's placement differ from the written design and decision."""
+disposition = "design-wrong"
+response = "Mechanism conforms to DEC-036; the written list is stale. Reconciliation brief: per-slice, design.md § Behaviour changes brokenOn row lists the eight names with their two causes (eval failure through dependencies / meta.broken; uncached, user's VH-1 choice) and § Code impact adds features/available.nix; governance, DEC-036 choice text generalised (an explicit per-system list of packages availableOn admits but that fail to evaluate, build or are uncached by choice), ISS-007 atuin kept as the example. Plan PHASE-07 EX-1 stays; divergence recorded here."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Mechanism conforms to DEC-036; the written list is stale. Reconciliation brief: per-slice, design.md § Behaviour changes brokenOn row lists the eight names with their two causes (eval failure through dependencies / meta.broken; uncached, user's VH-1 choice) and § Code impact adds features/available.nix; governance, DEC-036 choice text generalised (an explicit per-system list of packages availableOn admits but that fail to evaluate, build or are uncached by choice), ISS-007 atuin kept as the example. Plan PHASE-07 EX-1 stays; divergence recorded here."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Negative control dev.scm: design expects lazygit absent; it stays (the base's programs.lazygit)"
+detail = """
+Expected (design.md § Negative controls, dev.scm row; plan PHASE-04 VA-3): with dev.scm off, "lazygit and jujutsu absent; git still present (base)".
+Observed (P4 `scm-off`, `~/.cache/multihost-gate/sl008/phase-04/controls/scm-off.result`): `bin/jj` absent, `bin/git` moves from gitFull to the base git, dev.scm's 19 drvs removed and nothing added — but `bin/lazygit` stays, same target. The base installs the same drv through `programs.lazygit.enable = true` (`modules/home/nushell.nix:73`). Orchestrator adjudicated STOP 6 as a mis-specified control, not a regression (notes § PHASE-04). The design row misstates the expectation; the code-level duplication is the next finding."""
+disposition = "design-wrong"
+response = """Mis-specified control, not a regression (P4 STOP 6 adjudication). Reconciliation brief, per-slice: design.md § Negative controls, dev.scm row — "jujutsu absent; git falls back to the base's plain git; lazygit stays (the base's programs.lazygit, IMP-026)". The duplication itself is F-8."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """Mis-specified control, not a regression (P4 STOP 6 adjudication). Reconciliation brief, per-slice: design.md § Negative controls, dev.scm row — "jujutsu absent; git falls back to the base's plain git; lazygit stays (the base's programs.lazygit, IMP-026)". The duplication itself is F-8."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "lazygit declared twice: bare in dev.scm and programs.lazygit in the home base"
+detail = """
+Expected: each package belongs in exactly one place (modules/DESIGN.md § Overlap; DEC-031: the base holds what any home needs to function).
+Observed: `features/dev.nix:28` (dev.scm) lists `lazygit`; `modules/home/nushell.nix:73-76` enables `programs.lazygit` with nushell integration in the base. Same drv (`l49sfspy…-lazygit-0.66.1`), so no collision and no winner question; but deselecting dev.scm cannot remove lazygit, and a git TUI is not base material. Pre-existing (scm.nix + shared/nushell.nix before SL-008); SL-008's P7 removed the analogous yazi/mcfly duplicates but did not list lazygit in its closed behaviour table."""
+disposition = "follow-up"
+response = "Owned future work: IMP-026 (move programs.lazygit + nushell integration into dev.scm, drop the bare entry). Not fix-now: it removes lazygit from the base — a behaviour change outside SL-008's closed P7 table, needing its own gate. Pre-existing, harmless (same drv)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = "Owned future work: IMP-026 (move programs.lazygit + nushell integration into dev.scm, drop the bare entry). Not fix-now: it removes lazygit from the base — a behaviour change outside SL-008's closed P7 table, needing its own gate. Pre-existing, harmless (same drv)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "nit"
+title = """coverage."home@aarch64-linux" repeats mkHome's pkgs line and homeManagerConfiguration skeleton"""
+detail = """
+Expected (user standard: DRY, no parallel implementation): one home factory.
+Observed: `hosts.nix:272-286` calls `inputs.home-manager.lib.homeManagerConfiguration` with `pkgs = import inputs.nixpkgs-home {system = "aarch64-linux";}`, `(homeModule …)` and `extraSpecialArgs = args …`, the same shape as `mkHome` (`hosts.nix:110-120`). It differs only in the host module (`./modules/home/linux` + stub identity instead of `./hosts/<h>/home.nix`) and has no feature selection. Design § Verification additions chose this deliberately: `mkHome` hard-codes `hosts/<h>/home.nix`."""
+disposition = "tolerated"
+response = "Tolerated, with rationale: the design chose a direct homeManagerConfiguration call because mkHome hard-codes ./hosts/<h>/home.nix and takes a selection; generalising mkHome for one coverage target would widen the factory (DEC-016) for no second caller. The shared parts (homeModule, args) are already reused; the residue is the one-line `pkgs = import inputs.nixpkgs-home {…}`. Revisit when W7 (nixosvm, a real aarch64 home host) lands: if the target then duplicates a host, it should go through mkHome."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Tolerated, with rationale: the design chose a direct homeManagerConfiguration call because mkHome hard-codes ./hosts/<h>/home.nix and takes a selection; generalising mkHome for one coverage target would widen the factory (DEC-016) for no second caller. The shared parts (homeModule, args) are already reused; the residue is the one-line `pkgs = import inputs.nixpkgs-home {…}`. Revisit when W7 (nixosvm, a real aarch64 home host) lands: if the target then duplicates a host, it should go through mkHome."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "minor"
+title = "dev.build puts clangStdenv (a stdenv) and binutils into home.packages; now on Draupnir too"
+detail = """
+Expected: home.packages holds tools.
+Observed: `features/dev.nix` dev.build's `available pkgs [ lldb lld llvm clangStdenv libclang binutils ]`. `clangStdenv` is a stdenv derivation, not a tool — pre-existing on Linux (moved verbatim from build.nix in P4). P7's availability filter adds it to Draupnir as `stdenv-darwin`, and `binutils` as `binutils-wrapper-2.46`, which may shadow or collide with the system cctools (`ld`, `ar`, `nm`, …). Recorded by the P7 worker as out of scope (notes § PHASE-07 Findings). Within SL-008's rules (P7 table: availability filter) this is intended; as content it is questionable."""
+disposition = "follow-up"
+response = "Owned future work: IMP-027 (drop clangStdenv; decide binutils on darwin). Pre-existing content moved verbatim, and its darwin arrival is exactly what DEC-036's rule prescribes, so SL-008 is conformant; the content question is separate. Linked to CHR-015 (the binutils-vs-cctools collision is one of the things VH-2 checks)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = "Owned future work: IMP-027 (drop clangStdenv; decide binutils on darwin). Pre-existing content moved verbatim, and its darwin arrival is exactly what DEC-036's rule prescribes, so SL-008 is conformant; the content question is separate. Linked to CHR-015 (the binutils-vs-cctools collision is one of the things VH-2 checks)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "nit"
+title = "modules/DESIGN.md is stale: names modules/home/nixos and predates features and the home base"
+detail = """
+Expected: the "design doc" the README links (Principles) describes where things live.
+Observed: `modules/DESIGN.md` says Linux-only home modules go in `modules/home/nixos/` and that `modules/home/` must work on both platforms; it knows nothing of `features/`, profiles, the home base (DEC-031) or its platform layers. It was already stale before SL-008 (modules/home/linux existed), and SL-008 makes it more so. Not in SL-008's design docs list."""
+disposition = "follow-up"
+response = """Already owned: CHR-001 "Retire modules/DESIGN.md into the composition tech spec" (open). It is a repo doc, not governance or a per-slice artefact, so reconcile cannot write it. Add SL-008's new facts to CHR-001's scope when it is picked up (home base + layers, features by function, platforms)."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """Already owned: CHR-001 "Retire modules/DESIGN.md into the composition tech spec" (open). It is a repo doc, not governance or a per-slice artefact, so reconcile cannot write it. Add SL-008's new facts to CHR-001's scope when it is picked up (home base + layers, features by function, platforms)."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-12"
+status = "verified"
+severity = "nit"
+title = "Research baseline drifted: `slice research 8` asks for --restamp"
+detail = """
+Expected: research.md's baseline stamp is current at audit.
+Observed: `doctrine slice research 8` reports drift — only `added .doctrine/slice/008/plan.md` and `plan.toml` (the plan was written after the research stamp). No researched source changed meaning; research.md's sections need no refresh, only `doctrine slice research 8 --restamp`."""
+disposition = "fix-now"
+response = "Reconciliation brief, per-slice: `doctrine slice research 8 --restamp`. No research.md section needs refresh — the only drift is plan.md/plan.toml, written after the stamp."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Reconciliation brief, per-slice: `doctrine slice research 8 --restamp`. No research.md section needs refresh — the only drift is plan.md/plan.toml, written after the stamp."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-13"
+status = "verified"
+severity = "minor"
+title = "README § Hosts: design and P7 EX-5 require a home row and a modules/home description; none was added"
+detail = """
+Expected (design.md § Code impact and docs, "README § Hosts: a home row in the base / feature / host table, and modules/home/ described like modules/nixos/"; plan PHASE-07 EX-5 "Hosts home row"):
+Observed: README § Hosts (`README.md:328-362`) still describes only the NixOS base (`modules/nixos/default.nix`) and its class table (base / feature / machine config / host config). The home base (`modules/home/default.nix` + `linux/` / `darwin/` layers, imported by `hosts/<h>/home.nix`) appears nowhere in that section. The P7 worker judged "Hosts table needed no change (still accurate)" (notes § PHASE-07 Block B), which misses the design's explicit item. Every other README item (feature tree, profiles, platforms paragraph, coverage, Emacs path, stale pointers, Sleipnir Doctor and Spotify Alarm paths) is done."""
+disposition = "fix-now"
+response = """A missed slice deliverable, small and in scope: add to README § Hosts the home base (modules/home/default.nix plus linux/ and darwin/ layers, each host's home.nix imports one) and a home row in the class table (base / feature / host config, as design.md § Shape's table). It is source, not a reconcile surface, so it lands as a docs commit before /close (listed in the brief's "Source, before close" group)."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """A missed slice deliverable, small and in scope: add to README § Hosts the home base (modules/home/default.nix plus linux/ and darwin/ layers, each host's home.nix imports one) and a home row in the class table (base / feature / host config, as design.md § Shape's table). It is source, not a reconcile surface, so it lands as a docs commit before /close (listed in the brief's "Source, before close" group)."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-14"
+status = "verified"
+severity = "major"
+title = "ADR-002 and ADR-005 still describe the pre-SL-008 resolver; REV-007 and REV-008 are proposed, unapplied"
+detail = """
+Expected (design § Platform scope / Governance): accepted governance matches the code — ADR-002 D1/D4 name `platforms` as a record key the resolver reads; D5 carries DEC-035's wording (reorders proved harmless by the gate); D2's "written { name; value; } pairs" reflects `{lib}: map area [names]`; ADR-005 D6 refuses a selected feature whose `platforms` omit the host's system, with its "no support metadata until needed" clause replaced by a pointer to DEC-030.
+Observed: `features.nix` implements all of it (P1, tests testUnsupportedPlatformFails / testPlatformsAbsentMeansAll / testBadPlatformsShapeFails green), while REV-007 (ADR-002) and REV-008 (ADR-005) are `proposed`, `approval=none`. The user decided they are applied at reconcile (as REV-006 for SL-007)."""
+disposition = "design-wrong"
+response = "Governance lags code by the user's design (REVs raised before P1, applied at reconcile). Reconciliation brief, governance: REV-007 (ADR-002 D1/D4/D5, D2 note) and REV-008 (ADR-005 D6 + Neutral clause) — user approval, then apply."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Governance lags code by the user's design (REVs raised before P1, applied at reconcile). Reconciliation brief, governance: REV-007 (ADR-002 D1/D4/D5, D2 note) and REV-008 (ADR-005 D6 + Neutral clause) — user approval, then apply."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-15"
+status = "verified"
+severity = "minor"
+title = "Decision records lag the code: DEC-006 signature and body, DEC-024 darwin consequence, DEC-036 broken list"
+detail = """
+Expected: accepted decisions describe the delivered mechanism.
+Observed:
+- DEC-006: signature lacks `system` (now `lib: { tree, classes, system, modules } -> { modules }`), and its body still describes the long-gone `flags` result (notes § PHASE-01 "For reconcile").
+- DEC-024: its darwin consequence predates DEC-030; the replacement drafted in notes § PHASE-07 "For the orchestrator" (workstation is Linux-only through desktop.core's platforms; the resolver refuses it on darwin) has the user's assent, to be applied at reconcile.
+- DEC-036: its choice names the broken list as "(watchman; atuin while ISS-007 stands)"; the delivered list has eight names with reasons (see the brokenOn finding)."""
+disposition = "design-wrong"
+response = 'Reconciliation brief, governance: DEC-006 signature `lib: { tree, classes, system, modules } -> { modules }` and its `flags` body rewritten; DEC-024 consequences replaced by the assented draft (notes § PHASE-07 "For the orchestrator"); DEC-036 choice generalised (F-6).'
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = 'Reconciliation brief, governance: DEC-006 signature `lib: { tree, classes, system, modules } -> { modules }` and its `flags` body rewritten; DEC-024 consequences replaced by the assented draft (notes § PHASE-07 "For the orchestrator"); DEC-036 choice generalised (F-6).'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-16"
+status = "verified"
+severity = "minor"
+title = "Lifecycle loose ends: QUE-001, IMP-016, ISS-008 and RFC-001's W5 row not yet closed or updated"
+detail = """
+Expected (design § Code impact and docs, Governance): QUE-001 answered by DEC-030, done; IMP-016 resolved by DEC-032 (apps.cad → graphics.cad delivered in P3, apps area gone); ISS-008 resolved (P3: tailscale-systray, swaybg, systembus-notify in desktop.core's home half; the niri-off control keeps them); RFC-001's W5 row and § Target shape updated (personal is three profile files; headless home is W7's).
+Observed: `doctrine backlog list` shows IMP-016 and ISS-008 `open`; QUE-001 and RFC-001 untouched by SL-008's commits. The code delivers each; the records do not say so yet."""
+disposition = "design-wrong"
+response = "Reconciliation brief, governance: QUE-001 → answered by DEC-030, done; RFC-001 W5 row and § Target shape (personal = personal / personal-linux / personal-darwin; headless home stays W7's; home@aarch64-linux coverage target pre-pays W7). Backlog closures at /close as design § Governance says: IMP-016 (DEC-032; apps.cad → graphics.cad) and ISS-008 (P3, niri-off control)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Reconciliation brief, governance: QUE-001 → answered by DEC-030, done; RFC-001 W5 row and § Target shape (personal = personal / personal-linux / personal-darwin; headless home stays W7's; home@aarch64-linux coverage target pre-pays W7). Backlog closures at /close as design § Governance says: IMP-016 (DEC-032; apps.cad → graphics.cad) and ISS-008 (P3, niri-off control)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-17"
+status = "verified"
+severity = "minor"
+title = "VH-2 not performed: Draupnir home link map unchecked until the next Draupnir home-switch"
+detail = """
+Expected (design § Phases and verification "Darwin has no probe"; plan PHASE-07 VH-2): before activating the new home on Draupnir, the user diffs its `home-path-links` against the current generation; a flipped collision winner is fixed forward.
+Observed: deferred by the user to the next Draupnir home-switch (Draupnir cannot be built from Sleipnir). What stands in for it now: Sleipnir's probe as proxy (packages, home-path-links, units identical every phase), Draupnir `drvs-sets` and order-only `nix-diff` (P4), and the P7 cache check (VA-1). Residue: packages whose file sets differ by platform, the darwin layer's HM programs, and the ~55 P7 additions (notably binutils-wrapper vs cctools). Not a blocker."""
+disposition = "follow-up"
+response = "The user deferred VH-2; its remediation is the user's own check at the next Draupnir home-switch. Owned as CHR-015 (commands from notes § PHASE-07 VH-2; watch binutils-wrapper vs cctools — IMP-027). Not a blocker: Sleipnir's probe stands proxy for shared packages, and a flipped winner is fixed forward. /close should leave PHASE-07 VH-2 unverified-but-owned, citing CHR-015, not mark it passed."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = "The user deferred VH-2; its remediation is the user's own check at the next Draupnir home-switch. Owned as CHR-015 (commands from notes § PHASE-07 VH-2; watch binutils-wrapper vs cctools — IMP-027). Not a blocker: Sleipnir's probe stands proxy for shared packages, and a flipped winner is fixed forward. /close should leave PHASE-07 VH-2 unverified-but-owned, citing CHR-015, not mark it passed."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+[[finding]]
+id = "F-18"
+status = "verified"
+severity = "nit"
+title = "Plan adaptations in notes: all interim except the isolation stub path, which design §6 states as path:./features/stub"
+detail = """
+Expected: delivered end state matches design.md; phase-level adaptations either vanish by close or are reflected in the design.
+Observed (notes.md per phase):
+- P2 D1: editors + EDITOR/VISUAL stayed in a shrunk `modules/home/shared/default.nix` until P4 — interim; P4 removed shared/ (close check passes).
+- P3 A1: editors.nix kept sublime-merge, office.nix mpris-timer/rssguard, graphics.nix yed/drawio until P4 — interim; P4 moved them (completeness check equal on both systems).
+- P4: emacs.nix rename shows as add+delete under `-M` (cosmetic); lazygit control (separate finding).
+- P5: ALARM.md fixed (separate undeclared-path finding); `.ruff_cache`/`__pycache__` moved out of bin/ (untracked, harmless).
+- P6 D2: the stub is overridden as `stub := "path:" + justfile_directory() + "/features/stub"` (absolute), not the design's `--override-input <name> path:./features/stub` — a relative path resolves against the wrong root under the `$HOME` git worktree. Behaviour as designed (isolation ok on both targets; the goad control fails on goad's homeManagerModules only).
+- P7: the plan adaptations are the brokenOn, doctor-count and available.nix findings.
+Only the P6 stub form leaves design text inaccurate."""
+disposition = "design-wrong"
+response = 'Interim adaptations need nothing (end state matches; close checks pass). Reconciliation brief, per-slice: design.md § Verification additions, isolation recipe — the stub is passed as an absolute path (`"path:" + justfile_directory() + "/features/stub"`) because a relative path resolves against the $HOME git root.'
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = 'Interim adaptations need nothing (end state matches; close checks pass). Reconciliation brief, per-slice: design.md § Verification additions, isolation recipe — the stub is passed as an absolute path (`"path:" + justfile_directory() + "/features/stub"`) because a relative path resolves against the $HOME git root.'
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Disposition and brief/backlog entry checked; observation confirmed."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
