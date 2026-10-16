@@ -1,0 +1,46 @@
+memory_uid = "mem_01a144f7aae771a281dd0cc61de085f1"
+memory_key = "mem.fact.nix.lazy-error-context"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "addErrorContext does not cover lazily forced option values"
+summary = "Wrap a forced (deepSeq) value in addErrorContext, or errors in lazy module options escape the context"
+created = "2026-10-16"
+updated = "2026-10-16"
+
+[scope]
+paths = ["host-meta.nix", "hosts.nix"]
+globs = []
+commands = []
+tags = ["nix", "testing"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "34692c2e3badb7f8e22eccc92154d82209dba661"
+ref_name = "refs/heads/main"
+checkout_state_id = "ed59753c43737d3661d8e11bd0e6964bdc4df464cd698577b8970bc989841d14"
+base_commit = "f1d4ca643ca96f3222e5b1e6b55359c083811b70"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-009"
+
