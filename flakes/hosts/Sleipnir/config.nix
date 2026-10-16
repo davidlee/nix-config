@@ -24,8 +24,8 @@
 
     # parked — these do NOT evaluate; repair before re-enabling. Deliberately
     # not features: selecting one says "flip me", which would be a lie here.
-    # ../../modules/nixos/hyprland.nix   (hyprlandPlugins.hyprexpo missing)
-    # ../../modules/nixos/kmscon.nix     (services.kmscon.fonts removed upstream)
+    # ../../parked/hyprland.nix   (hyprlandPlugins.hyprexpo missing)
+    # ../../parked/kmscon.nix     (services.kmscon.fonts removed upstream)
   ];
 
   # gai.conf: prefer IPv4 (README § Prefer IPv4).
