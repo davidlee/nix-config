@@ -260,7 +260,7 @@ each phase and after it. New files are `git add -N`ed before the gate
 | P1 | **dev checkouts and lock**: `bin/dev-checkouts` + tests, justfile variables and recipes, `bin/gate-probe`, declarations, one-time re-lock, lock guard, comments | `flake.lock`; Sleipnir drvs of consumers of panopticon, satan-patcher, satan-attrd (path: → git+file), each explained | script tests red first; lock guard red on the old lock, green after; with `FLAKES_DEV=/nonexistent`, `drvs` and `probe` evaluate; `drvs` matches the run with checkouts wherever the checkout is clean at its locked revision, and every remaining diff is attributed to a dirty or ahead checkout (RV-019 F-1; oubliette had a modified tracked file on 2026-10-16); `isolation` passes and still fails its negative control |
 | P2 | **meta validation**: `host-meta.nix`, tests, `hosts.nix` | none | tests red first; every `drvs` line identical; a misspelled kind in a scratch copy fails `nix eval .#homeConfigurations` naming the file |
 | P3 | **overlay scope** | none | every `drvs` line identical, `legacyPackages` included |
-| P4 | **agents area**, README, `config.nix` comment | Sleipnir home: reorder only (`.manpath` hash; masked diff empty); `coverage."base@aarch64-linux"` loses the registry entry | system drvs identical (registry value unchanged); Sleipnir probe: packages and `home-path-links` identical; Draupnir identical; negative control: `agents.eca = mkForce false` drops `eca` from `home-path` |
+| P4 | **agents area**, README | Sleipnir home: reorder only (`.manpath` hash; masked diff empty); `coverage."base@aarch64-linux"` loses the registry entry | system drvs identical (registry value unchanged); Sleipnir probe: packages and `home-path-links` identical; Draupnir identical; negative control: `agents.eca = mkForce false` drops `eca` from `home-path` |
 
 A diff not in the table stops the phase (`/consult`).
 
@@ -280,7 +280,7 @@ over tracked files under `flakes/` (excluding `.doctrine/`) finds nothing;
 
 | path | change | phase |
 |---|---|---|
-| `bin/dev-checkouts` (new) + `bin/dev-checkouts-test` (new) | the checkout list and its three verbs; behaviour tests | P1 |
+| `bin/dev-checkouts` (new) + `bin/dev-checkouts-test` (new) | the checkout list and its four verbs; behaviour tests | P1 |
 | `justfile` | override variables, recipes, lock guard in `test`, `update-*`; comments | P1, P2 (test line) |
 | `bin/gate-probe` | `local_override` | P1 |
 | `flake.nix` | four declarations; ISS-006 comments | P1 |

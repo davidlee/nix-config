@@ -5,10 +5,10 @@ id = 2
 slug = "per-host-input-overrides"
 title = "Per-host local input overrides as host data"
 kind = "idea"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "closed"
+resolution = "wont-do"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

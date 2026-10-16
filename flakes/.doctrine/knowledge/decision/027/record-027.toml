@@ -15,7 +15,7 @@ context = "RFC-001 leaves the base's shape open (W4/W5). DEC-016 allows one inje
 choice = "The NixOS base is modules/nixos/default.nix, an import list, imported by each NixOS host's config.nix. modules/nixos/ holds only base modules (plus parked hyprland, kmscon). Contents: nix (with lix), user, ssh, cli (cpuid, x86info guarded to x86), locate, maintenance, env, boot, kernel (linuxPackages_latest), avahi, cargo and build libs, and the generic halves of security (docker assertion, polkit, sudo), network (NetworkManager, tailscale, firewall + 22, nftables, hostName, timeServers) and programs (nix-ld with its core libs, zsh, rust-motd, 1Password CLI). Verified by an evaluation-only aarch64-linux target importing only the base (coverage style)."
 alternatives = ["factory-injected base (second module or folded into platformModule; DEC-016/DEC-007 revision, no opt-out)", "a named bundle elsewhere (bases/nixos.nix)"]
 rationale = "Mirrors the darwin base; the host file shows its trace; no factory change. The directory is the base, so classification is visible in the tree. The aarch64 target turns 'the base works headless' from a claim into a check and pre-pays W7."
-consequences = ["Not a profile (RFC-001). system.stateVersion moves to each host's config.nix. W5 should follow the same pattern for the home base."]
+consequences = ["Not a profile (RFC-001). system.stateVersion moves to each host's config.nix. W5 should follow the same pattern for the home base.", "SL-009: registry.agents left the base (nix.nix) for the agents.registry feature (DEC-041)."]
 decided_by = "user (2026-10-16)"
 decided_on = "2026-10-16"
 

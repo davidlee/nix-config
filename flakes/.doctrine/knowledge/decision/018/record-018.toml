@@ -15,7 +15,7 @@ context = "legacyPackages and packages sit in flake.nix with a second agentsOver
 choice = "legacyPackages and packages move into hosts.nix's flake attrset, linux-only as now; flake.nix keeps inputs, flake-parts wiring and templates. default.nix is deleted. just drvs gains packages (hash of all drvPaths per system), legacyPackages (probe drvPaths of stdenv, codex, claude) and templates (path and description), added and baselined before the move."
 alternatives = ["Move them into perSystem (silently adds aarch64-darwin outputs)", "Gate legacyPackages exhaustively (infeasible over all of nixpkgs)"]
 rationale = "flake.nix becomes inputs plus wiring; the move is gated rather than eyeballed."
-consequences = ["CHR-004 resolves", "legacyPackages gate is a probe, not proof"]
+consequences = ["CHR-004 resolves", "legacyPackages gate is a probe, not proof", "legacyPackages is the agents overlay's only carrier (DEC-040, SL-009)"]
 decided_by = "user"
 decided_on = "2026-10-15"
 

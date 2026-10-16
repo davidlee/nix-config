@@ -87,3 +87,39 @@ PHASE-04 observation proposes masking it.
     list, which now includes oubliette (F-3).
 11. HYP-001: add evidence. W2 landed with no factory selection read (F-3).
 12. RFC-001: mark W2 and W6 done (F-3).
+
+## Reconciliation Outcome
+
+The user agreed to every brief item (2026-10-17). As in SL-006..008, the DEC
+records are edited with `doctrine knowledge edit` and RFC-001 directly. No
+ADR or spec is touched, so no REV was opened.
+
+### Direct edits applied
+- Items 1–2 (F-2): design.md sec-5 P4 row no longer names the `config.nix`
+  comment; sec-6 says "four verbs".
+- Items 3–6 (F-3): ISS-003 and ISS-006 resolved (fixed), IMP-010 resolved
+  (done), IDE-002 closed (wont-do).
+- Item 7 (F-3), DEC-016: the agents overlay is out of the injected
+  system module and the home overlay list. The Mac-override consequence is
+  replaced; an "amended by DEC-040" consequence is added.
+- Item 8 (F-3), DEC-018: a consequence records that legacyPackages is the
+  overlay's only carrier. This was a direct TOML edit: the existing item
+  "a probe, not proof" contains a comma, and the CLI splits
+  `--consequences` on commas.
+- Item 9 (F-3), DEC-027 consequences and DEC-031 choice: the registry left
+  the base; the eca/chatgpt exception ended (DEC-041).
+- Item 10 (F-3), DEC-034: the stubbed set is the dev-checkout list, now
+  including oubliette. Its existing consequence's internal comma became a
+  semicolon, for the same CLI reason.
+- Item 11 (F-3), HYP-001: SL-009's support appended to the body.
+- Item 12 (F-3), RFC-001: Where things stand (SL-009 bullet; dev checkouts
+  bullet replaces the stale agents/local-path bullets), W2 and W6 done in
+  the diagram and table, the ADR-004 integration question and the HYP-001
+  line updated, references gain DEC-037..041 and ISS-011. Linked
+  `RFC-001 related SL-009`.
+- F-1: fixed during audit (61680d0c).
+
+### Withdrawn / tolerated
+- F-4: no write; ISS-005 owns it. F-5: no write; ISS-011 owns it.
+
+Reconcile pass complete — handoff to /close.

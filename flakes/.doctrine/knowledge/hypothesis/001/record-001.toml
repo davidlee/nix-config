@@ -7,7 +7,7 @@ title = "The typed resolver suffices for this repo's feature coupling"
 record_kind = "hypothesis"
 status = "proposed"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

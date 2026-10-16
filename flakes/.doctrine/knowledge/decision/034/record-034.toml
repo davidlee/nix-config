@@ -12,10 +12,10 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "DEC-027 checked the NixOS base on aarch64; RFC-001 requires a host without personal never reach the local-path inputs, relying on lazy fetching."
-choice = 'coverage."home@aarch64-linux" evaluates the home base plus the linux layer with stub identity, no selection (homeManagerConfiguration directly, as base@aarch64-linux bypasses mkNixos). just coverage picks activationPackage for home targets. The home targets are evaluated with panopticon, satan-patcher, satan-attrd and goad overridden to an empty stub flake committed in the repo, so any reference fails loudly. Resolver tests: unsupported-platform refusal pair, platforms shape, personal-linux selection, Draupnir selection from its real features.nix.'
+choice = 'coverage."home@aarch64-linux" evaluates the home base plus the linux layer with stub identity, no selection (homeManagerConfiguration directly, as base@aarch64-linux bypasses mkNixos). just coverage picks activationPackage for home targets. The home targets are evaluated with every input on the dev-checkout list (bin/dev-checkouts stub: oubliette, goad, panopticon, satan-patcher, satan-attrd) overridden to an empty stub flake committed in the repo, so any reference fails loudly. Resolver tests: unsupported-platform refusal pair, platforms shape, personal-linux selection, Draupnir selection from its real features.nix.'
 alternatives = ["a one-off isolation proof", "override to a missing path (Lix may fetch it at lock time)"]
 rationale = "Turns W7's precondition into a standing check; the stub avoids lock-time fetch failures."
-consequences = ["Answers whether inputs.emacs is reached by a lean home (it is not, once editor.emacs is a feature)."]
+consequences = ["Answers whether inputs.emacs is reached by a lean home (it is not; once editor.emacs is a feature).", "SL-009: the stub set is the dev-checkout list (DEC-037); oubliette joined it."]
 decided_by = "user (2026-10-16)"
 decided_on = "2026-10-16"
 

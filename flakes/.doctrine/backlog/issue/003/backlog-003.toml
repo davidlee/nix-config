@@ -5,10 +5,10 @@ id = 3
 slug = "eager-overrides"
 title = "system_override fails on hosts without ~/dev/oubliette"
 kind = "issue"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "fixed"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 # outbound-only (ADR-004). Cross-kind structural edges (e.g. references with a role
