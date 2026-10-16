@@ -6,13 +6,21 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-16 · design locked · e670e193
 
 ### Produced
+- research round (`research/research.md`, gitignored) → slice rescoped (user agreed)
+- design locked, design.md rev 28 (e670e193); RV-019 pass 1 (GPT) concluded, 3 findings fixed
+- minted: DEC-037 dev checkouts; DEC-038 remote declarations + lock; DEC-039 meta schema; DEC-040 overlay scope; DEC-041 agents area
+- prerequisite done by user: `just push-local` (all five ~/dev repos pushed); `push-local` recipe in justfile uncommitted (user's)
 
 ### Learned
+- mem.fact.flakes.override-records-in-lock — lock-writing commands record overrides; git+file vs path:
+- mem.fact.doctrine.design-review-route — route major findings before review-disposed
 
 ### Open
+- (none minted) reconcile list: design.md § Code impact and docs → Records at reconcile
+- ~/dev/oubliette has a dirty tracked file: P1 equality proof attributes it (RV-019 F-1)
 
 ## Design triage (2026-10-16, design run exploring)
 
