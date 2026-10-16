@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14265-81b2-70fc-80b0-bb4873f8a59b"
+recorded_at = "2026-10-16T01:48:31.026072455Z"
+kind = "friction"
+summary = "SL-007 P5 sheet's SAME-etc check is unsatisfiable after any source edit"
+detail = "/etc nix/registry.json carries the flake source store path for the agents registry entry; nixos_pick pins it for just drvs but a plain nix build of system.build.etc does not. Compare /etc link maps excluding nix/registry.json. Also: the fast nix-eval loop and just coverage give different drvPaths for the same target for the same reason."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

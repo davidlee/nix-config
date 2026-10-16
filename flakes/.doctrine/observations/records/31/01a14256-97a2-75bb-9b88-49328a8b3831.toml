@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14256-97a2-75bb-9b88-49328a8b3831"
+recorded_at = "2026-10-16T01:32:13.602205497Z"
+kind = "friction"
+summary = "SL-007 P3 sheet's negative-control recipe for features.nix could not work as written"
+detail = "Appending feature.compositor.<wm>.enable beside a nested feature.compositor = {...} block is a Nix duplicate-attribute error; appending to config.nix collides with defaultSession. Fix: wrap the original attrset in imports = [ ... ] and replace lines. Cost the worker three failed runs. Helper: ~/.cache/multihost-gate/sl007/phase-03/controls/run.sh"
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

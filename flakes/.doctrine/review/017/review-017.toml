@@ -1,0 +1,183 @@
+id    = 17
+slug  = "design-review-of-sl-008"
+title = "design review of SL-008"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-008"
+
+[[finding]]
+id = "F-1"
+status = "open"
+severity = "major"
+title = "P4 moves Linux-only emacs-all-the-icons-fonts into editor.emacs; sdcv guard mis-stated"
+detail = "codex gpt-6-sol technical reviewer. Observation: emacs-all-the-icons-fonts is in the Linux-only bucket (modules/shared/cli/_packages/editors.nix:6); design moves it into editor.emacs (Draupnir selects) with no guard, adding a darwin package in P4 and breaking the P2-P6 Draupnir identity claim. sdcv is installed on both hosts by modules/home/shared/emacs.nix:23 but text.dictionary is marked 'g' (Linux guard). Proposed repair: state each moved package's guard; fonts stay Linux-only in P4, sdcv on both; darwin additions only in P7."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "open"
+severity = "major"
+title = "P1: resolve gains a required system arg; direct test calls in features-test.nix not inventoried"
+detail = "codex gpt-6-sol technical reviewer. Observation: tests call resolve directly (features-test.nix:40, 68, 182, 279); fails takes an expression (:20). Required system arg makes those calls incomplete, so the P1 claim that existing tests pass unchanged is false. Proposed repair: inventory and update every direct call; darwin fixtures get a darwin system; structural-error twins keep the same system."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "open"
+severity = "major"
+title = "P7 filter indexes brokenOn.${system} with no default"
+detail = "codex gpt-6-sol technical reviewer. Observation: the expression indexes brokenOn.${system} (design ~731) but the attrset holds only aarch64-darwin; on x86_64-linux and aarch64-linux the lookup throws. Proposed repair: brokenOn.${system} or [], exercised on all three systems."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "open"
+severity = "major"
+title = "P7: availableOn guarantee overstated (metadata, not build/activation)"
+detail = "codex gpt-6-sol technical reviewer. Observation: lib.meta.availableOn returns true when meta.platforms is absent and excludes on badPlatforms; says nothing about builds. A cache path-info check shows an output is cached, not that HM activation works on darwin; design calls it a stand-in for a switch. Proposed repair: state the guarantee narrowly (metadata filter + eval + cache check), record the actual added derivations, keep explicit exceptions, leave activation to the later darwin switch."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "open"
+severity = "major"
+title = "Isolation check (stub-flake) proves less than claimed; negative control confounded"
+detail = "codex gpt-6-sol technical reviewer. Observation: an empty stub flake fails on .packages/.homeManagerModules access (the four sites in research.md:204), not on every reference (outPath still works), as design ~692 claims. Negative control changes resolver system to x86_64-linux for an aarch64-linux home, so failure could have another cause. Proposed repair: describe the check as detecting current output-attribute accesses; negative control uses the target's real system and asserts the specific missing goad attribute error."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "open"
+severity = "minor"
+title = "media.obs requires desktop.core does not guarantee v4l2loopback on home-only hosts"
+detail = "codex gpt-6-sol technical reviewer. Observation: requires checks selection only (features.nix:64); v4l2loopback is in desktop.core's NixOS half (features/desktop/core.nix:5). On a home-only Linux host both can be selected without v4l2loopback. Proposed repair: narrow the claim to hosts with a NixOS evaluation, or add a host-class assertion."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "open"
+severity = "minor"
+title = "drvs-sets cannot detect collision-winner changes; no darwin probe for order-only phases"
+detail = "codex gpt-6-sol technical reviewer. Observation: drvs-sets hashes sorted derivation paths (Justfile:110), blind to collision winners; link-map probe runs only for Sleipnir (Justfile:118). Proposed repair: add a darwin home probe via gate-probe home mode, or require an equivalent link-map and generated-file comparison for P2 and P4."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "open"
+severity = "major"
+title = "audio.alarm in personal-linux is host-specific"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: alarm module names device Sleipnir (modules/home/linux/alarm.nix:2), script fixes speaker/device/playlist (bin/spotify-alarm:13); personal-linux would enable its timers on any owned Linux host. Proposed repair: Sleipnir selects it, or move host values into Sleipnir config first."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "open"
+severity = "major"
+title = "Some features named by form not function (notes.terminal, web.terminal, data.markdown)"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: notes.terminal and web.terminal are named for interface; web.terminal vs web.browsers splits by TUI/GUI; data.markdown is named for a format and mixes readers with language servers (filetypes.nix:3). Contradicts DEC-032. Proposed repair: name by the work (notes, browsing, document reading, document authoring)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-10"
+status = "open"
+severity = "major"
+title = "graphics.paint bundles painting, 3D and diagram tools; overlaps docs.diagrams"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: graphics.paint gets Krita, MyPaint, Blender, yEd, draw.io, Penpot (modules/home/linux/graphics.nix:6) while docs.diagrams owns diagramming. Proposed repair: yEd and draw.io to diagramming; distinct names for 3D and visual design where switches are needed."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-11"
+status = "open"
+severity = "major"
+title = "media.tools is incoherent; viu assigned twice"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: media.tools mixes colour (pastel), image viewing (chafa, viu, ueberzugpp), SVG (resvg), video (ffmpeg-full) and downloading (yt-dlp); viu also in media.players (display.nix:16, net.nix:19). Proposed repair: split by viewing/processing/downloading; colour and SVG with graphics; viu once."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-12"
+status = "open"
+severity = "minor"
+title = "Misplaced packages: bfs, aria2, mpris-timer, nerd-font-patcher"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: bfs (finder) under files.manage not files.search; aria2 (downloader) under files.sync; mpris-timer (playback timer) under office.calendar; nerd-font-patcher under docs.typeset. Proposed repair: move each to the feature for its job."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-13"
+status = "open"
+severity = "major"
+title = "dev.tools and security.tools too coarse"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: dev.tools keeps the dev.nix grab-bag (runtimes, runners, watchers, claude-monitor, moreutils); security.tools couples pentest with git encryption, GPG and OTP (security.nix:2). Proposed repair: split along independently selectable jobs (e.g. credentials vs security investigation)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-14"
+status = "open"
+severity = "minor"
+title = "workstation profile installs product groups that are taste (DEC-024)"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: workstation selects specific browsers, terminals, chat clients and players as indivisible groups (browsers.nix:7, terminals.nix:2); DEC-024 puts taste in the host. Proposed repair: keep shared defaults in the profile; hosts select product preferences."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding]]
+id = "F-15"
+status = "open"
+severity = "minor"
+title = "Duplicates in mapping: mpv twice, viu twice, yazi/mcfly vs HM programs"
+detail = "codex gpt-6-sol taxonomy reviewer. Observation: mpv twice in media.players (media.nix:27, 46); viu in two features; yazi and mcfly as packages while the home base enables programs.yazi / mcfly (programs.nix:44, zsh.nix:49). Proposed repair: drop certain duplicates; check effective HM package output for yazi/mcfly and keep one owner."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

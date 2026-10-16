@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 34
+slug = "home-verification-an-aarch64-linux-home-base-target-and-a-committed-local-input-isolation-check"
+title = "Home verification: an aarch64-linux home base target and a committed local-input isolation check"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-027 checked the NixOS base on aarch64; RFC-001 requires a host without personal never reach the local-path inputs, relying on lazy fetching."
+choice = 'coverage."home@aarch64-linux" evaluates the home base plus the linux layer with stub identity, no selection (homeManagerConfiguration directly, as base@aarch64-linux bypasses mkNixos). just coverage picks activationPackage for home targets. The home targets are evaluated with panopticon, satan-patcher, satan-attrd and goad overridden to an empty stub flake committed in the repo, so any reference fails loudly. Resolver tests: unsupported-platform refusal pair, platforms shape, personal-linux selection, Draupnir selection from its real features.nix.'
+alternatives = ["a one-off isolation proof", "override to a missing path (Lix may fetch it at lock time)"]
+rationale = "Turns W7's precondition into a standing check; the stub avoids lock-time fetch failures."
+consequences = ["Answers whether inputs.emacs is reached by a lean home (it is not, once editor.emacs is a feature)."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

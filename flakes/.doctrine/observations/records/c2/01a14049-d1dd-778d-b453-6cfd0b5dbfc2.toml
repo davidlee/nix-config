@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14049-d1dd-778d-b453-6cfd0b5dbfc2"
+recorded_at = "2026-10-15T15:59:02.109364687Z"
+kind = "friction"
+summary = "mem.fact.nix.tryeval-scope mango example stale"
+detail = "nixpkgs now ships programs/wayland/mango.nix, so programs.mango is declared even when the mango feature is off. Memory is right in general; the example used by the SL-006 PHASE-04 planner is stale."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

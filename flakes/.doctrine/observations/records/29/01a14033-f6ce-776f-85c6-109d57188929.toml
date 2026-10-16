@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14033-f6ce-776f-85c6-109d57188929"
+recorded_at = "2026-10-15T15:35:09.774891876Z"
+kind = "friction"
+summary = "capsule child hand-backs never reach the orchestrator; SendMessage resume routes them to the lead"
+detail = "SL-006 PHASE-01..03: every planner and worker spawn returned 'ended without delivering a report through SubagentHandback'. Resuming via SendMessage delivered the report to another seat, not the orchestrator. Orchestrator verified everything from disk (sheets, notes.md, git diff, independent gate/coverage/drvs runs) instead. Cost: no hand-back text, so model echo and friction from children were read only from sheet Decisions/Findings."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

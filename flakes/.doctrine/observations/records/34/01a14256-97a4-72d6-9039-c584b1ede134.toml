@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14256-97a4-72d6-9039-c584b1ede134"
+recorded_at = "2026-10-16T01:32:13.605005631Z"
+kind = "friction"
+summary = "Moving nix-ld.libraries entries always changes the ld-library-path drv, so drvs-sets cannot stay identical"
+detail = "SL-007 P3: ld-library-path is itself a systemPackage, so reordering nix-ld.libraries changes the system drv set. Prove order-only via sorted __json md5 plus built link-tree comparison. Planner predictions (home drvs moving, modules-load/portals order fallout) did not occur; resolver tests on unknown paths fail softly (false), not abort."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

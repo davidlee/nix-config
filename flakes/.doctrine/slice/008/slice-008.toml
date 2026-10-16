@@ -1,0 +1,152 @@
+id = 8
+slug = "home-base-personal"
+title = "Home base / personal split (RFC-001 W5)"
+status = "design"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "modules/home/**"
+intent = "design-target"
+
+[[selector]]
+selector = "profiles/**"
+intent = "design-target"
+
+[[selector]]
+selector = "darwin/home.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/*/home.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "hosts/*/features.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/**"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "flake.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "justfile"
+intent = "design-target"
+
+[[selector]]
+selector = "SATAN.md"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/shared/cli/**"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/cli.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/home.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/features.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/doctor.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Sleipnir/doctor/**"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Draupnir/home.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "hosts/Draupnir/features.nix"
+intent = "design-target"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-001"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-002"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-003"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-005"
+
+[[relation]]
+label = "related"
+target = "RFC-001"
+
+[[relation]]
+label = "related"
+target = "SL-007"
+
+[[relation]]
+label = "related"
+target = "DEC-027"
+
+[[relation]]
+label = "related"
+target = "DEC-024"
+
+[[relation]]
+label = "related"
+target = "QUE-001"
+
+[[relation]]
+label = "related"
+target = "HYP-001"
+
+[[relation]]
+label = "related"
+target = "ISS-008"
+
+[[relation]]
+label = "related"
+target = "IMP-023"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.

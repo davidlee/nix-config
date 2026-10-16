@@ -5,17 +5,17 @@ id = 1
 slug = "platform-scope"
 title = "How is a feature's platform scope declared?"
 record_kind = "question"
-status = "open"
+status = "answered"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 question = "How does a feature declare which platforms it supports (e.g. a linux-only Home Manager feature selected on darwin)?"
 why_matters = "ADR-005 requires selected features that project nothing to fail, and coverage targets per supported platform; component presence alone (has homeManager) does not say whether it works on darwin."
-answer      = ""
-answered_by = ""
-answered_on = ""
+answer = "DEC-030: a record may carry platforms (system strings, meta.platforms style; absent = all); the resolver gets the host system and refuses an unsupported selection. Profiles stay dumb and are split per platform (personal, personal-linux, personal-darwin). Covers OS and architecture."
+answered_by = "user (2026-10-16, SL-008)"
+answered_on = "2026-10-16"
 
 [evidence]                      # free-text citations (supports / contradicts / notes)
 supports    = []

@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14033-f6d4-7751-a265-647cbae88f9a"
+recorded_at = "2026-10-15T15:35:09.780572789Z"
+kind = "friction"
+summary = "capsule-phase-planner hit its 40-turn limit planning SL-006 PHASE-03"
+detail = "The sheet was complete on disk (513 lines) but no report was delivered. A seven-feature phase with planner-side eval verification (A1, A4, A5) is tight for 40 turns."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

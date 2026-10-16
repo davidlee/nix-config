@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a1425f-8c96-702f-993a-6c0c46e79d3a"
+recorded_at = "2026-10-16T01:42:00.598133297Z"
+kind = "friction"
+summary = "controls/run.sh helper must be sourced but its header suggests it runs checks from stdin"
+detail = "SL-007 P4: ~/.cache/multihost-gate/sl007/phase-03/controls/run.sh only defines apply/restore/sp/C/O. Also: opentabletdriver is not in system-path closure and uinput comes from another module, so the hardware.tablet control fell back to option evals (weaker than closure check per mem.fact.nix.verify-closure-not-option)."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

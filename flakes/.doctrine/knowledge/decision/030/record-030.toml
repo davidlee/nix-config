@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 30
+slug = "feature-platform-scope-a-platforms-key-refused-when-unsupported-per-platform-profiles"
+title = "Feature platform scope: a platforms key, refused when unsupported; per-platform profiles"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "QUE-001: the resolver's only platform signal is the class set; homeManager spans Linux and darwin, so a Linux-only home half selected on darwin lands inert (systemd.user off) or fails inside HM (tailscale-systray, systembus-notify). SL-008 has Draupnir import a personal profile (user, 2026-10-16)."
+choice = """A feature record may carry platforms: a list of system strings in nixpkgs meta.platforms style (lib.platforms.linux, ["x86_64-linux"]); absent means every platform. hosts.nix passes the host's system to the resolver, which refuses a selected feature whose platforms omit it. Profiles stay dumb (mkDefault on feature.* only) and are split per platform: personal (portable), personal-linux and personal-darwin each import personal."""
+alternatives = ["split profiles with no record metadata (silent on darwin)", "platforms key with the resolver skipping unsupported selections (hides mistakes)", "profiles conditioning on the host system (DEC-004/ADR-001 D3 revision; loud only where remembered)", "flake-parts perSystem/withSystem (per-system outputs, not module content)"]
+rationale = "Loud at resolve time, before any build; one syntax covers OS and architecture (W7 aarch64); mirrors meta.platforms, so it reads idiomatically; profiles stay plain data."
+consequences = ["Revises ADR-002 D1/D4 (allowed record keys) and ADR-005 D6 (refused when unsupported on the host's system); DEC-006 resolver signature gains system.", "Linux-only home records carry platforms = lib.platforms.linux.", "QUE-001 answered for OS and architecture.", "README darwin paragraph and the workstation.nix comment are corrected."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14237-4cf4-7684-84fa-dd08ba4557a7"
+recorded_at = "2026-10-16T00:58:02.868303796Z"
+kind = "friction"
+summary = "probe 'packages' measure flags order-only drv reorders"
+detail = "SL-007 PHASE-01: the probe's system/packages file lists drv paths, so a list reorder inside one derivation (nix-ld ld-library-path) shows as a changed line; proving order-only needed nix-diff plus manual __json multiset comparison. A sorted-multiset probe measure would make order-only gates mechanical."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

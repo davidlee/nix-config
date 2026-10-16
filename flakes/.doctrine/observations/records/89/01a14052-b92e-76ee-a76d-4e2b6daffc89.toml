@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14052-b92e-76ee-a76d-4e2b6daffc89"
+recorded_at = "2026-10-15T16:08:45.614650196Z"
+kind = "friction"
+summary = "SL-006 close grep (design grep -r) vs EX-6 'over flakes/' disagree with untracked files present"
+detail = "Untracked brief.features.local.md and review.features.local.md match the design's grep -r. PHASE-05 used git grep (tracked only, excluding .doctrine). Tighten design text at reconcile. Also PHASE-04 did parts of PHASE-05 EX-3/EX-4 early, so authored criteria overstate PHASE-05."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

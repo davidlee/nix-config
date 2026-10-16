@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14033-f6d6-7269-89b9-18af63334440"
+recorded_at = "2026-10-15T15:35:09.782628024Z"
+kind = "friction"
+summary = "PHASE-03 EX-6 'every probe measure identical' is stricter than the slice's 'proven ordering-only' rule"
+detail = "A home.packages reorder moves man-cache, so .manpath in home-files-links moved. The worker stopped as instructed; the orchestrator accepted it as ordering-only (sheet D7). PHASE-04 reorders fonts.packages and home packages, so expect the same and plan for it."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

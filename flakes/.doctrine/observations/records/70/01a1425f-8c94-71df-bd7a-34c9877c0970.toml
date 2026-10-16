@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a1425f-8c94-71df-bd7a-34c9877c0970"
+recorded_at = "2026-10-16T01:42:00.596203938Z"
+kind = "friction"
+summary = "SL-007 P4 sheet /etc compare loop misreports directory symlinks as ORDER"
+detail = "cmp/sort over directory links gives bogus results; needs find -L plus normalising the system-path store hash. Restart-trigger overrides (dbus-broker, polkit) always differ by hash when system-path changes. Toplevel nix-diff stops at system-path; the order-only proof must be system-path sorted __json."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

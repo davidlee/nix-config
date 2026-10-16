@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14049-d1da-71a3-8045-381675c52986"
+recorded_at = "2026-10-15T15:59:02.106423652Z"
+kind = "friction"
+summary = "No doctrine verb edits backlog prose body"
+detail = "SL-006 PHASE-04: IMP-004 notes appended by editing .doctrine/backlog/improvement/004/backlog-004.md directly."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

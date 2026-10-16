@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a1419f-ecd3-72f2-ae77-151666065871"
+recorded_at = "2026-10-15T22:12:42.323160998Z"
+kind = "friction"
+summary = "capsule-driver: spawning the orchestrator with Agent `name` makes it a teammate whose children cannot hand back to it"
+detail = "Probe 2026-10-16 (haiku, minimal). Unnamed parent (plain foreground subagent) → child: parent received MARKER-CHILD-OF-UNNAMED via SubagentHandback. Named parent (Agent name=probe-named → in_process_teammate) → child: parent got 'The subagent ended without delivering a report through SubagentHandback'; resuming the child via SendMessage gave the same. In the SL-006 run the named orchestrator's planner/worker reports instead surfaced at the driver seat ('agent that spawned you is no longer running'). Second orchestrator, spawned unnamed, worked normally. Fix for the skill: capsule-driver must spawn capsule-orchestrator WITHOUT `name` (no teammate mode). Supersedes the hypothesis in observation 01a13ffa."
+
+[facets.execution]
+schema_version = 1
+interface = "mcp"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation_record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

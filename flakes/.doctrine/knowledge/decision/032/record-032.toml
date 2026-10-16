@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 32
+slug = "home-feature-taxonomy-by-function-settles-imp-016"
+title = "Home feature taxonomy by function; settles IMP-016"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "IMP-016 (apps taxonomy) asked to be settled with W5; linux GUI home modules and the cli _packages buckets are unflagged."
+choice = "Organise by function, not GUI/TUI form. Areas: editor (emacs neovim kakoune zed lem misc), notes (joplin terminal), dev (scm: sublime-merge plus scm.nix minus git; build; tools), docs (diagrams typeset help), data (formats), files (manage search sync), net (tools), web (browsers terminal), system (monitor), text (tools), security (tools), media (players spotify view obs), graphics (paint cad; apps.cad moves, apps area retired), comms (chat mail feeds), fun (toys), terminal (emulators), ai (claude-desktop). Exact membership per design.md taxonomy section. The NixOS linuxSystem bucket stays in the NixOS base."
+alternatives = ["a gui area (gui.browsers, gui.office, ...)", "all desktop home modules folded into desktop.core", "cli buckets kept in the base, repartitioned only"]
+rationale = "User (2026-10-16): function is the more useful organising principle than form. Each existing file is already a functional group, so the mapping is close to one feature per file."
+consequences = ["IMP-016 resolved by this decision.", "cli features keep common ++ optionals isLinux linuxHome until the behaviour phase.", "Linux-only GUI features carry platforms = lib.platforms.linux."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

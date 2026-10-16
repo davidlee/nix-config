@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 35
+slug = "revise-adr-002-d5-migration-preserves-order-or-proves-reorders-harmless-by-the-gate"
+title = "Revise ADR-002 D5: migration preserves order or proves reorders harmless by the gate"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-006 and SL-007 deviated from ADR-002 D5 ('migration preserves existing order') in slice designs, accepting gate-proven reorders; SL-008 would be the third. DEC-030 revises ADR-002 anyway."
+choice = "The same revision that adds platforms to ADR-002 D1/D4 rewords D5: selected features project in list order; a migration either preserves order or proves every reorder harmless with the drv gate (probe identical, or nix-diff shows list order only; a flipped collision winner stops the migration)."
+alternatives = ["deviate again in the slice design"]
+rationale = "Governance should match established practice instead of accumulating slice-local exceptions."
+consequences = ["One REV on ADR-002 covers D1, D4 and D5."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

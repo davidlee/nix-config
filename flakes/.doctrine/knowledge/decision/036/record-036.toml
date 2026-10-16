@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 36
+slug = "cli-packages-filtered-by-availability-with-an-explicit-broken-list"
+title = "cli packages filtered by availability, with an explicit broken list"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The cli buckets split common/linuxHome by guess; most linuxHome packages are available on darwin (lib.meta.availableOn, registry nixpkgs). meta.platforms says what a package supports, not what builds or is cached (watchman, atuin ISS-007)."
+choice = "Each cli feature's package list is filtered with lib.meta.availableOn for the host platform, minus an explicit brokenOn list per system (watchman; atuin while ISS-007 stands). The isx86 guards in the NixOS linuxSystem bucket are replaced the same way. Done in its own behaviour phase."
+alternatives = ["keep the common/linuxHome buckets", "separate preference buckets for packages unwanted on a Mac"]
+rationale = "One list per function; architecture (W7 aarch64) handled for free."
+consequences = ["Draupnir gains packages; Sleipnir unchanged.", "ISS-007's two workarounds stay until a nixpkgs bump."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

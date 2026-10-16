@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14240-6fbe-754c-8e2e-cefcecf40395"
+recorded_at = "2026-10-16T01:08:01.598878357Z"
+kind = "friction"
+summary = "/etc identity build does not pin the agents registry path"
+detail = "SL-007 PHASE-02: building the toplevel /etc for VA-3 identity checks shows nix/registry.json changed on every source edit, because the agents registry entry records the flake's own source path. just drvs pins it via nixos_pick (/drvs-gate) but there is no recipe that builds /etc with the same pin. A just recipe for a pinned /etc build would remove the false positive."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

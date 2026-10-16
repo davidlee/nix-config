@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 31
+slug = "home-base-moduleshomedefaultnix-plus-linux-and-darwin-layers-imported-by-the-host"
+title = "Home base: modules/home/default.nix plus linux and darwin layers, imported by the host"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-16"
+updated = "2026-10-16"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "RFC-001 W5; DEC-027 set the NixOS base pattern; HM cannot choose imports from pkgs."
+choice = "modules/home/default.nix is the home base, an import list: zsh, nushell, programs (direnv, yazi), shpool, programs.home-manager.enable, and the base cli (shell-ux and zsh buckets plus core userland: coreutils findutils file gnused gawk gnutar xz unzip zip cpio curl wget openssl less git gnupg). modules/home/linux/default.nix (imports the base; systemd.user.sessionVariables) and modules/home/darwin/default.nix (imports the base; today's darwin/home.nix verbatim) are platform layers. Each hosts/<h>/home.nix imports exactly one layer and keeps identity and stateVersion. profiles/ and darwin/home.nix go; modules/home/ ends holding only the base (eca, chatgpt excepted until W2)."
+alternatives = ["shared base plus platform layers chosen in the factory (DEC-016/007 revision)", "keep darwin/home.nix where it is", "emacs and neovim in the base"]
+rationale = "Mirrors DEC-027: no factory change, the host shows its trace, the directory is the base. Editors and most cli are optional (a VM may not want them; nightly neovim may break), so they are features."
+consequences = ["EDITOR/VISUAL move to editor.emacs; the base sets no EDITOR.", "The aarch64 home target evaluates the base plus the linux layer."]
+decided_by = "user (2026-10-16)"
+decided_on = "2026-10-16"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-008"

@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a14049-d1d8-738f-b7fd-83d9dd70b2be"
+recorded_at = "2026-10-15T15:59:02.104141683Z"
+kind = "friction"
+summary = "Phase sheet pinned justfile edit by line number; sed silently matched nothing"
+detail = "SL-006 PHASE-04 worker: emacs-overlay pin targeted justfile:18 per sheet but line was 17; first capture ran unpinned. Pin by pattern (/^home_override := /). Also: ad-hoc nix eval toplevel.drvPath differs from just drvs (nixos_pick neutralises configurationRevision); use just drvs."
+
+[facets.execution]
+schema_version = 1
+interface = "cli"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"

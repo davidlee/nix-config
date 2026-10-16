@@ -1,0 +1,18 @@
+schema = "doctrine.observation"
+schema_version = 1
+uid = "01a13ffa-27e7-73c8-8ea9-86c66c558e9b"
+recorded_at = "2026-10-15T14:32:01.255937827Z"
+kind = "friction"
+summary = "capsule-phase-planner hand-back misrouted to driver seat instead of spawning orchestrator"
+detail = "SL-006 PHASE-01: planner spawned by capsule-orchestrator (running as a teammate) reported 'the agent that spawned you is no longer running' and its final report arrived at the capsule-driver seat as an agent-message. Driver forwarded it to the orchestrator by SendMessage. Likely cause: orchestrator spawned as a named teammate, so child completion routes to the team lead. Also: capsule-phase-planner contract (flip nothing) and phase-plan skill (flip in_progress) disagree on who flips phase status."
+
+[facets.execution]
+schema_version = 1
+interface = "mcp"
+interface_origin = "automatic"
+product_surface = "doctrine"
+product_surface_origin = "automatic"
+command = "observation_record"
+command_origin = "automatic"
+repository_context = "primary"
+repository_context_origin = "automatic"
