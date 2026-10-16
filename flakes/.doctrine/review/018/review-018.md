@@ -148,3 +148,35 @@ contract). Deeper inspection of the resolver change: `/walkthrough` on
 - Backlog: resolve IMP-016 (DEC-032; `graphics.cad`) and ISS-008 (P3; `niri-off` control).
 - PHASE-07 VH-2 stays unverified, owned by CHR-015 (the user's check at the next Draupnir home-switch). Do not mark it passed.
 - Follow-ups owned: IMP-026 (lazygit), IMP-027 (clangStdenv / binutils), CHR-001 (modules/DESIGN.md), IMP-019 (probe `.manpath` normalisation).
+
+## Reconciliation Outcome
+
+Basis (user acts, 2026-10-16): REV-007/REV-008 approved ("accept revs");
+DEC-024 draft consequence assented; VH-1 resolved by the user's choice; VH-2
+verified ("VH-2 accepted"), CHR-015 resolved; the seat's "probe identical"
+ruling accepted (F-4).
+
+### Direct edits applied
+- F-3: `doctrine slice selector add 8 ALARM.md agents/README.md _templates/agents/_envrc --intent design-target`; also `bin/gate-probe` (touched by 0c6ddad7 after the audit). Mirrored in design.md § Design-target selectors and § Code impact Files. `slice conformance` still misattributes by the `flakes/` prefix (ISS-005).
+- F-4: design.md § Phases and verification states the applied "probe identical" rule (derived-hash `home-files-links` line with empty masked diff; unsorted store-path string with empty `diff -r`); plan EX wording stays.
+- F-5: design.md § Behaviour changes, doctor row: two python scripts pinned via `pinnedPython`; the bash emacs provider unchanged.
+- F-6: design.md § Behaviour changes, brokenOn row: the nine-name aarch64-darwin list (incl. `binutils-wrapper`, 773f7dc9) and its four causes; `features/available.nix` in § Code impact Files.
+- F-7: design.md § Negative controls, dev.scm row (jujutsu absent; git falls back to the base; lazygit stays, IMP-026).
+- F-18: design.md § The isolation check: the stub by absolute path.
+- Post-audit changes folded into design.md: VH-1 result (shell_cmds, yEd skipped, d2f5f0f3); VH-2 result (binutils collision fixed by 773f7dc9; flips `git` → `git-with-svn` and `cpp` → `clang` are priority-decided, identical to Sleipnir, accepted by the user); `bin/gate-probe` `path:` on Darwin and `just probe` per current host (0c6ddad7).
+- F-12: `doctrine slice research 8 --restamp`, after the design.md edits.
+- F-13 (source): README § Hosts gains the home base paragraph, diagram and a `home base` class row; the host-config row names `home.nix`.
+
+### Records and REVs completed
+- REV-007 (ADR-002 D1/D2/D4/D5, Neutral): approved, applied, landed by hand, done (F-14).
+- REV-008 (ADR-005 D6): approved, applied, landed by hand, done (F-14).
+- DEC-006: body rewritten to `lib: { tree, classes, system, modules } -> { modules }`; the `flags` result removed (F-15).
+- DEC-024: consequences replaced by the assented draft (F-15).
+- DEC-036: choice generalised (evaluate/build failure, collision, uncached by the user's choice); body lists the nine names (F-6, F-15).
+- QUE-001: already `answered` by DEC-030 (terminal; questions have no `done` state). No write (F-16).
+- RFC-001: W5 done (SL-008), § Target shape (three personal profiles, headless W7's, home base lines), base bullet, open-questions list (F-16). Direct edit, as at SL-005..SL-007.
+
+### Left for /close
+- Resolve IMP-016 and ISS-008. PHASE-07 VH-2: verified by the user since the audit (CHR-015 resolved), so it may be recorded as passed at close on that basis. Follow-ups: IMP-026, IMP-027, CHR-001, IMP-019.
+
+Reconcile pass complete — handoff to /close.

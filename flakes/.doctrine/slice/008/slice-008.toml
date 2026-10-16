@@ -94,6 +94,22 @@ intent = "design-target"
 selector = "hosts/Draupnir/features.nix"
 intent = "design-target"
 
+[[selector]]
+selector = "ALARM.md"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "_templates/agents/_envrc"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/gate-probe"
+intent = "design-target"
+
 [[relation]]
 label = "governed_by"
 target = "ADR-001"

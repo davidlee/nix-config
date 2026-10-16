@@ -1,7 +1,7 @@
 id      = 8
 slug    = "adr-005-d6-platform-refusal"
 title   = "ADR-005 D6: a selected feature whose platforms omit the host's system is an error"
-status  = "proposed"   # work lifecycle: proposed | started | done | abandoned
+status = "done"
 approval = "approved"
 updated = "2026-10-16"
 tags    = []

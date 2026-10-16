@@ -36,3 +36,10 @@ features is out of scope.") is unchanged. Positive bullet "… without
 metadata" refers to maintenance status, not platform scope; unchanged.
 
 Applied at SL-008 `/reconcile`, with REV-007 (ADR-002).
+
+## Reconcile narrative
+
+- [RV-018 F-14]: approved by the user ("accept revs", 2026-10-16). Landed by
+  hand at SL-008 `/reconcile`: D6 now names the `platforms` refusal and
+  points platform scope at the record (ADR-002 D1, DEC-030); its "no support
+  metadata until needed" clause is discharged. Neutral and Positive unchanged.

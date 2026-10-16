@@ -76,3 +76,11 @@ strings on the record, never a class value.
 
 Applied at SL-008 `/reconcile`, together with DEC-006's signature edit
 (`+ system`) and the README Features section.
+
+## Reconcile narrative
+
+- [RV-018 F-14]: approved by the user ("accept revs", 2026-10-16). Landed by
+  hand at SL-008 `/reconcile`: D1 and D4 gain `platforms` (read and
+  shape-checked by `features.nix`); D2 states `features/default.nix` as a
+  function of `{lib}` mapping area names; D5 reworded per DEC-035; the Neutral
+  consequence cites D5. D3, D6, D7 unchanged.

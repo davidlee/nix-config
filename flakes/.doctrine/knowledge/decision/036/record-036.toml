@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "The cli buckets split common/linuxHome by guess; most linuxHome packages are available on darwin (lib.meta.availableOn, registry nixpkgs). meta.platforms says what a package supports, not what builds or is cached (watchman, atuin ISS-007)."
-choice = "Each cli feature's package list is filtered with lib.meta.availableOn for the host platform, minus an explicit brokenOn list per system (watchman; atuin while ISS-007 stands). The isx86 guards in the NixOS linuxSystem bucket are replaced the same way. Done in its own behaviour phase."
+choice = "Each cli feature's package list is filtered with lib.meta.availableOn for the host platform, minus an explicit per-system list (features/cli-broken.nix) of packages availableOn admits but that fail to evaluate or build, collide with another package in the home profile, or are uncached and skipped by the user's choice (e.g. atuin while ISS-007 stands). The isx86 guards in the NixOS linuxSystem bucket are replaced the same way. Done in its own behaviour phase."
 alternatives = ["keep the common/linuxHome buckets", "separate preference buckets for packages unwanted on a Mac"]
 rationale = "One list per function; architecture (W7 aarch64) handled for free."
 consequences = ["Draupnir gains packages; Sleipnir unchanged.", "ISS-007's two workarounds stay until a nixpkgs bump."]

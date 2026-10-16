@@ -7,7 +7,7 @@ title = "One guarded resolution per host; failed assertions throw before any fac
 record_kind = "decision"
 status = "accepted"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

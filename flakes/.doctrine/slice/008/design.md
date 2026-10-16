@@ -732,7 +732,9 @@ on this machine (panopticon, satan-patcher, satan-attrd, goad).
   avoids a fetch failure when the lock is read (research § Local-path input
   references).
 - **The recipe.** A new `just isolation` evaluates two homes with those four
-  inputs overridden to the stub (`--override-input <name> path:./features/stub`):
+  inputs overridden to the stub by absolute path
+  (`"path:" + justfile_directory() + "/features/stub"`), because a relative
+  `path:` resolves against the `$HOME` git root:
   - `coverage."home@aarch64-linux"`;
   - `homeConfigurations."david@Draupnir"`.
 - **What fails.** Any reference to `inputs.<name>.packages` or
@@ -781,9 +783,9 @@ deliberate change, and nothing outside the table may differ.
 | change | effect | proof |
 |---|---|---|
 | **cli availability** (DEC-036): every guarded feature's `optionals isLinux [ … ]` becomes one list, `filter (availableOn hostPlatform) (subtractLists (brokenOn.${system} or []) all)` | Draupnir gains the packages available on aarch64-darwin. Sleipnir is identical | Sleipnir `drvs-sets` home identical. Draupnir `drvs-sets` home count rises by exactly the evaluated delta, whose package names are listed in the phase notes. The home filter is exercised on x86_64-linux (Sleipnir) and aarch64-darwin (Draupnir). `coverage."home@aarch64-linux"` selects no feature, so it does not reach it; aarch64-linux homes with features are W7's |
-| **`brokenOn`** (one attrset, `features/cli-broken.nix`): `aarch64-darwin = [watchman atuin]`. atuin is there while ISS-007 stands; watchman's C++ tower fails on darwin (`dev.nix` comment) | they stay off the Mac | neither name is in Draupnir's `home.packages` |
+| **`brokenOn`** (one attrset, `features/cli-broken.nix`, applied by `features/available.nix`): `aarch64-darwin = [watchman atuin gtt udiskie micro fsearch shell_cmds yEd binutils-wrapper]`, names compared with `lib.getName`. Four causes, each recorded beside the list: it fails to evaluate or build although `availableOn` admits it (watchman's C++ tower; gtt, udiskie and micro through Linux-only dependencies; fsearch is `meta.broken`, which `availableOn` ignores); it is not cached and the user chose to skip it (atuin while ISS-007 stands; shell_cmds and yEd, PHASE-07 VH-1); it collides at equal priority with a package that already provides its files (binutils-wrapper against gcc-wrapper, PHASE-07 VH-2) | they stay off the Mac | none of the names is in Draupnir's `home.packages` |
 | **NixOS `isx86` guards** in `modules/nixos/cli.nix` (cpuid, x86info) → `availableOn` | none on x86_64 | Sleipnir system `drvs-sets` identical. `base@aarch64-linux` still evaluates |
-| **doctor interpreter**: the three `home.file` entries become `pkgs.writeScript` with an explicit `python3` shebang, or `source` plus a pinned interpreter | the doctor no longer depends on PATH `python3` | the scripts run (`sleipnir-doctor` exits 0 or reports checks) |
+| **doctor interpreter**: the two python scripts (`sleipnir-doctor`, `sleipnir-doctor-panopticon`) become `pkgs.writeScript` with the shebang replaced by `pkgs.python3.interpreter` (one helper, `pinnedPython`, in `hosts/Sleipnir/doctor.nix`). `sleipnir-doctor-emacs` is bash and stays as it is | the doctor no longer depends on PATH `python3` | the scripts run (`sleipnir-doctor` exits 0 or reports checks) |
 | **duplicates removed**: the second `mpv` and `viu` from `media.players` (`viu` stays in `media.view`); `yazi` from `files.manage` and `mcfly` from `files.search`, which the base's `programs.yazi` and `programs.mcfly` already install | none, if the HM program's package is the one that wins today | Sleipnir home probe: `home-path-links` identical. If the bare `yazi` or `mcfly` wins a path today, that row is dropped and recorded, not forced |
 | **`break-remind.nix` deleted** | none (imported nowhere) | `git grep break-remind` under `flakes/` finds only the README parked note, if any |
 | **comments and docs**: the `workstation.nix` comment (dictate would not fail D6 on darwin; that profile is Linux-only now through `desktop.core`'s platforms); the README; DEC-024's darwin consequence | none | review |
@@ -801,6 +803,9 @@ cache check below. Before P7 is committed:
 2. Packages that are not cached are listed in the phase notes.
 3. The user chooses for each: add it to `brokenOn`, or accept a local build at
    the next `darwin`/`home-switch`.
+
+Result: two of the 57 packages Draupnir gained were not cached,
+`killall-shell_cmds` and `yEd`. The user chose to skip both (d2f5f0f3).
 
 Draupnir cannot be switched from Sleipnir, so the switch itself is the user's.
 This check does not replace it: whether the added tools build locally and
@@ -825,6 +830,17 @@ either:
 
 A flipped collision winner means stop and `/consult`.
 
+**"Probe identical", as applied** (RV-018 F-4, the user accepted the
+ruling). Packages, `home-path-links` and user units are identical. Two
+derived differences are allowed, each with its evidence in the phase notes:
+- a `home-files-links` line whose target hash follows another derivation's,
+  when its masked diff is empty (e.g. `.manpath`, whose `man-cache` hash
+  follows `home-path`; IMP-019 would normalise it);
+- a drv that differs only by an unsorted, space-separated store-path string,
+  when its built outputs `diff -r` empty.
+
+The plan's EX wording for P2–P5 was narrower; it stays as written.
+
 **Darwin has no probe.** A darwin home cannot be built on Sleipnir, so
 Draupnir's home and system are checked by `drvs` and `drvs-sets` only. Where
 Draupnir's home drv changes, its `drvs-sets` must match, and a `nix-diff` of
@@ -840,7 +856,19 @@ collision winner. Two things close most of that gap:
 - **A link-map check at the next Draupnir switch (VH, by the user).** Before
   activating, the user runs `bin/gate-probe` on Draupnir against the new
   home and compares its `home-path-links` with the current generation's
-  `home-path`. A flipped winner there is fixed forward.
+  `home-path`. A flipped winner there is fixed forward. On Darwin,
+  `bin/gate-probe` takes the flake as a `path:` reference, as the justfile
+  does, because the bare dotfiles repo defeats git discovery; `just probe`
+  without an attr probes the current host and skips system mode on macOS
+  (0c6ddad7).
+
+  Result (PHASE-07 VH-2, verified by the user): the first build failed on a
+  collision, `binutils-wrapper` against `gcc-wrapper` at equal priority on
+  `bin/strings`, `ar`, `nm` and the like, so `binutils-wrapper` joined
+  `brokenOn` (773f7dc9). Two winners flipped, both decided by priority and
+  identical to Sleipnir's home: `git` → `git-with-svn` (`hiPrio gitFull`,
+  newly available on darwin) and `cpp` from `gcc-wrapper` → `clang`. The
+  user accepted both; the toolchain-in-home question is IMP-027's.
 
 **New files are tracked before evaluation** (`mem.fact.flakes.git-add-n`).
 Every new file is `git add -N`ed before the phase's gate runs.
@@ -871,7 +899,7 @@ and check the closure, not just the option.
 |---|---|
 | `editor.emacs` | `emacs` absent from `home-path`; `EDITOR` unset in `hm-session-vars.sh`; `emacs.service` absent |
 | `editor.neovim` | `nvim` absent from `home-path` |
-| `dev.scm` | `lazygit` and `jujutsu` absent; `git` still present (base) |
+| `dev.scm` | `jujutsu` absent; `git` falls back to the base's plain `git`; `lazygit` stays, because the base's `programs.lazygit` installs it (IMP-026) |
 | `terminal.utils` | `tmux` absent from `home-path` |
 | `desktop.core` (home half, with the compositors) | no `swaybg.service` and no `tailscale-systray.service` in the home; `home.pointerCursor` unset |
 | `compositor.niri` alone | `swaybg` and `tailscale-systray` **still** present (ISS-008 fixed) |
@@ -918,11 +946,13 @@ The refusal controls are checked once:
 | `features/desktop/core.nix` | `homeManager` half, `platforms` | P3 |
 | `features/apps.nix` | removed (cad → graphics) | P3 |
 | `features/profiles/*` | workstation extended; three personal profiles | P3–P5 |
-| `features/stub/flake.nix`, `features/cli-broken.nix` | new | P6, P7 |
+| `features/stub/flake.nix`, `features/cli-broken.nix`, `features/available.nix` | new | P6, P7 |
 | `hosts/Sleipnir/{home,features,doctor}.nix`, `hosts/Sleipnir/doctor/` | rewritten or new | P2–P5 |
 | `hosts/Draupnir/{home,features}.nix` | rewritten or new | P2, P4–P5 |
 | `profiles/linux-desktop.nix`, `darwin/home.nix` | removed | P2 |
-| `justfile` | `coverage` pick; `isolation`; the nudge test path | P5, P6 |
+| `justfile` | `coverage` pick; `isolation`; the nudge test path; `probe` takes the current host | P5, P6, P7 |
+| `bin/gate-probe` | `path:` flake reference on Darwin (VH-2) | P7 |
+| `ALARM.md`, `agents/README.md`, `_templates/agents/_envrc` | paths fixed after the moves | P2, P5 |
 
 ### Governance (through REVs, applied at `/reconcile`)
 
@@ -964,5 +994,9 @@ features/**   modules/home/**   modules/shared/cli/**   modules/nixos/cli.nix
 hosts/Sleipnir/home.nix  hosts/Sleipnir/features.nix  hosts/Sleipnir/doctor.nix  hosts/Sleipnir/doctor/**
 hosts/Draupnir/home.nix  hosts/Draupnir/features.nix
 profiles/**  darwin/home.nix
+ALARM.md  agents/README.md  _templates/agents/_envrc  bin/gate-probe
 ```
+
+The last row was added at `/reconcile` (RV-018 F-3; `bin/gate-probe` for
+0c6ddad7).
 

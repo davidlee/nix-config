@@ -7,7 +7,7 @@ title = "Profile vs host: who selects a feature"
 record_kind = "decision"
 status = "accepted"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-16"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
@@ -15,7 +15,7 @@ context = "Each migrated feature needs a selector; tree features default off (IM
 choice = "The workstation profile (mkDefault) selects what any desktop workstation of mine wants: session.snooze, virt.docker, non-nix-packages.{appimage,flatpak}, desktop.core, desktop.fonts, audio.pipewire, audio.dictate. A host selects what is bound to its hardware, site, data or taste: virt.{capsule,qemu RV-016 F-6.), games.*,}"
 alternatives = ["everything Sleipnir uses in the workstation profile", "everything as Sleipnir host properties", "a separate desktop profile now"]
 rationale = "Profiles carry portable intent; host files carry what would be wrong to inherit. Compositors are toggled often (ADR-001's driver) and are per-host taste. apps.cad as a host property avoids prejudging IMP-016."
-consequences = ["A host importing workstation gets the Wayland desktop stack (desktop.core) and pipewire and docker and snooze and app formats and fonts and dictate", "Several of these are NixOS-only records so the profile is Linux-only (ADR-005 D6)", "audio.dictate is a Linux-only home half in a profile: a darwin host importing workstation would hit QUE-001"]
+consequences = ["A host importing workstation gets the Wayland desktop stack (desktop.core), pipewire, docker, snooze, the app formats, fonts and dictate", "The profile is Linux-only through desktop.core's platforms (DEC-030), so a darwin host cannot import it: the resolver refuses a selected feature whose platforms omit the host's system"]
 decided_by = "user (2026-10-16, 'agreed')"
 decided_on = "2026-10-16"
 
