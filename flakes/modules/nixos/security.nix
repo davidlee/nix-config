@@ -11,21 +11,10 @@
   security = {
     # required for cursor sandboxing
     # unprivilegedUsernsClone = true;
-    rtkit.enable = true;
     polkit.enable = true;
 
     sudo = {
       enable = true;
     };
-
-    pam.loginLimits = [
-      # allow any user prog to request realtime priority
-      {
-        domain = "@users";
-        item = "rtprio";
-        type = "-";
-        value = 1;
-      }
-    ];
   };
 }

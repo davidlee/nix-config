@@ -25,11 +25,47 @@
   }
 
   {
+    name = "postgresql";
+    nixos = {
+      username,
+      pkgs,
+      ...
+    }: {
+      services = {
+        postgresql = {
+          package = pkgs.postgresql_18;
+          enable = true;
+          ensureUsers = [
+            {
+              name = username;
+              ensureDBOwnership = true;
+              ensureClauses = {
+                superuser = true;
+                createrole = true;
+                createdb = true;
+              };
+            }
+          ];
+          ensureDatabases = [
+            username
+            "corpus"
+          ];
+          enableTCPIP = false;
+        };
+      };
+      # Stray ports, kept for no behaviour change; they leave in SL-007 PHASE-06.
+      networking.firewall.allowedTCPPorts = [80 443];
+    };
+  }
+
+  {
     name = "webserver";
     nixos = {pkgs, ...}: {
       environment.systemPackages = with pkgs; [
         caddy
       ];
+
+      networking.firewall.allowedTCPPorts = [80 443];
 
       services = {
         static-web-server = {

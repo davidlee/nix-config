@@ -7,6 +7,7 @@
   feature.non-nix-packages.flatpak.enable = lib.mkDefault true;
   feature.desktop.core.enable = lib.mkDefault true;
   feature.desktop.fonts.enable = lib.mkDefault true;
+  feature.audio.pipewire.enable = lib.mkDefault true;
   # Linux-only home half: a darwin host importing this profile would select it
   # and fail ADR-005 D6 / hit QUE-001.
   feature.audio.dictate.enable = lib.mkDefault true;

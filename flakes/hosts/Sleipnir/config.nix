@@ -23,11 +23,6 @@
     ./dns.nix
     ./oom.nix
 
-    ../../modules/nixos/audio.nix
-    ../../modules/nixos/bluetooth.nix
-    ../../modules/nixos/keyboard.nix
-    ../../modules/nixos/postgresql.nix
-
     # parked — these do NOT evaluate; repair before re-enabling. Deliberately
     # not features: selecting one says "flip me", which would be a lie here.
     # ../../modules/nixos/hyprland.nix   (hyprlandPlugins.hyprexpo missing)

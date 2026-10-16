@@ -189,7 +189,7 @@ lists the areas as `{ name; value; }` pairs. List order is projection order.
 ```
 features/
   default.nix         [ hardware session virt non-nix-packages games ai audio services apps desktop compositor shell ]
-  hardware.nix        [ openrgb ]
+  hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
   virt.nix            [ (import ./virt/capsule.nix) qemu docker podman ]
@@ -197,9 +197,9 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm ]              neither selected; coverage targets
-  audio.nix           [ mpd speech dictate ]          speech: coverage target
+  audio.nix           [ pipewire mpd speech dictate ] speech: coverage target
   audio/              dictate  dictate-test           assets, beside their feature
-  services.nix        [ printing webserver sunshine ] sunshine: coverage target
+  services.nix        [ printing postgresql webserver sunshine ] sunshine: coverage target
   apps.nix            [ cad ]
   desktop.nix         [ (import ./desktop/core.nix) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
@@ -468,7 +468,7 @@ journalctl --user -u snooze-nag -f
 
 `features/services.nix` (`services.printing`) — CUPS with drivers for Brother HL-L2445DW (laser) and Canon TR8600 (inkjet via gutenprint).
 
-**Printers:** both discovered via Avahi/mDNS (`avahi.nix`). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
+**Printers:** both discovered via Avahi/mDNS (the base's `modules/nixos/avahi.nix`). The `laser` queue is the default printer. Assign static DHCP leases on the router so IPP URIs don't break.
 
 **GUI:** `system-config-printer` for queue management, or `http://localhost:631` for the CUPS web interface.
 

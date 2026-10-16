@@ -17,10 +17,19 @@
     mangohud.enable = true;
   };
 
+  # Peripherals are host properties (DEC-011, DEC-021).
+  feature.hardware = {
+    bluetooth.enable = true;
+    qmk.enable = true;
+    tablet.enable = true;
+    logitech.enable = true;
+  };
+
   feature.audio.mpd.enable = true; # /media/music
   # printers: site-bound (IMP-017)
   feature.services = {
     printing.enable = true;
+    postgresql.enable = true;
     webserver.enable = true;
   };
   feature.apps.cad.enable = true; # not in a profile until IMP-016

@@ -317,6 +317,12 @@ in
         "desktop.greeter#nixos"
         "compositor.umbriel#nixos"
         "shell.noctalia#nixos"
+        "audio.pipewire#nixos" # through the workstation profile
+        "hardware.bluetooth#nixos"
+        "hardware.qmk#nixos"
+        "hardware.tablet#nixos"
+        "hardware.logitech#nixos"
+        "services.postgresql#nixos"
       ];
       bothHalves = [
         "compositor.sway#nixos"

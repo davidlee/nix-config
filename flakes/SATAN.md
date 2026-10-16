@@ -75,7 +75,7 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | Emacs server socket | `/run/user/1000/emacs/server` |
 | goad ingress | `/run/user/1000/goad.sock` |
 
-**Postgres** (`modules/nixos/postgresql.nix`): PostgreSQL 18, socket
+**Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
 `/run/postgresql`, no TCP; role `david` superuser; `ensureDatabases = [david
 corpus]`. **`satan_memory` is not declared** — created by hand. Migrations:
 elisp `~/dev/satan/satan/memory/migrations/0001–0008` (`schema_migrations`);
