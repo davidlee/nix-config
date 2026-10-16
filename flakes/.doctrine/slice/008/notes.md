@@ -193,3 +193,60 @@ Snapshots under `~/.cache/multihost-gate/sl008/`: before `phase-02-before/` (tak
 - Sleipnir home probe: `packages` and `home-path-links` identical; `home-files-links` differs on ONE line, `.manpath -> hm_.manpath`. The manpath file differs only in the `man-cache` store hash (MANDB_MAP line), which is derived from `home-path`'s drv hash. Contents otherwise equal. Per the sheet this is STOP 1.
 - `order-only` on Sleipnir: NOT ORDER-ONLY, naming `david-fish-completions` and `home-manager-generation`. `david-fish-completions` differs in env `paths` (a space-separated string, not an array, so the checker's list sort misses it): its 345 tokens sorted are byte-identical old vs new (evidence: `phase-02/evidence/*.paths`). home-manager-generation is the cascade. nix-diff: `phase-02/nix-diff.david@Sleipnir`; chain bottoms out at home-manager-path `__json` + fish-completions `paths`.
 - just gate green, fmt 0 changed, flake.lock unchanged.
+
+### Orchestrator verdict
+The worker's STOP trigger 1 was adjudicated **order-only** and committed as
+c4020d9a. Evidence: Sleipnir `packages` and `home-path-links` identical; the
+only probe delta is `.manpath`'s `man-cache` store hash, which is derived from
+the reordered `home-path` drv. The other NOT-ORDER-ONLY drv,
+`david-fish-completions` (env `paths` is a space-separated string the checker
+did not sort), was built old and new, and `diff -r` of the realised outputs
+(old `/nix/store/r5zkbr9rfnhdb7ss35d2yg9s7wikhgvm-david-fish-completions`,
+new `/nix/store/a2n1y3h8iiw4dmlmx9807w0kz0gjxxwh-david-fish-completions`) is empty. Draupnir home drv
+unchanged. Carried into P3: the derived-hash rule, the `order-only` fix for
+space-separated store-path strings (planner-verified: the P2 Sleipnir pair is
+then ORDER-ONLY; Sleipnir vs Draupnir still NOT ORDER-ONLY), and the archive
+drift check's `flake := "path:" + justfile_directory()` override.
+
+## PHASE-03
+
+Status: executed, gate green; uncommitted P3 delta on top of c4020d9a. Two
+sheet-literal mismatches in the negative controls, both flagged for the
+orchestrator (see § Negative controls); no gate STOP.
+
+### Tests
+Red (T1, before any feature edit; `phase-03/evidence/t1-red.json`), exactly as predicted:
+- `testSleipnirHomeSelection`: all 16 `false`.
+- `testObsRequiresCore`: `[false false]`.
+- `testDesktopCoreLinuxOnly`: `[true true]`.
+- `testSleipnirSelectsMigrated`: `desktop.core#nixos` gave `[true false]` (expected `[true true]`).
+- Every other test green.
+After T2: only `testObsRequiresCore` (`[false false]`) and `testSleipnirHomeSelection` (`[true false …]`) red. After T3: only `testSleipnirHomeSelection` red (`[true false …]`). After T4: `runTests` `[]`; `just test` green.
+
+### Gate snapshots
+Under `~/.cache/multihost-gate/sl008/`. HEAD c4020d9a + uncommitted P3 delta.
+- Before `phase-03-before/` (T0, immediately before the first edit; tree clean but for the vicinae deletion and this notes file). Counts 13 / 5 / 7. P2→T0 drift: `drvs`, `drvs-sets`, `system/`, `home/` all identical to `phase-02/`.
+- After `phase-03/` (= **PHASE-04's baseline**). Drift check: HEAD archive evaluated now = T0 `drvs` → no drift; `phase-03-before/` is the before.
+- `drvs`: only `homeConfigurations.david` and `homeConfigurations.david@Sleipnir` differ. `david@Draupnir`, `darwinConfigurations.*`, `templates.*`, system: identical.
+- `drvs-sets`, `coverage`, `diff -r system/`: identical.
+- Sleipnir home `packages`, `home-path-links`: identical. Every `.config/systemd/user/` line identical.
+- `home-files-links`: one derived-hash line, `.manpath -> …9wxn0fxp…-hm_.manpath` → `…vjxbqkqp…-hm_.manpath`. Content differs only in the `man-cache` hash on the MANDB_MAP line; masked diff empty (`phase-03/evidence/manpath.masked.diff`, raw `manpath.raw.diff`). Meets the derived-hash rule.
+- Collision watch, before = after (counts and lines): `bin/foot` 1 system / 1 home; `bin/swaybg` 1 system; swaybg + tailscale-systray + systembus-notify units 3; `graphical-session.target.wants/swaybg.service` 1; `share/icons/Bibata-` 1764 system lines; `.icons/default/index.theme` 1; `.icons/phinger-cursors-light/` 544. No winner flip.
+- `order-only` (fixed checker) on `david@Sleipnir` and `david`: ORDER-ONLY (9/9 drvs in one closure only). `nix-diff` (`phase-03/nix-diff.david@Sleipnir`) bottoms out at `home-manager-path` `__json`, `man-paths` `__json` and `david-fish-completions` `paths`, as predicted. Draupnir: identical.
+- `just gate` green (fmt 0 changed); `nix fmt --no-write-lock-file -- --no-cache` 0 changed; flake.lock unchanged.
+- Checker fix (T0b): `order-only`'s `norm()` gained `pathlist` (sort space-separated store-path strings); the pre-fix copy is kept as `order-only.pre-p3`. Regressions: P2-before self → ORDER-ONLY; P2 pair → ORDER-ONLY (was NOT before the fix); P2 Sleipnir vs Draupnir → NOT ORDER-ONLY, exit 1.
+
+### Negative controls
+Under `phase-03/controls/` (`<name>/` link maps, `<name>.result`). Each a temporary inline module in Sleipnir's `features.nix` imports; restored by file copy, `cmp` equal, Sleipnir home drv equal to `phase-03/drvs`.
+- `core-off` (core, obs and all six compositors `mkForce false`; resolved without refusal): no swaybg / tailscale-systray / systembus-notify units, no swaybg wants link, no `.icons/phinger-cursors-light/`, no `.icons/default/index.theme`, no `share/icons/phinger-cursors-light/` (544 in the positive). Liveness: `bin/firefox` present. **Mismatch 1:** the sheet expected `home.pointerCursor` to print `null`; it prints the submodule with `enable = false`, `name`/`package` undefined, `x11.defaultCursor = "left_ptr"`. The pinned HM declares `home.pointerCursor` with `default = { }` (`modules/config/home-cursor.nix:142-145`), so that is its unset state. The closure result is the authoritative one.
+- `niri-off`: swaybg unit, its wants link and tailscale-systray unit **still present** (ISS-008 fixed). Liveness: `bin/nirius|vicinae` 0 (2 in the positive).
+- `obs-off`: `packages` differs from `phase-03` only by `wrapped-obs-studio-32.2.2`. **Mismatch 2:** the sheet's pattern `-i 'obs-studio|wlrobs|^bin/obs '` still matches 2 `home-path-links` lines: fontawesome `brands/obs-studio.svg` icons inside mermaid-cli, present in the positive too. Target-anchored check (`-> /nix/store/<hash>-(wrapped-obs-studio|obs-studio|wlrobs)`): 0 off vs 500 positive; `home-path-links` delta has no non-obs line; `home-files-links` differs only on the derived `.manpath` line.
+
+### Assumptions and deviations
+- A1 (D1 confirmed by the orchestrator): `editors.nix` keeps `sublime-merge` (+ `# obsidian`), `office.nix` keeps `mpris-timer`, `rssguard`; `graphics.nix` keeps `yed`, `drawio`. No package lost (`packages` identical).
+- A2/A3 taken: `core.nix` is `{lib, ...}:`, called with `{inherit lib;}`; areas after `shell`: editor notes web media graphics comms terminal.
+- A4–A6 taken. obs-studio.nix's comment rides above the `obs` record.
+- `services.*` in `core/home.nix` kept as separate keys (statix did not ask to merge).
+- README: the `default.nix` area list wraps onto a second line instead of one ~150-column line.
+
+Verdict: P3 row: order only — Sleipnir home packages and home-path-links identical, one derived-hash line (`.manpath`); system, coverage, Draupnir identical.

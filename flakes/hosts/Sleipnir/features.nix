@@ -32,10 +32,30 @@
     postgresql.enable = true;
     webserver.enable = true;
   };
-  feature.apps.cad.enable = true; # not in a profile until IMP-016
+
+  # Taste and per-machine use (DEC-024). spotify: also personal-linux's from
+  # SL-008 P5.
+  feature.media = {
+    spotify.enable = true;
+    obs.enable = true;
+  };
+  feature.graphics = {
+    paint.enable = true;
+    modelling.enable = true;
+    cad.enable = true;
+  };
+  feature.editor = {
+    zed.enable = true;
+    lem.enable = true;
+  };
+  feature.notes.joplin.enable = true;
+  feature.ai.claude-desktop.enable = true;
 
   feature.desktop.greeter.enable = true; # the login screen; default session in config.nix
-  feature.shell.noctalia.enable = true;
+  feature.shell = {
+    noctalia.enable = true;
+    walker.enable = true;
+  };
 
   # Taste, toggled often (DEC-024): every compositor installed.
   feature.compositor = {

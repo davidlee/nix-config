@@ -1,5 +1,5 @@
 # AI features, in projection order. Shape: README § Feature tree.
-_: [
+{lib, ...}: [
   {
     name = "llama-cpp";
     # llama.cpp server in router mode, serving Bonsai 2 27B on the GPU via ROCm.
@@ -71,5 +71,15 @@ _: [
     # Rebuilds much of nixpkgs. llama-cpp does not need it: llama-cpp-prism-rocm
     # is a ROCm build regardless.
     nixos = _: {nixpkgs.config.rocmSupport = true;};
+  }
+  {
+    name = "claude-desktop";
+    platforms = lib.platforms.linux;
+    homeManager = {pkgs, ...}: {
+      home.packages = [
+        pkgs.claude-desktop
+        #inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ];
+    };
   }
 ]

@@ -357,7 +357,6 @@ in
         "compositor.kde#nixos"
         "compositor.mango#nixos"
         "desktop.fonts#nixos" # through the workstation profile
-        "desktop.core#nixos" # through the workstation profile
         "desktop.greeter#nixos"
         "compositor.umbriel#nixos"
         "shell.noctalia#nixos"
@@ -371,11 +370,11 @@ in
       bothHalves = [
         "compositor.sway#nixos"
         "compositor.niri#nixos"
+        "desktop.core#nixos" # through the workstation profile
       ];
       homeOnly = [
         "games.mangohud#homeManager"
         "audio.dictate#homeManager" # through the workstation profile
-        "apps.cad#homeManager"
         "compositor.sway#homeManager"
         "compositor.niri#homeManager"
       ];
@@ -385,6 +384,38 @@ in
         map (_: [true false]) nixosOnly
         ++ map (_: [true true]) bothHalves
         ++ map (_: [false true]) homeOnly;
+    };
+
+    # P3 home features Sleipnir selects, directly or through workstation.
+    # Grows in P4 and P5.
+    testSleipnirHomeSelection = let
+      r = resolve {
+        system = "x86_64-linux";
+        tree = real;
+        classes = both;
+        modules = [./hosts/Sleipnir/features.nix];
+      };
+      want = [
+        "desktop.core#homeManager"
+        "web.browsers#homeManager" # workstation
+        "terminal.emulators#homeManager" # workstation
+        "comms.chat#homeManager" # workstation
+        "comms.mail#homeManager" # workstation
+        "media.players#homeManager" # workstation
+        "media.spotify#homeManager"
+        "media.obs#homeManager"
+        "graphics.paint#homeManager"
+        "graphics.modelling#homeManager"
+        "graphics.cad#homeManager"
+        "editor.zed#homeManager"
+        "editor.lem#homeManager"
+        "notes.joplin#homeManager"
+        "ai.claude-desktop#homeManager"
+        "shell.walker#homeManager"
+      ];
+    in {
+      expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;
+      expected = map (_: true) want;
     };
 
     # gamescopeSession is a steam option: gamescope alone is refused. No host
@@ -405,6 +436,29 @@ in
           tree = real;
           modules = map on sel;
         }) [["compositor.sway"] ["compositor.sway" "desktop.core"]];
+      expected = [false true];
+    };
+
+    # wlrobs needs core's v4l2loopback; `requires` checks selection only.
+    testObsRequiresCore = {
+      expr = map (sel:
+        resolves {
+          tree = real;
+          modules = map on sel;
+        }) [["media.obs"] ["media.obs" "desktop.core"]];
+      expected = [false true];
+    };
+
+    # Both linux classes on both systems, so only `platforms` can refuse:
+    # with a darwin host's own classes, D6 (nowhere to land) would refuse the
+    # pre-P3 nixos-only record too, and the test would pass vacuously.
+    testDesktopCoreLinuxOnly = {
+      expr = map (system:
+        resolves {
+          tree = real;
+          modules = [(on "desktop.core")];
+          inherit system;
+        }) ["aarch64-darwin" "x86_64-linux"];
       expected = [false true];
     };
 

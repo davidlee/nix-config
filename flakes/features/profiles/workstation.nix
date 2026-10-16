@@ -8,6 +8,11 @@
   feature.desktop.core.enable = lib.mkDefault true;
   feature.desktop.fonts.enable = lib.mkDefault true;
   feature.audio.pipewire.enable = lib.mkDefault true;
+  feature.web.browsers.enable = lib.mkDefault true;
+  feature.terminal.emulators.enable = lib.mkDefault true;
+  feature.comms.chat.enable = lib.mkDefault true;
+  feature.comms.mail.enable = lib.mkDefault true;
+  feature.media.players.enable = lib.mkDefault true;
   # Linux-only home half: a darwin host importing this profile would select it
   # and fail ADR-005 D6 / hit QUE-001.
   feature.audio.dictate.enable = lib.mkDefault true;

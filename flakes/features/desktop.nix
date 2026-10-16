@@ -1,8 +1,8 @@
 # Desktop features, in projection order. Shape: README § Feature tree. The
 # shared Wayland stack (core), the login screen (greeter) and fonts;
 # compositors and the shell are areas of their own (DEC-026).
-_: [
-  (import ./desktop/core.nix)
+{lib, ...}: [
+  (import ./desktop/core.nix {inherit lib;})
 
   # The login screen: noctalia's greeter on greetd. No requires (DEC-026).
   {

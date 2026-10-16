@@ -1,4 +1,12 @@
-{pkgs, ...}: {
+# desktop.core's home half (ISS-008): what every graphical session here uses,
+# whichever compositor runs it. tailscale-systray needs the base's tailscale
+# daemon; swaybg is bound to graphical-session.target; systembus-notify
+# forwards system-bus notifications to the session's notification daemon.
+{
+  pkgs,
+  username,
+  ...
+}: {
   # conflicts with DMS
   # services.swaync.enable = true;
   #
@@ -38,4 +46,22 @@
       defaultCursor = "phinger-cursors-light";
     };
   };
+
+  services.tailscale-systray.enable = true;
+
+  systemd.user.services.swaybg = {
+    Unit = {
+      Description = "wallpaper (swaybg)";
+      PartOf = ["graphical-session.target"];
+      After = ["graphical-session.target"];
+      Requisite = ["graphical-session.target"];
+    };
+    Service = {
+      ExecStart = ''${pkgs.swaybg}/bin/swaybg -m fill -i "/home/${username}/Pictures/wallpaper/dark-water.jpg"'';
+      Restart = "on-failure";
+    };
+    Install.WantedBy = ["graphical-session.target"];
+  };
+
+  services.systembus-notify.enable = true; # notify-send from systemd
 }

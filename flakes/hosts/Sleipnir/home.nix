@@ -11,7 +11,6 @@
     ../../modules/home/linux/behaviour.nix
     ../../modules/home/linux/nudge.nix
     ../../modules/home/linux/goad.nix
-    ../../modules/home/linux/walker.nix
     ../../modules/home/linux/chatgpt.nix
   ];
 
@@ -21,8 +20,5 @@
     stateVersion = "24.11";
   };
 
-  services = {
-    systembus-notify.enable = true; # notify-send from systemd; to desktop.core in P3
-    # mpris-proxy.enable = true;
-  };
+  # services.mpris-proxy.enable = true;
 }

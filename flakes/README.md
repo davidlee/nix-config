@@ -189,7 +189,8 @@ order is projection order.
 
 ```
 features/
-  default.nix         [ hardware session virt non-nix-packages games ai audio services apps desktop compositor shell ]
+  default.nix         [ hardware session virt non-nix-packages games ai audio services desktop compositor shell
+                        editor notes web media graphics comms terminal ]
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
   session/            snooze-nag  snooze-nag-test     assets, beside their feature
@@ -197,17 +198,23 @@ features/
   virt/capsule.nix    a feature big enough for its own file
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
-  ai.nix              [ llama-cpp rocm ]              neither selected; coverage targets
+  ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
   audio.nix           [ pipewire mpd speech dictate ] speech: coverage target
   audio/              dictate  dictate-test           assets, beside their feature
   services.nix        [ printing postgresql webserver sunshine ] sunshine: coverage target
-  apps.nix            [ cad ]
-  desktop.nix         [ (import ./desktop/core.nix) greeter (import ./desktop/fonts.nix) ]
+  desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
-  desktop/core/       wayland.nix  xdg.nix  gui.nix … modules the core record imports
+  desktop/core/       wayland.nix  xdg.nix  gui.nix …  home.nix   modules the core record imports; home.nix its home half
   compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ]   each requires desktop.core
   compositor/         sway.nix
-  shell.nix           [ noctalia ]
+  shell.nix           [ noctalia walker ]
+  editor.nix          [ zed lem ]
+  notes.nix           [ joplin ]
+  web.nix             [ browsers ]
+  media.nix           [ players spotify obs ]         obs requires desktop.core
+  graphics.nix        [ paint modelling cad ]
+  comms.nix           [ chat mail ]
+  terminal.nix        [ emulators ]
   profiles/           workstation.nix
 ```
 
