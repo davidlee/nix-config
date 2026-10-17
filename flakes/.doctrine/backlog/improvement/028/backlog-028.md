@@ -32,3 +32,9 @@ mem.fact.bwrap.pid1-environ-leak). The user would rather move agents onto the
 gateway and remove keys than keep forwarding them. Decide its fate alongside
 pi's. The gateway's model gate must handle Router fallbacks (RV-026 F-4)
 before more models are added.
+
+**POL-001 verification line (user, 2026-10-17).** When pi moves onto the
+gateway, also add a line to POL-001's verification section naming the LLM
+gateway as the runtime control for jails migrated to it. Governance change:
+land it through a REV. Carried over from SL-011 design sec-7, which RV-026's
+brief left out.
