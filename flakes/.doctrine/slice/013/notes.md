@@ -139,3 +139,25 @@ and the bump re-run, not another design review. None is needed before lock.
   7100b81f3 (also drops `jdi` and the stale `op run` comment), home settings
   6f9ad795. Doctrine jail builds need `--impure`; `bin/jailed-*` is a wrapper,
   so launcher checks must follow its exec.
+
+## Live checks (PHASE-06, 2026-10-17)
+
+| VH | result |
+|---|---|
+| VH-1 | pass (user): jailed-pi completed a request on llm-gateway/deepseek-flash; pi spend rose |
+| VH-2 | pass: /proc/1/environ empty; jail env has only LLM_GATEWAY_KEY/URL, no provider key; auth.json holds only OAuth logins (google-antigravity, google-gemini-cli, openai-codex); models.json is a ro bind of /nix/store/…-pi-gateway-models.json |
+| VH-3 | pass: `--thinking off` showed no reasoning |
+| VH-4 | completed a request (after the user rebuilt doctrine with jailed-pi-research); user reports model `deepseek/deepseek-flash`, not `llm-gateway/deepseek-flash` as in VH-7 — OPEN: confirm the provider shown in the footer |
+| VH-5 | pass (user confirmed): jailed-claude ran jailed-pi, which completed a request |
+| VH-6 | pass: host claude ran `jailed-pi "Reply with exactly: OK"` → OK |
+| VH-7 | resumed pre-cutover session uses llm-gateway / deepseek-flash |
+| VH-8 | unmigrated ~/dev/* jail falls back to openai-codex / gpt-6.1-sol. `openai-codex` is pi's ChatGPT OAuth provider (auth.json holds that login); the jail env also carries 7 provider keys (GEMINI, OPENAI, VOYAGE, JEV, MISTRAL, DEEPSEEK, OPENROUTER) via op run — expected until IMP-034 migrates it |
+| VH-9 | pass: follows from VH-1 after the DeepSeek rotation |
+
+Incidents:
+- The user pasted jail `env` into the session, exposing the `pi` gateway key
+  (loopback-only, deepseek-flash, 50 USD). Rotated: `pi-2` issued to keys/pi;
+  `pi` revoked 2026-10-17T12:00:27Z (llm-gateway list).
+- The `pi-2` issue was run under sudo on the agent's instruction, so `--out`
+  wrote keys/pi root-owned and jailed-pi refused it as unreadable; fix: chown to
+  david:users. `llm-gateway` sudos internally; never prefix it with sudo.
