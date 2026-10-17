@@ -6,12 +6,12 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · audit (6 phases completed; RV-030 concluded) · e10a24d2
+fresh-as-of: 2026-10-17 · reconcile (RV-030 reconciled) · 559e0d9f
 
 ### Produced
 - design.md locked (run rev 50); review RV-028 concluded, 5 findings verified.
 - DEC-058, DEC-059, DEC-061, DEC-062, DEC-063 accepted; DEC-060 superseded by DEC-063.
-- REV-009 — ADR-004 D4 admits imported constants; lands at reconcile.
+- REV-009 — ADR-004 D4 admits imported constants; landed at reconcile.
 - IMP-034 — remaining `~/dev/*` pi jails onto the gateway.
 - plan.toml / plan.md — PHASE-01..06; phase sheets materialised.
 - PHASE-01..06 completed; RV-030 audit, 12 findings verified.
@@ -27,10 +27,10 @@ fresh-as-of: 2026-10-17 · audit (6 phases completed; RV-030 concluded) · e10a2
 - `mem.fact.bwrap.pid1-environ-leak` last line wrong about emacs `jailed-shell` — correct at reconcile.
 
 ### Open
-- POL-001 verification gateway line (design sec-7, reconcile).
+- POL-001 verification gateway line: landed (REV-011).
 - IDE-005 transcript purge (out of scope).
 - Research baseline drift (design work only; see plan.md Notes) — left; design is locked and verified live.
-- RV-030 reconciliation brief → /reconcile (REV-009, POL-001 line, memory fix, design.md sec-3/4/6).
+- RV-030 reconciled: REV-009, REV-011 done; design.md sec-2/3/4/6 updated. SL-014 DEC-066 reverses the no-pi-entry throw.
 
 ## Design triage (2026-10-17, explore stage)
 

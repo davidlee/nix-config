@@ -6,4 +6,4 @@ Fix (b17e348a): build `jail` with `jail-nix.lib.extend { inherit pkgs; bubblewra
 
 Testing: the build sandbox has no user namespaces, so substitute a fake bwrap through `pkgs.extend` that dumps its environ, argv and fds. That runs the real launchers jail.nix generates.
 
-Jails built outside `agents/` (e.g. the emacs flake's `jailed-shell`) don't get the fix unless they use this jail.
+Jails built outside `agents/` get the fix only through jailLib. All of the emacs flake's jails, `jailed-shell` included, build through jailLib and get it (SL-013 research).

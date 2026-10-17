@@ -103,3 +103,27 @@ key file root-owned (ISS-015).
 ### Outside the doctrine repo (user go-ahead needed)
 - ~/dev/doctrine/flake.nix:403-411 (F-9): drop "identical drvs the jails
   bundle" from the unjailed-dirge comment; no jail bundles dirge.
+
+## Reconciliation Outcome
+
+### Direct edits applied
+- design.md sec-2 table and sec-3 snippet: one top-level `gatewayData = import ./gateway.nix`; `gatewayClient = gatewayData.client` (F-8).
+- design.md sec-4 template: the opt-out comment names `op run` deliberately; it is the one match PHASE-03 VA-1 accepts (F-2).
+- design.md sec-4 doctrine: `jdi` removed with jailed-dirge; the API-key-forwarding comment replaced (F-9).
+- design.md sec-6: the missing-pi-entry case proves failure only; the message was checked by hand; IMP-036 (F-4).
+- ~/dev/doctrine/flake.nix unjailed-agents comment, with the user's go-ahead: doctrine f3ee07d38 (F-9).
+- mem.fact.bwrap.pid1-environ-leak: last line corrected; every emacs jail builds through jailLib (design sec-7).
+- IMP-036: its message-check item marked obsolete once SL-014's DEC-066 makes the pi block optional.
+
+### REVs completed
+- REV-009 (ADR-004 D4 admits imported constants): done, landed by hand in ADR-004 § Decision, Settings, item 4.
+- REV-011 (`reconcile-sl-013`): done, POL-001 § Verification gains the gateway-mode line (VH-2 evidence).
+
+### Withdrawn / tolerated
+- F-1: tolerated, conformance misattribution by the `flakes/` prefix (ISS-005).
+- F-5, F-7: follow-up, IMP-036 and ISS-014.
+
+Note: SL-014 (DEC-066) will make a served model's pi block optional, reversing
+the throw this slice built; the README sentence and the test belong to it.
+
+Reconcile pass complete; handoff to /close.

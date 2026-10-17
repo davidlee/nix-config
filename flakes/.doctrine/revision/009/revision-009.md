@@ -37,3 +37,10 @@ After (proposed):
 >    options in the outer resolver. Fixed facts that are not tunables (an
 >    address, a path), and values a consumer outside the flake also needs, may
 >    instead be plain constants in one file that every consumer imports.
+
+## Reconcile narrative
+
+- [RV-030, SL-013 design sec-7]: landed by hand in ADR-004 § Decision,
+  Settings, item 4, worded as the After excerpt above. SL-013 built the case:
+  `agents/gateway.nix` is imported by the NixOS gateway, eca, the emacs and
+  doctrine flakes and the template, none of which can read an outer option.

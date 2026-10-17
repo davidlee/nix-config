@@ -60,6 +60,9 @@ tracked.
 - Pre-commit secret scan (IMP-021), once landed.
 - Periodic full-history scan: `gitleaks git ~ --redact`.
 - Least-privilege keys for jailed agents (IMP-020).
+- Jails in gateway mode carry no provider key: the jail tests' no-key probes
+  (`just test`), and live, PID 1's environment empty and `auth.json` holding
+  OAuth logins only (SL-013 VH-2).
 
 ## References
 

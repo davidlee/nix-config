@@ -12,7 +12,8 @@ From SL-013 audit RV-030 F-5 and F-4.
 - `expectedPiModels` rebuilds models.json with the same `mapAttrsToList`
   expression as the code. Assert the content literally (`deepseek-flash`, its
   compat and thinkingLevelMap) so the test is an independent oracle.
-- The missing-pi-entry message is unchecked (`tryEval` drops it). A check
+- (Obsolete once SL-014's DEC-066 makes the pi block optional.) The
+  missing-pi-entry message is unchecked (`tryEval` drops it). A check
   outside `tryEval` (eval stderr) would hold design sec-6's "fails naming x".
 - PHASE-05 needed an ad-hoc script that follows `bin/jailed-*`'s exec to the
   real launcher before grepping bwrap args; make it a test helper in agents.

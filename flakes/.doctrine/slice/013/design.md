@@ -115,7 +115,7 @@ rec {
 | `features/agents/gateway/constants.nix` | address fields | becomes `import ../../../agents/gateway.nix`, so the NixOS record's existing imports are untouched |
 | `features/agents/gateway/proxy.nix` | `models` | `defaults.models = mapAttrs (_: m: {inherit (m) model provider;}) gateway.models`; `configDir`'s `models` argument keeps its default, so the check's own models are unaffected |
 | `features/agents/gateway.nix` (NixOS record) | `models` | the `services.llm-gateway.models` option is removed; the service config and the provider assertion read `proxy.defaults.models`. `services.llm-gateway.providers` stays an option: only the system reads it |
-| `jailed-agents.nix` | `client`, `models` | exported as `gatewayClient = gateway.client` beside `makeJailedPi`; `models` feeds pi's `models.json` (§3) |
+| `jailed-agents.nix` | `client`, `models` | exported as `gatewayClient = gatewayData.client` beside `makeJailedPi`; `models` feeds pi's `models.json` (§3) |
 | eca record, Emacs, doctrine, template | `gatewayClient` | `gateway = jailLib.gatewayClient "<client>";` |
 
 The root imports the file by relative path, not through `inputs.agents`.
@@ -180,13 +180,17 @@ piGatewayConfig = url: models: {
   };
 };
 
+# top level, beside piGatewayConfig: one binding (`gateway` is the
+# builder's argument)
+gatewayData = import ./gateway.nix;
+
 # in makeJailedAgent, beside gatewayOptions
 # pi is in the jail as the agent (makeJailedPi, whatever its `name`, e.g.
 # pi-research) or as a subagent. Derivations compare by output path.
 piInJail = agent == pi || lib.elem "pi" subagentNames;
 
 piGatewayModels = pkgs.writeText "pi-gateway-models.json"
-  (builtins.toJSON (piGatewayConfig checkedGateway.url (import ./gateway.nix).models));
+  (builtins.toJSON (piGatewayConfig checkedGateway.url gatewayData.models));
 
 piGatewayOptions = lib.optionals (gateway != null && piInJail) [
   (jail.combinators.unsafe-add-raw-args "--ro-bind ${piGatewayModels} ~/.pi/agent/models.json")
@@ -329,7 +333,8 @@ mkJail = maker: args:
 ```
 
 `jailed-dirge` is deleted and `dirge` leaves the claude and shell subagent
-lists. codex signs in by OAuth and loses nothing; its subagents (`claude`,
+lists. The `jdi` devshell command, which ran it, goes too. The
+API-key-forwarding comment is replaced by one stating the gateway default. codex signs in by OAuth and loses nothing; its subagents (`claude`,
 `pi`, `codex`) stay. Re-locked after the push, as for emacs.
 
 ### Template (`_templates/agents/flake.nix`)
@@ -344,6 +349,9 @@ it:
 # to `op run` with provider keys (see agents/README.md § Gateway mode).
 gateway = jailLib.gatewayClient "pi";
 ```
+
+The comment names `op run` deliberately, to state what `gateway = null`
+costs. It is the one `op run` match PHASE-03 VA-1 accepts.
 
 Each remaining jail (`jailed-pi`, `jailed-pi-research`, `jailed-claude`,
 `jailed-codex`) takes `inherit gateway;`. `jailed-opencode` and
@@ -451,7 +459,7 @@ test, as the gateway refusals are written today:
 | no bind without pi | `makeJailedEca { gateway = gw; }` | no `models.json` bind |
 | no bind without gateway | `makeJailedPi {}` | no `models.json` bind |
 | file content | the bound store file | one provider `llm-gateway`; `baseUrl` = `gw.url`; `apiKey` is the literal `$LLM_GATEWAY_KEY`; one model per served alias, equal to `{ id = alias; } // pi` from `agents/gateway.nix` |
-| model without a pi entry | `piGatewayConfig gw.url { x = { model = "m"; provider = "p"; }; }` | evaluation fails naming `x`; its twin with a `pi` block evaluates |
+| model without a pi entry | `piGatewayConfig gw.url { x = { model = "m"; provider = "p"; }; }` | evaluation fails (the test sees only failure: `tryEval` drops the message; the message naming `x` was checked by hand with `nix eval`; IMP-036 would hold it in a test); its twin with a `pi` block evaluates |
 | `gatewayClient` | `gatewayClient "pi"` | `keyFile = "$HOME/.config/llm-gateway/keys/pi"`, `url`, `runDirectory = "/run/llm-gateway"` from `gateway.nix` |
 
 The no-key probes already in place (fd 22 carries only the gateway key;

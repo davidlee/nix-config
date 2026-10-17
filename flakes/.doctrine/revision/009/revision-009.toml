@@ -1,8 +1,8 @@
 id      = 9
 slug    = "adr-004-d4-imported-constants-for-fixed-shared-facts"
 title   = "ADR-004 D4: imported constants for fixed shared facts"
-status  = "proposed"   # work lifecycle: proposed | started | done | abandoned
-approval = "none"      # SEPARATE axis, orthogonal to status: none | requested | approved | rejected
+status = "done"
+approval = "approved"
 updated = "2026-10-17"
 tags    = []
 
