@@ -10,3 +10,8 @@ Verified against the 1.102.1 source while building SL-011. Re-check after any Li
 - In the Nix build sandbox only `unset SSL_CERT_FILE` is needed. `LITELLM_LOCAL_MODEL_COST_MAP=True` avoids a ~3 s GitHub fetch.
 
 Unix-socket serving: uvicorn chmods the socket 0666, so the parent directory's mode is the gate.
+
+How the gateway answers the last two (SL-011 reconcile):
+- Keys are issued `sk-<token>`, so that guard hashes them. Custom auth is prefix-agnostic: `user_custom_auth` returns before any key-format path (`proxy/auth/user_api_key_auth.py:1346-1357`).
+- `proxy/auth/auth_utils.py:iter_request_fallback_targets` is LiteLLM's own enumeration of request fallbacks (top-level and `router_settings_override`, every shape); `model_gate` reuses it. `is_request_body_safe` already refuses `user_config` and `model_list` in a body.
+- To read the packaged price map without importing litellm (its import builds an httpx client), locate it with `importlib.util.find_spec("litellm").submodule_search_locations[0]` (`features/agents/gateway/price-check.py`).

@@ -109,3 +109,8 @@ database configured:
 - Coupling: depends on `UserAPIKeyAuth`, the `custom_auth` signature and the
   callback's kwargs (`litellm_params.metadata.user_api_key_hash`,
   `response_cost`). That is a far smaller surface to track than Prisma.
+
+Shipped (2026-10-17): SL-011, a host-side LiteLLM gateway on Sleipnir
+(`agents.gateway`) holding the provider keys, with its own SQLite key store
+(per-client keys, model lists, lifetime budgets). The jailed eca holds only
+its gateway key. pi follows (IMP-028); more providers: IMP-029.

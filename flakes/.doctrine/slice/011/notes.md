@@ -6,26 +6,27 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · audit · 668c69b7
+fresh-as-of: 2026-10-17 · close · b68977fb
 
 ### Produced
 - PHASE-01..05 done — key store + CLI, LiteLLM adapter, service + relay, jail gateway mode, eca on the gateway (commits e3542a50, 12251bef, f1e60d07, 0d757dc1, 77103a44, b544a5f5, b17e348a)
 - b17e348a — all jails exec bwrap under an empty environment (VH-6 leak; user ruling)
-- RV-026 — reconciliation audit; 14 findings, F-1..F-8 code fix-now, F-9..F-11 design/selector, brief written
+- RV-026 — reconciliation audit; 14 findings; reconciled: F-1..F-8 code (097dbefb, 8703becb), design.md + selector (b68977fb); Reconciliation Outcome on RV-026
 - RV-024 — routed F-1, F-2, F-3, F-5, F-6 verified against landed criteria
 - minted: IMP-029 — more gateway providers; ISS-012 — inert `! cmd` shell assertions
 
 ### Learned
 - mem.fact.bwrap.pid1-environ-leak — bwrap's own environ is /proc/1/environ inside the jail
-- mem.fact.litellm.proxy-hook-behaviours — LiteLLM 1.102.1 facts the hooks rely on
+- mem.fact.litellm.proxy-hook-behaviours — LiteLLM 1.102.1 facts the hooks rely on (+ sk- keys, fallback enumeration, price map without import)
 - mem.fact.doctrine.design-section-reviewed — section review is att-N declarations, not a checkpoint act
 
 ### Open
-- RV-026 Reconciliation Brief — code fix-now F-1..F-8, design.md F-9/F-10, selector F-11
 - DEC-046..051 — hold as written; DEC-051 alias semantics reaffirmed by the user
 - IMP-028 — pi onto the gateway (next; carries the emacs jailed-shell lead)
 - IDE-006 — LUKS on Sleipnir (RV-026 F-12 evidence)
 - ISS-005 — `flakes/` prefix blinds slice conformance / verify-vt
+- Not live until `just system-switch` (reconcile fixes)
+- POL-001 verification line (gateway as runtime control for migrated jails) — design sec-7 reconcile item, not in RV-026's brief; unrecorded
 
 ## Design triage (2026-10-17)
 

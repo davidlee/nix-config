@@ -16,3 +16,7 @@ agent's provider and into its transcript (IDE-005).
   (keys now travel over `--args FD`).
 
 Interim step; IDE-003 removes raw keys from agents altogether.
+
+2026-10-17 (SL-011): the jailed eca no longer receives provider keys; it runs
+in gateway mode with a single gateway key. Other jails still get their keys
+through `op run`; pi is next (IMP-028).

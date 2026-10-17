@@ -5,10 +5,10 @@ id = 3
 slug = "harness-agnostic-credential-broker-for-agents"
 title = "Harness-agnostic credential broker for agents"
 kind = "idea"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "promoted"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-17"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
