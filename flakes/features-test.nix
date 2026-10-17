@@ -614,9 +614,8 @@ in
         "ai.llama-cpp#nixos"
         "ai.rocm#nixos"
         "virt.podman#nixos" # DEC-022: exclusive with docker, so no host selects it
-        "audio.speech#nixos"
         "services.sunshine#nixos"
       ];
-      expected = lib.replicate 5 [[false false] [true false]];
+      expected = lib.replicate 4 [[false false] [true false]];
     };
   }

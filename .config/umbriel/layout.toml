@@ -13,7 +13,7 @@
 prefer_no_csd = true
 border_width = 1
 outer_border_width = 0
-corner_radius = 12
+corner_radius = 0 # 15
 drag_opacity = 0.9
 
 
@@ -40,7 +40,7 @@ offset_y = 3
 # --- layout -----------------------------------------------------------
 [layout]
 mode = "scrolling"
-gap = 5 # niri's default `gaps`, which the niri config left unset
+gap = 10 # niri's default `gaps`, which the niri config left unset
 # niri: preset-column-widths. Umbriel uses one preset list for both the
 # primary (column width) and secondary (window height) extent.
 extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8, 1]
@@ -53,7 +53,7 @@ bottom = 0
 
 [layout.scrolling]
 default_extent_fraction = 0.2 # niri: default-column-width { proportion 0.2 }
-center_underfull_strip = false
+center_underfull_strip = true
 center_focused = "on_overflow"
 
 # --- structural colors ------------------------------------------------

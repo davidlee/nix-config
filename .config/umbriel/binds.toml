@@ -242,6 +242,8 @@
 "Mod+W" = "workspace-set-layout:toggle"
 "Mod+Shift+W" = "workspace-set-layout:scrolling"
 
+"Mod+S" = "column-toggle-tabbed"
+
 "Mod+X" = "layout-master-count-increase"
 "Mod+Shift+X" = "layout-master-count-decrease"
 

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Speak text aloud: the arguments, or stdin when there are none.
+#
+#   say [-e piper|kokoro] [-d DEVICE] [TEXT...]
+#
+# An engine renders the text to a wav, then pw-play plays it on DEVICE: a
+# PipeWire sink's node.name (see `wpctl status` / `pw-cli ls Node`), or auto
+# for the default sink. Engine chatter is shown only if the engine fails.
+#
+# Defaults: SAY_ENGINE (piper), SAY_DEVICE (auto); per engine, PIPER_VOICE,
+# KOKORO_VOICE and KOKORO_SPEED. piper is the quicker of the two. Voices are
+# names; the speech feature ships both engines' voices.
+
+set -euo pipefail
+
+usage() {
+  echo "usage: say [-e piper|kokoro] [-d DEVICE] [TEXT...]" >&2
+  exit 2
+}
+
+# Engines read text on stdin and write a wav to $1.
+piper_wav() {
+  piper --model "${PIPER_VOICE:-en_GB-cori-high}" --output_file "$1"
+}
+
+kokoro_wav() {
+  kokoro --voice "${KOKORO_VOICE:-bf_emma}" --speed "${KOKORO_SPEED:-1.0}" \
+    --output-file "$1"
+}
+
+# Runs a command silently, replaying its output only if it fails.
+quietly() {
+  local log
+  log=$("$@" 2>&1) || {
+    printf '%s\n' "$log" >&2
+    return 1
+  }
+}
+
+engine="${SAY_ENGINE:-piper}"
+device="${SAY_DEVICE:-auto}"
+
+while getopts e:d: opt; do
+  case "$opt" in
+    e) engine="$OPTARG" ;;
+    d) device="$OPTARG" ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+case "$engine" in
+  piper | kokoro) ;;
+  *) usage ;;
+esac
+
+if [ $# -gt 0 ]; then
+  text="$*"
+else
+  text="$(cat)"
+fi
+
+[[ "$text" =~ [^[:space:]] ]] || exit 0
+
+tmp=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}" say-XXXXXX.wav)
+trap 'rm -f "$tmp"' EXIT
+
+printf '%s\n' "$text" | quietly "${engine}_wav" "$tmp"
+pw-play --target "$device" "$tmp"

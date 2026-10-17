@@ -67,5 +67,8 @@
         "model": ""
       }
     }
-  }
+  },
+  "extensions": [
+    "-builtin:mcp"
+  ]
 }
