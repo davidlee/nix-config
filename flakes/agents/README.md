@@ -231,7 +231,7 @@ Then from the project directory:
 
 ```
 $ nix develop
-$ jailed-claude   # or jailed-codex, jailed-gemini, jailed-pi, etc.
+$ jailed-claude   # or jailed-codex, jailed-pi, jailed-pi-research
 ```
 
 ### Environment variables
@@ -380,10 +380,10 @@ gateway:
 ```
 
 `gatewayClient "<client>"` takes the key file's name; the address comes from
-`agents/gateway.nix`. A hand-built value of the same three strings works for
-any other OpenAI-compatible endpoint that takes a bearer key: `gateway.nix`
-carries this repo's gateway's address and models, and the mechanism assumes
-no particular gateway. The gateway itself is described in the top-level
+`agents/gateway.nix`. A hand-built value of the same three strings points the
+key and URL at any other OpenAI-compatible endpoint that takes a bearer key,
+but a jail with pi in it still gets the models listed in `gateway.nix`: the
+generated `models.json` always describes this repo's gateway. The gateway itself is described in the top-level
 README, § LLM gateway.
 
 Effect:

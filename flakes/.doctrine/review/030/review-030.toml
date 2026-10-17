@@ -1,0 +1,418 @@
+id    = 30
+slug  = "reconciliation-review-of-sl-013"
+title = "reconciliation review of SL-013"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-013 against design.md sec-2..sec-7 and plan.toml PHASE-01..06: the flakes diff 590a186b..e10a24d2, emacs 069e9b6, doctrine 7100b81f3, home commits 93693ea1/6f9ad795; just gate and doctrine check gate (both exit 0); slice conformance (ISS-005-misattributed, judged by hand); a read-only design-vs-code sweep incl. the agents policy-test build; POL-001 secrets/identifiers in committed jail-home files; notes.md evidence for every EX/VA/VH.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-013"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "nit"
+title = "Conformance: expected every path under a design-target selector; observed 17 undeclared / 10 undelivered"
+detail = """
+`doctrine slice conformance 13` lists all flakes/ paths as undeclared and every
+selector as undelivered: git paths carry a `flakes/` prefix the selectors lack
+(ISS-005). Judged by hand, each flakes/ path matches its selector. Genuinely
+outside the selectors: the home-repo files (.local/share/jail.nix/home/agent/.pi/agent/.gitignore,
+settings.json; agent-research/.pi/agent/models.json), planned by PHASE-04 EX-4 and
+PHASE-05 EX-4 but outside the doctrine root, so no selector can name them; and
+doctrine bookkeeping (notes.md, ISS-014/015). PHASE-04/06 rows were missing until
+recorded at audit.
+"""
+disposition = "tolerated"
+response = """
+Tool limit, not drift. Every flakes/ path matches its design-target selector once the `flakes/` git prefix is accounted for (ISS-005 tracks the misattribution). The home-repo paths sit outside the doctrine root, so no selector can name them; PHASE-04 EX-4 and PHASE-05 EX-4 plan them explicitly. PHASE-04/06 delta rows were recorded at audit.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tool limit, not drift. Every flakes/ path matches its design-target selector once the `flakes/` git prefix is accounted for (ISS-005 tracks the misattribution). The home-repo paths sit outside the doctrine root, so no selector can name them; PHASE-04 EX-4 and PHASE-05 EX-4 plan them explicitly. PHASE-04/06 delta rows were recorded at audit.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "PHASE-03 VA-1: expected no 'op run' in the generated flake; observed one, in the sec-4 comment"
+detail = """
+_templates/agents/flake.nix:93 carries design sec-4's verbatim opt-out comment
+("fall back to `op run` with provider keys"), which PHASE-03 EX-1 requires and
+VA-1's rg forbids. The conflict was settled only in the disposable runtime sheet
+(.doctrine/state/slice/013/phases/phase-03.md:127-131: accept exactly that match).
+Neither design.md nor notes.md records it.
+"""
+disposition = "design-wrong"
+response = """
+The plan's VA-1 and the design's mandated comment collide; the comment is correct (it tells the reader what opting out costs). Plan criteria are immutable, so the resolution lives in design.md sec-4: state that the opt-out comment names `op run` and is the one accepted match. Evidence lifted into notes.md (Implementation, PHASE-03 VA-1). Brief: per-slice direct edit, design.md sec-4.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The plan's VA-1 and the design's mandated comment collide; the comment is correct (it tells the reader what opting out costs). Plan criteria are immutable, so the resolution lives in design.md sec-4: state that the opt-out comment names `op run` and is the one accepted match. Evidence lifted into notes.md (Implementation, PHASE-03 VA-1). Brief: per-slice direct edit, design.md sec-4.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Expected durable VA evidence for PHASE-01..03; observed none in notes.md"
+detail = """
+notes.md records PHASE-04..06 results but not PHASE-01 VA-1 (drvs/coverage
+identical to baseline), PHASE-02 VA-1/mutation checks, PHASE-03 VA-1 (template
+init, four jails built, no API-key env, bind on pi jails only) or VA-2. They
+exist only in the orchestrator hand-back.
+"""
+disposition = "fix-now"
+response = """
+Done: notes.md § Implementation now records PHASE-01 VA-1, PHASE-02 VA-1 (incl. the six mutations and the hand-checked message) and PHASE-03 VA-1/VA-2, from the orchestrator's re-run checks.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Done: notes.md § Implementation now records PHASE-01 VA-1, PHASE-02 VA-1 (incl. the six mutations and the hand-checked message) and PHASE-03 VA-1/VA-2, from the orchestrator's re-run checks.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "sec-6 VT 'missing pi entry fails naming x': expected the message checked; observed only failure"
+detail = """
+agents/jailed-agents-test.nix noPiEntryFails uses builtins.tryEval, which drops
+the message (its comment says so). The message was confirmed once by hand
+(`nix eval`, PHASE-02 hand-back) but no test holds it. Twin withPiEntry present.
+"""
+disposition = "design-wrong"
+response = """
+The behaviour holds (checked once by `nix eval`, recorded in notes.md); the test can only see failure. design.md sec-6 should say the test proves evaluation fails and the message was checked by hand. A message-holding test is IMP-036. Brief: per-slice direct edit, design.md sec-6.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The behaviour holds (checked once by `nix eval`, recorded in notes.md); the test can only see failure. design.md sec-6 should say the test proves evaluation fails and the message was checked by hand. A message-holding test is IMP-036. Brief: per-slice direct edit, design.md sec-6.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected twins differing only in the property under test; two differ in more"
+detail = """
+piNoGateway = agents.makeJailedPi {} uses the real agents set; its twin
+probeGateway uses fakeBwrapAgents, so the pair also differs in bwrap and the
+op-run outer. expectedPiModels rebuilds the file with the same mapAttrsToList
+expression as the code: it confirms the data source, not the content, and never
+asserts deepseek-flash literally. The launcher checks in PHASE-05 needed an
+ad-hoc script that follows bin/jailed-*'s exec (scratchpad check-launcher.sh).
+"""
+disposition = "follow-up"
+response = """
+Test-oracle quality, not a correctness defect: the twins still pass and fail on the property (mutation checks in PHASE-02 turned each red). Making the twins pure and the oracle literal touches shared fixtures beyond this slice's cases; captured with the launcher-check helper as IMP-036.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Test-oracle quality, not a correctness defect: the twins still pass and fail on the property (mutation checks in PHASE-02 turned each red). Making the twins pure and the oracle literal touches shared fixtures beyond this slice's cases; captured with the launcher-check helper as IMP-036.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "agents/README.md: expected gateway mode described as this repo's; observed 'assumes no particular gateway'"
+detail = """
+agents/README.md § Gateway mode says a hand-built gateway value works for any
+OpenAI-compatible endpoint and "the mechanism assumes no particular gateway".
+piGatewayModels always lists this repo's gatewayData.models
+(agents/jailed-agents.nix), so a pi jail pointed at a foreign endpoint is told
+about deepseek-flash. sec-3 sanctions the data source; the sentence overclaims.
+"""
+disposition = "fix-now"
+response = """
+Done: agents/README.md § Gateway mode now says a hand-built value redirects key and URL, but a pi jail still gets gateway.nix's models.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Done: agents/README.md § Gateway mode now says a hand-built value redirects key and URL, but a pi jail still gets gateway.nix's models.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "sec-5 step 3: expected the missing-key hint to name the issue command; observed it names the jail"
+detail = """
+agents/jailed-agents.nix gatewayOuter prints `llm-gateway issue ${name} …`.
+jailed-claude, jailed-shell and jailed-pi-research read keys/pi but suggest
+their own names; after a rotation the hint suggests a revoked alias (seen live,
+PHASE-06). Tracked as ISS-014.
+"""
+disposition = "follow-up"
+response = """
+Code defect in the hint, tracked as ISS-014 (body updated with both failure cases, incl. the post-rotation one seen in PHASE-06). Not a design defect: sec-5 says the wrapper names the command, which it does; the alias is wrong. Owned there.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Code defect in the hint, tracked as ISS-014 (body updated with both failure cases, incl. the post-rotation one seen in PHASE-06). Not a design defect: sec-5 says the wrapper names the command, which it does; the alias is wrong. Owned there.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "nit"
+title = "sec-3 / PHASE-01 EX-4: expected inline import ./gateway.nix; observed top-level gatewayData"
+detail = """
+design.md sec-3 shows `(import ./gateway.nix).models` and
+`gatewayClient = (import ./gateway.nix).client`. The code binds
+`gatewayData = import ./gateway.nix` once (the builder already has an argument
+named `gateway`). Same meaning; the prose is stale.
+"""
+disposition = "design-wrong"
+response = """
+Code is right (one binding; `gateway` is taken by the builder's argument). Brief: per-slice direct edit, design.md sec-3 snippet to `gatewayData = import ./gateway.nix`.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Code is right (one binding; `gateway` is taken by the builder's argument). Brief: per-slice direct edit, design.md sec-3 snippet to `gatewayData = import ./gateway.nix`.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "nit"
+title = "sec-4 doctrine: expected only mkJail default + jailed-dirge removal; observed jdi removed, comments stale"
+detail = """
+doctrine 7100b81f3 also removed the `jdi` devshell command (it ran the deleted
+jailed-dirge) and replaced the API-key-forwarding comment. sec-4 names neither.
+~/dev/doctrine/flake.nix:403-411 still says unjailed dirge is "identical drvs the
+jails bundle"; no jail bundles dirge now.
+"""
+disposition = "design-wrong"
+response = """
+The `jdi` removal was a necessary consequence of deleting jailed-dirge (it would point at nothing); design.md sec-4 should list it and the comment replacement. The stale "identical drvs the jails bundle" comment at ~/dev/doctrine/flake.nix:403-411 is a doctrine-repo edit needing the user's go-ahead; listed in the brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The `jdi` removal was a necessary consequence of deleting jailed-dirge (it would point at nothing); design.md sec-4 should list it and the comment replacement. The stale "identical drvs the jails bundle" comment at ~/dev/doctrine/flake.nix:403-411 is a doctrine-repo edit needing the user's go-ahead; listed in the brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "nit"
+title = "VH-4: expected evidence on in-scope code; observed run on doctrine's uncommitted jailed-pi-research"
+detail = """
+The design's doctrine jail list (sec-4, DEC-062) has no pi-research; the user
+re-enabled it in an uncommitted edit to ~/dev/doctrine/flake.nix and VH-4 ran
+there. Same mkJail/makeJailedPi mechanism as the in-scope emacs
+jailed-pi-research; notes.md does not say so.
+"""
+disposition = "fix-now"
+response = """
+Done: notes.md VH-4 row now says the run used doctrine's uncommitted jailed-pi-research, that it is the same mechanism as the in-scope emacs jail, and that the mount check showed the generated models.json with only llm-gateway.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Done: notes.md VH-4 row now says the run used doctrine's uncommitted jailed-pi-research, that it is the same mechanism as the in-scope emacs jail, and that the mount check showed the generated models.json with only llm-gateway.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "nit"
+title = "Expected docs current; observed stale DEC list, jailed-gemini usage, IMP-029 option name"
+detail = """
+README.md § LLM gateway cites DEC-046..051, DEC-058, DEC-062, DEC-063, omitting
+DEC-059 and DEC-061. agents/README.md:234 lists jailed-gemini in the devshell
+usage line; the template no longer has it. IMP-029's body
+(.doctrine/backlog/improvement/029/backlog-029.md:13) names the removed
+services.llm-gateway.models option.
+"""
+disposition = "fix-now"
+response = """
+Done: README.md DEC list now DEC-046..051, DEC-058, DEC-059, DEC-061..063 (DEC-060 superseded); agents/README.md usage line drops jailed-gemini; IMP-029 body names agents/gateway.nix's models.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Done: README.md DEC list now DEC-046..051, DEC-058, DEC-059, DEC-061..063 (DEC-060 superseded); agents/README.md usage line drops jailed-gemini; IMP-029 body names agents/gateway.nix's models.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-12"
+status = "verified"
+severity = "nit"
+title = "POL-001: expected the research home guarded like the shared one; observed no .gitignore"
+detail = """
+~/.local/share/jail.nix/home/agent-research/.pi/agent/ holds untracked auth.json,
+models-store.json, settings.json; only models.json is tracked. git check-ignore
+matches nothing, so `git add` of the directory would stage auth.json. Content is
+`{}` today. The shared home got this guard in PHASE-04 EX-4.
+"""
+disposition = "fix-now"
+response = """
+Done: agent-research/.pi/agent/.gitignore ignores auth.json and models-store.json (check-ignore confirms); the tracked models.json stub stays tracked. Committed in the home repo by explicit path.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Done: agent-research/.pi/agent/.gitignore ignores auth.json and models-store.json (check-ignore confirms); the tracked models.json stub stays tracked. Committed in the home repo by explicit path.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

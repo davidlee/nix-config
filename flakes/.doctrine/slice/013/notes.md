@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · ready (plan, 6 phases, none started) · 5e7278b1
+fresh-as-of: 2026-10-17 · audit (6 phases completed; RV-030 concluded) · e10a24d2
 
 ### Produced
 - design.md locked (run rev 50); review RV-028 concluded, 5 findings verified.
@@ -14,19 +14,23 @@ fresh-as-of: 2026-10-17 · ready (plan, 6 phases, none started) · 5e7278b1
 - REV-009 — ADR-004 D4 admits imported constants; lands at reconcile.
 - IMP-034 — remaining `~/dev/*` pi jails onto the gateway.
 - plan.toml / plan.md — PHASE-01..06; phase sheets materialised.
+- PHASE-01..06 completed; RV-030 audit, 12 findings verified.
+- ISS-014 (hint names the jail), ISS-015 (root-owned key under sudo), IMP-036 (test oracles).
 
 ### Learned
 - mem.fact.pi.custom-provider-models-json — pi custom-provider gotchas.
 - mem.fact.doctrine.design-apply-acceptance-records-design-accepted — top-level acceptance in reviewing logs design-accepted.
 - EVD-003 — pi's DeepSeek compat needed and sufficient through LiteLLM.
 - EVD-004 — empty models.json warns; `{"providers":{}}` clean.
+- mem.fact.flakes.llm-gateway-no-sudo — never prefix llm-gateway with sudo.
 - direnv `use flake_local` builds live `~/flakes/agents` in 13 devshells — memory candidate.
 - `mem.fact.bwrap.pid1-environ-leak` last line wrong about emacs `jailed-shell` — correct at reconcile.
 
 ### Open
 - POL-001 verification gateway line (design sec-7, reconcile).
 - IDE-005 transcript purge (out of scope).
-- Research baseline drift (design work only; see plan.md Notes) — restamp or leave at audit.
+- Research baseline drift (design work only; see plan.md Notes) — left; design is locked and verified live.
+- RV-030 reconciliation brief → /reconcile (REV-009, POL-001 line, memory fix, design.md sec-3/4/6).
 
 ## Design triage (2026-10-17, explore stage)
 
@@ -129,6 +133,20 @@ and the bump re-run, not another design review. None is needed before lock.
 
 - PHASE-01..03 (capsule charter 1): ffac37ca, 4170b753, a24a0f03; ISS-014
   (missing-key hint names the jail, not the key) 7e55287f. Pushed by the user.
+- PHASE-01..03 verification (orchestrator re-ran each after its worker):
+  - PHASE-01 VA-1: `just drvs` and `just coverage` identical to the baseline
+    saved before any edit; gate green; flake.lock unchanged.
+  - PHASE-02 VA-1: `rg add-runtime` empty; drvs identical; six mutations
+    (bind before the home bind, `piInJail = true`, deciding by jail name,
+    `m.pi or {}`, probes and launch on eca's outer wrapper ×2) each turned the
+    tests red. The missing-pi-entry message was checked once by `nix eval`
+    (tryEval in the test cannot see it).
+  - PHASE-03 VA-1: `nix flake init` into a scratch dir; all four jails built
+    against the local agents; no `*API_KEY`/OPENROUTER, the models.json bind on
+    pi and pi-research only; darwin devshell drvPath unchanged. One `op run`
+    match is accepted: design sec-4's required opt-out comment
+    (`_templates/agents/flake.nix:93`), which EX-1 mandates and VA-1's rg
+    otherwise forbids. VA-2: gate green; drvs moved only in templates.*.
 - PHASE-04: user rotated DeepSeek, ran `just gateway-credentials`, issued
   `pi` (deepseek-flash, 50 USD), rolled the old key in DeepSeek's console, and
   ran the auth.json/models.json jq deletions (auto-mode classifier refuses
@@ -147,7 +165,7 @@ and the bump re-run, not another design review. None is needed before lock.
 | VH-1 | pass (user): jailed-pi completed a request on llm-gateway/deepseek-flash; pi spend rose |
 | VH-2 | pass: /proc/1/environ empty; jail env has only LLM_GATEWAY_KEY/URL, no provider key; auth.json holds only OAuth logins (google-antigravity, google-gemini-cli, openai-codex); models.json is a ro bind of /nix/store/…-pi-gateway-models.json |
 | VH-3 | pass: `--thinking off` showed no reasoning |
-| VH-4 | pass: jailed-pi-research (doctrine, after the user rebuilt it) completed a request; selected model `deepseek-flash [llm-gateway]` |
+| VH-4 | pass: jailed-pi-research completed a request; selected model `deepseek-flash [llm-gateway]`. Run on doctrine's jailed-pi-research, which exists only in the user's uncommitted edit (design sec-4 lists none there); it is the same mkJail/makeJailedPi mechanism as the in-scope emacs jail, and the mount check showed the generated models.json bound with only `llm-gateway` |
 | VH-5 | pass (user confirmed): jailed-claude ran jailed-pi, which completed a request |
 | VH-6 | pass: host claude ran `jailed-pi "Reply with exactly: OK"` → OK |
 | VH-7 | resumed pre-cutover session uses llm-gateway / deepseek-flash |

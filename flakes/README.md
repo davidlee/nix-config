@@ -917,7 +917,7 @@ key: useful on this host alone, within its budget and its model list. Clients
 are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
-Decisions DEC-046..051, DEC-058, DEC-062, DEC-063.
+Decisions DEC-046..051, DEC-058, DEC-059, DEC-061..063 (DEC-060 superseded).
 
 ```
 jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL

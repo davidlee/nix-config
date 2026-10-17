@@ -1,0 +1,46 @@
+memory_uid = "mem_01a149cc798574829669e4dd29e07537"
+memory_key = "mem.fact.flakes.llm-gateway-no-sudo"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Never run llm-gateway under sudo"
+summary = "llm-gateway sudos internally; 'sudo llm-gateway issue --out' writes a root-owned key file the jail cannot read"
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["features/agents/gateway.nix"]
+globs = []
+commands = ["llm-gateway"]
+tags = []
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "ad1ded3405f48644c47aa1a7064d1e8ef47c312b"
+ref_name = "refs/heads/main"
+checkout_state_id = "4ab46de89c9d56c6f829316d622f2ff9e44c77a8403a6764173f09aac5f0ed0b"
+base_commit = "b15c897c114ad413df09214fa68dfa75b52cd8d6"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "high"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-030"
+

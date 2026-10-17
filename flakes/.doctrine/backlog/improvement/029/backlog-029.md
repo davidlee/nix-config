@@ -10,7 +10,7 @@ gateway, "What it does not cover"). The user wants OpenRouter, Fireworks
 (fireworks.ai) and OpenAI behind the gateway eventually; no urgency.
 
 Per provider: an entry in `services.llm-gateway.providers` (1Password ref,
-`just gateway-credentials`), its models in `services.llm-gateway.models`
+`just gateway-credentials`), its models in the `models` of `agents/gateway.nix` (with a `pi` block)
 (each must be in LiteLLM's packaged price map — a flake check enforces it;
 OpenRouter's per-model pricing may need checking), then reissue or extend
 the eca key's model list. Related: IMP-028.
