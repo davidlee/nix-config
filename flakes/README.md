@@ -257,8 +257,8 @@ features/
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness patcher attrd ]       each its own file under satan/
-  available.nix       the cli availability filter: availableOn minus cli-broken.nix (DEC-036)
-  cli-broken.nix      per-system names the cli features skip though availableOn accepts them (plain data)
+  available.nix       the cli availability filter: availableOn minus platform-skips.nix (DEC-036)
+  platform-skips.nix  per-system names the cli features skip though availableOn accepts them (plain data)
   profiles/           workstation.nix  personal.nix  personal-linux.nix  personal-darwin.nix
   stub/               flake.nix                       empty flake: just isolation's stand-in for local inputs
 ```
@@ -310,11 +310,11 @@ phase 3 on.
 
 The cli features are portable records. Each lists its packages through
 `features/available.nix`, which keeps those that `lib.meta.availableOn`
-accepts for the host's platform, minus the names `features/cli-broken.nix`
+accepts for the host's platform, minus the names `features/platform-skips.nix`
 lists for its system (DEC-036). So the Mac gets the cli packages available on
 aarch64-darwin, and Sleipnir's set is unchanged. `availableOn` reads metadata
 only: it cannot tell that a package fails to build or is not in the binary
-cache. Packages that fail to evaluate or build on darwin go in `cli-broken.nix`.
+cache. Packages that fail to evaluate or build on darwin go in `platform-skips.nix`.
 The NixOS base's `cpuid` and `x86info` use plain `availableOn`.
 
 **Coverage.** A feature that no host selects would otherwise never be

@@ -6,10 +6,10 @@ status = "active"
 title = "availableOn sees only a package's own meta"
 summary = "lib.meta.availableOn ignores dependencies and meta.broken; features/cli-broken.nix is the per-system escape hatch"
 created = "2026-10-16"
-updated = "2026-10-16"
+updated = "2026-10-17"
 
 [scope]
-paths = ["features/available.nix", "features/cli-broken.nix"]
+paths = ["features/available.nix", "features/platform-skips.nix"]
 globs = []
 commands = []
 tags = ["nix", "darwin"]
