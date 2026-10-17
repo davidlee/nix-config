@@ -1,8 +1,8 @@
 {
   "lastChangelogVersion": "0.99.1",
   "defaultProjectTrust": "always",
-  "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-v4-pro",
+  "defaultProvider": "llm-gateway",
+  "defaultModel": "deepseek-flash",
   "defaultThinkingLevel": "high",
   "hideThinkingBlock": true,
   "compaction": {
@@ -36,7 +36,7 @@
     "https://github.com/cathrynlavery/diagram-design"
   ],
   "enabledModels": [
-    "deepseek/deepseek-flash"
+    "llm-gateway/deepseek-flash"
   ],
   "theme": "adwaita-dark",
   "retry": {
