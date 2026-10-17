@@ -21,18 +21,19 @@ instead:
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · design/reviewing · 28754062 (SL-014 .doctrine work uncommitted)
+fresh-as-of: 2026-10-17 · ready (plan done, 0/5 phases) · f433c05b
 
 ### Produced
 - research/research.md — three threads; OQ-1 closed (no local price map), OpenRouter self-pricing confirmed
-- design.md sec-1..8 materialised (run rev 25); review pass RV-029
-- minted: DEC-064..072 — the nine design decisions; IMP-035 — OpenAI via subscription OAuth; IDE-008 — publish gateway+agents standalone
-- slice retitled (OpenAI dropped); scope rewritten to the decisions
+- design.md sec-1..9, locked (run rev 34); RV-029 concluded, F-1..6 verified
+- minted: DEC-064..073; IMP-035 — OpenAI via subscription OAuth; IDE-008 — publish gateway+agents standalone
+- plan.toml / plan.md — PHASE-01..05; phase sheets materialised
 
 ### Learned
-- mem.fact.litellm.proxy-hook-behaviours — appended: no local price map; OpenRouter usage/extra_body/route behaviour; reasoning_effort 400
+- mem.fact.litellm.proxy-hook-behaviours — no local price map; OpenRouter usage/extra_body/route; client litellm_params and custom_llm_provider reach internals; reasoning_effort 400
 
 ### Open
-- RV-029 — first Codex pass (not yet raised): model-gate bypass via OpenRouter models/route/extra_body.model (sec-1/3); budget bypass via client usage.include=false (sec-3/6); half-priced needsMap rule unenforced (sec-3). User running a fuller Codex pass that raises on RV-029 directly
-- DEC-066 — SL-013 already landed "pi required"; SL-014 amends it
-- DEC-067 / sec-7 — does `llm-gateway credentials` restart the service: check at phase planning
+- slice R2 — allow-list vs real client bodies: PHASE-03 EN-2
+- slice A2 — BYOK route reports cost: PHASE-05 VH-1
+- plan.md Notes — no system-switch between PHASE-02 and PHASE-05 rollout
+- reconcile: DEC-063, DEC-051, DEC-050 amendments; IMP-029 resolution (design sec-8 "Records at reconcile")
