@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14853b98d7f129ebe70e28ca9c5b5"
+memory_key = "mem.fact.flakes.nom-darwin-sh"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "nom is Linux-only here, and just's sh on the Mac is bash 3.2"
+summary = "nix-output-monitor reaches only Sleipnir; macOS /bin/sh lacks |&, so use 2>&1 | with set -o pipefail"
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["justfile", "run.sh"]
+globs = []
+commands = []
+tags = ["darwin", "just"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "7341a3aece796d137a6020b0cf48f72fbf241a4e"
+ref_name = "refs/heads/main"
+checkout_state_id = "b11a172a36406a4f62305e04a58ee431e24d3067e806c1620d21ef812d7dfd7c"
+base_commit = "8ec628750835988b6b0a3bc9c0b764e0a1127463"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-025"
+

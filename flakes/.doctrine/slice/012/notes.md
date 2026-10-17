@@ -6,13 +6,21 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-17 · design locked, slice at plan · a393d52f
 
 ### Produced
+DEC-052 DEC-053 DEC-054 DEC-055 DEC-056 DEC-057 · RV-025 (concluded, 8 fixed) ·
+design.md (locked, run rev 31) · 28861d6c (click-threading overlay removed) ·
+mem.fact.nix.lock-node-names · mem.fact.flakes.nom-darwin-sh
 
 ### Learned
+mem.fact.nix.lock-node-names (RV-025 F-5) · mem.fact.flakes.nom-darwin-sh
+(F-7, F-8) · research X-3 (fixes land without version bumps)
 
 ### Open
+- chore for shell_cmds + yEd probes: file at P2 (design sec-4)
+- improvement: stable is nixos-24.11, EOL: noted in design sec-7, not filed
+- at reconcile: DEC-053 path (workarounds/, not overlays/), DEC-036 rename
 
 ## Design triage (2026-10-17, exploring)
 

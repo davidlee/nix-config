@@ -1,7 +1,7 @@
 id = 12
 slug = "transient-workarounds"
 title = "Transient breakage workarounds with removal checks"
-status = "design"
+status = "plan"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []

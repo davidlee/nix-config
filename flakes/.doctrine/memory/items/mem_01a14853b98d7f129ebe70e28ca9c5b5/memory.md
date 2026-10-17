@@ -1,0 +1,3 @@
+- `nix-output-monitor` is installed by `modules/nixos/nix.nix` (Sleipnir) and the dev shell (`perSystem.nix`). `.envrc` does not load the dev shell, so Draupnir has no `nom` until SL-012 P4 adds it to the home base.
+- just runs recipe lines with `sh`. On the Mac that is bash 3.2, which has `pipefail` but not `|&`. Write `cmd 2>&1 | nom --json` with `set -o pipefail`.
+- Without pipefail, `cmd | nom` exits with nom's status, so a failed build looks green. `run.sh` has this hole until SL-012 P4.

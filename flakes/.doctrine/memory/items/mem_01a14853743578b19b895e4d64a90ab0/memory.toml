@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14853743578b19b895e4d64a90ab0"
+memory_key = "mem.fact.nix.lock-node-names"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "flake.lock node names are not input names"
+summary = "Resolve an input's lock entry via .nodes.root.inputs.<name>; .nodes.<name> may be a transitive input"
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["flake.lock"]
+globs = []
+commands = []
+tags = ["nix", "flake-lock"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "7341a3aece796d137a6020b0cf48f72fbf241a4e"
+ref_name = "refs/heads/main"
+checkout_state_id = "4f9d5a92abf6a03a1b6b50645947e764decff54edc03370065fa62f5efa9336d"
+base_commit = "8ec628750835988b6b0a3bc9c0b764e0a1127463"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-025"
+

@@ -1,0 +1,3 @@
+In `flake.lock`, `.nodes.<input>` is not necessarily that input. With many inputs sharing a name, nix suffixes node names (`nixpkgs_28`), and `.nodes.nixpkgs` can belong to a transitive input. Resolve through the root: `jq -r '.nodes.root.inputs.nixpkgs' flake.lock` gives the node name (here `nixpkgs_28`), then `.nodes[$n].locked` gives `{rev, narHash}`. A follows entry is a list path, not a string.
+
+Found at SL-012 design (RV-025 F-5): a fetchTree test read `.nodes.nixpkgs`, a different rev, and its `hello` outPath differed, which looked like a config pass-through bug.
