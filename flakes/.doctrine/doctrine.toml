@@ -34,3 +34,6 @@
 [reservation]
 allow-local-fallback = true
 reach = "local"
+
+[install]
+installed-version = "0.46.6"

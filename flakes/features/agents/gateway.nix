@@ -19,10 +19,11 @@
     user = "llm-gateway"; # the service user and group, and its StateDirectory
     # The credentials are those of the providers the models use.
     providers = lib.getAttrs (lib.unique (lib.mapAttrsToList (_: m: m.provider) cfg.models)) cfg.providers;
-    # Must equal the CLI's encrypt_argv output path (CREDSTORE/SERVICE_USER.<provider>),
-    # and the credential id (<provider>) its --name=, which systemd checks on
-    # decryption. The CLI's side is not baked, so this is its one duplicate.
-    credentialPath = provider: "/etc/credstore.encrypted/${user}.${provider}";
+    # The CLI writes <credstore>/<SERVICE_USER>.<provider> (baked below), with
+    # the credential id (<provider>) as its --name=, which systemd checks on
+    # decryption.
+    credstore = "/etc/credstore.encrypted";
+    credentialPath = provider: "${credstore}/${user}.${provider}";
 
     # A baked script, checked to parse (ast, not py_compile: no __pycache__).
     script = name: python: values:
@@ -46,6 +47,8 @@
         MODELS = lib.attrNames cfg.models;
         PROVIDERS = lib.mapAttrs (_: p: p.ref) providers;
         DB = "/var/lib/${user}/keys.db";
+        CREDSTORE = credstore;
+        SOCKET = constants.socket;
       }} $out/libexec/llm-gateway/llm-gateway
       install -Dm644 ${./gateway/keystore.py} $out/libexec/llm-gateway/keystore.py
       mkdir $out/bin

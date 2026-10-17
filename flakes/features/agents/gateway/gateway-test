@@ -318,6 +318,30 @@ class AuthTest(unittest.TestCase):
         self.assertIn(f"narrow: model {PRICED!r} not allowed", response.text)
         self.assertEqual(spent("narrow"), 0)
 
+    def test_a_fallback_to_a_model_off_the_keys_list_is_refused(self):
+        """RV-026 F-4: the Router honours fallbacks named in the request."""
+        key = issue("fallback", models=[PRICED])
+        for body in (
+            {"fallbacks": [UNPRICED]},
+            {"fallbacks": [{PRICED: [UNPRICED]}]},
+            {"fallbacks": [{"model": UNPRICED}]},
+            {"context_window_fallbacks": [{PRICED: [UNPRICED]}]},
+            {"content_policy_fallbacks": [UNPRICED]},
+            {"router_settings_override": {"fallbacks": [UNPRICED]}},
+        ):
+            with self.subTest(body=body):
+                response = chat(key, **body)
+                self.assertEqual(response.status_code, 403, response.text)
+                self.assertIn(
+                    f"fallback: model {UNPRICED!r} not allowed", response.text
+                )
+        self.assertEqual(spent("fallback"), 0)
+
+    def test_a_fallback_to_a_listed_model_is_served(self):
+        key = issue("listed-fallback")
+        response = chat(key, fallbacks=[UNPRICED])
+        self.assertEqual(response.status_code, 200, response.text)
+
 
 class SpendTest(unittest.TestCase):
     """EX-3, the RV-024 F-2 control: a served request on the production
@@ -444,6 +468,14 @@ class CredentialTest(unittest.TestCase):
     def test_a_missing_credential_file_names_it_and_the_fix(self):
         with tempfile.TemporaryDirectory() as empty:
             message = self.refusal({"CREDENTIALS_DIRECTORY": empty})
+        self.assertIn("deepseek", message)
+        self.assertIn("just gateway-credentials", message)
+
+    def test_an_empty_credential_is_refused_like_a_missing_one(self):
+        """RV-026 F-2."""
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "deepseek").write_text(" \n")
+            message = self.refusal({"CREDENTIALS_DIRECTORY": directory})
         self.assertIn("deepseek", message)
         self.assertIn("just gateway-credentials", message)
 

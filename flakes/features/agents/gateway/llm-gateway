@@ -10,7 +10,9 @@ Admin subcommands act on the key store as the service user, re-executing
 themselves under `sudo -u llm-gateway` when run by anyone else (DEC-050).
 `credentials` runs as you: `op read` is piped straight into
 `sudo systemd-creds encrypt`, so the provider key never touches argv, a file
-in clear, or this process's memory (DEC-048).
+in clear, or this process's memory (DEC-048). The credential is staged beside
+its target and moved into place only when both succeed, so a failed or
+cancelled read leaves the stored one as it was.
 
 sudo drops the environment, so nothing here reads it: configuration is baked
 in below, and everything else travels as argv. No key ever does.
@@ -19,11 +21,13 @@ in below, and everything else travels as argv. No key ever does.
 import argparse
 import dataclasses
 import io
+import itertools
 import os
 import pwd
 import subprocess
 import sys
 import tempfile
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import TextIO
@@ -37,9 +41,14 @@ import keystore
 MODELS = ("deepseek-flash",)
 PROVIDERS = {"deepseek": "op://API_KEYS/DEEPSEEK_API_KEY/credential"}
 DB = "/var/lib/llm-gateway/keys.db"
+CREDSTORE = "/etc/credstore.encrypted"
+SOCKET = "/run/llm-gateway/api.sock"
 
 SERVICE_USER = "llm-gateway"
-CREDSTORE = "/etc/credstore.encrypted"
+# How long `credentials` waits for the restarted gateway's socket; LiteLLM
+# takes ~25 s to start.
+READY_TIMEOUT = 90
+READY_INTERVAL = 0.5
 
 
 @dataclasses.dataclass(frozen=True)
@@ -47,6 +56,8 @@ class Config:
     models: tuple
     providers: dict  # provider name -> op:// reference
     db: str
+    credstore: str  # where the service's encrypted credentials live
+    socket: str  # the gateway's, root-readable only
 
 
 @dataclasses.dataclass(frozen=True)
@@ -60,6 +71,7 @@ class Host:
         [list], tuple
     ]  # argv -> (exit code, stdout) as the service user
     spawn: Callable[..., subprocess.Popen]  # subprocess.Popen(argv, stdin=, stdout=)
+    sleep: Callable[[float], None]
     out: TextIO
     err: TextIO
 
@@ -77,10 +89,11 @@ def production_host():
         return done.returncode, done.stdout
 
     return Host(
-        config=Config(MODELS, PROVIDERS, DB),
+        config=Config(MODELS, PROVIDERS, DB, CREDSTORE, SOCKET),
         is_service_user=lambda: pwd.getpwuid(os.geteuid()).pw_name == SERVICE_USER,
         privileged=privileged,
         spawn=subprocess.Popen,
+        sleep=time.sleep,
         out=sys.stdout,
         err=sys.stderr,
     )
@@ -252,12 +265,13 @@ def issue_to_file(host, args):
 
 def prepare(dest):
     """Refuse an existing destination (a dangling symlink included); create
-    its directory 0700 if absent; require it writable."""
+    each missing directory above it 0700; require its directory writable."""
     if os.path.lexists(dest):
         raise FileExistsError(17, "already exists; refusing to overwrite")
-    if not dest.parent.exists():
-        dest.parent.mkdir(parents=True)
-        dest.parent.chmod(0o700)  # mkdir's mode is subject to umask
+    missing = itertools.takewhile(lambda d: not d.exists(), dest.parents)
+    for directory in reversed(list(missing)):
+        directory.mkdir()
+        directory.chmod(0o700)  # mkdir's mode is subject to umask
     if not os.access(dest.parent, os.W_OK | os.X_OK):
         raise PermissionError(13, "directory not writable")
 
@@ -277,7 +291,7 @@ def publish(dest, text):
         os.unlink(tmp)
 
 
-def encrypt_argv(provider):
+def encrypt_argv(provider, path):
     # --name must equal the service's LoadCredentialEncrypted id: systemd
     # checks the name embedded in the credential.
     return [
@@ -287,13 +301,15 @@ def encrypt_argv(provider):
         "--with-key=host+tpm2",
         f"--name={provider}",
         "-",
-        f"{CREDSTORE}/{SERVICE_USER}.{provider}",
+        path,
     ]
 
 
 def credentials(host, names):
     """For each provider, `op read` (as you) piped into `systemd-creds
-    encrypt` (as root); then one restart. This process never reads the key."""
+    encrypt` (as root) to a staged file, moved over the stored credential
+    only when both succeed; then one restart, and a wait until the gateway
+    serves. This process never reads the key."""
     providers = host.config.providers
     unknown = [name for name in names if name not in providers]
     if unknown:
@@ -302,24 +318,47 @@ def credentials(host, names):
             f"unknown providers: {', '.join(unknown)} (configured: {', '.join(providers)})",
         )
     for name in names or providers:
+        stored = f"{host.config.credstore}/{SERVICE_USER}.{name}"
+        staged = f"{stored}.new"
         op = host.spawn(
             ["op", "read", "--no-newline", providers[name]], stdout=subprocess.PIPE
         )
-        encrypt = host.spawn(encrypt_argv(name), stdin=op.stdout)
+        encrypt = host.spawn(encrypt_argv(name, staged), stdin=op.stdout)
         op.stdout.close()
         steps = {"systemd-creds encrypt": encrypt.wait(), "op read": op.wait()}
         failed = [step for step, code in steps.items() if code != 0]
         if failed:
+            host.spawn(["sudo", "rm", "-f", "--", staged]).wait()
             return fail(
                 host,
-                f"{name}: {' and '.join(failed)} failed; service not restarted",
+                f"{name}: {' and '.join(failed)} failed; stored credential unchanged, service not restarted",
                 code=1,
             )
-    if host.spawn(["sudo", "systemctl", "restart", SERVICE_USER]).wait() != 0:
+        if host.spawn(["sudo", "mv", "-f", "--", staged, stored]).wait() != 0:
+            return fail(host, f"{name}: could not install {stored}", code=1)
+    return restart(host)
+
+
+def restart(host):
+    """Restart the gateway, clearing a start limit hit while it had no
+    credential, then wait for its socket: the unit counts as started before
+    LiteLLM listens."""
+    unit = SERVICE_USER
+    host.spawn(["sudo", "systemctl", "reset-failed", unit]).wait()  # best effort
+    if host.spawn(["sudo", "systemctl", "restart", unit]).wait() != 0:
         return fail(
-            host, "credentials written; systemctl restart llm-gateway failed", code=1
+            host, f"credentials written; systemctl restart {unit} failed", code=1
         )
-    return 0
+    for attempt in range(int(READY_TIMEOUT / READY_INTERVAL)):
+        if attempt:
+            host.sleep(READY_INTERVAL)
+        if host.spawn(["sudo", "test", "-S", host.config.socket]).wait() == 0:
+            return 0
+    return fail(
+        host,
+        f"credentials written, but {host.config.socket} did not appear within {READY_TIMEOUT} s; see systemctl status {unit}",
+        code=1,
+    )
 
 
 if __name__ == "__main__":

@@ -80,7 +80,9 @@ def issue(db, alias, models, budget):
     if not models:
         raise KeyStoreError(f"{alias}: no models")
     budget = usd(budget)
-    key = secrets.token_urlsafe(32)
+    # sk-: LiteLLM hashes a key with it, and only then, wherever it logs or
+    # reports one, as on its auth-failure path (RV-026 F-3).
+    key = "sk-" + secrets.token_urlsafe(32)
     try:
         with transaction(db) as conn:
             conn.execute(
