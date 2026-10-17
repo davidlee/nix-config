@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 61
+slug = "emacs-jails-gateway"
+title = "Emacs devshell jails: gateway client pi everywhere, no op run, opencode and dirge removed"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = 'jailed-pi, jailed-pi-research, jailed-claude, jailed-shell: gateway = jailLib.gatewayClient "pi" (claude and shell so nested pi is authenticated); drop useOpEnv/passApiKeysFromEnv. Delete jailed-opencode and jailed-dirge; drop dirge from subagent lists. jpi execs jailed-pi without op run. apiKeyJailOptions loses the OPENROUTER_API_KEY forward and the duplicate /usr/bin/env bind; the rest is renamed for what it is (sound). Re-lock agents after it is pushed.'
+alternatives = ["Keyless claude and shell (nested pi unauthenticated)", "Per-jail keys now (security theatre with a shared pi home)"]
+rationale = "User: no op run for any jail; one shared key given the shared home; easy per-jail key later via the client name."
+consequences = []
+decided_by = "user"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-013"

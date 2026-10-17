@@ -33,26 +33,34 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 
 ## Scope & Objectives
 
-1. **pi gateway mode** in the `agents` sub-flake: `makeJailedPi` with the
-   existing `gateway` argument binds a Nix-generated `models.json` read-only
-   over the shared one (user, 2026-10-17: option b, research finding 3). Its
-   one provider has its own name, points at the gateway URL, and reads
-   `"apiKey": "$LLM_GATEWAY_KEY"`, which gateway mode already injects
-   (research finding 1; DEC-049 unchanged). Opt-in, off by default: the
-   sub-flake is published.
-2. **Template and `~/dev/doctrine`** (the first project flake, user's
-   choice) use it.
-3. **Emacs flake**: move `jailed-pi` to gateway mode, and stop handing
-   provider keys to jails that need none. Re-lock `agents` too, so builds
-   outside direnv match. Which
-   jails get gateway keys and which get no keys is a design decision (OQ-3).
-4. **Remove the stored keys** from the shared pi dir, then rotate the
-   DeepSeek key (POL-001 rule 6): `auth.json` `deepseek` and `llama.cpp`,
-   and `local-llama`'s literal key in `models.json` (user, 2026-10-17). The
-   OAuth logins in `auth.json` (`openai-codex`, `google-gemini-cli`,
-   `google-antigravity`) stay; they cannot go through an API-key gateway.
-5. Issue gateway keys for the new clients; document in README § LLM gateway
-   and `agents/README.md` § Gateway mode.
+1. **pi gateway mode** in the `agents` sub-flake (DEC-058): when gateway mode
+   is on and the pi binary is in the jail, as agent or subagent, bind a
+   Nix-generated `models.json` read-only over the shared one, after
+   persist-home. One provider, `llm-gateway`: literal `baseUrl` from
+   `gateway.url`, `"apiKey": "$LLM_GATEWAY_KEY"` (DEC-049 unchanged). Its
+   models are generated from the served-model list and LiteLLM's price map
+   (DEC-060). Opt-in, off by default: the sub-flake is published.
+2. **Gateway constants move into `agents`** (DEC-059): `agents/gateway.nix`
+   holds the constants and the served-model list; the root's
+   `features/agents/gateway/constants.nix` and `proxy.nix` defaults import
+   it. `jailLib.gatewayClient "<client>"` builds a jail's `gateway` value;
+   eca switches to it.
+3. **Template and `~/dev/doctrine`** (DEC-062): every jail defaults to
+   `gatewayClient "pi"` (doctrine through `mkJail`).
+4. **Emacs flake** (DEC-061): `jailed-pi`, `jailed-pi-research`,
+   `jailed-claude`, `jailed-shell` use `gatewayClient "pi"`; no `op run`
+   anywhere (`jpi` included); delete `jailed-opencode` and `jailed-dirge`;
+   drop the `OPENROUTER_API_KEY` forward. Re-lock `agents` after the push.
+5. **Shared pi dir**: edit the tracked `settings.json` to
+   `llm-gateway/deepseek-flash` (OQ-5); extend its tracked `.gitignore` to
+   `models.json*` and `models-store.json`.
+6. **Remove the stored keys**, then rotate the DeepSeek key (POL-001 rule 6):
+   `auth.json` `deepseek` and `llama.cpp`, and `local-llama`'s literal key in
+   `models.json`. The OAuth logins (`openai-codex`, `google-gemini-cli`,
+   `google-antigravity`) stay.
+7. **Issue one shared key**, alias `pi`, `deepseek-flash`, $50 lifetime
+   budget; document in README § LLM gateway and `agents/README.md` § Gateway
+   mode.
 
 ## Non-Goals
 
@@ -73,15 +81,17 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 
 | path | change |
 |---|---|
-| `agents/jailed-agents.nix`, `agents/jailed-agents-test.nix` | pi gateway mode |
+| `agents/gateway.nix` (new) | constants, served-model list, `gatewayClient` |
+| `agents/jailed-agents.nix`, `agents/jailed-agents-test.nix` | pi `models.json` bind and generation |
+| `agents/flake.nix` | export `gatewayClient` if not via `mkJailedAgents` |
 | `agents/README.md` | pi in § Gateway mode |
-| `_templates/agents/flake.nix` | template uses gateway mode |
-| `~/.config/emacs/flake.nix`, `flake.lock` | lock bump, jail options |
-| `~/.config/emacs/lisp/` (patch-agent adapter) | if `my/op-read-env` key forwarding goes |
-| `features/agents/gateway/constants.nix` | key paths for new clients, if needed |
+| `features/agents/gateway/constants.nix`, `proxy.nix`, `features/agents.nix` | import from `agents`; eca via `gatewayClient` |
+| `_templates/agents/flake.nix` | gateway by default; stale comments |
 | `README.md` § LLM gateway | clients, "what it does not cover" |
-| `~/.local/share/jail.nix/home/agent/.pi/agent/auth.json` | untracked; manual edit + rotation |
-| `~/dev/doctrine/flake.nix` | separate repo |
+| `~/.local/share/jail.nix/home/agent/.pi/agent/{settings.json,.gitignore}` | tracked in `~` |
+| `~/.local/share/jail.nix/home/agent/.pi/agent/{auth.json,models.json}` | untracked; manual key removal |
+| `~/.config/emacs/flake.nix`, `flake.lock` | separate repo |
+| `~/dev/doctrine/flake.nix`, `flake.lock` | separate repo |
 
 ## Risks & assumptions
 

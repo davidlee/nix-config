@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 58
+slug = "pi-gateway-models-json"
+title = "Pi gateway config is a store models.json bound wherever pi runs in a gateway jail"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "pi reads models.json only from its agent dir, shared by every specDev jail; baseUrl is used verbatim (no env interpolation, pi 1.3.0 provider-composer.js:88,139), apiKey is resolved per request (:291). Nested pi is the bare binary inside the parent jail, inheriting its env and mounts."
+choice = 'When gateway mode is on and the pi binary is in the jail (agent or subagent), bind a Nix-generated models.json read-only over ~/.pi/agent/models.json, after persist-home. One provider, llm-gateway: literal baseUrl from gateway.url, api openai-completions, apiKey "$LLM_GATEWAY_KEY".'
+alternatives = ["Provider added by hand to the shared models.json (not reproducible)", "Separate agent dir per gateway jail (loses sessions, OAuth logins, packages)", "Generate models.json at launch from a host LLM_GATEWAY_URL env var (more machinery; jails start with an empty env)", "Point the built-in deepseek provider at the gateway (stored auth.json key wins and is sent there)"]
+rationale = "Reproducible and testable at eval time; non-gateway jails untouched; distinct provider name is immune to auth.json entries; covering pi-as-subagent makes jailed claude research via pi work."
+consequences = ["Gateway jails do not see local-llama or hand edits; pi cannot write models.json there", "A jail without pi gets no models.json bind", "Host env var for the gateway address not added (user may add later for unjailed tools)"]
+decided_by = "user (option b; agreed design proposal)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-013"

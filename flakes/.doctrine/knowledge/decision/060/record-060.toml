@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 60
+slug = "pi-gateway-models-derived"
+title = "Pi gateway models are derived from the served-model list and LiteLLM price map"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The gateway serves a hand-written model list (services.llm-gateway.models, default proxy.nix:13-18); LiteLLM packaged price map (nixpkgs litellm 1.102.1, LITELLM_LOCAL_MODEL_COST_MAP=True) carries context window, max output, reasoning and vision per model. A hand-written pi metadata list would be a third list that lags."
+choice = "Move the served-model list (alias -> LiteLLM model id, provider) into agents/gateway.nix beside the constants; proxy.nix defaults import it. pi models.json entries are generated in a build step (jq over LiteLLM price map from the litellm source), one per served alias: id, reasoning, contextWindow, maxTokens, input. No costs: the gateway ledger records spend."
+alternatives = ["Hand-written pi metadata in agents/gateway.nix plus a drift check (third list)", "Minimal entries (id only) with pi defaults (wrong context sizes)", "Fetch /v1/models at launch (runtime machinery; deferred until >1 model)"]
+rationale = "One source for which models exist, one for their metadata; nothing extra to maintain."
+consequences = ["agents gains a build-time dependency on LiteLLM price map file (source only, no python build)", "The map version follows the consumer nixpkgs, which may differ from the system gateway; acceptable for metadata", "Price-map lag behind new model releases is a gateway concern, tracked in IMP-029"]
+decided_by = "user (agreed)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-013"

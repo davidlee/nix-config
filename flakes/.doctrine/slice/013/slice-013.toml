@@ -34,6 +34,22 @@ intent = "scope-relevant"
 selector = "README.md"
 intent = "scope-relevant"
 
+[[selector]]
+selector = "agents/gateway.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "agents/flake.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/agents/gateway/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/agents.nix"
+intent = "scope-relevant"
+
 [[relation]]
 label = "governed_by"
 target = "POL-001"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 59
+slug = "gateway-constants-in-agents"
+title = "Gateway constants live in agents; jailLib.gatewayClient builds a client gateway value"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Out-of-tree flakes (emacs, doctrine, template) need url, run directory and key path. ADR-004 D4 keeps them constants; the published agents sub-flake must not import the root."
+choice = 'Move features/agents/gateway/constants.nix content to agents/ (single source); the root constants file imports it. agents exports gatewayClient = client: { keyFile = "<keyDirectory>/<client>"; url; runDirectory; }. Consumers write gateway = jailLib.gatewayClient "pi"; a jail gets its own key by changing the client name. jailed-claude and other pi-launching jails use gatewayClient "pi".'
+alternatives = ["Consumers write literals (address copied into three repos)", "Duplicate constants in agents with a check (two sources)"]
+rationale = "One source, dependency direction root→agents within one repo, one-line per-jail key change."
+consequences = ['eca record switches to gatewayClient "eca"', "Unjailed callers of jailed-pi (e.g. unjailed claude) get an authenticated pi: the outer wrapper reads the key file on the host"]
+decided_by = "user (agreed design proposal; jailed-claude uses the pi client)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-013"
