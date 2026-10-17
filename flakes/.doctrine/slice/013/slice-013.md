@@ -33,21 +33,24 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 
 ## Scope & Objectives
 
-1. **pi gateway mode** in the `agents` sub-flake: `makeJailedPi` accepts the
-   existing `gateway` argument and gives pi a `models.json` provider pointed
-   at the gateway, with the API key read from the per-jail key file (bound
-   read-only; `!command` form). Opt-in, off by default: the sub-flake is
-   published.
+1. **pi gateway mode** in the `agents` sub-flake: `makeJailedPi` with the
+   existing `gateway` argument binds a Nix-generated `models.json` read-only
+   over the shared one (user, 2026-10-17: option b, research finding 3). Its
+   one provider has its own name, points at the gateway URL, and reads
+   `"apiKey": "$LLM_GATEWAY_KEY"`, which gateway mode already injects
+   (research finding 1; DEC-049 unchanged). Opt-in, off by default: the
+   sub-flake is published.
 2. **Template and `~/dev/doctrine`** (the first project flake, user's
    choice) use it.
 3. **Emacs flake**: move `jailed-pi` to gateway mode, and stop handing
    provider keys to jails that need none. Re-lock `agents` too, so builds
    outside direnv match. Which
    jails get gateway keys and which get no keys is a design decision (OQ-3).
-4. **Remove the stored `deepseek` key** from the shared pi `auth.json`, then
-   rotate it (POL-001 rule 6). The OAuth logins in that file
-   (`openai-codex`, `google-gemini-cli`, `google-antigravity`) stay; they
-   cannot go through an API-key gateway.
+4. **Remove the stored keys** from the shared pi dir, then rotate the
+   DeepSeek key (POL-001 rule 6): `auth.json` `deepseek` and `llama.cpp`,
+   and `local-llama`'s literal key in `models.json` (user, 2026-10-17). The
+   OAuth logins in `auth.json` (`openai-codex`, `google-gemini-cli`,
+   `google-antigravity`) stay; they cannot go through an API-key gateway.
 5. Issue gateway keys for the new clients; document in README § LLM gateway
    and `agents/README.md` § Gateway mode.
 
@@ -59,6 +62,11 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 - Migrating every `~/dev/*` project flake (≈17 use `makeJailedPi`). One is
   done here; the rest is a follow-up backlog item.
 - OAuth/subscription harnesses (claude, codex): they sign in their own way.
+- satan (`~/dev/satan`: its `jailed-pi`, gptel harness jail, patch adapter,
+  satan-patcher): the same pattern as this slice, so it reuses the mechanism,
+  but in a follow-up, IMP-030.
+- Emacs's own gptel (`~/.config/emacs/apps/dl-gptel.el`): in-process and
+  unjailed, like the unjailed eca.
 - The unjailed `eca`, and jails off this host.
 
 ## Affected surface
@@ -77,10 +85,9 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 
 ## Risks & assumptions
 
-- **A1**: pi honours a custom OpenAI-compatible provider in `models.json`
-  with a `!command` API key, and a stored `auth.json` key for the same
-  provider name would win over it (SL-011 research C4, C5). Verify in
-  research.
+- **A1** (confirmed in research, P1, P2): pi reads a custom provider's
+  `apiKey` from an env var, and a stored `auth.json` key for the same
+  provider name wins over it.
 - **R1**: direnv consumers build live `~/flakes/agents`, so an `agents`
   change reaches the Emacs devshell and 11 project devshells on their next
   reload, before any of them opt in. Gateway mode must stay off by default,
@@ -102,8 +109,8 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 - **OQ-3** Emacs flake, per jail: `jailed-shell`, `jailed-claude`,
   `jailed-opencode`, `jailed-dirge`, `jailed-pi-research` — gateway key,
   no key, or keep `op run` for now?
-- **OQ-4** Does the Emacs patch-agent adapter's `my/op-read-env` path still
-  have a job once `jailed-pi` uses the gateway?
+- ~~OQ-4~~ Settled: `my/op-read-env` does not feed jails; the patch adapter
+  is satan's (IMP-030).
 
 ## Verification intent
 
@@ -125,3 +132,4 @@ SL-011 opened, and close the stored-key leak in pi's shared `auth.json`.
 ## Follow-Ups
 
 - Backlog: migrate the remaining `~/dev/*` project flakes' pi jails.
+- IMP-030: satan's jails and patcher.
