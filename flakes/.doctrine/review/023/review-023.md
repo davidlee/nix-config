@@ -99,3 +99,28 @@ may be remote.
   (no comma inside the item; the flag splits on commas).
 - **F-1**, DEC-042 consequences: add "the base installs all terminfo
   (environment.enableAllTerminfo) so root's bash works from any terminal".
+
+## Reconciliation Outcome
+
+The user agreed to every brief item (2026-10-17). As in SL-006..009, the DEC
+record is edited with `doctrine knowledge edit`; no ADR or spec is touched, so
+no REV was opened.
+
+### Direct edits applied
+- design.md § NixOS side, "Base after": `env.nix` sets
+  `environment.enableAllTerminfo` (F-1).
+- design.md § Home side, `users.defaultUserShell` row: names assigner and
+  postgres beside root (F-3).
+- design.md § Phases and verification: a FIX-1 note after the table (F-1).
+
+### Knowledge records
+- DEC-042 consequences: the system users' shells (F-3) and the base's terminfo
+  (F-1) appended; the three existing items are intact, and `doctrine validate`
+  is clean.
+
+### Fixed in audit / tolerated
+- F-2 and F-6: fixed during the audit (source-delta rows; base header
+  citations).
+- F-4 and F-5: tolerated, with the rationale in their dispositions.
+
+Reconcile pass complete; hand off to /close.

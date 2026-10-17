@@ -69,7 +69,9 @@ nixos evaluation, so these halves never reach Draupnir (F2).
 - Base after: `cli.nix` keeps strace, the hardware/disk inspection set, atop
   iotop lm_sensors, isd lazyjournal systemctl-tui; `programs.nix` keeps nix-ld,
   rust-motd, helix (root's editor); `network.nix` keeps NetworkManager,
-  firewall (no ports), nftables, hostName, timeServers.
+  firewall (no ports), nftables, hostName, timeServers; `env.nix` sets
+  `environment.enableAllTerminfo`, so root's bash works from any terminal,
+  local or over ssh (FIX-1, RV-023 F-1).
 - The `virt.docker` assertion in `security.nix` stays in the base (it guards
   every host).
 
@@ -83,7 +85,7 @@ nixos evaluation, so these halves never reach Draupnir (F2).
 | `home/zsh.nix` (moved) | `programs.zsh`, `programs.mcfly` | **`terminal.zsh`** (new) · homeManager | personal |
 | `home/cli.nix` | zsh zsh-autocomplete antidote | `terminal.zsh` · homeManager | personal |
 | `nixos/programs.nix`, `nixos/env.nix` | `programs.zsh.enable`, `pathsToLink "/share/zsh"` | `terminal.zsh` · nixos | personal |
-| `nixos/user.nix` | `users.defaultUserShell = pkgs.zsh` | dropped: root gets NixOS's default bash | — |
+| `nixos/user.nix` | `users.defaultUserShell = pkgs.zsh` | dropped: root and the system users taking the default (assigner, postgres) get NixOS's default bash | — |
 | `home/shpool.nix` | shpool user service | `parked/` | — |
 | — | zmx | `editor.emacs` lists it (IMP-001) | personal |
 
@@ -135,6 +137,11 @@ dev checkout HEADs recorded with each snapshot; ordering-only diffs proven with
 | P3 home moves | yazi, nix-search-tv, `terminal.zsh` home half + zsh packages | Sleipnir + Draupnir homes: ordering-only. `home@aarch64-linux`: shrinks |
 | P4 behaviour | root → bash; system zsh → `terminal.zsh` nixos half; shpool parked; zmx in `editor.emacs` | Sleipnir system: root's shell, `/share/zsh` dedupe. Both homes: shpool unit gone, zmx dedups. `base@aarch64-linux`: no zsh |
 | P5 docs | README, RFC-001 W9, DEC-027/031 consequences | none |
+
+FIX-1 (fe348e8f) followed P5. It sets `environment.enableAllTerminfo` in the
+base, after the user found root's bash broken under `TERM=xterm-ghostty`. The
+diff is 13 terminfo outputs added on every NixOS system. Evidence: notes.md
+§ FIX-1 (RV-023 F-1).
 
 P4 is separate so P2–P3 can be proven pure moves. The system zsh move rides
 with the root-shell change because each alone breaks: base without
