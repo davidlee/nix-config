@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · reconcile (RV-030 reconciled) · 559e0d9f
+fresh-as-of: 2026-10-17 · done (closed; IMP-028 resolved) · c3d3d15e
 
 ### Produced
 - design.md locked (run rev 50); review RV-028 concluded, 5 findings verified.

@@ -1,7 +1,7 @@
 id = 13
 slug = "pi-emacs-gateway"
 title = "Jailed pi and emacs devshell jails via the LLM gateway"
-status = "reconcile"
+status = "done"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []
