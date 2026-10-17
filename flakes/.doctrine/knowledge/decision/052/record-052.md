@@ -1,0 +1,1 @@
+Renames features/cli-broken.nix (DEC-036). Chosen by the user at SL-012 design, 2026-10-17. First pick unavailable.nix; switched after the codex pass noted the list also holds skip-by-choice (uncached) and a collision, which 'unavailable' misdescribes.

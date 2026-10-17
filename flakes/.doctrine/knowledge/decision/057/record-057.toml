@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 57
+slug = "pre-build-list-on-demand-and-after-update-home-switches-run-through-nom"
+title = "Pre-build list on demand and after update; home switches run through nom"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "When a build fails, the culprit is usually among what will compile locally; nix's errors make hunting it slow."
+choice = "just will-build dry-runs this host's system and home outputs and prints the will-be-built set, with known config noise (a short name list plus preferLocalBuild) grouped under a visible section, never dropped. Runs on demand and at the end of update-system and update-home, after the workarounds check. home-switch and home-build pipe through nom like run.sh, keeping the build's exit status (pipefail)."
+alternatives = ["before every switch (doubles evaluation)", "drop trivial derivations from the list", "attribute-only trivial filter (unreliable)"]
+rationale = "Shown when the lock moves, which is when new local builds appear; no cost on plain switches."
+consequences = ["dry-run counts the local store, so previously built uncached drvs are not listed; the removal check covers the cache-only question"]
+decided_by = "user (2026-10-17; revised after codex devil's-advocate pass)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"

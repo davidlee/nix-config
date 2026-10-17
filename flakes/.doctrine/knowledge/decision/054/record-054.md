@@ -1,0 +1,1 @@
+SL-012 inq-2. User direction 2026-10-17: last-known-good is usually wanted. Verified: builtins.fetchTree {type=github; rev; narHash} from a previous flake.lock evaluates purely (0.3s). Revised after codex F3: the risk is substituting an old library into current consumers, not a leaf app with its own closure.

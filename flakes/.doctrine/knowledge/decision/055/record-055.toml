@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 55
+slug = "workaround-removal-is-signalled-by-the-unpatched-build-appearing-on-cachenixosorg"
+title = "Workaround removal is prompted when the unpatched build is on cache.nixos.org, after update"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Pure eval has no clock or network; the answer changes only when the lock changes. Cached means it builds; it says nothing about a runtime bug."
+choice = "A flake output workaroundProbes gives each probe's unpatched outPath for its pin and system. just workarounds-check queries cache.nixos.org per probe: cached -> 'candidate: remove <sites> (<issue>, <reason>)' and exit 1; absent -> ok; unknown (network or cache error) -> warn. It runs at the end of update-system and update-home, not in just test or gate; the gate tests the checker against stubbed responses. A probe for a runtime bug may set signal = manual and is listed, never probed."
+alternatives = ["fail just test/gate on a positive probe", "version-bump tripwire", "date expiry"]
+rationale = "Blows up where the lock moved and nowhere else; three explicit states; the gate stays offline-deterministic."
+consequences = ["removal still needs the next build (and a smoke test for runtime fixes)", "unfree probes never auto-signal"]
+decided_by = "user (2026-10-17; revised after codex devil's-advocate pass)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"

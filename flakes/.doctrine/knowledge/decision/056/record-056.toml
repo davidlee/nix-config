@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 56
+slug = "the-cli-skip-list-stays-separate-transient-skips-carry-an-untilcached-probe"
+title = "The cli skip list keeps its shape; transient skips get a probe in the registry"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Skipping (omit on a platform) and replacing are different mechanisms; the skip list mixes permanent (gtt, binutils-wrapper which is cached) and transient (atuin ISS-007, shell_cmds, yEd) entries."
+choice = "features/platform-skips.nix (DEC-052) keeps DEC-036's plain-names shape. Transient skips (atuin ISS-007; shell_cmds; yEd) get a probe in overlays/workarounds.nix whose sites list every place to revert. Permanent skips have no probe."
+alternatives = ["skip entries become records with untilCached", "merge skips into one registry with use = omit"]
+rationale = "One probe mechanism for every fix form; the skip list's semantics and DEC-036 stay as they are."
+consequences = ["DEC-036 edited only for the rename"]
+decided_by = "user (2026-10-17; revised after codex devil's-advocate pass)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"

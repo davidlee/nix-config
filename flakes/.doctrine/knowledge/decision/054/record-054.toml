@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 54
+slug = "workaround-replacements-a-locked-nixpkgs-usually-last-known-good-or-a-patch"
+title = "Last-known-good replacement for leaf apps via a lastGood helper; libraries are patched"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "stable 24.11 is EOL and lacks some packages (kokoro); the previous lock is the version that worked."
+choice = "A lib helper lastGood {rev; narHash} attrPath returns that attr from the locked nixpkgs, for use in a local overlay or package list; bin/workaround last-good <pin> prints {rev; narHash} from the previous committed flake.lock (stable's node works too). For leaf apps only; a library others depend on is fixed with a local patch (override/overrideAttrs) of the current package."
+alternatives = ["stable as a separate kind", "a flake input per last-good rev", "generic use.nixpkgs kind applied by a central builder"]
+rationale = "Last-good is the version that worked and is almost always cached; a leaf app's own closure coexists safely; patching keeps libraries in the current closure."
+consequences = ["no extra flake inputs", "an extra nixpkgs eval per distinct last-good rev"]
+decided_by = "user (2026-10-17; revised after codex devil's-advocate pass)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"

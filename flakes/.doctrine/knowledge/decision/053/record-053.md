@@ -1,0 +1,1 @@
+SL-012 inq-1, revised 2026-10-17 after the codex pass (F4 rebuild cascade from pin-wide python extensions; F5 atuin's real workaround sites are home modules, not the skip list). DEC-016 stands unamended.

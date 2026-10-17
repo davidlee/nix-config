@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 53
+slug = "pin-wide-workarounds-live-in-one-data-file-with-one-generated-overlay"
+title = "Workaround probes live in one registry; fixes stay beside their consumer"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Transient breakage was fixed ad hoc with no removal condition. Fixes take several forms (overlay; mkForce false; optional isLinux) and applying an overlay pin-wide changes dependents' hashes in evaluations that never needed it."
+choice = "overlays/workarounds.nix is a plain-data list of probes {attr; pin; system; issue; reason; sites = [paths]}. It applies nothing. Each fix stays local beside its consumer (DEC-016) and cites its issue id; every site to revert is listed in its probe."
+alternatives = ["one central data file with one overlay applied to every evaluation (amends DEC-016);per-evaluation workarounds option"]
+rationale = "Separates the nag from the fix: probes cover every fix form; no rebuild cascade; no overlay-ordering surface on darwin (ISS-004); DEC-016 kept."
+consequences = ["a fix without a probe never nags (accepted; no marker scanning)", "DEC-016 unchanged"]
+decided_by = "user (2026-10-17; revised after codex devil's-advocate pass)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"

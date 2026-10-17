@@ -24,91 +24,90 @@ Two facts are fixed:
 - The answer can change only when the lock changes.
 
 ```
-workaround entry (data)
-   │
-   ├──> overlay: replacement for every consumer (transitive, e.g. click-threading)
-   │
-   └──> removal check (just test, after just update):
-          unstable's own outPath on cache.nixos.org?  ──yes──> FAIL "remove <entry>: <reason>"
-          version != brokenAt?                         ──yes──> warn
+overlays/workarounds.nix   probes only: {attr, pin, system, issue, reason, sites}
+        │
+        └──> just workarounds-check (end of update-system / update-home)
+               unpatched outPath on cache.nixos.org?
+                 cached  ──> "candidate: remove <sites> (<issue>)", exit 1
+                 absent  ──> ok
+                 unknown ──> warn
+fixes: local, beside their consumer (DEC-016), each citing its issue
+       last-good: lib lastGood {rev; narHash} attr, for leaf apps
 ```
 
 ## Scope & Objectives
 
-1. **Workaround registry.** One plain-data list. Each entry names the attribute
-   path, the reason with a backlog id, the version at breakage (`brokenAt`), and
-   the replacement: `stable`, a last-known-good unstable rev, or a patch function.
-2. **One overlay built from it**, wired in `hosts.nix` for nixos, darwin and home
-   pkgs. It loads `inputs.stable` itself, because `stable` is not a pkgs
-   attribute (`hosts.nix:16`, mem.fact.nix.callpackage-autoargs).
-3. **Removal check:** a `just` recipe that runs in `just test` and after
-   `just update` / `update-local`. For each entry it fails when unstable's
-   unpatched derivation is on cache.nixos.org. Eval-time `lib.warn` when the
-   version moves past `brokenAt`. Builds and switches never fail on it.
+Decisions: DEC-052 … DEC-057 (design run inq-1 … inq-6).
+
+1. **Probe registry** (DEC-053): `overlays/workarounds.nix`, plain data. It
+   applies nothing. Fixes stay local and list every site to revert.
+2. **lastGood helper** (DEC-054): a locked nixpkgs attr for leaf apps, plus
+   `bin/workaround last-good <pin>` to print `{rev; narHash}` from the previous
+   committed lock. Libraries get a local patch instead.
+3. **Removal check** (DEC-055): a `workaroundProbes` flake output and
+   `just workarounds-check`, with three states. It runs at the end of
+   `update-system` / `update-home`, and its stubbed behaviour test runs in
+   `just test`.
 4. **Existing cases:** done ahead of the mechanism. click-threading's overlay
-   was removed (28861d6c, unpatched build is cached), and kokoro is cached and
-   re-enabled by the user (research X-3). Neither needs an entry.
-5. **Naming:** rename `features/cli-broken.nix` to say what it is (per-platform
-   skips for the cli availability filter). Update `available.nix`, the README,
-   the profile and host comments, and DEC-036's path reference.
-6. **Transient entries in the skip list** (atuin, shell_cmds, yEd) get the same
-   removal check, or move to a form that has it (OQ-2).
-7. **Pre-build list** (user, 2026-10-17): before `system-switch` /
-   `home-switch` (and on demand), print what the build will compile locally:
-   `nix build --dry-run`'s "will be built" set, minus trivial config
-   derivations (etc, activate, units, registry json). When a build fails, the
-   culprit is almost always in that list. It shares the cache-query code with
-   the removal check. Note the difference: dry-run counts the local store as
-   well as the caches; the removal check asks cache.nixos.org alone.
+   was removed (28861d6c), and kokoro was re-enabled by the user.
+5. **Rename** (DEC-052): `features/cli-broken.nix` becomes
+   `features/platform-skips.nix`. Update `available.nix`, the README, the
+   profile and host comments, the memory `mem.fact.flakes.availableon-limits`,
+   and DEC-036.
+6. **Transient skips** (DEC-056): atuin (ISS-007), shell_cmds and yEd get probes
+   whose sites name every revert point (for atuin: `modules/home/cli.nix`,
+   `modules/home/darwin/default.nix`, the skip list).
+7. **Pre-build list** (DEC-057): `just will-build` shows noise grouped, never
+   dropped. It runs on demand and after `update-*`. Home builds go through
+   `nom`, keeping the exit status.
 
 ## Non-Goals
 
-- Retiring ISS-007's other workaround site, unless the design folds it in.
-- Bumping `stable` off 24.11 (EOL). Note it, and leave it for a backlog item.
-- A date-based expiry in eval (impossible in pure eval). A recipe-side date
-  backstop only if the design wants one.
-- Fixing kokoro upstream.
+- Fixing atuin itself (ISS-007), beyond probing it.
+- Bumping `stable` off 24.11 (EOL). Leave it for a backlog item.
+- Eval-time expiry or version tripwires (research X-3).
+- Scanning for fixes that have no probe.
 
 ## Affected surface
 
-- `overlays/` (new registry and overlay; `click-threading-fix.nix` removed)
-- `hosts.nix` (overlay wiring)
-- `features/cli-broken.nix` (renamed), `features/available.nix`
-- `justfile` (`test`, `update`, `update-local`, the new check recipe)
+- `overlays/workarounds.nix` (new), `lib` helper for `lastGood`, `bin/` (check,
+  helper, will-build) and their tests
+- `hosts.nix` or `overlays.nix` (the `workaroundProbes` output)
+- `features/cli-broken.nix` → `features/platform-skips.nix`, `features/available.nix`
+- `justfile` (`test`, `update-system`, `update-home`, `home-switch`,
+  `home-build`, new recipes)
 - `README.md`, `features/profiles/personal-darwin.nix`,
-  `hosts/Draupnir/features.nix` (comments), DEC-036
+  `hosts/Draupnir/features.nix` (comments), DEC-036, the availableon-limits memory
 
 ## Risks & assumptions
 
 - A Python package taken from `stable` carries its own interpreter. That is fine
   as a leaf app, but it breaks inside a python env. The replacement kind has to
   fit the case.
-- No cache entry does not mean "still broken" (not built yet, unfree). The check
-  fails only on a positive signal: present means fixed.
-- The check needs network. It must degrade to a warning when offline, not fail.
+- Cached means it builds, not that a runtime bug is fixed. Runtime probes use
+  `signal = manual` (DEC-055).
+- No cache entry does not mean "still broken" (not built yet, unfree). Only a
+  positive result prompts.
+- The check needs network. It reports `unknown` when offline, and it stays out
+  of the gate.
 - Computing unstable's unpatched outPath must not evaluate the overlay (use
   `inputs.nixpkgs.legacyPackages` directly, or the overlay's `prev`).
 
 ## Open questions
 
-DEC-016 ("local fix overlays sit beside their consumer") may be amended if the
-design needs it (user, 2026-10-17). Research X-1 offers a way to keep it.
-
-- OQ-1: Where does the registry live? `overlays/workarounds.nix` (it patches pkgs,
-  not features) or `features/`?
-- OQ-2: One registry for both kinds (replace everywhere vs skip on one platform,
-  each kind permanent or transient), or two lists sharing one removal check?
-- OQ-3: The new name for `cli-broken.nix`, e.g. `unavailable.nix` (the
-  complement of `available.nix`) or `platform-skips.nix`.
-- OQ-4: The last-good-rev mechanism: an extra flake input per entry, or
-  `builtins.fetchTarball` with a hash?
+All settled at design: DEC-052 … DEC-057.
 
 ## Verification intent
 
-- The removal check fails on a fixture entry whose unstable package is cached,
-  and passes on one whose package is not (behaviour test, network stubbed).
+- Behaviour tests in `just test`, with `nix` stubbed: the check gives cached →
+  exit 1 naming the sites, absent → ok, unknown → warn, and a manual probe is
+  listed but never probed. will-build groups the noise and never drops it.
+  `lastGood` returns the locked attr.
 - `just test`, `just coverage` and `just drvs` stay green. Sleipnir and Draupnir
-  drvPaths are unchanged apart from the intended replacements.
+  drvPaths are unchanged (the probes apply nothing; the rename is
+  behaviour-neutral).
+- A live `just workarounds-check` against the real probes reports the expected
+  states, today: atuin, shell_cmds and yEd for aarch64-darwin.
 - `rg cli-broken` finds nothing outside history and closed slices.
 
 ## Summary

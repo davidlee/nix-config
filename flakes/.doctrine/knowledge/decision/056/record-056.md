@@ -1,0 +1,1 @@
+SL-012 inq-4, revised after codex F5 (confirmed: atuin's live workarounds are modules/home/cli.nix:16 and modules/home/darwin/default.nix:10; the skip-list entry is the third site).

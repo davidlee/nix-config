@@ -1,0 +1,1 @@
+SL-012 inq-3. Research X-3: both real fixes came with no version change; the cache probe caught both. Revised after codex F1/F2: cached proves a build failure is gone, not a runtime bug; a network query must not sit in the gate.

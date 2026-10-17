@@ -1,0 +1,1 @@
+SL-012 inq-6 (user objective 7). Measured: allowSubstitutes/preferLocalBuild mark only some trivial drvs (etc), not activate, the registry json or the toplevel.

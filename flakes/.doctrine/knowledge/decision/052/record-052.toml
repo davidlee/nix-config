@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 52
+slug = "the-cli-skip-list-is-featuresunavailablenix"
+title = "The cli skip list is features/platform-skips.nix"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "cli-broken.nix holds per-system skips of several kinds (eval failure, build failure, collision, uncached), not only broken packages."
+choice = "features/platform-skips.nix"
+alternatives = ["unavailable.nix", "skips.nix"]
+rationale = "Says what the list does (per-platform skips) without claiming why; the reasons vary per entry."
+consequences = []
+decided_by = "user"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-012"
