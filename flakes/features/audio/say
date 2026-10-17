@@ -11,7 +11,7 @@
 # Defaults: SAY_ENGINE (piper), SAY_DEVICE (auto); per engine, PIPER_VOICE,
 # KOKORO_VOICE and KOKORO_SPEED. piper is the quicker of the two. Voices are
 # names; the speech feature ships both engines' voices, piper's in
-# PIPER_VOICES.
+# /etc/piper-voices (PIPER_VOICES overrides).
 
 set -euo pipefail
 
@@ -37,7 +37,7 @@ kokoro_speak() {
 
 # Raw audio carries no header, so pw-play needs the rate from the voice config.
 piper_rate() {
-  local voices="${PIPER_VOICES:-}"
+  local voices="${PIPER_VOICES:-/etc/piper-voices}"
   jq -er .audio.sample_rate "$voices/$1.onnx.json" 2>/dev/null || {
     echo "say: no piper voice $1 in $voices" >&2
     return 1

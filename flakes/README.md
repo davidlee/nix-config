@@ -487,7 +487,7 @@ sounds better but loads its model on every call. `SINK` is a node.name from
 `KOKORO_VOICE`, `KOKORO_SPEED`.
 
 The module wraps both engines: `piper` gets `--data-dir` of the pinned voices
-(also `$PIPER_VOICES`, where `say` reads sample rates), and `kokoro` gets
+(also linked at `/etc/piper-voices`, where `say` reads sample rates), and `kokoro` gets
 spaCy's `en_core_web_sm` plus an offline Hugging Face cache of Kokoro-82M. To
 add a piper voice, add its two file hashes to the module's list.
 

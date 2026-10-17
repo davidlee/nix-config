@@ -216,8 +216,9 @@
         ])}/bin/kokoro "$@"
       '';
     in {
-      # say reads a voice's sample rate from here to stream piper's raw audio.
-      environment.variables.PIPER_VOICES = "${piperVoices}";
+      # A fixed path, so say can read a voice's sample rate (to stream piper's
+      # raw audio) without an environment variable reaching every shell.
+      environment.etc.piper-voices.source = piperVoices;
 
       environment.systemPackages = with pkgs; [
         ## text to speech
