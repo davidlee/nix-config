@@ -4,7 +4,8 @@ calls into `keystore` calls.
 
   route_gate(app)    ASGI wrapper: only ALLOWED_ROUTES reach LiteLLM
   authenticate       general_settings.custom_auth: the key must be live
-  model_gate         callback, pre-call: the model must be on the key's list
+  model_gate         callback, pre-call: every model the request names must
+                     be on the key's list
   ledger             callback, success: spent += response_cost
 
 LiteLLM loads each hook reference from this file afresh, without sys.modules
@@ -21,6 +22,7 @@ import keystore
 from fastapi import HTTPException
 from litellm.integrations.custom_logger import CustomLogger
 from litellm.proxy._types import UserAPIKeyAuth
+from litellm.proxy.auth.auth_utils import iter_request_fallback_targets
 
 log = logging.getLogger("llm-gateway.hooks")
 
@@ -87,17 +89,27 @@ async def authenticate(request, api_key):
 
 
 class ModelGate(CustomLogger):
-    """Refuses a model off the key's list: LiteLLM does not enforce
-    UserAPIKeyAuth.models for custom auth (DEC-046)."""
+    """Refuses a request naming a model off the key's list: LiteLLM does not
+    enforce UserAPIKeyAuth.models for custom auth (DEC-046). Fallbacks name
+    models too, and the Router serves them (RV-026 F-4); LiteLLM's own
+    enumeration of them is reused, so it tracks the Router."""
 
     async def async_pre_call_hook(self, user_api_key_dict, cache, data, call_type):
-        model = data.get("model")
-        if not keystore.allows_model({"models": user_api_key_dict.models or []}, model):
-            raise HTTPException(
-                status_code=403,
-                detail=f"{user_api_key_dict.key_alias}: model {model!r} not allowed",
-            )
+        row = {"models": user_api_key_dict.models or []}
+        for model in _named_models(data):
+            if not keystore.allows_model(row, model):
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"{user_api_key_dict.key_alias}: model {model!r} not allowed",
+                )
         return data
+
+
+def _named_models(data):
+    """The model the request asks for, then every fallback it names."""
+    yield data.get("model")
+    for target in iter_request_fallback_targets(data):
+        yield target.get("model") if isinstance(target, dict) else target
 
 
 class Ledger(CustomLogger):

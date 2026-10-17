@@ -321,7 +321,10 @@ in
       mkdir -p "$(dirname "$key_file")"
       printf 'sk-test-SENTINEL' > "$key_file"
       if "$gw_outer" 2> "$TMPDIR/gw-no-gateway"; then exit 1; fi
-      grep -Fq -- 'system-switch' "$TMPDIR/gw-no-gateway"
+      # RV-026 F-7: both causes named: never switched, or the service failing.
+      grep -Fq -- 'just system-switch' "$TMPDIR/gw-no-gateway"
+      grep -Fq -- 'systemctl status llm-gateway' "$TMPDIR/gw-no-gateway"
+      grep -Fq -- 'just gateway-credentials' "$TMPDIR/gw-no-gateway"
       refute grep -Fq -- 'sk-test-SENTINEL' "$TMPDIR/gw-no-gateway"
 
       # Behaviour: the emitted read expands keyFile at run time and yields

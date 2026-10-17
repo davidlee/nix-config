@@ -29,6 +29,9 @@
   # (POL-001 r1), and there is no master_key (DEC-050). `extraParams` is
   # merged into every model's litellm_params; it and `extraModels` exist for
   # the check, which adds mock_response without touching the mapping.
+  # The build fails unless every model in `models` is in LiteLLM's packaged
+  # price map, which prices an absent one at 0 (RV-026 F-5); `extraModels`
+  # are exempt, so the check can serve an unpriced one.
   configDir = {
     models ? defaults.models,
     providers ? defaults.providers,
@@ -52,6 +55,7 @@
     yaml = (pkgs.formats.yaml {}).generate "config.yaml" config;
   in
     pkgs.runCommand "llm-gateway-config" {} ''
+      ${python.interpreter} ${./price-check.py} ${lib.escapeShellArgs (lib.mapAttrsToList (_: m: m.model) models)}
       mkdir $out
       cp ${yaml} $out/config.yaml
       cp ${./gateway_hooks.py} $out/gateway_hooks.py

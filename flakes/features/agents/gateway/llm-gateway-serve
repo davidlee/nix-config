@@ -4,8 +4,8 @@
 Checks that every configured provider's credential is in
 $CREDENTIALS_DIRECTORY and loads each into its <NAME>_API_KEY variable, then
 serves LiteLLM's proxy app, behind gateway_hooks.route_gate, on the unix
-socket. A missing credential exits at once, naming it and the fix, before
-LiteLLM is imported (a start takes ~25 s; RV-024 F-5).
+socket. A missing or empty credential exits at once, naming it and the fix,
+before LiteLLM is imported (a start takes ~25 s; RV-024 F-5, RV-026 F-2).
 
 Needs CONFIG_FILE_PATH: the config.yaml whose directory also holds
 gateway_hooks.py and keystore.py. Credential values are never printed.
@@ -25,17 +25,17 @@ SOCKET = "/run/llm-gateway/api.sock"
 def load_credentials(providers, environ):
     """{variable: value} for every provider in `providers` (credential name
     -> variable), read from environ's CREDENTIALS_DIRECTORY; SystemExit
-    naming every missing one."""
+    naming every missing or empty one."""
     directory = environ.get("CREDENTIALS_DIRECTORY")
     files = [Path(directory, name) for name in providers] if directory else []
-    found = {file.name: file for file in files if file.is_file()}
-    missing = [name for name in providers if name not in found]
+    found = {f.name: f.read_text().strip() for f in files if f.is_file()}
+    missing = [name for name in providers if not found.get(name)]
     if missing:
         raise SystemExit(
-            f"llm-gateway: provider credential missing: {', '.join(missing)}; "
+            f"llm-gateway: provider credential missing or empty: {', '.join(missing)}; "
             "run `just gateway-credentials`"
         )
-    return {providers[name]: file.read_text().strip() for name, file in found.items()}
+    return {providers[name]: value for name, value in found.items()}
 
 
 def app(config_dir):

@@ -798,13 +798,13 @@ On the first switch systemd itself refuses the unit at credential setup
 (`status=243/CREDENTIALS`; `journalctl -u llm-gateway` shows "Failed to set
 up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
-That is expected. The restarts exhaust the unit's start limit; if
-`just gateway-credentials`' restart is then refused, run
-`sudo systemctl reset-failed llm-gateway` and re-run it.
+That is expected. `just gateway-credentials` clears the start limit those
+failures hit, restarts the service, and returns once the gateway's socket
+exists (it gives up after 90 s, naming `systemctl status llm-gateway`).
 
 ```bash
 just system-switch          # llm-gateway.service fails: no credential yet (expected)
-just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts the service
+just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts, waits until serving
 llm-gateway issue eca --models deepseek-flash --budget 5 \
   --out ~/.config/llm-gateway/keys/eca   # 0600; refuses an existing file
 just home-switch
@@ -828,7 +828,8 @@ the file):
 
 **Admin.** `llm-gateway` runs as the `llm-gateway` user via sudo on the
 SQLite file (DEC-050). Keys travel on stdin, never argv. `list` shows no key
-or hash; the table stores only a key's sha256.
+or hash; the table stores only a key's sha256. Keys start `sk-`, so LiteLLM
+hashes any it logs.
 
 | command | does |
 |---|---|
@@ -837,7 +838,7 @@ or hash; the table stores only a key's sha256.
 | `revoke ALIAS` | revoke a key |
 | `budget ALIAS USD` | set the lifetime budget |
 | `reset ALIAS` | set spend back to 0 |
-| `credentials [PROVIDER…]` | encrypt provider keys from 1Password for the service |
+| `credentials [PROVIDER…]` | encrypt provider keys from 1Password for the service; a failed read leaves the stored one |
 
 **Rotation.**
 
@@ -863,7 +864,7 @@ runDirectory; }` built from `features/agents/gateway/constants.nix`, drops its
 issued. See `agents/README.md` § Gateway mode. Another model or provider goes
 in `services.llm-gateway.models` / `.providers`: each provider needs a
 1Password ref and a `just gateway-credentials` run, and every model must be in
-LiteLLM's packaged price map (a flake check enforces it).
+LiteLLM's packaged price map (the host's build fails otherwise).
 
 **What it does not cover.**
 

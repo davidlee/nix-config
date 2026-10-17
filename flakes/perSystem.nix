@@ -50,12 +50,21 @@
             };
             extraParams.mock_response = "mock_response from the test config";
           };
+          # RV-026 F-5: a host's own unpriced model fails its build.
+          LLM_GATEWAY_UNPRICED = pkgs.testers.testBuildFailure (proxy.configDir {
+            models.unpriced = {
+              model = "deepseek/no-such-model-host-override";
+              provider = "deepseek";
+            };
+          });
         } ''
           # the sandbox points SSL_CERT_FILE at a missing file, and LiteLLM
           # builds an httpx client at import; the price map is the packaged one
           unset SSL_CERT_FILE
           export LITELLM_LOCAL_MODEL_COST_MAP=True
           python3 ${gateway + "/gateway-test"}
+          grep -q 'not in the packaged price map: deepseek/no-such-model-host-override' \
+            "$LLM_GATEWAY_UNPRICED/testBuildFailure.log"
           touch $out
         '';
     };

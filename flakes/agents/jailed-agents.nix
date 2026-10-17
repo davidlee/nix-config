@@ -541,7 +541,9 @@
       fi
       if [ ! -d ${lib.escapeShellArg checkedGateway.runDirectory} ]; then
         echo "jailed-${name}: the LLM gateway is not running (no ${checkedGateway.runDirectory})." >&2
-        echo "  Start it: just system-switch" >&2
+        echo "  Not yet switched to a system with it: just system-switch" >&2
+        echo "  Otherwise the service is failing: systemctl status llm-gateway" >&2
+        echo "  (first run, no provider credential yet: just gateway-credentials)" >&2
         exit 1
       fi
       exec ${inner}/bin/jailed-${name} "$@"
