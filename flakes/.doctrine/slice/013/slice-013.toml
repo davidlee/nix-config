@@ -1,7 +1,7 @@
 id = 13
 slug = "pi-emacs-gateway"
 title = "Jailed pi and emacs devshell jails via the LLM gateway"
-status = "design"
+status = "plan"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []
@@ -12,15 +12,15 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "agents/jailed-agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "_templates/agents/**"
@@ -28,15 +28,15 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "features/agents/gateway/constants.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/gateway.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/flake.nix"
@@ -48,7 +48,19 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "features/agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents/gateway/proxy.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents/gateway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "_templates/agents/flake.nix"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"

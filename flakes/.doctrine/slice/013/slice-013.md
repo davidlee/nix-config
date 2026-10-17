@@ -38,25 +38,31 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
    Nix-generated `models.json` read-only over the shared one, after
    persist-home. One provider, `llm-gateway`: literal `baseUrl` from
    `gateway.url`, `"apiKey": "$LLM_GATEWAY_KEY"` (DEC-049 unchanged). Its
-   models are generated from the served-model list and LiteLLM's price map
-   (DEC-060). Opt-in, off by default: the sub-flake is published.
+   models are generated from the served-model list, each model carrying a
+   hand-written pi entry with its `compat` and `thinkingLevelMap` (DEC-063,
+   superseding DEC-060). Opt-in, off by default: the sub-flake is published.
 2. **Gateway constants move into `agents`** (DEC-059): `agents/gateway.nix`
    holds the constants and the served-model list; the root's
    `features/agents/gateway/constants.nix` and `proxy.nix` defaults import
    it. `jailLib.gatewayClient "<client>"` builds a jail's `gateway` value;
    eca switches to it.
 3. **Template and `~/dev/doctrine`** (DEC-062): every jail defaults to
-   `gatewayClient "pi"` (doctrine through `mkJail`).
+   `gatewayClient "pi"` (doctrine through `mkJail`). Doctrine deletes
+   `jailed-dirge`; the template drops `jailed-opencode` and `jailed-gemini`.
 4. **Emacs flake** (DEC-061): `jailed-pi`, `jailed-pi-research`,
    `jailed-claude`, `jailed-shell` use `gatewayClient "pi"`; no `op run`
    anywhere (`jpi` included); delete `jailed-opencode` and `jailed-dirge`;
    drop the `OPENROUTER_API_KEY` forward. Re-lock `agents` after the push.
 5. **Shared pi dir**: edit the tracked `settings.json` to
    `llm-gateway/deepseek-flash` (OQ-5); extend its tracked `.gitignore` to
-   `models.json*` and `models-store.json`.
-6. **Remove the stored keys**, then rotate the DeepSeek key (POL-001 rule 6):
-   `auth.json` `deepseek` and `llama.cpp`, and `local-llama`'s literal key in
-   `models.json`. The OAuth logins (`openai-codex`, `google-gemini-cli`,
+   `models.json*` and `models-store.json`. Track `{"providers":{}}` as the
+   research home's `models.json`, so no gateway run leaves an empty bind
+   target there.
+6. **Rotate the DeepSeek key early and remove the stored keys in the same
+   step** (POL-001 rule 6, "on a leak, rotate first"; order in the run's
+   inq-9): `auth.json` `deepseek` and `llama.cpp`, and `local-llama`'s
+   literal key in `models.json`, `models.json.backup` and `models.json~`.
+   The OAuth logins (`openai-codex`, `google-gemini-cli`,
    `google-antigravity`) stay.
 7. **Issue one shared key**, alias `pi`, `deepseek-flash`, $50 lifetime
    budget; document in README § LLM gateway and `agents/README.md` § Gateway
@@ -86,9 +92,11 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 | `agents/flake.nix` | export `gatewayClient` if not via `mkJailedAgents` |
 | `agents/README.md` | pi in § Gateway mode |
 | `features/agents/gateway/constants.nix`, `proxy.nix`, `features/agents.nix` | import from `agents`; eca via `gatewayClient` |
+| `features/agents/gateway.nix` | `services.llm-gateway.models` option removed; reads the file's list |
 | `_templates/agents/flake.nix` | gateway by default; stale comments |
 | `README.md` § LLM gateway | clients, "what it does not cover" |
 | `~/.local/share/jail.nix/home/agent/.pi/agent/{settings.json,.gitignore}` | tracked in `~` |
+| `~/.local/share/jail.nix/home/agent-research/.pi/agent/models.json` (new) | tracked in `~` |
 | `~/.local/share/jail.nix/home/agent/.pi/agent/{auth.json,models.json}` | untracked; manual key removal |
 | `~/.config/emacs/flake.nix`, `flake.lock` | separate repo |
 | `~/dev/doctrine/flake.nix`, `flake.lock` | separate repo |
@@ -115,6 +123,11 @@ Settled by the user, 2026-10-17:
 
 - **OQ-1** One shared pi gateway key. Every pi jail shares one pi home, so
   per-jail keys would be security theatre.
+  *Amended 2026-10-17:* theatre for isolation only. The shared pi home holds
+  writable code, so a jail compromised once can read the next jail's key
+  however keys are split. Per-jail keys would still give attribution,
+  independent revocation and separate budgets. The shared key stays, as a
+  convenience tradeoff (DEC-061).
 - **OQ-2** `deepseek-flash` is enough for now; IMP-029 is not a prerequisite.
 - **OQ-3** Emacs flake: no `op run` for any jail. Make it easy to give a jail
   its own gateway key later. `jailed-pi-research` may share pi's key or get
@@ -124,6 +137,11 @@ Settled by the user, 2026-10-17:
   gateway model. That every pi jail is affected is wanted: it forces the
   rest to upgrade. Once the gateway serves more than one model, the
   selection should follow what LiteLLM serves.
+  *Amended 2026-10-17:* the edit sets the default; it does not force an
+  upgrade. When the saved model is unavailable, pi silently uses the first
+  model it holds credentials for, possibly an OAuth subscription model
+  (pi 1.3.0 `model-resolver.js` ~:397-427). The edit moves to the cutover,
+  and live checks record what an unmigrated jail falls back to (inq-9).
 - ~~OQ-4~~ Settled: `my/op-read-env` does not feed jails; the patch adapter
   is satan's (IMP-030).
 
@@ -146,5 +164,5 @@ SL-011 opened, and close the stored-key leak in pi's shared `auth.json`.
 
 ## Follow-Ups
 
-- Backlog: migrate the remaining `~/dev/*` project flakes' pi jails.
+- IMP-034: migrate the remaining `~/dev/*` project flakes' pi jails.
 - IMP-030: satan's jails and patcher.

@@ -5,7 +5,7 @@ id = 60
 slug = "pi-gateway-models-derived"
 title = "Pi gateway models are derived from the served-model list and LiteLLM price map"
 record_kind = "decision"
-status = "accepted"
+status = "superseded"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []
@@ -26,7 +26,7 @@ notes       = []
 
 [relationships]                 # verb-written edges (set by doctrine supersede)
 supersedes    = []   # record ids this one replaces (set by doctrine supersede)
-superseded_by = []   # set on superseded predecessor (verb-written)
+superseded_by = ["DEC-063"]   # set on superseded predecessor (verb-written)
 
 [[relation]]
 label = "shapes"

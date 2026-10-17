@@ -6,23 +6,26 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · design/inquiring rev 15 · 72b9bffe
+fresh-as-of: 2026-10-17 · design/reviewing rev 42 · b9c74c4e (SL-013 records uncommitted)
 
 ### Produced
-SL-013 scope; IMP-030; DEC-058, DEC-059, DEC-060, DEC-061, DEC-062 (accepted);
-IMP-029 price-map-lag addendum; research artefact (gitignored).
+- design.md sec-1..7 drafted in the run (rev 42, reviewing); 10 design-target selectors.
+- DEC-063 — pi entries hand-written per served model; supersedes DEC-060.
+- DEC-061 rationale moderated (shared key = convenience, not isolation); DEC-062 extended (doctrine dirge, template opencode/gemini dropped).
+- REV-009 — ADR-004 D4 admits imported constants; lands at reconcile.
+- IMP-034 — remaining `~/dev/*` pi jails onto the gateway.
+- Uncommitted: scope, notes, design.md, DEC-060..063, EVD-003/004, REV-009, IMP-034, memory below, design-run state.
 
 ### Learned
-- direnv `use flake_local` builds live `~/flakes/agents` in 13 devshells
-  (`modules/home/programs.nix:20-35`) — memory candidate.
-- pi takes `baseUrl` verbatim; only `apiKey`/headers interpolate
-  (pi 1.3.0 `provider-composer.js:88,139,291`) — memory candidate.
-- `mem.fact.bwrap.pid1-environ-leak` last line is wrong about emacs
-  `jailed-shell` (built with agents' jail) — correct it.
+- mem.fact.pi.custom-provider-models-json — pi custom-provider gotchas (literal baseUrl, per-model compat, empty file, fallback).
+- EVD-003 — pi's DeepSeek compat needed and sufficient through LiteLLM.
+- EVD-004 — empty models.json warns; `{"providers":{}}` clean.
+- direnv `use flake_local` builds live `~/flakes/agents` in 13 devshells — memory candidate.
+- `mem.fact.bwrap.pid1-environ-leak` last line wrong about emacs `jailed-shell` — correct at reconcile.
 
 ### Open
-- Design gate `sufficiency-accepted` (user) pending.
-- POL-001 verification/scope revision candidates (research Thread 1).
+- Design review: policy not yet set; Codex adversarial pass next; then section attestations, `review-disposed`, `design-accepted` (user).
+- POL-001 verification gateway line (design sec-7, reconcile).
 - IDE-005 transcript purge (out of scope).
 
 ## Design triage (2026-10-17, explore stage)
@@ -79,3 +82,45 @@ DEC-037/038 (lock vs override). IMP-020 (default `apiKeys` still all seven).
   wins when placed after it (precedent `agents/jailed-agents.nix:152-158`).
 - A2: with one provider in `models.json` and no settings, pi starts on that
   provider's first model (research P6, unverified at source).
+
+## Drafting spike: pi through the gateway (2026-10-17)
+
+Why: pi's custom-provider models take `compat` and `thinkingLevelMap` only
+from their own `models.json` entry (pi 1.3.0 `provider-composer.js`,
+`modelFromJson`); LiteLLM's price map has neither. Outcome: DEC-063
+supersedes DEC-060.
+
+Setup: pi 0.99.1 (the installed build), unjailed, throwaway
+`PI_CODING_AGENT_DIR`, `PI_OFFLINE=1`, eca's gateway key (allows
+`deepseek-flash`). Variant A: provider `llm-gateway`, model with limits only.
+Variant B: A plus pi's built-in `deepseek/deepseek-flash` `compat` and
+`thinkingLevelMap`. Scripts and outputs were in the session scratchpad, not
+kept.
+
+| check | A (no compat) | B (pi's DeepSeek compat) |
+|---|---|---|
+| two sequential bash tool calls, `--thinking high` | works | works |
+| reasoning prompt, `minimal`/`medium`/`high`/`xhigh`/`max` | all accepted | all accepted |
+| `--thinking off` | ignored: 47 reasoning tokens | honoured: 0 |
+
+pi's built-in DeepSeek compat, written for api.deepseek.com, works unchanged
+through LiteLLM. Built-in values (pi 1.3.0 bundle): `compat = { supportsStore
+= false; supportsDeveloperRole = false; maxTokensField = "max_tokens";
+requiresReasoningContentOnAssistantMessages = true; thinkingFormat =
+"deepseek"; supportsStrictMode = true; }`, `thinkingLevelMap = { minimal =
+null; low = "low"; medium = null; high = "high"; max = "max"; }`,
+`contextWindow = 1000000`, `maxTokens = 384000`, `input = [text image]`,
+`reasoning = true`. Spend went to eca's ledger (a few cents).
+
+## Design review (2026-10-17)
+
+Policy adversarial-then-human. Adversarial pass RV-028 (Codex gpt-6-sol,
+read-only, two rounds) concluded: 5 findings, all verified; history on the
+ledger. Lasting change: no launcher seed for `models.json`, because a host-side
+write on a jail-writable path follows a symlink the jail plants (reproduced).
+The research home's `models.json` is tracked instead.
+
+**A further pass would probe** only what no reading can settle: runtime
+behaviour of the bind (bwrap creating the target, pi-research model
+selection, nested pi's key), and pi 1.3.0 against 0.99.1. Those are VH 1–4
+and the bump re-run, not another design review. None is needed before lock.

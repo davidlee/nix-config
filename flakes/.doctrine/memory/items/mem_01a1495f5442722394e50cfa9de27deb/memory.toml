@@ -1,0 +1,50 @@
+memory_uid = "mem_01a1495f5442722394e50cfa9de27deb"
+memory_key = "mem.fact.pi.custom-provider-models-json"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "pi models.json custom-provider gotchas"
+summary = "pi custom providers in models.json: baseUrl literal, compat per model required behind a proxy, empty file warns"
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["agents/jailed-agents.nix", "agents/gateway.nix"]
+globs = []
+commands = []
+tags = ["pi", "llm-gateway"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "9600c5461464d4023f1d0158355b31b408cdd7bf"
+ref_name = "refs/heads/main"
+checkout_state_id = "7a87fb420adc696f10c388ebf578167ba87b8fb8dc20c9aefbfdc4ffb648a3f7"
+base_commit = "b9c74c4ec965bfda97e520fb2cf33c532dbcd187"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "evidence"
+ref = "EVD-003"
+
+[[source]]
+kind = "evidence"
+ref = "EVD-004"
+

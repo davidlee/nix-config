@@ -13,8 +13,8 @@ tags = []
 [facet]                         # every field typed; seeded empty (captured later)
 context      = ""
 choice = 'jailed-pi, jailed-pi-research, jailed-claude, jailed-shell: gateway = jailLib.gatewayClient "pi" (claude and shell so nested pi is authenticated); drop useOpEnv/passApiKeysFromEnv. Delete jailed-opencode and jailed-dirge; drop dirge from subagent lists. jpi execs jailed-pi without op run. apiKeyJailOptions loses the OPENROUTER_API_KEY forward and the duplicate /usr/bin/env bind; the rest is renamed for what it is (sound). Re-lock agents after it is pushed.'
-alternatives = ["Keyless claude and shell (nested pi unauthenticated)", "Per-jail keys now (security theatre with a shared pi home)"]
-rationale = "User: no op run for any jail; one shared key given the shared home; easy per-jail key later via the client name."
+alternatives = ["Keyless claude and shell (nested pi unauthenticated)", "Per-jail keys now (attribution and separate budgets; no isolation while the pi home is shared and writable)"]
+rationale = "User: no op run for any jail. One shared key is a convenience tradeoff, not lost isolation: the shared pi home holds writable code (extensions/, npm/, bin/), so a compromised jail could read another jail's key at its next launch whatever the key layout. Per-jail keys would still give attribution, independent revocation and separate budgets (one runaway jail can spend the shared budget); the client name makes that a one-line change later. Moderated 2026-10-17 after a Codex second opinion."
 consequences = []
 decided_by = "user"
 decided_on = "2026-10-17"

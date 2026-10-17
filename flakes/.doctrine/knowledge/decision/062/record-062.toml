@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context      = ""
-choice = '~/dev/doctrine mkJail helper sets gateway = jailLib.gatewayClient "pi" by default (pi, claude, codex, shell). _templates/agents does the same, with a comment on opting out where no gateway runs; its stale --setenv comment and OPENROUTER_API_KEY forward go. agents itself stays off by default.'
+choice = '~/dev/doctrine mkJail helper sets gateway = jailLib.gatewayClient "pi" by default (pi, claude, codex, shell); jailed-dirge is deleted and dirge dropped from every subagent list, as in emacs. _templates/agents does the same for pi, pi-research, claude and codex, with a comment on opting out (gateway = null) where no gateway runs; jailed-opencode and jailed-gemini are dropped; its stale --setenv comment and OPENROUTER_API_KEY forward go. agents itself stays off by default. (Extended 2026-10-17 in drafting: dirge, opencode and gemini need provider keys or a separate sign-in the gateway does not give them; user chose deletion.)'
 alternatives = ["Gateway on jailed-pi only (nested pi in claude/codex/shell unauthenticated)"]
 rationale = "Same rule as emacs; codex signs in by OAuth and loses nothing."
 consequences = []

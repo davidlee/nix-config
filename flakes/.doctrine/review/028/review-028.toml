@@ -1,0 +1,188 @@
+id    = 28
+slug  = "design-review-of-sl-013"
+title = "design review of SL-013"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Adversarial lane: Codex gpt-6-sol, read-only, two rounds. Examined design.md sec-1..sec-7 against the code it changes (agents/jailed-agents.nix, test, gateway records, template, emacs and doctrine flakes), jail.nix add-runtime, notes.md, EVD-003/EVD-004 and the pi models.json memory; DEC-058..063 out of bounds. 5 findings (2 major, 2 minor, 1 nit), all fix-now and verified. Confirmed sound: bind ordering after persist-home, ~ expansion in raw args, subagentNames wiring, stored-key cleanup list."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-013"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "First-mount seed follows jail-planted symlinks on the host"
+detail = """
+Reviewer: Codex gpt-6-sol (read-only), adversarial lane. Section sec-3.
+Claim: the first-mount seed lets a jail-controlled path trigger a host-side write. The -e check and the redirection follow symlinks, and there is a race between check and open.
+Evidence: design.md:246-250 seeds with [ -e "$f" ] || ... > "$f"; jail.nix add-runtime runs on the host before bwrap (lib/combinators/add-runtime.nix:5).
+Failure scenario: a jail replaces models.json in the persisted home with a dangling symlink to a host file it cannot otherwise write; the next launch follows the link and creates or truncates that host file.
+Suggested repair: refuse symlinks and validate path components, or move the initialisation out of the launcher.
+"""
+disposition = "fix-now"
+route = "review"
+response = """
+Confirmed by reproduction: the seed line as written, run against a dangling symlink at models.json, created the symlink target on the host. With noclobber (set -C) the write is refused, but a symlinked parent directory would still let the jail choose where a new file lands. User chose (2026-10-17) to drop the seed rather than harden it: no host-side write on a jail-writable path remains. sec-3 First mount now explains why there is no seed. The one home lacking the file today, agent-research, gets a tracked {"providers":{}} models.json in the home repo (user, 2026-10-17: just commit the file, it has no secrets); sec-5 step 4 and its files table, sec-6 (seed test and no-seed expectations removed), sec-7 (profileHomes map and seed dropped from jailed-agents.nix; new tracked file listed) and slice scope item 5 updated. A later new home shows only pi's cosmetic empty-file warning in non-gateway jails. Route review: the remaining question is accepting that commitment, settled in prose.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = """
+Confirmed by reproduction: the seed line as written, run against a dangling symlink at models.json, created the symlink target on the host. With noclobber (set -C) the write is refused, but a symlinked parent directory would still let the jail choose where a new file lands. User chose (2026-10-17) to drop the seed rather than harden it: no host-side write on a jail-writable path remains. sec-3 First mount now explains why there is no seed. The one home lacking the file today, agent-research, gets a tracked {"providers":{}} models.json in the home repo (user, 2026-10-17: just commit the file, it has no secrets); sec-5 step 4 and its files table, sec-6 (seed test and no-seed expectations removed), sec-7 (profileHomes map and seed dropped from jailed-agents.nix; new tracked file listed) and slice scope item 5 updated. A later new home shows only pi's cosmetic empty-file warning in non-gateway jails. Route review: the remaining question is accepting that commitment, settled in prose.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex gpt-6-sol verify round (2026-10-17): VERIFY against revised design.md and cited README/justfile lines."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "One-list invariant overclaimed across root and locked agents"
+detail = """
+Reviewer: Codex gpt-6-sol (read-only), adversarial lane. Section sec-2.
+Claim: the one-list invariant does not hold across the root and a locked agents input; the design acknowledges they can differ but provides no check before activation.
+Evidence: design.md:120-125 describes the relative import and the input import; design.md:132 says the served and pi model sets cannot drift. The service reads its models at features/agents/gateway.nix:125.
+Failure scenario: a root change adds a served model while a consumer's inputs.agents stays locked to the earlier revision; the service offers a model absent from that jail's pi catalogue.
+Suggested repair: require a lock or model-set equality check at cutover; qualify the invariant as holding for matching revisions.
+"""
+disposition = "fix-now"
+route = "review"
+response = """
+Observation partly right: sec-2 said the two model sets cannot drift without qualification. Prescription not taken: the root always reads agents from its own tree (justfile tree override), out-of-tree drift until re-lock was already stated in sec-2 with the existing re-lock rule, and a mismatch fails safe because the gateway checks every request against the key's own model list. An equality check would be machinery the impact does not justify. Repair in prose: the invariant now holds within one revision of agents, and the lag window and its fail-safe are stated. Route review.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = """
+Observation partly right: sec-2 said the two model sets cannot drift without qualification. Prescription not taken: the root always reads agents from its own tree (justfile tree override), out-of-tree drift until re-lock was already stated in sec-2 with the existing re-lock rule, and a mismatch fails safe because the gateway checks every request against the key's own model list. An equality check would be machinery the impact does not justify. Repair in prose: the invariant now holds within one revision of agents, and the lag window and its fail-safe are stated. Route review.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex gpt-6-sol verify round (2026-10-17): VERIFY against revised design.md and cited README/justfile lines."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "pi key recovery omits consumer update and order"
+detail = """
+Reviewer: Codex gpt-6-sol (read-only), adversarial lane. Section sec-5.
+Claim: the stated recovery for a lost or leaked pi key is incomplete: issuing a new alias also requires updating every consumer's key path and rebuilding or reloading its launcher.
+Evidence: design.md:427-430 says recovery is issuing a new alias and revoking the old one; design.md:101-103 makes the client name part of keyFile; the gateway CLI refuses to overwrite an existing --out file (features/agents/gateway/llm-gateway:269).
+Failure scenario: pi is revoked and a new alias issued, but an Emacs or doctrine launcher still reads keys/pi and cannot start.
+Suggested repair: specify the consumer update and activation order before revoking the old alias.
+"""
+disposition = "fix-now"
+response = """
+Failure scenario does not hold: README section LLM gateway, Rotation, writes the new alias's key into the same keys/<client> file (move the old aside, issue with --out, revoke), so no consumer key path changes. The root cause is real: sec-2's comment said the client name is the ledger alias, which invites the reading. Repaired: sec-2 comment now says the file keeps the client name while a rotation re-issues the key under a new alias into it; sec-5 recovery spells out the rotation steps and that consumers pick the key up at next launch.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Failure scenario does not hold: README section LLM gateway, Rotation, writes the new alias's key into the same keys/<client> file (move the old aside, issue with --out, revoke), so no consumer key path changes. The root cause is real: sec-2's comment said the client name is the ledger alias, which invites the reading. Repaired: sec-2 comment now says the file keeps the client name while a rotation re-issues the key under a new alias into it; sec-5 recovery spells out the rotation steps and that consumers pick the key up at next launch.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex gpt-6-sol verify round (2026-10-17): VERIFY against revised design.md and cited README/justfile lines."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "No live check for jailed-pi-research"
+detail = """
+Reviewer: Codex gpt-6-sol (read-only), adversarial lane. Section sec-6.
+Claim: the live checks do not exercise jailed-pi-research, whose home has no configured default or stored credential; the VT case checks only launcher text and the seed path, not model selection or a request.
+Evidence: design.md:449 (research bind case); VH at design.md:484-496 covers only jailed-pi and nested pi; notes.md:75-76 records that pi-research relies on the bound models.json alone.
+Failure scenario: main pi succeeds, research pi starts with no selectable model; every stated VH check still passes.
+Suggested repair: add a live research-home request recording its selected model and gateway spend.
+"""
+disposition = "fix-now"
+response = """
+Correct. sec-6 VH gains check 4: jailed-pi-research, whose home has no settings or stored credential, completes a request, its selected model is recorded, and the pi alias spend rises. Later checks renumbered; the 1.3.0 re-run covers VH 1-4.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Correct. sec-6 VH gains check 4: jailed-pi-research, whose home has no settings or stored credential, completes a request, its selected model is recorded, and the pi alias spend rises. Later checks renumbered; the 1.3.0 re-run covers VH 1-4.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Codex gpt-6-sol verify round (2026-10-17): VERIFY against revised design.md and cited README/justfile lines."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "sec-7 'same directory' now points at the research home"
+detail = "Reviewer: Codex gpt-6-sol, verify round. sec-7 outside-repo table: the new agent-research row was inserted above the key-removal row, whose 'same directory' then resolves to home/agent-research instead of the shared home/agent (sec-5). An implementer could look for the stored keys in the wrong home. Suggested repair: spell out home/agent/.pi/agent/ in that row."
+disposition = "fix-now"
+response = "Applied the suggested repair: the key-removal row now names ~/.local/share/jail.nix/home/agent/.pi/agent/ explicitly."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Applied the suggested repair: the key-removal row now names ~/.local/share/jail.nix/home/agent/.pi/agent/ explicitly."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Repair is the reviewer's suggested text verbatim; checked by reading sec-7."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

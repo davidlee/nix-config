@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 3
+slug = "pi-litellm-deepseek-compat"
+title = "pi through LiteLLM needs the model's compat block; pi's built-in DeepSeek compat works unchanged"
+record_kind = "evidence"
+status = "captured"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+datum = "2026-10-17, pi 0.99.1 unjailed, throwaway PI_CODING_AGENT_DIR, PI_OFFLINE=1, via the local LiteLLM gateway (litellm 1.102.1, deepseek/deepseek-flash) on a custom provider llm-gateway (api openai-completions). Without compat: --thinking off is ignored (47 reasoning tokens); levels minimal..max accepted with no visible effect; a two-step bash tool exchange works. With pi's built-in deepseek-flash compat (thinkingFormat deepseek, requiresReasoningContentOnAssistantMessages, supportsDeveloperRole false, maxTokensField max_tokens, supportsStore false, supportsStrictMode) and thinkingLevelMap: off gives 0 reasoning tokens, minimal..max accepted, the tool exchange works. Custom-provider models take compat only from their own models.json entry (pi 1.3.0 provider-composer.js modelFromJson). One model, one run per case; re-check on pi 1.3.0."
+provenance = "experiment"
+confidence = "medium"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "supports"
+target = "DEC-063"
