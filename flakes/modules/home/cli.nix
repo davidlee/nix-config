@@ -49,5 +49,8 @@
 
       ## security
       gnupg
+
+      ## nix
+      nix-output-monitor # $ nom: switch and build progress (SL-012)
     ];
 }

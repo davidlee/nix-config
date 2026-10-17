@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+# Behaviour tests for bin/will-build. No evaluation and no store: nix is
+# stubbed onto PATH. `nix build` replays a stderr fixture in the shape Lix
+# 2.95.3 prints for --dry-run; `nix derivation show` answers with the JSON
+# shape of the real command, one entry per drv argument, whose preferLocalBuild
+# encoding comes from a table (plain drv: env.preferLocalBuild "1";
+# structured attrs: env.__json holds it). Each case asserts stdout, stderr,
+# the exit code and the nix calls.
+#
+#   bin/will-build-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/will-build
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+stubs=$work/bin
+mkdir -p "$stubs"
+export WILL_BUILD_TEST_DIR=$work
+export PATH=$stubs:$PATH
+
+# ------------------------------------------------------------------ stubs
+
+# build: logs argv, replays $dir/stderr, exits with $dir/code (default 0).
+# derivation: logs argv; props lines are `<name> plain|json|none`.
+cat >"$stubs/nix" <<'EOF'
+#!/usr/bin/env bash
+dir=$WILL_BUILD_TEST_DIR
+sub=$1
+{ printf '%s' "$sub"; shift; printf ' %s' "$@"; echo; } >>"$dir/nix.log"
+case $sub in
+  build)
+    cat "$dir/stderr" >&2
+    exit "$(cat "$dir/code" 2>/dev/null || echo 0)"
+    ;;
+  derivation)
+    shift # show
+    for drv in "$@"; do
+      name=${drv##*/}
+      name=${name:33}
+      name=${name%.drv}
+      kind=$(awk -v n="$name" '$1 == n { print $2 }' "$dir/props")
+      jq -n --arg drv "$drv" --arg kind "${kind:-none}" '
+        { ($drv): { env:
+          (if $kind == "plain" then { out: "x", preferLocalBuild: "1" }
+           elif $kind == "json" then { out: "x", __json: ({ preferLocalBuild: true } | tojson) }
+           elif $kind == "jsonfalse" then { out: "x", __json: ({ preferLocalBuild: false } | tojson) }
+           else { out: "x" } end) } }'
+    done | jq -s add
+    ;;
+esac
+EOF
+chmod +x "$stubs/nix"
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# drvs <name>… — the store-path lines of a block, as nix prints them
+drvs() {
+  local n
+  for n in "$@"; do printf '  /nix/store/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-%s.drv\n' "$n"; done
+}
+
+# paths <name>… — the fetched paths of a block
+paths() {
+  local n
+  for n in "$@"; do printf '  /nix/store/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-%s\n' "$n"; done
+}
+
+# fixture <code>; stdin is the stderr nix prints; $1.. props via $props
+fixture() {
+  cat >"$work/stderr"
+  printf '%s\n' "${props-}" >"$work/props"
+  printf '%s' "$1" >"$work/code"
+}
+
+# run <args…> — a fresh run; leaves $out, $err and $rc
+run() {
+  : >"$work/nix.log"
+  rc=0
+  out=$("$script" "$@" 2>"$work/err") || rc=$?
+  err=$(<"$work/err")
+}
+
+calls() { grep -c "^$1" "$work/nix.log" || true; }
+
+# ------------------------------------------------------------------ cases
+
+props=
+{
+  echo "fetching path input 'path:/nix/store/cccccccccccccccccccccccccccccccc-source'"
+  echo 'these 5 derivations will be built:'
+  drvs hello-2.12.3 etc unit-foo.service ripgrep-14.1 home-manager-files
+  echo 'these 2 paths will be fetched (1.13 MiB download, 2.00 MiB unpacked):'
+  paths hello-2.12.3.tar.gz bar-1
+} | fixture 0
+run '.#x'
+check 'mixed: real builds listed, config grouped, fetches counted' \
+  'will build locally (2):
+  hello-2.12.3
+  ripgrep-14.1
+config (3): etc unit-foo.service home-manager-files
+will fetch: 2 paths' "$out"
+check 'mixed: exit 0' 0 "$rc"
+check 'mixed: nix is asked for the dry run, and once about the derivations' \
+  "1 1" "$(calls 'build --dry-run --no-link') $(calls derivation)"
+
+# preferLocalBuild in both encodings (RV-025 F-8); false does not count
+props='writeText-thing json
+runlocal-thing plain
+keep-me jsonfalse
+keep-me-too none'
+{
+  echo 'these 4 derivations will be built:'
+  drvs writeText-thing runlocal-thing keep-me keep-me-too
+} | fixture 0
+run '.#x'
+check 'preferLocalBuild: plain "1" and structured-attrs true are config; false is not' \
+  'will build locally (2):
+  keep-me
+  keep-me-too
+config (2): writeText-thing runlocal-thing
+will fetch: 0 paths' "$out"
+
+# singular headers
+props=
+{
+  echo 'this derivation will be built:'
+  drvs hello-2.12.3
+  echo 'this path will be fetched (1.13 MiB download, 1.13 MiB unpacked):'
+  paths hello-2.12.3.tar.gz
+} | fixture 0
+run '.#x'
+check 'singular headers' \
+  'will build locally (1):
+  hello-2.12.3
+config (0):
+will fetch: 1 paths' "$out"
+
+# nothing to build
+: | fixture 0
+run '.#x'
+check 'nothing to build: the shape is stable, with zero counts' \
+  'will build locally (0):
+config (0):
+will fetch: 0 paths' "$out"
+check 'nothing to build: derivation show is not called' 0 "$(calls derivation)"
+
+# arguments pass through verbatim; one derivation show for all drvs (D6)
+{
+  echo 'these 2 derivations will be built:'
+  drvs one two
+} | fixture 0
+run '.#homeConfigurations."david@Draupnir".activationPackage' --override-input a path:/x 'a b'
+check 'args: verbatim after --dry-run --no-link' \
+  'build --dry-run --no-link .#homeConfigurations."david@Draupnir".activationPackage --override-input a path:/x a b' \
+  "$(grep '^build' "$work/nix.log")"
+check 'args: one derivation show, with every drv' \
+  "1 2" "$(calls derivation) $(grep '^derivation' "$work/nix.log" | grep -o '\.drv' | wc -l | tr -d ' ')"
+
+# noise goes to stderr, uncounted
+{
+  echo "warning: Git tree is dirty"
+  echo 'this derivation will be built:'
+  drvs one
+  echo "trace: something"
+} | fixture 0
+run '.#x'
+check 'noise: on stderr' "warning: Git tree is dirty
+trace: something" "$err"
+check 'noise: not on stdout, not counted' 'will build locally (1):
+  one
+config (0):
+will fetch: 0 paths' "$out"
+
+# nix fails
+echo 'error: attribute missing' | fixture 1
+run '.#x'
+check 'nix fails: its exit code' 1 "$rc"
+check 'nix fails: its error reaches stderr' 'error: attribute missing' "$err"
+check 'nix fails: nothing on stdout' '' "$out"
+
+# nothing dropped (D4)
+{
+  echo 'these 3 derivations will be built:'
+  drvs one two
+} | fixture 0
+run '.#x'
+check 'self-check: header count disagrees with the items: non-zero' 1 "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
+check 'self-check: says so' 1 "$(printf '%s\n' "$err" | grep -c 'will-build:' || true)"
+
+# a built header the parser did not consume is an error too
+{
+  echo 'these many derivations will be built:'
+  drvs one
+} | fixture 0
+run '.#x'
+check 'unrecognised built header: non-zero' 1 "$([ "$rc" -ne 0 ] && echo 1 || echo 0)"
+
+exit $failed

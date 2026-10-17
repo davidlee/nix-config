@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# What would this build do? Dry-runs `nix build` and groups the derivations
+# it would build (design SL-012 sec-5, DEC-057).
+#
+#   bin/will-build <installable and nix flags…>      (all passed to nix verbatim)
+#
+#   will build locally (N):        derivations worth a look, one per line
+#     <name>
+#   config (M): <name> <name> …    generated config: seconds to build, not news
+#   will fetch: K paths
+#
+# Config is a name from the list below, or a derivation that sets
+# preferLocalBuild (plain: env.preferLocalBuild "1"; structured attrs: it is
+# inside env.__json). N + M must equal the count nix announces: nothing is
+# dropped. Other nix output (warnings, trace) goes to stderr unchanged.
+#
+# Exit: nix's own status when it fails; 1 when the counts disagree or a
+# "will be built" header was not understood.
+#
+# bash 3.2-safe: it runs on the Mac.
+
+set -euo pipefail
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+# Fail with nix's status, its stderr passed through.
+rc=0
+nix build --dry-run --no-link "$@" 2>"$work/raw" || rc=$?
+if [ "$rc" -ne 0 ]; then
+  cat "$work/raw" >&2
+  exit "$rc"
+fi
+
+# Blocks: a header line, then items indented two spaces. Writes the drv paths
+# to $work/drvs, "<announced> <fetched> <bad headers>" to $work/meta.
+awk -v dir="$work" '
+  /^these [0-9]+ derivations will be built:$/ { mode = "b"; want = $2; next }
+  /^this derivation will be built:$/          { mode = "b"; want = 1; next }
+  /^these [0-9]+ paths will be fetched/       { mode = "f"; next }
+  /^this path will be fetched/                { mode = "f"; next }
+  /^  / && mode != "" {
+    if (mode == "b") print $1 > (dir "/drvs"); else fetched++
+    next
+  }
+  { mode = ""; print > "/dev/stderr" }
+  /will be built:$/ { bad++ }
+  END { print want + 0, fetched + 0, bad + 0 > (dir "/meta") }
+' "$work/raw"
+touch "$work/drvs"
+read -r announced fetched bad <"$work/meta"
+
+# One line per drv: <path> <true|false>, true when it sets preferLocalBuild.
+prefer='(.env.preferLocalBuild == "1") or ((.env.__json // "{}" | fromjson).preferLocalBuild == true)'
+if [ -s "$work/drvs" ]; then
+  # shellcheck disable=SC2046 # one word per drv path
+  nix derivation show $(cat "$work/drvs") 2>/dev/null |
+    jq -r "to_entries[] | \"\(.key) \(.value | $prefer)\"" >"$work/listed"
+else
+  : >"$work/listed"
+fi
+
+local_n=0 config_n=0 local_lines="" config_names=""
+while read -r path prefer_local; do
+  name=${path##*/}
+  name=${name:33}
+  name=${name%.drv}
+  case $name in
+    # generated config: seconds to build
+    etc | etc-* | activate | unit-* | *-units | system-path | \
+      nixos-system-* | darwin-system-* | home-manager-generation | \
+      home-manager-files | hm_* | *.json | *.conf | man-paths | user-environment)
+      prefer_local=true ;;
+  esac
+  if [ "$prefer_local" = true ]; then
+    config_n=$((config_n + 1))
+    config_names="$config_names $name"
+  else
+    local_n=$((local_n + 1))
+    local_lines="$local_lines
+  $name"
+  fi
+done <"$work/listed"
+
+if [ "$bad" -ne 0 ] || [ $((local_n + config_n)) -ne "$announced" ]; then
+  echo "will-build: nix announced $announced derivations; listed $((local_n + config_n)), $bad unrecognised header(s)" >&2
+  exit 1
+fi
+
+printf 'will build locally (%s):%s\n' "$local_n" "$local_lines"
+printf 'config (%s):%s\n' "$config_n" "$config_names"
+printf 'will fetch: %s paths\n' "$fetched"

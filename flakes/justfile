@@ -63,6 +63,7 @@ test:
   bin/dev-checkouts-test
   workarounds/check-test
   workarounds/last-good-test
+  bin/will-build-test
   features/session/snooze-nag-test
   features/audio/dictate-test
   features/audio/say-test
@@ -91,10 +92,10 @@ system-build: check-flake-root
   sudo ./run.sh build {{host}} {{local_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  home-manager switch --flake '{{flake}}#david@{{host}}' {{local_override}}
+  set -o pipefail; home-manager switch --flake '{{flake}}#david@{{host}}' {{local_override}} --log-format internal-json -v 2>&1 | nom --json
 
 home-build: check-flake-root #check-no-root-pub
-  home-manager build --flake '{{flake}}#david@{{host}}' {{local_override}}
+  set -o pipefail; home-manager build --flake '{{flake}}#david@{{host}}' {{local_override}} --log-format internal-json -v 2>&1 | nom --json
 
 doctor:
   sleipnir-doctor
@@ -191,10 +192,29 @@ update: update-system update-home
 update-system:
   nix flake update nixpkgs
   -WORKAROUNDS_FLAKE='{{flake}}' workarounds/check nixpkgs
+  -just host='{{host}}' will-build system
 
 update-home:
   nix flake update nixpkgs-home home-manager neovim-nightly-overlay
   -WORKAROUNDS_FLAKE='{{flake}}' workarounds/check nixpkgs-home
+  -just host='{{host}}' will-build home
+
+# what a switch would build, grouped: real builds, then generated config
+# (DEC-057, SL-012 design sec-5). which: system | home | all
+will-build which="all":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  case '{{which}}' in system | home | all) ;; *) echo "will-build: which is system, home or all" >&2; exit 2 ;; esac
+  if [ '{{which}}' != home ]; then
+    if [ '{{os()}}' = macos ]; then sys='{{flake}}#darwinConfigurations.{{host}}.system'
+    else sys='{{flake}}#nixosConfigurations.{{host}}.config.system.build.toplevel'; fi
+    echo "== system ({{host}})"
+    bin/will-build "$sys" {{local_override}} --no-write-lock-file
+  fi
+  if [ '{{which}}' != system ]; then
+    echo "== home ({{host}})"
+    bin/will-build '{{flake}}#homeConfigurations."david@{{host}}".activationPackage' {{local_override}} --no-write-lock-file
+  fi
 
 # transient-breakage probes (workarounds/default.nix): exit 1 on a removal candidate
 workarounds-check pin="":

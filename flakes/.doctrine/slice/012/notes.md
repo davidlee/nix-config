@@ -181,3 +181,70 @@ called); in `last-good`: plain `flakes/flake.lock` pathspec (cwd case),
 input name (decoy, clean, dirty cases), case-sensitive owner (clean,
 dirty), ignore the dirty test (dirty case); in the test: `~/.cfg` symlink
 pointing elsewhere (default-repo case).
+
+## PHASE-04 (2026-10-17, worker)
+
+will-build and nom: `bin/will-build` + `bin/will-build-test` (new,
+executable; test wired into `just test` after `workarounds/last-good-test`),
+`justfile` (`will-build which="all"` recipe; `-just host='{{host}}' will-build
+system|home` as the last line of `update-system` / `update-home`;
+`home-switch` / `home-build` through `set -o pipefail; … --log-format
+internal-json -v 2>&1 | nom --json`), `modules/home/cli.nix`
+(`nix-output-monitor`, new `## nix` group), `run.sh` (`set -o pipefail`;
+`"$cmd" "$@"`, orchestrator OQ-2: shellcheck was failing before the phase).
+
+Parser: awk over nix's stderr (header → drv items; other lines pass to stderr;
+unconsumed `will be built:` line = error), one `nix derivation show` for all
+drvs, jq for preferLocalBuild (both encodings), a `case` list of config names.
+Self-check: N + M must equal the announced count, else exit 1 (D4).
+
+### For /reconcile
+- Design sec-6 tests bullet says the pipefail check runs through
+  `|& nom --json`; sec-5, EX-3 and RV-025 F-8 say `2>&1 |`. Followed `2>&1 |`
+  (the recipe lines run under `sh`; `|&` is not bash 3.2-safe). run.sh keeps `|&`.
+- EX-2 "chosen by os() like the switch recipes" vs design sec-5 "chosen like
+  run.sh": neither dispatches on os(); the `will-build` recipe uses `os()`,
+  as the `flake` variable does.
+- preferLocalBuild has two encodings (plain `env.preferLocalBuild == "1"`;
+  structured attrs: inside `env.__json`); the design names neither.
+- `coverage.home@aarch64-linux` moves in P4 (orchestrator OQ-1: accepted), as
+  do the three home lines of `drvs` including the `homeConfigurations.david`
+  alias; design sec-6's table names two homes. Home base alone gains nom.
+- Nested `just host=… will-build` in update-* (OQ-3: accepted deviation from
+  the plan text).
+- mem.fact.flakes.nom-darwin-sh is now stale: Draupnir gets nom; run.sh's
+  pipefail hole is closed.
+- DEC-053 still says `overlays/`.
+
+### VA-1 (pipefail, scratch justfile)
+`set -o pipefail; false 2>&1 | nom --json` → exit 1; same without pipefail → 0.
+
+### VA-2 (home packages gain exactly nix-output-monitor)
+`drvs`: only `homeConfigurations.david`, `david@Sleipnir`, `david@Draupnir`
+move (nixos, darwin, packages, templates identical). `drvs-sets`: the three
+home lines 343→344 / 261→262. Proof of membership: the after list filtered of
+`nix-output-monitor-2.2.0` has count+hash identical to the before snapshot,
+for both Sleipnir (343 eb7b83ab…) and Draupnir (261 4446a759…).
+`coverage`: only `coverage.home@aarch64-linux` moves (inferred same cause:
+home base; not separately membership-proved); all `Sleipnir+*` and
+`base@aarch64-linux` identical; isolation ok. `~/dev` and `/srv/fleet` HEADs
+unchanged across the phase.
+
+### Live
+`just will-build` (Sleipnir): system `will build locally (0)`, config (4);
+home `(0)`, config (12), fetch 0. `just host=Draupnir will-build home`:
+evaluates; 254 local, 493 config, 1613 fetched (cold darwin from Linux; says
+nothing about the Mac's cache). `just will-build bogus` → exit 2. Lix prints
+`Updated input` lock-diff notes on stderr under `--no-write-lock-file`; they
+pass through. `home-build` not run. VH-1 pending (user: `just home-switch`
+shows nom, a failing build exits non-zero; Draupnir later).
+
+### Gate
+`just test` green (141 ok); `just gate` green; `nix fmt --no-write-lock-file --
+--no-cache` 0 changed; shellcheck clean on run.sh, bin/will-build, test;
+`flake.lock` / `emacs/flake.lock` unchanged.
+
+### Mutation checks (each red, then restored; failing-check counts)
+drop `__json` branch 1; drop `"1"` branch 1; drop `unit-*` 1; drop
+`home-manager-files` 1; `derivation show` per drv 2; drop D4 self-check 3;
+swallow nix's exit 1; noise to stdout 3; drop the unrecognised-header check 1.
