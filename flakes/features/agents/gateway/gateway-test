@@ -793,10 +793,10 @@ class PriceMapTest(unittest.TestCase):
                 )
 
     def test_the_served_set(self):
-        """16 OpenRouter models named as their LiteLLM ids (DEC-069), one
+        """15 OpenRouter models named as their LiteLLM ids (DEC-069), one
         Fireworks, and deepseek-flash with only its model and key."""
         openrouter = served_by(PRODUCTION_CONFIG, "OPENROUTER_API_KEY")
-        self.assertEqual(len(openrouter), 16)
+        self.assertEqual(len(openrouter), 15)
         for entry in openrouter:
             self.assertEqual(entry["model_name"], entry["litellm_params"]["model"])
         self.assertEqual(

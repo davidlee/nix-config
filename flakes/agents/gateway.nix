@@ -65,7 +65,6 @@ rec {
       };
     }
     // routed [
-      "deepseek/deepseek-flash"
       "~deepseek/deepseek-flash-latest"
       "~deepseek/deepseek-pro-latest"
       "deepseek/deepseek-v4.1-flash"

@@ -37,3 +37,9 @@ fresh-as-of: 2026-10-17 · ready (plan done, 0/5 phases) · f433c05b
 - slice A2 — BYOK route reports cost: PHASE-05 VH-1
 - plan.md Notes — no system-switch between PHASE-02 and PHASE-05 rollout
 - reconcile: DEC-063, DEC-051, DEC-050 amendments; IMP-029 resolution (design sec-8 "Records at reconcile")
+
+## PHASE-05 live (2026-10-18)
+- Rollout in sec-7 order: `just system-build`, `./result/sw/bin/llm-gateway credentials openrouter fireworks`, `just system-switch` (user ran). Unit active with 3 providers, 18 models.
+- VH-1: v4-flash, fireworks nemotron, openrouter/auto → 200. `openrouter/deepseek/deepseek-flash` → 400 "not a valid model ID"; not on OpenRouter's public list (other 15 ids are). Dropped from `agents/gateway.nix`; sec-2/sec-6 amended (run rev 39-40; acceptance invalidated, user re-accepts). A2 void: no BYOK route served.
+- gptel's OpenRouter list (`dl-gptel.el:121`) carries the same bad id — emacs:SL-015.
+- VH-1 spend: `llm-gateway list` shows 0.0000 for the probe, but tiny requests cost ~1e-6 USD and no DEC-068 zero-cost warning was logged. Needs a larger probe to show non-zero at 4 dp.

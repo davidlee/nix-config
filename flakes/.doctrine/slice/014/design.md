@@ -64,7 +64,7 @@ The OpenRouter ids are gptel's list (`~/.config/emacs/apps/dl-gptel.el:121-139`)
 with `qwen/qwen3.8-flash` corrected (DEC-072), plus minuet's model:
 
 ```
-deepseek/deepseek-flash          ~deepseek/deepseek-flash-latest   ~deepseek/deepseek-pro-latest
+~deepseek/deepseek-flash-latest  ~deepseek/deepseek-pro-latest
 deepseek/deepseek-v4.1-flash     deepseek/deepseek-v4-flash
 openrouter/auto                  openrouter/free                   openrouter/pareto-code
 qwen/qwen3.8-flash               z-ai/glm-5.3-flash                ~z-ai/glm-flash-latest
@@ -72,7 +72,11 @@ qwen/qwen3.8-flash               z-ai/glm-5.3-flash                ~z-ai/glm-fla
 xiaomi/mimo-v2.6-pro             xiaomi/mimo-v2.6-flash
 ```
 
-That makes 16 OpenRouter models, 1 Fireworks model and 1 DeepSeek model.
+gptel's `deepseek/deepseek-flash` is not an OpenRouter id (the live
+check got 400 "not a valid model ID"), so it is not served; DeepSeek Flash
+is served directly as `deepseek-flash`.
+
+That makes 15 OpenRouter models, 1 Fireworks model and 1 DeepSeek model.
 `openrouter/auto` becomes the gateway name `openrouter/openrouter/auto`.
 That reads oddly, but it follows the rule.
 
@@ -250,10 +254,10 @@ served model is then: edit `agents/gateway.nix`, `system-switch`, then
 
 ### VH: live, after rollout
 
-- `llm-gateway issue sl014-probe --models openrouter/deepseek/deepseek-v4-flash,openrouter/deepseek/deepseek-flash,fireworks/nemotron-lightning-3p5-30b-a3b,openrouter/openrouter/auto --budget 1`.
+- `llm-gateway issue sl014-probe --models openrouter/deepseek/deepseek-v4-flash,fireworks/nemotron-lightning-3p5-30b-a3b,openrouter/openrouter/auto --budget 1`.
   Then one request each with curl, and `llm-gateway list` shows non-zero
-  spend after each. For `openrouter/deepseek/deepseek-flash` this confirms
-  the BYOK route reports a cost (A2). Then `revoke sl014-probe`.
+  spend after each. No bring-your-own-key
+  route is served, so A2 is void. Then `revoke sl014-probe`.
 - minuet's body (`provider`, `reasoning_effort: "none"`, `max_tokens: 56`,
   `top_p`) gets a 200 on `openrouter/deepseek/deepseek-v4-flash`.
 - `llm-gateway models eca deepseek-flash` succeeds, and eca still works.
