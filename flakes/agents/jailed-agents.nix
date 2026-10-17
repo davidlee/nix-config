@@ -56,7 +56,21 @@
 }: let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) system;
-  jail = jail-nix.lib.init pkgs;
+  # Every jail's bwrap starts with an EMPTY environment. `--clearenv`
+  # empties only the child's: bwrap's own environ is whatever it was
+  # exec'd with — the launching session's, keys included — and bwrap runs
+  # as PID 1 in the jail's pid namespace, same uid, so the agent can read
+  # it at /proc/1/environ. Emptying it is safe because the launcher has
+  # already expanded every value bwrap needs into argv or an `--args`
+  # descriptor (inherited across both execs). bwrap itself reads only
+  # HOME, and only without `--chdir`, which every jail passes.
+  bwrapEmptyEnv = pkgs.writeShellScriptBin "bwrap" ''
+    exec ${pkgs.coreutils}/bin/env -i ${lib.getExe pkgs.bubblewrap} "$@"
+  '';
+  jail = jail-nix.lib.extend {
+    inherit pkgs;
+    bubblewrapPackage = bwrapEmptyEnv;
+  };
 
   inherit (llm-agents.packages.${system}) pi;
   inherit (llm-agents.packages.${system}) crush;

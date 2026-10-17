@@ -236,8 +236,8 @@ $ jailed-claude   # or jailed-codex, jailed-gemini, jailed-pi, etc.
 
 ### Environment variables
 
-bwrap starts with a clean environment — host env vars do **not** pass through
-automatically. Use `combinators` via `extraOptions` to forward them:
+The jail starts with a clean environment — host env vars do **not** pass
+through automatically. Use `combinators` via `extraOptions` to forward them:
 
 | Combinator | Effect |
 |---|---|
@@ -247,6 +247,25 @@ automatically. Use `combinators` via `extraOptions` to forward them:
 
 All combinators are available at `agents.combinators` (re-exported from
 jail.nix). See the usage example above.
+
+**bwrap itself starts with an empty environment**, in every jail. bwrap's
+`--clearenv` empties only the agent's environment, not bwrap's own, and bwrap
+runs as PID 1 in the jail's pid namespace under the same uid: the agent can
+read `/proc/1/environ`. Exec'd with the launching session's environment, bwrap
+would hand the agent every key in it. So jail.nix gets a `bwrap` that is
+`env -i <bubblewrap>/bin/bwrap "$@"` (`bwrapEmptyEnv` in
+`jailed-agents.nix`).
+
+```
+launcher (bash, session env) ── expands $VARS, ~, $(…), <(printf …) into argv / FDs
+   └─exec─> bwrapEmptyEnv ──exec env -i──> bwrap (environ empty)
+                                             └─> agent (--clearenv + --setenv …)
+```
+
+This is safe because the launcher has expanded every value before the exec:
+`set-env`/`fwd-env` values into argv, API and gateway keys into the
+`--args 21`/`--args 22` pipes, which survive the exec. bwrap reads only `HOME`
+from its own environment, and only without `--chdir`, which every jail passes.
 
 ### Secrets via 1Password (`useOpEnv`)
 
@@ -268,8 +287,9 @@ sandbox in `op run --env-file=<refs> -- <inner-jail>` by default. The flow:
    argv (`/proc/<pid>/cmdline` is world-readable). See `setenvsByArgsFd` in
    `jailed-agents.nix`.
 
-Result: secrets live only in the bwrap process env for the agent's
-lifetime — never on disk, never in the store, never in the host shell
+Result: secrets live only in process memory — `op run`'s environment and the
+agent's, both owner-only — for the agent's lifetime; never in bwrap's
+environment, never on disk, never in the store, never in the host shell
 history. The offline profile sets `useOpEnv = false` (no network, no
 need).
 

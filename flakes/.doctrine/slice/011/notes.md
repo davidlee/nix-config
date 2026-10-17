@@ -160,3 +160,20 @@ Audit observations (not fixed):
 - (b) `systemd-creds` warned "Credential secret file '/var/lib/systemd/credential.secret' is not located on encrypted media". The credential is still host+TPM2 bound; record for audit (host key on unencrypted media weakens the host half of the binding, not the TPM2 half).
 
 PHASE-05 left in_progress.
+
+## PHASE-05 (VH-4..7 live results; bwrap environ rework, 2026-10-17)
+
+VH results (human, live): VH-4, VH-5, VH-7 PASS. eca replied once the user fixed an https -> http typo in their `~/.config/eca/config.json`. Ledger: key `eca` revoked; `eca-2` spent 0.0051 on deepseek-flash.
+
+VH-6 FAIL (seat-verified live). In a running gateway-mode `jailed-eca`, the agent (`eca server`) has a clean env (LLM_GATEWAY_KEY, LLM_GATEWAY_URL only), but both bwrap processes — outer (host pid ns) and inner (PID 1 in the jail pid ns) — carried the launching session's full environment, provider *_API_KEY names included. `--clearenv` clears only the child's env, not bwrap's own. Inside the jail /proc/1 (bwrap) is dumpable, same uid/userns as the agent, CapPrm 0, NoNewPrivs 1; Yama ptrace_scope=1 does not block PTRACE_MODE_READ, so `/proc/1/environ` yields the session keys. Confirmed by nsenter (names only). Affects every jail, not only gateway mode.
+
+Ruling (user, via capsule-driver): fix for ALL jails — bwrap is exec'd with an empty environment, after the launcher has expanded everything it needs.
+
+Fix: `agents/jailed-agents.nix` builds `jail` with `jail-nix.lib.extend { inherit pkgs; bubblewrapPackage = bwrapEmptyEnv; }` (was `lib.init pkgs`); `bwrapEmptyEnv` is a `bwrap` script that `exec env -i <pkgs.bubblewrap>/bin/bwrap "$@"`. jail.nix (rev 404e7da) refers to bwrap only via `bubblewrapPackage`, so this is the whole seam; no upstream change. Ordering: `op run` -> inner launcher expands `--setenv` values, `--args 21` (provider keys) / `--args 22` (gateway key) process substitutions and the runtime-closure fd, then execs the seam; fds are not CLOEXEC and survive both execs. bubblewrap 0.11.2 reads only `getenv("HOME")` in the no-`--chdir` fallback; every jail passes `--chdir`. Side effect: session LD_*/glibc tunables no longer reach bwrap.
+Test: `jailed-agents-test.nix` swaps a fake bwrap in via `pkgs.extend` that dumps its own /proc/$$/environ, argv and fds 21/22; runs real generated launchers with planted fake keys; asserts empty bwrap environ, keys only on their fds, HOME in argv; plus a structural check that real launchers exec the `env -i` seam. Red before fix (`test -s bwrap-environ` held), green after. Limits: real bwrap not run (no userns in the sandbox); `op run` and the gateway outer wrapper not exercised. README § Environment variables documents the invariant.
+Worker: opus (security fix; env semantics across op run, a jail.nix launcher we don't own, and bwrap's own environ). agents check, `just test`, `just gate` green (orchestrator re-ran). `just drvs`: only homeConfigurations."david@Sleipnir"/`david` changed (jailed-eca x2, jailed-satan-gptel-harness, new bwrap seam, rollups).
+Live re-check for VH-6 (human): home-switch, relaunch jailed-eca, check /proc/1/environ names inside the jail; confirm jailed-pi (op run path) still works.
+
+Out-of-scope observation (for the seat): the emacs flake's `jailed-shell` (defined in ~/.config/emacs's flake, not this repo) exposes DEEPSEEK/GEMINI/JEV/MISTRAL/OPENAI/OPENROUTER/VOYAGE_API_KEY in the jail's own env — likely deliberate forwarding; raise with the human. Also note it builds its own jail and does not get this fix unless it uses `agents/`'s jail.
+
+PHASE-05 left in_progress.

@@ -104,6 +104,29 @@
     )
   );
 
+  # Real bwrap needs user namespaces, which the build sandbox lacks. This
+  # stand-in, under bwrap's own name and store slot, records what bwrap
+  # would start with: its initial environ (/proc/$$/environ, as bwrap's
+  # /proc/1/environ reads inside the jail), its argv, and the `--args`
+  # descriptors. No PATH: it must work from an empty environment.
+  fakeBwrap = pkgs.writeShellScriptBin "bwrap" ''
+    tr=${pkgs.coreutils}/bin/tr
+    "$tr" '\0' '\n' < /proc/$$/environ > bwrap-environ
+    printf '%s\n' "$@" > bwrap-argv
+    for fd in 21 22; do
+      if [ -e /dev/fd/$fd ]; then "$tr" '\0' '\n' < /dev/fd/$fd > bwrap-args-$fd; fi
+    done
+  '';
+  fakeBwrapAgents = mkAgents {
+    pkgs = pkgs.extend (_: _: {bubblewrap = fakeBwrap;});
+  };
+  probeKeys = fakeBwrapAgents.makeJailedPi {
+    apiKeys = ["OPENROUTER_API_KEY"];
+    useOpEnv = false;
+    passApiKeysFromEnv = true;
+  };
+  probeGateway = fakeBwrapAgents.makeJailedPi {gateway = gw;};
+
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;
   unknownApiKeyFails = failsToEvaluate (agents.makeJailedPi {
     apiKeys = ["NOT_CONFIGURED"];
@@ -179,6 +202,11 @@ in
           echo "refute: holds, expected not to: $*" >&2
           exit 1
         fi
+      }
+
+      # The inner launcher a gateway wrapper execs.
+      gateway_inner_of() {
+        sed -n 's|^exec \(/nix/store/[^ ]*-jailed-pi/bin/jailed-pi\) .*|\1|p' "$1"
       }
 
       spec=${specDev}/bin/jailed-zsh
@@ -271,9 +299,8 @@ in
       gw_outer=${gatewayJail}/bin/jailed-pi
       refute grep -Fq -- 'op run' "$gw_outer"
       refute grep -Fq -- '/run/wrappers/bin/op' "$gw_outer"
-      gw_inner_path="$(sed -n 's|^exec \(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$gw_outer")"
-      test -n "$gw_inner_path"
-      gw_inner="$gw_inner_path/bin/jailed-pi"
+      gw_inner="$(gateway_inner_of "$gw_outer")"
+      test -n "$gw_inner"
       grep -Fq -- '--args 22 22< <(printf' "$gw_inner"
       grep -Fq -- '--setenv LLM_GATEWAY_KEY "$(<' "$gw_inner"
       refute grep -Fq -- 'cat ' "$gw_inner"
@@ -303,6 +330,44 @@ in
       test -n "$read_key"
       eval "$read_key" > "$TMPDIR/gw-args"
       printf '%s\0' --setenv LLM_GATEWAY_KEY sk-test-SENTINEL | cmp -s - "$TMPDIR/gw-args"
+
+      # Behaviour: bwrap starts with an EMPTY environment. --clearenv empties
+      # only the child's; bwrap's own environ is what it was exec'd with, and
+      # bwrap is PID 1 in the jail, where /proc/1/environ is readable. The
+      # launch env carries a selected key and an unselected session key.
+      # Every value bwrap needs must already be expanded into its argv or a
+      # descriptor. Launch through the fake bwrap, in a scratch cwd.
+      probe_launch() {
+        mkdir -p "$TMPDIR/$1" "$TMPDIR/$1-home"
+        (cd "$TMPDIR/$1" && env -i HOME="$TMPDIR/$1-home" LANG=C.UTF-8 \
+          OPENROUTER_API_KEY=sk-fake-SENTINEL SESSION_FAKE_API_KEY=sk-fake-SESSION \
+          "$2")
+        test -e "$TMPDIR/$1/bwrap-environ"
+        refute test -s "$TMPDIR/$1/bwrap-environ"
+        refute grep -rFq -- 'sk-fake-SESSION' "$TMPDIR/$1"
+        grep -Fxq -- "$TMPDIR/$1-home" "$TMPDIR/$1/bwrap-argv"
+      }
+
+      probe_launch keys ${probeKeys}/bin/jailed-pi
+      grep -Fxq -- 'OPENROUTER_API_KEY' "$TMPDIR/keys/bwrap-args-21"
+      grep -Fxq -- 'sk-fake-SENTINEL' "$TMPDIR/keys/bwrap-args-21"
+
+      # Gateway: the inner launcher, past the outer's runDirectory check.
+      mkdir -p "$TMPDIR/gateway-home/.config/llm-gateway/keys"
+      printf 'sk-fake-GATEWAY' > "$TMPDIR/gateway-home/.config/llm-gateway/keys/pi"
+      probe_gw="$(gateway_inner_of ${probeGateway}/bin/jailed-pi)"
+      test -n "$probe_gw"
+      probe_launch gateway "$probe_gw"
+      grep -Fxq -- 'sk-fake-GATEWAY' "$TMPDIR/gateway/bwrap-args-22"
+      refute grep -Fq -- 'sk-fake-SENTINEL' "$TMPDIR/gateway/bwrap-args-22"
+
+      # The real launchers exec the same seam: every one (op-run inner and
+      # gateway inner included) names an `env -i` bwrap, never bwrap bare.
+      for launcher in "$spec" "$inner_path/bin/jailed-pi" "$gw_inner"; do
+        seam="$(sed -n 's|^exec \(/nix/store/[^ ]*/bin/bwrap\) .*|\1|p' "$launcher")"
+        test -n "$seam"
+        grep -Fq -- 'env -i ${lib.getExe pkgs.bubblewrap} "$@"' "$seam"
+      done
 
       workspace=${workspace}/bin/jailed-zsh
       grep -Fq -- "$(cat ${expectedWorkspaceBind})" "$workspace"
