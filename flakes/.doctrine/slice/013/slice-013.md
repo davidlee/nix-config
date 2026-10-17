@@ -17,10 +17,15 @@ op run ──7 provider keys──> jailed-pi / jailed-shell / jailed-claude …
 **The emacs flake's jails** (`~/.config/emacs/flake.nix`, the devshell Emacs
 runs in) are not a separate jail implementation. They are built with
 `agents.lib.mkJailedAgents` (`makeJailedPi`, `makeJailedAgent` for
-`jailed-shell`, …), fetched from GitHub and locked at `27d0ecbe`. That rev
-predates both gateway mode and the bwrap empty-environment fix (`b17e348a`,
-memory `mem.fact.bwrap.pid1-environ-leak`: the jail's PID 1 holds the
-launching session's environment). The "seven provider keys" are
+`jailed-shell`, …). Its `flake.lock` pins `agents` at `27d0ecbe`, older
+than gateway mode and the bwrap empty-environment fix (`b17e348a`, memory
+`mem.fact.bwrap.pid1-environ-leak`). But its `.envrc`, like
+`~/dev/doctrine`'s and 10 other `~/dev/*` flakes', runs
+`use flake_local agents …` (`modules/home/programs.nix:20-35`), which
+overrides `agents` with `path:~/flakes/agents`. In those direnv devshells
+the live `agents` is built, so a change there lands on the next reload, with
+no push or re-lock. The lock matters only outside direnv (`nix build`,
+`nix run`, a shell entered without it). The "seven provider keys" are
 `agents`' default `apiKeys` map (DeepSeek, OpenRouter, Mistral, Voyage,
 OpenAI, Gemini, JEV), injected by `op run` (`useOpEnv`, on for the `specDev`
 profile) or forwarded from the caller (`jailed-pi`: `passApiKeysFromEnv`,
@@ -33,11 +38,11 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
    at the gateway, with the API key read from the per-jail key file (bound
    read-only; `!command` form). Opt-in, off by default: the sub-flake is
    published.
-2. **Template and one project flake** (`_templates/agents`, plus one
-   `~/dev/*` flake chosen in design) use it.
-3. **Emacs flake**: bump its `agents` lock past `b17e348a` (picks up the
-   environment fix for every jail it builds), move `jailed-pi` to gateway
-   mode, and stop handing provider keys to jails that need none. Which
+2. **Template and `~/dev/doctrine`** (the first project flake, user's
+   choice) use it.
+3. **Emacs flake**: move `jailed-pi` to gateway mode, and stop handing
+   provider keys to jails that need none. Re-lock `agents` too, so builds
+   outside direnv match. Which
    jails get gateway keys and which get no keys is a design decision (OQ-3).
 4. **Remove the stored `deepseek` key** from the shared pi `auth.json`, then
    rotate it (POL-001 rule 6). The OAuth logins in that file
@@ -68,7 +73,7 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 | `features/agents/gateway/constants.nix` | key paths for new clients, if needed |
 | `README.md` § LLM gateway | clients, "what it does not cover" |
 | `~/.local/share/jail.nix/home/agent/.pi/agent/auth.json` | untracked; manual edit + rotation |
-| one `~/dev/<project>/flake.nix` | separate repo |
+| `~/dev/doctrine/flake.nix` | separate repo |
 
 ## Risks & assumptions
 
@@ -76,11 +81,14 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
   with a `!command` API key, and a stored `auth.json` key for the same
   provider name would win over it (SL-011 research C4, C5). Verify in
   research.
-- **R1**: the emacs `agents` bump pulls every `agents` change since
-  `27d0ecbe` into the Emacs devshell jails at once. Any break shows up
-  in the devshell, which Emacs depends on.
-- **R2**: `agents` changes reach consumers only after a push and a re-lock
-  (emacs flake, project flakes). Sequencing: land and push `agents` first.
+- **R1**: direnv consumers build live `~/flakes/agents`, so an `agents`
+  change reaches the Emacs devshell and 11 project devshells on their next
+  reload, before any of them opt in. Gateway mode must stay off by default,
+  and a break in `agents` breaks all of them at once.
+- **R2**: `use_flake_local` overrides with `path:`, not `git+file`, so
+  untracked files in `agents/` reach those builds; and it watches only
+  `agents/*.nix` and `flake.lock`, so a change in a subdirectory does not
+  trigger a reload.
 - **R3**: the emacs flake and `~/dev/*` are outside this flake's
   `just test`; their verification is by evaluation/build and by hand.
 
@@ -102,7 +110,8 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 - `agents` tests: a gateway-mode pi jail carries no provider key (env, PID 1
   environ, fds) and holds a `models.json` provider pointing at the gateway
   URL (VT).
-- Emacs flake and the chosen project flake evaluate and build (VT/VA).
+- Emacs flake and `~/dev/doctrine` evaluate and build, through direnv and
+  from the lock (VT/VA).
 - Live: jailed pi completes a request through the gateway and its spend
   shows in `llm-gateway list`; `/proc/1/environ` and `auth.json` inside the
   jail hold no provider key (VH).
