@@ -4,6 +4,7 @@ provider keys where the service can load them (design SL-011 sec-4).
 
   llm-gateway issue <alias> --models a,b --budget USD [--out PATH]
   llm-gateway list | revoke <alias> | budget <alias> <USD> | reset <alias>
+  llm-gateway models <alias> a,b
   llm-gateway credentials [provider ...]
 
 Admin subcommands act on the key store as the service user, re-executing
@@ -137,6 +138,13 @@ def parser():
     issue.add_argument(
         "--out", type=Path, help="write the key to this new file (mode 0600) instead"
     )
+    models = commands.add_parser(
+        "models", help="replace a key's model list (the key is unchanged)"
+    )
+    models.add_argument("alias")
+    models.add_argument(
+        "models", type=model_list, help="comma-separated gateway model names"
+    )
     commands.add_parser("list", help="every key: alias, models, budget, spent, revoked")
     commands.add_parser("revoke").add_argument("alias")
     budget = commands.add_parser("budget", help="set a key's lifetime budget")
@@ -159,18 +167,26 @@ def main(argv, *, host):
         return fail(host, error)
     if args.command == "credentials":
         return credentials(host, args.providers)
-    if args.command == "issue":
-        unknown = sorted(set(args.models) - set(host.config.models))
-        if unknown:
-            return fail(
-                host,
-                f"unknown models: {', '.join(unknown)} (configured: {', '.join(host.config.models)})",
-            )
-        if args.out:
-            return issue_to_file(host, args)
+    if args.command in ("issue", "models"):
+        refused = refuse_unserved(host, args.models)
+        if refused:
+            return refused
+    if args.command == "issue" and args.out:
+        return issue_to_file(host, args)
     code, text = as_service(host, argv)
     host.out.write(text)
     return code
+
+
+def refuse_unserved(host, models):
+    """Exit code 2 if any of `models` is not a configured gateway model."""
+    unknown = sorted(set(models) - set(host.config.models))
+    if unknown:
+        return fail(
+            host,
+            f"unknown models: {', '.join(unknown)} (configured: {', '.join(host.config.models)})",
+        )
+    return None
 
 
 def fail(host, message, code=2):
@@ -201,6 +217,8 @@ def administer(host, args):
             keystore.revoke(db, args.alias)
         elif args.command == "budget":
             keystore.set_budget(db, args.alias, args.usd)
+        elif args.command == "models":
+            keystore.set_models(db, args.alias, args.models)
         elif args.command == "reset":
             keystore.reset_spend(db, args.alias)
     except keystore.KeyStoreError as error:

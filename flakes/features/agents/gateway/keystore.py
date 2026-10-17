@@ -145,6 +145,15 @@ def set_budget(db, alias, budget):
     _update(db, alias, "budget_usd = ?", usd(budget))
 
 
+def set_models(db, alias, models):
+    """Replace a live key's model allow-list; the key itself is unchanged and
+    the new list applies on its next request. A revoked key stays dead."""
+    models = list(models)
+    if not models:
+        raise KeyStoreError(f"{alias}: no models")
+    _update(db, alias, "models = ?", json.dumps(models), live=True)
+
+
 def reset_spend(db, alias):
     _update(db, alias, "spent_usd = ?", 0)
 
@@ -156,13 +165,22 @@ def rows(db):
     return [{k: v for k, v in _row(r).items() if k != "hash"} for r in found]
 
 
-def _update(db, alias, assignment, value):
+def _update(db, alias, assignment, value, live=False):
+    """Set `assignment` on the alias's row. With `live`, a revoked key is
+    refused, decided in the same transaction as the update."""
+    guard = " and revoked_at is null" if live else ""
     with transaction(db) as conn:
         changed = conn.execute(
-            f"update keys set {assignment} where alias = ?", (value, alias)
+            f"update keys set {assignment} where alias = ?{guard}", (value, alias)
         ).rowcount
-    if not changed:
+        exists = (
+            changed
+            or conn.execute("select 1 from keys where alias = ?", (alias,)).fetchone()
+        )
+    if not exists:
         raise KeyStoreError(f"{alias}: no such key")
+    if not changed:
+        raise KeyStoreError(f"{alias}: revoked")
 
 
 def _row(found):
