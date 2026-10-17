@@ -128,6 +128,34 @@
   duplicateWorkspaceFails = failsToEvaluate (inner "specDev" {
     workspaceDeps = ["/tmp/one/shared" "/tmp/two/shared"];
   });
+
+  # Gateway mode. runDirectory cannot exist in the build sandbox, so the
+  # outer wrapper's checks are observable without reaching bwrap.
+  gw = {
+    keyFile = "$HOME/.config/llm-gateway/keys/pi";
+    url = "http://127.0.0.1:4000/v1";
+    runDirectory = "/nonexistent/llm-gateway";
+  };
+  # Profile defaults (useOpEnv = true): gateway wins over the op wrapper.
+  gatewayJail = agents.makeJailedPi {gateway = gw;};
+  # Gateway mode never forces apiKeyOpRefs.
+  gatewayLazySecrets = lazySecretAgents.makeJailedPi {gateway = gw;};
+  # Each refusal is paired with a twin that differs only in the property
+  # under test: gatewayEmptyKeys for the keys, gatewayJail for the shape.
+  gatewayEmptyKeys = agents.makeJailedPi {
+    gateway = gw;
+    apiKeys = [];
+  };
+  gatewayWithKeysFails = failsToEvaluate (agents.makeJailedPi {
+    gateway = gw;
+    apiKeys = ["OPENAI_API_KEY"];
+  });
+  gatewayMissingKeyFileFails = failsToEvaluate (agents.makeJailedPi {
+    gateway = builtins.removeAttrs gw ["keyFile"];
+  });
+  gatewayUnknownAttrFails = failsToEvaluate (agents.makeJailedPi {
+    gateway = gw // {socket = "/nonexistent/llm-gateway/api.sock";};
+  });
 in
   assert knownSubagent.drvPath != "";
   assert noSecretMachinery.drvPath != "";
@@ -136,23 +164,37 @@ in
   assert zeroDepthFails;
   assert relativeWorkspaceFails;
   assert duplicateWorkspaceFails;
+  assert gatewayLazySecrets.drvPath != "";
+  assert gatewayEmptyKeys.drvPath != "";
+  assert gatewayWithKeysFails;
+  assert gatewayMissingKeyFileFails;
+  assert gatewayUnknownAttrFails;
     pkgs.runCommand "jailed-agents-policy-tests" {
       nativeBuildInputs = [pkgs.gnugrep pkgs.coreutils];
     } ''
+      # A bare `! cmd` never trips errexit (bash exempts negated pipelines),
+      # so it cannot fail the build. Every negative assertion uses this.
+      refute() {
+        if "$@"; then
+          echo "refute: holds, expected not to: $*" >&2
+          exit 1
+        fi
+      }
+
       spec=${specDev}/bin/jailed-zsh
       research=${research}/bin/jailed-zsh
       offline=${offline}/bin/jailed-zsh
 
-      ! grep -Fq -- '--unshare-net' "$spec"
-      ! grep -Fq -- '--unshare-net' "$research"
+      refute grep -Fq -- '--unshare-net' "$spec"
+      refute grep -Fq -- '--unshare-net' "$research"
       grep -Fq -- '--unshare-net' "$offline"
       grep -Fq -- 'home/agent' "$spec"
       grep -Fq -- 'home/agent-research' "$research"
       grep -Fq -- 'home/agent-offline' "$offline"
 
       grep -Fq -- 'GIT_SSH_COMMAND' "$spec"
-      ! grep -Fq -- 'GIT_SSH_COMMAND' ${sshPushAllowed}/bin/jailed-zsh
-      ! grep -Fq -- 'GIT_SSH_COMMAND' ${legacySshPushAllowed}/bin/jailed-zsh
+      refute grep -Fq -- 'GIT_SSH_COMMAND' ${sshPushAllowed}/bin/jailed-zsh
+      refute grep -Fq -- 'GIT_SSH_COMMAND' ${legacySshPushAllowed}/bin/jailed-zsh
       grep -Fq -- 'GIT_AUTHOR_NAME' "$spec"
       grep -Fq -- "'Jailed agent'" "$spec"
       grep -Fq -- 'jailed-agent@localhost' "$spec"
@@ -163,10 +205,10 @@ in
       # replaces git on PATH rather than racing it for first place.
       for launcher in "$spec" "$research" "$offline"; do
         grep -q -- '--setenv PATH [^ ]*-git-guarded/bin' "$launcher"
-        ! grep -q -- '--setenv PATH [^ ]*-git-[0-9][^ /]*/bin' "$launcher"
+        refute grep -q -- '--setenv PATH [^ ]*-git-[0-9][^ /]*/bin' "$launcher"
       done
       unguarded=${gitUnguarded}/bin/jailed-zsh
-      ! grep -Fq -- '-git-guarded' "$unguarded"
+      refute grep -Fq -- '-git-guarded' "$unguarded"
       grep -Fq -- '${pkgs.git}/bin' "$unguarded"
 
       # Behaviour: run the probes against the guarded git from the launcher.
@@ -191,8 +233,8 @@ in
       printf '[core]\n  excludesFile = ~/.gitignore_global\n' > "$fake/.gitconfig"
       test "$(env -i HOME="$fake" "$resolver")" = "$fake/.gitignore_global"
 
-      ! grep -Fq -- '/home/david' "$spec"
-      ! grep -Fq -- '/run/user/1000' "$spec"
+      refute grep -Fq -- '/home/david' "$spec"
+      refute grep -Fq -- '/run/user/1000' "$spec"
 
       outer=${selectedKeyOuter}/bin/jailed-pi
       grep -Fqx -- 'op=/run/wrappers/bin/op' "$outer"
@@ -200,15 +242,15 @@ in
       env_file="$(sed -n 's/.*--env-file=\([^ ]*\).*/\1/p' "$outer")"
       test -n "$env_file"
       grep -Fqx -- 'OPENROUTER_API_KEY=op://Test/OpenRouter/credential' "$env_file"
-      ! grep -Fq -- 'OPENAI_API_KEY' "$env_file"
+      refute grep -Fq -- 'OPENAI_API_KEY' "$env_file"
       inner_path="$(sed -n 's|.*\(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$outer")"
       test -n "$inner_path"
-      ! grep -Fq -- 'OPENROUTER_API_KEY' "$inner_path/bin/jailed-pi"
+      refute grep -Fq -- 'OPENROUTER_API_KEY' "$inner_path/bin/jailed-pi"
 
       forwarded=${selectedKeyFromEnv}/bin/jailed-pi
-      ! grep -Fq -- 'op run' "$forwarded"
+      refute grep -Fq -- 'op run' "$forwarded"
       grep -Fq -- 'OPENROUTER_API_KEY' "$forwarded"
-      ! grep -Fq -- 'OPENAI_API_KEY' "$forwarded"
+      refute grep -Fq -- 'OPENAI_API_KEY' "$forwarded"
 
       # Keys reach the jail over `--args FD`, never over bwrap's argv:
       # /proc/<pid>/cmdline is mode 444 and /proc is routinely mounted with
@@ -218,11 +260,49 @@ in
       # substitution, and no key name may survive into the command line.
       grep -Fq -- '--args 21 21< <(printf' "$forwarded"
       sed 's/<(printf[^)]*)//g' "$forwarded" > "$TMPDIR/argv-only"
-      ! grep -Fq -- 'API_KEY' "$TMPDIR/argv-only"
+      refute grep -Fq -- 'API_KEY' "$TMPDIR/argv-only"
 
       no_keys=${noKeys}/bin/jailed-pi
-      ! grep -Fq -- 'op run' "$no_keys"
-      ! grep -Fq -- 'API_KEY' "$no_keys"
+      refute grep -Fq -- 'op run' "$no_keys"
+      refute grep -Fq -- 'API_KEY' "$no_keys"
+
+      # Gateway mode: no op wrapper and no provider key; the gateway key
+      # reaches the jail over its own `--args FD`, read by a shell builtin.
+      gw_outer=${gatewayJail}/bin/jailed-pi
+      refute grep -Fq -- 'op run' "$gw_outer"
+      refute grep -Fq -- '/run/wrappers/bin/op' "$gw_outer"
+      gw_inner_path="$(sed -n 's|^exec \(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$gw_outer")"
+      test -n "$gw_inner_path"
+      gw_inner="$gw_inner_path/bin/jailed-pi"
+      grep -Fq -- '--args 22 22< <(printf' "$gw_inner"
+      grep -Fq -- '--setenv LLM_GATEWAY_KEY "$(<' "$gw_inner"
+      refute grep -Fq -- 'cat ' "$gw_inner"
+      refute grep -Fq -- 'API_KEY' "$gw_inner"
+      refute grep -Fq -- '--args 21' "$gw_inner"
+      grep -Fq -- '--setenv LLM_GATEWAY_URL ${lib.escapeShellArg gw.url}' "$gw_inner"
+      # Argv safety, as for provider keys. The strip stops at the first `)`,
+      # which closes the nested `$(<` — after the key's name.
+      sed 's/<(printf[^)]*)//g' "$gw_inner" > "$TMPDIR/gw-argv-only"
+      refute grep -Fq -- 'LLM_GATEWAY_KEY' "$TMPDIR/gw-argv-only"
+
+      # Behaviour: the outer wrapper fails with the fix, before bwrap.
+      export HOME="$TMPDIR/gw-home"
+      key_file="$HOME/.config/llm-gateway/keys/pi"
+      if "$gw_outer" 2> "$TMPDIR/gw-no-key"; then exit 1; fi
+      grep -Fq -- 'llm-gateway issue pi' "$TMPDIR/gw-no-key"
+      grep -Fq -- "$key_file" "$TMPDIR/gw-no-key"
+      mkdir -p "$(dirname "$key_file")"
+      printf 'sk-test-SENTINEL' > "$key_file"
+      if "$gw_outer" 2> "$TMPDIR/gw-no-gateway"; then exit 1; fi
+      grep -Fq -- 'system-switch' "$TMPDIR/gw-no-gateway"
+      refute grep -Fq -- 'sk-test-SENTINEL' "$TMPDIR/gw-no-gateway"
+
+      # Behaviour: the emitted read expands keyFile at run time and yields
+      # the key intact, as one NUL-separated --setenv.
+      read_key="$(grep -o "printf '%s\\\\0' --setenv LLM_GATEWAY_KEY \"\$(< \"[^\"]*\")\"" "$gw_inner")"
+      test -n "$read_key"
+      eval "$read_key" > "$TMPDIR/gw-args"
+      printf '%s\0' --setenv LLM_GATEWAY_KEY sk-test-SENTINEL | cmp -s - "$TMPDIR/gw-args"
 
       workspace=${workspace}/bin/jailed-zsh
       grep -Fq -- "$(cat ${expectedWorkspaceBind})" "$workspace"

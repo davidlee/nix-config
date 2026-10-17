@@ -115,3 +115,14 @@ it is covered instead:
 - OPEN (escalated) R1/OQ-1: systemd.exec(5) (systemd 261) says a missing credential is non-fatal only for the path-less / credential-id form. With the absolute path a missing file is fatal at setup (243/CREDENTIALS), so VH-1 will see systemd's error, not the launcher's message; contradicts design sec-2 "not reliably fatal". Options: amend VH-1 wording, or switch to id-only form (renames credential to llm-gateway.<p> on CLI + launcher).
 - VA-1 risks for PHASE-05 live checks: @system-service coverage for uvicorn/uvloop (SIGSYS); AF_NETLINK denied (getaddrinfo fallback); socket mode under UMask 0077 depends on uvicorn chmod 0666 (relay EACCES otherwise, VH-5); sudo keeps caller cwd (VH-3); StateDirectory vs credential-setup order on first failed start. --name=<p> vs unit id `deepseek` matches by man page; VH-2 proves it. Possible tightening: SystemCallArchitectures=native.
 - First `just system-switch` will report a failed unit until credentials exist (VH-1 wording, R2). Any hardening loosening can only happen in PHASE-05, whose objective does not list gateway.nix edits.
+
+## PHASE-04 — jail gateway mode (agents/jailed-agents.nix)
+
+- `gateway ? null` = `{ keyFile; url; runDirectory; }`, strings only, exact attr set (shape checked by `throw` before any read). OQ-1 ruling: `runDirectory` added beyond design sec-5's `{keyFile; url}` because agents/ is a published flake and cannot import gateway constants; PHASE-05 passes `"/run/${constants.runtimeDirectory}"`. Minor design drift — note at reconcile.
+- OQ-2: gateway + `offline` profile not refused (plan silent; relay unreachable there).
+- `apiKeys` defaults to `[]` in gateway mode; gateway + non-empty apiKeys refused by assert.
+- Key forwarded over literal `--args 22` via `printf … "$(< keyFile)"` (builtin read, not in any argv); `LLM_GATEWAY_URL` by set-env. Refactor: `setenvsByArgsFd fd setenvs` shared with provider keys (FD 21); provider launchers byte-identical (drv gate: only goad dev-checkout noise).
+- `gatewayOuter` checks key file (-r/-s) and runDirectory, naming `llm-gateway issue …` / `just system-switch`; never reads the key.
+- Finding: bare `! grep` assertions in jailed-agents-test.nix never failed the build (bash errexit ignores negated commands). Converted to a `refute` helper; all pass. Other repo shell tests may share the flaw (unaudited).
+- `just test` now builds `agents#checks.<sys>.jailed-agents` (Linux).
+- Worker: opus — POL-001 secret-in-argv correctness risk in nested shell quoting.
