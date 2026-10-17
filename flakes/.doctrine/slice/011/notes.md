@@ -84,3 +84,13 @@ it is covered instead:
 - whether `mock_response` takes the production pricing path → P2, with the
   named fallback in design § Phases;
 - all surfaces again on LiteLLM 1.102.1 → `checks.<system>.llm-gateway`.
+
+## PHASE-01 execution notes (key store and admin CLI)
+
+- Sheet A1-A6 taken as written, except `authenticate` raises `Refused` (reason text: unknown key / revoked / budget exhausted) instead of returning None; PHASE-02 maps it to 401.
+- RV-024 F-6 vs `alias unique` (sheet Q1): option (a) chosen by the orchestrator. Schema kept per DEC-051; a failed `issue --out` revokes, and a revoked alias stays taken. Rotate with a new alias. PHASE-05 README rotation text must say so. Escalated to the seat as a possible DEC-051 follow-up (partial unique index).
+- D5: `--out` publishes via mkstemp + fchmod 0600 + fsync, then `os.link` + unlink (link refuses an existing destination; rename would overwrite).
+- `op read --no-newline` keeps a trailing newline out of the encrypted credential.
+- D2: the baked config block (MODELS, PROVIDERS, DB) at the top of `llm-gateway` is the PHASE-03 substitution seam (sudo drops env).
+- Under sudo, `llm-gateway` puts its own directory on `sys.path` to find `keystore`; PHASE-03 must install `keystore.py` beside it.
+- Ambient ruff config is broad (RUF100, TRY004, PLW1510, UP035, I001 fire).

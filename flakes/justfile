@@ -58,6 +58,7 @@ test:
   features/session/snooze-nag-test
   features/audio/dictate-test
   features/audio/say-test
+  features/agents/gateway/keystore-test
   nu features/attention/nudge/nudge-test.nu
 
 # what `doctrine check gate` runs: `nix fmt`'s treefmt programs as a
