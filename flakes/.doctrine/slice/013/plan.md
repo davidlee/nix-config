@@ -47,6 +47,10 @@ to the env-keyed `deepseek` provider.
 it would only redirect unmigrated jails onto pi's silent fallback (design
 sec-5).
 
+**No root switch, if the gate holds.** With every host derivation unchanged
+through PHASE-02, the root's eca and gateway records need no switch at the
+cutover; PHASE-05 switches only what `just drvs` says changed.
+
 **Live checks last (PHASE-06).** They need the switched host, the key and the
 migrated jails together.
 

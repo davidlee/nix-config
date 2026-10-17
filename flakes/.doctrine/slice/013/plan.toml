@@ -34,7 +34,7 @@ exit_criteria = [
   { id = "EX-2", text = "features/agents/gateway/constants.nix is `import ../../../agents/gateway.nix` (with its header comment kept accurate); proxy.nix `defaults.models` maps agents/gateway.nix's models to `{model, provider}`; configDir keeps its `models` argument." },
   { id = "EX-3", text = "features/agents/gateway.nix: the `services.llm-gateway.models` option is gone; the service config and the provider assertion read `proxy.defaults.models`; the assertion message names agents/gateway.nix. `services.llm-gateway.providers` stays an option. No other reader of the removed option remains (rg services.llm-gateway.models outside .doctrine/)." },
   { id = "EX-4", text = "jailed-agents.nix exports `gatewayClient = (import ./gateway.nix).client`; features/agents.nix's eca record uses `gateway = jailLib.gatewayClient \"eca\";` and drops its constants import." },
-  { id = "EX-5", text = "`just drvs` identical to the EN-2 baseline (the refactor changes no derivation: the eca launcher and the LiteLLM config are byte-identical); `just test`, `just coverage` and `just isolation` green; nix fmt clean on touched files without committing an emacs-overlay re-lock (mem.fact.flakes.fmt-relock)." },
+  { id = "EX-5", text = "`just drvs` identical to the EN-2 baseline (the refactor changes no derivation: the eca launcher and the LiteLLM config are byte-identical); `just gate` (flake check with alejandra, statix, deadnix, then the tests) and `just coverage` (which runs isolation) green; nix fmt clean on touched files without committing an emacs-overlay re-lock (mem.fact.flakes.fmt-relock)." },
 ]
 verification = [
   { id = "VT-1", expects = "gatewayClient \"pi\" gives keyFile $HOME/.config/llm-gateway/keys/pi, url and runDirectory /run/llm-gateway from agents/gateway.nix", test_file = "agents/jailed-agents-test.nix", keywords = ["gatewayClient \"pi\"", "./gateway.nix"], waived = false },
@@ -56,7 +56,7 @@ exit_criteria = [
   { id = "EX-2", text = "No host-side write of models.json anywhere in the launcher (no add-runtime seed, no profileHomes map): RV-028 F-1." },
   { id = "EX-3", text = "jailed-agents-test.nix: gateway_inner_of takes the jail name; fakeAgents gains the agents the new cases build (at least eca); every sec-6 VT case is present, each with a twin differing only in the property under test: bind for pi as agent (after the persisted-home bind, by byte offset), as pi-research (profile research), as claude subagent; no bind for eca with gateway; no bind for pi without gateway; file content; missing pi block fails naming the model, its twin evaluates; the existing no-key probes run against the new jails." },
   { id = "EX-4", text = "agents/README.md § Gateway mode: gatewayClient instead of a hand-built value; the models.json bind, who gets it, why a home should already hold a models.json (the research home's is tracked); adding a served model means its pi block, checked through the gateway." },
-  { id = "EX-5", text = "`just drvs` still identical to the PHASE-01 baseline (gateway off by default and eca has no pi, so nothing a host builds changes: R1); `just test` green; fmt clean." },
+  { id = "EX-5", text = "`just drvs` still identical to the PHASE-01 baseline (gateway off by default and eca has no pi, so nothing a host builds changes: R1); `just gate` green; fmt clean." },
 ]
 verification = [
   { id = "VT-1", expects = "bind present for pi as agent, as pi-research, and as subagent; absent without pi or without gateway; placed after the persisted-home bind", test_file = "agents/jailed-agents-test.nix", keywords = ["pi-gateway-models.json", "~/.pi/agent/models.json", "pi-research", "makeJailedEca"], waived = false },
@@ -77,12 +77,12 @@ entrance_criteria = [
 exit_criteria = [
   { id = "EX-1", text = "_templates/agents/flake.nix: one `gateway = jailLib.gatewayClient \"pi\";` binding with the opt-out comment from design sec-4; jailed-pi, jailed-pi-research, jailed-claude, jailed-codex take `inherit gateway;`; jailed-opencode and jailed-gemini gone; the op run header text, the --setenv comment and the OPENROUTER_API_KEY forward removed; the knob list describes gateway; Darwin devshell unaffected." },
   { id = "EX-2", text = "README.md § LLM gateway: clients are eca and the shared pi key; Adding a client uses gatewayClient; another model edits agents/gateway.nix (no option) with its pi block; What it does not cover names the remaining op run consumers (other ~/dev/* flakes, IMP-034; satan, IMP-030)." },
-  { id = "EX-3", text = "SL-013 code commits pushed to the remote, with the user's go-ahead (outward-facing)." },
+  { id = "EX-3", text = "SL-013 code commits pushed to the remote, with the user's go-ahead (outward-facing; main may also carry other sessions' commits, which the go-ahead must cover)." },
 ]
 verification = [
   { id = "VT-1", expects = "template defaults every jail to the pi gateway client", test_file = "_templates/agents/flake.nix", keywords = ["gatewayClient \"pi\"", "gateway = null"], waived = false },
   { id = "VA-1", expects = "`nix flake init -t ~/flakes#agents` into a scratch directory, then its jails build with --override-input agents path:~/flakes/agents; rg finds no opencode, gemini, op run or OPENROUTER in the generated flake" },
-  { id = "VA-2", expects = "`nix flake check` (read-only gate) and `just test` green" },
+  { id = "VA-2", expects = "`just gate` green" },
 ]
 specs        = []
 requirements = []
@@ -101,7 +101,7 @@ exit_criteria = [
   { id = "EX-4", text = "The shared home's tracked .gitignore adds models.json* and models-store.json; agent-research/.pi/agent/models.json is `{\"providers\":{}}` and tracked; both committed in the home repo by explicit path." },
 ]
 verification = [
-  { id = "VH-1", expects = "user: a request with the old DeepSeek key is rejected by DeepSeek" },
+  { id = "VH-1", expects = "user: the old DeepSeek key is deleted in DeepSeek's console, or a request with it is rejected" },
   { id = "VA-1", expects = "jq shows the named entries absent (keys listed, no values); `llm-gateway list` shows alias pi with model deepseek-flash, budget 50; git check-ignore confirms models.json and models-store.json are ignored in the shared home" },
 ]
 specs        = []
@@ -115,7 +115,7 @@ entrance_criteria = [
   { id = "EN-1", text = "PHASE-04 complete: keys/pi exists, old key revoked." },
 ]
 exit_criteria = [
-  { id = "EX-1", text = "User ran `just system-switch` and `just home-switch`; the gateway and eca run as before." },
+  { id = "EX-1", text = "Root: if `just drvs` differs from the PHASE-01 baseline for a host, the user runs the matching switch and the gateway and eca run as before; if not (expected: PHASE-01 and PHASE-02 are neutral), no switch is needed and that is recorded." },
   { id = "EX-2", text = "~/.config/emacs/flake.nix: jailed-pi, jailed-pi-research, jailed-claude, jailed-shell take gatewayClient \"pi\" with the subagent lists of design sec-4; useOpEnv/passApiKeysFromEnv and the patch-adapter comment gone; jailed-opencode and jailed-dirge deleted; jpi execs jailed-pi without op run; apiKeyJailOptions renamed soundJailOptions without the OPENROUTER_API_KEY forward or the duplicate /usr/bin/env bind. agents re-locked; committed in the emacs repo with the user's go-ahead." },
   { id = "EX-3", text = "~/dev/doctrine/flake.nix: mkJail defaults gateway = jailLib.gatewayClient \"pi\"; jailed-dirge deleted and dirge dropped from every subagent list; agents re-locked; committed in the doctrine repo with the user's go-ahead." },
   { id = "EX-4", text = "Shared settings.json set to defaultProvider llm-gateway, defaultModel deepseek-flash, enabledModels [\"llm-gateway/deepseek-flash\"]; committed in the home repo by explicit path." },
@@ -141,7 +141,7 @@ exit_criteria = [
 ]
 verification = [
   { id = "VH-1", expects = "jailed-pi completes a request on llm-gateway/deepseek-flash; the pi alias's spend rises in llm-gateway list" },
-  { id = "VH-2", expects = "inside that jail: no provider key in env, /proc/1/environ or auth.json; models.json is the store file" },
+  { id = "VH-2", expects = "inside that jail: no provider key in env or /proc/1/environ; auth.json holds no API-key entry (OAuth logins expected); models.json is the store file" },
   { id = "VH-3", expects = "--thinking off gives no reasoning tokens in the jail" },
   { id = "VH-4", expects = "jailed-pi-research completes a request; its selected model is recorded; pi spend rises" },
   { id = "VH-5", expects = "nested: jailed-claude runs jailed-pi, which completes a request" },
