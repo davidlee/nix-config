@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 46
+slug = "litellm-own-sqlite-key-store"
+title = "LiteLLM broker authenticates with our own SQLite key store, not Prisma"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "IDE-003 chose LiteLLM as the host-side credential broker. Its own virtual keys need Postgres through prisma-client-py, which is broken in nixpkgs (DEC-045 context). DEC-045 dropped virtual keys altogether. A follow-up spike (2026-10-17) showed that LiteLLM's documented custom_auth hook and CustomLogger success callback, backed by stdlib sqlite3, give per-key auth, spend recording and budget refusal over --uds with no Prisma: custom_auth runs before LiteLLM's database check."
+choice = "LiteLLM runs with no database of its own. A small, dependency-free Python module of ours authenticates bearer keys against a SQLite table (sha256 key hash, alias, allowed models, budget, spent) through general_settings.custom_auth, and records response_cost per key through a CustomLogger success callback. The module enforces model allow-lists itself. Clients still reach the service through unix sockets per trust class (file mode decides who connects); keys add per-client identity, budgets and revocation on top."
+alternatives = ["No database: master key only and budgets at each provider (DEC-045)", "Package Prisma 5.17 engines + a build-time generated client + litellm-proxy-extras in Nix", "Run the upstream LiteLLM OCI image under rootless podman/docker", "Same module backed by the host Postgres (psycopg dependency; couples the broker to that service and its glibc collation)"]
+rationale = "We'd rather do this work once than track Prisma updates: no ORM is needed for one table. Per-key budgets are a useful safety measure, which DEC-045 gave up. The coupling surface (custom_auth signature, UserAPIKeyAuth, and the callback's metadata.user_api_key_hash and response_cost) is far smaller than Prisma. SQLite is in the Python stdlib, the service is its only writer, and the data is tiny."
+consequences = ["We own key issuance", " revocation and budget tooling (a small CLI over the table)", "We enforce model allow-lists ourselves (returning UserAPIKeyAuth(models=...) is not enforced for custom auth even with custom_auth_run_common_checks)", "Budgets are checked before each call; in-flight requests can overshoot by concurrency x one request's cost unless we reserve from max_tokens", "The master key also passes through custom_auth; the admin path needs its own rule", "LiteLLM upgrades must keep custom_auth and the callback kwargs stable: cover them with a test", "Own unit or ExecStart override to serve on --uds", "Anything else that needs spend data reads a read-only export", " not the live DB"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-045"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"

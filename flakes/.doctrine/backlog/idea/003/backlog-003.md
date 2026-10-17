@@ -45,3 +45,67 @@ Open:
   which local clients may reach the proxy. Check that LiteLLM (or the nixpkgs
   service) can listen on a unix socket; if not, it needs a TCP-to-socket shim
   bound to loopback only.
+
+## Spike (2026-10-17)
+
+Against the locked nixpkgs (`f45c6f0`): litellm 1.100.1, Postgres 18.6.
+
+- **Unix socket works.** The `litellm` CLI has no socket option, but
+  `uvicorn litellm.proxy.proxy_server:app --uds <path>` with
+  `CONFIG_FILE_PATH=<config>` serves the full proxy on the socket (liveness,
+  `/v1/models` with the master key). No shim needed. The nixpkgs service
+  hardcodes `--host/--port` in `ExecStart`, so we'd override `ExecStart`
+  or write our own unit.
+- **Virtual keys are blocked in nixpkgs.** They need the database, and the
+  database path is broken:
+  - The default `prisma migrate` path imports `litellm-proxy-extras`, which
+    nixpkgs doesn't package (marked FIXME).
+  - `--use_prisma_db_push` runs prisma-client-py 0.15.0, which downloads its
+    Node CLI and engines at runtime. Prisma publishes none for NixOS (404),
+    and the store is read-only anyway.
+  - The client is not generated (`prisma/client.py` is missing), and
+    `prisma generate` writes into site-packages.
+  - prisma-client-py pins Prisma 5.17 engines (`393aa359`). nixpkgs has only
+    `prisma-engines` 6 and 7.
+  - Without a database, any key except the master key gets
+    `400 No connected db`.
+- **Options:**
+  1. Package it properly: Prisma 5.17 engines, a client generated at build
+     time, and `litellm-proxy-extras` for migrations. Substantial work.
+  2. Run the upstream OCI image (it ships Prisma ready to use) under rootless
+     podman or docker, bind-mounting the socket directory.
+  3. No database: master key only. Isolate clients with one socket per trust
+     class (file mode decides who connects), and enforce budgets upstream at
+     the provider. This loses per-key spend logs and per-key revocation.
+- **Postgres collation drift:** most databases were created under glibc
+  collation 2.42; the OS now has 2.44. A new database copied from
+  `template1` inherits the warning. Create the LiteLLM database from
+  `template0` with `--locale-provider=builtin --builtin-locale=C.UTF-8`,
+  which has no glibc dependency.
+
+### Option 4: our own key store on LiteLLM's extension points (spike 2026-10-17)
+
+No ORM. A small Python module plugs into two documented LiteLLM hooks:
+`general_settings.custom_auth` (validates the bearer key) and a
+`CustomLogger` callback (`async_log_success_event`, which receives
+`response_cost`). The spike used stdlib `sqlite3` (keys hashed with sha256,
+plus alias, models, budget and spent columns), served over `--uds` with no
+database configured:
+
+- Known key → 200; unknown key → 401; spend is recorded per key; the next
+  request after the budget is spent → 401 `budget exhausted`. Prisma is
+  never touched: `custom_auth` runs before the `No connected db` check.
+- **The model allow-list is not enforced** by returning
+  `UserAPIKeyAuth(models=…)`, even with
+  `custom_auth_run_common_checks: true`. Enforce it ourselves, in the auth
+  hook (read the body's `model`) or in `async_pre_call_hook`.
+- The master key also goes through `custom_auth`, and was refused. Good for
+  socket clients; the admin path needs its own rule.
+- Budgets are checked before the call, so in-flight requests can overshoot
+  (one request ran 0.0002 past a 0.00002 budget). The overshoot is bounded
+  by concurrency × the cost of one request. A reservation from `max_tokens`
+  would tighten it.
+- LiteLLM logs each refusal with a traceback. Noisy, harmless.
+- Coupling: depends on `UserAPIKeyAuth`, the `custom_auth` signature and the
+  callback's kwargs (`litellm_params.metadata.user_api_key_hash`,
+  `response_cost`). That is a far smaller surface to track than Prisma.

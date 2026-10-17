@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 45
+slug = "litellm-no-db-socket-per-trust-class"
+title = "LiteLLM broker runs without a database; sockets per trust class isolate clients"
+record_kind = "decision"
+status = "superseded"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "IDE-003 chose LiteLLM as the host-side credential broker. The 2026-10-17 spike found that serving on a unix socket works (uvicorn --uds), but virtual keys need Postgres through prisma-client-py, which is broken in nixpkgs: litellm-proxy-extras is unpackaged, the engines are downloaded at runtime (no NixOS build), the client is not generated, and it pins Prisma 5.17 while nixpkgs ships 6 and 7."
+choice = "Run LiteLLM without a database, using the master key only. Clients are isolated by unix sockets, one per trust class, and each socket's owner, group and mode decide who may connect. Budgets are set at each provider (per-provider key spend limits) rather than per client."
+alternatives = ["Package Prisma 5.17 engines + a build-time generated client + litellm-proxy-extras in Nix", "Run the upstream LiteLLM OCI image under rootless podman/docker"]
+rationale = "Socket file mode already authenticates clients, which is most of what virtual keys add. Both alternatives carry Prisma's weight: packaging it is substantial work, and the container is less Nix-native. Budgets are useful as a safety measure, so revisit if provider-side limits prove too coarse."
+consequences = ["No per-client spend log or per-key revocation; revoking a client means changing its socket's access", "A per-client budget ceiling exists only if each trust class gets its own provider key", "The master key must stay out of every client's reach (IDE-003 open point)", "Our own unit or an ExecStart override instead of the nixpkgs service's --host/--port", "Any later move to virtual keys revives the Prisma problem (options 1 and 2 stay on record)"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = ["DEC-046"]   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"
