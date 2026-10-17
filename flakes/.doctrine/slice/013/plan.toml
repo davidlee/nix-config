@@ -1,0 +1,154 @@
+# Implementation plan for SL-013 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-013"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN, immutable, never reused.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Gateway data moves into agents"
+objective = "agents/gateway.nix holds the gateway address, the served models with their pi entries, and `client`; the root's constants, proxy defaults, gateway record and eca record read it; jailed-agents.nix exports gatewayClient (design sec-2, sec-4 Root; DEC-059, DEC-063, REV-009). Behaviour-neutral: no derivation changes."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-013 design locked; plan approved." },
+  { id = "EN-2", text = "Baseline `just drvs` and `just coverage` output saved (mem.pattern.flakes.drv-gate)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "agents/gateway.nix exists as in design sec-2 (runtimeDirectory, socket, relayPort, url, keyDirectory, models.deepseek-flash with model, provider and pi block, client), is tracked (git add: flakes see only tracked files, but direnv's path: override sees untracked ones, R2)." },
+  { id = "EX-2", text = "features/agents/gateway/constants.nix is `import ../../../agents/gateway.nix` (with its header comment kept accurate); proxy.nix `defaults.models` maps agents/gateway.nix's models to `{model, provider}`; configDir keeps its `models` argument." },
+  { id = "EX-3", text = "features/agents/gateway.nix: the `services.llm-gateway.models` option is gone; the service config and the provider assertion read `proxy.defaults.models`; the assertion message names agents/gateway.nix. `services.llm-gateway.providers` stays an option. No other reader of the removed option remains (rg services.llm-gateway.models outside .doctrine/)." },
+  { id = "EX-4", text = "jailed-agents.nix exports `gatewayClient = (import ./gateway.nix).client`; features/agents.nix's eca record uses `gateway = jailLib.gatewayClient \"eca\";` and drops its constants import." },
+  { id = "EX-5", text = "`just drvs` identical to the EN-2 baseline (the refactor changes no derivation: the eca launcher and the LiteLLM config are byte-identical); `just test`, `just coverage` and `just isolation` green; nix fmt clean on touched files without committing an emacs-overlay re-lock (mem.fact.flakes.fmt-relock)." },
+]
+verification = [
+  { id = "VT-1", expects = "gatewayClient \"pi\" gives keyFile $HOME/.config/llm-gateway/keys/pi, url and runDirectory /run/llm-gateway from agents/gateway.nix", test_file = "agents/jailed-agents-test.nix", keywords = ["gatewayClient \"pi\"", "./gateway.nix"], waived = false },
+  { id = "VT-2", expects = "the gateway service reads its models from agents/gateway.nix; checks.llm-gateway still serves deepseek-flash and the unpriced-model build still fails", test_file = "features/agents/gateway/proxy.nix", keywords = ["agents/gateway.nix"], waived = false },
+  { id = "VA-1", expects = "`just drvs` diff against the EN-2 baseline is empty: the negative control that the move changed nothing it should not" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "pi gateway mode"
+objective = "In gateway mode, a jail with pi in it (agent under any name, or subagent) gets a Nix-generated models.json bound read-only over ~/.pi/agent/models.json after the persisted home; no launcher seed (design sec-3, sec-6 VT; DEC-058, DEC-063). Off by default: no consumer changes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "jailed-agents.nix: top-level `piGatewayConfig url models` (one provider llm-gateway, literal baseUrl, api openai-completions, apiKey \"$LLM_GATEWAY_KEY\", models `{id} // m.pi`, throwing `agents/gateway.nix: served model <id> has no pi entry` when pi is absent), exported; in makeJailedAgent `piInJail = agent == pi || lib.elem \"pi\" subagentNames`, `piGatewayModels` (writeText of piGatewayConfig over checkedGateway.url and gateway.nix's models), and `piGatewayOptions` with the `--ro-bind` placed in inner's options after profileOptions." },
+  { id = "EX-2", text = "No host-side write of models.json anywhere in the launcher (no add-runtime seed, no profileHomes map): RV-028 F-1." },
+  { id = "EX-3", text = "jailed-agents-test.nix: gateway_inner_of takes the jail name; fakeAgents gains the agents the new cases build (at least eca); every sec-6 VT case is present, each with a twin differing only in the property under test: bind for pi as agent (after the persisted-home bind, by byte offset), as pi-research (profile research), as claude subagent; no bind for eca with gateway; no bind for pi without gateway; file content; missing pi block fails naming the model, its twin evaluates; the existing no-key probes run against the new jails." },
+  { id = "EX-4", text = "agents/README.md § Gateway mode: gatewayClient instead of a hand-built value; the models.json bind, who gets it, why a home should already hold a models.json (the research home's is tracked); adding a served model means its pi block, checked through the gateway." },
+  { id = "EX-5", text = "`just drvs` still identical to the PHASE-01 baseline (gateway off by default and eca has no pi, so nothing a host builds changes: R1); `just test` green; fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "bind present for pi as agent, as pi-research, and as subagent; absent without pi or without gateway; placed after the persisted-home bind", test_file = "agents/jailed-agents-test.nix", keywords = ["pi-gateway-models.json", "~/.pi/agent/models.json", "pi-research", "makeJailedEca"], waived = false },
+  { id = "VT-2", expects = "models.json content: one llm-gateway provider at gw.url, literal $LLM_GATEWAY_KEY, one model per served alias equal to {id} // pi; a served model without pi fails evaluation naming it", test_file = "agents/jailed-agents-test.nix", keywords = ["piGatewayConfig", "has no pi entry", "openai-completions"], waived = false },
+  { id = "VT-3", expects = "the mechanism lives where the design puts it", test_file = "agents/jailed-agents.nix", keywords = ["piGatewayConfig", "piInJail", "piGatewayOptions", "pi-gateway-models.json"], waived = false },
+  { id = "VA-1", expects = "rg finds no add-runtime or models.json write in jailed-agents.nix; `just drvs` unchanged from baseline" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Template and README; push"
+objective = "The agents template starts every jail on the gateway with the opt-out comment; README § LLM gateway names the pi client and the new model rule; the agents change is pushed so out-of-tree flakes can re-lock (design sec-4 Template, sec-5 rollout step 1, sec-7; DEC-062)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "_templates/agents/flake.nix: one `gateway = jailLib.gatewayClient \"pi\";` binding with the opt-out comment from design sec-4; jailed-pi, jailed-pi-research, jailed-claude, jailed-codex take `inherit gateway;`; jailed-opencode and jailed-gemini gone; the op run header text, the --setenv comment and the OPENROUTER_API_KEY forward removed; the knob list describes gateway; Darwin devshell unaffected." },
+  { id = "EX-2", text = "README.md § LLM gateway: clients are eca and the shared pi key; Adding a client uses gatewayClient; another model edits agents/gateway.nix (no option) with its pi block; What it does not cover names the remaining op run consumers (other ~/dev/* flakes, IMP-034; satan, IMP-030)." },
+  { id = "EX-3", text = "SL-013 code commits pushed to the remote, with the user's go-ahead (outward-facing)." },
+]
+verification = [
+  { id = "VT-1", expects = "template defaults every jail to the pi gateway client", test_file = "_templates/agents/flake.nix", keywords = ["gatewayClient \"pi\"", "gateway = null"], waived = false },
+  { id = "VA-1", expects = "`nix flake init -t ~/flakes#agents` into a scratch directory, then its jails build with --override-input agents path:~/flakes/agents; rg finds no opencode, gemini, op run or OPENROUTER in the generated flake" },
+  { id = "VA-2", expects = "`nix flake check` (read-only gate) and `just test` green" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Rotate, clean the shared pi home, issue the pi key"
+objective = "Rotate the DeepSeek key and remove every stored copy in the same step, issue the shared pi key, and prepare the pi homes (design sec-5 rollout steps 2-4; POL-001 r6; inq-9 order)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete (agents landed; no consumer opted in yet)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "User rotated DeepSeek in 1Password; `just gateway-credentials` restarted the gateway on the new key." },
+  { id = "EX-2", text = "Shared home ~/.local/share/jail.nix/home/agent/.pi/agent/: auth.json loses deepseek and llama.cpp (OAuth logins openai-codex, google-gemini-cli, google-antigravity stay); models.json loses local-llama (deepseek provider stays); models.json.backup and models.json~ deleted. Done with jq deletions on named entries; no key value printed or copied." },
+  { id = "EX-3", text = "User issued `llm-gateway issue pi --models deepseek-flash --budget 50 --out ~/.config/llm-gateway/keys/pi`." },
+  { id = "EX-4", text = "The shared home's tracked .gitignore adds models.json* and models-store.json; agent-research/.pi/agent/models.json is `{\"providers\":{}}` and tracked; both committed in the home repo by explicit path." },
+]
+verification = [
+  { id = "VH-1", expects = "user: a request with the old DeepSeek key is rejected by DeepSeek" },
+  { id = "VA-1", expects = "jq shows the named entries absent (keys listed, no values); `llm-gateway list` shows alias pi with model deepseek-flash, budget 50; git check-ignore confirms models.json and models-store.json are ignored in the shared home" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Cut over"
+objective = "Switch the root, move the Emacs flake and ~/dev/doctrine onto the pi gateway client, re-lock both, and set the shared pi default model (design sec-4 Emacs and doctrine, sec-5 rollout step 5; DEC-061, DEC-062)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 complete: keys/pi exists, old key revoked." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "User ran `just system-switch` and `just home-switch`; the gateway and eca run as before." },
+  { id = "EX-2", text = "~/.config/emacs/flake.nix: jailed-pi, jailed-pi-research, jailed-claude, jailed-shell take gatewayClient \"pi\" with the subagent lists of design sec-4; useOpEnv/passApiKeysFromEnv and the patch-adapter comment gone; jailed-opencode and jailed-dirge deleted; jpi execs jailed-pi without op run; apiKeyJailOptions renamed soundJailOptions without the OPENROUTER_API_KEY forward or the duplicate /usr/bin/env bind. agents re-locked; committed in the emacs repo with the user's go-ahead." },
+  { id = "EX-3", text = "~/dev/doctrine/flake.nix: mkJail defaults gateway = jailLib.gatewayClient \"pi\"; jailed-dirge deleted and dirge dropped from every subagent list; agents re-locked; committed in the doctrine repo with the user's go-ahead." },
+  { id = "EX-4", text = "Shared settings.json set to defaultProvider llm-gateway, defaultModel deepseek-flash, enabledModels [\"llm-gateway/deepseek-flash\"]; committed in the home repo by explicit path." },
+  { id = "EX-5", text = "direnv reloaded in ~/.config/emacs and ~/dev/doctrine." },
+]
+verification = [
+  { id = "VA-1", expects = "emacs and doctrine: every jail package builds twice, with --override-input agents path:~/flakes/agents and from the re-locked flake.lock; each launcher carries the models.json bind and no op run or OPENROUTER_API_KEY" },
+  { id = "VA-2", expects = "the re-locked flake.lock files hold no path: or file: source (lock-writing nix commands record --override-input: check before committing)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-06"
+name      = "Live checks"
+objective = "Prove the cutover on the running host and record what the design could only predict (design sec-6 VH)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-05 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Every VH row below has a recorded result in SL-013 notes.md, including the recorded models for VH-4, VH-7 and VH-8." },
+  { id = "EX-2", text = "Any failed check is either fixed in a new phase or raised with the user; none is waved through." },
+]
+verification = [
+  { id = "VH-1", expects = "jailed-pi completes a request on llm-gateway/deepseek-flash; the pi alias's spend rises in llm-gateway list" },
+  { id = "VH-2", expects = "inside that jail: no provider key in env, /proc/1/environ or auth.json; models.json is the store file" },
+  { id = "VH-3", expects = "--thinking off gives no reasoning tokens in the jail" },
+  { id = "VH-4", expects = "jailed-pi-research completes a request; its selected model is recorded; pi spend rises" },
+  { id = "VH-5", expects = "nested: jailed-claude runs jailed-pi, which completes a request" },
+  { id = "VH-6", expects = "unjailed: the host's claude runs jailed-pi, which completes a request" },
+  { id = "VH-7", expects = "a session resumed from before the cutover: record which model it uses" },
+  { id = "VH-8", expects = "an unmigrated ~/dev/* jail: record which model pi falls back to" },
+  { id = "VH-9", expects = "after rotation, VH-1 passing shows the gateway runs on the new key" },
+]
+specs        = []
+requirements = []
