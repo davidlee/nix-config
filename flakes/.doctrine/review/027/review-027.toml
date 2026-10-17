@@ -1,0 +1,314 @@
+id    = 27
+slug  = "reconciliation-review-of-sl-012"
+title = "reconciliation review of SL-012"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-012 PHASE-01..05 (f7376d7c..78a802b8) plus in-audit fix 86df50be: slice conformance judged by agent (ISS-005); design.md sec-2..6 and DEC-036/052..057 against the code and the phases' notes; `just test` and `doctrine check gate` green; nom bootstrap on pre-nom homes; follow-ups, memory and research stamp.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-012"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Expected first home-switch on a nom-less home to work; observed it fails (nom not yet on PATH)"
+detail = """
+Expected: design sec-5 makes `home-switch` / `home-build` pipe through `nom --json`
+and adds nix-output-monitor to the home base, implying a working switch path.
+Observed (justfile:95,98): the recipes call `nom` unconditionally. A home built
+before PHASE-04 has no nom (Draupnir today: design sec-5 says "nom is not
+installed on Draupnir today"), so its first `just home-switch` fails with
+`nom: not found` before home-manager's result can install it. The design never
+addresses this bootstrap. PHASE-05 documents a manual bootstrap
+(`nix shell nixpkgs#nix-output-monitor -c just home-switch`), untested on the
+Mac. Sleipnir is unaffected (nom at ~/.nix-profile/bin/nom). VH-1 pending.
+"""
+disposition = "fix-now"
+response = """
+User chose a code fallback (2026-10-17). justfile `nom_pipe` is
+`--log-format internal-json -v 2>&1 | nom --json` when `command -v nom`
+succeeds, else empty; home-switch / home-build use it, pipefail kept. Verified
+with `just --evaluate nom_pipe` under PATH with and without nom (dry-run does
+not evaluate backticks). README § Bootstrap macOS and § Workarounds no longer
+ask for a manual bootstrap. `just test` green. Commit 86df50be. Design sec-5
+gains a sentence on this at reconcile (brief, per-slice).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+User chose a code fallback (2026-10-17). justfile `nom_pipe` is
+`--log-format internal-json -v 2>&1 | nom --json` when `command -v nom`
+succeeds, else empty; home-switch / home-build use it, pipefail kept. Verified
+with `just --evaluate nom_pipe` under PATH with and without nom (dry-run does
+not evaluate backticks). README § Bootstrap macOS and § Workarounds no longer
+ask for a manual bootstrap. `just test` green. Commit 86df50be. Design sec-5
+gains a sentence on this at reconcile (brief, per-slice).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Expected governance decisions to name the built paths; observed DEC-036/053/054/055/056 stale"
+detail = """
+Expected: accepted decisions describe what was built.
+Observed:
+- DEC-053, DEC-055, DEC-056 name the registry `overlays/workarounds.nix`;
+  built: `workarounds/default.nix` + `workarounds/probes.nix` (plan's location).
+- DEC-054 names the script `bin/workaround last-good`; built:
+  `workarounds/last-good` (no just recipe, by ruling).
+- DEC-036 names `features/cli-broken.nix`; renamed to
+  `features/platform-skips.nix` in PHASE-01 (DEC-052).
+Evidence: notes.md PHASE-02/03/04 "For /reconcile", PHASE-05 D1, D7.
+"""
+disposition = "design-wrong"
+response = """
+The code follows the plan; the governance text is stale. Reconciliation Brief
+§ Governance/spec: REV modify DEC-053, DEC-055, DEC-056 (registry path),
+DEC-054 (script path), DEC-036 (skip-list file name).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The code follows the plan; the governance text is stale. Reconciliation Brief
+§ Governance/spec: REV modify DEC-053, DEC-055, DEC-056 (registry path),
+DEC-054 (script path), DEC-036 (skip-list file name).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Expected design.md to match the implementation; observed drift in sec-2, sec-3, sec-5, sec-6"
+detail = """
+Expected: design.md (canonical) matches the code.
+Observed (notes.md "For /reconcile" + D-items):
+- sec-2: probe field is `storePath`, not `outPath` (nix serialises any attrset
+  with outPath as a bare string under --json); unfree read from `meta.unfree`
+  (per plan EX-3), not `meta.license.free`; exit 2 (usage / probes failed to
+  evaluate) missing from the result table; `workarounds/pin-filter.nix` is a
+  new shared file; probes.nix checks missing keys itself and names the probe.
+- sec-3: lastGood passes `filterAttrs (v != null) pkgs.config`, not
+  `pkgs.config` (nixpkgs 24.11 calls `replaceStdenv = null`); `last-good` exit
+  table (refuses unknown, follows, non-NixOS/nixpkgs inputs; no lock at HEAD;
+  single lock commit) absent; "last good" = previous lock, not previous rev.
+- sec-5: will-build dispatch is `os()` (not "like run.sh");
+  preferLocalBuild has two encodings (plain env and structured `__json`);
+  update-* call `just host='{{host}}' will-build` nested.
+- sec-6: tests bullet says `|& nom --json`, contradicting sec-5 / EX-3 (`2>&1 |`);
+  drvs table names two homes, actual diff is three (incl. `david` alias), and
+  `coverage.home@aarch64-linux` also moves.
+"""
+disposition = "design-wrong"
+response = """
+Each item is a reasoned implementation finding recorded in notes.md by the
+phase that hit it; the code is right. Reconciliation Brief § Per-slice:
+design.md sec-2, sec-3, sec-5, sec-6 edits as enumerated.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Each item is a reasoned implementation finding recorded in notes.md by the
+phase that hit it; the code is right. Reconciliation Brief § Per-slice:
+design.md sec-2, sec-3, sec-5, sec-6 edits as enumerated.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "Expected slice conformance to attribute deltas to selectors; observed 0 conformant (flakes/ prefix)"
+detail = """
+Expected: `doctrine slice conformance 12` matches recorded deltas to design-target selectors.
+Observed: 27 undeclared / 14 undelivered / 0 conformant. Every undeclared code
+path is `flakes/<p>` where `<p>` matches a design-target selector exactly; the
+rest are doctrine bookkeeping (notes, CHR-016, a memory edit). This is the
+known ISS-005 misattribution (git worktree is $HOME). Judged by agent:
+conformant; no undeclared code path, no undelivered selector.
+"""
+disposition = "aligned"
+response = """
+Known tooling defect ISS-005 (git paths carry `flakes/`). Stripping the
+prefix, all 13 code paths match design-target selectors and every selector is
+delivered; the other paths are doctrine bookkeeping. No selector change needed.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Known tooling defect ISS-005 (git paths carry `flakes/`). Stripping the
+prefix, all 13 code paths match design-target selectors and every selector is
+delivered; the other paths are doctrine bookkeeping. No selector change needed.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected durable memory to stay accurate; observed mem.fact.flakes.nom-darwin-sh stale"
+detail = """
+Expected: memories reflect current state.
+Observed: mem.fact.flakes.nom-darwin-sh says Draupnir lacks nom and run.sh lacks
+pipefail; PHASE-04 put nix-output-monitor in the home base and `set -o pipefail`
+in run.sh.
+"""
+disposition = "fix-now"
+response = """
+Updated mem.fact.flakes.nom-darwin-sh: home base provides nom, nom_pipe
+fallback, pipefail in run.sh and home recipes, `just --dry-run` vs `--evaluate`.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Updated mem.fact.flakes.nom-darwin-sh: home base provides nom, nom_pipe
+fallback, pipefail in run.sh and home recipes, `just --dry-run` vs `--evaluate`.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Expected surfaced follow-ups to be captured; observed several left unfiled in notes.md"
+detail = """
+Expected: latent work goes to the backlog, not only notes.
+Observed unfiled candidates (notes.md PHASE-02/03/04/05):
+1. README § crates.io removal command reads `.locks.nodes.nixpkgs` (a
+   transitive node), not the root input; correct form
+   `.locks.nodes[.locks.nodes.root.inputs.nixpkgs].locked.rev`. Pre-existing.
+2. Shared evalModules-schema helper for host-meta.nix and probes.nix, folding in
+   the missing-key check host-meta.nix lacks.
+3. Expose lastGood as a flake output (README tells users to import by path).
+4. Lix `--no-write-lock-file` lock-diff lines are noise in update-*.
+5. last-good could walk back to the last *different* rev of an input.
+"""
+disposition = "follow-up"
+response = """
+Filed: ISS-013 (crates.io removal command lock node), IMP-031 (shared
+evalModules schema helper), IMP-032 (lastGood flake output), IMP-033 (Lix
+lock-diff noise), IDE-007 (last-good walks back to last different rev).
+None is governance; all outside SL-012's scope.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Filed: ISS-013 (crates.io removal command lock node), IMP-031 (shared
+evalModules schema helper), IMP-032 (lastGood flake output), IMP-033 (Lix
+lock-diff noise), IDE-007 (last-good walks back to last different rev).
+None is governance; all outside SL-012's scope.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Expected research stamp current; observed drift reported only for plan.md/plan.toml"
+detail = """
+Expected: `doctrine slice research 12` clean at audit.
+Observed: drift reported; the only change since the stamp is the addition of
+plan.md and plan.toml. Three planners found no stale research content.
+"""
+disposition = "fix-now"
+response = """
+Drift was only plan.md/plan.toml added; research content unaffected (three
+planners checked). Restamped: `doctrine slice research 12 --restamp`.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Drift was only plan.md/plan.toml added; research content unaffected (three
+planners checked). Restamped: `doctrine slice research 12 --restamp`.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

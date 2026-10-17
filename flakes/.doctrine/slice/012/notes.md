@@ -6,21 +6,26 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · design locked, slice at plan · a393d52f
+fresh-as-of: 2026-10-17 · audit concluded, slice to reconcile · 86df50be
 
 ### Produced
-DEC-052 DEC-053 DEC-054 DEC-055 DEC-056 DEC-057 · RV-025 (concluded, 8 fixed) ·
-design.md (locked, run rev 31) · 28861d6c (click-threading overlay removed) ·
-mem.fact.nix.lock-node-names · mem.fact.flakes.nom-darwin-sh
+DEC-052..057 · RV-025 · RV-027 (concluded, 7 verified) · f7376d7c 987a36ba
+cd21161e 0358ba18 78a802b8 86df50be · CHR-016 · ISS-013 · IMP-031 IMP-032
+IMP-033 · IDE-007 · mem.fact.nix.lock-node-names · mem.fact.flakes.nom-darwin-sh
+(updated at audit)
 
 ### Learned
-mem.fact.nix.lock-node-names (RV-025 F-5) · mem.fact.flakes.nom-darwin-sh
-(F-7, F-8) · research X-3 (fixes land without version bumps)
+mem.fact.nix.lock-node-names · mem.fact.flakes.nom-darwin-sh (incl. `just
+--dry-run` skips backticks) · PHASE-02 "For /reconcile" (outPath → string under
+--json) · PHASE-03 "For /reconcile" (24.11 and null config) · research X-3
 
 ### Open
-- chore for shell_cmds + yEd probes: file at P2 (design sec-4)
-- improvement: stable is nixos-24.11, EOL: noted in design sec-7, not filed
-- at reconcile: DEC-053 path (workarounds/, not overlays/), DEC-036 rename
+- RV-027 Reconciliation Brief: design.md sec-2/3/5/6; REV DEC-036, DEC-053..056
+- VH-1: `just home-switch` on Sleipnir, and on Draupnir when next at the Mac
+- standing risks (phase sheets): probes' `storePath` must stay unforced
+  (comment in probes.nix); will-build's header parse is Lix-format-sensitive
+  (the add-up self-check exits 1 on a mismatch)
+- improvement: stable is nixos-24.11, EOL: design sec-7, not filed
 
 ## Design triage (2026-10-17, exploring)
 

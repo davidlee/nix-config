@@ -1,3 +1,4 @@
-- `nix-output-monitor` is installed by `modules/nixos/nix.nix` (Sleipnir) and the dev shell (`perSystem.nix`). `.envrc` does not load the dev shell, so Draupnir has no `nom` until SL-012 P4 adds it to the home base.
+- `nix-output-monitor` is in the home base (`modules/home/cli.nix`, SL-012 P4), as well as `modules/nixos/nix.nix` and the dev shell. A home built before P4 (Draupnir's first switch after it) has no `nom`: the justfile's `nom_pipe` variable is empty when `command -v nom` fails, so `home-switch` / `home-build` print plain output instead of failing (RV-027 F-1).
 - just runs recipe lines with `sh`. On the Mac that is bash 3.2, which has `pipefail` but not `|&`. Write `cmd 2>&1 | nom --json` with `set -o pipefail`.
-- Without pipefail, `cmd | nom` exits with nom's status, so a failed build looks green. `run.sh` has this hole until SL-012 P4.
+- Without pipefail, `cmd | nom` exits with nom's status, so a failed build looks green. `run.sh` and the home recipes set pipefail.
+- `just --dry-run` does not evaluate backtick variables; check a variable like `nom_pipe` with `just --evaluate nom_pipe`.
