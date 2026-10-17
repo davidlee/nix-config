@@ -679,6 +679,8 @@ in {
   inherit agentsByName; # unjailed binaries
   inherit commonPkgs;
   inherit (jail) combinators;
+  # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
+  gatewayClient = (import ./gateway.nix).client;
   # Bare (unjailed) agent packages, resolved from the same eval as the
   # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
   # `unjailed.pi` etc. without separately wiring llm-agents.

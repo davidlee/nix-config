@@ -152,6 +152,8 @@
     workspaceDeps = ["/tmp/one/shared" "/tmp/two/shared"];
   });
 
+  gatewayData = import ./gateway.nix;
+
   # Gateway mode. runDirectory cannot exist in the build sandbox, so the
   # outer wrapper's checks are observable without reaching bwrap.
   gw = {
@@ -192,6 +194,12 @@ in
   assert gatewayWithKeysFails;
   assert gatewayMissingKeyFileFails;
   assert gatewayUnknownAttrFails;
+  assert agents.gatewayClient "pi"
+  == {
+    keyFile = "$HOME/.config/llm-gateway/keys/pi";
+    inherit (gatewayData) url;
+    runDirectory = "/run/llm-gateway";
+  };
     pkgs.runCommand "jailed-agents-policy-tests" {
       nativeBuildInputs = [pkgs.gnugrep pkgs.coreutils];
     } ''

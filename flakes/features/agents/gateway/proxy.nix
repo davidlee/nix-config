@@ -10,13 +10,9 @@
   python = pkgs.python3.withPackages (ps: [ps.litellm] ++ ps.litellm.optional-dependencies.proxy);
 
   defaults = {
-    # gateway model name -> LiteLLM model id and the provider whose key it uses
-    models = {
-      deepseek-flash = {
-        model = "deepseek/deepseek-flash";
-        provider = "deepseek";
-      };
-    };
+    # gateway model name -> LiteLLM model id and the provider whose key it
+    # uses, from agents/gateway.nix (its `pi` entries are for pi, not LiteLLM)
+    models = lib.mapAttrs (_: m: {inherit (m) model provider;}) (import ../../../agents/gateway.nix).models;
     # provider -> the variable LiteLLM reads its key from (the credential is
     # named after the provider) and its 1Password reference (public, G1)
     providers.deepseek = {

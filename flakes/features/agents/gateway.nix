@@ -15,10 +15,12 @@
     constants = import ./gateway/constants.nix;
     proxy = import ./gateway/proxy.nix {inherit pkgs lib;};
     bake = import ./gateway/bake.nix {inherit lib;};
+    # Fixed by agents/gateway.nix, shared with every jail: no per-host option.
+    models = proxy.defaults.models;
 
     user = "llm-gateway"; # the service user and group, and its StateDirectory
     # The credentials are those of the providers the models use.
-    providers = lib.getAttrs (lib.unique (lib.mapAttrsToList (_: m: m.provider) cfg.models)) cfg.providers;
+    providers = lib.getAttrs (lib.unique (lib.mapAttrsToList (_: m: m.provider) models)) cfg.providers;
     # The CLI writes <credstore>/<SERVICE_USER>.<provider> (baked below), with
     # the credential id (<provider>) as its --name=, which systemd checks on
     # decryption.
@@ -44,7 +46,7 @@
     # its sudo re-exec runs: resolved, in the store).
     cli = pkgs.runCommand "llm-gateway" {} ''
       install -Dm755 ${script "llm-gateway" pkgs.python3 {
-        MODELS = lib.attrNames cfg.models;
+        MODELS = lib.attrNames models;
         PROVIDERS = lib.mapAttrs (_: p: p.ref) providers;
         DB = "/var/lib/${user}/keys.db";
         CREDSTORE = credstore;
@@ -84,14 +86,6 @@
       };
   in {
     options.services.llm-gateway = {
-      models = lib.mkOption {
-        type = lib.types.attrsOf (strFields {
-          model = "LiteLLM model id";
-          provider = "the provider whose key it uses (a name in `providers`)";
-        });
-        default = proxy.defaults.models;
-        description = "Gateway model name -> LiteLLM model and provider.";
-      };
       providers = lib.mkOption {
         type = lib.types.attrsOf (strFields {
           env = "the variable LiteLLM reads the key from";
@@ -106,9 +100,9 @@
       assertions =
         lib.mapAttrsToList (name: m: {
           assertion = cfg.providers ? ${m.provider};
-          message = "services.llm-gateway.models.${name}: provider ${m.provider} is not in services.llm-gateway.providers";
+          message = "agents/gateway.nix: model ${name}'s provider ${m.provider} is not in services.llm-gateway.providers";
         })
-        cfg.models;
+        models;
 
       users.users.${user} = {
         isSystemUser = true;
@@ -122,7 +116,10 @@
         description = "LLM gateway (LiteLLM) on ${constants.socket}";
         wantedBy = ["multi-user.target"];
         environment = {
-          CONFIG_FILE_PATH = "${proxy.configDir {inherit (cfg) models providers;}}/config.yaml";
+          CONFIG_FILE_PATH = "${proxy.configDir {
+            inherit models;
+            inherit (cfg) providers;
+          }}/config.yaml";
           LITELLM_LOCAL_MODEL_COST_MAP = "True"; # the packaged price map; no fetch at start
         };
         serviceConfig =

@@ -53,18 +53,13 @@
     }: let
       system = pkgs.stdenv.hostPlatform.system;
       jailLib = inputs.agents.lib.${system}.mkJailedAgents {};
-      constants = import ./agents/gateway/constants.nix;
     in {
       home.packages = [
         jailLib.unjailed.eca
         (jailLib.makeJailedEca {
           profile = "specDev";
           extraPkgs = [inputs.emacs.packages.${system}.default];
-          gateway = {
-            keyFile = "${constants.keyDirectory}/eca";
-            inherit (constants) url;
-            runDirectory = "/run/${constants.runtimeDirectory}";
-          };
+          gateway = jailLib.gatewayClient "eca";
           extraOptions = with jailLib.combinators; [
             mount-cwd
             (try-readonly (noescape "~/.config/eca"))
