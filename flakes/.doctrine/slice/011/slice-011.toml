@@ -12,7 +12,7 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "features/agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/agents/**"
@@ -20,11 +20,11 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "agents/jailed-agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts/Sleipnir/features.nix"
@@ -32,27 +32,35 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/profiles/personal-linux.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "perSystem.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/flake.nix"
 intent = "scope-relevant"
+
+[[selector]]
+selector = "features/agents/gateway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents/gateway/**"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"

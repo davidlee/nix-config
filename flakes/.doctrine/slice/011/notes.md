@@ -45,3 +45,31 @@ Evidence: `research/research.md` (gitignored; G = governance rows, C = code fact
 **Assumptions:**
 - `response_cost` is populated for DeepSeek and OpenRouter (L1, cost map checked).
 - LiteLLM can import our module from its config directory (L3, unverified).
+
+## Design review (2026-10-17, RV-024)
+
+Two adversarial passes by GPT (gpt-6-sol, read-only) over design.md, DEC-046..051
+and the LiteLLM 1.100.1 source. Seven findings, all fixed in the design:
+F-1 route gate in front of LiteLLM (unauthenticated `/health/liveness`,
+`/public/*`), F-2 spend check on the production pricing path, F-3/F-7 `usd()`
+as the finite guard plus non-negative CHECKs, F-4/F-5 credentials in
+`/etc/credstore.encrypted` by absolute path with a launcher presence check,
+F-6 `issue --out` preflight, atomic write and revoke-on-failure. DEC-048's
+choice text updated for the store location.
+
+Found sound by pass 2: pre-call hook runs for chat completions
+(`proxy/common_request_processing.py:1920`); custom_auth works without a master
+key (`proxy/auth/user_api_key_auth.py:1290`); a sha256 hex `api_key` is kept,
+not re-hashed (`proxy/_types.py:2918`), and reaches callbacks as
+`user_api_key_hash` (`proxy/litellm_pre_call_utils.py:1365`); the Nix default
+referencing `gateway` evaluates.
+
+**A further pass is not needed before lock.** What one would probe, and where
+it is covered instead:
+- the sudo re-exec path of the admin CLI (beyond F-6) → P3 tests and code review;
+- hardening options other than `@system-service` (`ProtectHome`,
+  `MemoryDenyWriteExecute` if added) against CPython/uvicorn → P3 brings the
+  unit up on Sleipnir; loosen only what fails, with the reason in the unit;
+- whether `mock_response` takes the production pricing path → P2, with the
+  named fallback in design § Phases;
+- all surfaces again on LiteLLM 1.102.1 → `checks.<system>.llm-gateway`.

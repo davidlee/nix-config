@@ -1,0 +1,192 @@
+id    = 24
+slug  = "design-review-of-sl-011"
+title = "design review of SL-011"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Two adversarial passes (GPT gpt-6-sol, read-only) over design.md, the DECs and LiteLLM 1.100.1 source. Pass 1: F-1..F-4. Pass 2: confirmed F-1..F-3, raised F-5..F-7, and found sound: pre-call hook invocation, custom_auth without master key, hash pass-through to user_api_key_hash, Nix default, relay group access, credential readability. Not independently cleared: the sudo re-exec path beyond F-6, and hardening options other than @system-service against CPython/uvicorn (left to P3 verification)."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-011"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Unauthenticated LiteLLM routes bypass custom_auth"
+detail = "Adversarial pass (GPT gpt-6-sol), verified: /health/liveness (health_endpoints/_health_endpoints.py:1813) and /public/model_hub (public_endpoints/public_endpoints.py:208, one of 12 public routes) have no auth dependency in 1.100.1, so the custom_auth route allow-list (design § Key store) cannot refuse them on a host-wide relay. Fix: path+method allow-list at the ASGI boundary in front of LiteLLM; test unauthenticated requests to permitted and excluded paths against 1.102.1."
+disposition = "fix-now"
+response = "Verified in 1.100.1. Design sec-3: route gate (ASGI wrapper) in front of LiteLLM passes only POST /chat/completions and GET /models (± /v1), 404 otherwise; route check removed from custom_auth. sec-6 P2 tests unauthenticated /health/liveness, /public/model_hub and an admin route."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Verified in 1.100.1. Design sec-3: route gate (ASGI wrapper) in front of LiteLLM passes only POST /chat/completions and GET /models (± /v1), 404 otherwise; route check removed from custom_auth. sec-6 P2 tests unauthenticated /health/liveness, /public/model_hub and an admin route."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "Spend check fallback bypasses the production pricing path"
+detail = "Adversarial pass: stubbing cost via model_info (design § Phases) tests a different path; production DeepSeek could return None and count 0. Fix: require positive response_cost through the production model mapping and packaged price map; if mock_response cannot, a separately labelled adapter test; VH requires positive spend."
+disposition = "fix-now"
+response = "sec-6: spend case uses production mapping deepseek/deepseek-v4-flash and the packaged price map, requires response_cost > 0; if mock_response skips that path, a separately named adapter test and VH step 7 carries the production-pricing claim. model_info stub dropped."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-6: spend case uses production mapping deepseek/deepseek-v4-flash and the packaged price map, requires response_cost > 0; if mock_response skips that path, a separately named adapter test and VH step 7 carries the production-pricing claim. model_info stub dropped."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "NaN or negative budget/spend disables or corrupts limits"
+detail = "Adversarial pass: no constraint on budget_usd/spent_usd and no CLI validation; a NaN budget makes spent >= budget false forever. Fix: reject nonfinite and negative values in CLI and keystore; CHECK constraints; tests for malformed budgets and costs."
+disposition = "fix-now"
+response = "sec-3: CHECK (>= 0) on budget_usd and spent_usd; usd() parser rejects non-finite and negative values, used by the CLI and every keystore write; record_spend counts None/non-finite/negative cost as 0 with a warning. sec-6 P1 tests these."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-3: CHECK (>= 0) on budget_usd and spent_usd; usd() parser rejects non-finite and negative values, used by the CLI and every keystore write; record_spend counts None/non-finite/negative cost as 0 with a warning. sec-6 P1 tests these."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Nothing creates the creds directory before first encryption"
+detail = "Adversarial pass: StateDirectory creates /var/lib/llm-gateway only; the credentials step writes to creds/ and fails on first run. Fix chosen: use systemd's own /etc/credstore.encrypted (root 0700, created by systemd tmpfiles, present on Sleipnir) and LoadCredentialEncrypted by name."
+disposition = "fix-now"
+response = "sec-2/sec-4: credentials live in systemd's /etc/credstore.encrypted (root 0700, created by systemd tmpfiles, present on Sleipnir); LoadCredentialEncrypted by name. DEC-048 choice updated."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-2/sec-4: credentials live in systemd's /etc/credstore.encrypted (root 0700, created by systemd tmpfiles, present on Sleipnir); LoadCredentialEncrypted by name. DEC-048 choice updated."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "major"
+title = "Missing searched credential is not fatal; start refusal claim unproven"
+detail = "Second adversarial pass: systemd.exec documents cases where a LoadCredentialEncrypted lookup failure is not fatal, so 'systemd refuses to start and names the missing credential' is not guaranteed. Fix: absolute path in LoadCredentialEncrypted, and the launcher checks every required credential and fails with a clear message."
+disposition = "fix-now"
+response = "sec-2: absolute path deepseek:/etc/credstore.encrypted/llm-gateway.deepseek; launcher checks each configured credential in CREDENTIALS_DIRECTORY and exits naming the missing one and 'just gateway-credentials'. sec-6 VH step 1 reads the launcher's journal message."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-2: absolute path deepseek:/etc/credstore.encrypted/llm-gateway.deepseek; launcher checks each configured credential in CREDENTIALS_DIRECTORY and exits naming the missing one and 'just gateway-credentials'. sec-6 VH step 1 reads the launcher's journal message."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "major"
+title = "issue --out has no failure rule: a live key can be orphaned"
+detail = "Second adversarial pass: if the unprivileged parent fails to write after the child issued the key, the DB holds a live key nobody holds. Fix: --out only in the parent, preflight destination, atomic 0600 write, revoke on failure; tests for existing destination and failed write."
+disposition = "fix-now"
+response = "sec-4: --out handled only by the unprivileged parent: preflight (no existing destination, writable dir, keys dir 0700), atomic 0600 temp+rename, revoke the issued key through the child on failure. sec-6 P1/P3 tests: existing destination refused; failed write revokes."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-4: --out handled only by the unprivileged parent: preflight (no existing destination, writable dir, keys dir 0700), atomic 0600 temp+rename, revoke the issued key through the child on failure. sec-6 P1/P3 tests: existing destination refused; failed write revokes."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "CHECK constraints do not reject +Infinity; test claim overstated"
+detail = "Second adversarial pass: CHECK (x >= 0) accepts +Infinity; usd() is the finite guard. Fix: test the SQL constraints only for non-negative."
+disposition = "fix-now"
+response = "sec-3: usd() named as the finite guard; CHECK constraints described as non-negative only. sec-6: SQL constraints tested for negative values only."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "sec-3: usd() named as the finite guard; CHECK constraints described as non-negative only. sec-6: SQL constraints tested for negative values only."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
