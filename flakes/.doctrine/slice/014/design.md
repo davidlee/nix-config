@@ -334,6 +334,7 @@ an allow-list:
 ```
 client ──POST /v1/chat/completions──> route_gate
                                        ├─ route not allowed            ──> 404 (unchanged)
+                                       ├─ body over 16 MiB             ──> 413
                                        ├─ body not a JSON object       ──> 400
                                        ├─ a field off ALLOWED_FIELDS   ──> 400 "llm-gateway: field 'x' not allowed"
                                        └─ otherwise: replay the body ──> LiteLLM (auth, ModelGate, Router)
@@ -347,6 +348,10 @@ ALLOWED_FIELDS = frozenset({
     "presence_penalty", "frequency_penalty", "logit_bias", "logprobs",
     "top_logprobs", "tools", "tool_choice", "parallel_tool_calls",
     "response_format", "user", "reasoning_effort",
+    # DeepSeek thinking switch (pi)
+    "thinking",
+    # OpenRouter reasoning effort (gptel)
+    "reasoning",
     # OpenRouter: provider routing preferences (sort, order, only, …)
     "provider",
 })
@@ -366,13 +371,19 @@ upstream):
 
 `stream_options` is listed: LiteLLM sets `include_usage` true over the
 client's top-level value (probed). Nested objects (`provider`,
-`messages`, `tools`) are not inspected: none of them is merged into
+`messages`, `tools`, `thinking`, `reasoning`) are not inspected: none of them is merged into
 LiteLLM's own parameters.
 
 A refusal is a 400 with a JSON error naming every unlisted field. It is
 sent before authentication, which reveals nothing: the list is in this
 public repo. The body is read in full, then replayed to LiteLLM as one
-`http.request` message. Other routes (`GET /models`) pass unread. Phase planning checks the list against the bodies
+`http.request` message. Other routes (`GET /models`) pass unread.
+
+The body is capped at 16 MiB (`MAX_BODY_BYTES`): the guard reads before
+authentication, so the cap bounds memory for any caller. A `content-length`
+over the cap is refused up front, and a chunked body is refused as soon as
+the bytes read exceed it; both answer 413.
+ Phase planning checks the list against the bodies
 eca, pi, gptel and minuet send; a field a client needs is added here, with
 its reason.
 

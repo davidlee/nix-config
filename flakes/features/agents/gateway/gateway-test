@@ -54,6 +54,8 @@ loader.exec_module(serve)
 PROVIDER_SECRET = "sk-test-not-a-secret"  # dummy (POL-001)
 PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
+REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
+UNALLOWED = "unallowed"  # the same without allowed_openai_params
 
 
 def model_list(config_dir):
@@ -97,6 +99,9 @@ os.environ["CONFIG_FILE_PATH"] = str(TEST_CONFIG / "config.yaml")
 app = serve.app(TEST_CONFIG)
 import gateway_hooks
 import keystore
+import litellm
+from fastapi import HTTPException
+from litellm.proxy._types import UserAPIKeyAuth
 from starlette.testclient import TestClient
 
 DB = Path(state.name) / "keys.db"
@@ -123,10 +128,12 @@ def spent(alias):
     return next(r["spent_usd"] for r in keystore.rows(DB) if r["alias"] == alias)
 
 
-def chat(key=None, model=PRICED, path="/chat/completions", via=None, **body):
+def chat(
+    key=None, model=PRICED, path="/chat/completions", via=None, headers=(), **body
+):
     """POST a chat completion to the in-process app, or to the app `via`
     (an httpx client)."""
-    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    headers = {**({"Authorization": f"Bearer {key}"} if key else {}), **dict(headers)}
     payload = {"model": model, "messages": [{"role": "user", "content": "hi"}], **body}
     return (via or client).post(path, headers=headers, json=payload)
 
@@ -157,11 +164,122 @@ def assert_spend_rose_by(alias, before, amount, wait=SPEND_WAIT, settle=0.5):
         raise AssertionError(f"{alias}: spent rose by {delta}, want {amount}")
 
 
+def is_refusal(response, status, header):
+    """A `status` answered by route_gate, not LiteLLM: it carries `header`
+    (HEAD responses have no body to tell them apart by)."""
+    name, value = (part.decode() for part in header)
+    return response.status_code == status and response.headers.get(name) == value
+
+
 def is_gate_refusal(response):
-    """A 404 from route_gate, not LiteLLM: it carries GATE_HEADER (HEAD
-    responses have no body to tell them apart by)."""
-    name, value = (part.decode() for part in gateway_hooks.GATE_HEADER)
-    return response.status_code == 404 and response.headers.get(name) == value
+    return is_refusal(response, 404, gateway_hooks.GATE_HEADER)
+
+
+def is_guard_refusal(response):
+    return is_refusal(response, 400, gateway_hooks.GUARD_HEADER)
+
+
+# --- request bodies (SL-014 sec-9) -------------------------------------------
+
+# What each client sends, every optional field with one realistic value.
+# pi, gptel and minuet are read from their source (SL-014 PHASE-03 sheet);
+# eca was captured on the wire, its text trimmed. `model` is the one each is
+# served on here: deepseek-flash in-process, REPORTED on the fake OpenRouter.
+HI = [{"role": "user", "content": "hi"}]
+ECA_READ_FILE = {
+    "type": "function",
+    "function": {
+        "name": "eca__read_file",
+        "description": "Read a file's current content.",
+        "parameters": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+                "path": {"type": "string", "description": "The absolute path."},
+                "limit": {"type": "integer", "description": "Maximum lines."},
+            },
+        },
+    },
+}
+CLIENT_BODIES = {
+    "pi": {
+        "model": PRICED,
+        "messages": HI,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+        "max_tokens": 8192,
+        "temperature": 0.7,
+        "tools": [ECA_READ_FILE],
+        "tool_choice": "auto",
+        "reasoning_effort": "high",
+        "thinking": {"type": "enabled"},
+    },
+    "gptel": {
+        "model": PRICED,
+        "messages": HI,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+        "temperature": 1.0,
+        "max_tokens": 1024,
+        "tools": [ECA_READ_FILE],
+        "parallel_tool_calls": True,
+        "tool_choice": "required",
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {"name": "answer", "schema": {"type": "object"}},
+        },
+    },
+    "gptel-openrouter": {
+        "model": REPORTED,
+        "messages": HI,
+        "stream": True,
+        "stream_options": {"include_usage": True},
+        "reasoning": {"effort": "high"},
+    },
+    "minuet": {
+        "model": REPORTED,
+        "messages": HI,
+        "max_tokens": 56,
+        "top_p": 0.9,
+        "reasoning_effort": "none",
+        "provider": {"sort": "throughput"},
+        "stream": True,
+    },
+    "eca-title": {
+        "model": PRICED,
+        "messages": [{"role": "system", "content": "# Title generator"}, *HI],
+        "stream": False,
+        "max_completion_tokens": 393216,
+    },
+    "eca-chat": {
+        "model": PRICED,
+        "messages": [{"role": "system", "content": "# ECA"}, *HI],
+        "stream": True,
+        "max_completion_tokens": 393216,
+        "tools": [ECA_READ_FILE],
+        "stream_options": {"include_usage": True},
+    },
+}
+# eca's own headers, from the capture: an h2c upgrade offer on HTTP/1.1
+ECA_HEADERS = {
+    "x-llm-application-name": "eca",
+    "Upgrade": "h2c",
+    "Connection": "Upgrade, HTTP2-Settings",
+    "HTTP2-Settings": "AAEAAEAAAAIAAAAAAAMAAAAAAAQBAAAAAAUAAEAAAAYABgAA",
+    "User-Agent": "Java-http-client/25.0.4",
+}
+# RV-029 F-1, F-2, F-4, F-5: fields that steer past ModelGate or the Ledger
+BYPASS_BODIES = {
+    "extra_body.model": {"extra_body": {"model": "openrouter/elsewhere"}},
+    "models+route": {"models": ["openrouter/elsewhere"], "route": "fallback"},
+    "extra_body.usage": {"extra_body": {"usage": {"include": False}}},
+    "extra_body.stream_options": {
+        "stream": True,
+        "extra_body": {"stream_options": {"include_usage": False}},
+    },
+    "litellm_params": {"litellm_params": {}},
+    "custom_llm_provider": {"custom_llm_provider": "openai"},
+}
 
 
 # --- route_gate in isolation: a recording app stands in for LiteLLM ---------
@@ -180,26 +298,67 @@ class Recorder:
             await send({"type": "http.response.body", "body": b"inner"})
 
 
-def call(asgi, scope):
-    """Run one ASGI call; return the messages it sent."""
-    sent = []
-    received = [{"type": "websocket.connect"}, {"type": "http.request", "body": b""}]
+class Reader(Recorder):
+    """A Recorder that first reads the request body, as LiteLLM does, into
+    `bodies`."""
+
+    def __init__(self):
+        super().__init__()
+        self.bodies = []
+
+    async def __call__(self, scope, receive, send):
+        body, more = b"", True
+        while more:
+            message = await receive()
+            body += message.get("body", b"")
+            more = message.get("more_body", False)
+        self.bodies.append(body)
+        await super().__call__(scope, receive, send)
+
+
+def call_with_body(asgi, scope, chunks):
+    """Run one ASGI call, the request body arriving as `chunks`, one
+    http.request message each, then http.disconnect; return the messages
+    sent and the number of receive calls."""
+    sent, reads = [], 0
+    received = [
+        {"type": "http.request", "body": chunk, "more_body": i < len(chunks) - 1}
+        for i, chunk in enumerate(chunks)
+    ]
 
     async def receive():
+        nonlocal reads
+        reads += 1
         return received.pop(0) if received else {"type": "http.disconnect"}
 
     async def send(message):
         sent.append(message)
 
     asyncio.run(asgi(scope, receive, send))
-    return sent
+    return sent, reads
 
 
-def http(method, path, raw_path=None):
-    scope = {"type": "http", "method": method, "path": path, "headers": []}
+def call(asgi, scope):
+    """Run one ASGI call with an empty JSON object for a body; return the
+    messages it sent."""
+    return call_with_body(asgi, scope, [b"{}"])[0]
+
+
+def http(method, path, raw_path=None, headers=()):
+    scope = {"type": "http", "method": method, "path": path, "headers": list(headers)}
     if raw_path is not None:
         scope["raw_path"] = raw_path
     return scope
+
+
+def post(headers=()):
+    return http("POST", "/v1/chat/completions", b"/v1/chat/completions", headers)
+
+
+def sized(n):
+    """A JSON object of exactly `n` bytes, every field on the list."""
+    shell = b'{"model": ""}'
+    return shell[:-2] + b"x" * (n - len(shell)) + shell[-2:]
 
 
 class RouteGateUnitTest(unittest.TestCase):
@@ -262,6 +421,135 @@ class RouteGateUnitTest(unittest.TestCase):
         sent = call(gate, {"type": "websocket", "path": "/chat/completions"})
         self.assertEqual(sent, [{"type": "websocket.close", "code": 1008}])
         self.assertEqual(inner.scopes, [])
+
+    # the body guard: ALLOWED_FIELDS, MAX_BODY_BYTES
+
+    def guarded(self, chunks, scope=None):
+        """Post `chunks` through the gate to a Reader: the inner app, the
+        messages sent and the number of receive calls."""
+        inner = Reader()
+        sent, reads = call_with_body(
+            gateway_hooks.route_gate(inner), scope or post(), chunks
+        )
+        return inner, sent, reads
+
+    def assert_refused(self, sent, inner, status, error):
+        self.assertEqual(sent[0]["status"], status)
+        self.assertIn(gateway_hooks.GUARD_HEADER, sent[0]["headers"])
+        self.assertNotIn(gateway_hooks.GATE_HEADER, sent[0]["headers"])
+        self.assertEqual(json.loads(sent[1]["body"]), {"error": error})
+        self.assertEqual(inner.scopes, [])
+
+    def test_a_field_off_ALLOWED_FIELDS_gets_400_naming_it(self):
+        for field in (
+            "extra_body",
+            "models",
+            "route",
+            "usage",
+            "litellm_params",
+            "custom_llm_provider",
+            "fallbacks",
+            "metadata",
+            "mock_response",
+            "api_base",
+        ):
+            with self.subTest(field=field):
+                body = json.dumps({"model": PRICED, field: None}).encode()
+                inner, sent, _ = self.guarded([body])
+                self.assert_refused(
+                    sent, inner, 400, f"llm-gateway: field {field!r} not allowed"
+                )
+
+    def test_every_field_off_the_list_is_named_sorted(self):
+        body = json.dumps({"route": 1, "model": PRICED, "extra_body": {}}).encode()
+        inner, sent, _ = self.guarded([body])
+        self.assert_refused(
+            sent,
+            inner,
+            400,
+            "llm-gateway: field 'extra_body' not allowed, field 'route' not allowed",
+        )
+
+    def test_a_body_that_is_not_a_json_object_gets_400(self):
+        for body in (b"[]", b'"x"', b"null", b"1", b"{", b"", b"\xff", b"[" * 100000):
+            with self.subTest(body=body[:8]):
+                inner, sent, _ = self.guarded([body])
+                self.assert_refused(
+                    sent, inner, 400, "llm-gateway: body is not a JSON object"
+                )
+
+    def test_a_listed_body_reaches_the_inner_app_byte_for_byte(self):
+        body = json.dumps(CLIENT_BODIES["pi"]).encode()
+        for chunks in ([body], [body[:5], b"", body[5:40], body[40:]]):
+            with self.subTest(chunks=len(chunks)):
+                inner, sent, _ = self.guarded(chunks)
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(inner.bodies, [body])
+
+    def test_every_client_body_passes(self):
+        for client_name, body in CLIENT_BODIES.items():
+            with self.subTest(client=client_name):
+                inner, sent, _ = self.guarded([json.dumps(body).encode()])
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(len(inner.scopes), 1)
+
+    def test_after_the_body_receive_passes_through(self):
+        """Starlette listens for http.disconnect once the body is read."""
+        later = []
+
+        async def inner(scope, receive, send):
+            later.append(await receive())
+            later.append(await receive())
+            await Recorder()(scope, receive, send)
+
+        call_with_body(gateway_hooks.route_gate(inner), post(), [b"{}"])
+        self.assertEqual(
+            later,
+            [
+                {"type": "http.request", "body": b"{}", "more_body": False},
+                {"type": "http.disconnect"},
+            ],
+        )
+
+    def test_scope_headers_reach_the_inner_app_unchanged(self):
+        headers = [(k.lower().encode(), v.encode()) for k, v in ECA_HEADERS.items()]
+        scope = post(headers)
+        inner, _, _ = self.guarded([b"{}"], scope)
+        self.assertEqual(inner.scopes, [scope])
+
+    def test_routes_without_a_body_pass_unread(self):
+        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+            if method == "POST":
+                continue
+            with self.subTest(path=path):
+                inner = Recorder()
+                gate = gateway_hooks.route_gate(inner)
+                sent, reads = call_with_body(gate, http(method, path), [b"not json"])
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(reads, 0)
+
+    def test_a_body_over_the_cap_gets_413_and_never_reaches_the_inner_app(self):
+        cap = gateway_hooks.MAX_BODY_BYTES
+        chunks = [b" " * (cap // 4)] * 5 + [b"never read"]
+        inner, sent, reads = self.guarded(chunks)
+        self.assert_refused(sent, inner, 413, "llm-gateway: request body too large")
+        self.assertEqual(reads, 5)  # stops reading once over the cap
+
+    def test_a_content_length_over_the_cap_gets_413_unread(self):
+        length = str(gateway_hooks.MAX_BODY_BYTES + 1).encode()
+        inner, sent, reads = self.guarded([b"{}"], post([(b"content-length", length)]))
+        self.assert_refused(sent, inner, 413, "llm-gateway: request body too large")
+        self.assertEqual(reads, 0)
+
+    def test_a_body_exactly_at_the_cap_passes(self):
+        cap = gateway_hooks.MAX_BODY_BYTES
+        body = sized(cap)
+        self.assertEqual(len(body), cap)
+        length = [(b"content-length", str(cap).encode())]
+        chunks = [body[i : i + cap // 3] for i in range(0, cap, cap // 3)]
+        inner, sent, _ = self.guarded(chunks, post(length))
+        self.assertEqual(sent[0]["status"], 200)
+        self.assertEqual(inner.bodies, [body])
 
 
 # --- through the real proxy app ----------------------------------------------
@@ -356,29 +644,46 @@ class AuthTest(unittest.TestCase):
         self.assertIn(f"narrow: model {PRICED!r} not allowed", response.text)
         self.assertEqual(spent("narrow"), 0)
 
-    def test_a_fallback_to_a_model_off_the_keys_list_is_refused(self):
-        """RV-026 F-4: the Router honours fallbacks named in the request."""
-        key = issue("fallback", models=[PRICED])
-        for body in (
-            {"fallbacks": [UNPRICED]},
-            {"fallbacks": [{PRICED: [UNPRICED]}]},
-            {"fallbacks": [{"model": UNPRICED}]},
-            {"context_window_fallbacks": [{PRICED: [UNPRICED]}]},
-            {"content_policy_fallbacks": [UNPRICED]},
-            {"router_settings_override": {"fallbacks": [UNPRICED]}},
-        ):
+    # RV-026 F-4: the Router honours fallbacks named in the request.
+    FALLBACKS = (
+        {"fallbacks": [UNPRICED]},
+        {"fallbacks": [{PRICED: [UNPRICED]}]},
+        {"fallbacks": [{"model": UNPRICED}]},
+        {"context_window_fallbacks": [{PRICED: [UNPRICED]}]},
+        {"content_policy_fallbacks": [UNPRICED]},
+        {"router_settings_override": {"fallbacks": [UNPRICED]}},
+    )
+
+    def test_a_request_naming_a_fallback_is_refused_by_the_body_guard(self):
+        key = issue("fallback", models=[PRICED, UNPRICED])
+        for body in self.FALLBACKS:
             with self.subTest(body=body):
-                response = chat(key, **body)
-                self.assertEqual(response.status_code, 403, response.text)
-                self.assertIn(
-                    f"fallback: model {UNPRICED!r} not allowed", response.text
-                )
+                self.assertTrue(is_guard_refusal(chat(key, **body)))
         self.assertEqual(spent("fallback"), 0)
 
-    def test_a_fallback_to_a_listed_model_is_served(self):
-        key = issue("listed-fallback")
-        response = chat(key, fallbacks=[UNPRICED])
-        self.assertEqual(response.status_code, 200, response.text)
+    def model_gate(self, models, body):
+        """ModelGate, the second line behind the guard, called directly."""
+        auth = UserAPIKeyAuth(models=models, key_alias="fallback")
+        data = {"model": PRICED, "messages": HI, **body}
+        return asyncio.run(
+            gateway_hooks.model_gate.async_pre_call_hook(auth, None, data, "completion")
+        )
+
+    def test_model_gate_refuses_a_fallback_to_a_model_off_the_keys_list(self):
+        for body in self.FALLBACKS:
+            with self.subTest(body=body):
+                with self.assertRaises(HTTPException) as refused:
+                    self.model_gate([PRICED], body)
+                self.assertEqual(refused.exception.status_code, 403)
+                self.assertIn(
+                    f"fallback: model {UNPRICED!r} not allowed",
+                    refused.exception.detail,
+                )
+
+    def test_model_gate_passes_a_fallback_to_a_listed_model(self):
+        for body in self.FALLBACKS:
+            with self.subTest(body=body):
+                self.assertTrue(self.model_gate([PRICED, UNPRICED], body))
 
 
 class SpendTest(unittest.TestCase):
@@ -442,31 +747,25 @@ class SpendTest(unittest.TestCase):
 
 class ClientOverrideTest(unittest.TestCase):
     """Beyond the criteria (Q4): a client cannot steer the provider call or
-    the ledger from the request body."""
+    the ledger from the request body. The body guard refuses each field
+    before LiteLLM sees it."""
 
-    def test_client_mock_response_is_stripped(self):
-        key = issue("mocker")
-        response = chat(key, mock_response="from the client")
-        self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(
-            response.json()["choices"][0]["message"]["content"], CONFIG_MOCK
+    def assert_refused_free(self, alias, **body):
+        response = chat(issue(alias), **body)
+        self.assertTrue(
+            is_guard_refusal(response), (response.status_code, response.text)
         )
+        self.assertEqual(spent(alias), 0)
+
+    def test_client_mock_response_is_refused(self):
+        self.assert_refused_free("mocker", mock_response="from the client")
 
     def test_client_api_base_is_refused(self):
-        key = issue("redirector")
-        response = chat(key, api_base="http://attacker.invalid/v1")
-        # LiteLLM refuses it before custom_auth with a ValueError, which its
-        # auth error mapping turns into a 500 here: that mapping imports
-        # prisma, absent without a database (auth_exception_handler.py:62).
-        self.assertGreaterEqual(response.status_code, 400)
-        self.assertEqual(spent("redirector"), 0)
+        self.assert_refused_free("redirector", api_base="http://attacker.invalid/v1")
 
     def test_client_metadata_cannot_charge_another_key(self):
-        key = issue("spoofer")
         victim = keystore.key_hash(issue("victim"))
-        response = chat(key, metadata={"user_api_key_hash": victim})
-        self.assertEqual(response.status_code, 200, response.text)
-        assert_spend_raised("spoofer")
+        self.assert_refused_free("spoofer", metadata={"user_api_key_hash": victim})
         self.assertEqual(spent("victim"), 0)
 
 
@@ -501,7 +800,10 @@ class PriceMapTest(unittest.TestCase):
         for entry in openrouter:
             self.assertEqual(entry["model_name"], entry["litellm_params"]["model"])
         self.assertEqual(
-            [e["model_name"] for e in served_by(PRODUCTION_CONFIG, "FIREWORKS_API_KEY")],
+            [
+                e["model_name"]
+                for e in served_by(PRODUCTION_CONFIG, "FIREWORKS_API_KEY")
+            ],
             ["fireworks/nemotron-lightning-3p5-30b-a3b"],
         )
         self.assertEqual(
@@ -715,10 +1017,6 @@ def fake():
     return fake_gateway
 
 
-REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
-UNALLOWED = "unallowed"  # the same without allowed_openai_params
-
-
 class OpenRouterCostTest(unittest.TestCase):
     """DEC-068: the cost OpenRouter reports reaches the Ledger, streamed and
     not, for a model the price map lacks."""
@@ -762,6 +1060,86 @@ class PassThroughTest(unittest.TestCase):
         self.assertIn("reasoning_effort", response.text)
         self.assertEqual(gateway.upstream.bodies, [])
         self.assertEqual(spent("unallowed"), 0)
+
+
+class BodyGuardTest(unittest.TestCase):
+    """SL-014 VT-2: each RV-029 bypass body is refused before LiteLLM, in
+    process and on the fake OpenRouter, and costs nothing. The control: a
+    top-level stream_options is listed, as LiteLLM forces its usage on."""
+
+    def test_bypass_bodies_are_refused_and_cost_nothing(self):
+        gateway = fake()
+        for model, via in ((PRICED, client), (REPORTED, gateway.client)):
+            key = issue(f"bypass-{model}", models=[model])
+            for name, body in BYPASS_BODIES.items():
+                with self.subTest(bypass=name, model=model):
+                    response = chat(key, model=model, via=via, **body)
+                    self.assertTrue(
+                        is_guard_refusal(response),
+                        (response.status_code, response.text),
+                    )
+            self.assertEqual(gateway.upstream.bodies, [])
+            self.assertEqual(spent(f"bypass-{model}"), 0)
+
+    def test_control_top_level_include_usage_false_is_served_and_charged(self):
+        gateway = fake()
+        key = issue("include-usage", models=[REPORTED])
+        body = {"stream": True, "stream_options": {"include_usage": False}}
+        response = chat(key, model=REPORTED, via=gateway.client, **body)
+        self.assertEqual(response.status_code, 200, response.text)
+        assert_spend_rose_by("include-usage", 0, FAKE_COST)
+
+
+class ClientBodyTest(unittest.TestCase):
+    """SL-014 VT-3: what each client sends is served and charged, through
+    the guard: the deepseek-flash bodies in process, eca's with its own
+    headers; the OpenRouter ones on the fake, which reports FAKE_COST."""
+
+    def serve(self, name):
+        body = CLIENT_BODIES[name]
+        gateway = fake() if body["model"] == REPORTED else None
+        alias = f"{self._testMethodName}-{name}"
+        response = chat(
+            issue(alias, models=[body["model"]]),
+            via=gateway and gateway.client,
+            headers=ECA_HEADERS if name.startswith("eca") else (),
+            **body,
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        return alias, gateway
+
+    def test_every_client_body_is_served_and_charged(self):
+        for name in CLIENT_BODIES:
+            with self.subTest(client=name):
+                alias, gateway = self.serve(name)
+                if gateway:
+                    assert_spend_rose_by(alias, 0, FAKE_COST)
+                else:
+                    assert_spend_raised(alias)
+
+    def test_reasoning_reaches_openrouter_with_its_cost_report(self):
+        """gptel's reasoning object rides to the upstream body, and the
+        usage LiteLLM adds for the cost report is still there."""
+        _, gateway = self.serve("gptel-openrouter")
+        [body] = gateway.upstream.bodies
+        self.assertEqual(body["reasoning"], {"effort": "high"})
+        self.assertEqual(body["usage"], {"include": True})
+
+    def test_the_deepseek_adapter_sends_thinking_upstream(self):
+        """pi's thinking switch is neither refused nor dropped by LiteLLM's
+        DeepSeek adapter. The in-process app answers from mock_response
+        after mapping the params, so the adapter is called here directly,
+        against the fake."""
+        gateway = fake()
+        litellm.completion(
+            model=deployment(TEST_CONFIG, PRICED)["model"],
+            api_base=f"http://127.0.0.1:{FAKE_PORT}/v1",
+            api_key=PROVIDER_SECRET,
+            messages=HI,
+            thinking={"type": "enabled"},
+        )
+        [body] = gateway.upstream.bodies
+        self.assertEqual(body["thinking"], {"type": "enabled"})
 
 
 class ParamsOverrideTest(unittest.TestCase):
