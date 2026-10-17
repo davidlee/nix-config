@@ -1,0 +1,46 @@
+memory_uid = "mem_01a149712a8f79e2a5618cd4d9719a81"
+memory_key = "mem.fact.doctrine.design-apply-acceptance-records-design-accepted"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "design apply: a top-level acceptance in reviewing records design-accepted"
+summary = "In the reviewing stage, a design apply payload with a top-level acceptance block records a design-accepted act; send adversarial att- declarations without one."
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = []
+globs = []
+commands = ["doctrine design apply"]
+tags = ["doctrine", "design-run"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "32637167df90ec61540eff09ec1f63b31a10481e"
+ref_name = "refs/heads/main"
+checkout_state_id = "b665c0e157870b3ae7b3ee89225eee72d1f63e8ed830a4e2f9e2c248a5f19cf3"
+base_commit = "e3203df9ad5c9e86ff401fccb216fa0be4c2ceb2"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "high"
+weight = 0
+
+[[source]]
+kind = "session"
+ref = "SL-013 run dr-01a148df rev 47"
+
