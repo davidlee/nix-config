@@ -6,27 +6,27 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · design/reviewing rev 42 · b9c74c4e (SL-013 records uncommitted)
+fresh-as-of: 2026-10-17 · ready (plan, 6 phases, none started) · 5e7278b1
 
 ### Produced
-- design.md sec-1..7 drafted in the run (rev 42, reviewing); 10 design-target selectors.
-- DEC-063 — pi entries hand-written per served model; supersedes DEC-060.
-- DEC-061 rationale moderated (shared key = convenience, not isolation); DEC-062 extended (doctrine dirge, template opencode/gemini dropped).
+- design.md locked (run rev 50); review RV-028 concluded, 5 findings verified.
+- DEC-058, DEC-059, DEC-061, DEC-062, DEC-063 accepted; DEC-060 superseded by DEC-063.
 - REV-009 — ADR-004 D4 admits imported constants; lands at reconcile.
 - IMP-034 — remaining `~/dev/*` pi jails onto the gateway.
-- Uncommitted: scope, notes, design.md, DEC-060..063, EVD-003/004, REV-009, IMP-034, memory below, design-run state.
+- plan.toml / plan.md — PHASE-01..06; phase sheets materialised.
 
 ### Learned
-- mem.fact.pi.custom-provider-models-json — pi custom-provider gotchas (literal baseUrl, per-model compat, empty file, fallback).
+- mem.fact.pi.custom-provider-models-json — pi custom-provider gotchas.
+- mem.fact.doctrine.design-apply-acceptance-records-design-accepted — top-level acceptance in reviewing logs design-accepted.
 - EVD-003 — pi's DeepSeek compat needed and sufficient through LiteLLM.
 - EVD-004 — empty models.json warns; `{"providers":{}}` clean.
 - direnv `use flake_local` builds live `~/flakes/agents` in 13 devshells — memory candidate.
 - `mem.fact.bwrap.pid1-environ-leak` last line wrong about emacs `jailed-shell` — correct at reconcile.
 
 ### Open
-- Design review: policy not yet set; Codex adversarial pass next; then section attestations, `review-disposed`, `design-accepted` (user).
 - POL-001 verification gateway line (design sec-7, reconcile).
 - IDE-005 transcript purge (out of scope).
+- Research baseline drift (design work only; see plan.md Notes) — restamp or leave at audit.
 
 ## Design triage (2026-10-17, explore stage)
 
