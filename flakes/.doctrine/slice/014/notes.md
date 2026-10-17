@@ -43,3 +43,7 @@ fresh-as-of: 2026-10-17 · ready (plan done, 0/5 phases) · f433c05b
 - VH-1: v4-flash, fireworks nemotron, openrouter/auto → 200. `openrouter/deepseek/deepseek-flash` → 400 "not a valid model ID"; not on OpenRouter's public list (other 15 ids are). Dropped from `agents/gateway.nix`; sec-2/sec-6 amended (run rev 39-40; acceptance invalidated, user re-accepts). A2 void: no BYOK route served.
 - gptel's OpenRouter list (`dl-gptel.el:121`) carries the same bad id — emacs:SL-015.
 - VH-1 spend: `llm-gateway list` shows 0.0000 for the probe, but tiny requests cost ~1e-6 USD and no DEC-068 zero-cost warning was logged. Needs a larger probe to show non-zero at 4 dp.
+- VH-1 (rerun, key sl014-probe-2, after switching to 5fcfd28c): v4-flash 5.7e-05 (= OpenRouter usage.cost), fireworks nemotron 3.0e-04 (packaged map), openrouter/auto 7.5e-04 (= usage.cost); `llm-gateway list` spent 0.0012. Pass. Key revoked.
+- VH-2: minuet body (provider.sort, reasoning_effort none, max_tokens 56, top_p, stream) on openrouter/deepseek/deepseek-v4-flash → 200. Pass.
+- VH-3: `llm-gateway models eca-2 deepseek-flash` ok (live alias is eca-2; `eca` was revoked); user confirmed eca works. Pass.
+- Unexplained: one `401: unknown key` at 00:52:43 in the gateway log, not from the probes — a client with a stale key file?
