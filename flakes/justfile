@@ -62,6 +62,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   workarounds/check-test
+  workarounds/last-good-test
   features/session/snooze-nag-test
   features/audio/dictate-test
   features/audio/say-test

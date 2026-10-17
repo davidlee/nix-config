@@ -5,10 +5,16 @@
 # resolve: [probe] -> [probe // {storePath}]. Structure is validated when the
 # list is forced; storePath is a thunk, forced only by whoever reads it.
 # pkgs is the plain perSystem nixpkgs, the reference for `hello`.
+#
+# lastGood (./last-good.nix) is tested against `stable`, the {rev; narHash}
+# of the stable input, whose `hello` (stableHello) differs from pkgs'.
 {
   lib,
   resolve,
   pkgs,
+  lastGood,
+  stable,
+  stableHello,
 }: let
   inherit (pkgs.stdenv.hostPlatform) system;
   pinFilter = import ./pin-filter.nix;
@@ -126,5 +132,16 @@ in
     in {
       expr = [(passes (pinFilter "nixpkgs" probes)) (passes (pinFilter "nixpkgs-home" probes)) (passes (pinFilter null probes))];
       expected = [true false false];
+    };
+
+    testLastGoodSelectsTheRevision = {
+      expr = (lastGood stable pkgs ["hello"]).outPath;
+      expected = stableHello;
+    };
+
+    # RV-025 F-5: the historical revision, not the current one, was selected.
+    testLastGoodIsNotCurrent = {
+      expr = (lastGood stable pkgs ["hello"]).outPath == pkgs.hello.outPath;
+      expected = false;
     };
   }

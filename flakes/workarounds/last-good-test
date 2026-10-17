@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+# Behaviour tests for workarounds/last-good. No network and no nix: a
+# repo dir in a temp dir mirrors ~/.cfg (core.worktree = the fake home),
+# with a copy of the script at home/flakes/workarounds/last-good, so the
+# script's working lock is home/flakes/flake.lock exactly as in the real
+# tree. Each case asserts stdout, the exit code and, on refusal, stderr.
+#
+#   ./last-good-test
+#
+# Isolation: git config, HOME and every repo-local git variable are replaced
+# before the first git call, and every fixture git call names its GIT_DIR,
+# so nothing here can read or write the real ~/.cfg (asserted below).
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+work=$(cd "$work" && pwd -P)
+
+# shellcheck disable=SC2046 # one variable name per word
+unset $(git rev-parse --local-env-vars) FLAKES_GIT_DIR
+export HOME=$work/fakehome XDG_CONFIG_HOME=$work/xdg
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_CEILING_DIRECTORIES=$work
+export GIT_AUTHOR_NAME=fixture GIT_AUTHOR_EMAIL=fixture@example.invalid
+export GIT_COMMITTER_NAME=fixture GIT_COMMITTER_EMAIL=fixture@example.invalid
+mkdir -p "$HOME" "$XDG_CONFIG_HOME"
+
+# ---------------------------------------------------------------- fixture
+
+# revisions of the nixpkgs input's node, per lock
+old=0ld0000000000000000000000000000000000000
+new=4e40000000000000000000000000000000000000
+dirty=d1r7000000000000000000000000000000000000
+
+# lock <nixpkgs rev> — a flake.lock whose `nixpkgs` input is node nixpkgs_3;
+# `.nodes.nixpkgs` is a decoy, a transitive input's node (RV-025 F-5).
+lock() {
+  jq -n --arg rev "$1" '
+    def gh(owner; repo; rev): {locked: {type: "github", owner: owner, repo: repo,
+      rev: rev, narHash: "sha256-\(rev)=", lastModified: 1}};
+    {nodes: {
+      nixpkgs: gh("nixos"; "nixpkgs"; "decoy00000000000000000000000000000000000"),
+      nixpkgs_3: gh("nixos"; "nixpkgs"; $rev),
+      stable: gh("NixOS"; "nixpkgs"; "57ab000000000000000000000000000000000000"),
+      other: gh("foo"; "bar"; "07e0000000000000000000000000000000000000"),
+      tar: {locked: {type: "tarball", url: "https://example.invalid/nixpkgs.tar.gz",
+        narHash: "sha256-tar="}},
+      a: {inputs: {b: "nixpkgs"}},
+      root: {inputs: {nixpkgs: "nixpkgs_3", stable: "stable", other: "other",
+        tar: "tar", fol: ["a", "b"]}}},
+     root: "root", version: 7}'
+}
+
+# repo <name> — a fresh fixture repo; sets $cfg (the bare repo), $home (its
+# work tree) and $script (the copy under test)
+repo() {
+  cfg=$work/$1/cfg.git
+  home=$work/$1/home
+  script=$home/flakes/workarounds/last-good
+  mkdir -p "$home/flakes/workarounds"
+  cp "$here/last-good" "$script"
+  git init -q --bare "$cfg"
+  fgit config core.bare false # as ~/.cfg: a repo dir apart from its work tree
+  fgit config core.worktree "$home"
+}
+
+fgit() { GIT_DIR=$cfg git -C "$home" "$@"; }
+
+# commit <message> <file>… — commit these work-tree paths (relative to home)
+commit() {
+  local m=$1
+  shift
+  fgit add -- "$@"
+  fgit commit -q -m "$m"
+}
+
+expect() { # <rev> — the line last-good prints for a node with this rev
+  printf '{ rev = "%s"; narHash = "sha256-%s="; }' "$1" "$1"
+}
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# run <cwd> [arg…] — a fresh run against $cfg (FLAKES_GIT_DIR unset when
+# $cfg is empty); leaves $out, $err and $rc
+run() {
+  local cwd=$1
+  shift
+  rc=0
+  out=$(cd "$cwd" && env ${cfg:+"FLAKES_GIT_DIR=$cfg"} "$script" "$@" 2>"$work/err") || rc=$?
+  err=$(<"$work/err")
+}
+
+has() { printf '%s\n' "$2" | grep -cF -- "$1" || true; } # <text> <in>
+
+# -------------------------------------------------- main fixture: 3 commits
+
+#   1  lock A (nixpkgs old)
+#   2  lock B (nixpkgs new) + README
+#   3  README only            <- HEAD; HEAD^'s lock is B, not A
+repo main
+lock "$old" >"$home/flakes/flake.lock"
+commit 'lock A' flakes/flake.lock
+lock "$new" >"$home/flakes/flake.lock"
+echo 2 >"$home/README"
+commit 'lock B' flakes/flake.lock README
+echo 3 >"$home/README"
+commit 'readme' README
+
+check 'isolation: HOME is the fixture'"'"'s' "$work/fakehome" "$HOME"
+check 'isolation: fixture commits land in the fixture repo' 3 "$(fgit rev-list --count HEAD)"
+check 'isolation: the fixture repo is its own' "$cfg" "$(fgit rev-parse --absolute-git-dir)"
+check 'isolation: its work tree is the fake home' "$home" "$(fgit rev-parse --show-toplevel)"
+
+# ------------------------------------------------------------------ cases
+
+run "$work" nixpkgs
+check 'clean: exit 0' 0 "$rc"
+check 'clean: the lock before the last lock change, not HEAD^' "$(expect "$old")" "$out"
+clean=$out
+
+run "$work" stable
+check 'stable: its own node' "$(expect 57ab000000000000000000000000000000000000)" "$out"
+
+run "$home/flakes/workarounds" nixpkgs
+check 'cwd in the work tree: same as clean (:(top) pathspec)' "$clean" "$out"
+run / nixpkgs
+check 'cwd /: same as clean' "$clean" "$out"
+
+ln -s "$cfg" "$HOME/.cfg"
+cfg='' run "$work" nixpkgs
+rm "$HOME/.cfg"
+check 'no FLAKES_GIT_DIR: ~/.cfg' "$clean" "$out"
+
+lock "$dirty" >"$home/flakes/flake.lock"
+run "$work" nixpkgs
+check 'dirty: exit 0' 0 "$rc"
+check 'dirty: HEAD'"'"'s lock, not the working one' "$(expect "$new")" "$out"
+lock "$new" >"$home/flakes/flake.lock"
+
+decoys=0
+for input in nixpkgs stable; do
+  run "$work" "$input"
+  decoys=$((decoys + $(has decoy "$out")))
+done
+check 'never the decoy .nodes.nixpkgs (RV-025 F-5)' 0 "$decoys"
+
+run "$work" nope
+check 'unknown input: exit 2' 2 "$rc"
+check 'unknown input: nothing on stdout' '' "$out"
+check 'unknown input: named' 1 "$(has "no input 'nope'" "$err")"
+
+run "$work" fol
+check 'follows input: exit 2' 2 "$rc"
+check 'follows input: says so' 1 "$(has "'fol' follows a/b" "$err")"
+
+run "$work" other
+check 'not nixpkgs: exit 2' 2 "$rc"
+check 'not nixpkgs: names what it locks' 1 "$(has 'github foo/bar' "$err")"
+run "$work" tar
+check 'not github: exit 2' 2 "$rc"
+check 'not github: names its type' 1 "$(has 'tarball' "$err")"
+
+for args in '' 'nixpkgs stable'; do
+  # shellcheck disable=SC2086 # word-split on purpose: 0 or 2 arguments
+  run "$work" $args
+  check "usage ($args): exit 2" 2 "$rc"
+  check "usage ($args): on stderr" 1 "$(printf '%s\n' "$err" | grep -c '^usage:' || true)"
+done
+
+cfg=$work/not-a-repo
+run "$work" nixpkgs
+check 'no repo: exit 2' 2 "$rc"
+check 'no repo: names it' 1 "$(has "$work/not-a-repo" "$err")"
+
+# -------------------------------------- one commit ever touched the lock
+
+repo single
+lock "$old" >"$home/flakes/flake.lock"
+commit 'lock A' flakes/flake.lock
+run "$work" nixpkgs
+check 'no earlier lock: exit 2' 2 "$rc"
+check 'no earlier lock: says so' 1 "$(has 'no earlier flake.lock' "$err")"
+
+exit $failed

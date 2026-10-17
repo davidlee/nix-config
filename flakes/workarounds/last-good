@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Which nixpkgs revision was last good? Prints the {rev; narHash} of a root
+# input from the right committed flake.lock, to paste into lastGood
+# (./last-good.nix; design SL-012 sec-3, DEC-054).
+#
+#   workarounds/last-good <input>        e.g. nixpkgs, nixpkgs-home, stable
+#   { rev = "…"; narHash = "…"; }
+#
+#   working lock vs HEAD's   reads                     because
+#   differs                  HEAD's lock               the update is not committed yet
+#   same                     the lock before the       HEAD's lock is the update
+#                            latest lock change
+#
+# "Differs" is any byte: a re-resolved emacs-overlay counts too, and then
+# HEAD's nixpkgs is still the last committed one. The input is resolved
+# through the lock's root inputs, never by node name (a transitive input can
+# own `.nodes.nixpkgs`); one that follows another input is refused, as is any
+# input not locked to github NixOS/nixpkgs, the only source lastGood fetches.
+#
+# FLAKES_GIT_DIR: the repo (default ~/.cfg, whose work tree is $HOME; the
+# lock is flakes/flake.lock in it). The working lock is the one beside this
+# script's directory.
+#
+# Exit: 0 printed; 2 usage, or the input cannot be resolved (why on stderr).
+#
+# bash 3.2-safe: it runs on the Mac.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+path=flakes/flake.lock
+working=$here/../flake.lock
+
+die() {
+  echo "last-good: $*" >&2
+  exit 2
+}
+
+[ $# -eq 1 ] || {
+  echo "usage: $0 <input>" >&2
+  exit 2
+}
+input=$1
+
+unset GIT_WORK_TREE
+export GIT_DIR=${FLAKES_GIT_DIR:-$HOME/.cfg}
+
+head_lock=$(mktemp)
+trap 'rm -f "$head_lock"' EXIT
+git show "HEAD:$path" >"$head_lock" 2>/dev/null || die "no $path at HEAD in $GIT_DIR"
+
+if cmp -s "$head_lock" "$working"; then
+  # <rev>:<path> is always top-relative; a log pathspec is cwd-relative
+  # unless it says :(top).
+  source=$(git log -n 2 --format=%H -- ":(top)$path" | sed -n 2p)
+  [ -n "$source" ] || die "no earlier flake.lock: only one commit changed $path in $GIT_DIR"
+  lock=$(git show "$source:$path")
+else
+  lock=$(<"$head_lock")
+fi
+
+# One line: "ok\t<pasteable>" or "refuse\t<why>".
+answer=$(printf '%s' "$lock" | jq -r --arg in "$input" '
+  . as $l | $l.nodes[$l.root // "root"].inputs[$in] as $node
+  | if $node == null then "refuse\tno input '\''\($in)'\'' in the lock"
+    elif ($node | type) == "array" then "refuse\t'\''\($in)'\'' follows \($node | join("/")), not a locked input"
+    else $l.nodes[$node].locked as $k
+      | if $k.type == "github" and ($k.owner | ascii_downcase) == "nixos" and $k.repo == "nixpkgs"
+        then "ok\t{ rev = \"\($k.rev)\"; narHash = \"\($k.narHash)\"; }"
+        elif $k.type == "github" then "refuse\t'\''\($in)'\'' locks github \($k.owner)/\($k.repo), not NixOS/nixpkgs"
+        else "refuse\t'\''\($in)'\'' locks a \($k.type) source, not github NixOS/nixpkgs"
+        end
+    end')
+
+case $answer in
+  ok$'\t'*) printf '%s\n' "${answer#ok$'\t'}" ;;
+  *) die "${answer#refuse$'\t'}" ;;
+esac

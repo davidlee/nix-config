@@ -2,7 +2,8 @@
 # ./default.nix and resolves each probe's store path, for workarounds/check.
 #
 #   flake.workaroundProbes   [probe // {storePath}], signal defaulted to null
-#   checks.<system>.workarounds   ./probes-test.nix
+#   checks.<system>.workarounds   ./probes-test.nix, which also tests
+#                                 ./last-good.nix against the stable input
 #
 # Structure is checked when the list is forced, naming the probe: an unknown
 # key or a wrong type through the module system's `_file` (the
@@ -103,7 +104,13 @@ in {
   perSystem = {pkgs, ...}: {
     # Evaluating the tests is the test; the build is a stub (as checks.host-meta).
     checks.workarounds = let
-      failures = import ./probes-test.nix {inherit lib resolve pkgs;};
+      failures = import ./probes-test.nix {
+        inherit lib resolve pkgs;
+        lastGood = import ./last-good.nix;
+        # A historical revision already in the lock: no fetch of its own.
+        stable = {inherit (inputs.stable) rev narHash;};
+        stableHello = (import inputs.stable {inherit (pkgs.stdenv.hostPlatform) system;}).hello.outPath;
+      };
     in
       if failures == []
       then pkgs.runCommand "workarounds-test" {} "touch $out"

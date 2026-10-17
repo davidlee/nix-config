@@ -110,3 +110,74 @@ green; `nix fmt` clean; shellcheck clean; locks untouched. Mutation checks
 deepSeq the resolved list (F-3), widen the issue regex, manual returns
 outPath; in `check`: request manual probes, drop the pin filter, 33-char
 hash.
+
+## PHASE-03 (2026-10-17, worker)
+
+`lastGood` and `last-good`: `workarounds/last-good.nix` (new),
+`workarounds/last-good` + `workarounds/last-good-test` (new, executable),
+`workarounds/probes.nix` (passes `lastGood`, `stable`, `stableHello` to the
+tests), `workarounds/probes-test.nix` (`testLastGoodSelectsTheRevision`,
+`testLastGoodIsNotCurrent`), `justfile` (`workarounds/last-good-test` in
+`test`). No `just last-good` recipe (orchestrator ruling on OQ-3).
+
+### For /reconcile
+- **Config nulls dropped** (orchestrator ruling on OQ-1). Design sec-3 says
+  `config = pkgs.config`; the evaluated config carries `replaceStdenv = null`
+  (and other nulls), which nixpkgs 24.11 reads as set: `attempt to call
+  something which is not a function but null`. lastGood passes
+  `lib.filterAttrs (_: v: v != null) pkgs.config`.
+- **Refusals, exit 2** (OQ-2): `last-good` refuses an unknown input, a
+  follows input (`llm-agents` today), and any input not locked to github
+  NixOS/nixpkgs (owner compared case-insensitively), since lastGood fetches
+  only NixOS/nixpkgs. Also exit 2: usage, no lock at HEAD (wrong repo), and
+  only one commit ever changed the lock. Design sec-3 has no exit table.
+- DEC-054 says `bin/workaround last-good`; the plan and code use
+  `workarounds/last-good`.
+- **"Last good" is the previous lock, not the previous nixpkgs.** When the
+  latest lock change moved other inputs only, the clean case prints the
+  current nixpkgs rev. Today: 329472f8 changed the lock, nixpkgs stayed
+  `7fd4004d`, so `last-good nixpkgs` prints the current rev. As designed;
+  a walk back to the last *different* rev of that input is a possible
+  refinement (not filed).
+- A2 holds: Lix prints `fetching github input …50ab7937` for stable's
+  fetchTree even on a warm store, but `--offline` resolves it in 48 ms to
+  the same store path as `inputs.stable`; no network.
+- Evaluating 24.11 under Lix adds 3 `or as an identifier is deprecated`
+  warnings to `just test` (A4).
+
+### Test isolation (last-good-test)
+The fixture is `$work/<name>/cfg.git` (`core.bare=false`,
+`core.worktree=$work/<name>/home`, as `~/.cfg`). Before any git call:
+`unset $(git rev-parse --local-env-vars) FLAKES_GIT_DIR`, `HOME` and
+`XDG_CONFIG_HOME` inside `$work`, `GIT_CONFIG_GLOBAL=/dev/null`,
+`GIT_CONFIG_NOSYSTEM=1`, `GIT_CEILING_DIRECTORIES=$work`, fixed author env.
+Every fixture git call names `GIT_DIR`. Asserted: HOME is the fixture's,
+fixture HEAD has 3 commits, `--absolute-git-dir` and `--show-toplevel` are
+the fixture's. The default-repo case symlinks `$HOME/.cfg` (fake HOME) to
+the fixture. Real repo HEAD unchanged (987a36ba) across all runs.
+
+### VA-1 (real repo, 2026-10-17; working lock == HEAD's, so the source is e92f06fb's lock)
+```
+$ workarounds/last-good nixpkgs
+{ rev = "7fd4004d0511991fff3a0524856a9be09e28c5f0"; narHash = "sha256-i5qk1kLiit98rRbh1AXmWBNT9QXC/y4l5Wk/u5EdpDQ="; }
+$ workarounds/last-good stable
+{ rev = "50ab793786d9de88ee30ec4e4c24fb4236fc2674"; narHash = "sha256-/bVBlRpECLVzjV19t5KMdMFWSwKLtb5RyXdjz3LJT+g="; }
+$ workarounds/last-good llm-agents
+last-good: 'llm-agents' follows agents/llm-agents, not a locked input   (exit 2)
+```
+Pasted into `import ./workarounds/last-good.nix (PASTE) pkgs ["hello"]`:
+nixpkgs → `hello-2.12.3`, stable → `hello-2.12.1`. Cross-checked by hand:
+e92f06fb's `root.inputs.nixpkgs` is `nixpkgs_28`, rev `7fd4004d`.
+
+### Gate
+`just test` green (log `~/.cache/multihost-gate/p3-test.log`); `just
+coverage` identical; `just drvs` diff empty (`~/dev` and `/srv/fleet`
+HEADs unchanged); `just gate` green; `nix fmt` touched only
+last-good.nix (mine); shellcheck clean; locks untouched. Mutation checks
+(each red, then restored): lastGood fed nixpkgs' rev instead of stable's
+(both lastGood tests fail); `inherit (pkgs) config` (eval error, null
+called); in `last-good`: plain `flakes/flake.lock` pathspec (cwd case),
+`HEAD^` instead of the 2nd log entry (clean, single-commit cases), node by
+input name (decoy, clean, dirty cases), case-sensitive owner (clean,
+dirty), ignore the dirty test (dirty case); in the test: `~/.cfg` symlink
+pointing elsewhere (default-repo case).
