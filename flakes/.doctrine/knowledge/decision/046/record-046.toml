@@ -31,3 +31,7 @@ superseded_by = []   # set on superseded predecessor (verb-written)
 [[relation]]
 label = "shapes"
 target = "IDE-003"
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
