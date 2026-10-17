@@ -12,7 +12,7 @@
       carapace
       fzf
     ]
-    # atuin 18.23.0 is not cached for aarch64-darwin (ISS-007).
+    # atuin is not cached for aarch64-darwin (ISS-007; probe: workarounds/default.nix).
     ++ lib.optional stdenv.hostPlatform.isLinux atuin
     ++ [
       zoxide

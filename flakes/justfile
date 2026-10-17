@@ -48,17 +48,20 @@ fmt: check-flake-root
   nix fmt
 
 # the lock holds no local source (ISS-006), resolver tests (features-test.nix),
-# factory checks (hosts.nix), the llm-gateway check (Linux only: the gateway
-# is NixOS-only), the agents sub-flake's jail tests (Linux only, against its
-# own lock), then behaviour tests for the plain scripts
+# factory checks (hosts.nix), the workaround probe registry (workarounds/),
+# the llm-gateway check (Linux only: the gateway is NixOS-only), the agents
+# sub-flake's jail tests (Linux only, against its own lock), then behaviour
+# tests for the plain scripts
 test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
   nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
+  nix build ".#checks.$(nix config show system).workarounds" {{local_override}} --no-link --no-write-lock-file
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
+  workarounds/check-test
   features/session/snooze-nag-test
   features/audio/dictate-test
   features/audio/say-test
@@ -182,11 +185,19 @@ update: update-system update-home
 ##
 ##
 
+# each update ends with the workaround check for its pin: its output is the
+# signal; `-` keeps a candidate (exit 1) from stopping `update` / `everything`
 update-system:
   nix flake update nixpkgs
+  -WORKAROUNDS_FLAKE='{{flake}}' workarounds/check nixpkgs
 
 update-home:
-  nix flake update nixpkgs-home home-manager neovim-nightly-overlay antigravity-nix
+  nix flake update nixpkgs-home home-manager neovim-nightly-overlay
+  -WORKAROUNDS_FLAKE='{{flake}}' workarounds/check nixpkgs-home
+
+# transient-breakage probes (workarounds/default.nix): exit 1 on a removal candidate
+workarounds-check pin="":
+  WORKAROUNDS_FLAKE='{{flake}}' workarounds/check {{pin}}
 
 # re-lock everything under development from its remote: push first
 update-local:

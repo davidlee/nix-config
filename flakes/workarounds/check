@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Is a workaround still needed? Asks cache.nixos.org for the store path of
+# each probe in workarounds/default.nix (design SL-012 sec-2, DEC-055).
+#
+#   workarounds/check [nixpkgs|nixpkgs-home]    default: every probe
+#
+#   cache answers   state     prints
+#   HTTP 200        cached    candidate: remove <sites> (<issue>: <reason>)
+#   HTTP 404        absent    ok <attr> (<system>)
+#   other / error   unknown   unknown <attr>: <HTTP nnn | curl's error>
+#   (not asked)     manual    manual <attr> (<issue>): check by hand
+#
+# Exit: 0 no candidate; 1 at least one candidate; 2 usage, or the probes
+# failed to evaluate (nix's error on stderr).
+#
+# WORKAROUNDS_FLAKE: the flake to read (default: this repo; path: on the Mac,
+# whose bare ~/.git defeats git discovery). The pin filter
+# (./pin-filter.nix) runs inside nix, before any store path is resolved, so a
+# broken probe on the other pin cannot fail this one (RV-025 F-3).
+#
+# bash 3.2-safe: it runs on the Mac.
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+
+usage() {
+  echo "usage: $0 [nixpkgs|nixpkgs-home]" >&2
+  exit 2
+}
+
+case ${1-} in
+  '') pin=null ;;
+  nixpkgs | nixpkgs-home) pin="\"$1\"" ;;
+  *) usage ;;
+esac
+[ $# -le 1 ] || usage
+
+if [ -z "${WORKAROUNDS_FLAKE-}" ]; then
+  WORKAROUNDS_FLAKE=$(cd "$here/.." && pwd)
+  if [ "$(uname -s)" = Darwin ]; then WORKAROUNDS_FLAKE=path:$WORKAROUNDS_FLAKE; fi
+fi
+
+probes=$(nix eval --json "$WORKAROUNDS_FLAKE#workaroundProbes" --no-write-lock-file \
+  --apply "($(cat "$here/pin-filter.nix")
+) $pin") || exit 2
+
+err=$(mktemp)
+trap 'rm -f "$err"' EXIT
+
+# One line per probe; \x1f keeps empty fields (a tab would collapse them).
+fields='[(.attr | join(".")), .system, .issue, .reason, (.sites | join(" ")),
+  (if .signal == "manual" or .storePath == null then "" else .storePath | split("/") | last | .[0:32] end)]
+  | join("\u001f")'
+
+candidates=0
+while IFS=$'\x1f' read -r attr system issue reason sites hash; do
+  if [ -z "$hash" ]; then
+    echo "manual $attr ($issue): check by hand"
+    continue
+  fi
+  if code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
+    "https://cache.nixos.org/$hash.narinfo" 2>"$err"); then
+    case $code in
+      200)
+        echo "candidate: remove $sites ($issue: $reason)"
+        candidates=1
+        ;;
+      404) echo "ok $attr ($system)" ;;
+      *) echo "unknown $attr: HTTP $code" ;;
+    esac
+  else
+    echo "unknown $attr: $(head -n 1 "$err")"
+  fi
+done < <(printf '%s' "$probes" | jq -r ".[] | $fields")
+
+exit $candidates

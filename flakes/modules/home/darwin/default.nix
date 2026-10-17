@@ -6,7 +6,8 @@
   imports = [../.];
 
   # atuin 18.23.0 (nixpkgs 7fd4004) is not cached for aarch64-darwin and
-  # fails to build locally; restore when it is (ISS-007).
+  # fails to build locally; restore when it is (ISS-007; probe:
+  # workarounds/default.nix).
   programs.atuin.enable = lib.mkForce false;
 
   # Move colliding files aside instead of failing activation; the policy

@@ -45,3 +45,68 @@ through nom (`run.sh`), which shows planned builds and names a failed drv.
 
 Done ahead of the mechanism: 28861d6c (click-threading overlay); kokoro
 re-enabled by the user.
+
+## PHASE-02 (2026-10-17, worker)
+
+Probe registry and removal check: `workarounds/{default,probes,probes-test,
+pin-filter}.nix`, `workarounds/check{,-test}`; `just workarounds-check`;
+`update-system` / `update-home` end with `-workarounds/check <pin>`
+(antigravity-nix dropped from `update-home`, user 2026-10-17). Chore CHR-016
+(shell_cmds + yEd skips), linked `references --role originates_from SL-012`.
+
+### For /reconcile (wording drift)
+- **storePath, not outPath** (orchestrator ruling on the phase sheet's OQ-1).
+  EX-4, VT-2 and design sec-2 say the probe record gets `outPath`; nix
+  serialises any attrset with an `outPath` attribute as that bare string under
+  `--json`, so the field is `storePath`. Its value is the derivation's
+  `.outPath`.
+- **Unfree via `meta.unfree`** (plan EX-3), not `meta.license.free` (design
+  sec-2). Followed EX-3.
+- **Pin filter in one file**, `workarounds/pin-filter.nix`
+  (`pin: probes: …`, `null` keeps all): `check` sends its text in `--apply`,
+  probes-test.nix imports it for the F-3 case. Not in the plan's file list.
+- **Missing key**: the module system's "accessed but has no value defined"
+  names neither `_file` nor (in the default truncated trace) the
+  `addErrorContext` frame, so probes.nix checks for missing keys itself and
+  throws naming the probe. host-meta.nix has the same blind spot (its
+  context frame shows only under `--show-trace`).
+- Exit 2 (usage, or the probes failed to evaluate) is outside design sec-2's
+  table (sheet A7).
+- DEC-053 / DEC-055 / DEC-056 text still says `overlays/workarounds.nix`.
+
+### Follow-up candidates (not filed)
+- Shared evalModules-schema helper for host-meta.nix and probes.nix
+  (`lib: options: file: value:`), with the missing-key check above folded in
+  so host-meta gains it too. Not done here: host-meta.nix is outside the
+  slice (orchestrator ruling on OQ-2).
+
+### VA-1 (error messages, by eye; probe numbers count from 1)
+- unknown key: ``The option `reasonn' does not exist. Definition values:
+  - In `workarounds/default.nix, probe 2 (killall)': "x"``
+- missing key: `workarounds/default.nix, probe 2 (killall): missing reason`
+- attr missing from pin: `workarounds/default.nix, probe 2 (killall-nope):
+  not in nixpkgs-home for aarch64-darwin`
+- unfree without manual: `workarounds/default.nix, probe 3 (yed): unfree,
+  never on cache.nixos.org: set signal = "manual" (RV-025 F-2)`
+
+### VA-2 live check (2026-10-17, nixpkgs-home 7fd4004d0511991fff3a0524856a9be09e28c5f0)
+```
+$ just workarounds-check            # same output for `nixpkgs-home`
+ok atuin (aarch64-darwin)
+ok killall (aarch64-darwin)
+manual yed (CHR-016): check by hand
+exit=0
+$ just workarounds-check nixpkgs    # no probes on nixpkgs
+exit=0
+```
+Store paths: atuin `g0n6d1cj…-atuin-18.23.0`, killall
+`wpjr4ml6…-killall-shell_cmds-329`.
+
+### Gate
+`just test` green (checks.workarounds ~3.5 s cold, two nixpkgs imports);
+`just coverage` green, output identical; `just drvs` diff empty; `just gate`
+green; `nix fmt` clean; shellcheck clean; locks untouched. Mutation checks
+(each red, then restored): drop the unfree branch, drop eager validation,
+deepSeq the resolved list (F-3), widen the issue regex, manual returns
+outPath; in `check`: request manual probes, drop the pin filter, 33-char
+hash.

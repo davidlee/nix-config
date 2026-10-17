@@ -6,13 +6,15 @@
 # aarch64-darwin:
 # - watchman pulls the folly/fbthrift C++ tower, which fails to build.
 # - atuin is not cached for aarch64-darwin (ISS-007). The base
-#   modules/home/cli.nix guard stays; no feature lists it today.
+#   modules/home/cli.nix guard stays; no feature lists it today. Transient:
+#   probe `atuin` in workarounds/default.nix.
 # - gtt: depends on alsa-lib, not available on darwin.
 # - udiskie: depends on libappindicator-gtk3, not available on darwin.
 # - micro (listed as micro-with-wl-clipboard; getName gives pname): depends on wayland, not available on darwin.
 # - fsearch: meta.broken, which availableOn ignores.
 # - shell_cmds (killall) and yEd: not in cache.nixos.org; the user chose to
-#   skip them rather than build locally (SL-008 PHASE-07 VH-1).
+#   skip them rather than build locally (SL-008 PHASE-07 VH-1). Transient:
+#   probes `killall` and `yed` (manual) in workarounds/default.nix (CHR-016).
 # - binutils (binutils-wrapper): its cctools tools (ar, nm, strip, strings, …)
 #   collide with gcc-wrapper's at equal priority, and gcc-wrapper already
 #   ships them on darwin.

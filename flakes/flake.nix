@@ -179,6 +179,7 @@
           inputs.treefmt-nix.flakeModule
           ./overlays.nix
           ./hosts.nix # *Configurations, one per hosts/<host>/meta.nix
+          ./workarounds/probes.nix # workaroundProbes: transient-breakage probes (workarounds/default.nix)
         ];
 
         systems = linuxSystems ++ ["aarch64-darwin"];

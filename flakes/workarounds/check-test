@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+# Behaviour tests for workarounds/check. No network and no evaluation: nix
+# and curl are stubbed onto PATH. The nix stub answers with fixture probes in
+# the shape flake.workaroundProbes emits, filtered by the pin the check sent
+# in --apply; the curl stub answers each narinfo request from a table of
+# store hashes. Each case asserts the output, the exit code and the requests.
+#
+#   ./check-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/check
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+stubs=$work/bin
+mkdir -p "$stubs"
+export WORKAROUNDS_TEST_DIR=$work WORKAROUNDS_FLAKE=fixture-flake
+export PATH=$stubs:$PATH
+
+# ------------------------------------------------------------------ stubs
+
+# Logs its argv and its --apply text; answers with the fixture probes whose
+# pin the apply text ends with (`) "<pin>"`), or all of them (`) null`).
+# A file `nix-fails` makes it fail as an evaluation error would.
+cat >"$stubs/nix" <<'EOF'
+#!/usr/bin/env bash
+dir=$WORKAROUNDS_TEST_DIR
+printf '%s\n' "$@" >>"$dir/nix.log"
+apply=
+while [ $# -gt 0 ]; do
+  if [ "$1" = --apply ]; then apply=$2; fi
+  shift
+done
+printf '%s' "$apply" >"$dir/apply"
+if [ -e "$dir/nix-fails" ]; then
+  echo "error: workarounds/default.nix, probe 1 (atuin): missing reason" >&2
+  exit 1
+fi
+jq --argjson pin "${apply##*) }" '[.[] | select($pin == null or .pin == $pin)]' "$dir/probes.json"
+EOF
+
+# Logs the URL; answers from `codes` (`<hash> 200|404|500|fail`), as
+# `curl -sS -o /dev/null -w '%{http_code}'` would.
+cat >"$stubs/curl" <<'EOF'
+#!/usr/bin/env bash
+dir=$WORKAROUNDS_TEST_DIR
+url=${!#}
+printf '%s\n' "$url" >>"$dir/curl.log"
+hash=$(basename "$url" .narinfo)
+code=$(awk -v h="$hash" '$1 == h { print $2 }' "$dir/codes")
+if [ "$code" = fail ]; then
+  printf '000'
+  echo 'curl: (6) Could not resolve host: cache.nixos.org' >&2
+  exit 6
+fi
+printf '%s' "${code:-404}"
+EOF
+chmod +x "$stubs/nix" "$stubs/curl"
+
+# ---------------------------------------------------------------- fixture
+
+# store hashes; yed (nixpkgs-home) is manual and has no store path
+atuin=g0n6d1cjskkaw63p3pl6jzn4gysyqqc6 # nixpkgs-home
+hello=1b9p07z77phvv2hf6gm9f28syp39f1ag # nixpkgs
+
+cat >"$work/probes.json" <<EOF
+[
+  {"attr": ["atuin"], "pin": "nixpkgs-home", "system": "aarch64-darwin",
+   "issue": "ISS-007", "reason": "18.23.0 not cached",
+   "sites": ["modules/home/cli.nix", "modules/home/darwin/default.nix", "features/platform-skips.nix"],
+   "signal": null, "storePath": "/nix/store/$atuin-atuin-18.23.0"},
+  {"attr": ["hello"], "pin": "nixpkgs", "system": "x86_64-linux",
+   "issue": "IMP-001", "reason": "fixture",
+   "sites": ["fixture.nix"],
+   "signal": null, "storePath": "/nix/store/$hello-hello-2.12.2"},
+  {"attr": ["yed"], "pin": "nixpkgs-home", "system": "aarch64-darwin",
+   "issue": "CHR-016", "reason": "unfree",
+   "sites": ["features/platform-skips.nix"],
+   "signal": "manual", "storePath": null}
+]
+EOF
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# codes <hash> <code>… — the cache's answers for this case
+codes() {
+  : >"$work/codes"
+  while [ $# -gt 0 ]; do
+    printf '%s %s\n' "$1" "$2" >>"$work/codes"
+    shift 2
+  done
+}
+
+# run [pin] — a fresh run; leaves $out, $err and $rc
+run() {
+  rm -f "$work/nix.log" "$work/curl.log" "$work/apply"
+  touch "$work/nix.log" "$work/curl.log"
+  rc=0
+  out=$("$script" "$@" 2>"$work/err") || rc=$?
+  err=$(<"$work/err")
+}
+
+# has <file> <line> — 1 if the file holds the line exactly, else 0
+has() { grep -cxF -- "$2" "$1" || true; }
+
+line() { printf '%s\n' "$out" | grep -F -- "$1" || true; }
+
+# the pin argument the check applied pin-filter.nix to
+pin_sent() {
+  local apply
+  apply=$(cat "$work/apply" 2>/dev/null || true)
+  printf '%s' "${apply##*) }"
+}
+
+narinfo() { printf 'https://cache.nixos.org/%s.narinfo' "$1"; }
+
+# ------------------------------------------------------------------ cases
+
+codes "$atuin" 200 "$hello" 404
+run
+check 'cached: exit 1' 1 "$rc"
+check 'cached: a removal candidate, with every site' \
+  'candidate: remove modules/home/cli.nix modules/home/darwin/default.nix features/platform-skips.nix (ISS-007: 18.23.0 not cached)' \
+  "$(line candidate:)"
+check 'narinfo URL: the first 32 chars of the store path basename (RV-025 F-4)' \
+  1 "$(has "$work/curl.log" "$(narinfo "$atuin")")"
+check 'absent: ok, with its system' 'ok hello (x86_64-linux)' "$(line 'ok hello')"
+
+codes "$atuin" 404 "$hello" 404
+run
+check 'all absent: exit 0' 0 "$rc"
+check 'absent: ok atuin' 'ok atuin (aarch64-darwin)' "$(line 'ok atuin')"
+
+codes "$atuin" fail
+run
+check 'curl fails: unknown, with curl'"'"'s error' \
+  'unknown atuin: curl: (6) Could not resolve host: cache.nixos.org' "$(line 'unknown atuin')"
+check 'curl fails: not a candidate, exit 0' 0 "$rc"
+
+codes "$atuin" 500
+run
+check 'other status: unknown, with the code' 'unknown atuin: HTTP 500' "$(line 'unknown atuin')"
+check 'other status: exit 0' 0 "$rc"
+
+codes
+run
+check 'manual: listed, to check by hand' 'manual yed (CHR-016): check by hand' "$(line 'manual yed')"
+check 'manual: never requested; the others once each' \
+  "$(narinfo "$atuin")"$'\n'"$(narinfo "$hello")" "$(cat "$work/curl.log")"
+
+run nixpkgs
+check 'pin: the filter selects it in nix (RV-025 F-3)' '"nixpkgs"' "$(pin_sent)"
+check 'pin: the filter is ./pin-filter.nix' 1 "$(grep -cF 'builtins.filter (p: p.pin == pin)' "$work/apply")"
+check 'pin: no lock write' 1 "$(has "$work/nix.log" --no-write-lock-file)"
+check 'pin: the flake from WORKAROUNDS_FLAKE' 1 "$(has "$work/nix.log" fixture-flake#workaroundProbes)"
+check 'pin: only its probes requested' "$(narinfo "$hello")" "$(cat "$work/curl.log")"
+
+run
+check 'no pin: every probe' 'null' "$(pin_sent)"
+
+touch "$work/nix-fails"
+run nixpkgs-home
+rm "$work/nix-fails"
+check 'eval fails: exit 2' 2 "$rc"
+check 'eval fails: nix'"'"'s message on stderr' \
+  'error: workarounds/default.nix, probe 1 (atuin): missing reason' "$(printf '%s\n' "$err" | grep -F error: || true)"
+check 'eval fails: nothing requested' 0 "$(wc -l <"$work/curl.log" | tr -d ' ')"
+
+run bogus
+check 'bad pin: exit 2' 2 "$rc"
+check 'bad pin: usage on stderr' 1 "$(printf '%s\n' "$err" | grep -c '^usage:' || true)"
+check 'bad pin: nothing evaluated' 0 "$(wc -l <"$work/nix.log" | tr -d ' ')"
+
+exit $failed
