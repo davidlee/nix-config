@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 71
+slug = "the-admin-cli-replaces-a-keys-model-list-in-place"
+title = "The admin CLI replaces a key's model list in place"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A key's model list is fixed at issue (DEC-049/050); adding a served model meant reissuing every key that should use it under a new alias, since a revoked alias is never reissued (DEC-051). Key files are central (agents/gateway.nix keyDirectory), so repos are unaffected either way."
+choice = "New verb `llm-gateway models ALIAS M,...` replaces an unrevoked key's allow-list, refusing names not served (as issue does). The key itself is never re-keyed in place."
+alternatives = ["Keys issued with models = all served (budget the only limit)", "Both edit and all-served", "Keep reissuing under new aliases"]
+rationale = "Smallest change that removes the reissue chore without widening what any key may call."
+consequences = ["DEC-050's verb set grows by one", "README 'a key is never re-keyed in place' gains: its model list can be replaced"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

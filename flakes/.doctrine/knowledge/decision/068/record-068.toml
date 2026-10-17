@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 68
+slug = "a-served-request-costed-0-or-none-stays-warn-and-count-0"
+title = "A served request costed 0 or None stays warn-and-count-0"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-051 logs and counts a missing run-time cost as 0. Under DEC-064 every served model has a cost source; OpenRouter free and :free models legitimately cost 0."
+choice = "Keep DEC-051's run-time rule unchanged. Add a test that OpenRouter's reported usage.cost reaches the ledger, streaming and non-streaming."
+alternatives = ["Log an error and block the key until reset (needs a free-model exemption list)"]
+rationale = "An unexpected 0 is now rare and visible in the journal; free models make a hard rule noisy."
+consequences = ["DEC-051's run-time clause stands"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 70
+slug = "served-models-carry-an-optional-params-attrset-merged-into-their-litellm-settings"
+title = "Served models carry an optional params attrset merged into their LiteLLM settings"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Some served models need per-model LiteLLM settings: an explicit per-token price (DEC-064) or allowed_openai_params for reasoning_effort on models LiteLLM does not flag as reasoning (else 400 UnsupportedParamsError)."
+choice = "Each served model in agents/gateway.nix may carry params, a plain attrset that proxy.nix merges into that model's litellm_params. The price check reads input/output_cost_per_token from it. agents stays plain data with no LiteLLM dependency."
+alternatives = ["Provider-level defaults plus per-model params", "A separate table in proxy.nix keyed by gateway name"]
+rationale = "One record per model, one merge point; repetition is handled by a let binding."
+consequences = ["params can override api_key or model; proxy.nix merges it under the generated keys so those stay authoritative"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

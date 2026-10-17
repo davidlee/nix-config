@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 72
+slug = "sl-014-serves-openrouter-and-fireworks-models-openai-is-deferred"
+title = "SL-014 serves OpenRouter and Fireworks models; OpenAI is deferred"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "emacs:SL-015 needs gptel's OpenRouter list (15 ids, dl-gptel.el:121-139), minuet's OpenRouter model and gptel's Fireworks model. The user wants no OpenAI model on API billing for now; gpt-5.6-terra stays on gptel's OAuth backend."
+choice = "Serve, under DEC-069 names: gptel's 15 OpenRouter ids as they are (OpenRouter prices them, DEC-064; deepseek/deepseek-flash works via the user's DeepSeek key on OpenRouter), minuet's deepseek/deepseek-v4-flash, and fireworks_ai/accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b. No OpenAI provider is added: a provider with no served model gets no credential (POL-001 r4)."
+alternatives = ["Also serve gpt-5.6-sol / luna / gpt-5.5 on API billing"]
+rationale = "Serve exactly what the consumers use; add OpenAI when a model is wanted."
+consequences = ["IMP-029 is closed partially; IMP-035 tracks OpenAI via subscription OAuth", "emacs:SL-015 must decide gptel's built-in OpenAI backend without a gateway route", "gptel's qwen/qwen-3.8-flash is wrong upstream: OpenRouter lists qwen/qwen3.8-flash (user checked the live site 2026-10-17); the gateway serves openrouter/qwen/qwen3.8-flash and emacs:SL-015 fixes gptel's id"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 69
+slug = "new-gateway-models-are-named-providerupstream-id"
+title = "New gateway models are named <provider>/<upstream id>"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The gateway names its models; today's one model is the bare deepseek-flash. SL-014 adds OpenRouter, Fireworks and OpenAI models, some overlapping upstream."
+choice = "New served models are named <gateway provider>/<upstream id>: openrouter/z-ai/glm-5.3-flash, fireworks/nemotron-lightning-3p5-30b-a3b, openai/gpt-5.6-sol. deepseek-flash keeps its name (renaming would reissue the eca and pi keys)."
+alternatives = ["Upstream id as-is (ambiguous across providers)", "Short invented names (curation burden)"]
+rationale = "Never ambiguous; a client can group by the first segment (one gptel backend per provider)."
+consequences = ["Clients that prefix names with their own provider label nest them (eca: deepseek/openrouter/...)", "deepseek-flash is the one unprefixed name"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

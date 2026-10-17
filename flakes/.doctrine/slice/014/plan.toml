@@ -1,0 +1,128 @@
+# Implementation plan for SL-014 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-014"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+[[phase]]
+id        = "PHASE-01"
+name      = "pi block optional"
+objective = "A served model without a pi block is left out of pi's models.json instead of failing evaluation (DEC-066, design sec-4)."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-013 implementation landed: agents/gateway.nix holds the served models; piGatewayConfig throws on a model without pi." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "piGatewayConfig keeps only models with a pi block; the throw is gone." },
+  { id = "EX-2", text = "noPiEntryFails is replaced by noPiEntryOmitted and a twin differing only in the pi block." },
+  { id = "EX-3", text = "agents/README.md § pi in gateway mode and README § LLM gateway 'Adding a client' say pi is optional." },
+  { id = "EX-4", text = "just test green; just fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "a model without pi is absent from the generated models.json; its twin with pi is present", test_file = "agents/jailed-agents-test.nix", keywords = ["noPiEntryOmitted"], waived = false },
+  { id = "VT-2", expects = "the bound gateway models.json still holds exactly deepseek-flash", test_file = "agents/jailed-agents-test.nix", keywords = ["deepseek-flash"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Providers, params and price rule"
+objective = "OpenRouter and Fireworks become providers; served models carry optional params; the build admits a model by DEC-064's rule and rejects a half-priced one; the 16 OpenRouter and 1 Fireworks models are served (design sec-2, sec-3)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete (new models have no pi block)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "proxy.nix defaults.providers has openrouter (reportsCost = true) and fireworks; features/agents/gateway.nix providers submodule has reportsCost (bool, default false)." },
+  { id = "EX-2", text = "defaults.models keeps params (drops only pi); litellm_params = params // {model; api_key} // extraParams." },
+  { id = "EX-3", text = "checkPrices runs for every served model where its config entry is built; needsMap filters what price-check.py sees; price-check.py unchanged." },
+  { id = "EX-4", text = "agents/gateway.nix serves the sec-2 model list with DEC-069 names; every OpenRouter entry has params.allowed_openai_params = [\"reasoning_effort\"]." },
+  { id = "EX-5", text = "A fake OpenRouter on loopback (test-only, via extraModels params.api_base) answers with usage.cost; no real provider is contacted." },
+  { id = "EX-6", text = "just test green; just fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "price-rule twins: reportsCost unpriced and direct both-priced admitted; direct unpriced refused naming the map; half-priced refused as an evaluation error on a mapped, an unmapped and a reportsCost id", test_file = "perSystem.nix", keywords = ["LLM_GATEWAY_UNPRICED", "HALF_PRICED"], waived = false },
+  { id = "VT-2", expects = "OpenRouter's reported cost reaches the ledger, streamed and not: spend rises by exactly the reported cost", test_file = "features/agents/gateway/gateway-test", keywords = ["FakeOpenRouter", "OpenRouterCostTest"], waived = false },
+  { id = "VT-3", expects = "provider {sort: throughput} and reasoning_effort none reach the fake upstream body on an unmapped OpenRouter model, no 400", test_file = "features/agents/gateway/gateway-test", keywords = ["PassThroughTest", "throughput", "reasoning_effort"], waived = false },
+  { id = "VT-4", expects = "a params.api_key literal still yields os.environ/<env> in the generated config", test_file = "features/agents/gateway/gateway-test", keywords = ["ParamsOverrideTest"], waived = false },
+  { id = "VT-5", expects = "every production model passes the price rule; every OpenRouter entry carries allowed_openai_params", test_file = "features/agents/gateway/gateway-test", keywords = ["PriceMapTest", "allowed_openai_params"], waived = false },
+  { id = "VT-6", expects = "CredentialTest takes its provider from the baked PROVIDERS", test_file = "features/agents/gateway/gateway-test", keywords = ["CredentialTest", "PROVIDERS"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Request body guard"
+objective = "route_gate refuses a chat-completions body with any top-level field off ALLOWED_FIELDS, closing RV-029 F-1, F-2, F-4 and F-5 for every served model (DEC-073, design sec-9)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete (the fake OpenRouter exists for end-to-end twins)." },
+  { id = "EN-2", text = "One request body each from eca, pi, gptel and minuet recorded or reconstructed from their source, as test fixtures (slice R2)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "gateway_hooks.py has ALLOWED_FIELDS as in sec-9; route_gate buffers each POST chat-completions body, refuses a non-object or an off-list field with a 400 naming every such field, else replays the body as one http.request message." },
+  { id = "EX-2", text = "Any field a client fixture needs beyond sec-9's list is added with its reason, and the design's list is updated to match." },
+  { id = "EX-3", text = "ModelGate and Ledger unchanged." },
+  { id = "EX-4", text = "just test green; just fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "unit: each refused field gets a 400 naming it and never reaches the app; a listed body reaches it byte for byte, also when chunked; a non-object body gets a 400; GET /models passes unread", test_file = "features/agents/gateway/gateway-test", keywords = ["RouteGateUnitTest", "ALLOWED_FIELDS"], waived = false },
+  { id = "VT-2", expects = "end to end, each RV-029 bypass body (extra_body.model, models+route, extra_body.usage, streamed extra_body.stream_options, litellm_params {}, custom_llm_provider) gets a 400, the fake receives nothing, spend unchanged; control: top-level stream_options include_usage false is served and charged", test_file = "features/agents/gateway/gateway-test", keywords = ["BodyGuardTest", "extra_body", "litellm_params", "custom_llm_provider", "include_usage"], waived = false },
+  { id = "VT-3", expects = "the eca, pi, gptel and minuet fixture bodies pass the guard", test_file = "features/agents/gateway/gateway-test", keywords = ["CLIENT_BODIES", "gptel", "minuet"], waived = false },
+  { id = "VT-4", expects = "ClientOverrideTest: client mock_response and metadata get the guard's 400; api_base still refused. Fallback test split: HTTP gets the guard's 400; ModelGate's refusal tested by calling async_pre_call_hook directly", test_file = "features/agents/gateway/gateway-test", keywords = ["ClientOverrideTest", "async_pre_call_hook"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Key model-list verb"
+objective = "keystore.set_models and `llm-gateway models ALIAS M,...` replace an unrevoked key's model list in place (DEC-071, design sec-5)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete (served set includes the new models)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "set_models refuses an empty list, a revoked key and an unknown alias; stores JSON like issue." },
+  { id = "EX-2", text = "The unknown-model refusal is one helper shared by issue and models; models runs as the service user via as_service/administer; help line as in sec-5." },
+  { id = "EX-3", text = "just test green; just fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "set_models replaces the list; allows_model follows it; the key authenticates unchanged; empty, revoked and unknown refused", test_file = "features/agents/gateway/keystore-test", keywords = ["set_models", "revoked"], waived = false },
+  { id = "VT-2", expects = "CLI models verb refuses unserved names with issue's message and runs set_models as the service user", test_file = "features/agents/gateway/keystore-test", keywords = ["\"models\""], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Docs and rollout"
+objective = "README documents providers, adding a model or provider, the models verb and the rollout order; the new providers go live and each is probed (design sec-7, sec-6 VH)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01..04 complete; just test green." },
+  { id = "EN-2", text = "1Password items OPENROUTER_API_KEY and FIREWORKS_API_KEY exist (user)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "README § LLM gateway: providers table, adding a model (edit, system-switch, llm-gateway models), adding a provider (build, new CLI credentials, switch; two ~25 s restarts), models verb, Rotation line, 'What it does not cover' (OpenRouter line goes; OpenAI -> IMP-035)." },
+  { id = "EX-2", text = "Rollout run in sec-7 order, when no client is mid-request." },
+]
+verification = [
+  { id = "VA-1", expects = "README text matches the locked design (sec-5, sec-7, sec-9) and names no secret (POL-001)" },
+  { id = "VH-1", expects = "probe key sl014-probe: one curl each on openrouter/deepseek/deepseek-v4-flash, openrouter/deepseek/deepseek-flash (BYOK, A2), fireworks/nemotron-lightning-3p5-30b-a3b, openrouter/openrouter/auto; llm-gateway list shows non-zero spend after each; then revoke" },
+  { id = "VH-2", expects = "minuet's body (provider, reasoning_effort none, max_tokens 56, top_p) gets a 200 on openrouter/deepseek/deepseek-v4-flash" },
+  { id = "VH-3", expects = "llm-gateway models eca deepseek-flash succeeds and eca still works" },
+]
+specs        = []
+requirements = []

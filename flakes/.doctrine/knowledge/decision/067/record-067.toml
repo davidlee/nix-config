@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 67
+slug = "new-gateway-providers-roll-out-credentials-first-then-switch"
+title = "New gateway providers roll out credentials first, then switch"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-048: a missing credential makes systemd refuse the gateway unit, so switching in a provider before its credential exists stops every provider."
+choice = "Build the new system first; create the new providers' credentials with that build's llm-gateway CLI (the installed one refuses unknown providers); then switch. DEC-048 unchanged."
+alternatives = ["Launcher and unit tolerate a missing provider credential"]
+rationale = "Keeps the fail-loud credential rule; the ordering is a one-time rollout step."
+consequences = ["The plan's rollout phase orders build, credentials, switch", "README's first-run/adding-a-provider steps say so"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 73
+slug = "the-gateway-admits-only-allow-listed-request-body-fields"
+title = "The gateway admits only allow-listed request body fields"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A client's request body reaches LiteLLM internal and provider fields. extra_body.model, models and route bypass the exact model gate (RV-029 F-1); extra_body.usage and extra_body.stream_options suppress OpenRouter's cost so spend stays 0 (F-2); a client litellm_params overwrites the key hash the ledger charges (F-4); custom_llm_provider swaps the provider adapter (F-5). F-4 and F-5 predate SL-014 and affect deepseek-flash. LiteLLM's own banned-field list covers api_base, base_url, prices and credentials, not these."
+choice = "route_gate parses each chat-completions body and refuses with a 400 naming the field any top-level field not on an allow-list: the OpenAI chat-completions request fields, reasoning_effort, and OpenRouter's provider object. extra_body, usage, models, route, litellm_params, custom_llm_provider, metadata and every fallback form are off it. A body that is not a JSON object is refused. ModelGate is unchanged."
+alternatives = ["Deny-list of known-dangerous fields in the ModelGate pre-call hook", "Strip unknown fields instead of refusing"]
+rationale = "Fails closed. route_gate sees the verbatim client body before LiteLLM adds server keys, so a LiteLLM release that forwards a new field cannot open a new bypass. Refusing rather than stripping tells the client why."
+consequences = ["A client sending an unlisted field gets a 400 until the list grows", "route_gate buffers the request body and replays it to LiteLLM", "ModelGate's fallback check (RV-026 F-4) becomes defence in depth", "Phase planning confirms the list against eca, pi, gptel and minuet request bodies", "Covers deepseek-flash too: closes SL-011 gaps F-4 and F-5"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

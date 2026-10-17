@@ -1,0 +1,252 @@
+id    = 29
+slug  = "design-review-of-sl-014"
+title = "design review of SL-014"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Completed adversarial design review of SL-014 and rechecked all six RV-029 responses against the revised design and DEC-073. Verified the revised allow-list against prior bypass bodies, exercised price validation with offline Nix, and re-ran local fake-upstream streaming and nested-field probes with dummy credentials and non-loopback connections blocked. All six findings are verified as design corrections; implementation, client fixtures and live rollout checks remain future verification obligations."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-014"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "blocker"
+title = "OpenRouter body overrides bypass the exact model gate"
+detail = """
+Design sections: sec-1, sec-2, sec-6, sec-8.
+
+Expected: design.md:18 says "The model gate is still an exact match"; DEC-065 keeps each key restricted to explicitly served models. design.md:276 leaves gateway_hooks.py unchanged.
+
+Evidence: features/agents/gateway/gateway_hooks.py:97-112 checks only data.model and LiteLLM fallback targets. litellm/llms/openrouter/chat/transformation.py:70-81 forwards models/route; :164-166 merges extra_body over the generated request, including model. These fields are not gateway fallback targets.
+
+Probe: /tmp/codex-sl014/probe2.py, results in probe2.log (local fake HTTP upstream, dummy credential, non-loopback connections blocked). With allowed gateway model openrouter/unmapped-local, models=["forbidden/upstream"], route="fallback" returns 200 and sends those fields upstream. extra_body={"model":"forbidden/upstream"} returns 200 and the fake receives model="forbidden/upstream". The pre-call hook logs the permitted gateway name in both cases. This proves request-body escape from the gate; the fake does not simulate OpenRouter's routing decisions.
+
+Failure scenario: a key allowed one cheap OpenRouter model submits that name to pass authentication, then substitutes another upstream model with extra_body.model or supplies provider-side fallback models. The exact served-model/key model-list policy no longer constrains the billed model.
+
+Fix: add an explicit pre-call validation step, resolved against server-owned deployment/provider configuration, that rejects models, route and model overrides in extra_body for OpenRouter requests. Preserve the intentionally supported provider sorting object and reasoning_effort. Validate fallback request dictionaries as well. Add negative end-to-end twins proving refusal before the fake receives a request.
+
+Policy choice: a client-body allow-list, with narrowly allowed nested extra_body keys, is stronger against future adapter features than an ever-growing deny-list, but needs deliberate updates for new OpenAI features. A narrow deny-list is viable for this slice only if it also handles usage/stream_options overrides and internal SDK fields (the separate findings), including nested/fallback locations. Do not apply the client restriction to trusted configuration params.api_base needed by the test.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. extra_body, models and route are off the list."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. extra_body, models and route are off the list."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified at design level: design.md sec-9 ALLOWED_FIELDS excludes extra_body, models and route, and sec-6 requires rejection before upstream traffic. Extracted the revised allow-list and checked it against the prior bypass bodies. Implementation and client-fixture validation remain required."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "blocker"
+title = "Client usage overrides disable OpenRouter budget accounting"
+detail = """
+Design sections: sec-1, sec-3, sec-6, sec-8.
+
+Expected: design.md:18-21 relies on response_cost from OpenRouter usage.cost and leaves runtime unchanged. DEC-068 allows genuinely free/missing provider costs to warn and count zero; it does not authorize clients to disable cost reporting.
+
+Evidence: litellm/llms/openrouter/chat/transformation.py:164-171 applies extra_body first, then adds usage.include=true only when usage is absent. :212-226 extracts usage.cost only if returned. features/agents/gateway/gateway_hooks.py:128-137 records the resulting cost; features/agents/gateway/keystore.py:119-136 counts zero or unusable costs as zero. For streaming, litellm/proxy/common_request_processing.py:448-475 forces top-level include_usage=true, but the later OpenRouter extra_body merge can replace that object again.
+
+Probe: /tmp/codex-sl014/probe2.py and probe2.log. The fake returns cost 0.0123 when usage is requested. Baseline records 0.0123. extra_body={"usage":{"include":false}} reaches upstream unchanged; the fake omits its cost, success callback reports 0.0 and spend does not increase. A streamed request with extra_body={"stream_options":{"include_usage":false}} likewise reaches upstream unchanged; the fake omits its final usage chunk, callback reports 0.0 and spend does not increase. Plain top-level stream_options.include_usage=false is a CLEAN negative control: LiteLLM forces it true and records 0.0123. The fake models the provider withholding requested usage; no claim is made from a live provider call.
+
+Failure scenario: a client repeatedly buys completions on an unmapped/alias OpenRouter deployment while suppressing provider usage. The key never accumulates spend and its lifetime budget never trips.
+
+Fix: enforce usage reporting after all client merges, or reject client usage/stream_options overrides at every accepted location (especially extra_body); streaming must retain a provider usage chunk regardless of client display preferences. Add both bypass bodies and the top-level negative control to the fake-upstream ledger tests. Preserve DEC-068 for real provider-side zero/missing cost; prevent clients from manufacturing it.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. extra_body and usage are off the list; top-level stream_options stays, LiteLLM forces include_usage (the probe's clean control, now a VT). DEC-068 unchanged for provider-side zero cost."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. extra_body and usage are off the list; top-level stream_options stays, LiteLLM forces include_usage (the probe's clean control, now a VT). DEC-068 unchanged for provider-side zero cost."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified at design level: sec-9 excludes extra_body and usage, blocking both demonstrated cost-suppression paths. Re-ran local fake-upstream probes: allowed top-level stream_options.include_usage=false is forced true and response_cost=0.0123 reaches the ledger; nested provider/stream_options contents do not replace internal parameters. DEC-068 remains unchanged for real provider-side zero cost. Implementation tests remain required."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "The price predicate admits half-priced mapped models"
+detail = """
+Design sections: sec-3 and sec-6.
+
+Expected: .doctrine/slice/014/design.md:120-121 promises "A params that sets only one of the two prices is an evaluation error naming the model".
+
+Evidence: design.md:115-117 computes priced as input-present AND output-present, then sends false cases to the packaged map. There is no assertion rejecting unequal presence. features/agents/gateway/price-check.py:13-17 tests only model-id membership. A mapped direct model therefore passes; a reportsCost provider short-circuits the map check altogether.
+
+Probe: evaluated the exact shown predicates with nix eval --offline --json, using deepseek/deepseek-flash and params.input_cost_per_token=0 without an output price. Result: {"evaluatedWithoutError":true,"halfPriced":false,"needsMap":true}. Ran the unchanged price-check.py on deepseek/deepseek-flash with the supplied Python environment: exit 0. Thus both stages succeed instead of the promised evaluation error.
+
+Failure scenario: an operator adds only one explicit price to a model already in the map. The build succeeds, preserving a partial custom-price configuration the design explicitly says it rejects. The proposed negative twin only using an unmapped id can miss this case because map failure would mask the missing evaluation guard.
+
+Fix: separately assert, for every served model, that input/output price fields are either both present or both absent, naming the gateway model on failure. Force that validation independently of needsMap, including reportsCost providers. Then perform the cost-source disjunction. Add mapped and unmapped half-price tests and a reportsCost half-price twin.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Verified by reading sec-3: priced was an AND with no assertion. Fixed in sec-3: checkPrices asserts both-or-neither for every model where its config.yaml entry is built, so it runs whatever the cost source; needsMap uses the same field list. sec-6 refuses half-priced mapped, unmapped and reportsCost twins."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Verified by reading sec-3: priced was an AND with no assertion. Fixed in sec-3: checkPrices asserts both-or-neither for every model where its config.yaml entry is built, so it runs whatever the cost source; needsMap uses the same field list. sec-6 refuses half-priced mapped, unmapped and reportsCost twins."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified at design level: sec-3 now wraps every generated model entry with checkPrices, independently of needsMap. Local offline Nix probe of the revised predicate and entry composition rejects mapped, unmapped and reportsCost half-prices, plus output-only, while accepting both/neither. Sec-6 includes the required negative twins."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "blocker"
+title = "Client litellm_params erases the ledger key identity"
+detail = """
+Design sections: sec-1, sec-6, sec-8.
+
+Expected: design.md:18-20 retains the ledger unchanged, and design.md:276 explicitly excludes gateway_hooks.py changes. Every successful billed request must accrue to the authenticated key.
+
+Evidence: features/agents/gateway/gateway_hooks.py:123-127 trusts kwargs.litellm_params.metadata.user_api_key_hash and skips charging when absent. litellm/litellm_core_utils/litellm_logging.py:838-853 constructs model_call_details with its internal litellm_params, then spreads optional_params over it; a caller-supplied litellm_params entry can overwrite that field. litellm/proxy/auth/auth_utils.py:522-531 checks only banned fields inside litellm_params.metadata, rather than rejecting the client container. The normal metadata spoof test at features/agents/gateway/gateway-test:426-432 does not cover this path.
+
+Probe: /tmp/codex-sl014/probe2.py and probe2.log. Adding only "litellm_params":{} to an otherwise normal request returns 200; fake OpenRouter still reports cost 0.0123; the success callback receives cost=0.0123 but has_hash=False. Ledger logs "spend not recorded: no key hash in the success payload" and spend remains unchanged. A normal metadata hash/alias spoof is a CLEAN negative control: the authenticated hash survives and the caller is charged. No real credential was used.
+
+Failure scenario: a valid client includes the empty internal SDK container on every call. Real provider cost is known, but none is attributed to its key, so the lifetime budget is bypassed independently of provider usage suppression.
+
+Fix: reject client-supplied internal litellm_params at the pre-call boundary (including nested passthrough/fallback locations), before LiteLLM logging merges. An explicit client-body allow-list should exclude it. Alternatively carry ledger identity through a proven server-owned callback channel that client optional params cannot replace. Add an end-to-end negative twin with the empty object and verify refused/no upstream traffic, or charged correctly if sanitization is chosen.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. litellm_params is off the list. Predates SL-014 (deepseek-flash); the user put the fix in scope."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. litellm_params is off the list. Predates SL-014 (deepseek-flash); the user put the fix in scope."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified at design level: sec-9 excludes client litellm_params before LiteLLM parses or merges the request; sec-6 explicitly requires the empty-container bypass to receive 400 with no upstream traffic or spend change. Extracted allow-list rejects the original probe body. Implementation validation remains required."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "major"
+title = "A client can replace the configured provider adapter"
+detail = """
+Design sections: sec-1, sec-2, sec-3, sec-6.
+
+Expected: each configured deployment has one provider and therefore one cost source. design.md:105-109 protects config model/api_key against params overrides, but that config merge does not constrain subsequent client kwargs.
+
+Evidence: litellm/router.py:3580-3590 builds acompletion arguments with request kwargs last. litellm/main.py:493 reads custom_llm_provider from kwargs. litellm/litellm_core_utils/get_llm_provider_logic.py:191-205 honors that supplied provider rather than the configured OpenRouter prefix. custom_llm_provider is absent from the banned request-field tuple at litellm/proxy/auth/auth_utils.py:299-379. The OpenAI default base is selected by litellm/main.py:1033-1044. features/agents/gateway/gateway_hooks.py:97-112 does not forbid provider switches.
+
+Probe: /tmp/codex-sl014/probe2.py and probe2.log. "custom_llm_provider":"openai" passes the exact model gate and returns 200 against the same loopback api_base. The upstream body loses usage.include, model becomes openrouter/local/unmapped, and the success callback reports provider=openai and response_cost=0.0 instead of provider=openrouter and 0.0123. A separate pure get_llm_provider call, with sockets blocked and no api_base, resolves openrouter/z-ai/glm-5.3-flash to openrouter normally, but to openai when that client field is set. No real provider received a request. The fake accepts all model strings; a real provider may reject the changed model string, so this is not evidence every such call is billable.
+
+Failure scenario: a client switches an OpenRouter deployment to a different adapter despite the build admitting it on reportsCost. With the production config lacking api_base, that can change the default destination; with a pinned OpenRouter-compatible api_base it bypasses OpenRouter's usage/cost transform, as probed. This violates server ownership of routing and invalidates the cost-source proof even when model/api_key remain unchanged in config.
+
+Fix: reject client custom_llm_provider (including accepted fallback and passthrough forms), or pin the adapter from server-owned deployment configuration after all request merges. Treat adapter/endpoint/credentials and cost source as one server-owned configuration. Add an end-to-end client-provider override negative test; do not broaden allow_client_side_credentials to make fake-upstream tests work, since configured params.api_base already works.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. custom_llm_provider is off the list. Predates SL-014; in scope by the user's choice."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Verified: probe2.log cases and the cited LiteLLM lines (router.py kwargs last; litellm_logging.py:838-853 spreads optional_params over litellm_params). Fixed by DEC-073 (user chose allow-list at route_gate): new sec-9 Request body guard refuses every top-level field off ALLOWED_FIELDS with a 400 before LiteLLM sees the body; sec-1 no longer claims run time unchanged; sec-6 adds unit and end-to-end twins that refuse each probed bypass body with no upstream traffic and no spend change, plus client-body fixtures; sec-8 lists gateway_hooks.py. custom_llm_provider is off the list. Predates SL-014; in scope by the user's choice."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified at design level: sec-9 excludes client custom_llm_provider, including the original probe body, and excludes fallback/extra_body containers that could carry overrides. Sec-6 requires an end-to-end refusal twin. Server-owned configuration params.api_base remains available for offline fake-upstream tests. Implementation validation remains required."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Credential staging causes an avoidable gateway outage"
+detail = """
+Design section: sec-7.
+
+Expected: design.md:250-254 says the old unit keeps serving until switch if credentials do not restart, and otherwise calls the old-config restart "harmless". The implementation already determines which case applies.
+
+Evidence: features/agents/gateway/llm-gateway:308-312 documents the unconditional restart, :339 invokes it, and :347-355 executes systemctl restart llm-gateway and then polls for its socket. The same file:54-57 documents approximately 25 seconds for LiteLLM startup. features/agents/gateway.nix:131-151 runs a single gateway process with RuntimeDirectory; the socket relay does not keep that process alive during restart. The direct credentials CLI itself restarts; this is not an extra justfile action.
+
+Failure scenario: rollout step 2 successfully stages the new providers, then stops the working old DeepSeek gateway while it imports/restarts LiteLLM. Requests during that interval fail, and in-flight calls can be interrupted. Step 3 can restart it again with the new unit. Credentials-first still avoids the missing-credential outage; it does not provide uninterrupted service.
+
+Fix: state the expected restart interruption and schedule rollout accordingly. If uninterrupted old-config serving through staging is intended, add an explicit staging/no-restart mode and use it before the switch; that is an explicit CLI/test change rather than an assumption for phase planning. The new-build CLI path is otherwise feasible: credentials runs as the invoking user (main's credentials branch precedes as_service), with baked new PROVIDERS and the same credstore, while privilege is applied to encrypt/move/restart operations.
+
+Confirmed by reading; no live service or credential commands were run.
+"""
+disposition = "fix-now"
+response = "Verified: credentials() ends in restart() unconditionally (llm-gateway:339). sec-7 now states the two ~25 s outages (step 2 on the old config, step 3) and says to roll out with no client mid-request. No no-restart staging mode: not worth a CLI path for a one-off rollout."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Verified: credentials() ends in restart() unconditionally (llm-gateway:339). sec-7 now states the two ~25 s outages (step 2 on the old config, step 3) and says to roll out with no client mid-request. No no-restart staging mode: not worth a CLI path for a one-off rollout."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Verified by reading: sec-7 now explicitly documents the credential command restarting the old unit, both approximately 25-second interruption windows and interrupted in-flight requests, with rollout scheduled when no client is mid-request. This matches llm-gateway:339 and :347-355. The design accepts the documented interruption rather than adding a staging mode."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

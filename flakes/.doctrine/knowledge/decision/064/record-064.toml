@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 64
+slug = "gateway-cost-source-per-provider-openrouter-reported-packaged-map-or-explicit-config-price"
+title = "Gateway cost source per provider: OpenRouter-reported, packaged map, or explicit config price"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-051 admits only models in LiteLLM's packaged price map. LiteLLM 1.102.1 cannot load a local whole map (LITELLM_MODEL_COST_MAP_URL is fetched with httpx; file paths fall back to the packaged map), but accepts per-deployment input/output_cost_per_token, and always captures OpenRouter's usage.cost, which overrides map and custom prices, streaming included (SL-014 research T3)."
+choice = "A served model is admitted if it routes through OpenRouter (cost reported per request), or its LiteLLM id is in the packaged map, or it carries an explicit per-token price in config. The build-time check enforces exactly that disjunction."
+alternatives = ["Packaged map only (blocks OpenRouter aliases and meta-models)", "Pin the map JSON as a flake input (LiteLLM cannot load it locally)", "Explicit prices for every model (ignores provider-reported cost; stale)", "Fetch the live map at start (network at start; rejected in IMP-029)"]
+rationale = "Each provider gets the most accurate cost source available; OpenRouter's billed amount is ground truth and makes the map redundant for it."
+consequences = ["DEC-051's build-time clause is amended", "An OpenRouter model's spend depends on OpenRouter returning usage.cost; inq-2 decides what a 0 means", "Explicit prices go stale silently; prefer the packaged map where present"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 66
+slug = "a-served-models-pi-block-is-optional-without-one-pi-is-not-offered-the-model"
+title = "A served model's pi block is optional; without one pi is not offered the model"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-063 makes a served model without a pi block an evaluation error. SL-014 serves gptel and minuet models pi will not use; each pi block needs a hand-verified compat entry."
+choice = "The pi block is optional. piGatewayConfig includes only served models that have one. If SL-013 PHASE-02 has not started when SL-014's design locks, SL-013 builds it this way; otherwise SL-014 changes the throw to a filter."
+alternatives = ["Keep pi required (about 17 hand-verified blocks)", "Separate served set for pi"]
+rationale = "Serving a model and offering it to pi are different facts; DEC-063's reason for hand-written blocks still holds for the models pi uses."
+consequences = ["DEC-063 is amended (choice clause)", "SL-013's 'has no pi entry' test becomes 'absent pi block, not offered to pi'"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"

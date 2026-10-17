@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 65
+slug = "gateway-serves-openrouter-models-as-explicit-per-model-entries-no-wildcard"
+title = "Gateway serves OpenRouter models as explicit per-model entries, no wildcard"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A LiteLLM openrouter/* wildcard would serve any OpenRouter model, but the key gate is an exact match (DEC-051), the admin CLI bakes the served names (DEC-050), SL-013's fail-safe rests on each key's own model list, and /v1/models would list all 269 mapped OpenRouter ids."
+choice = "Every OpenRouter model the gateway serves is its own entry in the served-model list."
+alternatives = ["openrouter/* wildcard with pattern matching in the gate and CLI"]
+rationale = "gptel's hand-picked list is about 15 models; explicit entries keep every existing invariant."
+consequences = ["A new OpenRouter model is a one-entry edit and a rebuild", "Keys still name exact models"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"
