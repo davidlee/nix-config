@@ -25,8 +25,8 @@ served model (agents/gateway.nix)          cost source               build check
   deepseek-flash    provider=deepseek   ──> packaged map               (unchanged)
 ```
 
-**SL-013 is in progress.** It moves the served-model list into
-`agents/gateway.nix` (DEC-059) and requires a pi block per served model
+**SL-013 is done.** It moved the served-model list into
+`agents/gateway.nix` (DEC-059) and required a pi block per served model
 (DEC-063). This slice builds on that layout (`after SL-013`) and makes the pi
 block optional (DEC-066).
 
@@ -36,7 +36,7 @@ block optional (DEC-066).
 |---|---|
 | DEC-064 | a model is admitted if it is OpenRouter (self-pricing), or in the packaged map, or explicitly priced in `params` |
 | DEC-065 | explicit per-model entries, no `openrouter/*` wildcard |
-| DEC-066 | the pi block is optional; without one, pi is not offered the model. SL-013 PHASE-02 builds it this way if it has not started, otherwise this slice amends it |
+| DEC-066 | the pi block is optional; without one, pi is not offered the model. SL-013 shipped it required; this slice changes it (PHASE-01) |
 | DEC-067 | rollout: build, then create the new providers' credentials with the new build's CLI, then switch |
 | DEC-068 | a cost of 0 or None at run time stays warn-and-count-0; add a test that OpenRouter's cost reaches the ledger |
 | DEC-069 | new names are `<provider>/<upstream id>`; `deepseek-flash` keeps its name |
@@ -69,7 +69,7 @@ block optional (DEC-066).
    `deepseek-flash` (RV-029 F-4, F-5).
 4. **`params`** (DEC-070): merged into `litellm_params` beneath the generated
    `model` and `api_key`, so those cannot be overridden.
-5. **pi block optional** (DEC-066), unless SL-013 has already done it.
+5. **pi block optional** (DEC-066): SL-013 shipped it required; PHASE-01 changes it.
 6. **Key model-list edit** (DEC-071): a keystore function and the CLI verb,
    with tests. It refuses unknown models and revoked keys.
 7. **Tests**: OpenRouter's reported cost reaches the ledger, streamed and
@@ -98,7 +98,7 @@ block optional (DEC-066).
 | path | change |
 |---|---|
 | `agents/gateway.nix` (from SL-013) | served models; optional `params` and `pi` |
-| `agents/jailed-agents.nix` (+ test) | pi config filters out models with no pi block (DEC-066), if not done in SL-013 |
+| `agents/jailed-agents.nix` (+ test) | pi config filters out models with no pi block (DEC-066) |
 | `features/agents/gateway/proxy.nix` | providers; merge `params` |
 | `features/agents/gateway/gateway_hooks.py` | request body allow-list (DEC-073) |
 | `features/agents/gateway/keystore.py`, `keystore-test` | replace a key's model list |
@@ -108,8 +108,8 @@ block optional (DEC-066).
 
 ## Risks & assumptions
 
-- **A1**: SL-013's move of the served-model list lands first, in the shape
-  DEC-059 and DEC-063 describe.
+- **A1** (settled 2026-10-17): SL-013 landed the served-model list in the
+  shape DEC-059 and DEC-063 describe.
 - **A2**: OpenRouter returns `usage.cost` for every served model, including
   bring-your-own-key routes such as `deepseek/deepseek-flash`. The live check
   confirms it; if a BYOK route reports 0, that model is under-counted
