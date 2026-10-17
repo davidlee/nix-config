@@ -53,10 +53,10 @@ entrance_criteria = [
 exit_criteria = [
   { id = "EX-1", text = "A chore is filed for the shell_cmds and yEd skips (design sec-4): what to check before dropping each (shell_cmds: cached; yEd: build time on the Mac)." },
   { id = "EX-2", text = "workarounds/default.nix lists three probes on nixpkgs-home / aarch64-darwin: atuin (ISS-007; sites modules/home/cli.nix, modules/home/darwin/default.nix, features/platform-skips.nix), killall (the new chore; site features/platform-skips.nix), yed (the new chore; signal = \"manual\"; site features/platform-skips.nix)." },
-  { id = "EX-3", text = "Validation fails evaluation, naming the probe, on: unknown key, missing required key, wrong type, a pin that is not nixpkgs or nixpkgs-home, an issue not backlog-shaped, an attr missing from the pin, an unfree package (meta.unfree) without signal = \"manual\" (RV-025 F-2). Structural checks are eager; attr and unfree checks sit inside each probe's outPath thunk, so filtering by pin before forcing never touches another pin's probe (RV-025 F-3)." },
+  { id = "EX-3", text = "Validation fails evaluation, naming the probe, on: unknown key, missing required key, wrong type, a pin that is not nixpkgs or nixpkgs-home, an issue not shaped like a backlog id (ISS-/IMP-/CHR-/IDE-/RSK- or whatever prefixes `doctrine backlog` uses, plus three digits; confirmed at phase-plan), an attr missing from the pin, an unfree package (meta.unfree) without signal = \"manual\" (RV-025 F-2). Structural checks are eager; attr and unfree checks sit inside each probe's outPath thunk, so filtering by pin before forcing never touches another pin's probe (RV-025 F-3)." },
   { id = "EX-4", text = "flake.workaroundProbes is each probe plus outPath, from `import inputs.${pin} { inherit system; config.allowUnfree = true; }` with no overlays (research X-2); manual probes carry outPath = null." },
   { id = "EX-5", text = "workarounds/check [pin] evaluates the output once with the pin filter in `--apply`, requests https://cache.nixos.org/<first 32 chars of the outPath basename>.narinfo per probed entry, and reports cached / absent / unknown / manual per design sec-2's table; exit 1 iff any probe is cached (RV-025 F-4)." },
-  { id = "EX-6", text = "update-system ends with `-workarounds/check nixpkgs`, update-home with `-workarounds/check nixpkgs-home`; `just workarounds-check` runs the check alone and fails on a candidate. Neither just test nor the gate touches the network." },
+  { id = "EX-6", text = "update-system ends with `-workarounds/check nixpkgs`, update-home with `-workarounds/check nixpkgs-home` (and drops the stale `antigravity-nix` input name: user, 2026-10-17, it now comes through llm-agents); `just workarounds-check` runs the check alone and fails on a candidate. Neither just test nor the gate touches the network." },
   { id = "EX-7", text = "The atuin comments in modules/home/cli.nix and modules/home/darwin/default.nix, and platform-skips.nix's transient entries, point at the probe in workarounds/default.nix." },
   { id = "EX-8", text = "just test runs checks.<system>.workarounds and workarounds/check-test; both pass. `just coverage` green, `just drvs` unchanged, nix fmt clean." },
 ]
@@ -99,14 +99,14 @@ entrance_criteria = [
 ]
 exit_criteria = [
   { id = "EX-1", text = "bin/will-build <installable>… runs `nix build --dry-run --no-link` with the caller's flags, parses the will-be-built block from stderr, reads preferLocalBuild in one batched `nix derivation show`, prints local builds, config grouped and counted (design sec-5 patterns + preferLocalBuild), and the fetch count. Nothing dropped." },
-  { id = "EX-2", text = "`just will-build` passes this host's system output (nixos or darwin) and its home activationPackage with local_override; update-system and update-home end with `-just will-build`-equivalent lines for their own output, after the check." },
+  { id = "EX-2", text = "`just will-build which=\"all\"` passes this host's system output (nixos or darwin, chosen by os() like the switch recipes), its home activationPackage, or both (`system` / `home` / `all`), with local_override. update-system ends with `-just will-build system`, update-home with `-just will-build home`, each after its check." },
   { id = "EX-3", text = "home-switch and home-build run `set -o pipefail; home-manager … --log-format internal-json -v 2>&1 | nom --json` (2>&1 |, not |&: RV-025 F-8); run.sh sets pipefail." },
   { id = "EX-4", text = "nix-output-monitor is in modules/home/cli.nix (RV-025 F-7)." },
   { id = "EX-5", text = "just test runs bin/will-build-test; green. `just drvs` differs only in the two homes; `just drvs-sets` shows only nix-output-monitor added. coverage green; nix fmt clean." },
 ]
 verification = [
   { id = "VT-1", expects = "will-build-test, nix stubbed with recorded dry-run stderr and derivation JSON: real drvs listed, config grouped and counted, listed + config = total, preferLocalBuild drv grouped as config", test_file = "bin/will-build-test", keywords = ["will be built", "preferLocalBuild", "config"], waived = false },
-  { id = "VA-1", expects = "`sh -c 'set -o pipefail; false 2>&1 | nom --json'` exits non-zero under the system sh (run under bash 3.2-compatible syntax)" },
+  { id = "VA-1", expects = "the recipe shape `set -o pipefail; false 2>&1 | nom --json`, run by the platform /bin/sh as just runs it, exits non-zero (Sleipnir now; the Mac's bash 3.2 is covered by VH-1)" },
   { id = "VA-2", expects = "drvs / drvs-sets diff is exactly nix-output-monitor in both homes" },
   { id = "VH-1", expects = "user: `just home-switch` on Sleipnir shows nom's tree and a failing build exits non-zero; on Draupnir when next at the Mac (may defer past close, noted)" },
 ]

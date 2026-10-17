@@ -47,5 +47,9 @@ scope; each recorded for /reconcile):
 - Premises re-checked against the tree at plan time: every path in sec-7
   exists, or is new as the design says. home-manager forwards `--log-format`.
   `meta.unfree` exists (`yed` true, `hello` false).
-- `update-home` names `antigravity-nix`, which is not an input. Nix only
-  warns, so it is out of scope here.
+- `update-home` names `antigravity-nix`, which is not an input (Nix only
+  warns). The user says to delete it, because it now comes through llm-agents.
+  PHASE-02 already edits that recipe, so it goes there.
+- Revision 1, after the plan review: the PHASE-04 update wiring is concrete
+  (`just will-build <which>`), the backlog-id shape is spelled out for
+  validation, and the nom pipefail check names the shell it runs under.
