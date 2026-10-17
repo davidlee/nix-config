@@ -101,14 +101,19 @@ fed by the Emacs patch-agent adapter's `my/op-read-env`).
 
 ## Open questions
 
-- **OQ-1** One gateway key per pi jail (per project, per emacs) or one shared
-  pi key? Per-jail gives per-project budgets and revocation; it costs a
-  key-issue step per project.
-- **OQ-2** Which models does pi actually use day to day? If not
-  `deepseek-flash`, pi loses them under the gateway until IMP-029 lands.
-- **OQ-3** Emacs flake, per jail: `jailed-shell`, `jailed-claude`,
-  `jailed-opencode`, `jailed-dirge`, `jailed-pi-research` — gateway key,
-  no key, or keep `op run` for now?
+Settled by the user, 2026-10-17:
+
+- **OQ-1** One shared pi gateway key. Every pi jail shares one pi home, so
+  per-jail keys would be security theatre.
+- **OQ-2** `deepseek-flash` is enough for now; IMP-029 is not a prerequisite.
+- **OQ-3** Emacs flake: no `op run` for any jail. Make it easy to give a jail
+  its own gateway key later. `jailed-pi-research` may share pi's key or get
+  its own. claude signs in by OAuth. Delete `jailed-opencode` and
+  `jailed-dirge` (not in use).
+- **OQ-5** Model selection: edit the shared, tracked `settings.json` to the
+  gateway model. That every pi jail is affected is wanted: it forces the
+  rest to upgrade. Once the gateway serves more than one model, the
+  selection should follow what LiteLLM serves.
 - ~~OQ-4~~ Settled: `my/op-read-env` does not feed jails; the patch adapter
   is satan's (IMP-030).
 
