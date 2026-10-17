@@ -1,7 +1,7 @@
 id = 14
 slug = "gateway-more-providers"
 title = "OpenRouter and Fireworks behind the LLM gateway"
-status = "reconcile"
+status = "done"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []

@@ -21,7 +21,7 @@ instead:
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-18 · audit (RV-031 concluded) · 519e87c4
+fresh-as-of: 2026-10-18 · close · 0fa48a17
 
 ### Produced
 - PHASE-01 pi block optional — 188a96b7
@@ -29,7 +29,7 @@ fresh-as-of: 2026-10-18 · audit (RV-031 concluded) · 519e87c4
 - PHASE-03 request body guard (allow-list + `thinking`/`reasoning`, 16 MiB/413) — 484b8f84
 - PHASE-04 `llm-gateway models` verb — 5c334926
 - PHASE-05 README a51d8188; live rollout + VH-1..3 5fcfd28c, 7718bf9b
-- RV-031 audit: 11 findings, no blocker; brief in review-031.md
+- RV-031 audit + reconcile: 11 findings, no blocker; DEC-063/051/050 amended, IMP-029 resolved — 39ff9a4c, 0fa48a17
 - minted: CHR-017 — ruff for gateway Python in the gate (RV-031 F-9)
 - handback to emacs:SL-015 — bad id at `dl-gptel.el:121`
 
@@ -39,8 +39,9 @@ fresh-as-of: 2026-10-18 · audit (RV-031 concluded) · 519e87c4
 - mem.system.flakes.home-worktree — `git commit --only` when the user has staged work
 
 ### Open
-- reconcile: RV-031 brief — selectors + design sec-3/sec-8 (F-1), slice-014.md (F-8), DEC-063/051/050 (F-4..F-6), IMP-029 (F-7)
 - ISS-005 — garbles conformance and verify-vt (RV-031 F-2)
+- CHR-017 — no Python lint in the gate (RV-031 F-9)
+- IMP-035 — OpenAI behind the gateway (DEC-072)
 
 ## PHASE-05 live (2026-10-18)
 - Rollout in sec-7 order: `just system-build`, `./result/sw/bin/llm-gateway credentials openrouter fireworks`, `just system-switch` (user ran). Unit active with 3 providers, 18 models.
