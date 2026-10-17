@@ -263,8 +263,10 @@ sandbox in `op run --env-file=<refs> -- <inner-jail>` by default. The flow:
    integration socket); otherwise `op` is resolved from `PATH`.
 4. `op run` resolves each ref via the 1Password desktop app
    (biometric/CLI unlock) and injects plaintext into the wrapper's env.
-5. The bwrap launch then forwards each var into the sandbox via
-   `--setenv NAME "${NAME:-}"` raw args.
+5. The bwrap launch then forwards each var into the sandbox over `--args 21`:
+   NUL-separated `--setenv` pairs written down a pipe, so no key is in bwrap's
+   argv (`/proc/<pid>/cmdline` is world-readable). See `setenvsByArgsFd` in
+   `jailed-agents.nix`.
 
 Result: secrets live only in the bwrap process env for the agent's
 lifetime — never on disk, never in the store, never in the host shell
@@ -321,7 +323,7 @@ satan-jailed-gptel-harness = jailLib.makeJailedAgent {
   agent   = satanGptelHarness;
   profile = "specDev";
   useOpEnv           = false;  # skip the outer `op run` wrapper
-  passApiKeysFromEnv = true;   # keep the bwrap `--setenv VAR "$VAR"` forwarding
+  passApiKeysFromEnv = true;   # keep the FD forwarding
 };
 ```
 
@@ -329,8 +331,7 @@ Effect:
 
 - The outer `op run` wrapper is omitted, so launching the jail does not
   call `op` and never prompts 1Password.
-- The inner bwrap launcher still ships `--setenv VAR "$VAR"` raw args
-  for each entry in `apiKeyOpRefs`, so whatever plaintext the caller has
+- The inner bwrap launcher still forwards over `--args 21` each entry in `apiKeyOpRefs`, so whatever plaintext the caller has
   set in `process-environment` (or its equivalent) for those names is
   forwarded into the sandbox.
 - If the caller fails to set a key, `${VAR:-}` expands to empty and the
@@ -340,6 +341,36 @@ Effect:
 The caller now owns the credential-cache policy: TTL, clearing on
 suspend/lock, refreshing after rotation. The defaults (`useOpEnv =
 passApiKeysFromEnv = per-profile`) keep the simple case simple.
+
+### Gateway mode (`gateway`)
+
+A jail can hold one key for a local LLM gateway instead of provider keys. The
+argument is exactly three strings:
+
+```nix
+(agents.makeJailedEca {
+  gateway = {
+    keyFile      = "$HOME/.config/llm-gateway/keys/eca"; # a shell word, expanded at run time
+    url          = "http://127.0.0.1:4000/v1";
+    runDirectory = "/run/llm-gateway";
+  };
+})
+```
+
+Effect:
+
+- No `op run`. `apiKeys` defaults to `[]`; an explicit non-empty `apiKeys`
+  is refused at evaluation.
+- The outer wrapper reads `keyFile` with a shell builtin and passes it as
+  `LLM_GATEWAY_KEY` over `--args 22` (not argv, like the provider keys on
+  `--args 21`). `LLM_GATEWAY_URL` is plain env.
+- The wrapper fails with a message in two cases: the key file is unreadable
+  (issue one: `llm-gateway issue … --out <keyFile>`), or `runDirectory` is
+  missing (the gateway is not running; `just system-switch`).
+
+The sub-flake depends on no gateway implementation: any OpenAI-compatible
+endpoint that takes a bearer key fits. The gateway shipped with this repo is
+described in the top-level README, § LLM gateway.
 
 ### makeJailedAgent options
 
@@ -358,9 +389,10 @@ passApiKeysFromEnv = per-profile`) keep the simple case simple.
 | `blockGitPush` | deprecated | Compatibility alias for `blockSshGitPush`; emits a warning |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
-| `apiKeys` | all configured names | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
+| `apiKeys` | all configured names; `[]` in gateway mode | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
+| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)) |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
-| `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail via `--setenv VAR "$VAR"`. Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
+| `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
 
 ### Full example
 

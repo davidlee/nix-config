@@ -224,7 +224,8 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
-  agents.nix          [ registry eca chatgpt ]        registry: nixos only; eca: linux only (personal-linux)
+  agents.nix          [ registry (import ./agents/gateway.nix) eca chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; eca: linux only, requires gateway (personal-linux)
+  agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
   audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
   audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature
   services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target
@@ -768,6 +769,112 @@ When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `
 
 **Removal:** harmless to leave (v4 preference costs nothing when v6 works). Drop it only if you want strict RFC 6724 v6-preference back once the ISP is reliably dual-stack.
 
+### LLM gateway
+
+`features/agents.nix` (`agents.gateway`, selected by `personal-linux`, so
+Sleipnir) with `features/agents/gateway.nix` and `features/agents/gateway/`.
+A LiteLLM proxy holds the provider keys. A jail holds only its own gateway
+key: useful on this host alone, within its budget and its model list. The
+unjailed `eca` and every other jail are unchanged. Decisions DEC-046..051.
+
+```
+jail (jailed-eca)                                      LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL
+   │  POST /v1/chat/completions
+   ▼
+127.0.0.1:4000   llm-gateway-relay.socket ─ systemd-socket-proxyd (group llm-gateway)
+   ▼
+/run/llm-gateway/api.sock  (dir 0750)         llm-gateway.service (LiteLLM, hardened)
+   ├─ route gate    POST /chat/completions, /v1/chat/completions,
+   │                GET /models, /v1/models; anything else: 404
+   ├─ custom_auth   key known? revoked? under budget?
+   ├─ model gate    is the model on this key's list?
+   ├─ provider      key from /etc/credstore.encrypted/llm-gateway.<provider>
+   └─ ledger        spent += response_cost
+keys.db  /var/lib/llm-gateway (0700): alias, sha256 of the key, models, budget, spent
+```
+
+**First run.** The service cannot start until a provider credential exists.
+On the first switch systemd itself refuses the unit at credential setup
+(`status=243/CREDENTIALS`; `journalctl -u llm-gateway` names the missing
+`/etc/credstore.encrypted/llm-gateway.deepseek`), before the launcher runs.
+The switch reports a failed `llm-gateway` unit; the new generation is active.
+That is expected.
+
+```bash
+just system-switch          # llm-gateway.service fails: no credential yet (expected)
+just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts the service
+llm-gateway issue eca --models deepseek-v4-pro,deepseek-v4-flash --budget 5 \
+  --out ~/.config/llm-gateway/keys/eca   # 0600; refuses an existing file
+just home-switch
+```
+
+The launcher's own message (it names the credential and
+`just gateway-credentials`) appears only when the credential directory lacks
+a provider by some other route.
+
+Then point eca's provider at the gateway in `~/.config/eca/config.json`
+(`url`, `key`, and the model names the gateway serves; no key value goes in
+the file):
+
+```json
+"deepseek": {
+  "url": "http://127.0.0.1:4000/v1",
+  "key": "${env:LLM_GATEWAY_KEY}",
+  "models": { "deepseek-v4-pro": {}, "deepseek-v4-flash": {} }
+}
+```
+
+**Admin.** `llm-gateway` runs as the `llm-gateway` user via sudo on the
+SQLite file (DEC-050). Keys travel on stdin, never argv. `list` shows no key
+or hash; the table stores only a key's sha256.
+
+| command | does |
+|---|---|
+| `issue ALIAS --models M,… --budget USD [--out FILE]` | issue a key; printed once, or written to a new 0600 file |
+| `list` | every key: alias, models, budget, spent, revoked |
+| `revoke ALIAS` | revoke a key |
+| `budget ALIAS USD` | set the lifetime budget |
+| `reset ALIAS` | set spend back to 0 |
+| `credentials [PROVIDER…]` | encrypt provider keys from 1Password for the service |
+
+**Rotation.**
+
+- Provider key: rotate it in 1Password, then `just gateway-credentials`
+  (re-encrypts, restarts the service).
+- Client key: a key is never re-keyed in place. Issue a new one under a new
+  alias (DEC-051: a revoked alias is never reissued). eca's `keyFile` is the
+  fixed path `…/keys/eca`; the alias is only the ledger's name. A running jail
+  keeps the key it launched with until that key is revoked.
+
+```bash
+mv ~/.config/llm-gateway/keys/eca{,.old}       # --out refuses an existing file
+llm-gateway issue eca-2 --models … --budget … --out ~/.config/llm-gateway/keys/eca
+llm-gateway revoke eca && rm ~/.config/llm-gateway/keys/eca.old
+```
+
+A failed `--out` write revokes the key it just issued, so that alias is
+spent too; pick the next one.
+
+**Adding a client.** Another jail passes `gateway = { keyFile; url;
+runDirectory; }` built from `features/agents/gateway/constants.nix`, drops its
+`apiKeys`, adds `requires = ["agents.gateway"]` to its record, and gets a key
+issued. See `agents/README.md` § Gateway mode. Another model or provider goes
+in `services.llm-gateway.models` / `.providers`: each provider needs a
+1Password ref and a `just gateway-credentials` run, and every model must be in
+LiteLLM's packaged price map (a flake check enforces it).
+
+**What it does not cover.**
+
+- OAuth/subscription logins (claude, codex and the like sign in their own way).
+- Every other jail still gets provider keys through `op run` until migrated
+  (pi: IMP-028), and the unjailed `eca` keeps its own keys.
+- OpenRouter: not configured, so the jailed eca has no OpenRouter models.
+- Anything off this host: the relay is loopback only.
+- Budgets are lifetime USD per key, not per period.
+
+**Tests.** `just test` runs `keystore-test`, `checks.<system>.llm-gateway`
+(the real proxy app, offline) and the jail tests.
+
 ## Jailed Agents 
 
 template setup for bubblewrap-jailed agents, with secure 1password-managed API keys, assuming some conventions:
@@ -776,5 +883,8 @@ template setup for bubblewrap-jailed agents, with secure 1password-managed API k
 nix flake init -t /home/david/flakes#agents                    # local
 nix flake init -t github:davidlee/nix-config?dir=flakes#agents # anywhere
 ```
+
+Jails can run in gateway mode: no provider key enters the jail, only a key for
+the local LLM gateway. See § LLM gateway and [agents/README.md](./agents/README.md).
 
 See [README](./pub/README.md) 

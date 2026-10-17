@@ -37,8 +37,14 @@
     #
     # The unjailed `eca' (same pin) is installed too: dl-eca-toggle-jail.
     #
-    # Linux only: the jail is bubblewrap. No `requires`: it uses the `emacs`
-    # and `agents` inputs, not the editor.emacs feature.
+    # Gateway mode (SL-011): the jail holds no provider key, only its own
+    # gateway key from ~/.config/llm-gateway/keys/eca. ~/.config/eca/config.json
+    # points its provider at $LLM_GATEWAY_URL / ${env:LLM_GATEWAY_KEY}.
+    #
+    # Linux only: the jail is bubblewrap. Requires `agents.gateway` (the key
+    # store and relay), not editor.emacs: it uses the `emacs` and `agents`
+    # inputs.
+    requires = ["agents.gateway"];
     platforms = lib.platforms.linux;
     homeManager = {
       inputs,
@@ -47,16 +53,18 @@
     }: let
       system = pkgs.stdenv.hostPlatform.system;
       jailLib = inputs.agents.lib.${system}.mkJailedAgents {};
+      constants = import ./agents/gateway/constants.nix;
     in {
       home.packages = [
         jailLib.unjailed.eca
         (jailLib.makeJailedEca {
           profile = "specDev";
           extraPkgs = [inputs.emacs.packages.${system}.default];
-          apiKeys = [
-            "OPENROUTER_API_KEY"
-            "DEEPSEEK_API_KEY"
-          ];
+          gateway = {
+            keyFile = "${constants.keyDirectory}/eca";
+            inherit (constants) url;
+            runDirectory = "/run/${constants.runtimeDirectory}";
+          };
           extraOptions = with jailLib.combinators; [
             mount-cwd
             (try-readonly (noescape "~/.config/eca"))

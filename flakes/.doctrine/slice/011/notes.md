@@ -126,3 +126,23 @@ it is covered instead:
 - Finding: bare `! grep` assertions in jailed-agents-test.nix never failed the build (bash errexit ignores negated commands). Converted to a `refute` helper; all pass. Other repo shell tests may share the flaw (unaudited).
 - `just test` now builds `agents#checks.<sys>.jailed-agents` (Linux).
 - Worker: opus — POL-001 secret-in-argv correctness risk in nested shell quoting.
+
+## PHASE-05 (agent-doable part, 2026-10-17)
+
+Human rulings (user, 2026-10-17, via capsule-driver):
+1. Credential path: keep the absolute-path `LoadCredentialEncrypted` form. Before a provider credential exists, systemd fails the unit at credential setup (`status=243/CREDENTIALS`), not the launcher's message; the first `just system-switch` reporting a failed llm-gateway unit is expected. VH-1 is reworded accordingly (below). Drift for reconcile: design sec-2 says a missing credential is "not reliably fatal" and the sec-1 diagram is stale; plan VH-1 wording names the launcher message, which PHASE-02 VT-4 proves instead.
+2. Hardening: PHASE-05 may loosen `features/agents/gateway.nix` hardening minimally, only for a failure observed in the live checks; each change and its reason recorded here. None made in the agent-doable part (no speculative loosening).
+3. Alias reuse: DEC-051 stands. README rotation text: rotation = issue a new alias; a revoked alias is never reissued.
+
+VH-1 (reworded per ruling 1): `just system-switch` activates the new generation and reports `llm-gateway.service` failed; `systemctl status llm-gateway` shows `status=243/CREDENTIALS` and `journalctl -u llm-gateway -b` shows systemd failing to load credential `deepseek` from `/etc/credstore.encrypted/llm-gateway.deepseek`. Expected before the first `just gateway-credentials`.
+
+Planning:
+- The PHASE-04 hand-off claim that the eca record already passed `gateway` was wrong: `features/agents.nix` at HEAD still had `apiKeys`. PHASE-05 did all of the eca wiring (requires = ["agents.gateway"], gateway from constants, no apiKeys) plus features-test `testEcaRequiresGateway` (red `[true true]`, then green `[false true]`).
+- Jailed eca loses OpenRouter (gateway configures DeepSeek only; design sec-5). Documented under README "What it does not cover".
+- Rotation for eca: keyFile is a fixed path, the alias only the ledger's name: move the old file aside, `issue eca-<n> --out keys/eca`, `revoke eca`.
+- Design sec-7 lists a README § Jailed Agents note that EX-2 omits; added (one paragraph).
+- Drift for reconcile: VH-4 says "just home-switch; eca's config.json ... points at the gateway". `~/.config/eca/config.json` is untracked and not home-managed, so the human edits it by hand (README § LLM gateway shows the provider block); home-switch alone changes only the jailed-eca wrapper.
+
+Worker: sonnet. drvs: only homeConfigurations."david@Sleipnir" (and its alias `david`) changed; nix-diff bottoms out at `jailed-eca` (`jailed-eca-api-keys.env` gone, wrapper text differs). A later home drv move was attributed to the `~/dev/goad` checkout moving (37c201a8 -> 7a218263) mid-phase, not the docs. Built `jailed-eca` (not run): no `op run`, no provider var names; `--args 22`, `LLM_GATEWAY_URL`, key path present. flake.lock diff hash unchanged. `just test`, `just gate` green (re-run by orchestrator). README staged hunk-wise via `git apply --cached`; the user's Speech hunk stays unstaged.
+
+PHASE-05 left in_progress: VH-1..7 await the human.

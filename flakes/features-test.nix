@@ -593,6 +593,17 @@ in
       expected = [false true];
     };
 
+    # eca's jail takes its key and relay from the gateway; `requires` checks
+    # selection only.
+    testEcaRequiresGateway = {
+      expr = map (sel:
+        resolves {
+          tree = real;
+          modules = map on sel;
+        }) [["agents.eca"] ["agents.eca" "agents.gateway"]];
+      expected = [false true];
+    };
+
     # Both linux classes on both systems, so only `platforms` can refuse:
     # with a darwin host's own classes, D6 (nowhere to land) would refuse the
     # pre-P3 nixos-only record too, and the test would pass vacuously.
