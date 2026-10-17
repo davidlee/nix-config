@@ -37,5 +37,10 @@ PHASE-01 pi optional ──> PHASE-02 providers, params, price rule ──┬─
   gateway, so their bodies can be captured; gptel's and minuet's are
   reconstructed from their source until emacs:SL-015 moves them over. A
   field missing from the allow-list surfaces there, not in production.
+- **No `system-switch` from PHASE-02 until PHASE-05's rollout.** Once the
+  tree serves openrouter and fireworks, the unit needs their credentials;
+  without them systemd refuses the whole unit (DEC-048), DeepSeek included.
+  A switch for other work in that window takes the gateway down until
+  PHASE-05 steps 1–3 run. `home-switch` is unaffected.
 - PHASE-05 edits README § LLM gateway, which SL-013 also edits; rebase on
   whatever SL-013 has landed.

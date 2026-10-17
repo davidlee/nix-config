@@ -33,7 +33,7 @@ exit_criteria = [
 ]
 verification = [
   { id = "VT-1", expects = "a model without pi is absent from the generated models.json; its twin with pi is present", test_file = "agents/jailed-agents-test.nix", keywords = ["noPiEntryOmitted"], waived = false },
-  { id = "VT-2", expects = "the bound gateway models.json still holds exactly deepseek-flash", test_file = "agents/jailed-agents-test.nix", keywords = ["deepseek-flash"], waived = false },
+  { id = "VT-2", expects = "expectedPiModels filters to models with a pi block, so the bound gateway models.json still holds exactly deepseek-flash", test_file = "agents/jailed-agents-test.nix", keywords = ["expectedPiModels", "? pi"], waived = false },
 ]
 specs        = []
 requirements = []
@@ -50,7 +50,7 @@ exit_criteria = [
   { id = "EX-2", text = "defaults.models keeps params (drops only pi); litellm_params = params // {model; api_key} // extraParams." },
   { id = "EX-3", text = "checkPrices runs for every served model where its config entry is built; needsMap filters what price-check.py sees; price-check.py unchanged." },
   { id = "EX-4", text = "agents/gateway.nix serves the sec-2 model list with DEC-069 names; every OpenRouter entry has params.allowed_openai_params = [\"reasoning_effort\"]." },
-  { id = "EX-5", text = "A fake OpenRouter on loopback (test-only, via extraModels params.api_base) answers with usage.cost; no real provider is contacted." },
+  { id = "EX-5", text = "A fake OpenRouter on loopback answers with usage.cost; no real provider is contacted. It gets its own configDir (e.g. LLM_GATEWAY_FAKE_CONFIG) without extraParams.mock_response, which the existing test config applies to every model; its extraModels entry sets params.api_base to a fixed loopback port the fake binds (the RV-029 probe proved configured api_base works)." },
   { id = "EX-6", text = "just test green; just fmt clean." },
 ]
 verification = [
@@ -101,7 +101,7 @@ exit_criteria = [
 ]
 verification = [
   { id = "VT-1", expects = "set_models replaces the list; allows_model follows it; the key authenticates unchanged; empty, revoked and unknown refused", test_file = "features/agents/gateway/keystore-test", keywords = ["set_models", "revoked"], waived = false },
-  { id = "VT-2", expects = "CLI models verb refuses unserved names with issue's message and runs set_models as the service user", test_file = "features/agents/gateway/keystore-test", keywords = ["\"models\""], waived = false },
+  { id = "VT-2", expects = "CLI models verb refuses unserved names with issue's message and runs set_models as the service user", test_file = "features/agents/gateway/keystore-test", keywords = ["ModelsVerbTest"], waived = false },
 ]
 specs        = []
 requirements = []
