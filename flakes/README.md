@@ -73,8 +73,8 @@ just home-switch       # home
 
 The recipes pick the host by `hostname -s`; pass `host=Draupnir` while the
 machine still has another name. `home-switch` runs through `nom`
-(§ Workarounds); a home without it yet, such as the first, switches once as
-`nix shell nixpkgs#nix-output-monitor -c just home-switch`. The recipes build
+(§ Workarounds) once a home has it; the first switch prints plain output.
+The recipes build
 `emacs/` and `agents/` from the checkout; the Mac has no `~/dev`, so every
 other input comes from the lock (§ Dev checkouts).
 
@@ -555,8 +555,8 @@ answers that.
 
 **nom.** `just home-switch` and `just home-build` stream through
 `nom --json` (nix-output-monitor, in the home base) with `pipefail`, so a
-failed build still exits non-zero. A home without `nom` yet switches once
-as in § Bootstrap macOS.
+failed build still exits non-zero. Where `nom` is not on PATH yet (a home
+that predates it), they print home-manager's plain output instead.
 
 ```bash
 just workarounds-check                # every probe

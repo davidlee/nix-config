@@ -28,6 +28,10 @@ stub_override := `bin/dev-checkouts stub`
 # run in a work tree"). Linux keeps `.`.
 flake := if os() == "macos" { "path:" + justfile_directory() } else { "." }
 
+# Home builds stream through nom where it is installed; a home that predates
+# it (the first switch) gets plain output instead of failing (RV-027 F-1).
+nom_pipe := if `command -v nom || true` == "" { "" } else { "--log-format internal-json -v 2>&1 | nom --json" }
+
 # configurations are keyed by short hostname (hosts/<host>/); override with host=…
 host := `hostname -s`
 
@@ -92,10 +96,10 @@ system-build: check-flake-root
   sudo ./run.sh build {{host}} {{local_override}}
 
 home-switch: check-flake-root #check-no-root-pub
-  set -o pipefail; home-manager switch --flake '{{flake}}#david@{{host}}' {{local_override}} --log-format internal-json -v 2>&1 | nom --json
+  set -o pipefail; home-manager switch --flake '{{flake}}#david@{{host}}' {{local_override}} {{nom_pipe}}
 
 home-build: check-flake-root #check-no-root-pub
-  set -o pipefail; home-manager build --flake '{{flake}}#david@{{host}}' {{local_override}} --log-format internal-json -v 2>&1 | nom --json
+  set -o pipefail; home-manager build --flake '{{flake}}#david@{{host}}' {{local_override}} {{nom_pipe}}
 
 doctor:
   sleipnir-doctor
