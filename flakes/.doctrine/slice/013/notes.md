@@ -147,7 +147,7 @@ and the bump re-run, not another design review. None is needed before lock.
 | VH-1 | pass (user): jailed-pi completed a request on llm-gateway/deepseek-flash; pi spend rose |
 | VH-2 | pass: /proc/1/environ empty; jail env has only LLM_GATEWAY_KEY/URL, no provider key; auth.json holds only OAuth logins (google-antigravity, google-gemini-cli, openai-codex); models.json is a ro bind of /nix/store/…-pi-gateway-models.json |
 | VH-3 | pass: `--thinking off` showed no reasoning |
-| VH-4 | completed a request (after the user rebuilt doctrine with jailed-pi-research); user reports model `deepseek/deepseek-flash`, not `llm-gateway/deepseek-flash` as in VH-7 — OPEN: confirm the provider shown in the footer |
+| VH-4 | pass: jailed-pi-research (doctrine, after the user rebuilt it) completed a request; selected model `deepseek-flash [llm-gateway]` |
 | VH-5 | pass (user confirmed): jailed-claude ran jailed-pi, which completed a request |
 | VH-6 | pass: host claude ran `jailed-pi "Reply with exactly: OK"` → OK |
 | VH-7 | resumed pre-cutover session uses llm-gateway / deepseek-flash |
