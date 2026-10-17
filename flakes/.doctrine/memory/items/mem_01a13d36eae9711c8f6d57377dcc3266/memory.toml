@@ -4,9 +4,9 @@ schema_version = 1
 memory_type = "fact"
 status = "active"
 title = "nix fmt: lock settled (CHR-008); treefmt cache can hide unformatted files"
-summary = "The emacs-overlay re-lock is fixed; nix fmt's treefmt cache can report 0 changed on stale files — use just gate or --no-cache"
+summary = "Root nix flake lock re-resolves emacs/emacs-overlay (regressed 2026-10-17): keep it out of lock commits; treefmt mtime cache"
 created = "2026-10-15"
-updated = "2026-10-16"
+updated = "2026-10-17"
 
 [scope]
 paths = ["flake.lock", "perSystem.nix"]

@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · reconcile (RV-023) · 18024a39
+fresh-as-of: 2026-10-17 · done · 126a9021
 
 ### Produced
 - DEC-042, DEC-043, DEC-044; RV-022 (design pass); RV-023 (audit)
@@ -21,7 +21,7 @@ fresh-as-of: 2026-10-17 · reconcile (RV-023) · 18024a39
 - observations: registry pre-amend oid; lock drift; evidence tooling gaps; comma-split consequences
 
 ### Open
-- IMP-001 delivered by PHASE-04; close at /close
+- IMP-001 resolved at close
 - RV-023 brief landed (design.md, DEC-042)
 - root flake.lock emacs-overlay drift: user's call
 
