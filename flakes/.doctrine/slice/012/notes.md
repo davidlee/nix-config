@@ -248,3 +248,66 @@ shows nom, a failing build exits non-zero; Draupnir later).
 drop `__json` branch 1; drop `"1"` branch 1; drop `unit-*` 1; drop
 `home-manager-files` 1; `derivation show` per drv 2; drop D4 self-check 3;
 swallow nix's exit 1; noise to stdout 3; drop the unrecognised-header check 1.
+
+## PHASE-05 (2026-10-17, worker)
+
+README only: new `### Workarounds` under `## Notes`, after `### Hosts`, before
+`### Dictation` (structural, like Dev checkouts / Features / Hosts; sheet A1).
+Also: § Bootstrap macOS gains the one-time nom bootstrap (orchestrator Q1);
+§ Features' `platform-skips.nix` sentence gains "a transient skip also gets a
+probe (§ Workarounds, DEC-056)" (EX-2). Feature tree, Hosts and recipe
+mentions (`home-switch`, `home-build`, `darwin-switch`, `host=`) checked
+against the justfile: unchanged, correct. No code, justfile, governance or
+memory edits.
+
+### D-items: README follows the code (for /reconcile)
+- D1 registry path `workarounds/default.nix` (DEC-053/055/056 still say
+  `overlays/workarounds.nix`).
+- D2 `storePath` (diagram and prose); no `outPath` anywhere in README.
+- D3 unfree: README says "an unfree package" (no field named); code uses
+  `meta.unfree`.
+- D4 `pin` shown as `"nixpkgs" | "nixpkgs-home"`; "The `stable` input cannot
+  be probed"; `last-good stable` named as a revision source.
+- D5 exits 0/1/2 stated; `unknown` line shows `<HTTP nnn | curl's error>`.
+- D6 pin-filter.nix not mentioned (not reader-relevant).
+- D7 `workarounds/last-good <input>`; "There is no just recipe."
+- D8 "built for pkgs' system with pkgs' config" (null-drop not mentioned).
+- D9 previous *lock*, not previous nixpkgs; refusals + exit 2 stated;
+  two-row lock table from the script header.
+- D10 `just will-build [system|home|all]`, default `all`; os() not mentioned.
+- D11 nested just not mentioned ("runs last in update-*").
+- D12 pipe form not shown; README says "stream through `nom --json` with
+  `pipefail`".
+- D13 "a derivation that sets `preferLocalBuild`" (encodings not mentioned).
+- D14 update-* inputs not listed.
+- D15 diagram uses storePath; manual row shown as `-` (never asked).
+
+### Examples used
+- Probe: the live atuin record (ISS-007), keys annotated inline.
+- Local patch: the click-threading overlay removed in commit 28861d6c.
+- lastGood: the two call forms from `last-good.nix`'s header; imported by
+  path (nothing exposes it as a flake output).
+- will-build sample output is illustrative (`foo-1.2.3`), not a live run.
+
+### Open / follow-ups
+- nom bootstrap line (`nix shell nixpkgs#nix-output-monitor -c just
+  home-switch`) is unverified on the Mac; VH-1 for Draupnir still pending.
+  Also applies to any home switched before P4 (Sleipnir too, if its home
+  has not been switched since).
+- README § crates.io "Removal" command reads `.locks.nodes.nixpkgs` — a
+  transitive node, not the root input (`nixpkgs_28`); correct form
+  `.locks.nodes[.locks.nodes.root.inputs.nixpkgs].locked.rev`
+  (mem.fact.nix.lock-node-names). Not touched (orchestrator Q2); follow-up.
+- mem.fact.flakes.nom-darwin-sh is stale (Draupnir gets nom from the home
+  base; run.sh has pipefail): update at /harvest.
+- DEC-036 / DEC-053 governance text: deferred to /reconcile (Q3).
+- Section is ~135 lines, over the sheet's ~60–90 guide: three code blocks
+  (probe, patch, lastGood) plus diagram, table, sample and command block,
+  all required by EX-1 or the suggested shape.
+
+### Gate
+`just test` green; `just coverage` green (isolation ok); `just drvs`
+before/after diff empty; `flake.lock` / `emacs/flake.lock` sha256 unchanged;
+`~/dev/*` and `/srv/fleet` HEADs unchanged. VT-1 loop prints nothing;
+`rg 'cli-broken|overlays/workarounds|bin/workaround|outPath' README.md` no
+hits.

@@ -72,9 +72,11 @@ just home-switch       # home
 ```
 
 The recipes pick the host by `hostname -s`; pass `host=Draupnir` while the
-machine still has another name. The recipes build `emacs/` and `agents/` from
-the checkout; the Mac has no `~/dev`, so every other input comes from the lock
-(§ Dev checkouts).
+machine still has another name. `home-switch` runs through `nom`
+(§ Workarounds); a home without it yet, such as the first, switches once as
+`nix shell nixpkgs#nix-output-monitor -c just home-switch`. The recipes build
+`emacs/` and `agents/` from the checkout; the Mac has no `~/dev`, so every
+other input comes from the lock (§ Dev checkouts).
 
 On the Mac the flake is referenced as `path:<justfile dir>`, because the
 dotfiles repository at `~/.git` is bare; automatic Git discovery otherwise
@@ -314,7 +316,8 @@ accepts for the host's platform, minus the names `features/platform-skips.nix`
 lists for its system (DEC-036). So the Mac gets the cli packages available on
 aarch64-darwin, and Sleipnir's set is unchanged. `availableOn` reads metadata
 only: it cannot tell that a package fails to build or is not in the binary
-cache. Packages that fail to evaluate or build on darwin go in `platform-skips.nix`.
+cache. Packages that fail to evaluate or build on darwin go in `platform-skips.nix`;
+a transient skip also gets a probe (§ Workarounds, DEC-056).
 The NixOS base's `cpuid` and `x86info` use plain `availableOn`.
 
 **Coverage.** A feature that no host selects would otherwise never be
@@ -426,6 +429,142 @@ configuration by `hostname -s`; override with `just host=<other> system-build`
 (or `home-build`). `run.sh <cmd> <host>` takes it as its second argument.
 `homeConfigurations.david` is a transitional alias for `david@Sleipnir`.
 The roadmap this is part of is RFC-001 (`doctrine show RFC-001`).
+
+### Workarounds
+
+A transient upstream breakage (a package uncached, or failing to build, on
+the current pin) gets two things: a local fix beside the module that
+consumes the package (DEC-016), and a probe that says when the fix can go
+(DEC-053). The probe applies nothing; it names the fix so it can be found
+and reverted.
+
+```
+workarounds/default.nix    probes, plain data; applies nothing
+   │  validated by workarounds/probes.nix
+   ▼
+flake.workaroundProbes     each probe + storePath (unpatched: from the pin, no overlays)
+   │
+   ▼
+workarounds/check [pin]    GET cache.nixos.org/<hash>.narinfo, per probe
+   200    candidate: remove <sites> (<issue>: <reason>)       exit 1
+   404    ok <attr> (<system>)
+   other  unknown <attr>: <HTTP nnn | curl's error>
+   -      manual <attr> (<issue>): check by hand              signal = "manual": never asked
+```
+
+**Probe.** One record per fix, in `workarounds/default.nix`:
+
+```nix
+{
+  attr = ["atuin"];            # path in the pin's package set
+  pin = "nixpkgs-home";        # "nixpkgs" | "nixpkgs-home"
+  system = "aarch64-darwin";   # one of the flake's systems
+  issue = "ISS-007";           # the backlog item tracking it: ISS|IMP|CHR|RSK|IDE-NNN
+  reason = "18.23.0 not cached for aarch64-darwin; local build fails";
+  sites = [                    # every file to revert, repo-relative
+    "modules/home/cli.nix"
+    "modules/home/darwin/default.nix"
+    "features/platform-skips.nix"
+  ];
+  # signal = "manual";         # never asked: a runtime bug, or an unfree package
+}
+```
+
+ISS-007 tracks atuin, disabled on the Mac. `signal = "manual"` marks what
+the cache cannot answer: a runtime bug (a cached build says nothing about
+it) and an unfree package, which is never on cache.nixos.org (`yed` is one). An
+unfree probe without it is an evaluation error, as is an unknown or missing
+key, a wrong type, or an `attr` the pin lacks; the error names the probe
+(`workarounds/default.nix, probe 2 (killall)`). The `stable` input cannot
+be probed.
+
+**The check.** `workarounds/check` reads each probe's store path, built
+from the pin alone with no overlays (what Hydra, nixpkgs' build farm, builds), and asks
+cache.nixos.org for it (DEC-055). Cached means the build failure is gone
+upstream, not that a runtime bug is fixed; the first build without the fix
+still proves the removal. Exit 0: no candidate; 1: a candidate; 2: usage, or
+the probes failed to evaluate. Offline, every probe is `unknown`. It runs:
+
+- at the end of `just update-system` (pin `nixpkgs`) and `just update-home`
+  (pin `nixpkgs-home`), non-fatally, so `update` and `everything` go on;
+- on demand, `just workarounds-check [pin]`, which fails on a candidate;
+- never in `just test` or the gate: it needs the network.
+
+**Fixes.** Both forms are local. Every fix gets a probe; removing one means
+reverting every site and deleting the probe.
+
+- *A skip, override or patch*, in the module that consumes the package:
+  `lib.mkForce false`, `lib.optional isLinux`, a `features/platform-skips.nix`
+  entry (atuin uses all three; its probe lists the three sites), or an
+  overlay set in a NixOS or home module's `nixpkgs.overlays`. A library
+  other packages depend on is patched this way. The click-threading fix,
+  removed once its unpatched build was cached (commit 28861d6c):
+
+  ```nix
+  _final: prev: {
+    python314 = prev.python314.override {
+      packageOverrides = _: pyPrev: {
+        click-threading = pyPrev.click-threading.overridePythonAttrs (_: {doCheck = false;});
+      };
+    };
+  }
+  ```
+
+- *lastGood*, for a leaf app only: the package from an earlier nixpkgs
+  revision, built for pkgs' system with pkgs' config. It brings its own
+  closure, beside the current one (DEC-054). Import
+  `workarounds/last-good.nix` by path and paste the revision that
+  `workarounds/last-good <input>` prints:
+
+  ```nix
+  final: prev: {foo = lastGood {rev = "…"; narHash = "…";} prev ["foo"];}
+  home.packages = [(lastGood {…} pkgs ["foo"])];
+  ```
+
+`workarounds/last-good` prints `{ rev = "…"; narHash = "…"; }` for a root
+input, from a committed lock in `~/.cfg` (`FLAKES_GIT_DIR`):
+
+| working `flake.lock` vs HEAD's | reads |
+|---|---|
+| differs (any byte) | HEAD's lock: the update is not committed yet |
+| same | the lock before the latest lock change |
+
+That is the previous lock, not the previous nixpkgs: if only other inputs
+moved, it prints the current revision. It refuses (exit 2) an unknown
+input, one that follows another, and one not locked to github NixOS/nixpkgs.
+`last-good stable` gives the stable input's revision. There is no just
+recipe.
+
+**will-build.** `just will-build [system|home|all]` (default `all`)
+dry-runs the switch and sorts what it would build (DEC-057):
+
+```
+== home (Draupnir)
+will build locally (1):
+  foo-1.2.3
+config (12): home-manager-generation home-manager-files hm_… …
+will fetch: 40 paths
+```
+
+Config is generated files that build in seconds: a known name, or a
+derivation that sets `preferLocalBuild`. The two counts must add up to
+nix's own, or it fails: nothing is dropped. It runs last in `update-system`
+and `update-home`, non-fatally. A dry run counts the local store, so a
+derivation already built here but not cached is not listed; the probe
+answers that.
+
+**nom.** `just home-switch` and `just home-build` stream through
+`nom --json` (nix-output-monitor, in the home base) with `pipefail`, so a
+failed build still exits non-zero. A home without `nom` yet switches once
+as in § Bootstrap macOS.
+
+```bash
+just workarounds-check                # every probe
+just workarounds-check nixpkgs-home   # one pin
+workarounds/last-good nixpkgs-home    # {rev; narHash} for lastGood
+just will-build home
+just test                             # offline: check, last-good and will-build tests, checks.<system>.workarounds
+```
 
 ### Dictation
 
