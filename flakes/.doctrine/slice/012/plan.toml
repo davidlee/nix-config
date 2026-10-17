@@ -1,0 +1,133 @@
+# Implementation plan for SL-012 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-012"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN, immutable, never reused.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Rename the skip list"
+objective = "features/cli-broken.nix becomes features/platform-skips.nix with content and DEC-036 semantics unchanged; every live reference follows (design sec-4, DEC-052). Behaviour-neutral."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-012 design locked; plan approved." },
+  { id = "EN-2", text = "Baseline `just drvs` and `just coverage` snapshots taken (mem.pattern.flakes.drv-gate)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/platform-skips.nix exists (git mv, so history follows); features/cli-broken.nix is gone; features/available.nix imports ./platform-skips.nix." },
+  { id = "EX-2", text = "Comments in features/profiles/personal-darwin.nix and hosts/Draupnir/features.nix, and README § Feature tree and § Features, name platform-skips.nix." },
+  { id = "EX-3", text = "Memory mem.fact.flakes.availableon-limits names the new path (scope and body), edited through doctrine memory edit." },
+  { id = "EX-4", text = "`rg cli-broken --glob '!.doctrine/**'` finds nothing. DEC-036's text is left for /reconcile." },
+  { id = "EX-5", text = "`just test` and `just coverage` green; `just drvs` identical to the EN-2 baseline; nix fmt clean on touched files, emacs-overlay re-lock not committed (mem.fact.flakes.fmt-relock)." },
+]
+verification = [
+  { id = "VT-1", expects = "the availability filter reads the renamed file", test_file = "features/available.nix", keywords = ["./platform-skips.nix"], waived = false },
+  { id = "VA-1", expects = "`just drvs` diff against baseline is empty; `rg cli-broken` outside .doctrine/ is empty" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Probe registry and removal check"
+objective = "workarounds/default.nix (probes as plain data), workarounds/probes.nix (flake-parts module: validation, flake.workaroundProbes, checks.<system>.workarounds), workarounds/check with its stubbed test, the three transient-skip probes, update wiring and `just workarounds-check` (design sec-2, sec-4; DEC-053, DEC-055, DEC-056)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "A chore is filed for the shell_cmds and yEd skips (design sec-4): what to check before dropping each (shell_cmds: cached; yEd: build time on the Mac)." },
+  { id = "EX-2", text = "workarounds/default.nix lists three probes on nixpkgs-home / aarch64-darwin: atuin (ISS-007; sites modules/home/cli.nix, modules/home/darwin/default.nix, features/platform-skips.nix), killall (the new chore; site features/platform-skips.nix), yed (the new chore; signal = \"manual\"; site features/platform-skips.nix)." },
+  { id = "EX-3", text = "Validation fails evaluation, naming the probe, on: unknown key, missing required key, wrong type, a pin that is not nixpkgs or nixpkgs-home, an issue not backlog-shaped, an attr missing from the pin, an unfree package (meta.unfree) without signal = \"manual\" (RV-025 F-2). Structural checks are eager; attr and unfree checks sit inside each probe's outPath thunk, so filtering by pin before forcing never touches another pin's probe (RV-025 F-3)." },
+  { id = "EX-4", text = "flake.workaroundProbes is each probe plus outPath, from `import inputs.${pin} { inherit system; config.allowUnfree = true; }` with no overlays (research X-2); manual probes carry outPath = null." },
+  { id = "EX-5", text = "workarounds/check [pin] evaluates the output once with the pin filter in `--apply`, requests https://cache.nixos.org/<first 32 chars of the outPath basename>.narinfo per probed entry, and reports cached / absent / unknown / manual per design sec-2's table; exit 1 iff any probe is cached (RV-025 F-4)." },
+  { id = "EX-6", text = "update-system ends with `-workarounds/check nixpkgs`, update-home with `-workarounds/check nixpkgs-home`; `just workarounds-check` runs the check alone and fails on a candidate. Neither just test nor the gate touches the network." },
+  { id = "EX-7", text = "The atuin comments in modules/home/cli.nix and modules/home/darwin/default.nix, and platform-skips.nix's transient entries, point at the probe in workarounds/default.nix." },
+  { id = "EX-8", text = "just test runs checks.<system>.workarounds and workarounds/check-test; both pass. `just coverage` green, `just drvs` unchanged, nix fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "check-test, nix and curl stubbed: one cached → exit 1 with sites and issue; exact narinfo URL for a fixture store path; all absent → exit 0; curl failure → unknown, exit 0; manual → listed, curl never called; pin filter passed in --apply and only that pin's probes requested", test_file = "workarounds/check-test", keywords = ["narinfo", "cached", "absent", "unknown", "manual", "--apply"], waived = false },
+  { id = "VT-2", expects = "probes-test via checks.<system>.workarounds: valid fixture's outPath equals pkgs.hello's; each invalid shape fails (failing fixture paired with a passing twin); a throwing probe on one pin does not stop forcing the other pin's (RV-025 F-3)", test_file = "workarounds/probes-test.nix", keywords = ["runTests", "hello", "unfree", "manual", "pin"], waived = false },
+  { id = "VA-1", expects = "a failing validation's error message names the probe (tryEval drops messages, so read one by hand with nix eval)" },
+  { id = "VA-2", expects = "live `just workarounds-check` reports atuin and killall (probed, aarch64-darwin) and yed (manual); states recorded in notes.md, not asserted" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "lastGood and last-good"
+objective = "workarounds/last-good.nix (lastGood {rev; narHash} pkgs attr) with a flake-check proving a historical revision is selected, and workarounds/last-good <pin> printing {rev; narHash} from the right committed lock (design sec-3, DEC-054)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "lastGood takes system and config from pkgs, fetches with builtins.fetchTree (type github, rev, narHash), and its comment states the leaf-app rule: libraries get a local patch instead (DEC-054)." },
+  { id = "EX-2", text = "checks.<system>.workarounds additionally asserts lastGood at inputs.stable's rev and narHash returns stable's hello, which differs from pkgs.hello (RV-025 F-5); no fetch beyond the stable input." },
+  { id = "EX-3", text = "last-good resolves the input through root.inputs to its lock node (RV-025 F-5); reads git via GIT_DIR=${FLAKES_GIT_DIR:-~/.cfg} and the lock at its work-tree path flakes/flake.lock (RV-025 F-6); uses HEAD's lock when the working lock differs from HEAD's, else the previous commit that changed flake.lock; prints `{ rev = \"…\"; narHash = \"…\"; }`." },
+  { id = "EX-4", text = "just test runs workarounds/last-good-test; all green; `just drvs` unchanged; nix fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "last-good-test: throwaway bare repo via GIT_DIR with separate work tree; root.inputs.nixpkgs points at renamed node nixpkgs_3; dirty lock → HEAD's node; clean → previous commit's; stable → stable node", test_file = "workarounds/last-good-test", keywords = ["GIT_DIR", "nixpkgs_3", "stable", "HEAD"], waived = false },
+  { id = "VT-2", expects = "lastGood at stable's rev yields stable's hello, distinct from current", test_file = "workarounds/probes-test.nix", keywords = ["lastGood", "stable", "hello"], waived = false },
+  { id = "VA-1", expects = "`workarounds/last-good nixpkgs` against the real repo prints a paste-ready attrset that evaluates" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "will-build and nom for home"
+objective = "bin/will-build (grouped, lossless dry-run listing), `just will-build` and its update wiring; nix-output-monitor in the home base; home-switch/home-build and run.sh through nom with pipefail (design sec-5, DEC-057, RV-025 F-7, F-8)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "bin/will-build <installable>… runs `nix build --dry-run --no-link` with the caller's flags, parses the will-be-built block from stderr, reads preferLocalBuild in one batched `nix derivation show`, prints local builds, config grouped and counted (design sec-5 patterns + preferLocalBuild), and the fetch count. Nothing dropped." },
+  { id = "EX-2", text = "`just will-build` passes this host's system output (nixos or darwin) and its home activationPackage with local_override; update-system and update-home end with `-just will-build`-equivalent lines for their own output, after the check." },
+  { id = "EX-3", text = "home-switch and home-build run `set -o pipefail; home-manager … --log-format internal-json -v 2>&1 | nom --json` (2>&1 |, not |&: RV-025 F-8); run.sh sets pipefail." },
+  { id = "EX-4", text = "nix-output-monitor is in modules/home/cli.nix (RV-025 F-7)." },
+  { id = "EX-5", text = "just test runs bin/will-build-test; green. `just drvs` differs only in the two homes; `just drvs-sets` shows only nix-output-monitor added. coverage green; nix fmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "will-build-test, nix stubbed with recorded dry-run stderr and derivation JSON: real drvs listed, config grouped and counted, listed + config = total, preferLocalBuild drv grouped as config", test_file = "bin/will-build-test", keywords = ["will be built", "preferLocalBuild", "config"], waived = false },
+  { id = "VA-1", expects = "`sh -c 'set -o pipefail; false 2>&1 | nom --json'` exits non-zero under the system sh (run under bash 3.2-compatible syntax)" },
+  { id = "VA-2", expects = "drvs / drvs-sets diff is exactly nix-output-monitor in both homes" },
+  { id = "VH-1", expects = "user: `just home-switch` on Sleipnir shows nom's tree and a failing build exits non-zero; on Draupnir when next at the Mac (may defer past close, noted)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "README § Workarounds"
+objective = "Document the mechanism for the next person to break a package: README § Workarounds (design sec-7). Governance text (DEC-036, DEC-053) is left to /reconcile."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "README § Workarounds holds: the probe shape; the check's states and when they appear (update-*, on demand); lastGood with the leaf-app rule and `last-good`; `will-build`; the two fix forms (local overlay/patch, lastGood) with an example each; a diagram." },
+  { id = "EX-2", text = "README's justfile and feature-tree mentions are consistent with the recipes and files that now exist." },
+  { id = "EX-3", text = "`just test`, `just coverage` green; `just drvs` unchanged from end of PHASE-04." },
+]
+verification = [
+  { id = "VT-1", expects = "README carries the section and names its parts", test_file = "README.md", keywords = ["### Workarounds", "workarounds-check", "lastGood", "last-good", "will-build", "signal = \"manual\""], waived = false },
+  { id = "VA-1", expects = "README § Workarounds read against design sec-2..sec-5: no drift" },
+]
+specs        = []
+requirements = []
