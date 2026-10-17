@@ -177,3 +177,10 @@ Live re-check for VH-6 (human): home-switch, relaunch jailed-eca, check /proc/1/
 Out-of-scope observation (for the seat): the emacs flake's `jailed-shell` (defined in ~/.config/emacs's flake, not this repo) exposes DEEPSEEK/GEMINI/JEV/MISTRAL/OPENAI/OPENROUTER/VOYAGE_API_KEY in the jail's own env — likely deliberate forwarding; raise with the human. Also note it builds its own jail and does not get this fix unless it uses `agents/`'s jail.
 
 PHASE-05 left in_progress.
+
+### PHASE-05 — VH-6 re-check after b17e348a (seat, 2026-10-17)
+
+- VH-6 PASS. Relaunched jailed-eca after `just home-switch`. From inside its namespaces (nsenter, names only), PID 1 = bwrap with an empty environ (0 vars). The user had the jailed agent inspect its own env: the only credential was `LLM_GATEWAY_KEY`.
+- op-run path: the user confirmed jailed pi still runs as expected after the empty-environment wrapper.
+- VH-1..7 all pass. PHASE-05 completed.
+- Follow-ups: IMP-028 (move pi to the gateway, remove the auth.json deepseek key; the user wants it next), IMP-029 (more providers). The emacs flake's `jailed-shell` forwards provider keys and builds its own jail, if it doesn't use `agents/`; the user's preference is to move pi to the gateway and rip out keys (see IMP-028).
