@@ -917,7 +917,8 @@ key: useful on this host alone, within its budget and its model list. Clients
 are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
-Decisions DEC-046..051, DEC-058, DEC-059, DEC-061..063 (DEC-060 superseded).
+It serves DeepSeek, OpenRouter and Fireworks models.
+Decisions DEC-046..051, DEC-058, DEC-059, DEC-061..073 (DEC-060 superseded).
 
 ```
 jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL
@@ -928,6 +929,8 @@ jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22
 /run/llm-gateway/api.sock  (dir 0750)         llm-gateway.service (LiteLLM, hardened)
    ├─ route gate    POST /chat/completions, /v1/chat/completions,
    │                GET /models, /v1/models; anything else: 404
+   │                POST body: top-level fields on ALLOWED_FIELDS, else 400
+   │                naming them; over 16 MiB: 413 (DEC-073)
    ├─ custom_auth   key known? revoked? under budget?
    ├─ model gate    is the model on this key's list?
    ├─ provider      key from /etc/credstore.encrypted/llm-gateway.<provider>
@@ -935,12 +938,20 @@ jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22
 keys.db  /var/lib/llm-gateway (0700): alias, sha256 of the key, models, budget, spent
 ```
 
+The body check exists because a body field (`extra_body`, `litellm_params`,
+`custom_llm_provider`, …) could re-route a request past the model gate or stop
+the cost report. The list is `ALLOWED_FIELDS` in
+`features/agents/gateway/gateway_hooks.py`; a field a new client needs is added
+there, with its reason.
+
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup
 (`status=243/CREDENTIALS`; `journalctl -u llm-gateway` shows "Failed to set
 up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
-That is expected. `just gateway-credentials` clears the start limit those
+That is expected. `just gateway-credentials` (with no argument, every provider's
+1Password item: deepseek, openrouter, fireworks; name the ones a host has
+otherwise) clears the start limit those
 failures hit, restarts the service, and returns once the gateway's socket
 exists (it gives up after 90 s, naming `systemctl status llm-gateway`).
 
@@ -973,6 +984,19 @@ the file):
 }
 ```
 
+**Providers.** Each is an entry in `defaults.providers` in
+`features/agents/gateway/proxy.nix`: key variable, 1Password ref, `reportsCost`.
+
+| provider | key variable | cost source |
+|---|---|---|
+| deepseek | `DEEPSEEK_API_KEY` | packaged price map |
+| openrouter | `OPENROUTER_API_KEY` | `reportsCost`: OpenRouter's per-request `usage.cost` |
+| fireworks | `FIREWORKS_API_KEY` | packaged price map |
+
+`reportsCost` means the provider bills each request and LiteLLM records that
+cost, so its models need no price and the build skips the price-map check
+(DEC-064). A cost of 0 or none is still logged and counted 0 (DEC-068).
+
 **Admin.** `llm-gateway` runs as the `llm-gateway` user via sudo on the
 SQLite file (DEC-050). Keys travel on stdin, never argv. `list` shows no key
 or hash; the table stores only a key's sha256. Keys start `sk-`, so LiteLLM
@@ -984,6 +1008,7 @@ hashes any it logs.
 | `list` | every key: alias, models, budget, spent, revoked |
 | `revoke ALIAS` | revoke a key |
 | `budget ALIAS USD` | set the lifetime budget |
+| `models ALIAS M,…` | replace a key's model list; the key is unchanged, live at once, no restart; refuses a revoked key and unserved models |
 | `reset ALIAS` | set spend back to 0 |
 | `credentials [PROVIDER…]` | encrypt provider keys from 1Password for the service; a failed read leaves the stored one |
 
@@ -995,6 +1020,8 @@ hashes any it logs.
   alias (DEC-051: a revoked alias is never reissued). A client's `keyFile` is
   the fixed path `…/keys/<client>` (`eca`, `pi`); the alias is only the ledger's name. A running jail
   keeps the key it launched with until that key is revoked.
+- Model list: replaced in place with `llm-gateway models` (DEC-071), under the
+  same alias. A revoked key cannot be edited.
 
 ```bash
 mv ~/.config/llm-gateway/keys/eca{,.old}       # --out refuses an existing file
@@ -1010,26 +1037,56 @@ spent too; pick the next one.
 `~/.config/llm-gateway/keys/<client>`, address from `agents/gateway.nix`),
 drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
 record in this repo also adds `requires = ["agents.gateway"]`. See
-`agents/README.md` § Gateway mode. Another model is an entry in the `models`
-of `agents/gateway.nix`: `model`, `provider` and an optional `pi` block; a served model
-without `pi` is not offered to pi. The block is described in
-`agents/README.md` § pi in gateway mode. Every model must be in LiteLLM's
-packaged price map (the host's build fails otherwise). Another provider goes in
-`services.llm-gateway.providers`, with a 1Password ref and a
-`just gateway-credentials` run.
+`agents/README.md` § Gateway mode.
+
+**Adding a model.** A model's cost comes from one of: its provider's report
+(`reportsCost`); both `params.input_cost_per_token` and
+`params.output_cost_per_token`; or LiteLLM's packaged price map. The build
+fails, naming the model, if it is in none of these. Setting only one of the two
+prices is an evaluation error naming the model (DEC-064).
+
+1. An entry in the `models` of `agents/gateway.nix`: name
+   `<provider>/<upstream id>` (DEC-069), `model`, `provider`, optional `params`
+   (merged into LiteLLM's params under that model and key, DEC-070) and optional
+   `pi` (a model without it is not offered to pi; the block is described in
+   `agents/README.md` § pi in gateway mode). An OpenRouter id is one more line
+   in `routed [ … ]`; its helper already allows `reasoning_effort`.
+2. `just system-switch` (restarts the gateway, ~25 s).
+3. `llm-gateway models ALIAS M,…` for each key that should get it.
+
+**Adding a provider** (DEC-067: credentials first, then switch). A provider
+without its credential makes systemd refuse the whole unit, DeepSeek included
+(DEC-048).
+
+```bash
+# entry in defaults.providers (features/agents/gateway/proxy.nix): env, ref, reportsCost?
+just system-build                                   # nothing switched; leaves ./result
+./result/sw/bin/llm-gateway credentials <provider>  # the new build's CLI; restarts the old unit
+just system-switch                                  # starts with every credential
+```
+
+The `llm-gateway` on PATH is the old build's and refuses a provider it does not
+know, so `just gateway-credentials` cannot be used here. There are two ~25 s
+outages, at the `credentials` restart and at the switch; in-flight requests are
+cut off, so run it when no client is mid-request. If you switch first, the unit
+fails `243/CREDENTIALS` as on first run; `just gateway-credentials <provider>`
+(the PATH CLI is now the new one) fixes it, with every model down until then.
+`services.llm-gateway.providers` is the option behind `defaults.providers`: a
+host that defines it replaces the whole set, so edit `proxy.nix` instead.
 
 **What it does not cover.**
 
-- OAuth/subscription logins (claude, codex and the like sign in their own way).
+- OAuth/subscription logins (claude, codex and the like sign in their own way; OpenAI through a subscription is IMP-035). OpenAI
+  API-billed models are not configured (DEC-072).
 - Jails not on the gateway still get provider keys through `op run`: the other
   `~/dev/*` project flakes (IMP-034) and satan (IMP-030). The unjailed `eca`
   keeps its own keys.
-- OpenRouter: not configured, so the jailed eca has no OpenRouter models.
 - Anything off this host: the relay is loopback only.
 - Budgets are lifetime USD per key, not per period.
 
 **Tests.** `just test` runs `keystore-test`, `checks.<system>.llm-gateway`
-(the real proxy app, offline) and the jail tests.
+(the real proxy app, offline, with a fake OpenRouter: cost to the ledger, the
+body guard) and the jail tests.
 
 ## Jailed Agents 
 
