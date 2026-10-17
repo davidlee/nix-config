@@ -1011,8 +1011,8 @@ spent too; pick the next one.
 drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
 record in this repo also adds `requires = ["agents.gateway"]`. See
 `agents/README.md` § Gateway mode. Another model is an entry in the `models`
-of `agents/gateway.nix`: `model`, `provider` and a `pi` block; a served model
-without `pi` fails evaluation, naming it. The block is described in
+of `agents/gateway.nix`: `model`, `provider` and an optional `pi` block; a served model
+without `pi` is not offered to pi. The block is described in
 `agents/README.md` § pi in gateway mode. Every model must be in LiteLLM's
 packaged price map (the host's build fails otherwise). Another provider goes in
 `services.llm-gateway.providers`, with a 1Password ref and a

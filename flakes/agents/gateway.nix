@@ -9,9 +9,10 @@ rec {
   keyDirectory = "$HOME/.config/llm-gateway/keys"; # expanded by the jail wrapper's shell
 
   # gateway model name -> LiteLLM model id, the provider whose key it uses,
-  # and pi's entry for it (DEC-063: copied from pi's built-in entry for the
-  # upstream model, checked through the gateway; LiteLLM's price map has no
-  # compat or thinking levels).
+  # and pi's entry for it, optional: without `pi` the model is served but not
+  # offered to pi (DEC-066). The entry (DEC-063) is copied from pi's built-in
+  # entry for the upstream model, checked through the gateway; LiteLLM's price
+  # map has no compat or thinking levels.
   models.deepseek-flash = {
     model = "deepseek/deepseek-flash";
     provider = "deepseek";

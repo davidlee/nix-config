@@ -206,34 +206,33 @@
     gateway = gw // {socket = "/nonexistent/llm-gateway/api.sock";};
   });
 
-  # pi's gateway provider. piGatewayConfig throws "agents/gateway.nix:
-  # served model <id> has no pi entry"; tryEval loses the message, so the
-  # failing case has a twin that differs only in the pi block. toJSON forces
-  # the model list: a bare tryEval stops at weak head normal form and would
-  # pass whatever the models hold.
+  # pi's gateway provider. A served model without a pi block is left out
+  # (DEC-066). One fixture holds both, differing only in the pi block, so the
+  # omission cannot pass vacuously. toJSON forces the model list: a bare
+  # tryEval stops at weak head normal form and would pass whatever it holds.
+  noPi = {
+    model = "m";
+    provider = "p";
+  };
+  withPi = noPi // {pi.name = "X";};
   piConfigOf = models: builtins.toJSON (agents.piGatewayConfig gw.url models);
-  noPiEntryFails =
-    !(builtins.tryEval (piConfigOf {
-      x = {
-        model = "m";
-        provider = "p";
-      };
+  noPiEntryOmitted =
+    (builtins.tryEval (piConfigOf {
+      x = noPi;
+      y = withPi;
     })).success;
-  # The bound file for gateway.nix's served models.
+  # The bound file for gateway.nix's served models: those with a pi block.
   expectedPiModels = pkgs.writeText "expected-pi-gateway-models.json" (builtins.toJSON {
     providers.llm-gateway = {
       baseUrl = gw.url;
       api = "openai-completions";
       apiKey = "$LLM_GATEWAY_KEY";
-      models = lib.mapAttrsToList (id: m: {inherit id;} // m.pi) gatewayData.models;
+      models = lib.mapAttrsToList (id: m: {inherit id;} // m.pi) (lib.filterAttrs (_: m: m ? pi) gatewayData.models);
     };
   });
-  withPiEntry = agents.piGatewayConfig gw.url {
-    x = {
-      model = "m";
-      provider = "p";
-      pi.name = "X";
-    };
+  mixedPiConfig = agents.piGatewayConfig gw.url {
+    x = noPi;
+    y = withPi;
   };
 in
   assert knownSubagent.drvPath != "";
@@ -254,9 +253,8 @@ in
     inherit (gatewayData) url;
     runDirectory = "/run/llm-gateway";
   };
-  assert noPiEntryFails;
-  assert (builtins.tryEval (builtins.toJSON withPiEntry)).success;
-  assert withPiEntry
+  assert noPiEntryOmitted;
+  assert mixedPiConfig
   == {
     providers.llm-gateway = {
       baseUrl = gw.url;
@@ -264,7 +262,7 @@ in
       apiKey = "$LLM_GATEWAY_KEY";
       models = [
         {
-          id = "x";
+          id = "y";
           name = "X";
         }
       ];

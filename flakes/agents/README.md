@@ -426,11 +426,11 @@ repo. The launcher does not seed the file: that would be a host-side write
 inside a home the jail can write, which follows any symlink the jail planted.
 
 **Adding a served model** is an entry in `agents/gateway.nix` with `model`,
-`provider` and a `pi` block: pi gives a custom model no built-in metadata,
+`provider` and an optional `pi` block: pi gives a custom model no built-in metadata,
 so copy `compat`, `thinkingLevelMap` and the limits from pi's built-in entry
 for the upstream model, and check it through the gateway (`--thinking off`
-gives no reasoning tokens). A served model without `pi` fails evaluation,
-naming it. The gateway side (price map, key model lists) is in the top-level
+gives no reasoning tokens). A served model without `pi` is served but not
+listed in pi's `models.json`. The gateway side (price map, key model lists) is in the top-level
 README, § LLM gateway.
 
 ### makeJailedAgent options
