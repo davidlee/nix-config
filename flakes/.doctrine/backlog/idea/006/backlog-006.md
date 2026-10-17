@@ -19,3 +19,9 @@ cover everything else.
 
 Cost: a reinstall or an in-place `cryptsetup reencrypt` of the root
 partition, with a full backup first.
+
+Evidence (RV-026 F-12, SL-011 VH-2, 2026-10-17): `systemd-creds encrypt`
+warned "Credential secret file '/var/lib/systemd/credential.secret' is not
+located on encrypted media, using anyway." The gateway's provider credential
+is bound to host+TPM2; the TPM2 half still ties it to this machine, but the
+host half is readable from the disk. LUKS would protect that half too.

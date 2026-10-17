@@ -137,3 +137,64 @@ next).
 - F-14 → ISS-012.
 - Related, not findings: IMP-028 (pi onto the gateway; user wants it next),
   IMP-029 (more providers; F-4 must land first).
+
+## Reconciliation Outcome
+
+### Code fixes (fix-now), red/green, `just gate` green
+Commits 097dbefb (user's sweep of the in-progress tree) and 8703becb.
+- F-1: `llm-gateway credentials` encrypts to `<target>.new` and `sudo mv`s it
+  over the stored credential only when `op read` and `systemd-creds encrypt`
+  both succeed; a failure removes the staged file. Tests: argv sequence, and
+  an on-disk run (stub op/sudo/systemd-creds, real mv/rm/test) where a failed
+  read leaves the stored credential byte-identical.
+- F-2: `llm-gateway-serve` `load_credentials` refuses an empty credential
+  like a missing one, before the LiteLLM import. Test in CredentialTest.
+- F-3: keys issued as `sk-<token_urlsafe>`. Confirmed in LiteLLM 1.102.1
+  first: `user_custom_auth` returns before any key-format path
+  (`user_api_key_auth.py:1346-1357`); no enterprise custom auth installed; the
+  `UserAPIKeyAuth` validator leaves our returned hash (no `sk-`) unchanged, so
+  the ledger's `user_api_key_hash` is still our sha256. Existing keys keep
+  working (only the hash is stored).
+- F-4: `model_gate` checks `data["model"]` and every fallback target, using
+  LiteLLM's own `iter_request_fallback_targets` (top-level and
+  `router_settings_override` fallbacks, every shape). `user_config` and
+  `model_list` in a body are already refused by LiteLLM's
+  `is_request_body_safe`; a comma-separated `model` fails the exact-match
+  check. Tests: six fallback shapes refused (403, no spend), a listed
+  fallback served.
+- F-5: the price-map rule moved into `proxy.configDir`'s build
+  (`price-check.py`), so the host's own `models` are checked; `extraModels`
+  (test only) are exempt. Build-time rather than the brief's NixOS
+  assertion: an assertion would need to read the map from a store path at
+  evaluation (import-from-derivation). Test: `testBuildFailure` on an
+  unpriced override, in `checks.llm-gateway`.
+- F-6: `credentials` runs `systemctl reset-failed` (best effort), `restart`,
+  then waits up to 90 s for the socket via `sudo test -S` (the run directory
+  is closed to the user). Tests: order, unready then ready, timeout, failed
+  restart. README caveat removed.
+- F-7: the jail wrapper names both causes. jailed-agents-test asserts it.
+- F-8: `issue --out` creates every missing directory 0700 whatever the
+  umask, leaving existing ones alone. Test.
+- The CLI's credstore path and socket are now baked from the record
+  (removes the duplicate gateway.nix noted). README § LLM gateway updated.
+
+### Direct edits applied
+- design.md (F-9, F-10), confirmed by the user: sec-1 diagram; sec-2
+  credential fatality, empty-credential refusal, one model, two callbacks,
+  build-time price check; sec-3 `sk-` keys, `Refused`, four surfaces,
+  fallbacks; sec-4 staged credentials, restart and wait, directory modes,
+  first run, rotation by new alias; sec-5 `runDirectory`, wrapper message,
+  offline profile not refused, all-jails `env -i` bwrap (b17e348a); sec-6 VH-1
+  and VH-4 wording, model name; sec-7 code impact.
+- F-11: `doctrine slice selector add 11 --intent design-target
+  features-test.nix`; design.md sec-7 lists it.
+
+### REVs
+None: the brief has no governance/spec items.
+
+### Follow-up / tolerated
+- F-12: evidence appended to IDE-006.
+- F-13: tolerated (plan.toml immutable; ISS-005).
+- F-14: ISS-012.
+
+Reconcile pass complete; handoff to /close.
