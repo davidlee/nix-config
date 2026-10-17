@@ -22,3 +22,5 @@ Consequences:
 - `doctrine` warns "worktree /home/david/.cfg/flakes/ not scanned"; harmless.
 
 - **`git commit -- <path>` commits every tracked change under that path,** not just what is staged. In `~/flakes`, `git commit -- .` sweeps in the user's unrelated work in progress (e.g. `justfile`, `flake.lock`). Stage explicit paths and run plain `git commit`; check `git show --stat HEAD` afterwards. (Happened 2026-10-17; undone with `git reset --soft HEAD~1` + `git restore --staged`.)
+
+- **Plain `git commit` sweeps in whatever the user already staged.** Check `git diff --cached --stat` first; when the user has staged work of their own, commit with `git commit --only <paths>`, which commits exactly those paths and leaves their staging intact. (SL-014, 2026-10-18: a plain commit swept in a staged `emacs/emacs.nix`; undone with `git reset --soft HEAD^`.)

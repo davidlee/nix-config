@@ -21,22 +21,28 @@ instead:
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · ready (plan done, 0/5 phases) · f433c05b
+fresh-as-of: 2026-10-18 · implementation complete (PHASE-05, 5/5) · 7718bf9b
 
 ### Produced
-- research/research.md — three threads; OQ-1 closed (no local price map), OpenRouter self-pricing confirmed
-- design.md sec-1..9, locked (run rev 34); RV-029 concluded, F-1..6 verified
-- minted: DEC-064..073; IMP-035 — OpenAI via subscription OAuth; IDE-008 — publish gateway+agents standalone
-- plan.toml / plan.md — PHASE-01..05; phase sheets materialised
+- PHASE-01 pi block optional — 188a96b7
+- PHASE-02 OpenRouter + Fireworks providers, params, price rule — 6d7be2fe
+- PHASE-03 request body guard (allow-list + `thinking`/`reasoning`, 16 MiB/413) — 484b8f84; EN-2 rulings by user, sec-9 re-accepted
+- PHASE-04 `llm-gateway models` verb — 5c334926
+- PHASE-05 README — a51d8188; live rollout + VH-1..3 — 5fcfd28c (dropped `openrouter/deepseek/deepseek-flash`, sec-2/sec-6 re-accepted), 7718bf9b; detail in § PHASE-05 live
+- design run rev 42, accepted; RV-029 stale vs sec-2/6/9 — audit's to address
+- verify-vt UNATTRIBUTABLE throughout (ISS-005); evidence is `just test` + the VH notes
+- minted: CHR-017 — ruff for gateway Python in the gate
+- handback to emacs:SL-015 — bad id at `dl-gptel.el:121` (given to user)
 
 ### Learned
-- mem.fact.litellm.proxy-hook-behaviours — no local price map; OpenRouter usage/extra_body/route; client litellm_params and custom_llm_provider reach internals; reasoning_effort 400
+- mem.fact.litellm.proxy-hook-behaviours — appended: query strings inert; DeepSeek `thinking` native; OpenRouter `reasoning` keeps cost; double-registered callbacks double-charge
+- mem.fact.flakes.llm-gateway-no-sudo — `models` verb; 4 dp spend display; new-provider credentials need the new build before switch
+- mem.system.flakes.home-worktree — `git commit --only` when the user has staged work
 
 ### Open
-- slice R2 — allow-list vs real client bodies: PHASE-03 EN-2
-- slice A2 — BYOK route reports cost: PHASE-05 VH-1
-- plan.md Notes — no system-switch between PHASE-02 and PHASE-05 rollout
-- reconcile: DEC-063, DEC-051, DEC-050 amendments; IMP-029 resolution (design sec-8 "Records at reconcile")
+- slice A2 — void: no BYOK route served
+- reconcile: DEC-063, DEC-051, DEC-050 amendments; IMP-029 resolution, OpenAI to IMP-035 (design sec-8)
+- one `401: unknown key` at 00:52:43 on 2026-10-18 — likely eca with a stale key (user)
 
 ## PHASE-05 live (2026-10-18)
 - Rollout in sec-7 order: `just system-build`, `./result/sw/bin/llm-gateway credentials openrouter fireworks`, `just system-switch` (user ran). Unit active with 3 providers, 18 models.
