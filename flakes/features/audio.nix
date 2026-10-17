@@ -128,11 +128,13 @@
   #   echo hello | say -e kokoro -d <node.name from `pw-cli ls Node`>
   {
     name = "speech";
-    homeManager = _: {
+    homeManager = {pkgs, ...}: {
       home.file.".local/bin/say" = {
         source = ./audio/say;
         executable = true;
       };
+      # say reads piper voice sample rates with it.
+      home.packages = [pkgs.jq];
     };
     nixos = {
       lib,
@@ -214,6 +216,9 @@
         ])}/bin/kokoro "$@"
       '';
     in {
+      # say reads a voice's sample rate from here to stream piper's raw audio.
+      environment.variables.PIPER_VOICES = "${piperVoices}";
+
       environment.systemPackages = with pkgs; [
         ## text to speech
         espeak-ng

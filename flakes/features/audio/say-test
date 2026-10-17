@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Behaviour tests for say. No speech engine and no speakers: piper, kokoro and
-# pw-play are stubbed onto PATH, so each case asserts what was rendered, by
-# which engine, and where it was played.
+# pw-play are stubbed onto PATH, and piper's voices are two fixture configs,
+# so each case asserts what was rendered, by which engine, and how and where
+# it was played.
 #
 #   ./say-test
 
@@ -15,28 +16,41 @@ trap 'rm -rf "$stubs"' EXIT
 
 # ------------------------------------------------------------------ stubs
 
-# Each engine logs its arguments and the text it was fed, writes a fake wav
-# naming itself, and chatters on stderr as the real ones do. SAY_TEST_FAIL
-# makes it fail instead.
+# Each engine logs its arguments and the text it was fed, chatters as the
+# real ones do, then writes fake audio naming itself: piper streams it to
+# stdout, kokoro writes its --output-file. SAY_TEST_FAIL makes it fail instead.
 for engine in piper kokoro; do
   cat >"$stubs/$engine" <<EOF
 #!/usr/bin/env bash
-out=\$(printf '%s\n' "\$@" | sed -n '/^--output[-_]file$/{n;p}')
+out=\$(printf '%s\n' "\$@" | sed -n '/^--output-file$/{n;p}')
 printf '%s\n' "\$*" >"\$SAY_TEST_DIR/$engine.args"
 cat >"\$SAY_TEST_DIR/$engine.text"
 echo "$engine chatter" >&2
 [ -z "\${SAY_TEST_FAIL:-}" ] || { echo "$engine broke" >&2; exit 1; }
-echo "$engine audio" >"\$out"
+if [ -n "\$out" ]; then
+  echo "$engine prompt"
+  echo "$engine audio" >"\$out"
+else
+  echo "$engine audio"
+fi
 EOF
 done
 
-# Logs its target and the audio it was handed.
+# Logs its arguments, its target, and the audio it was handed: the last
+# argument, read from stdin when that is `-`.
 cat >"$stubs/pw-play" <<'EOF'
 #!/usr/bin/env bash
-printf '%s\n' "$2" >"$SAY_TEST_DIR/target"
-cat "$3" >"$SAY_TEST_DIR/played"
+printf '%s\n' "$*" >"$SAY_TEST_DIR/pw-play.args"
+printf '%s\n' "$@" | sed -n '/^--target$/{n;p}' >"$SAY_TEST_DIR/target"
+source=${*: -1}
+[ "$source" = - ] && source=/dev/stdin
+cat "$source" >"$SAY_TEST_DIR/played"
 [ -z "${SAY_TEST_HANG:-}" ] || exec sleep 5
 EOF
+
+mkdir "$stubs/voices"
+echo '{"audio": {"sample_rate": 22050}}' >"$stubs/voices/en_GB-cori-high.onnx.json"
+echo '{"audio": {"sample_rate": 16000}}' >"$stubs/voices/en_GB-alba-medium.onnx.json"
 
 chmod +x "$stubs"/*
 
@@ -58,7 +72,7 @@ run() {
   status=0
   err=$(env -u SAY_ENGINE -u SAY_DEVICE -u PIPER_VOICE -u KOKORO_VOICE -u KOKORO_SPEED \
     PATH="$stubs:$PATH" SAY_TEST_DIR="$dir" XDG_RUNTIME_DIR="$dir/runtime" \
-    "${env[@]}" "$script" "$@" 2>&1 <"${SAY_TEST_STDIN:-/dev/null}") || status=$?
+    PIPER_VOICES="$stubs/voices" "${env[@]}" "$script" "$@" 2>&1 <"${SAY_TEST_STDIN:-/dev/null}") || status=$?
 }
 
 check() {
@@ -72,7 +86,8 @@ check() {
 }
 
 file() { cat "$dir/$1" 2>/dev/null || echo "<none>"; }
-leftovers() { find "$dir/runtime" -type f | wc -l; }
+leftovers() { find "$dir/runtime" -mindepth 1 | wc -l; }
+raw_rate() { file pw-play.args | grep -Po -- '--raw --format s16 --channels 1 --rate \K[0-9]+(?= -$)'; }
 
 # ------------------------------------------------------------------ cases
 
@@ -80,9 +95,10 @@ run -- hello there
 check "args: piper speaks them" "hello there" "$(file piper.text)"
 check "args: in the default voice" "en_GB-cori-high" "$(file piper.args | grep -Po -- '--model \K[^ ]+')"
 check "args: played on the default sink" "auto" "$(file target)"
-check "args: the rendered audio is played" "piper audio" "$(file played)"
+check "args: piper's audio is played" "piper audio" "$(file played)"
+check "args: streamed raw at the voice's rate" 22050 "$(raw_rate)"
 check "args: engine chatter is hidden" "" "$err"
-check "args: temp audio removed" 0 "$(leftovers)"
+check "args: nothing left behind" 0 "$(leftovers)"
 
 printf 'from a pipe\n' >"$stubs/stdin"
 SAY_TEST_STDIN=$stubs/stdin run --
@@ -99,12 +115,22 @@ check "-d: overrides SAY_DEVICE" "flag.sink" "$(file target)"
 
 run PIPER_VOICE=en_GB-alba-medium -- hi
 check "PIPER_VOICE: names the voice" "en_GB-alba-medium" "$(file piper.args | grep -Po -- '--model \K[^ ]+')"
+check "PIPER_VOICE: streamed at that voice's rate" 16000 "$(raw_rate)"
+
+run PIPER_VOICE=en_GB-nobody-low -- hi
+check "unknown piper voice: say fails" 1 "$status"
+check "unknown piper voice: says where it looked" \
+  "say: no piper voice en_GB-nobody-low in $stubs/voices" "$err"
+check "unknown piper voice: nothing rendered" "<none>" "$(file piper.text)"
 
 run KOKORO_VOICE=bm_george KOKORO_SPEED=1.2 -- -e kokoro hi
 check "-e kokoro: kokoro speaks" "hi" "$(file kokoro.text)"
 check "-e kokoro: voice and speed passed" \
   "--voice bm_george --speed 1.2" "$(file kokoro.args | grep -o -- '--voice .* --speed [^ ]*')"
 check "-e kokoro: piper unused" "<none>" "$(file piper.text)"
+check "-e kokoro: its wav is played" "kokoro audio" "$(file played)"
+check "-e kokoro: engine chatter is hidden" "" "$err"
+check "-e kokoro: nothing left behind" 0 "$(leftovers)"
 
 run SAY_ENGINE=kokoro -- hi
 check "SAY_ENGINE: default engine" "kokoro audio" "$(file played)"
@@ -119,22 +145,28 @@ check "unknown engine: usage error" 2 "$status"
 check "unknown engine: says how to use it" "usage: say [-e piper|kokoro] [-d DEVICE] [TEXT...]" "$err"
 
 run SAY_TEST_FAIL=1 -- hi
-check "engine fails: say fails" 1 "$status"
-check "engine fails: its output shown" "piper chatter
+check "piper fails: say fails" 1 "$status"
+check "piper fails: its output shown" "piper chatter
 piper broke" "$err"
-check "engine fails: nothing played" "<none>" "$(file played)"
-check "engine fails: temp audio removed" 0 "$(leftovers)"
+check "piper fails: nothing left behind" 0 "$(leftovers)"
 
-# Interrupted mid-playback: the temp audio still goes.
+run SAY_TEST_FAIL=1 -- -e kokoro hi
+check "kokoro fails: say fails" 1 "$status"
+check "kokoro fails: its output shown" "kokoro chatter
+kokoro broke" "$err"
+check "kokoro fails: nothing played" "<none>" "$(file played)"
+check "kokoro fails: nothing left behind" 0 "$(leftovers)"
+
+# Interrupted mid-playback: nothing is left behind.
 dir=$(mktemp -d -p "$stubs")
 mkdir "$dir/runtime"
 PATH="$stubs:$PATH" SAY_TEST_DIR="$dir" XDG_RUNTIME_DIR="$dir/runtime" \
-  SAY_TEST_HANG=1 "$script" hi </dev/null >/dev/null 2>&1 &
+  PIPER_VOICES="$stubs/voices" SAY_TEST_HANG=1 "$script" -e kokoro hi </dev/null >/dev/null 2>&1 &
 pid=$!
 for _ in $(seq 50); do [ -e "$dir/played" ] && break; sleep 0.1; done
 kill -TERM "$pid" 2>/dev/null || true
 wait "$pid" 2>/dev/null || true
-check "interrupted: temp audio removed" 0 "$(leftovers)"
+check "interrupted: nothing left behind" 0 "$(leftovers)"
 
 # ------------------------------------------------------------------ result
 
