@@ -1,0 +1,359 @@
+id    = 31
+slug  = "reconciliation-review-of-sl-014"
+title = "reconciliation review of SL-014"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance self-audit of SL-014 at HEAD 519e87c4 (slice commits 188a96b7..7718bf9b) against the locked design (run rev 42) and plan.toml: code read for sec-2/3/4/5/9; VT keywords grepped per phase; just test and doctrine check gate run green; VH evidence in notes; slice conformance read through ISS-005; governance records DEC-050/051/063..073, IMP-029/035, CHR-017, ISS-005 checked.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-014"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Selector registry should declare every file the design changes; gateway_hooks.py, bake.nix and llm-gateway-serve are undeclared"
+detail = """
+Expected: every path the slice edits matches a design-target selector (design sec-8 table mirrors the registry).
+Observed: `doctrine slice conformance 14`, read past the `flakes/` prefix (ISS-005), leaves three real undeclared paths, each covered only by the scope-relevant glob `features/agents/gateway/**`:
+- features/agents/gateway/gateway_hooks.py — the body guard (DEC-073). sec-8's table lists it; the registry does not.
+- features/agents/gateway/bake.nix — PHASE-02 D1: `script` hoisted here as `{pkgs, lib}: name: python: values: drv`.
+- features/agents/gateway/llm-gateway-serve — PHASE-02 D1: comment change; launcher now baked via `proxy.serve`.
+sec-8 lists neither bake.nix nor llm-gateway-serve, and sec-3 does not mention `proxy.serve providers values` (the one projection of PROVIDERS shared by the service and checks.llm-gateway). The adaptation was in scope and user-accepted; the design text just never caught up.
+"""
+disposition = "design-wrong"
+response = """
+Design and registry lag an in-scope, user-accepted adaptation (PHASE-02 D1) and the DEC-073 file. Reconciliation Brief, per-slice: `doctrine slice selector add` the three paths as design-target (load-bearing for conformance); mirror in design sec-8 table (rows for bake.nix, llm-gateway-serve) and sec-3 (`proxy.serve`).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Design and registry lag an in-scope, user-accepted adaptation (PHASE-02 D1) and the DEC-073 file. Reconciliation Brief, per-slice: `doctrine slice selector add` the three paths as design-target (load-bearing for conformance); mirror in design sec-8 table (rows for bake.nix, llm-gateway-serve) and sec-3 (`proxy.serve`).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Conformance should attribute paths; every path reads undeclared and undelivered under the flakes/ prefix"
+detail = """
+Expected: conformance matches recorded deltas to selectors.
+Observed: 17 undeclared, 12 undelivered, 0 conformant. Every undelivered selector has its `flakes/`-prefixed twin in undeclared; once stripped, the only real undeclared paths are F-1's three plus the slice's own design.md / notes.md. Same root cause as verify-vt UNATTRIBUTABLE. Tracked: ISS-005.
+"""
+disposition = "follow-up"
+response = """
+Tooling defect, not slice content: ISS-005 (open) owns it. Audit read the cells through the prefix by hand; the real residue is F-1.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Tooling defect, not slice content: ISS-005 (open) owns it. Audit read the cells through the prefix by hand; the real residue is F-1.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Slice lifecycle should track execution; SL-014 stayed ready through all five phases"
+detail = """
+Expected: ready -> started when PHASE-01 began, then audit.
+Observed: `doctrine slice status 14` -> `ready`, 5/5 phases, "divergent: phases complete but lifecycle not terminal". The capsule-driven run flipped phase status but never the slice's.
+"""
+disposition = "fix-now"
+response = """
+Fixed in this pass: `doctrine slice status 14 audit` (ready -> audit, classified skip). The skipped `started` state carries no data.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in this pass: `doctrine slice status 14 audit` (ready -> audit, classified skip). The skipped `started` state carries no data.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "major"
+title = "DEC-063 should say a model without a pi block is not offered to pi; it still says evaluation error"
+detail = """
+Expected (design sec-4, DEC-066): DEC-063's choice ends "a served model without a pi block is not offered to pi (DEC-066)"; its consequences drop the evaluation error.
+Observed: DEC-063 choice: "a served model without a pi block is an evaluation error naming it". Code (agents/jailed-agents.nix piGatewayConfig, filterAttrs `m ? pi`) and tests (noPiEntryOmitted) implement DEC-066. Accepted governance contradicts shipped behaviour.
+"""
+disposition = "design-wrong"
+response = """
+Governance contradicts shipped, design-locked behaviour (DEC-066). Reconciliation Brief, governance: amend DEC-063 choice and consequences as design sec-4 states.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Governance contradicts shipped, design-locked behaviour (DEC-066). Reconciliation Brief, governance: amend DEC-063 choice and consequences as design sec-4 states.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "major"
+title = "DEC-051 should carry DEC-064's cost-source rule; it still requires every model in the packaged map"
+detail = """
+Expected (design sec-8 records): DEC-051's build-time clause becomes DEC-064's rule (provider reports cost, or both params prices, or packaged map; a single price is an evaluation error).
+Observed: DEC-051 choice: "A test fails if a configured model has no price in the packaged cost map"; consequences: "Model prices come from the pinned packaged cost map". 8 of the 15 OpenRouter ids are unmapped and served (PHASE-02 red evidence), admitted by reportsCost.
+"""
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, governance: amend DEC-051's build-time price clause and its consequence to DEC-064's rule.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, governance: amend DEC-051's build-time price clause and its consequence to DEC-064's rule.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "DEC-050 should list the models verb in the admin CLI's verb set"
+detail = """
+Expected (design sec-8, DEC-071): DEC-050's verb set gains `models`.
+Observed: DEC-050 choice lists "(issue, list, revoke, budget, spend)". `llm-gateway models` shipped (5c334926) and is documented in README § Admin.
+"""
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, governance: DEC-050's verb set gains `models` (DEC-071).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, governance: DEC-050's verb set gains `models` (DEC-071).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "IMP-029 should be resolved with OpenAI split to IMP-035; it is still open"
+detail = """
+Expected (design sec-8): IMP-029 resolved, partial — OpenRouter and Fireworks delivered, OpenAI deferred to IMP-035 (DEC-072).
+Observed: IMP-029 `open`; IMP-035 exists (open).
+"""
+disposition = "design-wrong"
+response = """
+Reconcile owns the resolution (design sec-8 records). Reconciliation Brief, governance: resolve IMP-029 as partial, OpenAI -> IMP-035, citing DEC-072.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconcile owns the resolution (design sec-8 records). Reconciliation Brief, governance: resolve IMP-029 as partial, OpenAI -> IMP-035, citing DEC-072.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "slice-014.md should match what shipped; it still counts 16 OpenRouter models and plans a BYOK check (A2)"
+detail = """
+Expected: scope text matches design sec-2 after the live drop (5fcfd28c): 15 OpenRouter models, A2 void.
+Observed: slice-014.md scope 2: "gptel's 15 OpenRouter ids ... and minuet's deepseek/deepseek-v4-flash" (= 16; gptel's `deepseek/deepseek-flash` is not an OpenRouter id and was dropped, so 14 + minuet = 15). A2 (line 113) still names `deepseek/deepseek-flash` as a BYOK route the live check confirms; no BYOK route is served, so A2 is void (notes Harvest). plan.toml PHASE-02 objective ("16 OpenRouter") and PHASE-05 VH-1 (names the dropped id, "BYOK, A2") carry the same staleness, but plan criteria are immutable; sec-6 VH and notes § PHASE-05 live record what was run.
+"""
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, per-slice: slice-014.md scope 2 -> 14 gptel ids + minuet = 15 OpenRouter models, naming the dropped id; A2 marked void (no BYOK route served, 5fcfd28c). plan.toml text is off-surface (immutable criteria): tolerated as historical, with design sec-6 and notes § PHASE-05 live as the record of what VH-1 ran.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconciliation Brief, per-slice: slice-014.md scope 2 -> 14 gptel ids + minuet = 15 OpenRouter models, naming the dropped id; A2 marked void (no BYOK route served, 5fcfd28c). plan.toml text is off-surface (immutable criteria): tolerated as historical, with design sec-6 and notes § PHASE-05 live as the record of what VH-1 ran.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "Gateway Python should be lint-clean in the gate; no Python linter runs and ruff check has hits"
+detail = """
+Expected (design sec-6 closing line; slice-014.md "lint clean"): ruff/nixfmt/statix, whatever `just lint` runs, clean.
+Observed: treefmt (`doctrine check gate`, `just fmt`) has no Python formatter or linter. PHASE-03 F6: ruff 0.16 run ad hoc; format applied; `ruff check` hits remain (SIM115, RUF012, EXE001), pre-existing at HEAD before SL-014. Nix side clean (treefmt-check 0 changed). CHR-017 minted for it.
+"""
+disposition = "follow-up"
+response = """
+Owned by CHR-017 (open): add ruff format + check for the gateway Python to treefmt / the gate. The remaining hits pre-date SL-014; the slice's Python was ruff-formatted. Code/tooling, not spec, so the backlog is the right route.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Owned by CHR-017 (open): add ruff format + check for the gateway Python to treefmt / the gate. The remaining hits pre-date SL-014; the slice's Python was ruff-formatted. Code/tooling, not spec, so the backlog is the right route.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "minor"
+title = "Design changes made after RV-029 concluded should rest on evidence; sec-9 thinking, reasoning and the 16 MiB cap were added later"
+detail = """
+Expected: each design change after the design review is supported by evidence or re-review.
+Observed: RV-029 concluded before sec-9 gained `thinking`, `reasoning` and MAX_BODY_BYTES/413 (PHASE-03 rulings, user reply "I'm happy with your recommendations on all of them") and before sec-2/sec-6 dropped `openrouter/deepseek/deepseek-flash`. Run re-accepted at rev 42. Evidence in gateway-test: `test_reasoning_reaches_openrouter_with_its_cost_report` (upstream body has `reasoning` and `usage.include`, spend rises by exactly FAKE_COST), `test_the_deepseek_adapter_sends_thinking_upstream`, 413 tests for declared and drained length. PHASE-03 F3: query-string bypass probed, inert (re-check on a LiteLLM bump; recorded in mem.fact.litellm.proxy-hook-behaviours).
+"""
+disposition = "aligned"
+response = """
+The 401 is the designed refusal of an unknown or revoked key. No slice defect. If it recurs, check which client's key file is stale (the user owns client key rotation).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+The 401 is the designed refusal of an unknown or revoked key. No slice defect. If it recurs, check which client's key file is stale (the user owns client key rotation).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "nit"
+title = "Gateway log should explain each 401; one 'unknown key' at 00:52:43 on 2026-10-18 came from no probe"
+detail = """
+Observed: notes § PHASE-05 live: one `401: unknown key` in the gateway log, not from the probes. Likeliest cause: a client still holding a revoked key (`eca` was revoked; live alias is eca-2). The gateway refused as designed.
+"""
+disposition = "aligned"
+response = """
+Each post-review change has a test proving the property RV-029 was about (cost still reported and charged; body still bounded), and the user re-accepted the run at rev 42. A second design pass would re-derive what the tests show.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Each post-review change has a test proving the property RV-029 was about (cost still reported and charged; body still bounded), and the user re-accepted the run at rev 42. A second design pass would re-derive what the tests show.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

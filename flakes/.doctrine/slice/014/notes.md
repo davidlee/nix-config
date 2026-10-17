@@ -21,28 +21,26 @@ instead:
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-18 · implementation complete (PHASE-05, 5/5) · 7718bf9b
+fresh-as-of: 2026-10-18 · audit (RV-031 concluded) · 519e87c4
 
 ### Produced
 - PHASE-01 pi block optional — 188a96b7
 - PHASE-02 OpenRouter + Fireworks providers, params, price rule — 6d7be2fe
-- PHASE-03 request body guard (allow-list + `thinking`/`reasoning`, 16 MiB/413) — 484b8f84; EN-2 rulings by user, sec-9 re-accepted
+- PHASE-03 request body guard (allow-list + `thinking`/`reasoning`, 16 MiB/413) — 484b8f84
 - PHASE-04 `llm-gateway models` verb — 5c334926
-- PHASE-05 README — a51d8188; live rollout + VH-1..3 — 5fcfd28c (dropped `openrouter/deepseek/deepseek-flash`, sec-2/sec-6 re-accepted), 7718bf9b; detail in § PHASE-05 live
-- design run rev 42, accepted; RV-029 stale vs sec-2/6/9 — audit's to address
-- verify-vt UNATTRIBUTABLE throughout (ISS-005); evidence is `just test` + the VH notes
-- minted: CHR-017 — ruff for gateway Python in the gate
-- handback to emacs:SL-015 — bad id at `dl-gptel.el:121` (given to user)
+- PHASE-05 README a51d8188; live rollout + VH-1..3 5fcfd28c, 7718bf9b
+- RV-031 audit: 11 findings, no blocker; brief in review-031.md
+- minted: CHR-017 — ruff for gateway Python in the gate (RV-031 F-9)
+- handback to emacs:SL-015 — bad id at `dl-gptel.el:121`
 
 ### Learned
-- mem.fact.litellm.proxy-hook-behaviours — appended: query strings inert; DeepSeek `thinking` native; OpenRouter `reasoning` keeps cost; double-registered callbacks double-charge
-- mem.fact.flakes.llm-gateway-no-sudo — `models` verb; 4 dp spend display; new-provider credentials need the new build before switch
+- mem.fact.litellm.proxy-hook-behaviours — body bypasses, query strings inert, `thinking` native, `reasoning` keeps cost
+- mem.fact.flakes.llm-gateway-no-sudo — `models` verb; new-provider credentials need the new build
 - mem.system.flakes.home-worktree — `git commit --only` when the user has staged work
 
 ### Open
-- slice A2 — void: no BYOK route served
-- reconcile: DEC-063, DEC-051, DEC-050 amendments; IMP-029 resolution, OpenAI to IMP-035 (design sec-8)
-- one `401: unknown key` at 00:52:43 on 2026-10-18 — likely eca with a stale key (user)
+- reconcile: RV-031 brief — selectors + design sec-3/sec-8 (F-1), slice-014.md (F-8), DEC-063/051/050 (F-4..F-6), IMP-029 (F-7)
+- ISS-005 — garbles conformance and verify-vt (RV-031 F-2)
 
 ## PHASE-05 live (2026-10-18)
 - Rollout in sec-7 order: `just system-build`, `./result/sw/bin/llm-gateway credentials openrouter fireworks`, `just system-switch` (user ran). Unit active with 3 providers, 18 models.
@@ -53,3 +51,13 @@ fresh-as-of: 2026-10-18 · implementation complete (PHASE-05, 5/5) · 7718bf9b
 - VH-2: minuet body (provider.sort, reasoning_effort none, max_tokens 56, top_p, stream) on openrouter/deepseek/deepseek-v4-flash → 200. Pass.
 - VH-3: `llm-gateway models eca-2 deepseek-flash` ok (live alias is eca-2; `eca` was revoked); user confirmed eca works. Pass.
 - Unexplained: one `401: unknown key` at 00:52:43 in the gateway log, not from the probes — a client with a stale key file?
+
+## Audit harvest from phase sheets (RV-031)
+Durable bits lifted before the runtime sheets go:
+- PHASE-02 D1: `script` lives in `features/agents/gateway/bake.nix`; `proxy.serve providers values` is the one PROVIDERS projection, used by the service and by checks.llm-gateway (`LLM_GATEWAY_SERVE`). The unbaked llm-gateway-serve default stays deepseek-only; a drift test pins the baked set to production.
+- PHASE-02 D2: the fake-backed app runs as a child process (lazy singleton, unix socket, `fakePort = 18471` in perSystem). In-process reload would register callbacks twice and double-charge.
+- PHASE-02 D3: HALF_PRICED is one eval-time assert over `{mapped, unmapped, reportsCost} x {half, both}`, compared to the whole expected set (no vacuous `tryEval`).
+- PHASE-03 D1: the guard's 400/413 carry `x-llm-gateway: body refused` (`GUARD_HEADER`), distinct from the 404's marker; tests use it to tell the guard's refusal from LiteLLM's.
+- PHASE-03 F4: eca sends h2c upgrade headers; served fine through real uvicorn, but the committed test covers them in process only.
+- PHASE-04 R1: `_update(live=True)` decides revoked-vs-unknown in the same transaction as the write.
+- On a LiteLLM bump: re-run the RV-029 bypass probes (BodyGuardTest covers the known ones only).
