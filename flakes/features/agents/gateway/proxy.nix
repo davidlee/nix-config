@@ -12,12 +12,8 @@
   defaults = {
     # gateway model name -> LiteLLM model id and the provider whose key it uses
     models = {
-      deepseek-v4-pro = {
-        model = "deepseek/deepseek-v4-pro";
-        provider = "deepseek";
-      };
-      deepseek-v4-flash = {
-        model = "deepseek/deepseek-v4-flash";
+      deepseek-flash = {
+        model = "deepseek/deepseek-flash";
         provider = "deepseek";
       };
     };

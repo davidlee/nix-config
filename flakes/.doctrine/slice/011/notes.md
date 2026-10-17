@@ -146,3 +146,17 @@ Planning:
 Worker: sonnet. drvs: only homeConfigurations."david@Sleipnir" (and its alias `david`) changed; nix-diff bottoms out at `jailed-eca` (`jailed-eca-api-keys.env` gone, wrapper text differs). A later home drv move was attributed to the `~/dev/goad` checkout moving (37c201a8 -> 7a218263) mid-phase, not the docs. Built `jailed-eca` (not run): no `op run`, no provider var names; `--args 22`, `LLM_GATEWAY_URL`, key path present. flake.lock diff hash unchanged. `just test`, `just gate` green (re-run by orchestrator). README staged hunk-wise via `git apply --cached`; the user's Speech hunk stays unstaged.
 
 PHASE-05 left in_progress: VH-1..7 await the human.
+
+## PHASE-05 (live VH results and model-list adaptation, 2026-10-17)
+
+VH results (human, live): VH-1, VH-2, VH-3 pass. `just system-switch` done; provider credential encrypted (`just gateway-credentials`); service running; key `eca` issued for `deepseek-v4-pro,deepseek-v4-flash`.
+- VH-1 actual journal wording does NOT name the credential path: "llm-gateway.service: Failed to set up credentials: No such file or directory" / "Failed at step CREDENTIALS spawning …: No such file or directory", then start-limit-hit after the restarts. The VH-1 wording above (credential path named) is superseded by this; README § LLM gateway "First run" reworded to match, plus `sudo systemctl reset-failed llm-gateway` if `just gateway-credentials`' restart is refused by the start limit (the CLI does a plain `systemctl restart`, no reset-failed).
+
+Adaptation — model list (user, 2026-10-17, via capsule-driver): the gateway serves only `deepseek-flash` -> `deepseek/deepseek-flash` (DeepSeek v4.1; the human's rationale: better than v4-pro, so the v4 pair has no reason to stay). LiteLLM 1.102.1's packaged price map carries `deepseek/deepseek-flash` (seat-verified: input 3e-7, output 1.2e-6 per token, 1M context), so the EX-3 spend check stays on the production mapping. Changed: `proxy.nix` models, `llm-gateway` MODELS, `gateway-test` (PRICED = deepseek-flash; the narrow-key test now issues for UNPRICED and asserts PRICED is refused), README issue example and eca provider block. Live follow-up for the human: system-switch, issue `eca-2` for deepseek-flash (rotation per README), revoke `eca`, edit `~/.config/eca/config.json` models.
+Worker: sonnet (mechanical rename + doc wording). `just test`, `just gate` green (orchestrator).
+
+Audit observations (not fixed):
+- (a) Startup race: `just gateway-credentials` returns before uvicorn creates `/run/llm-gateway/api.sock`; a request ~15 ms after the restart got HTTP 000 from the relay. Candidates: a readiness wait in the recipe/CLI, or `Type=notify` on the unit. Related: the CLI could `reset-failed` before restart, removing the README caveat above.
+- (b) `systemd-creds` warned "Credential secret file '/var/lib/systemd/credential.secret' is not located on encrypted media". The credential is still host+TPM2 bound; record for audit (host key on unencrypted media weakens the host half of the binding, not the TPM2 half).
+
+PHASE-05 left in_progress.

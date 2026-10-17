@@ -795,15 +795,17 @@ keys.db  /var/lib/llm-gateway (0700): alias, sha256 of the key, models, budget, 
 
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup
-(`status=243/CREDENTIALS`; `journalctl -u llm-gateway` names the missing
-`/etc/credstore.encrypted/llm-gateway.deepseek`), before the launcher runs.
+(`status=243/CREDENTIALS`; `journalctl -u llm-gateway` shows "Failed to set
+up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
-That is expected.
+That is expected. The restarts exhaust the unit's start limit; if
+`just gateway-credentials`' restart is then refused, run
+`sudo systemctl reset-failed llm-gateway` and re-run it.
 
 ```bash
 just system-switch          # llm-gateway.service fails: no credential yet (expected)
 just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts the service
-llm-gateway issue eca --models deepseek-v4-pro,deepseek-v4-flash --budget 5 \
+llm-gateway issue eca --models deepseek-flash --budget 5 \
   --out ~/.config/llm-gateway/keys/eca   # 0600; refuses an existing file
 just home-switch
 ```
@@ -820,7 +822,7 @@ the file):
 "deepseek": {
   "url": "http://127.0.0.1:4000/v1",
   "key": "${env:LLM_GATEWAY_KEY}",
-  "models": { "deepseek-v4-pro": {}, "deepseek-v4-flash": {} }
+  "models": { "deepseek-flash": {} }
 }
 ```
 

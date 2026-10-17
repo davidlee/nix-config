@@ -40,7 +40,7 @@ serve = importlib.util.module_from_spec(spec)
 loader.exec_module(serve)
 
 PROVIDER_SECRET = "sk-test-not-a-secret"  # dummy (POL-001)
-PRICED = "deepseek-v4-flash"  # -> deepseek/deepseek-v4-flash, the production mapping
+PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
 
 
@@ -312,7 +312,7 @@ class AuthTest(unittest.TestCase):
         self.assertIn("broke: budget exhausted", response.text)
 
     def test_a_model_off_the_keys_list_is_refused_and_costs_nothing(self):
-        key = issue("narrow", models=["deepseek-v4-pro"])
+        key = issue("narrow", models=[UNPRICED])
         response = chat(key, model=PRICED)
         self.assertEqual(response.status_code, 403, response.text)
         self.assertIn(f"narrow: model {PRICED!r} not allowed", response.text)
@@ -321,14 +321,14 @@ class AuthTest(unittest.TestCase):
 
 class SpendTest(unittest.TestCase):
     """EX-3, the RV-024 F-2 control: a served request on the production
-    mapping (deepseek/deepseek-v4-flash, the packaged price map) raises spent
+    mapping (deepseek/deepseek-flash, the packaged price map) raises spent
     by its response_cost; the unpriced model, served the same way, fails the
     same assertion."""
 
     def test_served_request_raises_spend(self):
         model = deployment(TEST_CONFIG, PRICED)["model"]
         self.assertEqual(model, deployment(PRODUCTION_CONFIG, PRICED)["model"])
-        self.assertEqual(model, "deepseek/deepseek-v4-flash")
+        self.assertEqual(model, "deepseek/deepseek-flash")
         key = issue("spender")
         response = chat(key)
         self.assertEqual(response.status_code, 200, response.text)
