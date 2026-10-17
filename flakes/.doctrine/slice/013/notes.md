@@ -124,3 +124,18 @@ The research home's `models.json` is tracked instead.
 behaviour of the bind (bwrap creating the target, pi-research model
 selection, nested pi's key), and pi 1.3.0 against 0.99.1. Those are VH 1–4
 and the bump re-run, not another design review. None is needed before lock.
+
+## Implementation (2026-10-17)
+
+- PHASE-01..03 (capsule charter 1): ffac37ca, 4170b753, a24a0f03; ISS-014
+  (missing-key hint names the jail, not the key) 7e55287f. Pushed by the user.
+- PHASE-04: user rotated DeepSeek, ran `just gateway-credentials`, issued
+  `pi` (deepseek-flash, 50 USD), rolled the old key in DeepSeek's console, and
+  ran the auth.json/models.json jq deletions (auto-mode classifier refuses
+  agent writes to auth.json as secret-store writes). Home commit 93693ea1.
+- PHASE-05: root neutral — `just drvs` differs from the PHASE-01 baseline only
+  in templates.agents/default, so no switch. emacs 069e9b6 (flake.lock also
+  carries the user's earlier uncommitted bumps, by their choice), doctrine
+  7100b81f3 (also drops `jdi` and the stale `op run` comment), home settings
+  6f9ad795. Doctrine jail builds need `--impure`; `bin/jailed-*` is a wrapper,
+  so launcher checks must follow its exec.
