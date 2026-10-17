@@ -5,22 +5,14 @@
 #   2. Set workspaceDeps to sibling repos the agents need to see
 #   3. Tune jailEnvOptions: forward host env vars into the jail
 #   4. Trim jailPkgs to the agents actually wanted
+#   5. Jails use the LLM gateway; see `gateway` below to opt out
 #
-# Online profiles (specDev, research) auto-wrap with `op run` to inject
-# API keys from 1Password. Override the ref map at mkJailedAgents time
-# if your vault layout differs (see agents/README.md).
-#
-# If the caller already holds resolved plaintext (e.g. a long-lived
-# broker with a session credential cache), set:
-#   useOpEnv = false; passApiKeysFromEnv = true;
-# to skip the outer `op run` wrapper while keeping the bwrap
-# `--setenv VAR "$VAR"` forwarding. See agents/README.md > "Pre-resolved
-# secrets" for the full rationale.
+# Jails reach models through the local LLM gateway (`gateway` below).
 #
 # Usage:
 #   mv _envrc .envrc && direnv allow   # live agents: agent bumps need no lock update
 #   nix develop
-#   jailed-claude   # or jailed-pi, jailed-codex, jailed-gemini, ...
+#   jailed-claude   # or jailed-pi, jailed-pi-research, jailed-codex
 #   jcl             # shorthand: jailed-claude --dangerously-skip-permissions
 {
   description = "Dev shell with jailed LLM agents";
@@ -87,7 +79,6 @@
         # Combinators: set-env, fwd-env (error if unset), try-fwd-env (skip if unset),
         # try-readwrite (bind a host path rw if it exists).
         jailEnvOptions = lib.optionals isLinux (with jailLib.combinators; [
-          (try-fwd-env "OPENROUTER_API_KEY")
           # pulse # opt-in host audio; uses $XDG_RUNTIME_DIR
           # (try-readonly "/path/on-this-host/notification.wav")
           # (try-fwd-env "DATABASE_URL")
@@ -95,6 +86,12 @@
           # (try-readwrite "/path/to/docker.sock")
           # (set-env "CGO_ENABLED" "0")
         ]);
+
+        # Every jail reaches models through the local LLM gateway with the shared
+        # `pi` key (~/.config/llm-gateway/keys/pi); no provider key enters a jail.
+        # On a host without the gateway, set `gateway = null` on a jail to fall back
+        # to `op run` with provider keys (see agents/README.md § Gateway mode).
+        gateway = jailLib.gatewayClient "pi";
 
         # -- Agents --
         #
@@ -106,14 +103,11 @@
         # Extra per-agent knobs (all optional):
         #   exposePostgres       = true;   # bind /run/postgresql into the jail
         #   blockSshGitPush      = false;  # SSH only; HTTPS remains available
-        #   apiKeys              = [ "OPENROUTER_API_KEY" ]; # narrow secrets
         #   allowSelfAsSubagent  = true;   # let agent recursively spawn itself
         #   maxSubagentDepth     = 2;      # cap recursion depth (default 1)
-        #   useOpEnv             = false;  # opt out of 1Password injection
-        #   passApiKeysFromEnv   = true;   # forward pre-resolved API keys from
-        #                                  # the caller's env (use with
-        #                                  # useOpEnv = false when a broker
-        #                                  # already caches plaintext)
+        #   gateway              = null;   # off the gateway: provider keys from
+        #                                  # 1Password; then apiKeys, useOpEnv and
+        #                                  # passApiKeysFromEnv apply (agents/README.md)
         jailPkgs = lib.optionalAttrs isLinux {
           jailed-pi = jailLib.makeJailedPi {
             profile = "specDev";
@@ -121,38 +115,26 @@
             maxSubagentDepth = 2;
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
+            inherit gateway workspaceDeps;
           };
           jailed-pi-research = jailLib.makeJailedPi {
             name = "pi-research";
             profile = "research";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
-          };
-          jailed-opencode = jailLib.makeJailedOpencode {
-            profile = "specDev";
-            extraPkgs = projectPkgs;
-            extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
+            inherit gateway workspaceDeps;
           };
           jailed-claude = jailLib.makeJailedClaude {
             profile = "specDev";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
+            inherit gateway workspaceDeps;
           };
           jailed-codex = jailLib.makeJailedCodex {
             profile = "specDev";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
-          };
-          jailed-gemini = jailLib.makeJailedGemini {
-            profile = "specDev";
-            extraPkgs = projectPkgs;
-            extraOptions = jailEnvOptions;
-            inherit workspaceDeps;
+            inherit gateway workspaceDeps;
           };
           # jailed-zero = jailLib.makeJailedZerostack {
           #   profile = "specDev";

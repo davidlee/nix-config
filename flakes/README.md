@@ -913,11 +913,14 @@ When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `
 `features/agents.nix` (`agents.gateway`, selected by `personal-linux`, so
 Sleipnir) with `features/agents/gateway.nix` and `features/agents/gateway/`.
 A LiteLLM proxy holds the provider keys. A jail holds only its own gateway
-key: useful on this host alone, within its budget and its model list. The
-unjailed `eca` and every other jail are unchanged. Decisions DEC-046..051.
+key: useful on this host alone, within its budget and its model list. Clients
+are the jailed `eca` (key `eca`) and the jails that take
+`gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
+and projects made from the agents template. The unjailed `eca` is unchanged.
+Decisions DEC-046..051, DEC-058, DEC-062, DEC-063.
 
 ```
-jail (jailed-eca)                                      LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL
+jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL
    │  POST /v1/chat/completions
    ▼
 127.0.0.1:4000   llm-gateway-relay.socket ─ systemd-socket-proxyd (group llm-gateway)
@@ -946,8 +949,13 @@ just system-switch          # llm-gateway.service fails: no credential yet (expe
 just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts, waits until serving
 llm-gateway issue eca --models deepseek-flash --budget 5 \
   --out ~/.config/llm-gateway/keys/eca   # 0600; refuses an existing file
+llm-gateway issue pi --models deepseek-flash --budget 50 \
+  --out ~/.config/llm-gateway/keys/pi    # the key every pi-client jail shares
 just home-switch
 ```
+
+A pi jail also gets a generated `models.json` that points pi at the gateway;
+see `agents/README.md` § Gateway mode.
 
 The launcher's own message (it names the credential and
 `just gateway-credentials`) appears only when the credential directory lacks
@@ -984,8 +992,8 @@ hashes any it logs.
 - Provider key: rotate it in 1Password, then `just gateway-credentials`
   (re-encrypts, restarts the service).
 - Client key: a key is never re-keyed in place. Issue a new one under a new
-  alias (DEC-051: a revoked alias is never reissued). eca's `keyFile` is the
-  fixed path `…/keys/eca`; the alias is only the ledger's name. A running jail
+  alias (DEC-051: a revoked alias is never reissued). A client's `keyFile` is
+  the fixed path `…/keys/<client>` (`eca`, `pi`); the alias is only the ledger's name. A running jail
   keeps the key it launched with until that key is revoked.
 
 ```bash
@@ -997,19 +1005,25 @@ llm-gateway revoke eca && rm ~/.config/llm-gateway/keys/eca.old
 A failed `--out` write revokes the key it just issued, so that alias is
 spent too; pick the next one.
 
-**Adding a client.** Another jail passes `gateway = { keyFile; url;
-runDirectory; }` built from `features/agents/gateway/constants.nix`, drops its
-`apiKeys`, adds `requires = ["agents.gateway"]` to its record, and gets a key
-issued. See `agents/README.md` § Gateway mode. Another model or provider goes
-in `services.llm-gateway.models` / `.providers`: each provider needs a
-1Password ref and a `just gateway-credentials` run, and every model must be in
-LiteLLM's packaged price map (the host's build fails otherwise).
+**Adding a client.** Another jail passes
+`gateway = jailLib.gatewayClient "<client>"` (key file
+`~/.config/llm-gateway/keys/<client>`, address from `agents/gateway.nix`),
+drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
+record in this repo also adds `requires = ["agents.gateway"]`. See
+`agents/README.md` § Gateway mode. Another model is an entry in the `models`
+of `agents/gateway.nix`: `model`, `provider` and a `pi` block; a served model
+without `pi` fails evaluation, naming it. The block is described in
+`agents/README.md` § pi in gateway mode. Every model must be in LiteLLM's
+packaged price map (the host's build fails otherwise). Another provider goes in
+`services.llm-gateway.providers`, with a 1Password ref and a
+`just gateway-credentials` run.
 
 **What it does not cover.**
 
 - OAuth/subscription logins (claude, codex and the like sign in their own way).
-- Every other jail still gets provider keys through `op run` until migrated
-  (pi: IMP-028), and the unjailed `eca` keeps its own keys.
+- Jails not on the gateway still get provider keys through `op run`: the other
+  `~/dev/*` project flakes (IMP-034) and satan (IMP-030). The unjailed `eca`
+  keeps its own keys.
 - OpenRouter: not configured, so the jailed eca has no OpenRouter models.
 - Anything off this host: the relay is loopback only.
 - Budgets are lifetime USD per key, not per period.
@@ -1019,14 +1033,14 @@ LiteLLM's packaged price map (the host's build fails otherwise).
 
 ## Jailed Agents 
 
-template setup for bubblewrap-jailed agents, with secure 1password-managed API keys, assuming some conventions:
+template setup for bubblewrap-jailed agents, assuming some conventions:
 
 ```zsh
 nix flake init -t /home/david/flakes#agents                    # local
 nix flake init -t github:davidlee/nix-config?dir=flakes#agents # anywhere
 ```
 
-Jails can run in gateway mode: no provider key enters the jail, only a key for
-the local LLM gateway. See § LLM gateway and [agents/README.md](./agents/README.md).
+The template starts every jail in gateway mode: no provider key enters the jail,
+only a key for the local LLM gateway (opt out with `gateway = null`). See § LLM gateway and [agents/README.md](./agents/README.md).
 
 See [README](./pub/README.md) 
