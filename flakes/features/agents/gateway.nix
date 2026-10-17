@@ -14,7 +14,7 @@
     cfg = config.services.llm-gateway;
     constants = import ./gateway/constants.nix;
     proxy = import ./gateway/proxy.nix {inherit pkgs lib;};
-    bake = import ./gateway/bake.nix {inherit lib;};
+    script = import ./gateway/bake.nix {inherit pkgs lib;};
     # Fixed by agents/gateway.nix, shared with every jail: no per-host option.
     models = proxy.defaults.models;
 
@@ -26,21 +26,6 @@
     # decryption.
     credstore = "/etc/credstore.encrypted";
     credentialPath = provider: "${credstore}/${user}.${provider}";
-
-    # A baked script, checked to parse (ast, not py_compile: no __pycache__).
-    script = name: python: values:
-      pkgs.writeTextFile {
-        inherit name;
-        executable = true;
-        text = bake {
-          src = ./gateway + "/${name}";
-          inherit (python) interpreter;
-          inherit values;
-        };
-        checkPhase = ''
-          ${pkgs.python3.interpreter} -c 'import ast, sys; ast.parse(open(sys.argv[1]).read())' "$target"
-        '';
-      };
 
     # stdlib only; keystore.py beside it, where it imports from (and the path
     # its sudo re-exec runs: resolved, in the store).
@@ -56,10 +41,7 @@
       mkdir $out/bin
       ln -s ../libexec/llm-gateway/llm-gateway $out/bin/llm-gateway
     '';
-    serve = script "llm-gateway-serve" proxy.python {
-      PROVIDERS = lib.mapAttrs (_: p: p.env) providers;
-      SOCKET = constants.socket;
-    };
+    serve = proxy.serve providers {SOCKET = constants.socket;};
 
     # Shared by the gateway and its relay. PrivateNetwork is impossible for
     # the gateway (it reaches the providers).
@@ -74,25 +56,28 @@
       SystemCallFilter = "@system-service";
       UMask = "0077";
     };
-
-    strFields = fields:
-      lib.types.submodule {
-        options = lib.mapAttrs (_: d:
-          lib.mkOption {
-            type = lib.types.str;
-            description = d;
-          })
-        fields;
-      };
   in {
     options.services.llm-gateway = {
       providers = lib.mkOption {
-        type = lib.types.attrsOf (strFields {
-          env = "the variable LiteLLM reads the key from";
-          ref = "its 1Password reference (public)";
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            env = lib.mkOption {
+              type = lib.types.str;
+              description = "the variable LiteLLM reads the key from";
+            };
+            ref = lib.mkOption {
+              type = lib.types.str;
+              description = "its 1Password reference (public)";
+            };
+            reportsCost = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+              description = "the provider returns each request's billed cost and LiteLLM captures it, so its models need no price (DEC-064)";
+            };
+          };
         });
         default = proxy.defaults.providers;
-        description = "Provider (also its credential's name) -> key variable and op:// reference.";
+        description = "Provider (also its credential's name) -> key variable, op:// reference and cost source.";
       };
     };
 

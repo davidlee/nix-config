@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 """Integration check for the gateway's LiteLLM adapter (design SL-011 sec-6,
-P2), run by checks.<system>.llm-gateway against the LiteLLM the system nixpkgs
-ships. Offline: the proxy app is driven in-process (no socket), every model
-answers from a `mock_response` in the test config, and keys live in a temp
-store. Provider keys are dummies.
+P2; SL-014 sec-6), run by checks.<system>.llm-gateway against the LiteLLM the
+system nixpkgs ships. Offline: the proxy app is driven in-process (no
+socket), and every model of the test config answers from its
+`mock_response`. The fake-backed tests run a second app, on the fake config,
+in a child process: its models call a fake OpenRouter on loopback. Keys live
+in a temp store, shared by both apps. Provider keys are dummies.
 
 Environment, set by the check:
-  LLM_GATEWAY_SERVE         the launcher, llm-gateway-serve
+  LLM_GATEWAY_SERVE         the launcher, llm-gateway-serve, PROVIDERS baked
   LLM_GATEWAY_TEST_CONFIG   config dir: production mapping + mock_response + `unpriced`
   LLM_GATEWAY_CONFIG        config dir: the production mapping, as served
+  LLM_GATEWAY_FAKE_CONFIG   config dir: models served by the fake OpenRouter
+  LLM_GATEWAY_FAKE_PORT     the loopback port the fake config names
+  LLM_GATEWAY_REPORTS_COST  JSON list: the variables of cost-reporting providers
 plus LiteLLM's offline settings (see perSystem.nix).
 
 One process, one app: the proxy's state is module-global.
@@ -23,16 +28,23 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
 
+import httpx
 import yaml
 
 SERVE = Path(os.environ["LLM_GATEWAY_SERVE"])
 TEST_CONFIG = Path(os.environ["LLM_GATEWAY_TEST_CONFIG"])
 PRODUCTION_CONFIG = Path(os.environ["LLM_GATEWAY_CONFIG"])
+FAKE_CONFIG = Path(os.environ["LLM_GATEWAY_FAKE_CONFIG"])
+FAKE_PORT = int(os.environ["LLM_GATEWAY_FAKE_PORT"])
+# the variables of the providers that report each request's cost (DEC-064)
+REPORTS_COST = json.loads(os.environ["LLM_GATEWAY_REPORTS_COST"])
 
 loader = importlib.machinery.SourceFileLoader("llm_gateway_serve", str(SERVE))
 spec = importlib.util.spec_from_loader("llm_gateway_serve", loader)
@@ -65,7 +77,15 @@ PRICE_MAP = json.loads(
 
 state = tempfile.TemporaryDirectory()
 credentials = tempfile.TemporaryDirectory()
-(Path(credentials.name) / "deepseek").write_text(PROVIDER_SECRET + "\n")
+
+
+def write_credentials(directory, value):
+    """A credential file holding `value` for every provider the launcher loads."""
+    for name in serve.PROVIDERS:
+        (Path(directory) / name).write_text(value)
+
+
+write_credentials(credentials.name, PROVIDER_SECRET + "\n")
 os.environ.update(
     serve.load_credentials(serve.PROVIDERS, {"CREDENTIALS_DIRECTORY": credentials.name})
 )
@@ -103,20 +123,38 @@ def spent(alias):
     return next(r["spent_usd"] for r in keystore.rows(DB) if r["alias"] == alias)
 
 
-def chat(key=None, model=PRICED, path="/chat/completions", **body):
+def chat(key=None, model=PRICED, path="/chat/completions", via=None, **body):
+    """POST a chat completion to the in-process app, or to the app `via`
+    (an httpx client)."""
     headers = {"Authorization": f"Bearer {key}"} if key else {}
     payload = {"model": model, "messages": [{"role": "user", "content": "hi"}], **body}
-    return client.post(path, headers=headers, json=payload)
+    return (via or client).post(path, headers=headers, json=payload)
+
+
+def spend_after(alias, before, wait):
+    """spent, once it moves off `before` or `wait` seconds have passed:
+    success callbacks run after the response returns."""
+    deadline = time.monotonic() + wait
+    while spent(alias) == before and time.monotonic() < deadline:
+        time.sleep(0.05)
+    return spent(alias)
 
 
 def assert_spend_raised(alias, wait=SPEND_WAIT):
     """The served request's cost reached the key store: spent > 0 within
     `wait` seconds. The one spend assertion, so its negative controls run it."""
-    deadline = time.monotonic() + wait
-    while spent(alias) <= 0 and time.monotonic() < deadline:
-        time.sleep(0.05)
-    if spent(alias) <= 0:
+    if spend_after(alias, 0, wait) <= 0:
         raise AssertionError(f"{alias}: spent not raised (spent_usd={spent(alias)})")
+
+
+def assert_spend_rose_by(alias, before, amount, wait=SPEND_WAIT, settle=0.5):
+    """spent rose from `before` by exactly `amount` within `wait` seconds,
+    and stayed there `settle` seconds more (a second charge would show)."""
+    spend_after(alias, before, wait)
+    time.sleep(settle)
+    delta = spent(alias) - before
+    if abs(delta - amount) > 1e-12:
+        raise AssertionError(f"{alias}: spent rose by {delta}, want {amount}")
 
 
 def is_gate_refusal(response):
@@ -433,59 +471,352 @@ class ClientOverrideTest(unittest.TestCase):
 
 
 class PriceMapTest(unittest.TestCase):
-    """EX-5: every model the production config serves is in LiteLLM's
-    packaged price map."""
+    """EX-5 (SL-011), DEC-064: every model the production config serves has a
+    cost source; every OpenRouter entry allows reasoning_effort (SL-014 EX-4)."""
 
-    def test_every_production_model_is_priced(self):
-        self.assertEqual(unpriced_models(PRODUCTION_CONFIG), [])
+    def test_every_production_model_passes_the_price_rule(self):
+        self.assertEqual(refused_by_price_rule(PRODUCTION_CONFIG), [])
 
-    def test_negative_twin_reports_an_unpriced_model(self):
+    def test_negative_twin_refuses_exactly_the_unpriced_model(self):
         self.assertEqual(
-            unpriced_models(TEST_CONFIG), [deployment(TEST_CONFIG, UNPRICED)["model"]]
+            refused_by_price_rule(TEST_CONFIG),
+            [deployment(TEST_CONFIG, UNPRICED)["model"]],
+        )
+
+    def test_every_openrouter_entry_allows_reasoning_effort(self):
+        entries = served_by(PRODUCTION_CONFIG, "OPENROUTER_API_KEY")
+        self.assertTrue(entries)
+        for entry in entries:
+            with self.subTest(model=entry["model_name"]):
+                self.assertEqual(
+                    entry["litellm_params"]["allowed_openai_params"],
+                    ["reasoning_effort"],
+                )
+
+    def test_the_served_set(self):
+        """16 OpenRouter models named as their LiteLLM ids (DEC-069), one
+        Fireworks, and deepseek-flash with only its model and key."""
+        openrouter = served_by(PRODUCTION_CONFIG, "OPENROUTER_API_KEY")
+        self.assertEqual(len(openrouter), 16)
+        for entry in openrouter:
+            self.assertEqual(entry["model_name"], entry["litellm_params"]["model"])
+        self.assertEqual(
+            [e["model_name"] for e in served_by(PRODUCTION_CONFIG, "FIREWORKS_API_KEY")],
+            ["fireworks/nemotron-lightning-3p5-30b-a3b"],
+        )
+        self.assertEqual(
+            [e["model_name"] for e in served_by(PRODUCTION_CONFIG, "DEEPSEEK_API_KEY")],
+            [PRICED],
+        )
+        self.assertEqual(
+            deployment(PRODUCTION_CONFIG, PRICED),
+            {
+                "model": "deepseek/deepseek-flash",
+                "api_key": "os.environ/DEEPSEEK_API_KEY",
+            },
         )
 
 
-def unpriced_models(config_dir):
-    """The LiteLLM model ids a config dir serves that the price map lacks."""
-    ids = [m["litellm_params"]["model"] for m in model_list(config_dir)]
-    return [i for i in ids if i not in PRICE_MAP]
+def served_by(config_dir, env):
+    """The model_list entries whose key is read from `env`."""
+    return [
+        m
+        for m in model_list(config_dir)
+        if m["litellm_params"]["api_key"] == f"os.environ/{env}"
+    ]
+
+
+def refused_by_price_rule(config_dir):
+    """The LiteLLM model ids a config dir serves without a cost source, by
+    DEC-064 restated: the provider reports cost, or both prices are set, or
+    the id is in the packaged price map."""
+
+    def admitted(params):
+        return (
+            params["api_key"] in {f"os.environ/{env}" for env in REPORTS_COST}
+            or {"input_cost_per_token", "output_cost_per_token"} <= params.keys()
+            or params["model"] in PRICE_MAP
+        )
+
+    return [
+        m["litellm_params"]["model"]
+        for m in model_list(config_dir)
+        if not admitted(m["litellm_params"])
+    ]
+
+
+# --- through a second app, on the fake config, against a fake OpenRouter -----
+
+FAKE_COST = 0.0123  # the cost the fake reports; no price map has it
+
+
+class FakeOpenRouter:
+    """OpenRouter's chat completions on loopback (SL-014 EX-5): records each
+    request body and answers it with usage.cost, streamed or not. The cost is
+    left out when the body asks for no usage."""
+
+    def __init__(self, port):
+        self.bodies = []
+        fake = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                length = int(self.headers["Content-Length"])
+                body = json.loads(self.rfile.read(length))
+                fake.bodies.append(body)
+                if body.get("stream"):
+                    self.reply(
+                        "text/event-stream",
+                        "".join(f"data: {json.dumps(c)}\n\n" for c in fake.chunks(body))
+                        + "data: [DONE]\n\n",
+                    )
+                else:
+                    self.reply("application/json", json.dumps(fake.completion(body)))
+
+            def reply(self, content_type, text):
+                data = text.encode()
+                self.send_response(200)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+
+        # binds the port the fake config names; a clash fails loudly here
+        self.server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+    def reset(self):
+        self.bodies.clear()
+
+    @staticmethod
+    def usage(body):
+        usage = {"prompt_tokens": 10, "completion_tokens": 4, "total_tokens": 14}
+        if body.get("usage", {}).get("include") is not False:
+            usage["cost"] = FAKE_COST
+        return usage
+
+    @staticmethod
+    def base(body, kind):
+        return {"id": "fake", "created": 1, "model": body["model"], "object": kind}
+
+    def completion(self, body):
+        message = {"role": "assistant", "content": "OK"}
+        return {
+            **self.base(body, "chat.completion"),
+            "choices": [{"index": 0, "message": message, "finish_reason": "stop"}],
+            "usage": self.usage(body),
+        }
+
+    def chunks(self, body):
+        def chunk(**fields):
+            return {**self.base(body, "chat.completion.chunk"), **fields}
+
+        delta = {"role": "assistant", "content": "OK"}
+        yield chunk(choices=[{"index": 0, "delta": delta, "finish_reason": None}])
+        yield chunk(choices=[{"index": 0, "delta": {}, "finish_reason": "stop"}])
+        if body.get("stream_options", {}).get("include_usage") is not False:
+            yield chunk(choices=[], usage=self.usage(body))
+
+
+# The child's entry point: the launcher's app on the fake config, on a unix
+# socket, unable to connect anywhere but loopback.
+CHILD = """
+import importlib.machinery, importlib.util, ipaddress, socket, sys
+
+connect = socket.socket.connect
+
+
+def loopback_only(sock, address):
+    if isinstance(address, tuple) and not ipaddress.ip_address(address[0]).is_loopback:
+        raise OSError(f"gateway-test: refused a connection to {address!r}")
+    return connect(sock, address)
+
+
+socket.socket.connect = loopback_only
+launcher, config_dir, uds = sys.argv[1:]
+loader = importlib.machinery.SourceFileLoader("llm_gateway_serve", launcher)
+spec = importlib.util.spec_from_loader("llm_gateway_serve", loader)
+serve = importlib.util.module_from_spec(spec)
+loader.exec_module(serve)
+import uvicorn
+
+uvicorn.run(serve.app(config_dir), uds=uds, log_level="warning")
+"""
+
+
+class FakeGateway:
+    """The fake config's app, served by a child process: a second config in
+    this process would re-run LiteLLM's startup and register the Ledger
+    twice. It shares this process's key store and provider variables."""
+
+    START_WAIT = 120.0
+
+    def __init__(self):
+        self.upstream = FakeOpenRouter(FAKE_PORT)
+        self.directory = tempfile.TemporaryDirectory()
+        uds = str(Path(self.directory.name) / "gateway.sock")
+        self.log = open(Path(self.directory.name) / "child.log", "w+")
+        self.child = subprocess.Popen(
+            [sys.executable, "-c", CHILD, str(SERVE), str(FAKE_CONFIG), uds],
+            env={**os.environ, "CONFIG_FILE_PATH": str(FAKE_CONFIG / "config.yaml")},
+            stdout=self.log,
+            stderr=subprocess.STDOUT,
+        )
+        self.client = httpx.Client(
+            transport=httpx.HTTPTransport(uds=uds),
+            base_url="http://gateway",
+            timeout=60,
+        )
+        self.wait_until_serving()
+
+    def wait_until_serving(self):
+        """Until an unauthenticated GET /v1/models gets custom_auth's 401."""
+        deadline = time.monotonic() + self.START_WAIT
+        while time.monotonic() < deadline and self.child.poll() is None:
+            try:
+                if self.client.get("/v1/models").status_code == 401:
+                    return
+            except httpx.TransportError:
+                pass
+            time.sleep(0.2)
+        self.close()
+        raise RuntimeError(f"fake gateway did not start:\n{self.output()}")
+
+    def output(self):
+        self.log.seek(0)
+        return self.log.read()
+
+    def close(self):
+        self.client.close()
+        self.child.terminate()
+        self.child.wait(timeout=30)
+        self.upstream.close()
+        self.log.close()
+        self.directory.cleanup()
+
+
+fake_gateway = None
+
+
+def fake():
+    """The fake gateway, started on first use and stopped with the module."""
+    global fake_gateway
+    if fake_gateway is None:
+        fake_gateway = FakeGateway()
+        unittest.addModuleCleanup(fake_gateway.close)
+    fake_gateway.upstream.reset()
+    return fake_gateway
+
+
+REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
+UNALLOWED = "unallowed"  # the same without allowed_openai_params
+
+
+class OpenRouterCostTest(unittest.TestCase):
+    """DEC-068: the cost OpenRouter reports reaches the Ledger, streamed and
+    not, for a model the price map lacks."""
+
+    def test_spend_rises_by_exactly_the_reported_cost(self):
+        gateway = fake()
+        key = issue("reporter", models=[REPORTED])
+        for stream in (False, True):
+            with self.subTest(stream=stream):
+                gateway.upstream.reset()
+                before = spent("reporter")
+                response = chat(key, model=REPORTED, via=gateway.client, stream=stream)
+                self.assertEqual(response.status_code, 200, response.text)
+                if stream:
+                    self.assertTrue(response.text.rstrip().endswith("data: [DONE]"))
+                self.assertEqual(len(gateway.upstream.bodies), 1)
+                assert_spend_rose_by("reporter", before, FAKE_COST)
+
+
+class PassThroughTest(unittest.TestCase):
+    """minuet's routing fields reach OpenRouter on an unmapped model: the
+    provider preference (sort by throughput) as is, and reasoning_effort
+    because the deployment allows it (allowed_openai_params)."""
+
+    BODY = {"provider": {"sort": "throughput"}, "reasoning_effort": "none"}
+
+    def test_provider_and_reasoning_effort_reach_the_upstream_body(self):
+        gateway = fake()
+        key = issue("passer", models=[REPORTED])
+        response = chat(key, model=REPORTED, via=gateway.client, **self.BODY)
+        self.assertEqual(response.status_code, 200, response.text)
+        [body] = gateway.upstream.bodies
+        self.assertEqual(body["provider"], {"sort": "throughput"})
+        self.assertEqual(body["reasoning_effort"], "none")
+
+    def test_twin_without_allowed_openai_params_gets_400_and_never_reaches_it(self):
+        gateway = fake()
+        key = issue("unallowed", models=[UNALLOWED])
+        response = chat(key, model=UNALLOWED, via=gateway.client, **self.BODY)
+        self.assertEqual(response.status_code, 400, response.text)
+        self.assertIn("reasoning_effort", response.text)
+        self.assertEqual(gateway.upstream.bodies, [])
+        self.assertEqual(spent("unallowed"), 0)
+
+
+class ParamsOverrideTest(unittest.TestCase):
+    """DEC-070: a model's params merge under the generated model and key, so
+    they add keys but cannot redirect it."""
+
+    def test_params_cannot_replace_the_model_or_key(self):
+        params = deployment(FAKE_CONFIG, "override")
+        self.assertEqual(params["api_key"], "os.environ/OPENROUTER_API_KEY")
+        self.assertEqual(params["model"], "openrouter/local/override")
+        self.assertEqual(params["api_base"], f"http://127.0.0.1:{FAKE_PORT}/v1")
 
 
 class CredentialTest(unittest.TestCase):
     """EX-4, the RV-024 F-5 control: the launcher refuses to start without a
-    configured provider's credential, naming it and the fix."""
+    configured provider's credential, naming it and the fix. The providers
+    are the launcher's baked PROVIDERS, those the production config uses."""
+
+    def test_the_baked_PROVIDERS_are_the_production_configs(self):
+        self.assertEqual(
+            {f"os.environ/{env}" for env in serve.PROVIDERS.values()},
+            {m["litellm_params"]["api_key"] for m in model_list(PRODUCTION_CONFIG)},
+        )
 
     def refusal(self, environ):
         with self.assertRaises(SystemExit) as refused:
-            serve.load_credentials({"deepseek": "DEEPSEEK_API_KEY"}, environ)
-        return str(refused.exception.code)
-
-    def test_unset_CREDENTIALS_DIRECTORY_names_the_credential_and_the_fix(self):
-        message = self.refusal({})
-        self.assertIn("deepseek", message)
+            serve.load_credentials(serve.PROVIDERS, environ)
+        message = str(refused.exception.code)
+        for name in serve.PROVIDERS:
+            self.assertIn(name, message)
         self.assertIn("just gateway-credentials", message)
+
+    def test_unset_CREDENTIALS_DIRECTORY_names_every_credential_and_the_fix(self):
+        self.refusal({})
 
     def test_a_missing_credential_file_names_it_and_the_fix(self):
         with tempfile.TemporaryDirectory() as empty:
-            message = self.refusal({"CREDENTIALS_DIRECTORY": empty})
-        self.assertIn("deepseek", message)
-        self.assertIn("just gateway-credentials", message)
+            self.refusal({"CREDENTIALS_DIRECTORY": empty})
 
     def test_an_empty_credential_is_refused_like_a_missing_one(self):
         """RV-026 F-2."""
         with tempfile.TemporaryDirectory() as directory:
-            (Path(directory) / "deepseek").write_text(" \n")
-            message = self.refusal({"CREDENTIALS_DIRECTORY": directory})
-        self.assertIn("deepseek", message)
-        self.assertIn("just gateway-credentials", message)
+            write_credentials(directory, " \n")
+            self.refusal({"CREDENTIALS_DIRECTORY": directory})
 
-    def test_a_present_credential_is_loaded_into_DEEPSEEK_API_KEY(self):
+    def test_a_present_credential_is_loaded_into_its_variable(self):
         with tempfile.TemporaryDirectory() as directory:
-            (Path(directory) / "deepseek").write_text(PROVIDER_SECRET + "\n")
+            write_credentials(directory, PROVIDER_SECRET + "\n")
             loaded = serve.load_credentials(
-                {"deepseek": "DEEPSEEK_API_KEY"}, {"CREDENTIALS_DIRECTORY": directory}
+                serve.PROVIDERS, {"CREDENTIALS_DIRECTORY": directory}
             )
-        self.assertEqual(loaded, {"DEEPSEEK_API_KEY": PROVIDER_SECRET})
+        for name, env in serve.PROVIDERS.items():
+            with self.subTest(provider=name):
+                self.assertEqual(loaded[env], PROVIDER_SECRET)
+        self.assertEqual(len(loaded), len(serve.PROVIDERS))
 
     def test_the_credential_check_runs_before_litellm_is_imported(self):
         with (

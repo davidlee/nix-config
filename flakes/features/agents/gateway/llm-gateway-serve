@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 
 # Baked configuration: the seam the NixOS record replaces from its `providers`
-# option and constants (features/agents/gateway.nix). The values here are the
-# tests'.
+# option and constants (features/agents/gateway.nix); checks.llm-gateway bakes
+# it from the default providers. The values here are for running it unbaked.
 PROVIDERS = {"deepseek": "DEEPSEEK_API_KEY"}  # credential name -> variable
 SOCKET = "/run/llm-gateway/api.sock"
 
