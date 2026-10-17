@@ -24,3 +24,4 @@ EXECUTION.md
 .doctrine/dispatch/
 .doctrine/skills/*
 .doctrine/observations/**/.tmp.*
+.doctrine/observations/*
