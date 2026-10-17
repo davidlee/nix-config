@@ -1,0 +1,130 @@
+# Implementation plan for SL-011 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-011"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Key store and admin CLI"
+objective = "Stdlib key store (keystore.py) and the llm-gateway admin CLI logic, with the privileged step injectable so both are tested without sudo, LiteLLM or a server (design sec-3, sec-4)."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-011 design locked; plan approved." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/agents/gateway/keystore.py implements the DEC-051 schema (WAL, CHECK >= 0) and issue, authenticate, allows_model, record_spend, usd, revoke, set_budget, reset_spend, rows; it stores only the sha256 hex of a key and returns the key once." },
+  { id = "EX-2", text = "features/agents/gateway/llm-gateway implements issue/list/revoke/budget/reset and credentials; admin subcommands re-exec under sudo -u llm-gateway when not that user; credentials pipes op read on stdin into sudo systemd-creds encrypt --with-key=host+tpm2 --name=<provider> - /etc/credstore.encrypted/llm-gateway.<provider>; no key ever appears in argv or output other than issue's one print." },
+  { id = "EX-3", text = "RV-024 F-3 (probe): malformed money (NaN, +/-Infinity, negative, non-numeric) arriving through the CLI budget arguments or any keystore write (issue, set_budget, record_spend) never lands in budget_usd or spent_usd; record_spend counts a bad cost as 0 with a warning; a spent-out key is always refused; a direct negative write is refused by the CHECK." },
+  { id = "EX-4", text = "RV-024 F-6 (control): issue --out refuses an existing destination before any key is issued; on a write failure after issue, the parent revokes the issued key and leaves no file; success leaves a 0600 file holding the key, written by temp file and rename in the destination directory (created 0700 if absent)." },
+  { id = "EX-5", text = "keystore-test is a line in just test and passes; lint and format clean." },
+]
+verification = [
+  { id = "VT-1", expects = "issue returns the key once and stores only its hash; authenticate accepts a live key and refuses unknown, revoked and over-budget keys; allows_model; spend accrues", test_file = "features/agents/gateway/keystore-test", keywords = ["issue", "authenticate", "allows_model", "record_spend", "revoke"], waived = false },
+  { id = "VT-2", expects = "RV-024 F-3 probe: every malformed money value is refused or counted 0 on every write path, including the CLI budget argument; direct negative write refused by CHECK", test_file = "features/agents/gateway/keystore-test", keywords = ["nan", "inf", "usd", "set_budget", "IntegrityError"], waived = false },
+  { id = "VT-3", expects = "RV-024 F-6 control: injected write failure after issue revokes the key and leaves no file; existing destination refused before issue; success yields a 0600 file", test_file = "features/agents/gateway/keystore-test", keywords = ["--out", "revoke", "0o600"], waived = false },
+  { id = "VA-1", expects = "credentials and the sudo re-exec read correctly against design sec-4: key on stdin only, absolute credstore path, restart after encrypt; no key in argv" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "LiteLLM adapter, launcher and integration check"
+objective = "gateway_hooks.py (route gate, custom_auth, pre-call hook, spend callback), the llm-gateway-serve launcher, config.yaml generation, and checks.<system>.llm-gateway driving the real proxy app offline against the system nixpkgs LiteLLM (design sec-2, sec-3, sec-6)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Through the real proxy app in-process (no socket, no network, mock_response models, temp key store): a valid key gets 200, a bad key 401, a disallowed model is refused, an exhausted budget is refused." },
+  { id = "EX-2", text = "RV-024 F-1 (probe): unauthenticated requests to /health/liveness, the /public routes, an admin and a key-management route, path variants (trailing slash, double slash, percent-encoding, case) and other methods on the allowed paths all get 404 from the route gate without reaching LiteLLM; POST /chat/completions and GET /models (with or without /v1) still reach custom_auth (401 without a key)." },
+  { id = "EX-3", text = "RV-024 F-2 (control): a served request through the production mapping deepseek/deepseek-v4-flash and the packaged price map raises spent by a positive amount; a negative control (unpriced model, or a callback fed zero/None cost) fails that assertion. If mock_response skips the production pricing path, a separately named adapter test feeding a recorded success payload carries this, and the plan notes that VH PHASE-05/VH-7 carries the production claim." },
+  { id = "EX-4", text = "RV-024 F-5 (control): the launcher's credential check exits non-zero naming the missing credential and just gateway-credentials when a configured provider file is absent from CREDENTIALS_DIRECTORY or the directory is unset; when present it loads it into <NAME>_API_KEY." },
+  { id = "EX-5", text = "Every configured model has an entry in LiteLLM's packaged price map (the check fails otherwise)." },
+  { id = "EX-6", text = "checks.<system>.llm-gateway is built from perSystem.nix with the system nixpkgs, and is a line in just test; it passes." },
+]
+verification = [
+  { id = "VT-1", expects = "auth, model allow-list, budget refusal through the real proxy app", test_file = "features/agents/gateway/gateway-test", keywords = ["chat/completions", "401", "mock_response", "budget"], waived = false },
+  { id = "VT-2", expects = "RV-024 F-1 probe: unauthenticated non-allowed paths, path variants and methods get 404 from the gate; allowed paths reach custom_auth", test_file = "features/agents/gateway/gateway-test", keywords = ["/health/liveness", "/public/model_hub", "404", "route_gate"], waived = false },
+  { id = "VT-3", expects = "RV-024 F-2 control: positive spend via the production mapping; negative control fails the assertion", test_file = "features/agents/gateway/gateway-test", keywords = ["deepseek/deepseek-v4-flash", "response_cost", "spent"], waived = false },
+  { id = "VT-4", expects = "RV-024 F-5 control: missing credential exits naming it and the fix; present credential loaded", test_file = "features/agents/gateway/gateway-test", keywords = ["CREDENTIALS_DIRECTORY", "gateway-credentials", "DEEPSEEK_API_KEY"], waived = false },
+  { id = "VT-5", expects = "the flake check exists and runs gateway-test", test_file = "perSystem.nix", keywords = ["llm-gateway", "gateway-test"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Gateway service"
+objective = "The agents.gateway feature record's NixOS half: static user and group, llm-gateway.service, relay socket and service, CLI on PATH, models/providers options, constants.nix, personal-linux selection, just gateway-credentials (design sec-2, sec-4)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "features/agents/gateway.nix holds the record (NixOS only), listed in features/agents.nix; features/agents/gateway/constants.nix holds socket path, relay port and URL, and key directory." },
+  { id = "EX-2", text = "llm-gateway.service matches design sec-2: user/group llm-gateway, RuntimeDirectory 0750, StateDirectory 0700, LoadCredentialEncrypted by absolute path per provider, CONFIG_FILE_PATH and LITELLM_LOCAL_MODEL_COST_MAP, the listed hardening, Restart=on-failure; any hardening loosened carries a comment saying why." },
+  { id = "EX-3", text = "llm-gateway-relay.socket on 127.0.0.1:4000 and its service run systemd-socket-proxyd to the socket with DynamicUser and SupplementaryGroups=llm-gateway." },
+  { id = "EX-4", text = "agents.gateway is mkDefault in personal-linux; just gateway-credentials calls llm-gateway credentials." },
+  { id = "EX-5", text = "Sleipnir's system evaluates; just drvs shows the system drv change, named; just test passes." },
+]
+verification = [
+  { id = "VT-1", expects = "feature resolver and existing checks still pass with the new record", test_file = "features/agents/gateway.nix", keywords = ["llm-gateway", "LoadCredentialEncrypted", "systemd-socket-proxyd", "SupplementaryGroups"], waived = false },
+  { id = "VA-1", expects = "unit settings read against design sec-2 table; sudo re-exec path and hardening options reviewed (residual probes from RV-024 notes)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Jail gateway mode"
+objective = "makeJailedAgent gains an opt-in gateway argument: no provider keys, gateway key by a second --args FD, LLM_GATEWAY_URL as plain env, an outer wrapper with clear failures (design sec-5)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete (constants exist; independent of the service otherwise)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "gateway ? null and apiKeys defaulting to [] when gateway is set; gateway plus a non-empty apiKeys is refused at evaluation." },
+  { id = "EX-2", text = "Gateway mode emits no op run and no provider --setenv; the key travels by --args FD read with a shell builtin; LLM_GATEWAY_URL is set; the wrapper names the fix when the key file is unreadable or /run/llm-gateway is absent." },
+  { id = "EX-3", text = "Existing jailed-agents-test cases unchanged and passing; checks.jailed-agents is a line in just test." },
+]
+verification = [
+  { id = "VT-1", expects = "gateway-mode cases: no op run, no provider setenv, --args key, LLM_GATEWAY_URL, refusal of gateway + apiKeys", test_file = "agents/jailed-agents-test.nix", keywords = ["gateway", "LLM_GATEWAY_KEY", "LLM_GATEWAY_URL"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "eca on the gateway, docs, human verification"
+objective = "eca requires agents.gateway and uses gateway mode; README and agents/README document the gateway; the human verifies end to end on Sleipnir (design sec-5, sec-6, sec-7)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04 complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "eca record: requires = [\"agents.gateway\"], gateway from constants, no apiKeys; just drvs shows the home drv change (eca), named." },
+  { id = "EX-2", text = "README: feature tree agents line gains gateway; new section LLM gateway (diagram, first run, rotation, adding a client, what it does not cover). agents/README: gateway mode; stale --setenv text fixed." },
+  { id = "EX-3", text = "VH steps 1-7 pass." },
+]
+verification = [
+  { id = "VH-1", expects = "just system-switch; journalctl -u llm-gateway shows the launcher naming the missing credential (RV-024 F-5)" },
+  { id = "VH-2", expects = "just gateway-credentials; the service is active" },
+  { id = "VH-3", expects = "llm-gateway issue eca ... --out ~/.config/llm-gateway/keys/eca writes a 0600 file" },
+  { id = "VH-4", expects = "just home-switch; eca's config.json deepseek provider points at the gateway URL with the LLM_GATEWAY_KEY env ref and gateway model names" },
+  { id = "VH-5", expects = "a real eca request succeeds" },
+  { id = "VH-6", expects = "inside the eca jail, no *_API_KEY variable; only LLM_GATEWAY_KEY present" },
+  { id = "VH-7", expects = "llm-gateway list shows eca's spend above zero (RV-024 F-2 production claim)" },
+]
+specs        = []
+requirements = []
