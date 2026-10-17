@@ -6,13 +6,24 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-17 · design/inquiring rev 15 · 72b9bffe
 
 ### Produced
+SL-013 scope; IMP-030; DEC-058, DEC-059, DEC-060, DEC-061, DEC-062 (accepted);
+IMP-029 price-map-lag addendum; research artefact (gitignored).
 
 ### Learned
+- direnv `use flake_local` builds live `~/flakes/agents` in 13 devshells
+  (`modules/home/programs.nix:20-35`) — memory candidate.
+- pi takes `baseUrl` verbatim; only `apiKey`/headers interpolate
+  (pi 1.3.0 `provider-composer.js:88,139,291`) — memory candidate.
+- `mem.fact.bwrap.pid1-environ-leak` last line is wrong about emacs
+  `jailed-shell` (built with agents' jail) — correct it.
 
 ### Open
+- Design gate `sufficiency-accepted` (user) pending.
+- POL-001 verification/scope revision candidates (research Thread 1).
+- IDE-005 transcript purge (out of scope).
 
 ## Design triage (2026-10-17, explore stage)
 
