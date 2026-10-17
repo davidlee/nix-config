@@ -109,3 +109,26 @@ bypasses the guard closes). `features/agents/gateway/gateway_hooks.py`
   SL-014; OpenAI deferred to IMP-035 (DEC-072).
 - Not to edit: SL-011/SL-013 design text ("packaged map only", "pi
   required") is historical (design sec-8).
+
+## Reconciliation Outcome
+
+User agreed to every item (2026-10-18, "agreed").
+
+### Direct edits applied
+- Slice file list: `doctrine slice selector add 14 --intent design-target` for `gateway_hooks.py`, `bake.nix`, `llm-gateway-serve` (F-1).
+- design.md sec-3: `proxy.serve` / `bake.nix` as the single PROVIDERS projection. Sec-8 table: rows for `bake.nix` and `llm-gateway-serve`; the `proxy.nix` row gains `serve` (F-1).
+- slice-014.md scope 2: 15 OpenRouter models, the dropped id named. A2 marked void (F-8). plan.toml left untouched (immutable).
+
+### Governance (F-4..F-7)
+No REV: the engine accepts only SPEC/PRD/REQ/ADR/POL/STD targets (SL-012 precedent, RV-027). Each decision's choice was changed with `doctrine knowledge edit decision`, and a dated reconcile note appended to its body:
+- DEC-063: a model without a pi block is not offered to pi (DEC-066); the consequence now reads "Offering a served model to pi…".
+- DEC-051: the build-time clause is DEC-064's cost-source rule; consequence updated.
+- DEC-050: the verb set gains `models` (DEC-071).
+The consequence entries were edited in `record-0NN.toml` directly: the CLI's comma-separated list would have split DEC-051's third entry. `doctrine validate` reports the corpus clean.
+- IMP-029: resolved (done), partial; OpenAI → IMP-035 (DEC-072); note in its body.
+
+### Withdrawn / tolerated
+- F-2: conformance stays red from the `flakes/` prefix alone (ISS-005).
+- F-9: CHR-017. F-10, F-11: aligned. F-3: fixed in audit.
+
+Reconcile pass complete; handoff to /close.

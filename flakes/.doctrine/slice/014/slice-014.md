@@ -51,8 +51,10 @@ block optional (DEC-066).
    (`FIREWORKS_API_KEY`) in `proxy.nix` defaults, each with a public
    1Password ref (POL-001).
 2. **Served models** (DEC-069 names), in `agents/gateway.nix`:
-   - gptel's 15 OpenRouter ids (`dl-gptel.el:121-139`) and minuet's
-     `deepseek/deepseek-v4-flash`, each as `openrouter/<id>`;
+   - gptel's OpenRouter ids (`dl-gptel.el:121-139`) except
+     `deepseek/deepseek-flash`, which is not an OpenRouter id (5fcfd28c),
+     and minuet's `deepseek/deepseek-v4-flash`: 15 in all, each as
+     `openrouter/<id>`;
    - `fireworks/nemotron-lightning-3p5-30b-a3b`, which maps to
      `fireworks_ai/accounts/fireworks/models/nemotron-lightning-3p5-30b-a3b`.
    OpenRouter entries carry `params.allowed_openai_params =
@@ -110,7 +112,8 @@ block optional (DEC-066).
 
 - **A1** (settled 2026-10-17): SL-013 landed the served-model list in the
   shape DEC-059 and DEC-063 describe.
-- **A2**: OpenRouter returns `usage.cost` for every served model, including
+- **A2** (void 2026-10-18: no route using the caller's own provider key is
+  served; `deepseek/deepseek-flash` was dropped, 5fcfd28c): OpenRouter returns `usage.cost` for every served model, including
   bring-your-own-key routes such as `deepseek/deepseek-flash`. The live check
   confirms it; if a BYOK route reports 0, that model is under-counted
   (DEC-068 logs a warning).

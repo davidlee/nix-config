@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "DEC-046 noted that LiteLLM's master key also passes through custom_auth, so the admin path needs its own rule. LiteLLM's key-management endpoints require its own database, which DEC-046 rejects."
-choice = "The gateway has no master key. Administration (issue, list, revoke, budget, spend) is a CLI that operates on the SQLite file directly, run as the service user via sudo; the state directory is mode 0700."
+choice = "The gateway has no master key. Administration (issue, list, revoke, budget, models, spend; models per DEC-071) is a CLI that operates on the SQLite file directly, run as the service user via sudo; the state directory is mode 0700."
 alternatives = ["Master key in the credential (DEC-048) with admin over HTTP (custom endpoints to write and an admin secret to guard)"]
 rationale = "No admin secret exists to leak; root-equivalent sudo already gates the host; the CLI is a thin layer over the same module the service uses."
 consequences = ["Verify at point of use that LiteLLM starts and authenticates with custom_auth and no master_key", "Admin needs sudo; there is no remote administration"]

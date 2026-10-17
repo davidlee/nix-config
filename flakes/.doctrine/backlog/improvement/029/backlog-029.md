@@ -25,3 +25,8 @@ can LiteLLM load a local map (`LITELLM_MODEL_COST_MAP_URL` accepting a file
 path is unverified)?; (a, fallback) hand-entered per-model costs in the
 config, with the check accepting "packaged or explicitly priced"; (b,
 rejected for now) fetch the live map at start.
+
+## Resolution (2026-10-18, SL-014 reconcile, RV-031 F-7)
+
+Partly delivered: SL-014 serves OpenRouter (15 models) and Fireworks (1).
+OpenAI is deferred to IMP-035 (DEC-072).

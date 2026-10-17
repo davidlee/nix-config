@@ -100,8 +100,10 @@ provider returns each request's billed cost, and LiteLLM captures it
 on the provider because it is a property of the provider.
 `features/agents/gateway.nix` declares `providers` as an option of
 `{env; ref}`, so its submodule gains `reportsCost` (bool, default false).
-The credential plumbing is derived from `providers` and needs no change
-(research T2).
+The credential plumbing is derived from `providers` (research T2).
+`proxy.serve providers values` bakes the launcher's PROVIDERS from it
+through `bake.nix`. The service and `checks.llm-gateway` share that one
+projection, so `CredentialTest` reads the production set (PHASE-02 D1).
 
 **Models.** `defaults.models` stops projecting to `{model, provider}`. It
 also keeps `params` and drops only `pi`:
@@ -301,8 +303,10 @@ this order and the two restarts.
 | `agents/jailed-agents.nix` | `piGatewayConfig` filters |
 | `agents/jailed-agents-test.nix` | `noPiEntryOmitted` + twin |
 | `agents/README.md` | § pi in gateway mode: `pi` optional |
-| `features/agents/gateway/proxy.nix` | providers + `reportsCost`; keep `params`; entry merge order; `needsMap` |
+| `features/agents/gateway/proxy.nix` | providers + `reportsCost`; keep `params`; entry merge order; `needsMap`; `serve` |
 | `features/agents/gateway.nix` | `providers` submodule gains `reportsCost` |
+| `features/agents/gateway/bake.nix` | the `script` helper moves here, as `{pkgs, lib}: name: python: values:` |
+| `features/agents/gateway/llm-gateway-serve` | baked through `proxy.serve`; run unbaked, it still defaults to deepseek only |
 | `features/agents/gateway/keystore.py` | `set_models` |
 | `features/agents/gateway/keystore-test` | `set_models` cases |
 | `features/agents/gateway/llm-gateway` | `models` verb; shared unknown-model check |

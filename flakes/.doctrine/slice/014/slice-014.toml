@@ -70,6 +70,18 @@ intent = "design-target"
 selector = "perSystem.nix"
 intent = "design-target"
 
+[[selector]]
+selector = "features/agents/gateway/gateway_hooks.py"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents/gateway/bake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents/gateway/llm-gateway-serve"
+intent = "design-target"
+
 [[relation]]
 label = "governed_by"
 target = "POL-001"
