@@ -11,7 +11,6 @@
   nixpkgs.overlays = with inputs.self.overlays; [
     llama-prism
     whisper-rocm
-    click-threading-fix
   ];
 
   imports = [
