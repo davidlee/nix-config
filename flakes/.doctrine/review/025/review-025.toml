@@ -10,18 +10,30 @@ raiser    = "raiser"
 responder = "responder"
 rounds_base = 0
 contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "design.md rev 23 (sec-1..sec-7): codex gpt-6-sol adversarial pass plus orchestrator verification; 8 findings fixed and verified; user accepted the sections and the review as conducted, 2026-10-17"
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "design.md rev 23: 8 findings fixed, routed, verified; user accepted, 2026-10-17"
 
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-012"
 
 [[finding]]
 id = "F-1"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-3: lastGood example has lib unbound"
 detail = "codex #1 (verified by inspection): design.md sec-3 calls lib.getAttrFromPath with no lib in scope. Fix: pkgs.lib.getAttrFromPath."
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-1)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-1); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -33,14 +45,37 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-1)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-1); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
+
 [[finding]]
 id = "F-2"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-4: yEd probe attr is yed, and yEd is unfree"
 detail = 'codex #2/#3, verified: features/docs.nix:16 uses pkgs.yed; pname yEd; meta.license unfree (nix eval, aarch64-darwin nixpkgs-home). Unfree is never on cache.nixos.org, so a cached probe never fires. Fix: attr ["yed"], signal = manual with the review condition stated; skip list keeps yEd (getName).'
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-2)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-2); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -52,14 +87,37 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-2)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-2); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
+
 [[finding]]
 id = "F-3"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-2: pin filter must apply before outPath is forced"
 detail = "codex #4 (reasoning): evaluating all probes then filtering lets a broken probe on the other pin abort update-system's check. Fix: filter in nix (--apply) before forcing outPath; test with a deliberately failing probe on the other pin."
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-3)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-3); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -71,9 +129,31 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-3)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-3); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
+
 [[finding]]
 id = "F-4"
-status = "answered"
+status = "verified"
 severity = "minor"
 title = "sec-2/sec-6: narinfo hash extraction unspecified and untested"
 detail = "codex #5: state the hash is the 32-char store-path basename prefix (not narHash); the curl stub must assert the exact URL for a fixture /nix/store/<hash>-name. Live lookup verified by me: nix-output-monitor-2.2.0 aarch64-darwin -> 200."
@@ -90,14 +170,20 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-4)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
 [[finding]]
 id = "F-5"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-3/sec-6: lastGood test only proves same-revision import; lock nodes resolved wrongly"
 detail = "codex #6 plus own finding: flake.lock node names are not input names (root.inputs.nixpkgs -> nixpkgs_28; .nodes.nixpkgs is a transitive input). Research's fetchTree test read the wrong node, and that is why config=pkgs.config looked like it changed hello; through root.inputs the result is the same (verified). Fix: last-good resolves nodes via root.inputs; the flake check asserts lastGood at the stable node's rev equals stable's outPath, which differs from the current one (no extra fetch: stable is already an input)."
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-5)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-5); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -109,9 +195,31 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-5)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-5); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
+
 [[finding]]
 id = "F-6"
-status = "answered"
+status = "verified"
 severity = "minor"
 title = "sec-3: last-good git access on the Mac"
 detail = "codex #7: justfile:26-29 notes bare ~/.git on the Mac, where discovery fails. Fix: the helper uses an explicit git dir (FLAKES_GIT_DIR, default ~/.cfg) and the lock path relative to the work tree; test with GIT_DIR set."
@@ -128,14 +236,20 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-6)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
 [[finding]]
 id = "F-7"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-5: nom is not installed on Draupnir"
 detail = "User question, verified: nom is only in modules/nixos/nix.nix:89 (Sleipnir) and the dev shell (perSystem.nix:13, not loaded: .envrc has use flake commented out). Fix: add nix-output-monitor to the home base (modules/home/cli.nix); cached for aarch64-darwin (200). P4 is then not drv-neutral: both homes gain or dedupe one package."
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-7)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-7); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -147,14 +261,37 @@ role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-7)."
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-7); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
+
 [[finding]]
 id = "F-8"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "sec-5: |& is bash 4; macOS /bin/sh is bash 3.2"
 detail = "Own finding: just runs recipe lines with sh; on the Mac that is bash 3.2, which lacks |&. Fix: 2>&1 | with set -o pipefail (bash 3.2 has pipefail). Same in run.sh if it ever runs on darwin (it is linux-only today)."
 disposition = "fix-now"
-response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-8)."
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-8); answered by design review."
+route = "review"
 
 [[finding.turn]]
 act = "raise"
@@ -165,6 +302,28 @@ act = "dispose"
 role = "responder"
 disposition = "fix-now"
 response = "Fixed in design.md rev 23 (sections revised at design run revision 22; the section text cites RV-025 F-8)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23; user read and accepted the sections, 2026-10-17"
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "add route"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Fixed in design.md rev 23 (section text cites RV-025 F-8); answered by design review."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "fix present in design.md rev 23"
 
 # Findings are append-only `[[finding]]` tables, added by `review raise`.
 # Empty here at creation — a fresh review is Active, awaiting the raiser.
