@@ -226,7 +226,7 @@ features/
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
   agents.nix          [ registry eca chatgpt ]        registry: nixos only; eca: linux only (personal-linux)
   audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
-  audio/              dictate  dictate-test  alarm/   assets, beside their feature
+  audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature
   services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
@@ -466,6 +466,34 @@ journalctl --user -u dictate -f
 Language is `DICTATE_LANG` in the module (`en`, `fr`, …, or `auto`); a wrong
 hint garbles the output rather than degrading gracefully.
 Measurements and open options: [DICTATE.md](./DICTATE.md).
+
+### Speech
+
+`features/audio.nix` (`audio.speech`) + `features/audio/say` — text to speech,
+played on any PipeWire sink. Local; voices are pinned in the module, so
+neither engine downloads anything at runtime.
+
+```
+say [-e piper|kokoro] [-d SINK] [TEXT...]     (TEXT, else stdin)
+
+piper  ──raw PCM, per sentence──> pw-play --raw --rate <voice config>   streams
+kokoro ──whole wav──────────────> pw-play                               ~5 s model load first
+```
+
+piper (default) is fast and starts speaking after the first sentence; kokoro
+sounds better but loads its model on every call. `SINK` is a node.name from
+`pw-cli ls Node`. Defaults: `SAY_ENGINE`, `SAY_DEVICE`, `PIPER_VOICE`,
+`KOKORO_VOICE`, `KOKORO_SPEED`.
+
+The module wraps both engines: `piper` gets `--data-dir` of the pinned voices
+(also `$PIPER_VOICES`, where `say` reads sample rates), and `kokoro` gets
+spaCy's `en_core_web_sm` plus an offline Hugging Face cache of Kokoro-82M. To
+add a piper voice, add its two file hashes to the module's list.
+
+```bash
+just test                       # say-test: behaviour tests, no engine or speakers
+say hello
+```
 
 ### Sleipnir Doctor
 

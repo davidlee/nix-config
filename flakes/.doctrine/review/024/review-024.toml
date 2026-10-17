@@ -17,17 +17,25 @@ act = "conclude"
 role = "raiser"
 note = "Two adversarial passes (GPT gpt-6-sol, read-only) over design.md, the DECs and LiteLLM 1.100.1 source. Pass 1: F-1..F-4. Pass 2: confirmed F-1..F-3, raised F-5..F-7, and found sound: pre-call hook invocation, custom_auth without master key, hash pass-through to user_api_key_hash, Nix default, relay group access, credential readability. Not independently cleared: the sudo re-exec path beyond F-6, and hardening options other than @system-service against CPython/uvicorn (left to P3 verification)."
 
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Two adversarial passes (gpt-6-sol) over design.md sec-1..7 plus orchestrator checks; severe findings now routed (F-1, F-3 probe; F-2, F-5, F-6 control), instrument routes verified after slice phases."
+
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-011"
 
 [[finding]]
 id = "F-1"
-status = "verified"
+status = "answered"
 severity = "major"
 title = "Unauthenticated LiteLLM routes bypass custom_auth"
 detail = "Adversarial pass (GPT gpt-6-sol), verified: /health/liveness (health_endpoints/_health_endpoints.py:1813) and /public/model_hub (public_endpoints/public_endpoints.py:208, one of 12 public routes) have no auth dependency in 1.100.1, so the custom_auth route allow-list (design § Key store) cannot refuse them on a host-wide relay. Fix: path+method allow-list at the ASGI boundary in front of LiteLLM; test unauthenticated requests to permitted and excluded paths against 1.102.1."
 disposition = "fix-now"
-response = "Verified in 1.100.1. Design sec-3: route gate (ASGI wrapper) in front of LiteLLM passes only POST /chat/completions and GET /models (± /v1), 404 otherwise; route check removed from custom_auth. sec-6 P2 tests unauthenticated /health/liveness, /public/model_hub and an admin route."
+response = """
+Fixed in design sec-3 (route gate, an ASGI wrapper in front of LiteLLM passing only POST /chat/completions and GET /models, with or without /v1, 404 otherwise). Route probe. Must hold against any local process that can reach the relay on 127.0.0.1:4000 or the socket without a valid key: every other path and method, including /health/liveness, the /public routes, admin and key-management routes, path variants (trailing slash, double slash, percent-encoding, case) and other methods on the allowed paths, gets 404 without reaching LiteLLM. Need not hold against root or a member of the llm-gateway group, who can read keys.db directly. Criterion: the integration check, against the LiteLLM the system nixpkgs ships, sends those requests unauthenticated and asserts 404 for each, and asserts the two allowed routes still reach custom_auth (401 without a key). Host phase constraint: the phase that builds gateway_hooks and the flake check.
+"""
+route = "probe"
 
 [[finding.turn]]
 act = "raise"
@@ -44,14 +52,31 @@ act = "verify"
 role = "raiser"
 note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
 
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Design gate requires a route on every severe finding; reopening to add one. Fix unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "probe"
+response = """
+Fixed in design sec-3 (route gate, an ASGI wrapper in front of LiteLLM passing only POST /chat/completions and GET /models, with or without /v1, 404 otherwise). Route probe. Must hold against any local process that can reach the relay on 127.0.0.1:4000 or the socket without a valid key: every other path and method, including /health/liveness, the /public routes, admin and key-management routes, path variants (trailing slash, double slash, percent-encoding, case) and other methods on the allowed paths, gets 404 without reaching LiteLLM. Need not hold against root or a member of the llm-gateway group, who can read keys.db directly. Criterion: the integration check, against the LiteLLM the system nixpkgs ships, sends those requests unauthenticated and asserts 404 for each, and asserts the two allowed routes still reach custom_auth (401 without a key). Host phase constraint: the phase that builds gateway_hooks and the flake check.
+"""
+
 [[finding]]
 id = "F-2"
-status = "verified"
+status = "answered"
 severity = "major"
 title = "Spend check fallback bypasses the production pricing path"
 detail = "Adversarial pass: stubbing cost via model_info (design § Phases) tests a different path; production DeepSeek could return None and count 0. Fix: require positive response_cost through the production model mapping and packaged price map; if mock_response cannot, a separately labelled adapter test; VH requires positive spend."
 disposition = "fix-now"
-response = "sec-6: spend case uses production mapping deepseek/deepseek-v4-flash and the packaged price map, requires response_cost > 0; if mock_response skips that path, a separately named adapter test and VH step 7 carries the production-pricing claim. model_info stub dropped."
+response = """
+Fixed in design sec-6. Route control. The concrete incorrect candidate the check must reject: a pricing path where response_cost reaches the success callback as None or 0 for the production model mapping deepseek/deepseek-v4-flash, so spend never accrues. Criterion: the spend case drives a served request through the production mapping and packaged price map and asserts spent rises by a positive amount; as a negative control, the same case run with a model that has no price entry (or a callback fed a zero cost) must fail the assertion. If mock_response does not take the production pricing path, the separately named adapter test carries this control and VH step 7 carries the production claim. Host phase constraint: the phase that builds gateway_hooks and the flake check.
+"""
+route = "control"
 
 [[finding.turn]]
 act = "raise"
@@ -68,14 +93,31 @@ act = "verify"
 role = "raiser"
 note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
 
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Design gate requires a route on every severe finding; reopening to add one. Fix unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = """
+Fixed in design sec-6. Route control. The concrete incorrect candidate the check must reject: a pricing path where response_cost reaches the success callback as None or 0 for the production model mapping deepseek/deepseek-v4-flash, so spend never accrues. Criterion: the spend case drives a served request through the production mapping and packaged price map and asserts spent rises by a positive amount; as a negative control, the same case run with a model that has no price entry (or a callback fed a zero cost) must fail the assertion. If mock_response does not take the production pricing path, the separately named adapter test carries this control and VH step 7 carries the production claim. Host phase constraint: the phase that builds gateway_hooks and the flake check.
+"""
+
 [[finding]]
 id = "F-3"
-status = "verified"
+status = "answered"
 severity = "major"
 title = "NaN or negative budget/spend disables or corrupts limits"
 detail = "Adversarial pass: no constraint on budget_usd/spent_usd and no CLI validation; a NaN budget makes spent >= budget false forever. Fix: reject nonfinite and negative values in CLI and keystore; CHECK constraints; tests for malformed budgets and costs."
 disposition = "fix-now"
-response = "sec-3: CHECK (>= 0) on budget_usd and spent_usd; usd() parser rejects non-finite and negative values, used by the CLI and every keystore write; record_spend counts None/non-finite/negative cost as 0 with a warning. sec-6 P1 tests these."
+response = """
+Fixed in design sec-3 (usd parser, CHECK constraints, record_spend counting bad costs as 0). Route probe. Must hold against malformed money arriving through the CLI (budget arguments) and through any keystore write (issue, set_budget, record_spend): NaN, positive and negative infinity, negative numbers, and non-numeric strings never land in budget_usd or spent_usd, and a key whose budget is spent is always refused. Need not hold against someone editing keys.db directly as the llm-gateway user, beyond the CHECK constraints refusing negative values. Criterion: keystore-test feeds each malformed value to every write path and asserts refusal or zero spend, and asserts a direct negative write is refused by the CHECK. Host phase constraint: the phase that builds keystore.py and keystore-test.
+"""
+route = "probe"
 
 [[finding.turn]]
 act = "raise"
@@ -91,6 +133,20 @@ response = "sec-3: CHECK (>= 0) on budget_usd and spent_usd; usd() parser reject
 act = "verify"
 role = "raiser"
 note = "Confirmed fixed by the adversarial reviewer's second pass (gpt-6-sol), F-3 save for the CHECK overclaim tracked as F-7."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Design gate requires a route on every severe finding; reopening to add one. Fix unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "probe"
+response = """
+Fixed in design sec-3 (usd parser, CHECK constraints, record_spend counting bad costs as 0). Route probe. Must hold against malformed money arriving through the CLI (budget arguments) and through any keystore write (issue, set_budget, record_spend): NaN, positive and negative infinity, negative numbers, and non-numeric strings never land in budget_usd or spent_usd, and a key whose budget is spent is always refused. Need not hold against someone editing keys.db directly as the llm-gateway user, beyond the CHECK constraints refusing negative values. Criterion: keystore-test feeds each malformed value to every write path and asserts refusal or zero spend, and asserts a direct negative write is refused by the CHECK. Host phase constraint: the phase that builds keystore.py and keystore-test.
+"""
 
 [[finding]]
 id = "F-4"
@@ -118,12 +174,15 @@ note = "Fix applied in design.md revision 28 as described in the response; check
 
 [[finding]]
 id = "F-5"
-status = "verified"
+status = "answered"
 severity = "major"
 title = "Missing searched credential is not fatal; start refusal claim unproven"
 detail = "Second adversarial pass: systemd.exec documents cases where a LoadCredentialEncrypted lookup failure is not fatal, so 'systemd refuses to start and names the missing credential' is not guaranteed. Fix: absolute path in LoadCredentialEncrypted, and the launcher checks every required credential and fails with a clear message."
 disposition = "fix-now"
-response = "sec-2: absolute path deepseek:/etc/credstore.encrypted/llm-gateway.deepseek; launcher checks each configured credential in CREDENTIALS_DIRECTORY and exits naming the missing one and 'just gateway-credentials'. sec-6 VH step 1 reads the launcher's journal message."
+response = """
+Fixed in design sec-2 (absolute LoadCredentialEncrypted path; launcher checks each configured credential). Route control. The concrete incorrect candidate the check must reject: a launcher that starts uvicorn when a configured provider credential file is absent from CREDENTIALS_DIRECTORY (or the directory is unset), leaving the provider key empty. Criterion: a test runs the launcher's credential check with the deepseek credential missing and asserts a non-zero exit whose message names the missing credential and just gateway-credentials, and asserts the present case loads it into DEEPSEEK_API_KEY. VH step 1 confirms the journal message on Sleipnir. Host phase constraint: the phase that builds the launcher, with the VH after the service phase.
+"""
+route = "control"
 
 [[finding.turn]]
 act = "raise"
@@ -140,14 +199,31 @@ act = "verify"
 role = "raiser"
 note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
 
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Design gate requires a route on every severe finding; reopening to add one. Fix unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = """
+Fixed in design sec-2 (absolute LoadCredentialEncrypted path; launcher checks each configured credential). Route control. The concrete incorrect candidate the check must reject: a launcher that starts uvicorn when a configured provider credential file is absent from CREDENTIALS_DIRECTORY (or the directory is unset), leaving the provider key empty. Criterion: a test runs the launcher's credential check with the deepseek credential missing and asserts a non-zero exit whose message names the missing credential and just gateway-credentials, and asserts the present case loads it into DEEPSEEK_API_KEY. VH step 1 confirms the journal message on Sleipnir. Host phase constraint: the phase that builds the launcher, with the VH after the service phase.
+"""
+
 [[finding]]
 id = "F-6"
-status = "verified"
+status = "answered"
 severity = "major"
 title = "issue --out has no failure rule: a live key can be orphaned"
 detail = "Second adversarial pass: if the unprivileged parent fails to write after the child issued the key, the DB holds a live key nobody holds. Fix: --out only in the parent, preflight destination, atomic 0600 write, revoke on failure; tests for existing destination and failed write."
 disposition = "fix-now"
-response = "sec-4: --out handled only by the unprivileged parent: preflight (no existing destination, writable dir, keys dir 0700), atomic 0600 temp+rename, revoke the issued key through the child on failure. sec-6 P1/P3 tests: existing destination refused; failed write revokes."
+response = """
+Fixed in design sec-4 (--out only in the unprivileged parent; preflight; atomic 0600 temp write and rename; revoke on failure). Route control. The concrete incorrect candidate the check must reject: an issue --out that issues the key, fails to write the file, and leaves the key live in keys.db; and one that overwrites an existing key file. Criterion: a test with the privileged step stubbed in-process injects a write failure after issue and asserts the key is revoked and no file remains, and asserts an existing destination is refused before any key is issued; a successful run leaves a 0600 file holding the key. Host phase constraint: the phase that builds the admin CLI.
+"""
+route = "control"
 
 [[finding.turn]]
 act = "raise"
@@ -163,6 +239,20 @@ response = "sec-4: --out handled only by the unprivileged parent: preflight (no 
 act = "verify"
 role = "raiser"
 note = "Fix applied in design.md revision 28 as described in the response; checked by the orchestrator against the section text. Not re-reviewed by the adversarial lane."
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Design gate requires a route on every severe finding; reopening to add one. Fix unchanged."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "control"
+response = """
+Fixed in design sec-4 (--out only in the unprivileged parent; preflight; atomic 0600 temp write and rename; revoke on failure). Route control. The concrete incorrect candidate the check must reject: an issue --out that issues the key, fails to write the file, and leaves the key live in keys.db; and one that overwrites an existing key file. Criterion: a test with the privileged step stubbed in-process injects a write failure after issue and asserts the key is revoked and no file remains, and asserts an existing destination is refused before any key is issued; a successful run leaves a 0600 file holding the key. Host phase constraint: the phase that builds the admin CLI.
+"""
 
 [[finding]]
 id = "F-7"

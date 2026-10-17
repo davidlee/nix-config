@@ -1,7 +1,7 @@
 id = 11
 slug = "credential-broker"
 title = "LiteLLM credential broker with own key store"
-status = "design"
+status = "plan"
 created = "2026-10-17"
 updated = "2026-10-17"
 tags = []
