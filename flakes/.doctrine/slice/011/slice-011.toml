@@ -34,6 +34,26 @@ intent = "scope-relevant"
 selector = "README.md"
 intent = "scope-relevant"
 
+[[selector]]
+selector = "features/profiles/personal-linux.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "agents/README.md"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "justfile"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "perSystem.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "agents/flake.nix"
+intent = "scope-relevant"
+
 [[relation]]
 label = "governed_by"
 target = "POL-001"

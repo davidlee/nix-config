@@ -1,0 +1,42 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 50
+slug = "gateway-no-master-key"
+title = "The gateway has no master key; admin is a CLI on the SQLite file run as the service user"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-046 noted that LiteLLM's master key also passes through custom_auth, so the admin path needs its own rule. LiteLLM's key-management endpoints require its own database, which DEC-046 rejects."
+choice = "The gateway has no master key. Administration (issue, list, revoke, budget, spend) is a CLI that operates on the SQLite file directly, run as the service user via sudo; the state directory is mode 0700."
+alternatives = ["Master key in the credential (DEC-048) with admin over HTTP (custom endpoints to write and an admin secret to guard)"]
+rationale = "No admin secret exists to leak; root-equivalent sudo already gates the host; the CLI is a thin layer over the same module the service uses."
+consequences = ["Verify at point of use that LiteLLM starts and authenticates with custom_auth and no master_key", "Admin needs sudo; there is no remote administration"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-046"
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"

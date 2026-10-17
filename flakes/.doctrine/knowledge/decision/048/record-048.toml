@@ -1,0 +1,37 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 48
+slug = "broker-keys-tpm-systemd-credential"
+title = "Provider keys reach the broker as a TPM-encrypted systemd credential written by a user-run recipe"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "No in-repo system service receives a secret today; every op use is a biometric user-session unlock, which causes frequent 1Password prompts and cannot serve unattended restarts (satan:ISS-023). Sleipnir's disks are unencrypted (no LUKS) but it has a working TPM2."
+choice = "A just recipe, run by the user, reads each provider key with op read and writes them as a systemd credential encrypted with systemd-creds against the host key and TPM2 (no PCR binding), stored under the broker's state directory. The unit loads it with LoadCredentialEncrypted, so the keys exist in plaintext only in the service's private credentials directory. The recipe is re-run on key rotation."
+alternatives = ["1Password service-account token in a root-only file (another long-lived, broad secret at rest)", "User-session helper handing keys to the service at start (restarts wait for the user; satan:ISS-023)", "Plaintext root-only file with LoadCredential (readable from a pulled disk or backup: the disk is unencrypted)", "TPM2 binding to PCRs (breaks on firmware or Secure Boot changes until the recipe is re-run)"]
+rationale = "One interactive 1Password unlock per rotation instead of one per start; no new long-lived secret; unattended restarts work; the ciphertext is useless off this machine, which covers the unencrypted disk."
+consequences = ["Root on the running machine can still decrypt the credential", "Key rotation is a manual step: re-run the recipe and restart the unit", "The service fails to start until the recipe has run once; it must fail with a clear message", "Disk encryption itself is IDE-006"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"

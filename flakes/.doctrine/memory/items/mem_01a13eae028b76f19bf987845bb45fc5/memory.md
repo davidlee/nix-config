@@ -20,3 +20,5 @@ Consequences:
   selectors and mis-attribute (ISS-005): [[mem_01a13da6b89772768dfd55c3c5fc352d]].
   Judge conformance by agent, stripping the prefix.
 - `doctrine` warns "worktree /home/david/.cfg/flakes/ not scanned"; harmless.
+
+- **`git commit -- <path>` commits every tracked change under that path,** not just what is staged. In `~/flakes`, `git commit -- .` sweeps in the user's unrelated work in progress (e.g. `justfile`, `flake.lock`). Stage explicit paths and run plain `git commit`; check `git show --stat HEAD` afterwards. (Happened 2026-10-17; undone with `git reset --soft HEAD~1` + `git restore --staged`.)

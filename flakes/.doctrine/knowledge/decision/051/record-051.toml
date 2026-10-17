@@ -1,0 +1,42 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 51
+slug = "gateway-key-store-semantics"
+title = "Gateway key store: lifetime budgets checked pre-call, allow-list in the pre-call hook, priced models only"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-046 fixed the key-store fields and left open overshoot, unknown cost and where the model allow-list is enforced."
+choice = "Table keys(hash primary key, alias unique, models, budget_usd, spent_usd, created, revoked_at). Revoke marks the row; spend history stays. Budgets are lifetime totals reset by the admin CLI, checked before each call (bounded overshoot of about one request's cost per concurrent request). The allow-list is enforced in LiteLLM's async_pre_call_hook against the request's model; only chat-completion and model-listing routes are allowed. A test fails if a configured model has no price in the packaged cost map; a missing cost at run time is logged and counted as 0."
+alternatives = ["Reserve cost from max_tokens before the call and refund after (needs price lookup and refunds)", "Periodic (monthly) budgets", "Fail closed at run time on unknown cost (refuses requests the provider already served)", "Enforce the allow-list inside custom_auth by reading the request body"]
+rationale = "Smallest semantics that make budgets a safety net rather than an accounting system; the pre-call hook is LiteLLM's documented point that sees both the parsed request and the auth result."
+consequences = ["Concurrent requests can overshoot a budget", "Model prices come from the pinned packaged cost map; drift is caught by the test", "The surface tests must run against the LiteLLM the system nixpkgs ships (1.102.1, not the spike's 1.100.1)"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-046"
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"

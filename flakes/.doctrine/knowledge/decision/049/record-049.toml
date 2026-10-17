@@ -1,0 +1,37 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 49
+slug = "gateway-key-file-fd-path"
+title = "Jailed clients get their gateway key from a user-owned file passed through the launcher's FD path"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A jail migrated to the gateway must get a per-client key and the relay URL without the key entering the Nix store, argv, or a persisted home shared by other jails (POL-001 r1; SL-011 research C4, C5, C9). jailed-agents already passes env values argv-safely through an inherited FD (--args FD)."
+choice = "Each jailed client's gateway key lives in a user-owned file (~/.config/llm-gateway/keys/<client>, mode 0600). An opt-in gateway mode in the agents sub-flake's jail launcher reads that file at launch and passes it as LLM_GATEWAY_KEY through the existing FD path; the launcher skips op run and the jail gets no provider key names (apiKeys = []). The harness's provider config names the relay URL and reads the key from that variable."
+alternatives = ["Run op run for the gateway key (keeps the 1Password prompt per launch)", "Write the key into the harness config (lands in a shared persisted home or the store)", "pi-style !command reading a bound file (harness-specific; reused for pi in IMP-028 if simpler there)"]
+rationale = "Reuses the launcher's argv-safe path; no prompt per launch; a leaked gateway key is usable only from this host, within its budget and model list."
+consequences = ["Gateway mode is off by default: the agents sub-flake is published", "The key is visible to the agent's own environment; that is accepted, since it is not a provider key", "Pattern reused for pi in IMP-028"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"

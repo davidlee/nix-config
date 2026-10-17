@@ -1,0 +1,42 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 47
+slug = "broker-one-socket-loopback-relay"
+title = "Broker serves one socket; jails reach it through a loopback relay and authenticate by key"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-17"
+updated = "2026-10-17"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-046 said clients reach the broker through unix sockets per trust class, with file mode deciding who connects. SL-011 research: jails share the host network namespace (jail.nix network combinator) and pi has no unix-socket transport, so any TCP path a jail can use is reachable by every local process. uvicorn chmods its socket to 0666 after binding, so only the parent directory's mode and group gate it."
+choice = "The broker serves one unix socket in a runtime directory of mode 0750 owned by a static system user and group. Jails reach it through a single loopback TCP relay (systemd-socket-proxyd) in front of that socket. Per-client keys are the authentication and the only per-client identity; the socket's directory decides which host principals (the relay, a future SATAN room forwarder, an admin) reach it at all."
+alternatives = ["Several sockets, one LiteLLM instance per trust class (DEC-046 wording)", "Bind the socket into each jail and run a forwarder inside it (the jail shares the host netns, so its loopback listener is host-wide anyway)", "uvicorn on loopback TCP only, no socket (loses the socket as the stable contract for host-side forwarders)"]
+rationale = "File mode cannot tell one jail from another when all jails share the netns and need TCP; keys can. One instance and one socket is the simplest topology that keeps a group-gated socket as the contract for later host-side consumers (oubliette Plan F room forwarder)."
+consequences = ["Every local process can reach the relay port: an unauthenticated caller gets 401, so the key check must fail closed", "Amends DEC-046's 'sockets per trust class' clause; the rest of DEC-046 stands", "Socket path, group and relay port are constants or outer-resolver options shared by the system and home evaluations (ADR-004 D4)"]
+decided_by = "user (2026-10-17)"
+decided_on = "2026-10-17"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-046"
+
+[[relation]]
+label = "shapes"
+target = "SL-011"
+
+[[relation]]
+label = "shapes"
+target = "IDE-003"
