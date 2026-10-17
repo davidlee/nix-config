@@ -1,0 +1,43 @@
+memory_uid = "mem_01a148b3fadf7b61a55bf50313f612e6"
+memory_key = "mem.fact.bwrap.pid1-environ-leak"
+schema_version = 1
+lifespan = "semantic"
+memory_type = "fact"
+status = "active"
+title = "bwrap --clearenv leaves bwrap's own environ readable as /proc/1/environ inside the jail"
+summary = "bwrap --clearenv clears only the child's env; bwrap (PID 1 in the jail, dumpable, same uid) keeps the launcher's env, readable via /proc/1/environ. Fix: exec bwrap under env -i via jail.nix's bubblewrapPackage."
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["agents/jailed-agents.nix", "agents/jailed-agents-test.nix"]
+globs = []
+commands = []
+tags = ["security", "bwrap", "jail", "secrets"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "be4243c43ef7343b03017667c62b449f21cdfa10"
+ref_name = "refs/heads/main"
+checkout_state_id = "3fc0c691c17713c67d13d8cf9a5fc820c8fd70171a8830338d7b8376ff2bea6c"
+base_commit = "b17e348ac44b5ca143215dd80ccdcc9b9c5e6ea4"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "high"
+weight = 0
+
