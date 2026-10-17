@@ -105,3 +105,13 @@ it is covered instead:
 - Non-HTTPException auth errors become 500 via a prisma import in auth_exception_handler.py:62 (still refused, e.g. client api_base).
 - Design-wording drift: two callbacks (model_gate, ledger) instead of the design's single-ledger YAML snippet; status codes 401 (key) / 403 (model).
 - PHASE-03 seams: `import proxy.nix {pkgs lib}` -> .python, .configDir {models providers}, .defaults; CONFIG_FILE_PATH=${configDir}/config.yaml; baked PROVIDERS and SOCKET in llm-gateway-serve; StateDirectory provides STATE_DIRECTORY read by hooks.
+
+## PHASE-03 execution notes (gateway service)
+
+- agents.gateway record in features/agents/gateway.nix (NixOS half only), with gateway/constants.nix and gateway/bake.nix. Bake is a pure-Nix line rewrite (`NAME = <toJSON>`, shebang -> store python); evaluation fails naming the script unless every NAME matches exactly one line; build parses output with `ast`. Sources stay runnable by their tests.
+- Credential set derived from the providers the models use; one value feeds the CLI, the launcher and LoadCredentialEncrypted. `credentialPath` in gateway.nix is the only Nix-side copy of the credstore path, paired with the CLI's `encrypt_argv`.
+- drvs gate: only nixosConfigurations.Sleipnir changed (i8jgqf6l -> sbvfvmz2). systemd-analyze verify on built units clean. Launcher without CREDENTIALS_DIRECTORY exits 1 naming deepseek and just gateway-credentials.
+- Orchestrator decisions: OQ-1 implemented as authored (absolute path); OQ-2 keyDirectory "$HOME/.config/llm-gateway/keys"; OQ-3 services.llm-gateway.*; OQ-4 relay requires+after; no PrivateNetwork on relay.
+- OPEN (escalated) R1/OQ-1: systemd.exec(5) (systemd 261) says a missing credential is non-fatal only for the path-less / credential-id form. With the absolute path a missing file is fatal at setup (243/CREDENTIALS), so VH-1 will see systemd's error, not the launcher's message; contradicts design sec-2 "not reliably fatal". Options: amend VH-1 wording, or switch to id-only form (renames credential to llm-gateway.<p> on CLI + launcher).
+- VA-1 risks for PHASE-05 live checks: @system-service coverage for uvicorn/uvloop (SIGSYS); AF_NETLINK denied (getaddrinfo fallback); socket mode under UMask 0077 depends on uvicorn chmod 0666 (relay EACCES otherwise, VH-5); sudo keeps caller cwd (VH-3); StateDirectory vs credential-setup order on first failed start. --name=<p> vs unit id `deepseek` matches by man page; VH-2 proves it. Possible tightening: SystemCallArchitectures=native.
+- First `just system-switch` will report a failed unit until credentials exist (VH-1 wording, R2). Any hardening loosening can only happen in PHASE-05, whose objective does not list gateway.nix edits.

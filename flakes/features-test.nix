@@ -457,6 +457,7 @@ in
         "hardware.logitech#nixos"
         "services.postgresql#nixos"
         "agents.registry#nixos" # through the personal-linux profile
+        "agents.gateway#nixos" # through the personal-linux profile
       ];
       bothHalves = [
         "compositor.sway#nixos"

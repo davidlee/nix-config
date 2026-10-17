@@ -31,9 +31,9 @@ from typing import TextIO
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import keystore
 
-# Baked configuration: the single seam for the NixOS record (PHASE-03), which
-# substitutes these values from its `models` and `providers` options when it
-# installs this script. Placeholders until then.
+# Baked configuration: the single seam for the NixOS record, which replaces
+# these lines from its `models` and `providers` options when it installs this
+# script (features/agents/gateway.nix). The values here are the tests'.
 MODELS = ("deepseek-v4-pro", "deepseek-v4-flash")
 PROVIDERS = {"deepseek": "op://API_KEYS/DEEPSEEK_API_KEY/credential"}
 DB = "/var/lib/llm-gateway/keys.db"

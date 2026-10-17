@@ -21,6 +21,7 @@
       };
     };
   }
+  (import ./agents/gateway.nix)
   {
     name = "eca";
     # ECA (editor-code-assistant) server, jailed — spawned by eca-emacs via
