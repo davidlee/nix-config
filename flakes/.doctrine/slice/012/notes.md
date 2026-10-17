@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-17 · audit concluded, slice to reconcile · 86df50be
+fresh-as-of: 2026-10-17 · reconciled (RV-027 outcome), to close · 86df50be
 
 ### Produced
 DEC-052..057 · RV-025 · RV-027 (concluded, 7 verified) · f7376d7c 987a36ba
@@ -20,8 +20,7 @@ mem.fact.nix.lock-node-names · mem.fact.flakes.nom-darwin-sh (incl. `just
 --json) · PHASE-03 "For /reconcile" (24.11 and null config) · research X-3
 
 ### Open
-- RV-027 Reconciliation Brief: design.md sec-2/3/5/6; REV DEC-036, DEC-053..056
-- VH-1: `just home-switch` on Sleipnir, and on Draupnir when next at the Mac
+- VH-1: Sleipnir good (user, 2026-10-17); Draupnir when next at the Mac
 - standing risks (phase sheets): probes' `storePath` must stay unforced
   (comment in probes.nix); will-build's header parse is Lix-format-sensitive
   (the add-up self-check exits 1 on a mismatch)

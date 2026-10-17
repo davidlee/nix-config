@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "Skipping (omit on a platform) and replacing are different mechanisms; the skip list mixes permanent (gtt, binutils-wrapper which is cached) and transient (atuin ISS-007, shell_cmds, yEd) entries."
-choice = "features/platform-skips.nix (DEC-052) keeps DEC-036's plain-names shape. Transient skips (atuin ISS-007; shell_cmds; yEd) get a probe in overlays/workarounds.nix whose sites list every place to revert. Permanent skips have no probe."
+choice = "features/platform-skips.nix (DEC-052) keeps DEC-036's plain-names shape. Transient skips (atuin ISS-007; shell_cmds and yEd, CHR-016) get a probe in workarounds/default.nix whose sites list every place to revert. Permanent skips have no probe."
 alternatives = ["skip entries become records with untilCached", "merge skips into one registry with use = omit"]
 rationale = "One probe mechanism for every fix form; the skip list's semantics and DEC-036 stay as they are."
 consequences = ["DEC-036 edited only for the rename"]

@@ -82,3 +82,40 @@ IMP-032.
   `workarounds/default.nix` (probes in `workarounds/probes.nix`) → REV modify.
 - DEC-054 (F-2): `bin/workaround last-good` → `workarounds/last-good` → REV modify.
 - DEC-036 (F-2): `features/cli-broken.nix` → `features/platform-skips.nix` → REV modify.
+
+## Reconciliation Outcome
+
+User agreement: "Agreed — apply all" (2026-10-17).
+
+### Direct edits applied
+- design.md sec-1: diagram field `storePath`; DEC correction note (F-2).
+- design.md sec-2: `storePath` and why; probes.nix missing-key check;
+  `workarounds/pin-filter.nix`; exit-2 row; `meta.unfree` (F-3).
+- design.md sec-3: null config values dropped and why; `last-good <input>`,
+  no just recipe; exit-2 refusals; "previous lock" (IDE-007) (F-3).
+- design.md sec-5: `preferLocalBuild` encodings and add-up exit 1; `os()`
+  dispatch; nested `just host=… will-build`; `nom_pipe` fallback (F-3, F-1).
+- design.md sec-6: P4 drvs row (three home outputs + coverage home); test
+  bullets `storePath`, `2>&1 | nom --json` (F-3).
+
+### Governance (F-2)
+REV-010 (`reconcile-sl-012`) was created, then abandoned with no rows: the
+engine refuses a REV `revises` target outside SPEC/PRD/REQ/ADR/POL/STD, so
+decision records cannot be revised through it. Following SL-008's precedent
+(DEC-036), each decision's `choice` was amended with
+`doctrine knowledge edit decision` and a dated reconcile note appended to its
+body:
+- DEC-036: list file `features/platform-skips.nix` (was `cli-broken.nix`).
+- DEC-053: registry `workarounds/default.nix`, validated by `probes.nix`.
+- DEC-054: `lastGood {rev; narHash} pkgs attrPath`; `workarounds/last-good <input>`.
+- DEC-055: field `storePath`; exit 2.
+- DEC-056: registry path; CHR-016.
+
+### Verification carried
+- VH-1: `just home-switch` on Sleipnir good (user, 2026-10-17). Draupnir
+  deferred past close, as VH-1 allows.
+
+### Withdrawn / tolerated
+None. F-4 aligned (ISS-005); F-5, F-7 fixed in audit; F-6 filed as backlog.
+
+Reconcile pass complete — handoff to /close.

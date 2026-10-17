@@ -1,1 +1,3 @@
 SL-012 inq-2. User direction 2026-10-17: last-known-good is usually wanted. Verified: builtins.fetchTree {type=github; rev; narHash} from a previous flake.lock evaluates purely (0.3s). Revised after codex F3: the risk is substituting an old library into current consumers, not a leaf app with its own closure.
+
+Reconciled at SL-012 `/reconcile` (RV-027 F-2): the script is `workarounds/last-good`, not `bin/workaround last-good`; lastGood takes `pkgs` and drops null config values (nixpkgs 24.11 calls `replaceStdenv = null`). "Previous lock" can repeat the current rev of an input the last lock change did not move (IDE-007).

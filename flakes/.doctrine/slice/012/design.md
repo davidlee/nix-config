@@ -9,7 +9,7 @@ takes: a local overlay, a `mkForce false`, an `optional isLinux`, a skip.
 ```
 workarounds/default.nix          probes (plain data); applies nothing
    │
-   ├──> flake.workaroundProbes   each probe + its unpatched outPath
+   ├──> flake.workaroundProbes   each probe + storePath (its unpatched outPath)
    │      (from inputs.<pin>, no overlays)
    │
    └──> workarounds/check        narinfo on cache.nixos.org
@@ -33,8 +33,8 @@ devil's-advocate pass before drafting changed DEC-052 through DEC-057
 
 Drafting deviation from DEC-053: the registry is `workarounds/default.nix`,
 not `overlays/workarounds.nix`. It patches nothing, so `overlays/` would
-mislead. Its probe output, check, helper and tests sit beside it. DEC-053's
-choice is edited at reconcile.
+mislead. Its probe output, check, helper and tests sit beside it. DEC-053,
+DEC-055 and DEC-056 were corrected at reconcile (RV-027 F-2).
 
 Every phase is drv-neutral except P4, where both homes gain
 `nix-output-monitor` (RV-025 F-7).
@@ -63,22 +63,26 @@ All keys are required except `signal`. A flake-parts module,
 `workarounds/probes.nix`, validates them (unknown key, missing key, wrong
 type, a `pin` that is not an input, an `issue` that is not a backlog-shaped
 id) and fails evaluation naming the probe. This is the same discipline as
-`host-meta.nix`.
+`host-meta.nix`. probes.nix checks for a missing key itself: the module
+system's own message names neither the file nor the probe.
 
-**`flake.workaroundProbes`** is the list with `outPath` added. It is computed
-from `import inputs.${pin} { inherit system; config.allowUnfree = true; }`
+**`flake.workaroundProbes`** is the list with `storePath` added: the
+derivation's `.outPath`. The field cannot be called `outPath`, because nix
+serialises any attrset with an `outPath` attribute as that bare string under
+`--json`. It is computed from
+`import inputs.${pin} { inherit system; config.allowUnfree = true; }`
 with no overlays, so it is the derivation Hydra would build (research X-2). A
-manual probe gets `outPath = null`. An `attr` missing from the pin is an eval
+manual probe gets `storePath = null`. An `attr` missing from the pin is an eval
 error naming the probe. A package that left nixpkgs needs its probe
 rewritten, not silently skipped.
 
 **`workarounds/check [pin]`** (bash, jq, curl) evaluates the output once,
-with the pin filter applied in Nix (`--apply`) before any `outPath` is
-forced. A broken probe on the home pin then cannot abort `update-system`'s
-check (RV-025 F-3). For each probe it fetches
-`https://cache.nixos.org/<hash>.narinfo`, where `<hash>` is the first 32
-characters of the outPath's basename (the store hash, not the lock's
-`narHash`). It classifies the result:
+with the pin filter (`workarounds/pin-filter.nix`, shared with the test)
+applied in Nix (`--apply`) before any `storePath` is forced. A broken probe
+on the home pin then cannot abort `update-system`'s check (RV-025 F-3). For
+each probe it fetches `https://cache.nixos.org/<hash>.narinfo`, where `<hash>`
+is the first 32 characters of the storePath's basename (the store hash, not
+the lock's `narHash`). It classifies the result:
 
 | result | state | output | exit |
 |---|---|---|---|
@@ -86,6 +90,7 @@ characters of the outPath's basename (the store hash, not the lock's
 | HTTP 404 | absent | `ok <attr> (<system>)` | — |
 | other, or curl fails | unknown | `unknown <attr>: <curl error>` | — (warn) |
 | `signal = manual` | manual | `manual <attr> (<issue>): check by hand` | — |
+| usage error, or the probes fail to evaluate | — | message on stderr | 2 |
 
 The narinfo request is the cache protocol itself, so 404 and a network
 failure are cleanly told apart. `nix path-info` folds both into one non-zero
@@ -93,7 +98,7 @@ exit. "Cached" means the build failure is gone. A runtime bug needs
 `signal = manual`, and removing any workaround is still proven by the next
 build (DEC-055). Unfree packages are never on cache.nixos.org, so a probe for one must be
 `signal = manual`. Validation refuses an unfree attr without it, by reading
-`meta.license.free`, so a probe that can never fire is never written
+`meta.unfree`, so a probe that can never fire is never written
 (RV-025 F-2).
 
 **Wiring.** `update-system` and `update-home` end with
@@ -112,11 +117,15 @@ Neither `just test` nor the gate queries the network.
 { rev, narHash }: pkgs: attr:
   pkgs.lib.getAttrFromPath attr (import (builtins.fetchTree {
     type = "github"; owner = "NixOS"; repo = "nixpkgs"; inherit rev narHash;
-  }) { inherit (pkgs.stdenv.hostPlatform) system; config = pkgs.config; })
+  }) {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    config = pkgs.lib.filterAttrs (_: v: v != null) pkgs.config;
+  })
 ```
 
 `pkgs` supplies the system and config (allowUnfree), so the old package is
-built the way the current one would be. `fetchTree` with `narHash` is pure
+built the way the current one would be. Null-valued settings are dropped:
+nixpkgs 24.11 reads a present `replaceStdenv = null` as set and calls it. `fetchTree` with `narHash` is pure
 (research: 0.3 s). Each distinct rev is fetched and evaluated once.
 
 It is used where the fix lives: in a local overlay
@@ -127,7 +136,8 @@ depend on gets a local patch of the current package instead
 (`override` / `overrideAttrs` / `overridePythonAttrs`) (DEC-054). The
 function's comment says this. It does not try to detect libraries.
 
-`workarounds/last-good <pin>` prints the `{ rev; narHash; }` to paste. It
+`workarounds/last-good <input>` prints the `{ rev; narHash; }` to paste
+(there is no just recipe). It
 resolves the input to its lock node through `root.inputs` (node names are
 not input names: `nixpkgs` is node `nixpkgs_28`, RV-025 F-5). It reads git
 through an explicit `GIT_DIR` (`$FLAKES_GIT_DIR`, default `~/.cfg`), because
@@ -136,6 +146,12 @@ relative to the work tree (`flakes/flake.lock`). It uses `HEAD`'s lock, or,
 when the working lock equals HEAD (the breaking update is already
 committed), the previous commit that changed `flake.lock`. `last-good
 stable` prints the stable node, so stable needs no mechanism of its own.
+"Last good" is the previous *lock*: when the last lock change moved only
+other inputs, it prints the input's current rev (IDE-007).
+
+It exits 2, with a message, on a usage error, an unknown input, a `follows`
+input, an input not locked to github NixOS/nixpkgs (lastGood fetches only
+that), no lock at `HEAD`, or a lock that only one commit ever changed.
 
 Every lastGood use gets a probe like any other fix.
 <!-- doctrine:section sec-4 -->
@@ -185,16 +201,20 @@ will fetch: 812 paths
 `activate`, `unit-*`, `*-units`, `system-path`, `nixos-system-*`,
 `darwin-system-*`, `home-manager-generation`, `home-manager-files`,
 `hm_*`, `*.json`, `*.conf`, `man-paths`, `user-environment`. It also includes
-any drv with `preferLocalBuild = 1`. Config names are grouped on one line and
-counted, never dropped (codex F6). A dry-run counts the local store too, so a
+any drv that sets `preferLocalBuild`, in either encoding (plain
+`env.preferLocalBuild`, or inside structured attrs' `env.__json`). Config
+names are grouped on one line and counted, never dropped (codex F6): it exits
+1 if the groups do not add up to nix's own count. A dry-run counts the local store too, so a
 previously built uncached drv is not listed. That cache-only question is the
 probe's job.
 
-**`just will-build`** passes this host's system output (nixos or darwin,
-chosen like `run.sh`) and `homeConfigurations."david@<host>".activationPackage`,
-with `{{local_override}}`. It runs on demand, and it is the last line of
+**`just will-build [system|home|all]`** passes this host's system output
+(nixos or darwin, chosen by just's `os()`, as for `flake`) and/or
+`homeConfigurations."david@<host>".activationPackage`, with
+`{{local_override}}`. It runs on demand, and it is the last line of
 `update-system` (system output) and `update-home` (home output), after the
-check, also prefixed `-`.
+check, also prefixed `-`, as `-just host='{{host}}' will-build <which>` so a
+`host=` override reaches it.
 
 **nom for home.** `home-switch` and `home-build` become
 `set -o pipefail; home-manager … --log-format internal-json -v 2>&1 | nom --json`.
@@ -202,6 +222,10 @@ pipefail keeps home-manager's exit status: without it, a failed switch exits
 with nom's 0. The recipes write `2>&1 |`, not `|&`, because just runs lines
 with `sh`, which is bash 3.2 on the Mac (RV-025 F-8). `run.sh` (bash, Linux)
 gains `set -o pipefail` (it has the same hole).
+
+The pipe is the justfile variable `nom_pipe`, empty when `nom` is not on PATH.
+A home built before nom joined the home base (Draupnir's first switch) then
+switches with plain output instead of failing (RV-027 F-1).
 
 nom is not installed on Draupnir today. It is only in the NixOS base
 (`modules/nixos/nix.nix:89`) and the unloaded dev shell (`perSystem.nix:13`).
@@ -215,7 +239,7 @@ cached for aarch64-darwin (RV-025 F-7).
 | P1 rename | § Skip list rename, without the probes | none |
 | P2 probes | `workarounds/default.nix`, `probes.nix`, `check` + `check-test`, the three probes, update wiring, `just workarounds-check` | none |
 | P3 lastGood | `last-good.nix` + its flake check, `last-good` + its test | none |
-| P4 will-build, nom | `bin/will-build` + test, `just will-build`, update wiring, `nix-output-monitor` in the home base, home recipes and `run.sh` via nom with pipefail | both homes: + nix-output-monitor (Sleipnir's may dedupe with the system copy); nothing else |
+| P4 will-build, nom | `bin/will-build` + test, `just will-build`, update wiring, `nix-output-monitor` in the home base, home recipes and `run.sh` via nom with pipefail | the three home outputs (`david@Sleipnir`, `david@Draupnir`, the `david` alias) and `coverage.home@aarch64-linux`: + nix-output-monitor (Sleipnir's may dedupe with the system copy); nothing else |
 | P5 docs | README § Workarounds (new) and § Features rename, DEC-036, DEC-053 path, memory | none |
 
 Tests (red, green, refactor). All run offline in `just test`:
@@ -228,7 +252,7 @@ Tests (red, green, refactor). All run offline in `just test`:
   failure → `unknown`, exit 0; manual → listed, curl never called; pin filter
   → only that pin's probes, and it is passed to the `nix eval --apply`.
 - `checks.<system>.workarounds`: a fixture probe set evaluated through
-  `probes.nix`. Valid → outPath equals `pkgs.hello`'s. Each invalid shape →
+  `probes.nix`. Valid → storePath equals `pkgs.hello`'s outPath. Each invalid shape →
   eval fails naming the probe (unknown key, missing key, bad pin, missing
   attr, unfree without `signal = manual`). A deliberately throwing probe on
   one pin does not stop forcing the other pin's (F-3). `lastGood` at the
@@ -243,7 +267,7 @@ Tests (red, green, refactor). All run offline in `just test`:
   derivation JSON. Real drvs are listed, config is grouped and counted, and
   nothing is lost: listed plus config equals total.
 - nom pipefail: a recipe-level check that a failing stub command through
-  `|& nom --json` exits non-zero (VA if nom cannot be stubbed).
+  `2>&1 | nom --json` exits non-zero (VA if nom cannot be stubbed).
 
 Per phase: `just test`, `just coverage` and `just drvs` before and after
 (mem.pattern.flakes.drv-gate), and `nix fmt` on touched files without
