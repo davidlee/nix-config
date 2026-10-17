@@ -94,3 +94,14 @@ it is covered instead:
 - D2: the baked config block (MODELS, PROVIDERS, DB) at the top of `llm-gateway` is the PHASE-03 substitution seam (sudo drops env).
 - Under sudo, `llm-gateway` puts its own directory on `sys.path` to find `keystore`; PHASE-03 must install `keystore.py` beside it.
 - Ambient ruff config is broad (RUF100, TRY004, PLW1510, UP035, I001 fire).
+
+## PHASE-02 execution notes (LiteLLM adapter, launcher, integration check)
+
+- Files: gateway_hooks.py, llm-gateway-serve, gateway-test, proxy.nix; perSystem.nix checks restructured as `{features; host-meta;} // optionalAttrs isLinux {llm-gateway}` (flake-parts `checks` is lazyAttrsOf, so `mkIf false` still lists the attr); `just test` line guarded by `uname -s = Linux`. Gateway check not defined on darwin (orchestrator decision: gateway is NixOS-only).
+- F-2 carried by the check: mock_response takes the production pricing path (cost 2.7e-05 = 10x3e-07 + 20x1.2e-06; provider deepseek; no mock branch in cost_calculator.py or litellm_logging.py:1691-1790; the mock only fixes usage, main.py:989-1004). DeepSeek's real usage parsing remains VH-7.
+- Unpriced models cost 0.0 silently; the ledger warns (naming the alias) on zero cost. EX-5 reads the packaged price JSON, because the proxy adds empty `model_cost` entries for configured models at startup.
+- Offline: only `unset SSL_CERT_FILE` was needed in the sandbox (stdenv points it at a missing file). HOME, LITELLM_NON_ROOT, LITELLM_UI_PATH not needed. LITELLM_LOCAL_MODEL_COST_MAP=True still avoids a ~3 s GitHub attempt.
+- LiteLLM 1.102.1 facts: client mock_response stripped (litellm_pre_call_utils.py:224-232); hook modules loaded per reference outside sys.modules (types_utils/utils.py:42-50), so hooks are stateless; custom_auth gets api_key=None with no key; hash at kwargs.litellm_params.metadata.user_api_key_hash, set server-side.
+- Non-HTTPException auth errors become 500 via a prisma import in auth_exception_handler.py:62 (still refused, e.g. client api_base).
+- Design-wording drift: two callbacks (model_gate, ledger) instead of the design's single-ledger YAML snippet; status codes 401 (key) / 403 (model).
+- PHASE-03 seams: `import proxy.nix {pkgs lib}` -> .python, .configDir {models providers}, .defaults; CONFIG_FILE_PATH=${configDir}/config.yaml; baked PROVIDERS and SOCKET in llm-gateway-serve; StateDirectory provides STATE_DIRECTORY read by hooks.

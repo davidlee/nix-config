@@ -48,12 +48,14 @@ fmt: check-flake-root
   nix fmt
 
 # the lock holds no local source (ISS-006), resolver tests (features-test.nix),
-# factory checks (hosts.nix), then behaviour tests for the plain scripts
+# factory checks (hosts.nix), the llm-gateway check (Linux only: the gateway
+# is NixOS-only), then behaviour tests for the plain scripts
 test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
   nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
+  if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   features/session/snooze-nag-test
   features/audio/dictate-test

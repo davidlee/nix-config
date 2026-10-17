@@ -1,0 +1,501 @@
+#!/usr/bin/env python3
+"""Integration check for the gateway's LiteLLM adapter (design SL-011 sec-6,
+P2), run by checks.<system>.llm-gateway against the LiteLLM the system nixpkgs
+ships. Offline: the proxy app is driven in-process (no socket), every model
+answers from a `mock_response` in the test config, and keys live in a temp
+store. Provider keys are dummies.
+
+Environment, set by the check:
+  LLM_GATEWAY_SERVE         the launcher, llm-gateway-serve
+  LLM_GATEWAY_TEST_CONFIG   config dir: production mapping + mock_response + `unpriced`
+  LLM_GATEWAY_CONFIG        config dir: the production mapping, as served
+plus LiteLLM's offline settings (see perSystem.nix).
+
+One process, one app: the proxy's state is module-global.
+"""
+
+import asyncio
+import importlib.machinery
+import importlib.util
+import json
+import logging
+import os
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+from importlib.resources import files
+from pathlib import Path
+
+import yaml
+
+SERVE = Path(os.environ["LLM_GATEWAY_SERVE"])
+TEST_CONFIG = Path(os.environ["LLM_GATEWAY_TEST_CONFIG"])
+PRODUCTION_CONFIG = Path(os.environ["LLM_GATEWAY_CONFIG"])
+
+loader = importlib.machinery.SourceFileLoader("llm_gateway_serve", str(SERVE))
+spec = importlib.util.spec_from_loader("llm_gateway_serve", loader)
+serve = importlib.util.module_from_spec(spec)
+loader.exec_module(serve)
+
+PROVIDER_SECRET = "sk-test-not-a-secret"  # dummy (POL-001)
+PRICED = "deepseek-v4-flash"  # -> deepseek/deepseek-v4-flash, the production mapping
+UNPRICED = "unpriced"  # -> a model id the price map lacks
+
+
+def model_list(config_dir):
+    return yaml.safe_load((config_dir / "config.yaml").read_text())["model_list"]
+
+
+def deployment(config_dir, name):
+    """litellm_params of the model `name` in a config dir."""
+    return next(
+        m["litellm_params"] for m in model_list(config_dir) if m["model_name"] == name
+    )
+
+
+CONFIG_MOCK = deployment(TEST_CONFIG, PRICED)["mock_response"]
+SPEND_WAIT = 10.0  # success callbacks run after the response returns
+# LiteLLM's packaged price map, read from the package: litellm.model_cost will
+# not do, as the proxy adds an empty entry for every configured model.
+PRICE_MAP = json.loads(
+    (files("litellm") / "model_prices_and_context_window_backup.json").read_text()
+)
+
+state = tempfile.TemporaryDirectory()
+credentials = tempfile.TemporaryDirectory()
+(Path(credentials.name) / "deepseek").write_text(PROVIDER_SECRET + "\n")
+os.environ.update(
+    serve.load_credentials(serve.PROVIDERS, {"CREDENTIALS_DIRECTORY": credentials.name})
+)
+os.environ["STATE_DIRECTORY"] = state.name
+os.environ["CONFIG_FILE_PATH"] = str(TEST_CONFIG / "config.yaml")
+
+# The app the launcher serves, built by the launcher (it puts the config dir
+# on sys.path, so these imports are the copies beside the config).
+app = serve.app(TEST_CONFIG)
+import gateway_hooks
+import keystore
+from starlette.testclient import TestClient
+
+DB = Path(state.name) / "keys.db"
+client = None
+
+
+def setUpModule():
+    global client
+    # `with` runs the lifespan, which loads the config. Server errors come
+    # back as 500s, as uvicorn would send them, rather than raising here.
+    client = unittest.enterModuleContext(TestClient(app, raise_server_exceptions=False))
+
+
+def tearDownModule():
+    state.cleanup()
+    credentials.cleanup()
+
+
+def issue(alias, models=(PRICED, UNPRICED), budget=5):
+    return keystore.issue(DB, alias, list(models), budget)
+
+
+def spent(alias):
+    return next(r["spent_usd"] for r in keystore.rows(DB) if r["alias"] == alias)
+
+
+def chat(key=None, model=PRICED, path="/chat/completions", **body):
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    payload = {"model": model, "messages": [{"role": "user", "content": "hi"}], **body}
+    return client.post(path, headers=headers, json=payload)
+
+
+def assert_spend_raised(alias, wait=SPEND_WAIT):
+    """The served request's cost reached the key store: spent > 0 within
+    `wait` seconds. The one spend assertion, so its negative controls run it."""
+    deadline = time.monotonic() + wait
+    while spent(alias) <= 0 and time.monotonic() < deadline:
+        time.sleep(0.05)
+    if spent(alias) <= 0:
+        raise AssertionError(f"{alias}: spent not raised (spent_usd={spent(alias)})")
+
+
+def is_gate_refusal(response):
+    """A 404 from route_gate, not LiteLLM: it carries GATE_HEADER (HEAD
+    responses have no body to tell them apart by)."""
+    name, value = (part.decode() for part in gateway_hooks.GATE_HEADER)
+    return response.status_code == 404 and response.headers.get(name) == value
+
+
+# --- route_gate in isolation: a recording app stands in for LiteLLM ---------
+
+
+class Recorder:
+    """An inner ASGI app that records every scope it is handed."""
+
+    def __init__(self):
+        self.scopes = []
+
+    async def __call__(self, scope, receive, send):
+        self.scopes.append(scope)
+        if scope["type"] == "http":
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b"inner"})
+
+
+def call(asgi, scope):
+    """Run one ASGI call; return the messages it sent."""
+    sent = []
+    received = [{"type": "websocket.connect"}, {"type": "http.request", "body": b""}]
+
+    async def receive():
+        return received.pop(0) if received else {"type": "http.disconnect"}
+
+    async def send(message):
+        sent.append(message)
+
+    asyncio.run(asgi(scope, receive, send))
+    return sent
+
+
+def http(method, path, raw_path=None):
+    scope = {"type": "http", "method": method, "path": path, "headers": []}
+    if raw_path is not None:
+        scope["raw_path"] = raw_path
+    return scope
+
+
+class RouteGateUnitTest(unittest.TestCase):
+    """RV-024 F-1 probe, part 1: what route_gate refuses never reaches the
+    app behind it."""
+
+    def gate(self):
+        inner = Recorder()
+        return inner, gateway_hooks.route_gate(inner)
+
+    def test_allowed_routes_reach_the_inner_app(self):
+        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+            with self.subTest(method=method, path=path):
+                inner, gate = self.gate()
+                sent = call(gate, http(method, path, path.encode()))
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(len(inner.scopes), 1)
+
+    def test_raw_path_is_optional(self):
+        inner, gate = self.gate()
+        call(gate, http("POST", "/chat/completions"))
+        self.assertEqual(len(inner.scopes), 1)
+
+    def test_refused_requests_get_404_and_never_reach_the_inner_app(self):
+        cases = [
+            ("GET", "/health/liveness", b"/health/liveness"),
+            ("GET", "/public/model_hub", b"/public/model_hub"),
+            ("POST", "/key/generate", b"/key/generate"),
+            ("POST", "/chat/completions/", b"/chat/completions/"),
+            ("POST", "//chat/completions", b"//chat/completions"),
+            ("POST", "/chat/completions", b"/chat%2Fcompletions"),
+            ("POST", "/chat/completions", b"/chat%2fcompletions"),
+            ("POST", "/v1/chat/completions", b"/v1/chat%2Fcompletions"),
+            ("POST", "/chat/completions", b"/%63hat/completions"),
+            ("POST", "/Chat/Completions", b"/Chat/Completions"),
+            ("GET", "/V1/models", b"/V1/models"),
+            ("GET", "/chat/completions", b"/chat/completions"),
+            ("POST", "/models", b"/models"),
+            ("HEAD", "/models", b"/models"),
+            ("post", "/chat/completions", b"/chat/completions"),
+            ("PUT", "/chat/completions", b"/chat/completions"),
+            ("DELETE", "/v1/models", b"/v1/models"),
+        ]
+        for method, path, raw in cases:
+            with self.subTest(method=method, raw_path=raw):
+                inner, gate = self.gate()
+                sent = call(gate, http(method, path, raw))
+                self.assertEqual(sent[0]["status"], 404)
+                self.assertIn(gateway_hooks.GATE_HEADER, sent[0]["headers"])
+                self.assertEqual(sent[1]["body"], gateway_hooks.GATE_REFUSAL)
+                self.assertEqual(inner.scopes, [])
+
+    def test_lifespan_passes_through(self):
+        inner, gate = self.gate()
+        call(gate, {"type": "lifespan"})
+        self.assertEqual([s["type"] for s in inner.scopes], ["lifespan"])
+
+    def test_websocket_is_closed_without_reaching_the_inner_app(self):
+        inner, gate = self.gate()
+        sent = call(gate, {"type": "websocket", "path": "/chat/completions"})
+        self.assertEqual(sent, [{"type": "websocket.close", "code": 1008}])
+        self.assertEqual(inner.scopes, [])
+
+
+# --- through the real proxy app ----------------------------------------------
+
+
+class RouteGateTest(unittest.TestCase):
+    """RV-024 F-1 probe, part 2 (EX-2): unauthenticated, through route_gate
+    and the real app. A gate 404 carries GATE_REFUSAL; LiteLLM's would not."""
+
+    def test_unallowed_routes_get_the_gate_404(self):
+        requests = [
+            ("GET", "/health/liveness"),
+            ("GET", "/health/readiness"),
+            ("GET", "/health"),
+            ("GET", "/public/model_hub"),
+            ("GET", "/public/providers"),
+            ("POST", "/key/generate"),
+            ("POST", "/user/new"),
+            ("GET", "/"),
+            ("GET", "/docs"),
+            ("GET", "/openapi.json"),
+            ("POST", "/chat/completions/"),
+            ("POST", "//chat/completions"),
+            ("POST", "/chat%2Fcompletions"),
+            ("POST", "/v1/chat%2Fcompletions"),
+            ("POST", "/Chat/Completions"),
+            ("GET", "/V1/models"),
+            ("GET", "/models/"),
+            ("GET", "/chat/completions"),
+            ("POST", "/models"),
+            ("HEAD", "/models"),
+            ("PUT", "/chat/completions"),
+            ("DELETE", "/v1/chat/completions"),
+        ]
+        for method, path in requests:
+            with self.subTest(method=method, path=path):
+                response = client.request(method, "http://testserver" + path)
+                self.assertTrue(
+                    is_gate_refusal(response), (response.status_code, response.text)
+                )
+
+    def test_allowed_routes_without_a_key_reach_custom_auth(self):
+        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+            with self.subTest(method=method, path=path):
+                response = client.request(method, path, json={"model": PRICED})
+                self.assertEqual(response.status_code, 401)
+                self.assertIn("unknown key", response.text)
+
+
+class AuthTest(unittest.TestCase):
+    """EX-1: custom_auth, the model allow-list and the budget, through the
+    real app; models answer from the config's mock_response."""
+
+    def test_a_valid_key_is_served_on_chat_completions_with_and_without_v1(self):
+        key = issue("valid")
+        for path in ("/chat/completions", "/v1/chat/completions"):
+            with self.subTest(path=path):
+                response = chat(key, path=path)
+                self.assertEqual(response.status_code, 200, response.text)
+                content = response.json()["choices"][0]["message"]["content"]
+                self.assertEqual(content, CONFIG_MOCK)
+
+    def test_a_valid_key_lists_models(self):
+        key = issue("lister")
+        for path in ("/models", "/v1/models"):
+            with self.subTest(path=path):
+                response = client.get(path, headers={"Authorization": f"Bearer {key}"})
+                self.assertEqual(response.status_code, 200, response.text)
+
+    def test_an_unknown_key_gets_401(self):
+        response = chat("not-a-gateway-key")
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("unknown key", response.text)
+
+    def test_a_revoked_key_gets_401_naming_the_alias(self):
+        key = issue("revoked")
+        keystore.revoke(DB, "revoked")
+        response = chat(key)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("revoked: revoked", response.text)
+
+    def test_an_exhausted_budget_gets_401(self):
+        key = issue("broke", budget=0)
+        response = chat(key)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("broke: budget exhausted", response.text)
+
+    def test_a_model_off_the_keys_list_is_refused_and_costs_nothing(self):
+        key = issue("narrow", models=["deepseek-v4-pro"])
+        response = chat(key, model=PRICED)
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertIn(f"narrow: model {PRICED!r} not allowed", response.text)
+        self.assertEqual(spent("narrow"), 0)
+
+
+class SpendTest(unittest.TestCase):
+    """EX-3, the RV-024 F-2 control: a served request on the production
+    mapping (deepseek/deepseek-v4-flash, the packaged price map) raises spent
+    by its response_cost; the unpriced model, served the same way, fails the
+    same assertion."""
+
+    def test_served_request_raises_spend(self):
+        model = deployment(TEST_CONFIG, PRICED)["model"]
+        self.assertEqual(model, deployment(PRODUCTION_CONFIG, PRICED)["model"])
+        self.assertEqual(model, "deepseek/deepseek-v4-flash")
+        key = issue("spender")
+        response = chat(key)
+        self.assertEqual(response.status_code, 200, response.text)
+        assert_spend_raised("spender")
+        # priced from the usage the response reports (mock_response's fixed
+        # token counts) at the packaged price map's per-token rates
+        usage, price = response.json()["usage"], PRICE_MAP[model]
+        response_cost = (
+            usage["prompt_tokens"] * price["input_cost_per_token"]
+            + usage["completion_tokens"] * price["output_cost_per_token"]
+        )
+        self.assertGreater(response_cost, 0)
+        self.assertAlmostEqual(spent("spender"), response_cost, places=12)
+
+    def test_negative_control_unpriced_model_fails_the_spend_assertion(self):
+        key = issue("unpriced")
+        with self.assertLogs("llm-gateway", logging.WARNING) as logs:
+            self.assertEqual(chat(key, model=UNPRICED).status_code, 200)
+            deadline = time.monotonic() + SPEND_WAIT
+            while not logs.output and time.monotonic() < deadline:
+                time.sleep(0.05)
+        self.assertIn("unpriced: served request priced at 0", "\n".join(logs.output))
+        with self.assertRaises(AssertionError):
+            assert_spend_raised("unpriced", wait=0)
+
+    def test_negative_control_zero_or_none_cost_fails_the_spend_assertion(self):
+        digest = keystore.key_hash(issue("fed"))
+        for cost in (None, 0):
+            with self.subTest(response_cost=cost):
+                kwargs = {
+                    "response_cost": cost,
+                    "litellm_params": {"metadata": {"user_api_key_hash": digest}},
+                }
+                asyncio.run(
+                    gateway_hooks.ledger.async_log_success_event(kwargs, None, 0, 0)
+                )
+                with self.assertRaises(AssertionError):
+                    assert_spend_raised("fed", wait=0)
+
+    def test_a_payload_without_a_key_hash_is_ignored(self):
+        with self.assertLogs("llm-gateway", logging.WARNING) as logs:
+            asyncio.run(
+                gateway_hooks.ledger.async_log_success_event(
+                    {"response_cost": 1.0, "litellm_params": {}}, None, 0, 0
+                )
+            )
+        self.assertIn("no key hash", "\n".join(logs.output))
+
+
+class ClientOverrideTest(unittest.TestCase):
+    """Beyond the criteria (Q4): a client cannot steer the provider call or
+    the ledger from the request body."""
+
+    def test_client_mock_response_is_stripped(self):
+        key = issue("mocker")
+        response = chat(key, mock_response="from the client")
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(
+            response.json()["choices"][0]["message"]["content"], CONFIG_MOCK
+        )
+
+    def test_client_api_base_is_refused(self):
+        key = issue("redirector")
+        response = chat(key, api_base="http://attacker.invalid/v1")
+        # LiteLLM refuses it before custom_auth with a ValueError, which its
+        # auth error mapping turns into a 500 here: that mapping imports
+        # prisma, absent without a database (auth_exception_handler.py:62).
+        self.assertGreaterEqual(response.status_code, 400)
+        self.assertEqual(spent("redirector"), 0)
+
+    def test_client_metadata_cannot_charge_another_key(self):
+        key = issue("spoofer")
+        victim = keystore.key_hash(issue("victim"))
+        response = chat(key, metadata={"user_api_key_hash": victim})
+        self.assertEqual(response.status_code, 200, response.text)
+        assert_spend_raised("spoofer")
+        self.assertEqual(spent("victim"), 0)
+
+
+class PriceMapTest(unittest.TestCase):
+    """EX-5: every model the production config serves is in LiteLLM's
+    packaged price map."""
+
+    def test_every_production_model_is_priced(self):
+        self.assertEqual(unpriced_models(PRODUCTION_CONFIG), [])
+
+    def test_negative_twin_reports_an_unpriced_model(self):
+        self.assertEqual(
+            unpriced_models(TEST_CONFIG), [deployment(TEST_CONFIG, UNPRICED)["model"]]
+        )
+
+
+def unpriced_models(config_dir):
+    """The LiteLLM model ids a config dir serves that the price map lacks."""
+    ids = [m["litellm_params"]["model"] for m in model_list(config_dir)]
+    return [i for i in ids if i not in PRICE_MAP]
+
+
+class CredentialTest(unittest.TestCase):
+    """EX-4, the RV-024 F-5 control: the launcher refuses to start without a
+    configured provider's credential, naming it and the fix."""
+
+    def refusal(self, environ):
+        with self.assertRaises(SystemExit) as refused:
+            serve.load_credentials({"deepseek": "DEEPSEEK_API_KEY"}, environ)
+        return str(refused.exception.code)
+
+    def test_unset_CREDENTIALS_DIRECTORY_names_the_credential_and_the_fix(self):
+        message = self.refusal({})
+        self.assertIn("deepseek", message)
+        self.assertIn("just gateway-credentials", message)
+
+    def test_a_missing_credential_file_names_it_and_the_fix(self):
+        with tempfile.TemporaryDirectory() as empty:
+            message = self.refusal({"CREDENTIALS_DIRECTORY": empty})
+        self.assertIn("deepseek", message)
+        self.assertIn("just gateway-credentials", message)
+
+    def test_a_present_credential_is_loaded_into_DEEPSEEK_API_KEY(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "deepseek").write_text(PROVIDER_SECRET + "\n")
+            loaded = serve.load_credentials(
+                {"deepseek": "DEEPSEEK_API_KEY"}, {"CREDENTIALS_DIRECTORY": directory}
+            )
+        self.assertEqual(loaded, {"DEEPSEEK_API_KEY": PROVIDER_SECRET})
+
+    def test_the_credential_check_runs_before_litellm_is_imported(self):
+        with (
+            tempfile.TemporaryDirectory() as shadow,
+            tempfile.TemporaryDirectory() as empty,
+        ):
+            (Path(shadow) / "litellm").mkdir()
+            (Path(shadow) / "litellm" / "__init__.py").write_text(
+                'raise ImportError("imported before credential check")\n'
+            )
+            environ = {
+                **os.environ,
+                "PYTHONPATH": os.pathsep.join(
+                    [shadow, os.environ.get("PYTHONPATH", "")]
+                ),
+                "CREDENTIALS_DIRECTORY": empty,
+            }
+            done = subprocess.run(
+                [sys.executable, str(SERVE)],
+                env=environ,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=60,
+            )
+        self.assertNotEqual(done.returncode, 0)
+        self.assertIn("just gateway-credentials", done.stderr)
+        self.assertNotIn("imported before credential check", done.stderr)
+
+    def test_unset_CONFIG_FILE_PATH_is_named(self):
+        environ = {k: v for k, v in os.environ.items() if k != "CONFIG_FILE_PATH"}
+        done = subprocess.run(
+            [sys.executable, str(SERVE)],
+            env=environ,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=60,
+        )
+        self.assertNotEqual(done.returncode, 0)
+        self.assertIn("CONFIG_FILE_PATH", done.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+"""llm-gateway-serve: the gateway service's launcher (design SL-011 sec-2).
+
+Checks that every configured provider's credential is in
+$CREDENTIALS_DIRECTORY and loads each into its <NAME>_API_KEY variable, then
+serves LiteLLM's proxy app, behind gateway_hooks.route_gate, on the unix
+socket. A missing credential exits at once, naming it and the fix, before
+LiteLLM is imported (a start takes ~25 s; RV-024 F-5).
+
+Needs CONFIG_FILE_PATH: the config.yaml whose directory also holds
+gateway_hooks.py and keystore.py. Credential values are never printed.
+"""
+
+import os
+import sys
+from pathlib import Path
+
+# Baked configuration: the seam the NixOS record (PHASE-03) substitutes from
+# its `providers` option and constants. Placeholders until then.
+PROVIDERS = {"deepseek": "DEEPSEEK_API_KEY"}  # credential name -> variable
+SOCKET = "/run/llm-gateway/api.sock"
+
+
+def load_credentials(providers, environ):
+    """{variable: value} for every provider in `providers` (credential name
+    -> variable), read from environ's CREDENTIALS_DIRECTORY; SystemExit
+    naming every missing one."""
+    directory = environ.get("CREDENTIALS_DIRECTORY")
+    files = [Path(directory, name) for name in providers] if directory else []
+    found = {file.name: file for file in files if file.is_file()}
+    missing = [name for name in providers if name not in found]
+    if missing:
+        raise SystemExit(
+            f"llm-gateway: provider credential missing: {', '.join(missing)}; "
+            "run `just gateway-credentials`"
+        )
+    return {providers[name]: file.read_text().strip() for name, file in found.items()}
+
+
+def app(config_dir):
+    """LiteLLM's proxy app behind the route gate: what the service serves,
+    and what checks.llm-gateway drives."""
+    sys.path.insert(0, str(config_dir))  # gateway_hooks imports keystore
+    import gateway_hooks
+    from litellm.proxy import proxy_server
+
+    return gateway_hooks.route_gate(proxy_server.app)
+
+
+def main():
+    config = os.environ.get("CONFIG_FILE_PATH")
+    if not config:
+        raise SystemExit("llm-gateway: CONFIG_FILE_PATH is not set")
+    os.environ.update(load_credentials(PROVIDERS, os.environ))
+    import uvicorn
+
+    uvicorn.run(app(Path(config).parent), uds=SOCKET)
+
+
+if __name__ == "__main__":
+    main()
