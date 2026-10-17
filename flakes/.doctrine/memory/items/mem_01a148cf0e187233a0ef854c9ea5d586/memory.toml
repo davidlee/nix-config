@@ -1,0 +1,43 @@
+memory_uid = "mem_01a148cf0e187233a0ef854c9ea5d586"
+memory_key = "mem.fact.litellm.proxy-hook-behaviours"
+schema_version = 1
+lifespan = "semantic"
+memory_type = "fact"
+status = "active"
+title = "LiteLLM 1.102.1 proxy behaviours the llm-gateway hooks depend on"
+summary = "Facts about LiteLLM 1.102.1's proxy that shape features/agents/gateway: hooks are stateless, client mock_response is stripped, unpriced models cost 0, non-sk- keys go unhashed on failure paths, Router fallbacks bypass a data[model]-only gate."
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = ["features/agents/gateway/gateway_hooks.py", "features/agents/gateway/llm-gateway-serve", "features/agents/gateway/proxy.nix"]
+globs = []
+commands = []
+tags = ["litellm", "llm-gateway", "security"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "fefb9fe6cd9a2ea2b43f3c2bbeff982495a49e20"
+ref_name = "refs/heads/main"
+checkout_state_id = "29bb5b3b3b65912def37fabf2f215118053b284250bc63bc00fbfd2527896c09"
+base_commit = "a095da8936d03b7e818159ca92294128efdc3db0"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+

@@ -22,3 +22,13 @@ pi is the harness in daily use, across project flakes built from
 
 The OAuth subscription logins in the same auth.json (openai-codex,
 gemini-cli, antigravity) cannot go through an API-key broker and stay.
+
+Lead from SL-011's audit (RV-026, 2026-10-17): the emacs flake's
+`jailed-shell` (`~/.config/emacs` flake, not this repo) puts seven provider
+keys (DEEPSEEK, GEMINI, JEV, MISTRAL, OPENAI, OPENROUTER, VOYAGE) straight
+into the jail's own environment. If it builds its own jail rather than using
+`agents/`'s, it also misses the empty-environment bwrap fix (b17e348a,
+mem.fact.bwrap.pid1-environ-leak). The user would rather move agents onto the
+gateway and remove keys than keep forwarding them. Decide its fate alongside
+pi's. The gateway's model gate must handle Router fallbacks (RV-026 F-4)
+before more models are added.

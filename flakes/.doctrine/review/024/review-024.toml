@@ -27,7 +27,7 @@ ref   = "SL-011"
 
 [[finding]]
 id = "F-1"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "Unauthenticated LiteLLM routes bypass custom_auth"
 detail = "Adversarial pass (GPT gpt-6-sol), verified: /health/liveness (health_endpoints/_health_endpoints.py:1813) and /public/model_hub (public_endpoints/public_endpoints.py:208, one of 12 public routes) have no auth dependency in 1.100.1, so the custom_auth route allow-list (design § Key store) cannot refuse them on a host-wide relay. Fix: path+method allow-list at the ASGI boundary in front of LiteLLM; test unauthenticated requests to permitted and excluded paths against 1.102.1."
@@ -66,9 +66,16 @@ response = """
 Fixed in design sec-3 (route gate, an ASGI wrapper in front of LiteLLM passing only POST /chat/completions and GET /models, with or without /v1, 404 otherwise). Route probe. Must hold against any local process that can reach the relay on 127.0.0.1:4000 or the socket without a valid key: every other path and method, including /health/liveness, the /public routes, admin and key-management routes, path variants (trailing slash, double slash, percent-encoding, case) and other methods on the allowed paths, gets 404 without reaching LiteLLM. Need not hold against root or a member of the llm-gateway group, who can read keys.db directly. Criterion: the integration check, against the LiteLLM the system nixpkgs ships, sends those requests unauthenticated and asserts 404 for each, and asserts the two allowed routes still reach custom_auth (401 without a key). Host phase constraint: the phase that builds gateway_hooks and the flake check.
 """
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Verified after the criterion landed (RV-026 audit). PHASE-02 EX-2/VT-2: gateway-test RouteGateUnitTest (17 path/method/websocket variants against a recording inner app) and RouteGateTest (real serve.app(), 22 requests incl. /health/liveness, /public/model_hub, /key/generate, /docs). The gate's 404 is told apart by GATE_HEADER, and the inner app must record no scope, so removing route_gate fails the test. `just test` green.
+"""
+
 [[finding]]
 id = "F-2"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "Spend check fallback bypasses the production pricing path"
 detail = "Adversarial pass: stubbing cost via model_info (design § Phases) tests a different path; production DeepSeek could return None and count 0. Fix: require positive response_cost through the production model mapping and packaged price map; if mock_response cannot, a separately labelled adapter test; VH requires positive spend."
@@ -107,9 +114,16 @@ response = """
 Fixed in design sec-6. Route control. The concrete incorrect candidate the check must reject: a pricing path where response_cost reaches the success callback as None or 0 for the production model mapping deepseek/deepseek-v4-flash, so spend never accrues. Criterion: the spend case drives a served request through the production mapping and packaged price map and asserts spent rises by a positive amount; as a negative control, the same case run with a model that has no price entry (or a callback fed a zero cost) must fail the assertion. If mock_response does not take the production pricing path, the separately named adapter test carries this control and VH step 7 carries the production claim. Host phase constraint: the phase that builds gateway_hooks and the flake check.
 """
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Verified (RV-026 audit). PHASE-02 EX-3/VT-3: gateway-test SpendTest asserts spent == usage × the packaged price on the production mapping (now deepseek/deepseek-flash, b544a5f5), with two negative controls (unpriced model; ledger fed 0/None) that must fail the same assertion. mock_response takes the production pricing path (notes.md PHASE-02). Live VH-7: eca-2 spent 0.0051 on real DeepSeek usage.
+"""
+
 [[finding]]
 id = "F-3"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "NaN or negative budget/spend disables or corrupts limits"
 detail = "Adversarial pass: no constraint on budget_usd/spent_usd and no CLI validation; a NaN budget makes spent >= budget false forever. Fix: reject nonfinite and negative values in CLI and keystore; CHECK constraints; tests for malformed budgets and costs."
@@ -148,6 +162,13 @@ response = """
 Fixed in design sec-3 (usd parser, CHECK constraints, record_spend counting bad costs as 0). Route probe. Must hold against malformed money arriving through the CLI (budget arguments) and through any keystore write (issue, set_budget, record_spend): NaN, positive and negative infinity, negative numbers, and non-numeric strings never land in budget_usd or spent_usd, and a key whose budget is spent is always refused. Need not hold against someone editing keys.db directly as the llm-gateway user, beyond the CHECK constraints refusing negative values. Criterion: keystore-test feeds each malformed value to every write path and asserts refusal or zero spend, and asserts a direct negative write is refused by the CHECK. Host phase constraint: the phase that builds keystore.py and keystore-test.
 """
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Verified (RV-026 audit). PHASE-01 EX-3/VT-2: keystore-test MALFORMED_MONEY across usd(), schema CHECK (IntegrityError), issue, record_spend, set_budget and the CLI (no re-exec). Removing usd() from a write path or dropping the CHECK fails a test. +Infinity on a direct write remains the admitted F-7 residue.
+"""
+
 [[finding]]
 id = "F-4"
 status = "verified"
@@ -174,7 +195,7 @@ note = "Fix applied in design.md revision 28 as described in the response; check
 
 [[finding]]
 id = "F-5"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "Missing searched credential is not fatal; start refusal claim unproven"
 detail = "Second adversarial pass: systemd.exec documents cases where a LoadCredentialEncrypted lookup failure is not fatal, so 'systemd refuses to start and names the missing credential' is not guaranteed. Fix: absolute path in LoadCredentialEncrypted, and the launcher checks every required credential and fails with a clear message."
@@ -213,9 +234,16 @@ response = """
 Fixed in design sec-2 (absolute LoadCredentialEncrypted path; launcher checks each configured credential). Route control. The concrete incorrect candidate the check must reject: a launcher that starts uvicorn when a configured provider credential file is absent from CREDENTIALS_DIRECTORY (or the directory is unset), leaving the provider key empty. Criterion: a test runs the launcher's credential check with the deepseek credential missing and asserts a non-zero exit whose message names the missing credential and just gateway-credentials, and asserts the present case loads it into DEEPSEEK_API_KEY. VH step 1 confirms the journal message on Sleipnir. Host phase constraint: the phase that builds the launcher, with the VH after the service phase.
 """
 
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Verified (RV-026 audit). PHASE-02 EX-4/VT-4: gateway-test CredentialTest (unset dir, missing file, present; the check runs before LiteLLM import via a shadow module). Live VH-1: systemd refuses the unit at credential setup (243/CREDENTIALS) with the absolute-path form, so start refusal is proven, and the launcher check is defence in depth. Adjacent gap (an empty credential is accepted) raised as RV-026 F-2.
+"""
+
 [[finding]]
 id = "F-6"
-status = "answered"
+status = "verified"
 severity = "major"
 title = "issue --out has no failure rule: a live key can be orphaned"
 detail = "Second adversarial pass: if the unprivileged parent fails to write after the child issued the key, the DB holds a live key nobody holds. Fix: --out only in the parent, preflight destination, atomic 0600 write, revoke on failure; tests for existing destination and failed write."
@@ -252,6 +280,13 @@ disposition = "fix-now"
 route = "control"
 response = """
 Fixed in design sec-4 (--out only in the unprivileged parent; preflight; atomic 0600 temp write and rename; revoke on failure). Route control. The concrete incorrect candidate the check must reject: an issue --out that issues the key, fails to write the file, and leaves the key live in keys.db; and one that overwrites an existing key file. Criterion: a test with the privileged step stubbed in-process injects a write failure after issue and asserts the key is revoked and no file remains, and asserts an existing destination is refused before any key is issued; a successful run leaves a 0600 file holding the key. Host phase constraint: the phase that builds the admin CLI.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+Verified (RV-026 audit). PHASE-01 EX-4/VT-3: keystore-test IssueOut injects an os.link failure after issue (key revoked, the last call is revoke), refuses an existing destination and a dangling symlink before any issue (calls == []), and on success writes a 0600 file in a 0700 directory. Live VH-3: 600 david.
 """
 
 [[finding]]

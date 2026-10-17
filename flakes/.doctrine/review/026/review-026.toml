@@ -1,0 +1,456 @@
+id    = 26
+slug  = "reconciliation-review-of-sl-011"
+title = "reconciliation review of SL-011"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-011 at 668c69b7: the seven subject commits against design.md, plan.toml EN/EX/VT, DEC-046..051 and POL-001. Covered: secrets on every path (argv, logs, store, the jail's process tree, LiteLLM's failure paths); key semantics (model gate, budget, pricing); fail-closed start and rotation; the five RV-024 routed criteria (verified there); design truth after the live adaptations; per-commit path attribution, since slice conformance is blind under ISS-005. Evidence: doctrine check gate green; live VH-1..7 on Sleipnir; a read-only evidence pass over the code, tests and the LiteLLM 1.102.1 source; F-1's code path read directly by the seat. 14 findings, all terminal; Reconciliation Brief written.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-011"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "credentials: expected a failed op read to leave the stored credential intact; observed systemd-creds encrypt overwrites it with empty input"
+detail = """
+Expected: a cancelled or failed `op read` (e.g. a dismissed 1Password unlock during rotation) leaves `/etc/credstore.encrypted/llm-gateway.<p>` as it was.
+Observed: `features/agents/gateway/llm-gateway` `credentials()` (~:294-317) pipes `op read` stdout straight into `sudo systemd-creds encrypt … - <CREDSTORE>/llm-gateway.<p>`, which writes the target in place; exit codes are checked only after both finish. On op failure, encrypt consumes empty stdin and replaces the working credential. The CLI then prints "op read failed; service not restarted", implying no harm; the running service keeps its old key until the next restart/reboot, which then starts with an empty key (see the empty-credential finding).
+Test gap: `keystore-test` (~:525) asserts the restart is skipped, not that the stored file is preserved.
+Read by the seat (code), not reproduced live (needs root).
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: `credentials` encrypts to a temporary path in the credstore and renames over the target only when both `op read` and `systemd-creds encrypt` succeed; a failure removes the temp file and leaves the stored credential untouched. Test: a failing op read must leave the existing credential file byte-identical (fake host seam).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: `credentials` encrypts to a temporary path in the credstore and renames over the target only when both `op read` and `systemd-creds encrypt` succeed; a failure removes the temp file and leaves the stored credential untouched. Test: a failing op read must leave the existing credential file byte-identical (fake host seam).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "launcher: expected an empty provider credential to be refused (F-5 intent); observed load_credentials accepts it and sets an empty key"
+detail = """
+Expected: the launcher never starts LiteLLM with an empty provider key — RV-024 F-5's intent (refuse to start without a usable credential).
+Observed: `features/agents/gateway/llm-gateway-serve` `load_credentials` (~:333-346) checks `is_file()` then `.strip()`s the value; an empty file yields `DEEPSEEK_API_KEY=""` and the service starts, failing every upstream call instead. Pairs with the credentials-overwrite finding, which can produce exactly this file.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: `load_credentials` refuses an empty (after strip) credential with the same message shape as a missing one, before LiteLLM is imported. Test beside CredentialTest.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: `load_credentials` refuses an empty (after strip) credential with the same message shape as a missing one, before LiteLLM is imported. Test beside CredentialTest.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "POL-001 r5: expected no path able to emit a bearer key; observed LiteLLM's auth-failure path carries the raw key, unhashed because ours lack the sk- prefix"
+detail = """
+Expected: POL-001 r5 — logs/telemetry never carry a client key.
+Observed (LiteLLM 1.102.1): on an auth failure, LiteLLM builds `UserAPIKeyAuth(api_key=<raw key>)` and hands it to `post_call_failure_hook` and OTEL `seed_request_identity` (`proxy/auth/auth_exception_handler.py:172-197`). Its "hash logged keys" guard (`proxy/_types.py:3153-3176`) hashes only `sk-`-prefixed or JWT keys; ours come from `secrets.token_urlsafe` (`keystore.py:~83`) and stay raw.
+Latent: no failure callbacks are configured, OTEL is off, and our hooks do not implement the failure hook — nothing emits it today. Adding any logger/OTEL exposes it.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: issue keys as `sk-<token_urlsafe>` so LiteLLM's own guard hashes them on every logging/failure path. The worker must first confirm in LiteLLM 1.102.1 that an `sk-` key still goes only through our custom_auth (no master-key or DB lookup path) and that the stored sha256 matches what reaches the hooks; else stop and escalate. Existing keys (eca-2) keep working, since only the hash is stored. Test: issued keys carry the prefix; auth path unchanged.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: issue keys as `sk-<token_urlsafe>` so LiteLLM's own guard hashes them on every logging/failure path. The worker must first confirm in LiteLLM 1.102.1 that an `sk-` key still goes only through our custom_auth (no master-key or DB lookup path) and that the stored sha256 matches what reaches the hooks; else stop and escalate. Existing keys (eca-2) keep working, since only the hash is stored. Test: issued keys carry the prefix; auth path unchanged.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "model gate: expected only a key's listed models to be served (DEC-051); observed it checks data[model] only while the Router honours per-request fallbacks"
+detail = """
+Expected: DEC-051 — a key reaches only the models on its list.
+Observed: `gateway_hooks.py` `ModelGate` (~:266-273) checks `data["model"]` only. LiteLLM's Router reads a per-request `fallbacks` list (`litellm/router.py:2842, 7588, 7695`, `kwargs.get("fallbacks")`), so a request for an allowed model with `fallbacks: [<other configured model>]` can be served by a model not on the key's list when the first fails.
+Not exercised. Today only one model is configured, so nothing is reachable through it; it becomes a real bypass once more models are added (IMP-029).
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: ModelGate refuses (403) any request that names a model outside the key's list by any route the Router honours: `fallbacks`, `context_window_fallbacks`, `content_policy_fallbacks`, `model_list` / `router`-level overrides. The worker enumerates the request fields in LiteLLM 1.102.1 that select a deployment. Test with a fallback naming an unlisted configured model.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: ModelGate refuses (403) any request that names a model outside the key's list by any route the Router honours: `fallbacks`, `context_window_fallbacks`, `content_policy_fallbacks`, `model_list` / `router`-level overrides. The worker enumerates the request fields in LiteLLM 1.102.1 that select a deployment. Test with a fallback naming an unlisted configured model.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "price-map check: expected it to cover the host's configured models (README claim); observed it reads proxy defaults, not services.llm-gateway.models"
+detail = """
+Expected: README § LLM gateway: "every model must be in LiteLLM's packaged price map (a flake check enforces it)" — i.e. the models the host actually serves.
+Observed: `perSystem.nix:~45` / `gateway-test:~415` check `proxy.configDir {}` — the defaults. A host override of `services.llm-gateway.models` escapes the check; an unpriced model then costs 0.0 silently (the ledger only warns). Equivalent today because Sleipnir uses the defaults.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: enforce the price-map rule on the evaluated host configuration. A NixOS assertion in the agents.gateway record checks that every `services.llm-gateway.models` entry is in the packaged price map. Keep the perSystem check for the defaults. Test: an unpriced model override fails evaluation (features-test or a check).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: enforce the price-map rule on the evaluated host configuration. A NixOS assertion in the agents.gateway record checks that every `services.llm-gateway.models` entry is in the packaged price map. Keep the perSystem check for the defaults. Test: an unpriced model override fails evaluation (features-test or a check).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "startup: expected just gateway-credentials to leave a ready service; observed it returns before api.sock exists and does not clear the start limit"
+detail = """
+Expected: after `just gateway-credentials` the gateway answers.
+Observed live (VH-2, 2026-10-17): a request ~15 ms after the restart got HTTP 000 from the relay — the CLI's `systemctl restart` returns before uvicorn creates `/run/llm-gateway/api.sock` (unit is Type=simple). Also, after first-switch failures the unit hits start-limit-hit and the CLI's plain restart does not `reset-failed`; README carries a manual `sudo systemctl reset-failed` caveat instead (b544a5f5).
+Candidates: `reset-failed` before restart + a readiness wait for the socket in the CLI, or Type=notify.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: the `credentials` command runs `systemctl reset-failed llm-gateway` before the restart and then waits (bounded) for `/run/llm-gateway/api.sock`, failing with a clear message on timeout. Drop the README's manual reset-failed caveat. Test via the host seam (the order of the calls; a timeout path).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: the `credentials` command runs `systemctl reset-failed llm-gateway` before the restart and then waits (bounded) for `/run/llm-gateway/api.sock`, failing with a clear message on timeout. Drop the README's manual reset-failed caveat. Test via the host seam (the order of the calls; a timeout path).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "jail wrapper: expected the missing-runDirectory message to name the real fix; observed it always says just system-switch"
+detail = """
+Expected: the gateway outer wrapper's guidance names the actual remedy.
+Observed: `agents/jailed-agents.nix:~542-545` — when `runDirectory` (/run/llm-gateway) is absent it says `just system-switch`. That directory is also absent when the unit is failing for a missing credential (remedy: `just gateway-credentials`), the state a fresh host is in after its first switch.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile: the wrapper message for a missing runDirectory names both causes: not switched yet (`just system-switch`) or the service failing (`systemctl status llm-gateway`; first run: `just gateway-credentials`). Test: jailed-agents-test asserts the wording.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile: the wrapper message for a missing runDirectory names both causes: not switched yet (`just system-switch`) or the service failing (`systemctl status llm-gateway`; first run: `just gateway-credentials`). Test: jailed-agents-test asserts the wording.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "nit"
+title = "key directory: expected ~/.config/llm-gateway/keys created 0700 along its path; observed only the leaf is chmodded"
+detail = """
+Expected (design sec-4): the key directory is private.
+Observed: `llm-gateway:~258-260` does `mkdir(parents=True)` then chmod 0700 on the leaf only; a newly created `~/.config/llm-gateway` gets the umask default. The key file itself is 0600 and the leaf 0700, so keys stay private.
+"""
+disposition = "fix-now"
+response = """
+Code fix in reconcile, alongside F-1/F-6 in the same file: create the key directory chain with mode 0700 for the directories the CLI creates (`~/.config/llm-gateway`, `keys`), not just the leaf. Test: a fresh parent comes out 0700.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Code fix in reconcile, alongside F-1/F-6 in the same file: create the key directory chain with mode 0700 for the directories the CLI creates (`~/.config/llm-gateway`, `keys`), not just the leaf. Test: a fresh parent comes out 0700.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "design.md: expected it to describe the delivered gateway; observed several sections lag the implementation"
+detail = """
+Expected: design.md (canonical) tells the truth about what shipped.
+Observed drift (each recorded in notes.md, and confirmed by the evidence pass):
+1. sec-1 diagram: route check drawn inside custom_auth (it is an ASGI route gate in front of LiteLLM); old `creds/` path (now /etc/credstore.encrypted/llm-gateway.<p>); pre-call hook "asks the key store" (authenticate puts `models` on UserAPIKeyAuth and ModelGate reads them; sec-3 shows UserAPIKeyAuth(api_key, key_alias) only).
+2. sec-2: a missing credential is "not reliably fatal" — wrong with the absolute-path LoadCredentialEncrypted form: systemd refuses the unit at setup (243/CREDENTIALS), seen live in VH-1. The first switch reports a failed unit until `just gateway-credentials` (user ruling 2026-10-17).
+3. sec-2 / sec-3: two callbacks (model_gate, ledger) with 401 (key) / 403 (model), not the single-ledger YAML; `authenticate` raises Refused rather than returning None.
+4. Served models: sec-2 YAML (:77-80), sec-4 first-run example (:206) and sec-6 F-2 (:291) name deepseek-v4-pro/flash; the gateway serves only deepseek-flash (user direction, b544a5f5).
+5. sec-5: `gateway` takes `{ keyFile; url; runDirectory; }` (runDirectory added: agents/ is a published flake and cannot import gateway constants); gateway + `offline` profile is not refused.
+6. sec-6 VH-4: eca's config.json is untracked and hand-edited; home-switch only changes the jailed-eca wrapper.
+7. sec-4 / DEC-051 consequence: a revoked alias is never reissued; rotation = new alias (user ruling 2026-10-17).
+"""
+disposition = "design-wrong"
+response = """
+design.md is the defect. Reconcile edits sec-1 (diagram), sec-2 (credential fatality, first-switch failure, model list), sec-3 (two callbacks, 401/403, Refused, models on UserAPIKeyAuth), sec-4 (first-run example, alias rotation), sec-5 (runDirectory, offline profile not refused), sec-6 (VH-1 and VH-4 wording, F-2 model). See the RV-026 Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+design.md is the defect. Reconcile edits sec-1 (diagram), sec-2 (credential fatality, first-switch failure, model list), sec-3 (two callbacks, 401/403, Refused, models on UserAPIKeyAuth), sec-4 (first-run example, alias rotation), sec-5 (runDirectory, offline profile not refused), sec-6 (VH-1 and VH-4 wording, F-2 model). See the RV-026 Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "minor"
+title = "scope: expected design sec-5 to cover the jail changes; observed b17e348a changes bwrap launching for every jail (empty environment)"
+detail = """
+Expected: design sec-5/sec-7 describe SL-011's jail changes (gateway mode for eca).
+Observed: b17e348a makes every jail exec bwrap under `env -i` via jail.nix's `bubblewrapPackage`, fixing a leak found by VH-6 (bwrap PID 1's /proc/1/environ carried the session's provider keys into every jail). User ruled it for all jails (2026-10-17). It changes the published agents/ flake's behaviour for every consumer; design.md does not mention it. Memory: mem.fact.bwrap.pid1-environ-leak.
+"""
+disposition = "design-wrong"
+response = """
+design.md sec-5/sec-7 must record the all-jails empty-environment change (b17e348a), why it was made (VH-6, the /proc/1/environ leak), and that it changes the published agents/ flake for every consumer. See the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+design.md sec-5/sec-7 must record the all-jails empty-environment change (b17e348a), why it was made (VH-6, the /proc/1/environ leak), and that it changes the published agents/ flake for every consumer. See the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "minor"
+title = "conformance: expected every touched path inside a design-target selector; observed features-test.nix is undeclared"
+detail = """
+Expected: SL-011's selectors cover what it touched.
+Observed (manual attribution — `doctrine slice conformance 11` is unusable here: the `flakes/` path prefix, ISS-005): every SL-011 path matches a design-target selector except `features-test.nix`. f1e60d07 (PHASE-03) adds `agents.gateway#nixos` to the personal-linux expectations; 77103a44 (PHASE-05) adds `testEcaRequiresGateway`. Both are in scope. No design-target selector is undelivered. Foreign commits in the PHASE-05 range (e92f06fb user audio, IMP-029, memory) are expected.
+"""
+disposition = "design-wrong"
+response = """
+Selector registry: `doctrine slice selector add 11 features-test.nix --kind design-target`, the change conformance reads; design.md's selector mirror is updated to match. See the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Selector registry: `doctrine slice selector add 11 features-test.nix --kind design-target`, the change conformance reads; design.md's selector mirror is updated to match. See the Reconciliation Brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-12"
+status = "verified"
+severity = "minor"
+title = "credential binding: expected host+TPM2 binding with both halves protected; observed the host key sits on unencrypted media"
+detail = """
+Expected (DEC-048): provider credentials encrypted with host+tpm2.
+Observed live (VH-2): systemd-creds warned "Credential secret file '/var/lib/systemd/credential.secret' is not located on encrypted media, using anyway." The TPM2 half still binds the credential to this machine; the host half is readable to anyone with the disk. Sleipnir has no LUKS — IDE-006 already captures that.
+"""
+disposition = "follow-up"
+response = """
+Owned elsewhere: IDE-006 (LUKS on Sleipnir) already captures encrypting the disk, which protects the host half of the binding. The TPM2 half still binds credentials to this machine, so DEC-048's intent holds. Reconcile appends this evidence to IDE-006.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Owned elsewhere: IDE-006 (LUKS on Sleipnir) already captures encrypting the disk, which protects the host half of the binding. The TPM2 half still binds credentials to this machine, so DEC-048's intent holds. Reconcile appends this evidence to IDE-006.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-13"
+status = "verified"
+severity = "nit"
+title = "plan.toml: expected criterion text to match the delivered tests; observed stale model names and a non-test test_file"
+detail = """
+Observed: PHASE-02 EX-3 (:54) and VT-3's keyword (:62) name `deepseek/deepseek-v4-flash`, absent from gateway-test since b544a5f5 (VT-3 now asserts against deepseek/deepseek-flash). PHASE-03 VT-1's test_file is `features/agents/gateway.nix`, not a test. Plan criteria are immutable-append. `doctrine slice verify-vt 11` reports every VT UNATTRIBUTABLE (ISS-005 path prefix), so it cannot help here.
+"""
+disposition = "tolerated"
+response = """
+plan.toml criteria are immutable-append; their text is not a reconcile surface. The model change is recorded in notes.md and corrected in design.md (F-9), and VT-3 still asserts the production mapping for the served model. PHASE-03 VT-1's test_file and the UNATTRIBUTABLE verify-vt rows are cosmetic. The latter is ISS-005 (path prefix), already tracked.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+plan.toml criteria are immutable-append; their text is not a reconcile surface. The model change is recorded in notes.md and corrected in design.md (F-9), and VT-3 still asserts the production mapping for the served model. PHASE-03 VT-1's test_file and the UNATTRIBUTABLE verify-vt rows are cosmetic. The latter is ISS-005 (path prefix), already tracked.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-14"
+status = "verified"
+severity = "nit"
+title = "shell tests: expected negative assertions to fail the build; observed bare ! cmd is exempt from errexit — other repo tests unaudited"
+detail = """
+PHASE-04 found every bare `! grep` assertion in agents/jailed-agents-test.nix inert (bash errexit ignores negated commands), including the existing provider-key argv check; fixed there with a `refute` helper. Other shell tests in the repo (features/*-test scripts, nix check scripts) were not audited for the same flaw.
+"""
+disposition = "follow-up"
+response = """
+Captured as ISS-012: sweep the repo's other shell tests for inert `! cmd` assertions. Fixed for agents/jailed-agents-test.nix in PHASE-04.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Captured as ISS-012: sweep the repo's other shell tests for inert `! cmd` assertions. Fixed for agents/jailed-agents-test.nix in PHASE-04.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
