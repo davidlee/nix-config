@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1484ef145774198b65a66ab3dd27f"
+memory_key = "mem.fact.doctrine.design-section-reviewed"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Design section review is declared as att-N attestations, not a checkpoint act"
+summary = "checkpoint_act section-reviewed is refused (per-section coverage); declare att-N {attests: sec-N, reviewer: human} instead"
+created = "2026-10-17"
+updated = "2026-10-17"
+
+[scope]
+paths = []
+globs = []
+commands = ["doctrine design apply"]
+tags = ["doctrine", "design"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "8691bff4ca0e5388eff7bf9d1cd0a23c1b0e5b72"
+ref_name = "refs/heads/main"
+checkout_state_id = "b8494f9d94cecec3aca5493d169cdeaa36019f631e1c6c7f3ece9e4d14035f6c"
+base_commit = "7fc3f7f8eecb558dea311290befbdb28daf67035"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-011"
+

@@ -6,13 +6,24 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-17 · ready · 7fc3f7f8
 
 ### Produced
+- design locked (run dr-01a14771…, design.md) — broker shape, key store, CLI, jail gateway mode, eca (commits bd88aec0, 85151124)
+- plan: PHASE-01..05 authored and materialised (commit 7fc3f7f8)
+- minted: DEC-047..051 — trust model, TPM credential, key by FD, no master key, key-store semantics
+- minted: IMP-028 — jailed pi onto the broker (fast follow); IDE-006 — LUKS on Sleipnir
+- RV-024 — design review; F-1, F-3 (probe) and F-2, F-5, F-6 (control) answered, verified after their phase criteria land
+- known drift: design sec-1 diagram (route check in custom_auth; creds path) — correct at reconcile
 
 ### Learned
+- mem.fact.doctrine.design-section-reviewed — section review is att-N declarations, not a checkpoint act
+- mem_01a1445e… (existing) — severe design findings need a route before review-disposed
 
 ### Open
+- DEC-046 — governing choice (own SQLite key store), amended by DEC-047's single-socket clause
+- RV-024 F-1, F-2, F-3, F-5, F-6 — instrument-routed; criteria on PHASE-01/02
+- point-of-use checks (plan.md risks): mock_response pricing path, systemd-creds --name vs credential id, LiteLLM offline in the Nix sandbox
 
 ## Design triage (2026-10-17)
 
