@@ -17,6 +17,7 @@
       claude-code = fakeAgent "claude";
       codex = fakeAgent "codex";
       gemini-cli = fakeAgent "gemini";
+      eca = fakeAgent "eca";
     };
   };
   apiKeyOpRefs = {
@@ -126,6 +127,29 @@
     passApiKeysFromEnv = true;
   };
   probeGateway = fakeBwrapAgents.makeJailedPi {gateway = gw;};
+  # pi's models.json bind (bind, or twin without it, differing only in):
+  # probeGateway / piNoGateway                     the gateway
+  # piResearchGateway / customResearchGateway      the agent, not its name
+  # claudePiGateway / claudeGateway                pi as a subagent
+  # probeGateway / ecaGateway                      pi in the jail at all
+  piNoGateway = agents.makeJailedPi {};
+  piResearchGateway = fakeBwrapAgents.makeJailedPi {
+    name = "pi-research";
+    profile = "research";
+    gateway = gw;
+  };
+  customResearchGateway = fakeBwrapAgents.makeJailedAgent {
+    name = "pi-research";
+    agent = fakeAgent "custom";
+    profile = "research";
+    gateway = gw;
+  };
+  claudePiGateway = fakeBwrapAgents.makeJailedClaude {
+    gateway = gw;
+    subagents = ["pi"];
+  };
+  claudeGateway = fakeBwrapAgents.makeJailedClaude {gateway = gw;};
+  ecaGateway = fakeBwrapAgents.makeJailedEca {gateway = gw;};
 
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;
   unknownApiKeyFails = failsToEvaluate (agents.makeJailedPi {
@@ -181,6 +205,36 @@
   gatewayUnknownAttrFails = failsToEvaluate (agents.makeJailedPi {
     gateway = gw // {socket = "/nonexistent/llm-gateway/api.sock";};
   });
+
+  # pi's gateway provider. piGatewayConfig throws "agents/gateway.nix:
+  # served model <id> has no pi entry"; tryEval loses the message, so the
+  # failing case has a twin that differs only in the pi block. toJSON forces
+  # the model list: a bare tryEval stops at weak head normal form and would
+  # pass whatever the models hold.
+  piConfigOf = models: builtins.toJSON (agents.piGatewayConfig gw.url models);
+  noPiEntryFails =
+    !(builtins.tryEval (piConfigOf {
+      x = {
+        model = "m";
+        provider = "p";
+      };
+    })).success;
+  # The bound file for gateway.nix's served models.
+  expectedPiModels = pkgs.writeText "expected-pi-gateway-models.json" (builtins.toJSON {
+    providers.llm-gateway = {
+      baseUrl = gw.url;
+      api = "openai-completions";
+      apiKey = "$LLM_GATEWAY_KEY";
+      models = lib.mapAttrsToList (id: m: {inherit id;} // m.pi) gatewayData.models;
+    };
+  });
+  withPiEntry = agents.piGatewayConfig gw.url {
+    x = {
+      model = "m";
+      provider = "p";
+      pi.name = "X";
+    };
+  };
 in
   assert knownSubagent.drvPath != "";
   assert noSecretMachinery.drvPath != "";
@@ -200,6 +254,22 @@ in
     inherit (gatewayData) url;
     runDirectory = "/run/llm-gateway";
   };
+  assert noPiEntryFails;
+  assert (builtins.tryEval (builtins.toJSON withPiEntry)).success;
+  assert withPiEntry
+  == {
+    providers.llm-gateway = {
+      baseUrl = gw.url;
+      api = "openai-completions";
+      apiKey = "$LLM_GATEWAY_KEY";
+      models = [
+        {
+          id = "x";
+          name = "X";
+        }
+      ];
+    };
+  };
     pkgs.runCommand "jailed-agents-policy-tests" {
       nativeBuildInputs = [pkgs.gnugrep pkgs.coreutils];
     } ''
@@ -212,9 +282,28 @@ in
         fi
       }
 
-      # The inner launcher a gateway wrapper execs.
+      # The inner launcher a gateway wrapper execs: gateway_inner_of <outer> <name>.
       gateway_inner_of() {
-        sed -n 's|^exec \(/nix/store/[^ ]*-jailed-pi/bin/jailed-pi\) .*|\1|p' "$1"
+        sed -n "s|^exec \(/nix/store/[^ ]*-jailed-$2/bin/jailed-$2\) .*|\1|p" "$1"
+      }
+
+      # Gateway mode, as text: gateway_probes <outer> <inner>. No op wrapper
+      # and no provider key; the gateway key reaches the jail over its own
+      # `--args FD`, read by a shell builtin.
+      gateway_probes() {
+        test -n "$2"
+        refute grep -Fq -- 'op run' "$1"
+        refute grep -Fq -- '/run/wrappers/bin/op' "$1"
+        grep -Fq -- '--args 22 22< <(printf' "$2"
+        grep -Fq -- '--setenv LLM_GATEWAY_KEY "$(<' "$2"
+        refute grep -Fq -- 'cat ' "$2"
+        refute grep -Fq -- 'API_KEY' "$2"
+        refute grep -Fq -- '--args 21' "$2"
+        grep -Fq -- '--setenv LLM_GATEWAY_URL ${lib.escapeShellArg gw.url}' "$2"
+        # Argv safety, as for provider keys. The strip stops at the first `)`,
+        # which closes the nested `$(<` — after the key's name.
+        sed 's/<(printf[^)]*)//g' "$2" > "$TMPDIR/gw-argv-only"
+        refute grep -Fq -- 'LLM_GATEWAY_KEY' "$TMPDIR/gw-argv-only"
       }
 
       spec=${specDev}/bin/jailed-zsh
@@ -302,23 +391,10 @@ in
       refute grep -Fq -- 'op run' "$no_keys"
       refute grep -Fq -- 'API_KEY' "$no_keys"
 
-      # Gateway mode: no op wrapper and no provider key; the gateway key
-      # reaches the jail over its own `--args FD`, read by a shell builtin.
+      # Gateway mode (see gateway_probes).
       gw_outer=${gatewayJail}/bin/jailed-pi
-      refute grep -Fq -- 'op run' "$gw_outer"
-      refute grep -Fq -- '/run/wrappers/bin/op' "$gw_outer"
-      gw_inner="$(gateway_inner_of "$gw_outer")"
-      test -n "$gw_inner"
-      grep -Fq -- '--args 22 22< <(printf' "$gw_inner"
-      grep -Fq -- '--setenv LLM_GATEWAY_KEY "$(<' "$gw_inner"
-      refute grep -Fq -- 'cat ' "$gw_inner"
-      refute grep -Fq -- 'API_KEY' "$gw_inner"
-      refute grep -Fq -- '--args 21' "$gw_inner"
-      grep -Fq -- '--setenv LLM_GATEWAY_URL ${lib.escapeShellArg gw.url}' "$gw_inner"
-      # Argv safety, as for provider keys. The strip stops at the first `)`,
-      # which closes the nested `$(<` — after the key's name.
-      sed 's/<(printf[^)]*)//g' "$gw_inner" > "$TMPDIR/gw-argv-only"
-      refute grep -Fq -- 'LLM_GATEWAY_KEY' "$TMPDIR/gw-argv-only"
+      gw_inner="$(gateway_inner_of "$gw_outer" pi)"
+      gateway_probes "$gw_outer" "$gw_inner"
 
       # Behaviour: the outer wrapper fails with the fix, before bwrap.
       export HOME="$TMPDIR/gw-home"
@@ -363,14 +439,19 @@ in
       grep -Fxq -- 'OPENROUTER_API_KEY' "$TMPDIR/keys/bwrap-args-21"
       grep -Fxq -- 'sk-fake-SENTINEL' "$TMPDIR/keys/bwrap-args-21"
 
-      # Gateway: the inner launcher, past the outer's runDirectory check.
-      mkdir -p "$TMPDIR/gateway-home/.config/llm-gateway/keys"
-      printf 'sk-fake-GATEWAY' > "$TMPDIR/gateway-home/.config/llm-gateway/keys/pi"
-      probe_gw="$(gateway_inner_of ${probeGateway}/bin/jailed-pi)"
-      test -n "$probe_gw"
-      probe_launch gateway "$probe_gw"
-      grep -Fxq -- 'sk-fake-GATEWAY' "$TMPDIR/gateway/bwrap-args-22"
-      refute grep -Fq -- 'sk-fake-SENTINEL' "$TMPDIR/gateway/bwrap-args-22"
+      # Gateway: the inner launcher, past the outer's runDirectory check,
+      # with gw's key staged (keys/pi, whichever the jail). fd 22 carries
+      # that key and no provider key: gateway_launch <label> <inner>.
+      gateway_launch() {
+        mkdir -p "$TMPDIR/$1-home/.config/llm-gateway/keys"
+        printf 'sk-fake-GATEWAY' > "$TMPDIR/$1-home/.config/llm-gateway/keys/pi"
+        test -n "$2"
+        probe_launch "$1" "$2"
+        grep -Fxq -- 'sk-fake-GATEWAY' "$TMPDIR/$1/bwrap-args-22"
+        refute grep -Fq -- 'sk-fake-SENTINEL' "$TMPDIR/$1/bwrap-args-22"
+      }
+      probe_gw="$(gateway_inner_of ${probeGateway}/bin/jailed-pi pi)"
+      gateway_launch gateway "$probe_gw"
 
       # The real launchers exec the same seam: every one (op-run inner and
       # gateway inner included) names an `env -i` bwrap, never bwrap bare.
@@ -379,6 +460,56 @@ in
         test -n "$seam"
         grep -Fq -- 'env -i ${lib.getExe pkgs.bubblewrap} "$@"' "$seam"
       done
+
+      # pi in gateway mode: a store models.json bound read-only over the
+      # persisted home's, so after its bind, wherever pi is in the jail (the
+      # agent under any name, or a subagent), and nowhere else.
+      research_inner="$(gateway_inner_of ${piResearchGateway}/bin/jailed-pi-research pi-research)"
+      claude_pi_inner="$(gateway_inner_of ${claudePiGateway}/bin/jailed-claude claude)"
+      models_bind='--ro-bind /nix/store/[^ ]*-pi-gateway-models.json ~/.pi/agent/models.json'
+      bound=""
+      for i in "$probe_gw" "$research_inner" "$claude_pi_inner"; do
+        test -n "$i"
+        test "$(grep -o -- "$models_bind" "$i" | wc -l)" = 1
+        home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$i" | cut -d: -f1)"
+        models_at="$(grep -bo -- "$models_bind" "$i" | cut -d: -f1)"
+        test -n "$home_at" && test -n "$models_at" && test "$models_at" -gt "$home_at"
+        # Same url and models, so the same store file for every jail.
+        this="$(grep -o -- "$models_bind" "$i")"
+        test -z "$bound" || test "$this" = "$bound"
+        bound="$this"
+      done
+
+      # The new gateway jails pass the same no-key probes.
+      eca_outer=${ecaGateway}/bin/jailed-eca
+      eca_inner="$(gateway_inner_of "$eca_outer" eca)"
+      gateway_probes ${piResearchGateway}/bin/jailed-pi-research "$research_inner"
+      gateway_probes ${claudePiGateway}/bin/jailed-claude "$claude_pi_inner"
+      gateway_probes "$eca_outer" "$eca_inner"
+      gateway_launch research "$research_inner"
+      gateway_launch claude-pi "$claude_pi_inner"
+      gateway_launch eca "$eca_inner"
+      # Launched, bwrap gets the bind's target under the launching HOME.
+      for label in gateway research claude-pi; do
+        grep -Fxq -- "$TMPDIR/$label-home/.pi/agent/models.json" "$TMPDIR/$label/bwrap-argv"
+      done
+      refute grep -Fq -- 'models.json' "$TMPDIR/eca/bwrap-argv"
+
+      no_gw_outer=${piNoGateway}/bin/jailed-pi
+      no_gw_inner="$(sed -n 's|.*\(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$no_gw_outer")"
+      test -n "$no_gw_inner"
+      for i in \
+        "$eca_inner" \
+        "$(gateway_inner_of ${customResearchGateway}/bin/jailed-pi-research pi-research)" \
+        "$(gateway_inner_of ${claudeGateway}/bin/jailed-claude claude)" \
+        "$no_gw_outer" "$no_gw_inner/bin/jailed-pi"; do
+        test -f "$i" # a missing file would make the refute vacuous
+        refute grep -Fq -- 'models.json' "$i"
+      done
+      models_file="$(grep -o '/nix/store/[^ ]*-pi-gateway-models.json' "$probe_gw" | head -1)"
+      test -n "$models_file"
+      cmp "$models_file" ${expectedPiModels}
+      grep -Fq -- '"apiKey":"$LLM_GATEWAY_KEY"' "$models_file"
 
       workspace=${workspace}/bin/jailed-zsh
       grep -Fq -- "$(cat ${expectedWorkspaceBind})" "$workspace"

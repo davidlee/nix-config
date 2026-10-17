@@ -365,32 +365,73 @@ passApiKeysFromEnv = per-profile`) keep the simple case simple.
 ### Gateway mode (`gateway`)
 
 A jail can hold one key for a local LLM gateway instead of provider keys. The
-argument is exactly three strings:
+argument is exactly three strings; `gatewayClient` builds it for this repo's
+gateway:
 
 ```nix
-(agents.makeJailedEca {
-  gateway = {
-    keyFile      = "$HOME/.config/llm-gateway/keys/eca"; # a shell word, expanded at run time
-    url          = "http://127.0.0.1:4000/v1";
-    runDirectory = "/run/llm-gateway";
-  };
+(agents.makeJailedPi {
+  gateway = agents.gatewayClient "pi";
+  # = {
+  #   keyFile      = "$HOME/.config/llm-gateway/keys/pi"; # a shell word, expanded at run time
+  #   url          = "http://127.0.0.1:4000/v1";
+  #   runDirectory = "/run/llm-gateway";
+  # }
 })
 ```
+
+`gatewayClient "<client>"` takes the key file's name; the address comes from
+`agents/gateway.nix`. A hand-built value of the same three strings works for
+any other OpenAI-compatible endpoint that takes a bearer key: `gateway.nix`
+carries this repo's gateway's address and models, and the mechanism assumes
+no particular gateway. The gateway itself is described in the top-level
+README, § LLM gateway.
 
 Effect:
 
 - No `op run`. `apiKeys` defaults to `[]`; an explicit non-empty `apiKeys`
   is refused at evaluation.
-- The outer wrapper reads `keyFile` with a shell builtin and passes it as
+- The launcher reads `keyFile` with a shell builtin and passes it as
   `LLM_GATEWAY_KEY` over `--args 22` (not argv, like the provider keys on
   `--args 21`). `LLM_GATEWAY_URL` is plain env.
 - The wrapper fails with a message in two cases: the key file is unreadable
   (issue one: `llm-gateway issue … --out <keyFile>`), or `runDirectory` is
   missing (the gateway is not running; `just system-switch`).
 
-The sub-flake depends on no gateway implementation: any OpenAI-compatible
-endpoint that takes a bearer key fits. The gateway shipped with this repo is
-described in the top-level README, § LLM gateway.
+#### pi in gateway mode
+
+pi reads its providers only from `~/.pi/agent/models.json`, which the
+persisted home shares with every jail on it. With pi in a gateway jail, a
+generated `models.json` from the store is bound read-only over it: one
+provider, `llm-gateway`, with the literal `baseUrl` (`url`), `apiKey`
+`$LLM_GATEWAY_KEY` (read from the environment per request) and one model per
+served alias, selected as `llm-gateway/<alias>`. The name keeps any stored
+`auth.json` credential for a built-in provider from matching it.
+
+| jail | bind |
+|---|---|
+| `gateway` set, pi the agent (`makeJailedPi`, under any `name`, e.g. `pi-research`) | yes |
+| `gateway` set, pi a subagent (`subagents = [ "pi" ]`, or `"all"`) | yes |
+| `gateway` set, no pi (eca) | no |
+| no `gateway` | no: the shared file, unchanged |
+
+A nested pi runs in its parent's jail, so it sees the parent's bind and
+key. The file is read-only inside: edit `models.json` from the host or a
+non-gateway jail.
+
+**A home should already hold a `models.json`.** Where the persisted home has
+none, bwrap creates the bind target as an empty file there, and pi then
+warns about it in every later non-gateway jail on that home;
+`{"providers":{}}` loads cleanly. The research home's is tracked in the home
+repo. The launcher does not seed the file: that would be a host-side write
+inside a home the jail can write, which follows any symlink the jail planted.
+
+**Adding a served model** is an entry in `agents/gateway.nix` with `model`,
+`provider` and a `pi` block: pi gives a custom model no built-in metadata,
+so copy `compat`, `thinkingLevelMap` and the limits from pi's built-in entry
+for the upstream model, and check it through the gateway (`--thinking off`
+gives no reasoning tokens). A served model without `pi` fails evaluation,
+naming it. The gateway side (price map, key model lists) is in the top-level
+README, § LLM gateway.
 
 ### makeJailedAgent options
 
@@ -410,7 +451,7 @@ described in the top-level README, § LLM gateway.
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `apiKeys` | all configured names; `[]` in gateway mode | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
-| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)) |
+| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json` |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
 

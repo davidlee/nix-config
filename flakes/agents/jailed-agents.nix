@@ -30,6 +30,8 @@
 #   provider key and no `op run`. The jail gets one gateway key, read from
 #   a file by a shell builtin and forwarded over its own `--args FD`, and
 #   the gateway's URL; a thin wrapper names the fix when either is missing.
+#   With pi in the jail, gateway mode also binds a generated, read-only
+#   `~/.pi/agent/models.json` (one provider, `llm-gateway`).
 #
 # Usage:
 #   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
@@ -156,6 +158,30 @@
   hostGitExcludesOptions = [
     (jail.combinators.unsafe-add-raw-args "--ro-bind-try \"$(${hostGitExcludesFile})\" ~/.config/git/ignore")
   ];
+
+  # This repo's gateway: its address, served models and clients. Not
+  # `gateway`, which makeJailedAgent takes as an argument.
+  gatewayData = import ./gateway.nix;
+
+  # pi's provider for an LLM gateway (DEC-058): one provider, named apart
+  # from every built-in so no stored auth.json credential matches it.
+  # baseUrl is literal (pi does not interpolate it); apiKey is read from the
+  # environment per request. `models` is gateway.nix's shape: each served
+  # model's `pi` block is its pi entry (DEC-063).
+  piGatewayConfig = url: models: {
+    providers.llm-gateway = {
+      baseUrl = url;
+      api = "openai-completions";
+      apiKey = "$LLM_GATEWAY_KEY";
+      models =
+        lib.mapAttrsToList (
+          id: m:
+            {inherit id;}
+            // m.pi or (throw "agents/gateway.nix: served model ${id} has no pi entry")
+        )
+        models;
+    };
+  };
 
   # Always applied — not policy-bearing
   baseJailOptions = with jail.combinators; [
@@ -296,6 +322,7 @@
     #   runDirectory  present while the gateway runs (its RuntimeDirectory).
     # The jail gets LLM_GATEWAY_KEY (over `--args FD`) and LLM_GATEWAY_URL,
     # and no provider key: gateway plus a non-empty `apiKeys` is refused.
+    # With pi in the jail, also a read-only models.json (piGatewayOptions).
     gateway ? null,
     # Names from apiKeyOpRefs to resolve and/or forward for this jail.
     # The compatibility default remains every configured key; none in
@@ -386,6 +413,25 @@
       (setenvsByArgsFd gatewayKeyArgsFd {
         LLM_GATEWAY_KEY = "\"$(< \"${checkedGateway.keyFile}\")\"";
       })
+    ];
+
+    # pi is in the jail as the agent (makeJailedPi, whatever its `name`,
+    # e.g. pi-research) or as a subagent. Derivations compare by output path.
+    piInJail = agent == pi || lib.elem "pi" subagentNames;
+
+    piGatewayModels =
+      pkgs.writeText "pi-gateway-models.json"
+      (builtins.toJSON (piGatewayConfig checkedGateway.url gatewayData.models));
+
+    # pi reads its providers only from ~/.pi/agent/models.json, which the
+    # persisted home shares with every jail on it: in gateway mode, bind the
+    # generated one over it, read-only. Must follow the persisted-home bind,
+    # or that bind would cover it (as hostGitExcludesOptions). No seed for a
+    # missing target: a host-side write inside the jail-writable home would
+    # follow a symlink the jail planted (RV-028 F-1). gateway is tested
+    # first, so a jail without one never forces pi.
+    piGatewayOptions = lib.optionals (gateway != null && piInJail) [
+      (jail.combinators.unsafe-add-raw-args "--ro-bind ${piGatewayModels} ~/.pi/agent/models.json")
     ];
 
     # Resolve a subagent name to its package. The current agent is
@@ -492,6 +538,7 @@
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
       ++ gatewayOptions
+      ++ piGatewayOptions
       ++ [
         (jail.combinators.add-pkg-deps (
           commonPkgs
@@ -680,7 +727,9 @@ in {
   inherit commonPkgs;
   inherit (jail) combinators;
   # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
-  gatewayClient = (import ./gateway.nix).client;
+  gatewayClient = gatewayData.client;
+  # pi's gateway provider for any model set: piGatewayConfig url models.
+  inherit piGatewayConfig;
   # Bare (unjailed) agent packages, resolved from the same eval as the
   # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
   # `unjailed.pi` etc. without separately wiring llm-agents.
