@@ -59,7 +59,8 @@ Decisions: DEC-052 … DEC-057 (design run inq-1 … inq-6).
    `modules/home/darwin/default.nix`, the skip list).
 7. **Pre-build list** (DEC-057): `just will-build` shows noise grouped, never
    dropped. It runs on demand and after `update-*`. Home builds go through
-   `nom`, keeping the exit status.
+   `nom`, keeping the exit status. `nix-output-monitor` joins the home base, because the Mac
+   has no nom (RV-025 F-7).
 
 ## Non-Goals
 
@@ -106,8 +107,9 @@ All settled at design: DEC-052 … DEC-057.
 - `just test`, `just coverage` and `just drvs` stay green. Sleipnir and Draupnir
   drvPaths are unchanged (the probes apply nothing; the rename is
   behaviour-neutral).
-- A live `just workarounds-check` against the real probes reports the expected
-  states, today: atuin, shell_cmds and yEd for aarch64-darwin.
+- A live `just workarounds-check` against the real probes reports their
+  states, today: atuin and shell_cmds probed for aarch64-darwin, yEd manual
+  (unfree).
 - `rg cli-broken` finds nothing outside history and closed slices.
 
 ## Summary

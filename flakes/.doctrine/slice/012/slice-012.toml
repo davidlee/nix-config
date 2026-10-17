@@ -20,11 +20,11 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "features/cli-broken.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/available.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/audio.nix"
@@ -32,19 +32,51 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/profiles/personal-darwin.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "hosts/Draupnir/features.nix"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "workarounds/**"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/will-build"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/will-build-test"
+intent = "design-target"
+
+[[selector]]
+selector = "flake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/platform-skips.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/cli.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/darwin/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "run.sh"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"
