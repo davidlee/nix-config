@@ -52,7 +52,7 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `satan-tick` | `satan-run-tick` → `(satan-tick)` | **once, 5 min after boot** (`OnUnitActiveSec` commented out; ISS-022) | `satan.nix:72-84` |
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
-| `satan-patcher` | Go daemon, 30 s queue tick, `op read` in ExecStartPre; PATH = nix, git, coreutils | always | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
+| `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | always | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
 | `panopticon-sway` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -83,11 +83,17 @@ elisp `~/dev/satan/satan/memory/migrations/0001–0008` (`schema_migrations`);
 migrate` applies 0006. Tests use Supabase on `127.0.0.1:54322`. Nothing
 found using the `corpus` database.
 
-**Secrets:** 1Password via `/run/wrappers/bin/op` (`modules/nixos/programs.nix:152-160`).
-The broker resolves `op://` refs through `my/satan-credential`
-(`~/.config/emacs/lisp/dl-secret.el:141`); jails use `op run --env-file` or FD 21.
-The library ref map (`agents/jailed-agents.nix:36-43`) has no
-`ANTHROPIC_API_KEY`.
+**Secrets:** SATAN holds no provider key (SL-022). Model traffic goes through
+the LLM gateway; each jail's launcher reads a gateway client key from
+`~/.config/llm-gateway/keys/<name>` and passes it in as `LLM_GATEWAY_KEY` over
+`--args FD` (`agents/jailed-agents.nix:315-411`), never on argv. The harness
+uses `keys/satan` (`deepseek-flash` only, $20 lifetime); the dev jails
+(jailed-pi, -pi-research, -shell, -claude) use `keys/pi`. A missing key file
+makes the launcher refuse. Issue a key with
+`llm-gateway issue <name> --models <m> --budget <usd> --out ~/.config/llm-gateway/keys/<name>`;
+`llm-gateway list` shows spend. The broker's `op://` path
+(`my/satan-credential`, `~/.config/emacs/lisp/dl-secret.el:141`) is no longer
+used by the harness; SL-022's broker phases remove it.
 
 ## Jails
 
@@ -123,9 +129,5 @@ mounted.
 
 - MCP dev jails bind the Emacs server socket rw: arbitrary elisp from inside
   the jail.
-- `try-fwd-env` puts forwarded API keys on bwrap's argv; the harness gets them
-  that way as well as via FD.
-- `SATAN_MAX_BUDGET_TOKENS` is not forwarded, so the harness's hard budget
-  backstop is disabled.
 - satan-patcher: all 17 jobs failed (newest 2026-05-20); likely cause is
   `jailed-pi` missing from the unit PATH.
