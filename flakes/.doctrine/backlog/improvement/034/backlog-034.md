@@ -45,3 +45,7 @@ re-locked at add489ed). Deleted as stale: checkout-doctrine, doctrine-SL-248
 jails; its uncommitted flake.nix is a copy of another repo's (description
 "satan-attrd", builds doctrined, jails forwarding OPENROUTER_API_KEY). Its
 owner decides whether to discard it.
+
+**Resolved 2026-10-19.** lazyspec deleted by its owner. Every `~/dev/*` flake
+that builds jails now takes `gatewayClient "pi"`; none references a provider
+key.

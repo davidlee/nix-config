@@ -1,0 +1,20 @@
+schema = "doctrine.comparison-session"
+version = 3
+tombstone = []
+
+[session]
+uid = "01a1514b-d3fa-76d1-bed7-d6c127acbc7c"
+date = "2026-10-18"
+
+[[judgement]]
+uid = "01a1514b-d3fa-76d1-bed7-d6da02af6045"
+seq = 0
+a = "IDE-005"
+domain = "value"
+frame = "value-anchor"
+form = "anchor"
+magnitude = 5.0
+rater = "agent"
+note = "Live provider keys (and a PyPI token) sit in agent transcripts and were sent to model providers; IMP-034 closed the vector, so purge and rotation are the remaining exposure. Default items are 1.0."
+date = "2026-10-18"
+basis = "POL-001"
