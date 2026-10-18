@@ -82,6 +82,36 @@ class Crashes(unittest.TestCase):
     self.assertEqual(r, doctor.Result(doctor.OK, "0 (1 limit kills)"))
 
 
+class Freshness(unittest.TestCase):
+  firefox = {"warn_minutes": 240, "app": "firefox"}
+
+  def result(self, age, running, cfg=None):
+    return panopticon.freshness_result(cfg or self.firefox, age, True, running)
+
+  def test_a_closed_app_is_not_a_stale_feed(self):
+    self.assertEqual(self.result(600, running=False), ("OK", "10.0 h ago (firefox not running)"))
+    self.assertEqual(self.result(None, running=False)[0], "OK")
+
+  def test_a_running_app_with_a_stale_feed_warns(self):
+    self.assertEqual(self.result(600, running=True), ("WARN", "10.0 h ago"))
+
+  def test_a_fresh_feed_is_ok(self):
+    self.assertEqual(self.result(5, running=True), ("OK", "5 min ago"))
+
+  def test_a_source_without_an_app_is_judged_on_age_alone(self):
+    self.assertEqual(self.result(None, running=True, cfg={"warn_minutes": 30}),
+                     ("WARN", "no events today"))
+
+
+class Zombies(unittest.TestCase):
+  def test_a_few_are_tolerated(self):
+    self.assertEqual(doctor.zombie_result(6).status, doctor.OK)
+
+  def test_many_warn_then_crit(self):
+    self.assertEqual(doctor.zombie_result(10).status, doctor.WARN)
+    self.assertEqual(doctor.zombie_result(50).status, doctor.CRIT)
+
+
 class Problems(unittest.TestCase):
   checks = [
     ("System", "disk", doctor.Result(doctor.OK, "fine")),

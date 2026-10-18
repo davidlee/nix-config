@@ -41,7 +41,7 @@ GLYPH = {
 }
 
 # ── Configurable lists ────────────────────────────────────────────────────────
-DAEMONS_USER = ["spotifyd", "swayidle", "swayosd"]
+DAEMONS_USER = ["spotifyd", "swayosd"]
 DAEMONS_SYSTEM = ["cups"]
 
 HOME = Path.home()
@@ -226,9 +226,13 @@ def _():
                 n += 1
         except OSError:
             continue
-    if n == 0:
-        return Result(OK, "0")
-    return Result(WARN if n < 10 else CRIT, f"{n} zombie processes")
+    return zombie_result(n)
+
+
+def zombie_result(n: int) -> Result:
+    # A few unreaped children are harmless (speech-dispatcher keeps some).
+    status = CRIT if n >= 50 else WARN if n >= 10 else OK
+    return Result(status, f"{n} zombie processes")
 
 
 @check("System", "Thermal")
@@ -517,9 +521,8 @@ def _git_dirty(repo: Path, pathspec: str | None = None) -> Result:
                 if behind:
                     bits.append(f"behind {behind}")
 
-    if not bits:
-        return Result(OK, "clean")
-    return Result(WARN, ", ".join(bits))
+    # $HOME is always mid-change; dirty or unpushed is information, not a fault.
+    return Result(OK, ", ".join(bits) or "clean")
 
 
 @check("Network + Git", "Git ~")

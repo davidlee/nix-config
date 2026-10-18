@@ -23,3 +23,9 @@ here, with scope widened by the user:
   `motd` (stamp in `$XDG_RUNTIME_DIR`).
 - Tests: `hosts/Sleipnir/doctor/doctor-test`, in `just test`; each behaviour
   mutation-checked. TODO.md section removed.
+- Login noise pruned (7 warnings → 2 real ones): zombies warn from 10;
+  `swayidle` dropped from the daemon list (nothing runs it under umbriel);
+  git dirty/ahead is OK with detail; raw/firefox is OK while Firefox is not
+  running; satan's `browser=missing` no longer warns (panopticon owns that
+  feed). roam-db now warns only when notes are newer than the db (in
+  `~/.config/emacs`, `lisp/dl-sleipnir-doctor.el`, with ERT tests).

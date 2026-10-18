@@ -27,7 +27,8 @@ UNIT = "panopticon-desktop.service"  # the long-running watcher
 # raw/desktop-*.jsonl but its segments are still named focus-* (SL-004).
 SOURCES = {
   "desktop": {"warn_minutes": 30, "prefix": "focus"},
-  "firefox": {"warn_minutes": 240, "prefix": "browser"},
+  # `app`: a feed that is silent while its app is closed (pgrep pattern).
+  "firefox": {"warn_minutes": 240, "prefix": "browser", "app": "firefox"},
 }
 
 
@@ -99,26 +100,36 @@ def check_raw_freshness():
 
   results = []
   for source, cfg in SOURCES.items():
-    age = ages[source]
-    if age is None:
-      status = WARN
-      detail = "no events today"
-    elif age > cfg["warn_minutes"]:
-      status = WARN
-      detail = fmt_age(age)
-    else:
-      status = OK
-      detail = fmt_age(age)
-
-    if status == WARN and source != "desktop" and not desktop_fresh:
-      detail += " (desktop also stale)"
-
+    app = cfg.get("app")
+    status, detail = freshness_result(cfg, ages[source],
+                                      desktop_fresh or source == "desktop",
+                                      app is None or app_running(app))
     results.append({
       "category": CAT,
       "name": f"raw/{source} freshness",
       "status": status, "detail": detail,
     })
   return results
+
+
+def app_running(pattern):
+  try:
+    return subprocess.run(["pgrep", pattern], capture_output=True,
+                          timeout=5).returncode == 0
+  except (FileNotFoundError, subprocess.TimeoutExpired):
+    return True  # unknown: judge the feed on its age
+
+
+def freshness_result(cfg, age, desktop_fresh, running):
+  # desktop_fresh: whether to blame the machine being idle rather than this feed.
+  detail = "no events today" if age is None else fmt_age(age)
+  if not running:
+    return OK, f"{detail} ({cfg['app']} not running)"
+  if age is not None and age <= cfg["warn_minutes"]:
+    return OK, detail
+  if not desktop_fresh:
+    detail += " (desktop also stale)"
+  return WARN, detail
 
 
 def check_segments():
