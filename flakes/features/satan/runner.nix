@@ -54,7 +54,7 @@
     settings = {
       # The runner's kill switch (authority ledger row 6), apart from the unit.
       # Shipped parked: a home switch starts the unit (I14). Enable: SATAN.md.
-      enabled = false;
+      enabled = true;
       # Explicit, no fallback: must exist before start, even parked (CHR-003).
       prompt_file = "${home}/satan-corpus/prompts/patch-agent.md";
       # Absolute; a job may only lower these. cost_usd: first deploy, cheap model.
