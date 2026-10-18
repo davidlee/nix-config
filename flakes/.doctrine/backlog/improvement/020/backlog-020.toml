@@ -5,10 +5,10 @@ id = 20
 slug = "least-privilege-api-keys-for-jailed-agents"
 title = "Least-privilege API keys for jailed agents"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-10-18"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

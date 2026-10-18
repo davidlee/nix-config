@@ -20,3 +20,8 @@ Interim step; IDE-003 removes raw keys from agents altogether.
 2026-10-17 (SL-011): the jailed eca no longer receives provider keys; it runs
 in gateway mode with a single gateway key. Other jails still get their keys
 through `op run`; pi is next (IMP-028).
+
+**Resolved 2026-10-19.** `apiKeys` defaults to `[]` (landed in 35bf1a73, swept
+into an SL-023 commit; its test in `agents/jailed-agents-test.nix`). The
+README's argv drift was already fixed. A consumer flake keeps the old default
+until it re-locks `agents`; moving those off keys is IMP-034.

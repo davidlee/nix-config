@@ -315,8 +315,9 @@ agents = inputs.agents.lib.${system}.mkJailedAgents {
 };
 ```
 
-By default each jail receives every configured key for compatibility. Narrow
-an individual jail with `apiKeys`; unknown names fail evaluation with the jail
+A jail receives no key unless it names one in `apiKeys` (IMP-020): every key
+in a jail's environment reaches every child process, and one `env` dump sends
+them all to the agent's provider. Unknown names fail evaluation with the jail
 name in the diagnostic:
 
 ```nix
@@ -326,7 +327,7 @@ name in the diagnostic:
 ```
 
 The selected subset controls both the outer `op run` env file and bwrap's
-environment forwarding. `apiKeys = [];` skips the secret wrapper entirely.
+environment forwarding. With no keys selected there is no secret wrapper.
 `useOpEnv` and `passApiKeysFromEnv` otherwise remain independent.
 
 If `op` is missing from `PATH`, the wrapper bails with a clear message —
@@ -353,6 +354,7 @@ satan-jailed-gptel-harness = jailLib.makeJailedAgent {
   name    = "satan-gptel-harness";
   agent   = satanGptelHarness;
   profile = "specDev";
+  apiKeys            = [ "OPENROUTER_API_KEY" ];
   useOpEnv           = false;  # skip the outer `op run` wrapper
   passApiKeysFromEnv = true;   # keep the FD forwarding
 };
@@ -362,7 +364,7 @@ Effect:
 
 - The outer `op run` wrapper is omitted, so launching the jail does not
   call `op` and never prompts 1Password.
-- The inner bwrap launcher still forwards over `--args 21` each entry in `apiKeyOpRefs`, so whatever plaintext the caller has
+- The inner bwrap launcher still forwards over `--args 21` each name in `apiKeys`, so whatever plaintext the caller has
   set in `process-environment` (or its equivalent) for those names is
   forwarded into the sandbox.
 - If the caller fails to set a key, `${VAR:-}` expands to empty and the
@@ -399,7 +401,7 @@ README, § LLM gateway.
 
 Effect:
 
-- No `op run`. `apiKeys` defaults to `[]`; an explicit non-empty `apiKeys`
+- No `op run`. A non-empty `apiKeys`
   is refused at evaluation.
 - The launcher reads `keyFile` with a shell builtin and passes it as
   `LLM_GATEWAY_KEY` over `--args 22` (not argv, like the provider keys on
@@ -462,7 +464,7 @@ README, § LLM gateway.
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
-| `apiKeys` | all configured names; `[]` in gateway mode | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
+| `apiKeys` | `[]` | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json` |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |

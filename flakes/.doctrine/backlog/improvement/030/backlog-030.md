@@ -35,3 +35,7 @@ LLM gateway"), which also absorbs satan:ISS-029 (keys on bwrap argv, budget
 ceiling not forwarded). It owns the `features/satan/patcher.nix` change here.
 Emacs's in-process clients stay with emacs:SL-015; the two meet only at the
 gateway and at `env.zsh`, whose retirement waits on SL-022.
+
+**Resolved 2026-10-19.** satan:SL-022 is done (2026-10-18); `~/dev/satan`
+builds its jails with `gatewayClient`. The remaining `~/dev/*` flakes are
+IMP-034.

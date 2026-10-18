@@ -80,6 +80,8 @@
     useOpEnv = true;
     passApiKeysFromEnv = true;
   };
+  # The default selects no key, so it never reads apiKeyOpRefs (IMP-020).
+  defaultNoSecrets = lazySecretAgents.makeJailedPi {};
   noSecretMachinery = lazySecretAgents.makeJailedPi {
     useOpEnv = false;
     passApiKeysFromEnv = false;
@@ -238,6 +240,7 @@
 in
   assert knownSubagent.drvPath != "";
   assert noSecretMachinery.drvPath != "";
+  assert defaultNoSecrets.drvPath != "";
   assert unknownApiKeyFails;
   assert unknownSubagentFails;
   assert zeroDepthFails;
@@ -414,6 +417,11 @@ in
       refute grep -Fq -- 'op run' "$no_keys"
       refute grep -Fq -- 'API_KEY' "$no_keys"
 
+      # The default is no key at all (IMP-020): a jail names what it needs.
+      default_keys=${piNoGateway}/bin/jailed-pi
+      refute grep -Fq -- 'op run' "$default_keys"
+      refute grep -Fq -- 'API_KEY' "$default_keys"
+
       # Gateway mode (see gateway_probes).
       gw_outer=${gatewayJail}/bin/jailed-pi
       gw_inner="$(gateway_inner_of "$gw_outer" pi)"
@@ -527,14 +535,11 @@ in
       done
       refute grep -Fq -- 'models.json' "$TMPDIR/eca/bwrap-argv"
 
-      no_gw_outer=${piNoGateway}/bin/jailed-pi
-      no_gw_inner="$(sed -n 's|.*\(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$no_gw_outer")"
-      test -n "$no_gw_inner"
       for i in \
         "$eca_inner" \
         "$(gateway_inner_of ${customResearchGateway}/bin/jailed-pi-research pi-research)" \
         "$(gateway_inner_of ${claudeGateway}/bin/jailed-claude claude)" \
-        "$no_gw_outer" "$no_gw_inner/bin/jailed-pi"; do
+        "$default_keys"; do
         test -f "$i" # a missing file would make the refute vacuous
         refute grep -Fq -- 'models.json' "$i"
       done

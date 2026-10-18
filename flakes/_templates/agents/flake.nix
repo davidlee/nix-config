@@ -105,9 +105,9 @@
         #   blockSshGitPush      = false;  # SSH only; HTTPS remains available
         #   allowSelfAsSubagent  = true;   # let agent recursively spawn itself
         #   maxSubagentDepth     = 2;      # cap recursion depth (default 1)
-        #   gateway              = null;   # off the gateway: provider keys from
-        #                                  # 1Password; then apiKeys, useOpEnv and
-        #                                  # passApiKeysFromEnv apply (agents/README.md)
+        #   gateway              = null;   # off the gateway: name the provider keys
+        #                                  # in apiKeys (none by default), resolved
+        #                                  # from 1Password (agents/README.md)
         jailPkgs = lib.optionalAttrs isLinux {
           jailed-pi = jailLib.makeJailedPi {
             profile = "specDev";
