@@ -9,7 +9,7 @@ status = "open"
 resolution = ""                 # seeded empty so `backlog edit` sets it in place
 created = "2026-10-17"
 updated = "2026-10-17"
-tags = []
+tags = ["agents", "gateway", "oubliette"]
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
 # — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
@@ -18,5 +18,54 @@ tags = []
 # them. The dep/seq axes below stay typed (they carry per-edge payloads).
 [relationships]
 needs    = []                   # item→item hard prerequisite
-after    = []                   # item→item soft sequence: { to, rank? }
+after    = [{ to = "SL-014", rank = 0 }]                   # item→item soft sequence: { to, rank? }
 triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "governed_by"
+target = "ADR-004"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "SL-014"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "the gateway this would move to oubliette as a NixOS module"
+target = "SL-011"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "put the gateway's address and models in agents/; the boundary this idea would re-cut"
+target = "SL-013"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "revisit: gateway data ownership if the gateway leaves this repo"
+target = "DEC-059"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "pi blocks stay with the jails as client-side data"
+target = "DEC-063"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "loopback relay is jail-specific; a room needs its own forwarder"
+target = "DEC-047"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "TPM credential path to make optional when generalised"
+target = "DEC-048"
+
+[[relation]]
+label = "related"
+target = "IDE-003"

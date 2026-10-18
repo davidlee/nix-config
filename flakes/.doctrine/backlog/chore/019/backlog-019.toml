@@ -1,0 +1,38 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 19
+slug = "author-a-context-spec-this-repo-as-an-integration-hub"
+title = "Author a context spec: this repo as an integration hub"
+kind = "chore"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-10-18"
+updated = "2026-10-18"
+tags = ["spec"]
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "related"
+target = "CHR-001"
+
+[[relation]]
+label = "related"
+target = "CHR-020"
+
+[[relation]]
+label = "related"
+target = "CHR-018"
+
+[[relation]]
+label = "related"
+target = "IDE-008"
