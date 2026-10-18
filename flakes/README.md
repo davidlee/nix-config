@@ -112,7 +112,7 @@ sudo ./result-darwin/activate
 ```
 
 Steps 2 and 3 build nothing, but step 2 is not offline: homebrew updates and
-upgrades on activation (`darwin/brew.nix`), so run the cut-over online.
+upgrades on activation (`modules/darwin/brew.nix`), so run the cut-over online.
 
 Between steps 2 and 3 nothing provides `nu`, and the old home's path,
 `/etc/profiles/per-user/david/bin/nu`, is gone for good. Anything that names it
@@ -350,8 +350,8 @@ hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐
 hosts/Draupnir/home.nix ──> modules/home/darwin/default.nix ─┘
 ```
 
-The darwin system base is `darwin/default.nix`, imported by a darwin host's
-`config.nix`.
+The darwin system base is `modules/darwin/default.nix`, imported by a darwin
+host's `config.nix`.
 
 Adding a host means adding a directory. The justfile selects the
 configuration by `hostname -s`; override with `just host=<other> system-build`

@@ -1,4 +1,4 @@
-# Host-specific darwin config goes here; ../../darwin is the shared base.
+# Host-specific darwin config goes here; ../../modules/darwin is the shared base.
 {
-  imports = [../../darwin];
+  imports = [../../modules/darwin];
 }

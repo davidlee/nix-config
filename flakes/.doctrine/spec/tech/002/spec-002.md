@@ -26,7 +26,7 @@ features/ (tree) ──> features.nix: one lib.evalModules per host
   nixosConfigurations homeConfigurations   darwinConfigurations
   .<h>               ."david@<h>"          .<h>
      ▲ nixpkgs          ▲ nixpkgs-home        ▲ nixpkgs
-     └ modules/nixos    └ modules/home/{linux,darwin} └ darwin/
+     └ modules/nixos    └ modules/home/{linux,darwin} └ modules/darwin
        (base)             (home base + layer)           (darwin base)
 
 coverage.<target>: the same factories, with a feature no host selects turned on
@@ -168,7 +168,7 @@ Each piece of config belongs to exactly one of these. This replaces
 | class | where | holds |
 |---|---|---|
 | NixOS base | `modules/nixos/default.nix` and its imports | what every NixOS host needs to function (DEC-027, DEC-042, DEC-044) |
-| darwin base | `darwin/default.nix` and its imports | what every darwin host needs |
+| darwin base | `modules/darwin/default.nix` and its imports | what every darwin host needs |
 | home base | `modules/home/default.nix`, under one platform layer `modules/home/{linux,darwin}/` | what every home needs (DEC-031, DEC-042) |
 | feature | a record in `features/` | anything optional |
 | machine config | `hosts/<h>/machine.nix` | bound to the machine's parts: microcode, mounts, GPU, swap (DEC-019) |
@@ -418,9 +418,8 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
   enough for the planned guest, or must it also never fetch them? The
   stronger claim needs stronger evidence than an empty-output stub (§
   Coverage and isolation; DEC-034).
-- **The darwin base's place.** It lives at `darwin/`, beside but not under
-  `modules/`, unlike the NixOS and home bases. `darwin/nix-core.nix` is
-  imported by nothing (IMP-014 concerns darwin's nix settings).
+- **darwin's nix settings.** `modules/darwin/nix-core.nix` is imported by
+  nothing (IMP-014).
 - **Lean defaults and new hosts.** A headless profile for the planned
   aarch64 guest (RFC-001 W7), lean selection defaults (IMP-006) and a
   username per host (IMP-011) would each extend the author contract.
