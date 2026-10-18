@@ -54,7 +54,7 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
 | `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | disabled (fenced) by SL-023 PHASE-11, pending removal; runner is Malebolge; `satan-patch-runner-enabled` nil | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
 | `satan-runner` | malebolge's patch-job runner: `nodejs_24` runs the **live tree** `~/dev/malebolge/src/runner-main.ts` (SL-023 EX-9; packaging is CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
-| `panopticon-sway` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
+| `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
 | `wpm-daemon`, `wpm-archive` | `~/.config/waybar/wpm-status.py` → `~/.local/state/satan/log/wpm` | always / 04:00 | `features/desktop/sway.nix:106-150` |

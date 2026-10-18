@@ -271,6 +271,41 @@ def _():
     return Result(OK, "0 events")
 
 
+# Signals that mean the program crashed. A resource-limit kill (SIGXFSZ,
+# SIGXCPU) is a limit doing its job, e.g. a jail's file-size cap.
+CRASH_SIGNALS = {4, 5, 6, 7, 8, 11, 31}  # ILL TRAP ABRT BUS FPE SEGV SYS
+
+
+def crash_result(dumps: list[dict]) -> Result:
+    crashed: dict[str, int] = {}
+    for d in dumps:
+        if d.get("sig") in CRASH_SIGNALS:
+            exe = Path(d.get("exe") or "?").name
+            crashed[exe] = crashed.get(exe, 0) + 1
+    limits = len(dumps) - sum(crashed.values())
+    note = f" ({limits} limit kills)" if limits else ""
+    if not crashed:
+        return Result(OK, f"0{note}")
+    names = ", ".join(f"{e} ×{n}" if n > 1 else e for e, n in crashed.items())
+    return Result(WARN, f"{sum(crashed.values())} ({names})")
+
+
+@check("System", "Crashes (24h)")
+def _():
+    miss = need("coredumpctl")
+    if miss:
+        return miss
+    rc, out, err = sh(
+        ["coredumpctl", "list", "--since=-24h", "--json=short", "--no-pager"],
+        timeout=10,
+    )
+    if rc != 0:  # also "No coredumps found."
+        return crash_result([]) if "no coredumps" in err.lower() else Result(
+            WARN, "coredumpctl failed"
+        )
+    return crash_result(json.loads(out))
+
+
 # ── Services ──────────────────────────────────────────────────────────────────
 def _failed_units(user: bool) -> Result:
     miss = need("systemctl")
@@ -537,8 +572,11 @@ def run_external_checks() -> list[tuple[str, str, Result]]:
 NAME_WIDTH = 28
 
 
-def render_checks(checks: list[tuple[str, str, Result]]) -> list[Result]:
-    results = []
+def shown(checks: list[tuple[str, str, Result]], problems: bool):
+    return [c for c in checks if not problems or c[2].status != OK]
+
+
+def render_checks(checks: list[tuple[str, str, Result]]) -> None:
     current_cat: str | None = None
     for category, name, r in checks:
         if category != current_cat:
@@ -546,13 +584,12 @@ def render_checks(checks: list[tuple[str, str, Result]]) -> list[Result]:
                 print()
             print(f"{BOLD}{CYAN}── {category} ──{RESET}")
             current_cat = category
-        results.append(r)
         print(f"  {GLYPH[r.status]}  {name:<{NAME_WIDTH}} {DIM}{r.detail}{RESET}")
-    return results
 
 
 def main() -> int:
     t0 = time.time()
+    problems = "--problems" in sys.argv[1:]  # only WARN/CRIT lines, then the summary
 
     builtin = []
     for category, name, fn in CHECKS:
@@ -562,8 +599,9 @@ def main() -> int:
             r = Result(CRIT, f"check raised: {type(e).__name__}: {e}")
         builtin.append((category, name, r))
 
-    external = run_external_checks()
-    results = render_checks(builtin + external)
+    checks = builtin + run_external_checks()
+    render_checks(shown(checks, problems))
+    results = [r for _, _, r in checks]
 
     n_ok = sum(1 for r in results if r.status == OK)
     n_warn = sum(1 for r in results if r.status == WARN)

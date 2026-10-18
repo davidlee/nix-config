@@ -4,8 +4,8 @@
 # Writes ~/.local/state/behaviour/raw/desktop-*.jsonl + current/desktop.json.
 #
 # Smoke:
-#   systemctl --user status panopticon-sway
-#   journalctl --user -u panopticon-sway -f
+#   systemctl --user status panopticon-desktop
+#   journalctl --user -u panopticon-desktop -f
 #   tail -f ~/.local/state/behaviour/raw/desktop-$(date +%F).jsonl
 {lib, ...}: {
   name = "behaviour";
@@ -23,11 +23,10 @@
     systemd = {
       user = {
         services = {
-          # Unit NAME kept as `panopticon-sway` — a deliberately retained stable alias
-          #  (SL-004 design D4). ExecStart runs panopticon-desktop via lib.getExe.
-          panopticon-sway = {
+          # Was `panopticon-sway`, kept as an alias by SL-004 D4; renamed by ISS-002.
+          panopticon-desktop = {
             Unit = {
-              Description = "panopticon — desktop behaviour event watcher (compositor-neutral: sway|niri)";
+              Description = "panopticon — desktop behaviour event watcher (compositor-neutral)";
               After = ["graphical-session.target"];
               PartOf = ["graphical-session.target"];
             };

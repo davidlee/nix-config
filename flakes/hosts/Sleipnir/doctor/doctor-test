@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""Behaviour tests for sleipnir-doctor and its panopticon provider. No
+journal, no coredumpctl: each check's verdict is a pure function of the
+records it reads, so each case passes records in.
+
+  ./doctor-test
+"""
+
+import importlib.machinery
+import importlib.util
+import sys
+import unittest
+from pathlib import Path
+
+sys.dont_write_bytecode = True  # SourceFileLoader would leave __pycache__ in the repo
+
+here = Path(__file__).resolve().parent
+
+
+def load(name):
+  loader = importlib.machinery.SourceFileLoader(name.replace("-", "_"), str(here / name))
+  spec = importlib.util.spec_from_loader(loader.name, loader)
+  module = importlib.util.module_from_spec(spec)
+  sys.modules[loader.name] = module  # dataclasses look their module up
+  loader.exec_module(module)
+  return module
+
+
+doctor = load("sleipnir-doctor")
+panopticon = load("sleipnir-doctor-panopticon")
+
+DISCONNECT = "WARNING panopticon.compositor: umbriel disconnected: EOF"
+STOPPING = "Stopping panopticon — desktop behaviour event watcher..."
+STARTED = "Started panopticon — desktop behaviour event watcher..."
+
+
+def dump(sig, exe):
+  return {"sig": sig, "exe": f"/nix/store/0000-pkg/bin/{exe}"}
+
+
+class WatcherJournal(unittest.TestCase):
+  def verdict(self, *lines):
+    return panopticon.journal_verdict(list(lines))
+
+  def test_quiet_journal_is_clean(self):
+    self.assertEqual(self.verdict(STARTED), ("OK", "1 lines, clean"))
+
+  def test_disconnect_as_the_session_ends_is_not_a_fault(self):
+    self.assertEqual(self.verdict(STARTED, DISCONNECT, STOPPING, STARTED)[0], "OK")
+
+  def test_disconnect_while_the_watcher_runs_on_is_a_fault(self):
+    self.assertEqual(self.verdict(STARTED, DISCONNECT, STARTED),
+                     ("WARN", "1 disconnects"))
+
+  def test_a_disconnect_last_in_the_journal_is_a_fault(self):
+    self.assertEqual(self.verdict(STARTED, DISCONNECT)[0], "WARN")
+
+  def test_errors_warn(self):
+    self.assertEqual(self.verdict("ERROR boom"), ("WARN", "1 errors"))
+
+  def test_a_few_reconnects_are_tolerated(self):
+    self.assertEqual(self.verdict(*["reconnected to umbriel"] * 3),
+                     ("OK", "3 reconnects"))
+    self.assertEqual(self.verdict(*["reconnected to umbriel"] * 4)[0], "WARN")
+
+
+class Crashes(unittest.TestCase):
+  def test_none_is_ok(self):
+    self.assertEqual(doctor.crash_result([]), doctor.Result(doctor.OK, "0"))
+
+  def test_a_crash_warns_and_names_the_program(self):
+    r = doctor.crash_result([dump(6, ".umbriel-wrapped")])
+    self.assertEqual(r, doctor.Result(doctor.WARN, "1 (.umbriel-wrapped)"))
+
+  def test_repeat_crashes_are_counted_per_program(self):
+    r = doctor.crash_result([dump(11, "a"), dump(11, "a"), dump(6, "b")])
+    self.assertEqual(r.detail, "3 (a ×2, b)")
+
+  def test_resource_limit_kills_are_not_crashes(self):
+    # SIGXFSZ (25): a jail's file-size limit doing its job.
+    r = doctor.crash_result([dump(25, "git")])
+    self.assertEqual(r, doctor.Result(doctor.OK, "0 (1 limit kills)"))
+
+
+class Problems(unittest.TestCase):
+  checks = [
+    ("System", "disk", doctor.Result(doctor.OK, "fine")),
+    ("System", "swap", doctor.Result(doctor.WARN, "low")),
+    ("Nix", "store", doctor.Result(doctor.CRIT, "broken")),
+  ]
+
+  def test_everything_by_default(self):
+    self.assertEqual(doctor.shown(self.checks, problems=False), self.checks)
+
+  def test_problems_only_drops_ok(self):
+    self.assertEqual([n for _, n, _ in doctor.shown(self.checks, problems=True)],
+                     ["swap", "store"])
+
+
+if __name__ == "__main__":
+  unittest.main()
