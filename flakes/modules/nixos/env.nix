@@ -10,6 +10,9 @@ _: {
     sessionVariables.PATH = [
       "$HOME/.local/bin"
       "$HOME/.local/bin/scripts"
+      # doctrine's own cargo install root, which jails bind (agents'
+      # hostDoctrine); ahead of ~/.cargo/bin, which must not hold a second one.
+      "$HOME/.local/share/doctrine/bin"
       "$HOME/.cargo/bin"
       "$HOME/go/bin"
       "$HOME/.pnpm-global/bin"

@@ -294,17 +294,24 @@
     for p in $paths; do printf '%s\0' --ro-bind-try "$p" "$p"; done
   '';
 
-  # The host's doctrine, the one `cargo install` keeps current, at the same
-  # path in the jail: one binary for host and jail, so no consumer flake has
-  # to pin a copy that lags it. Read-only on top of the persisted home's own
-  # ~/.cargo, with the store paths it links against; a try, so a host without
-  # it launches anyway. `"$HOME"`, not `~`: PATH is one word, and the
-  # launcher expands it (in-jail HOME is the host's). Descriptor 23: clear
-  # of the key descriptors, 21 and 22 (setenvsByArgsFd).
+  # The host's doctrine: one binary for host and jail, so no consumer flake
+  # pins a copy that lags it. It has its own install root
+  # (`cargo install --root ~/.local/share/doctrine`), whose bin/ holds only
+  # doctrine, and that directory is bound, read-only, at its own path:
+  # - a directory, never the file. A file bind pins one inode, and
+  #   `cargo install` renames a new file over it, leaving the jail on the
+  #   deleted one (IMP-249). A directory bind shows the new file at once.
+  # - not over ~/.cargo/bin, which would expose every host cargo install
+  #   and hide the jail's own (persist-home gives it a writable ~/.cargo).
+  # The store paths it links against are bound too, as found at launch: a
+  # reinstall built by a different toolchain needs a relaunch. All tries, so
+  # a host without it launches anyway. Descriptor 23: clear of the key
+  # descriptors, 21 and 22 (setenvsByArgsFd).
+  hostDoctrineDir = "~/.local/share/doctrine/bin";
   hostDoctrineOptions = with jail.combinators; [
-    (try-readonly (noescape "~/.cargo/bin/doctrine"))
-    (unsafe-add-raw-args "--args 23 23< <(${elfClosureBinds} ~/.cargo/bin/doctrine)")
-    (add-path ''"$HOME"/.cargo/bin'')
+    (try-ro-bind (noescape hostDoctrineDir) "/run/doctrine-bin")
+    (unsafe-add-raw-args "--args 23 23< <(${elfClosureBinds} ${hostDoctrineDir}/doctrine)")
+    (add-path "/run/doctrine-bin")
   ];
 
   # Expose host PostgreSQL unix socket
@@ -337,7 +344,7 @@
     # Swap git for guardedGit (refuses stash, checkout --, reset --hard, ...).
     guardGit ? profileDefaults.${profile}.guardGit,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
-    # The host's ~/.cargo/bin/doctrine, read-only (hostDoctrineOptions).
+    # The host's doctrine install root, read-only (hostDoctrineOptions).
     hostDoctrine ? true,
     useOpEnv ? profileDefaults.${profile}.useOpEnv,
     # When the caller pre-resolves op:// refs and exports plaintext into

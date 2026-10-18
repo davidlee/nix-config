@@ -2,8 +2,8 @@ memory_uid = "mem_01a14f22cfed79d1a41b494ce0a96355"
 schema_version = 1
 memory_type = "pattern"
 status = "active"
-title = "A host-built binary bound into a jail needs its store closure bound too"
-summary = """jail-nix binds only the jail's own closure; a cargo-installed ELF fails in-jail as "command not found" until its interpreter + RUNPATH closure is bound (agents' elf-closure-binds)."""
+title = "Sharing a host binary into a jail: bind its directory and its store closure"
+summary = "Bind a dedicated install dir, never the file (rename-on-install leaves a file bind on a deleted inode, IMP-249); and bind the binary's store closure, since jail-nix exposes only the jail's own (agents' elf-closure-binds)."
 created = "2026-10-18"
 updated = "2026-10-18"
 

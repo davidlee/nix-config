@@ -348,16 +348,16 @@ in
         test -n "$home_at" && test -n "$excl_at" && test "$excl_at" -gt "$home_at"
       done
 
-      # Host doctrine: the host's cargo install, read-only at the same path,
-      # after (so on top of) the persisted home bind, and on PATH. Absent on
-      # the host, the jail still launches: the bind is a try.
+      # Host doctrine: the directory of its own install root, read-only and
+      # on PATH. A directory, never the file: a file bind pins one inode, and
+      # `cargo install` renames a new file over it (IMP-249). Absent on the
+      # host, the jail still launches: the bind is a try.
       for launcher in "$spec" "$research" "$offline"; do
-        home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$launcher" | cut -d: -f1)"
-        doc_at="$(grep -bo -- '--ro-bind-try ~/.cargo/bin/doctrine ~/.cargo/bin/doctrine' "$launcher" | cut -d: -f1)"
-        test -n "$home_at" && test -n "$doc_at" && test "$doc_at" -gt "$home_at"
-        grep -q -- '--setenv PATH [^ ]*"$HOME"/.cargo/bin' "$launcher"
+        grep -Fq -- '--ro-bind-try ~/.local/share/doctrine/bin /run/doctrine-bin' "$launcher"
+        grep -q -- '--setenv PATH [^ ]*/run/doctrine-bin' "$launcher"
+        refute grep -Fq -- '/bin/doctrine ' "$launcher"
       done
-      refute grep -Fq -- '.cargo/bin' ${noHostDoctrine}/bin/jailed-zsh
+      refute grep -Fq -- 'doctrine' ${noHostDoctrine}/bin/jailed-zsh
 
       # Behaviour: the closure binds name what a dynamic ELF links against,
       # and nothing for a missing file or a script.
