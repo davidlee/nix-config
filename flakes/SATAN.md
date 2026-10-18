@@ -53,6 +53,7 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
 | `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | disabled (fenced) by SL-023 PHASE-11, pending removal; runner is Malebolge; `satan-patch-runner-enabled` nil | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
+| `satan-runner` | malebolge's patch-job runner: `nodejs_24` runs the **live tree** `~/dev/malebolge/src/runner-main.ts` (SL-023 EX-9; packaging is CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
 | `panopticon-sway` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -74,6 +75,11 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | MCP socket | `/run/user/1000/satan/mcp/mcp.sock` |
 | Emacs server socket | `/run/user/1000/emacs/server` |
 | goad ingress | `/run/user/1000/goad.sock` |
+| runner store | `~/.local/state/satan/runner/runner.sqlite` (0700 dir, unit `StateDirectory=`): jobs, `job_events`, pi-durable |
+| runner control socket | `/run/user/1000/satan-runner/control.sock` (dir 0700 `RuntimeDirectory=`, socket 0600) |
+| runner config | `~/.config/satan-runner/{config.toml,ssh_config}` (HM-rendered from `features/satan/runner.nix`) |
+| runner model catalog | `/nix/store/…-satan-runner-gateway.json`, the jails' own render (`agents/pi-gateway.nix` over `agents/gateway.nix` `models`) |
+| room `known_hosts` | `/var/lib/capsule/room/assistant/known_hosts`: oubliette's; the runner only reads it |
 
 **Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
 `/run/postgresql`, no TCP; role `david` superuser; `ensureDatabases = [david
@@ -94,6 +100,14 @@ makes the launcher refuse. Issue a key with
 `llm-gateway list` shows spend. The broker's `op://` path
 (`my/satan-credential`, `~/.config/emacs/lisp/dl-secret.el:141`) is no longer
 used by the harness; SL-022's broker phases remove it.
+
+The runner uses `keys/satan-runner` (issued 2026-10-19), delivered by the
+unit's `LoadCredential=satan-runner:~/.config/llm-gateway/keys/satan-runner`
+(absolute in the unit) into `$CREDENTIALS_DIRECTORY`
+(`/run/user/1000/credentials/satan-runner.service/`, 0400): on no argv and in
+no environment. Its room identity is `~/.ssh/malebolge.key` (`[door]
+identity`); its public half and `david@Sleipnir` are both in `/srv/fleet`
+`rooms.assistant.users.agent.keys` (CON-004).
 
 ## Jails
 
@@ -122,6 +136,13 @@ jails differ again: satan-attrd adds `/run/postgresql` + the docker socket;
 goad adds `~/.local/src/slint` → `/workspace/slint` ro; panopticon adds the
 niri socket; `~/.config/emacs` and `~/notes` flakes add MCP only.
 
+The runner's socket dir `/run/user/1000/satan-runner/` and the credentials dir
+`/run/user/1000/credentials/` are bound into no jail (I4). Asserted by
+`agents/jailed-agents-test.nix` (no launcher names `satan-runner`; none binds
+the whole `/run/user/1000`) and `~/dev/satan` `checks.runner-socket-unjailed`
+(`just check-jails`, every `jailPkgs` launcher). No test names `credentials`
+itself: it is covered only by the whole-dir refute.
+
 Inside a jail `~/flakes` has no git: its git dir is `~/.git`, which is not
 mounted.
 
@@ -131,3 +152,113 @@ mounted.
   the jail.
 - satan-patcher: all 17 jobs failed (newest 2026-05-20); likely cause is
   `jailed-pi` missing from the unit PATH.
+
+## satan-runner
+
+Malebolge's patch-job runner (SL-023 design §5.2-§5.3). One user unit, one
+config file, one SQLite store; jobs run in the oubliette room `assistant`
+(`/srv/fleet/flake.nix` `rooms.assistant`), reached through its door socket
+`/run/capsule-room/assistant/ssh.sock`. The room and repo values in
+`features/satan/runner.nix` are literals copied from the fleet (it exposes no
+room data to home-manager); change them with the fleet.
+
+### Switches
+
+- **Runner kill switch:** `enabled` in the config (authority ledger row 6,
+  owned by the runner). `false` parks it: it starts and serves the socket,
+  refuses `submit` (`runner_disabled`) and schedules nothing. To enable, change the
+  one line in `features/satan/runner.nix`
+
+      enabled = false;   →   enabled = true;
+
+  then `just home-switch`, then `systemctl --user restart satan-runner` (the
+  config is read once at start). Disable the same way, back to `false`.
+- **Unit:** `feature.satan.runner.enable` (`features/profiles/personal-linux.nix`,
+  default on); `systemctl --user stop|start satan-runner` for a while.
+- The prompt file `~/satan-corpus/prompts/patch-agent.md` must exist before
+  any start, parked or not: start checks it before `enabled`, and a refused
+  start (exit 1) retries 5 times in 300 s, then stops.
+- Watch: `journalctl --user -u satan-runner -f` (start logs `store …` and
+  `control …`; a refusal logs `refusing to start: …`). Socket:
+  `stat -c '%a %U %n' /run/user/1000/satan-runner /run/user/1000/satan-runner/control.sock`
+  → `700 david`, `600 david`.
+- One consumer per repo (I1): `satan-patcher` stays disabled while the runner
+  runs; stop the runner before any scratch instance.
+
+### Room values (EX-5)
+
+For a room kind door, exactly: `known_hosts =
+/var/lib/capsule/room/<room>/known_hosts` and `host_key_alias = room-<room>`;
+the unit runs as the uid owning that 0700 directory (`david`). Each repo:
+`guest_path = /work/<target>`, `quarantine =
+/var/lib/capsule/collect/<room>/<target>.git` (created by oubliette's first
+collect; never by hand).
+
+### Host keys
+
+No seeding. Oubliette's `push` learns the room's key into `known_hosts`
+(accept-new, oubliette DEC-047); the runner only reads it. A changed key fails
+the job `failed`, reason `host_key`, from `preparing` or `running`; never a
+pause. If the room was rebuilt on purpose, re-learning the key is oubliette's
+remedy, not the runner's.
+
+### `dirty_clone` remedy
+
+A job failing `dirty_clone` (paths audited in its `transition` event) means the
+room's clone of that repo holds residue; every later job on the repo fails the
+same way until it is cleaned. The runner never cleans outside its post-collect
+step. Inspect, then clean by hand, for repo `<r>`:
+
+    capsule assistant ssh agent -- git -C /work/<r> status
+    capsule assistant ssh agent -- git -C /work/<r> reset --hard
+    capsule assistant ssh agent -- git -C /work/<r> clean -ffd
+
+The failed job stays failed; resubmit it.
+
+### Watching `clean_failed`
+
+A failed clean after a collect is audited `clean_failed` (payload `reason`,
+`message`) and changes nothing else, so the next job on that repo fails
+`dirty_clone`: apply the remedy above. List them:
+
+    nix shell nixpkgs#sqlite -c sqlite3 -readonly ~/.local/state/satan/runner/runner.sqlite \
+      "select seq, at, job_id, json_extract(payload, '$.reason'), json_extract(payload, '$.message')
+       from job_events where kind = 'clean_failed' order by seq desc limit 20"
+
+A job's failure reason: `select id, state, json_extract(failure, '$.reason')
+from jobs order by created_at desc limit 20`.
+
+### Live checks (malebolge, env-gated, not in `just check`)
+
+- `cd ~/dev/malebolge && SATAN_RUNNER_LIVE=1 just smoke-runner`: one `fix`
+  job on `goad-walk` (writes `SMOKE.md`) over the socket, followed to
+  `needs_review`. Never promoted or rejected: it stays in quarantine.
+  `just smoke-runner --slow` adds a 120 s sleep and prints `IN FLIGHT` for a
+  room stop (reconnect check).
+- `SATAN_RUNNER_LIVE=1 just smoke-runner-host-key`, with the deployed runner
+  stopped: a scratch instance (own config, state, runtime dir) whose
+  `known_hosts` is a tampered copy runs one job, expected `failed`/`host_key`
+  from `preparing`. The real `known_hosts` is read only (sha256 compared).
+
+### First deploy (SL-023 PHASE-12), in order
+
+0. Pre-checks: `capsule assistant ssh agent -- ls /work` lists `goad-walk`;
+   `llm-gateway list` (may need sudo) shows `satan-runner` allows
+   `deepseek-flash`; `~/satan-corpus/prompts/patch-agent.md` exists and is
+   reviewed.
+1. `cd ~/flakes && just home-switch` (starts the unit parked).
+   Agent: `systemctl --user status satan-runner --no-pager`; `systemctl --user
+   show satan-runner -p ExecStart -p Environment -p LoadCredential -p
+   ActiveState`; journal has no `refusing to start`; socket modes above; key
+   absent from `-p Environment` and from `ps -o args` of the pid;
+   `systemctl --user is-active satan-patcher` is not `active`.
+2. `capsule assistant start` if the room is down.
+3. Confirm no producer submits (the PHASE-11 fence).
+4. Enable (Switches above). Agent: journal shows the runner unparked.
+5. `cd ~/dev/malebolge && SATAN_RUNNER_LIVE=1 just smoke-runner | tee /tmp/runner-smoke.txt`.
+6. `SATAN_RUNNER_LIVE=1 just smoke-runner --slow | tee /tmp/runner-smoke-reconnect.txt`.
+7. At `IN FLIGHT`: `capsule assistant stop`; wait for `waiting_room`;
+   `capsule assistant start`; let it finish.
+8. `systemctl --user stop satan-runner`.
+9. `SATAN_RUNNER_LIVE=1 just smoke-runner-host-key | tee /tmp/runner-host-key.txt`.
+10. `systemctl --user start satan-runner` (stays enabled).

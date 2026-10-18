@@ -163,22 +163,8 @@
   # `gateway`, which makeJailedAgent takes as an argument.
   gatewayData = import ./gateway.nix;
 
-  # pi's provider for an LLM gateway (DEC-058): one provider, named apart
-  # from every built-in so no stored auth.json credential matches it.
-  # baseUrl is literal (pi does not interpolate it); apiKey is read from the
-  # environment per request. `models` is gateway.nix's shape: each served
-  # model's `pi` block is its pi entry (DEC-063); a model without one is not
-  # offered to pi (DEC-066).
-  piGatewayConfig = url: models: {
-    providers.llm-gateway = {
-      baseUrl = url;
-      api = "openai-completions";
-      apiKey = "$LLM_GATEWAY_KEY";
-      models =
-        lib.mapAttrsToList (id: m: {inherit id;} // m.pi)
-        (lib.filterAttrs (_: m: m ? pi) models);
-    };
-  };
+  # pi's provider for an LLM gateway; shared with the satan-runner unit.
+  piGatewayConfig = import ./pi-gateway.nix {inherit lib;};
 
   # Always applied — not policy-bearing
   baseJailOptions = with jail.combinators; [
@@ -363,12 +349,8 @@
     # With pi in the jail, also a read-only models.json (piGatewayOptions).
     gateway ? null,
     # Names from apiKeyOpRefs to resolve and/or forward for this jail.
-    # The compatibility default remains every configured key; none in
-    # gateway mode.
-    apiKeys ?
-      if gateway == null
-      then lib.attrNames apiKeyOpRefs
-      else [],
+    # None by default: each jail names the keys its agent uses (IMP-020).
+    apiKeys ? [],
   }: let
     resolvedBlockSshGitPush =
       if blockSshGitPush != null

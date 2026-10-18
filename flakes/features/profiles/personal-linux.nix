@@ -7,6 +7,7 @@
   feature.satan.harness.enable = lib.mkDefault true;
   feature.satan.patcher.enable = lib.mkDefault true;
   feature.satan.attrd.enable = lib.mkDefault true;
+  feature.satan.runner.enable = lib.mkDefault true;
   feature.attention.behaviour.enable = lib.mkDefault true;
   feature.attention.nudge.enable = lib.mkDefault true;
   feature.attention.goad.enable = lib.mkDefault true;

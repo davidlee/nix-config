@@ -41,6 +41,16 @@ rec {
           input = ["text" "image"];
           contextWindow = 1000000;
           maxTokens = 384000;
+          # USD per million tokens. pi-ai 1.3.0's built-in deepseek-flash and
+          # LiteLLM 1.102.1's price map (deepseek/deepseek-flash, what the
+          # gateway bills against a key's budget) agree, 2026-10-19. The
+          # satan-runner's cost ceiling reads it (DEC-057): never under-count.
+          cost = {
+            input = 0.3;
+            output = 1.2;
+            cacheRead = 0.006;
+            cacheWrite = 0;
+          };
           thinkingLevelMap = {
             minimal = null;
             low = "low";
