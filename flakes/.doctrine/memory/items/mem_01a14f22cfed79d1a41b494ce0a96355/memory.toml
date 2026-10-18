@@ -1,0 +1,41 @@
+memory_uid = "mem_01a14f22cfed79d1a41b494ce0a96355"
+schema_version = 1
+memory_type = "pattern"
+status = "active"
+title = "A host-built binary bound into a jail needs its store closure bound too"
+summary = """jail-nix binds only the jail's own closure; a cargo-installed ELF fails in-jail as "command not found" until its interpreter + RUNPATH closure is bound (agents' elf-closure-binds)."""
+created = "2026-10-18"
+updated = "2026-10-18"
+
+[scope]
+paths = ["flakes/agents/jailed-agents.nix"]
+globs = []
+commands = []
+tags = ["jail", "doctrine", "agents"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "a2cbb8ac52e79bd8105db5595acff2df200f0c41"
+ref_name = "refs/heads/main"
+checkout_state_id = "123813f71b5e4cf2507cc7cc6e7572900adb30344a30c4b4bed775fbe3cd432d"
+base_commit = "eb65b02d9f68ae2e8c6675eff2e8b457db7c9524"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "medium"
+weight = 0
+
