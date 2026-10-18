@@ -918,48 +918,18 @@ are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
 It serves DeepSeek, OpenRouter and Fireworks models.
-Decisions DEC-046..051, DEC-058, DEC-059, DEC-061..073 (DEC-060 superseded).
+
+**What it is, and what clients may rely on:**
+[SPEC-001](.doctrine/spec/tech/001/spec-001.md) (`doctrine show SPEC-001`
+adds its requirements). Its § Client contract is the reference for anyone
+writing a client: address, routes, allowed body fields, reasoning effort
+(DEC-074), model names and refusal codes. This section is operations only.
 
 ```
-jail (jailed-eca, jailed-pi, …)                         LLM_GATEWAY_KEY (FD 22), LLM_GATEWAY_URL
-   │  POST /v1/chat/completions
-   ▼
-127.0.0.1:4000   llm-gateway-relay.socket ─ systemd-socket-proxyd (group llm-gateway)
-   ▼
-/run/llm-gateway/api.sock  (dir 0750)         llm-gateway.service (LiteLLM, hardened)
-   ├─ route gate    POST /chat/completions, /v1/chat/completions,
-   │                GET /models, /v1/models; anything else: 404
-   │                POST body: top-level fields on ALLOWED_FIELDS, else 400
-   │                naming them; over 16 MiB: 413 (DEC-073)
-   ├─ custom_auth   key known? revoked? under budget?
-   ├─ model gate    is the model on this key's list?
-   ├─ provider      key from /etc/credstore.encrypted/llm-gateway.<provider>
-   └─ ledger        spent += response_cost
-keys.db  /var/lib/llm-gateway (0700): alias, sha256 of the key, models, budget, spent
+jail ──127.0.0.1:4000──> llm-gateway-relay ──/run/llm-gateway/api.sock──> llm-gateway.service
+                                                                            keys.db  /var/lib/llm-gateway
+                                                                            credentials /etc/credstore.encrypted
 ```
-
-The body check exists because a body field (`extra_body`, `litellm_params`,
-`custom_llm_provider`, …) could re-route a request past the model gate or stop
-the cost report. The list is `ALLOWED_FIELDS` in
-`features/agents/gateway/gateway_hooks.py`; a field a new client needs is added
-there, with its reason.
-
-**Client wire contract.** A client sends OpenAI chat-completions bodies.
-Reasoning effort goes in the flat `reasoning_effort` field, on every model
-(DEC-074). The gateway translates nothing: LiteLLM's provider adapters map
-`reasoning_effort` to each provider's form. The gateway's part is to admit
-it: every OpenRouter route sets `allowed_openai_params = ["reasoning_effort"]`,
-because otherwise LiteLLM refuses it with a 400 on models its map does not
-flag as reasoning. The provider-native shapes are also admitted, for existing
-clients only:
-
-| shape | sent by | provider |
-|---|---|---|
-| `reasoning_effort` | new clients, minuet | every model |
-| `thinking` | pi (`thinkingFormat = "deepseek"`) | DeepSeek |
-| `reasoning: {effort}` | gptel, before emacs:SL-015 | OpenRouter |
-
-Given both forms, the adapter decides; DeepSeek drops `reasoning_effort`.
 
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup
@@ -1010,14 +980,10 @@ the file):
 | openrouter | `OPENROUTER_API_KEY` | `reportsCost`: OpenRouter's per-request `usage.cost` |
 | fireworks | `FIREWORKS_API_KEY` | packaged price map |
 
-`reportsCost` means the provider bills each request and LiteLLM records that
-cost, so its models need no price and the build skips the price-map check
-(DEC-064). A cost of 0 or none is still logged and counted 0 (DEC-068).
+Cost sources: SPEC-001 § Served models and cost.
 
 **Admin.** `llm-gateway` runs as the `llm-gateway` user via sudo on the
-SQLite file (DEC-050). Keys travel on stdin, never argv. `list` shows no key
-or hash; the table stores only a key's sha256. Keys start `sk-`, so LiteLLM
-hashes any it logs.
+SQLite file (DEC-050). Keys travel on stdin, never argv.
 
 | command | does |
 |---|---|
@@ -1056,11 +1022,10 @@ drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
 record in this repo also adds `requires = ["agents.gateway"]`. See
 `agents/README.md` § Gateway mode.
 
-**Adding a model.** A model's cost comes from one of: its provider's report
-(`reportsCost`); both `params.input_cost_per_token` and
-`params.output_cost_per_token`; or LiteLLM's packaged price map. The build
-fails, naming the model, if it is in none of these. Setting only one of the two
-prices is an evaluation error naming the model (DEC-064).
+**Adding a model.** It needs a cost source, or the build fails naming it
+(SPEC-001 § Served models and cost): its provider reports cost, or it sets
+both `params.input_cost_per_token` and `params.output_cost_per_token`, or it
+is in LiteLLM's packaged price map.
 
 1. An entry in the `models` of `agents/gateway.nix`: name
    `<provider>/<upstream id>` (DEC-069), `model`, `provider`, optional `params`

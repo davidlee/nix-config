@@ -26,3 +26,24 @@ Sequence with IDE-008: if the gateway moves to oubliette, the spec moves
 with it. Writing the spec first defines the interface that move has to
 preserve, and settles IDE-008's "coupling to settle first" (what the gateway
 owns vs what the jails own).
+
+## Progress (2026-10-18)
+
+- Spec coverage census: `.doctrine/state/coverage-map-llm-gateway.md`
+  (runtime, not tracked). Result: no specs in the repo; one container spec.
+- SPEC-001 drafted (retrospective, status draft), root placement, no PRD.
+  The client contract leads; FR-001..008 and NF-001..003 (REQ-001..011,
+  pending).
+- Remaining: user review; shrink README § LLM gateway to operations and
+  point it at SPEC-001; then resolve.
+- GPT review (2026-10-18, /tmp/spec-001-review.md): all five findings
+  verified and integrated: budget is a safety net on recorded spend; key
+  exposure split into stored / run time / client; allow-list enumerated;
+  fallbacks are a 400 (model gate's fallback check is defence in depth);
+  streaming and retry behaviour stated, unverified parts labelled.
+  REQ-002, 004, 005, 009, 010 restated. Open sibling: DEC-051's "bounded
+  overshoot" wording overclaims the same way.
+- Accepted by the user (2026-10-18); SPEC-001 status active. README
+  § LLM gateway trimmed to operations and links SPEC-001; DEC-074's
+  consequence and satan QUE-004's answer now cite SPEC-001 § Client
+  contract. DEC-051 overshoot wording left for the user to rule on.

@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 6
+slug = "clients-set-reasoning-effort-with-the-flat-reasoning-effort-field"
+title = "Clients set reasoning effort with the flat reasoning_effort field"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A client sends reasoning effort as the flat OpenAI reasoning_effort field, on any served model; the gateway admits it and LiteLLM's provider adapter maps it (DEC-074). The provider-native shapes thinking (DeepSeek) and reasoning {effort} (OpenRouter) are admitted for existing clients."
+tags = ["gateway"]
+acceptance_criteria = [
+  "reasoning_effort on an OpenRouter route LiteLLM does not flag as reasoning gets no 400",
+  "reasoning_effort reaches every provider's upstream body in that provider's form (IMP-038)",
+]

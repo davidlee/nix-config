@@ -15,7 +15,7 @@ context = "Gateway clients send reasoning effort in three shapes: pi a top-level
 choice = "A gateway client sends reasoning effort as the flat OpenAI reasoning_effort. The gateway commits to admitting it on every served model: each OpenRouter route sets allowed_openai_params = [reasoning_effort] so LiteLLM does not refuse it, and LiteLLM's adapters map it per provider. thinking and reasoning stay on the DEC-073 allow-list as tolerated provider-native shapes for existing clients (pi's DeepSeek compat). A body that carries both a native shape and reasoning_effort gets the adapter's precedence (DeepSeek drops reasoning_effort)."
 alternatives = ["Flat only: refuse thinking and reasoning (breaks pi's DeepSeek compat until flat effort is proven on DeepSeek)", "Leave the convention to each client's design (clients diverge; neither can bind the other)", "The gateway rewrites native shapes to reasoning_effort (new translation code duplicating LiteLLM's adapters)"]
 rationale = "One shape for new clients to write without breaking any current one. The gateway owns the wire contract so clients cite it rather than each other. LiteLLM already maps reasoning_effort per provider; the gateway's part is only to admit it."
-consequences = ["New clients (satan SL-022 and emacs:SL-015) send reasoning_effort and cite flakes:DEC-074", "A test must pin flat reasoning_effort on every served provider: DeepSeek alone and Fireworks are unverified", "A new OpenRouter route keeps allowed_openai_params = [reasoning_effort] (the routed helper does this)", "Dropping thinking or reasoning later is a new decision that supersedes this one", "README § LLM gateway documents the contract"]
+consequences = ["New clients (satan SL-022 and emacs:SL-015) send reasoning_effort and cite flakes:DEC-074", "A test must pin flat reasoning_effort on every served provider: DeepSeek alone and Fireworks are unverified (IMP-038)", "A new OpenRouter route keeps allowed_openai_params = [reasoning_effort] (the routed helper does this)", "Dropping thinking or reasoning later is a new decision that supersedes this one", "SPEC-001 § Client contract documents the contract"]
 decided_by = "user (2026-10-18)"
 decided_on = "2026-10-18"
 
@@ -31,6 +31,10 @@ superseded_by = []   # set on superseded predecessor (verb-written)
 [[relation]]
 label = "shapes"
 target = "SL-014"
+
+[[relation]]
+label = "shapes"
+target = "SPEC-001"
 
 [[relation]]
 label = "spawns"

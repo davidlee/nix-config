@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 9
+slug = "provider-keys-never-leave-the-service"
+title = "Provider keys never leave the service"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "No client, jail, log or generated config file holds a provider key. Provider keys are stored only as host- and TPM2-encrypted systemd credentials; in plaintext they exist only at run time, in the service's credentials directory and process environment, and while the CLI pipes them from op read to systemd-creds."
+tags = ["gateway"]
+acceptance_criteria = [
+  "The unit fails at credential setup when a provider's credential is absent",
+  "Generated config names each key as os.environ/<VAR>, never its value",
+]

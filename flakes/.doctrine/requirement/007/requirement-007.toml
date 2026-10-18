@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 7
+slug = "a-model-is-served-only-with-a-known-cost-source"
+title = "A model is served only with a known cost source"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The build refuses a served model unless its cost is known: its provider reports each request's cost, it sets both per-token prices, or its LiteLLM id is in the packaged price map. Setting one price alone is an evaluation error naming the model (DEC-064)."
+tags = ["gateway"]
+acceptance_criteria = [
+  "An unmapped model with no prices on a non-reporting provider fails the build, naming it",
+  "One price alone fails evaluation, naming the model",
+]

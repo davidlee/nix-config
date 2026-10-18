@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 11
+slug = "the-gateway-is-reachable-only-from-this-host-and-only-through-the-relay-or-the-sockets-group"
+title = "The gateway is reachable only from this host, and only through the relay or the socket's group"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The service listens only on a unix socket in a 0750 directory owned by the service group. A socket-activated relay puts it on 127.0.0.1 and nowhere else. The service and relay run hardened (no capabilities, strict filesystem, system-call filter)."
+tags = ["gateway"]
+acceptance_criteria = [
+  "Nothing listens on a non-loopback address",
+  "A local user outside the group cannot connect to the socket",
+]

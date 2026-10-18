@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 8
+slug = "keys-are-administered-by-a-local-cli-on-the-key-store-there-is-no-master-key"
+title = "Keys are administered by a local CLI on the key store; there is no master key"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Keys are issued, listed, revoked, re-budgeted, re-scoped and reset by the llm-gateway CLI, run as the service user on the SQLite store. There is no master key and no admin route. A key is shown once and never re-keyed; a revoked alias is never reissued."
+tags = ["gateway"]
+acceptance_criteria = [
+  "LiteLLM starts and authenticates with custom_auth and no master_key",
+  "issue prints the key once or writes a new 0600 file; it refuses an existing file",
+  "issue of a revoked alias is refused",
+]

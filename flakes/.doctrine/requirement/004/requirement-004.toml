@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 4
+slug = "every-model-a-request-names-is-on-its-keys-list"
+title = "Every model a request names is on its key's list"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A request is refused with a 403 unless its model is on the key's model list. Names are exact; there are no wildcards. Fallbacks never reach this check from a client (FR-002 refuses them with a 400); the gate also checks every fallback LiteLLM's Router would honour, as defence in depth."
+tags = ["gateway"]
+acceptance_criteria = [
+  "A request for an unlisted model gets 403 naming the alias and model",
+  "A request naming a fallback gets 400 from the body guard, even when every fallback model is listed, and spends nothing",
+  "Called directly, the model gate refuses a fallback to an unlisted model",
+]

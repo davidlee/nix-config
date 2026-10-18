@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 1
+slug = "only-the-chat-completions-and-model-listing-routes-are-served"
+title = "Only the chat-completions and model-listing routes are served"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The gateway serves POST /chat/completions, POST /v1/chat/completions, GET /models and GET /v1/models. Any other method or path gets a 404 marked x-llm-gateway: no such route, before LiteLLM sees it."
+tags = ["gateway"]
+acceptance_criteria = [
+  "GET /key/info, /health or any admin route returns 404 with the x-llm-gateway marker",
+  "HEAD on an unserved route gets the same 404",
+]

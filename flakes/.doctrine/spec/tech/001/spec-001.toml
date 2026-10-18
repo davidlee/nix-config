@@ -1,0 +1,59 @@
+schema = "doctrine.spec.tech"
+version = 1
+
+id = 1
+slug = "llm-gateway"
+title = "LLM gateway"
+status = "active"
+kind = "tech"
+tags = ["gateway", "agents", "security"]
+responsibilities = [
+  "Serve an OpenAI-compatible chat-completions endpoint to local clients",
+  "Hold the provider keys so no client needs one",
+  "Authenticate each client by its own key and enforce its model list and budget",
+  "Record each request's cost against the client that made it",
+  "Refuse every route and body field outside its contract",
+  "Administer keys and provider credentials locally",
+]
+category = "service"
+c4_level = "container"
+
+[[source]]
+language = "nix"
+identifier = "features/agents/gateway.nix"
+
+[[source]]
+language = "nix"
+identifier = "features/agents/gateway/proxy.nix"
+
+[[source]]
+language = "python"
+identifier = "features/agents/gateway/gateway_hooks.py"
+
+[[source]]
+language = "python"
+identifier = "features/agents/gateway/keystore.py"
+
+[[source]]
+language = "python"
+identifier = "features/agents/gateway/llm-gateway"
+
+[[source]]
+language = "nix"
+identifier = "agents/gateway.nix"
+
+# category — OPEN domain vocabulary (a taxonomy that drifts by design). Add as:
+#   category = "cli"
+# c4_level — closed C4 set: context | container | component | code. Add as:
+#   c4_level = "container"
+# descends_from — the product capability (PRD-NNN) this spec realises; tech-only,
+#   single-valued, validated against the product specs. Add as:
+#   descends_from = "PRD-001"
+# parent — single decomposition parent (SPEC-NNN or PRD-NNN); subtype-aware, single-valued, the
+#   tree must stay acyclic. Add as:
+#   parent = "SPEC-002"
+# [[source]] — code anchors this spec governs (tech-only, repeatable). Add as:
+#   [[source]]
+#   language = "rust"
+#   identifier = "doctrine/cli"
+#   module = "doctrine::cli"   # optional

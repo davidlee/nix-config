@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 5
+slug = "each-served-requests-cost-is-charged-to-its-key"
+title = "Each served request's cost is charged to its key"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "After each served request succeeds, its response_cost is added to the spend of the key that made it, streamed or not. A cost of 0 or none is logged as a warning and counts 0. A ledger failure is logged, the cost is dropped, and the answered request is not failed. Budgets therefore rest on recorded spend: lost accounting can exceed them."
+tags = ["gateway"]
+acceptance_criteria = [
+  "OpenRouter's reported usage.cost reaches the ledger, streaming and not",
+  "A packaged-map model is charged from the map",
+]

@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 10
+slug = "client-keys-are-stored-and-reported-only-by-hash-or-alias"
+title = "Client keys are stored and reported only by hash or alias"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The gateway stores only each client key's sha256. Its messages, logs and list output name the alias, never the key or its hash; keys reach the CLI on stdin, never argv. Keys start sk- so LiteLLM hashes any it logs. The client holds its own key in its key file and environment."
+tags = ["gateway"]
+acceptance_criteria = [
+  "list shows no key or hash",
+  "An auth failure log line carries no raw key",
+]

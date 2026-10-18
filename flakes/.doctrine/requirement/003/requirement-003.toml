@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 3
+slug = "every-request-is-authenticated-by-a-live-in-budget-client-key"
+title = "Every request is authenticated by a live, in-budget client key"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Each request carries a bearer key. A missing, unknown or revoked key, or one whose spend has reached its budget, gets a 401 naming the alias where there is one."
+tags = ["gateway"]
+acceptance_criteria = [
+  "No key, an unknown key, a revoked key and an exhausted key each get 401",
+  "A failure inside authentication refuses the request",
+]
