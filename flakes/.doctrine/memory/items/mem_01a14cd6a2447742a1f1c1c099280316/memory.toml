@@ -1,0 +1,46 @@
+memory_uid = "mem_01a14cd6a2447742a1f1c1c099280316"
+memory_key = "mem.fact.flakes.spec-authoring"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Spec authoring mechanics in ~/flakes"
+summary = "No spec status verb, REQ statements hand-edited in TOML, root container validates, comma-split list flags"
+created = "2026-10-18"
+updated = "2026-10-18"
+
+[scope]
+paths = [".doctrine/spec", ".doctrine/requirement"]
+globs = []
+commands = []
+tags = ["spec", "doctrine"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "b1b34bdb027bbb0d6bcb329168329f7d7d480d6c"
+ref_name = "refs/heads/main"
+checkout_state_id = "13d64191d6ddf191069a93d98b6241e27847be14f69664db34904446ba9adc17"
+base_commit = "a4e734c5e2a3fd0f9b837e0095f0826736f4cfea"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "session"
+ref = "SPEC-001"
+
