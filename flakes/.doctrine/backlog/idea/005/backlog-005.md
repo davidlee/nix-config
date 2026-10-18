@@ -17,3 +17,8 @@ Hits postdate the 2026-08-11 argv fix, so the env-dump vector is live until
 IMP-020 / IDE-003. Options: one-off purge, a `sleipnir-doctor` external
 check (`~/.config/sleipnir-doctor/checks.d/`) running a redacted scan, or
 both. Rotate any key confirmed real.
+
+2026-10-19: `~/dev/spec-driver/.envrc` holds a plaintext PyPI publish token
+(`UV_PUBLISH_PASSWORD`). Gitignored and never committed, but the workspace is
+bound into its jails, so any agent there can read it. Rotate it with the rest,
+and source it from 1Password instead.

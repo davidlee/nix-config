@@ -35,3 +35,13 @@ re-locked. Verified by building each jail: no `op run`, no `API_KEY`, one
 subagent slot are deleted (user's choice); unjailed dirge stays. Committed:
 panopticon 116b57e, goad 272685a, satan-attrd 3eff42e, retrograde ee81335,
 www 7d8352f.
+
+**Progress 2026-10-19 (2).** Also on the gateway: bough 65ef289d (vk is a
+symlink to it), forgettable 9d19535, org-incremental-writing 1693fe7,
+spec-driver b58fd442 and agentdoc 5a6c22e (both off the `pub` shim, `agents`
+re-locked at add489ed). Deleted as stale: checkout-doctrine, doctrine-SL-248
+(commits all in ~/dev/doctrine), goad-009-proto (worktree removed; branch
+`slice-009-prototype` kept in goad). Left: lazyspec. Its committed flake has no
+jails; its uncommitted flake.nix is a copy of another repo's (description
+"satan-attrd", builds doctrined, jails forwarding OPENROUTER_API_KEY). Its
+owner decides whether to discard it.
