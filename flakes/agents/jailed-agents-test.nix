@@ -380,7 +380,9 @@ in
       test "$(env -i HOME="$fake" "$resolver")" = "$fake/.gitignore_global"
 
       refute grep -Fq -- '/home/david' "$spec"
-      refute grep -Fq -- '/run/user/1000' "$spec"
+      for launcher in "$spec" "$research" "$offline"; do
+        refute grep -Fq -- '/run/user/1000' "$launcher"
+      done
 
       outer=${selectedKeyOuter}/bin/jailed-pi
       grep -Fqx -- 'op=/run/wrappers/bin/op' "$outer"
@@ -510,6 +512,15 @@ in
       gateway_launch research "$research_inner"
       gateway_launch claude-pi "$claude_pi_inner"
       gateway_launch eca "$eca_inner"
+
+      # I4 (SL-023 REQ-016): the satan-runner control socket is bound into no
+      # jail. Every launcher built above, outer and inner.
+      for launcher in "$spec" "$research" "$offline" "$inner_path/bin/jailed-pi" \
+        "$gw_outer" "$gw_inner" "$research_inner" "$claude_pi_inner" \
+        "$eca_outer" "$eca_inner"; do
+        test -f "$launcher" # a missing file would make the refute vacuous
+        refute grep -Fq -- 'satan-runner' "$launcher"
+      done
       # Launched, bwrap gets the bind's target under the launching HOME.
       for label in gateway research claude-pi; do
         grep -Fxq -- "$TMPDIR/$label-home/.pi/agent/models.json" "$TMPDIR/$label/bwrap-argv"
