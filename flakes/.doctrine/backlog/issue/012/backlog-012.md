@@ -12,3 +12,14 @@ other shell tests (feature `*-test` scripts, Nix check scripts, justfile
 recipes) for the same pattern; convert to `refute` / `if …; then exit 1; fi`.
 Check each conversion by mutation: the test must fail when the guarded
 condition is broken.
+
+## Resolution (2026-10-19)
+
+Sweep found no remaining bare `! cmd` assertions: SL-011 had converted all of
+them, and every other shell test asserts with `check <expected> <actual>`.
+Every script in scope runs under errexit except `git-guard.test.sh`, which
+counts its failures. Two latent `test -n a && test -n b && test b -gt a`
+chains in `agents/jailed-agents-test.nix` (non-final `&&` parts escape
+errexit; masked by the pipefail assignments above them) were split into
+three lines. `refute` stays local: nothing else needs it. The near-identical
+`check()` in five test scripts is a separate possible tidy-up.

@@ -348,7 +348,9 @@ in
       for launcher in "$spec" "$research" "$offline"; do
         home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$launcher" | cut -d: -f1)"
         excl_at="$(grep -bo -- '--ro-bind-try "$([^)]*-host-git-excludes-file)" ~/.config/git/ignore' "$launcher" | cut -d: -f1)"
-        test -n "$home_at" && test -n "$excl_at" && test "$excl_at" -gt "$home_at"
+        test -n "$home_at"
+        test -n "$excl_at"
+        test "$excl_at" -gt "$home_at"
       done
 
       # Host doctrine: the directory of its own install root, read-only and
@@ -504,7 +506,9 @@ in
         test "$(grep -o -- "$models_bind" "$i" | wc -l)" = 1
         home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$i" | cut -d: -f1)"
         models_at="$(grep -bo -- "$models_bind" "$i" | cut -d: -f1)"
-        test -n "$home_at" && test -n "$models_at" && test "$models_at" -gt "$home_at"
+        test -n "$home_at"
+        test -n "$models_at"
+        test "$models_at" -gt "$home_at"
         # Same url and models, so the same store file for every jail.
         this="$(grep -o -- "$models_bind" "$i")"
         test -z "$bound" || test "$this" = "$bound"
