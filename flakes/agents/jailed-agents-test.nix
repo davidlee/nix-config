@@ -59,6 +59,7 @@
   offline = inner "offline" {};
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
   gitUnguarded = inner "specDev" {guardGit = false;};
+  noHostDoctrine = inner "specDev" {hostDoctrine = false;};
   legacySshPushAllowed = inner "specDev" {blockGitPush = false;};
   customIdentity = customIdentityAgents.makeJailedZsh {
     profile = "specDev";
@@ -346,6 +347,28 @@ in
         excl_at="$(grep -bo -- '--ro-bind-try "$([^)]*-host-git-excludes-file)" ~/.config/git/ignore' "$launcher" | cut -d: -f1)"
         test -n "$home_at" && test -n "$excl_at" && test "$excl_at" -gt "$home_at"
       done
+
+      # Host doctrine: the host's cargo install, read-only at the same path,
+      # after (so on top of) the persisted home bind, and on PATH. Absent on
+      # the host, the jail still launches: the bind is a try.
+      for launcher in "$spec" "$research" "$offline"; do
+        home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$launcher" | cut -d: -f1)"
+        doc_at="$(grep -bo -- '--ro-bind-try ~/.cargo/bin/doctrine ~/.cargo/bin/doctrine' "$launcher" | cut -d: -f1)"
+        test -n "$home_at" && test -n "$doc_at" && test "$doc_at" -gt "$home_at"
+        grep -q -- '--setenv PATH [^ ]*"$HOME"/.cargo/bin' "$launcher"
+      done
+      refute grep -Fq -- '.cargo/bin' ${noHostDoctrine}/bin/jailed-zsh
+
+      # Behaviour: the closure binds name what a dynamic ELF links against,
+      # and nothing for a missing file or a script.
+      binds="$(grep -o '/nix/store/[^ )]*-elf-closure-binds' "$spec" | head -1)"
+      test -n "$binds"
+      closure="$("$binds" ${pkgs.hello}/bin/hello | tr '\0' ' ')"
+      glibc=${lib.getLib pkgs.stdenv.cc.libc}
+      [[ $closure == *"--ro-bind-try $glibc $glibc"* ]]
+      refute grep -Fq -- '${pkgs.hello}' <<<"$closure"
+      test -z "$("$binds" "$TMPDIR/absent")"
+      test -z "$("$binds" ${pkgs.writeShellScript "not-elf" ""})"
 
       # Behaviour: the resolver mirrors git's own lookup.
       resolver="$(grep -o '/nix/store/[^ )]*-host-git-excludes-file' "$spec" | head -1)"

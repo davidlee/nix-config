@@ -44,6 +44,13 @@ Every jail gets these **base** options regardless of profile:
   the jail — git's default excludes path, so no jail gitconfig is touched.
   Agents therefore don't stage what you ignore. Skipped if the file is absent;
   overridden if the jail's own `~/.gitconfig` sets `core.excludesFile`.
+- **Host doctrine** (`hostDoctrine`, default on), read-only. The host's
+  `~/.cargo/bin/doctrine`, which `cargo install` keeps current, is bound at
+  the same path and put on `PATH`. The jail sees only its own closure, so the
+  launcher also binds the store paths the binary links against (its
+  interpreter and RUNPATH, with their closure), over `--args 23`. One binary
+  serves host and jail, so a project flake needs no `doctrine` input. If the
+  binary is absent, the jail launches without it.
 
 Host audio is intentionally not part of the portable defaults. Opt in from a
 machine-specific composition root with jail.nix's `$XDG_RUNTIME_DIR`-aware
@@ -450,6 +457,7 @@ README, § LLM gateway.
 | `blockGitPush` | deprecated | Compatibility alias for `blockSshGitPush`; emits a warning |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
+| `hostDoctrine` | `true` | Bind the host's `~/.cargo/bin/doctrine`, and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
 | `apiKeys` | all configured names; `[]` in gateway mode | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json` |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |

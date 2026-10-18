@@ -275,6 +275,38 @@
     # TODO: npm, pnpm, bun, cargo, ...
   ];
 
+  # `elf-closure-binds BINARY`: bwrap args, NUL-separated for `--args FD`,
+  # binding read-only the store paths a host-built ELF needs to run: the
+  # closure of its interpreter and RUNPATH. The jail sees only its own
+  # closure, and a binary built outside Nix (`cargo install`) is in none.
+  # No file, or not a dynamic ELF: no output, which bwrap reads as no args.
+  elfClosureBinds = pkgs.writeShellScript "elf-closure-binds" ''
+    PATH=${lib.makeBinPath [pkgs.patchelf pkgs.gnused pkgs.coreutils pkgs.nix]}
+    [ -f "$1" ] || exit 0
+    interp=$(patchelf --print-interpreter "$1" 2>/dev/null) || exit 0
+    rpath=$(patchelf --print-rpath "$1" 2>/dev/null)
+    roots=$(printf '%s\n' "$interp" "''${rpath//:/$'\n'}" |
+      sed -n 's|^\(/nix/store/[^/]*\).*|\1|p' | sort -u)
+    [ -n "$roots" ] || exit 0
+    # Without the store database (a build sandbox), the roots alone.
+    # shellcheck disable=SC2086 # store paths: no whitespace
+    paths=$(nix-store --query --requisites $roots 2>/dev/null) || paths=$roots
+    for p in $paths; do printf '%s\0' --ro-bind-try "$p" "$p"; done
+  '';
+
+  # The host's doctrine, the one `cargo install` keeps current, at the same
+  # path in the jail: one binary for host and jail, so no consumer flake has
+  # to pin a copy that lags it. Read-only on top of the persisted home's own
+  # ~/.cargo, with the store paths it links against; a try, so a host without
+  # it launches anyway. `"$HOME"`, not `~`: PATH is one word, and the
+  # launcher expands it (in-jail HOME is the host's). Descriptor 23: clear
+  # of the key descriptors, 21 and 22 (setenvsByArgsFd).
+  hostDoctrineOptions = with jail.combinators; [
+    (try-readonly (noescape "~/.cargo/bin/doctrine"))
+    (unsafe-add-raw-args "--args 23 23< <(${elfClosureBinds} ~/.cargo/bin/doctrine)")
+    (add-path ''"$HOME"/.cargo/bin'')
+  ];
+
   # Expose host PostgreSQL unix socket
   postgresOptions = with jail.combinators; [
     (try-readwrite "/run/postgresql")
@@ -305,6 +337,8 @@
     # Swap git for guardedGit (refuses stash, checkout --, reset --hard, ...).
     guardGit ? profileDefaults.${profile}.guardGit,
     exposePostgres ? profileDefaults.${profile}.exposePostgres,
+    # The host's ~/.cargo/bin/doctrine, read-only (hostDoctrineOptions).
+    hostDoctrine ? true,
     useOpEnv ? profileDefaults.${profile}.useOpEnv,
     # When the caller pre-resolves op:// refs and exports plaintext into
     # the wrapper's env (e.g. Emacs broker with a per-session cache),
@@ -527,6 +561,7 @@
       baseJailOptions
       ++ workspaceBinds
       ++ profileOptions.${profile}
+      ++ lib.optionals hostDoctrine hostDoctrineOptions
       ++ hostGitExcludesOptions
       ++ termOptions
       ++ packageManagerOptions
