@@ -50,6 +50,7 @@ in [
         # frogmouth
         glow
         rich-cli
+        leaf-markdown-viewer
         # marked-man
         # md-tui
       ];

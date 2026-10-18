@@ -8,8 +8,8 @@ kind = "idea"
 status = "open"
 resolution = ""                 # seeded empty so `backlog edit` sets it in place
 created = "2026-10-15"
-updated = "2026-10-15"
-tags = []
+updated = "2026-10-17"
+tags = ["agents", "git", "oubliette"]
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
 # — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
@@ -24,3 +24,7 @@ triggers = []                   # watched source globs: { globs, note? }
 [[relation]]
 label = "governed_by"
 target = "POL-001"
+
+[[relation]]
+label = "related"
+target = "IDE-008"

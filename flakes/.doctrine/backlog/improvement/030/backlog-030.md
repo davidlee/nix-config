@@ -29,3 +29,9 @@ Surfaces (SL-013 research, findings 6, 7):
 - `jailed-shell` and other jails exposing `pi` as a subagent.
 
 Depends on IMP-029 if satan needs OpenRouter models through the gateway.
+
+**Promoted 2026-10-17** to satan:SL-022 ("SATAN's jails and patcher on the
+LLM gateway"), which also absorbs satan:ISS-029 (keys on bwrap argv, budget
+ceiling not forwarded). It owns the `features/satan/patcher.nix` change here.
+Emacs's in-process clients stay with emacs:SL-015; the two meet only at the
+gateway and at `env.zsh`, whose retirement waits on SL-022.

@@ -242,6 +242,7 @@ in
           gruvbox-theme
           molokai-theme
           nushell-ts-mode
+          markdown-preview-eww
           # Nu config files are edited outside language-specific devshells.
           (treesit-grammars.with-grammars (grammars: [grammars.tree-sitter-nu]))
           popterm
