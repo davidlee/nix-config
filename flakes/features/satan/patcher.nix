@@ -28,7 +28,8 @@
     imports = [inputs.satan-patcher.homeManagerModules.default];
 
     services.satan-patcher = {
-      enable = true;
+      # Fenced: SL-023 PHASE-11 (DEC-063 step 1); the runner is Malebolge.
+      enable = false;
       package = inputs.satan-patcher.packages.${pkgs.stdenv.hostPlatform.system}.satan-patcher;
       # The module's own default still names ~/notes/satan (CHR-003); the
       # corpus lives in its own repo since SL-015.

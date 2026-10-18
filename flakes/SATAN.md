@@ -52,7 +52,7 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `satan-tick` | `satan-run-tick` → `(satan-tick)` | **once, 5 min after boot** (`OnUnitActiveSec` commented out; ISS-022) | `satan.nix:72-84` |
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
-| `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | always | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
+| `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | disabled (fenced) by SL-023 PHASE-11, pending removal; runner is Malebolge; `satan-patch-runner-enabled` nil | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
 | `panopticon-sway` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
