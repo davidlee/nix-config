@@ -1,0 +1,37 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 74
+slug = "clients-send-flat-reasoning-effort-the-gateway-admits-the-provider-shapes-too"
+title = "Clients send flat reasoning_effort; the gateway admits the provider shapes too"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-18"
+updated = "2026-10-18"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Gateway clients send reasoning effort in three shapes: pi a top-level thinking (DeepSeek thinkingFormat; SL-013); gptel OpenRouter's nested reasoning:{effort} (SL-014 research); minuet a flat reasoning_effort. DEC-073 admits all three. The gateway translates none of them: LiteLLM's provider adapters do. satan SL-022 and emacs:SL-015 need one convention to write to (satan QUE-004)."
+choice = "A gateway client sends reasoning effort as the flat OpenAI reasoning_effort. The gateway commits to admitting it on every served model: each OpenRouter route sets allowed_openai_params = [reasoning_effort] so LiteLLM does not refuse it, and LiteLLM's adapters map it per provider. thinking and reasoning stay on the DEC-073 allow-list as tolerated provider-native shapes for existing clients (pi's DeepSeek compat). A body that carries both a native shape and reasoning_effort gets the adapter's precedence (DeepSeek drops reasoning_effort)."
+alternatives = ["Flat only: refuse thinking and reasoning (breaks pi's DeepSeek compat until flat effort is proven on DeepSeek)", "Leave the convention to each client's design (clients diverge; neither can bind the other)", "The gateway rewrites native shapes to reasoning_effort (new translation code duplicating LiteLLM's adapters)"]
+rationale = "One shape for new clients to write without breaking any current one. The gateway owns the wire contract so clients cite it rather than each other. LiteLLM already maps reasoning_effort per provider; the gateway's part is only to admit it."
+consequences = ["New clients (satan SL-022 and emacs:SL-015) send reasoning_effort and cite flakes:DEC-074", "A test must pin flat reasoning_effort on every served provider: DeepSeek alone and Fireworks are unverified", "A new OpenRouter route keeps allowed_openai_params = [reasoning_effort] (the routed helper does this)", "Dropping thinking or reasoning later is a new decision that supersedes this one", "README § LLM gateway documents the contract"]
+decided_by = "user (2026-10-18)"
+decided_on = "2026-10-18"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-014"
+
+[[relation]]
+label = "spawns"
+target = "IMP-038"

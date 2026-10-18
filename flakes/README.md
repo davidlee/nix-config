@@ -944,6 +944,23 @@ the cost report. The list is `ALLOWED_FIELDS` in
 `features/agents/gateway/gateway_hooks.py`; a field a new client needs is added
 there, with its reason.
 
+**Client wire contract.** A client sends OpenAI chat-completions bodies.
+Reasoning effort goes in the flat `reasoning_effort` field, on every model
+(DEC-074). The gateway translates nothing: LiteLLM's provider adapters map
+`reasoning_effort` to each provider's form. The gateway's part is to admit
+it: every OpenRouter route sets `allowed_openai_params = ["reasoning_effort"]`,
+because otherwise LiteLLM refuses it with a 400 on models its map does not
+flag as reasoning. The provider-native shapes are also admitted, for existing
+clients only:
+
+| shape | sent by | provider |
+|---|---|---|
+| `reasoning_effort` | new clients, minuet | every model |
+| `thinking` | pi (`thinkingFormat = "deepseek"`) | DeepSeek |
+| `reasoning: {effort}` | gptel, before emacs:SL-015 | OpenRouter |
+
+Given both forms, the adapter decides; DeepSeek drops `reasoning_effort`.
+
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup
 (`status=243/CREDENTIALS`; `journalctl -u llm-gateway` shows "Failed to set
