@@ -76,7 +76,7 @@
       url = "github:davidlee/panopticon";
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
-        pub.follows = "agents";
+        agents.follows = "agents";
         doctrine.inputs.pub.follows = "agents";
       };
     };
@@ -99,7 +99,7 @@
       url = "github:davidlee/satan-attrd";
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
-        pub.follows = "agents";
+        agents.follows = "agents";
         spec-driver.inputs.pub.follows = "agents";
       };
     };
