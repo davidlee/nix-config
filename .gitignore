@@ -16,3 +16,30 @@ backup/
 
 # Split out into its own repo (github.com/davidlee/emacs-config) on 2026-05-23
 .emacs.d/
+
+# Caches, toolchains and app data: untracked, but project.el lists
+# untracked files (git ls-files -o), so these made ~ a 2.9M-file project.
+# Tracked files under these paths stay tracked.
+.local/share/*
+!.local/share/applications/
+.local/state/
+_compost/
+go/
+.bun/
+.npm/
+.npm-global/
+.pnpm-global/
+.cargo/
+.rustup/
+.var/
+.zoom/
+.floorp/
+.zen/
+.paradoxlauncher/
+.antigravity/
+.config/mozilla/
+.config/Slack/
+.config/discord/
+.config/Cursor/
+.config/obsidian/
+.config/wavebox/
