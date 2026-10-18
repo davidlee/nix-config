@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 12
+slug = "a-selected-features-prerequisites-must-also-be-selected-the-resolver-never-selects"
+title = "A selected feature's prerequisites must also be selected; the resolver never selects"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A feature's requires lists other features by <area>.<name>. A selected feature whose prerequisite is not selected refuses the host, however the prerequisite came to be off; the resolver never selects anything to repair it. A requires entry naming no feature fails every host."
+tags = ["composition"]
+acceptance_criteria = [
+  "A selected feature with an unselected prerequisite fails resolution; with both selected it projects (features-test: testPrerequisiteOffFails, testPrerequisiteOnPasses)",
+  "requires naming a feature not in the tree fails resolution (testUnknownPrerequisiteFails)",
+  "The real tree's requires edges hold: gamescope needs steam, a compositor needs desktop.core, obs needs desktop.core, eca needs agents.gateway (testGamescopeRequiresSteam, testCompositorRequiresCore, testObsRequiresCore, testEcaRequiresGateway)",
+]

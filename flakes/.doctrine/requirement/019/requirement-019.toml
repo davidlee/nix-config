@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 19
+slug = "a-hosts-metanix-is-validated-before-anything-is-resolved"
+title = "A host's meta.nix is validated before anything is resolved"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "hosts/<host>/meta.nix is plain data with kind (nixos or darwin), system and home (default false). It is validated by an evalModules schema before any host resolves; an unknown key, a wrong type or a missing option fails every evaluation, naming the file."
+tags = ["composition"]
+acceptance_criteria = [
+  "A valid meta passes; an unknown kind, an unknown key, a missing system and a non-bool home each fail (host-meta-test: testMetaPasses, testMetaUnknownKindFails, testMetaUnknownKeyFails, testMetaMissingSystemFails, testMetaHomeTypeFails)",
+]

@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 20
+slug = "every-off-feature-has-a-coverage-target-that-evaluates-it"
+title = "Every half of an off feature is evaluated by some coverage target"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A feature no host selects is off, and is still evaluated: each half it has (nixos, homeManager, darwin) is forced by a handwritten target in flake.coverage, built by that half's factory on a system its platforms allow. A target forces the system or home activation derivation, off every switch path and outside just drvs; it covers only the evaluation its factory builds. Coverage means it evaluates, not that it builds. Parked modules are not features and have no target."
+tags = ["composition"]
+acceptance_criteria = [
+  "just coverage prints one drvPath per target and exits 0",
+  "Sleipnir leaves llama-cpp, rocm, podman and sunshine unselected, and selecting each projects its NixOS half (testOffFeatures)",
+  "Each of the five off features today has only a nixos half, and each has a mkNixos target (verified by hand 2026-10-18; no check: IMP-039)",
+]

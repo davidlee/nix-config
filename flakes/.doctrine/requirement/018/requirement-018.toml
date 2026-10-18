@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 18
+slug = "the-selection-reaches-the-evaluations-only-as-modules"
+title = "The selection reaches the evaluations only as modules"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The resolver returns only modules.{nixos,homeManager,darwin}. No evaluation receives the selection as an argument, so no downstream module can branch on what is selected (ADR-001, ADR-004)."
+tags = ["composition"]
+acceptance_criteria = [
+  "The resolver's result has the single attribute modules (testResultIsModulesOnly)",
+]

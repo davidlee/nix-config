@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 21
+slug = "a-failed-check-refuses-every-evaluation-of-its-host"
+title = "A failed check refuses every evaluation of its host"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Each host is resolved once and every factory for it (system and home) takes that one selection, so a failed check refuses a home-only build as well as a system build."
+tags = ["composition"]
+acceptance_criteria = [
+  "A selection with a failing check throws when only its homeManager modules are read (testPrerequisiteOffFails)",
+  "A false hand-written assertion fails resolution (testFalseAssertionFails)",
+]

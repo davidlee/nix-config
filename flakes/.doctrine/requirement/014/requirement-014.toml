@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 14
+slug = "a-malformed-feature-tree-fails-every-host"
+title = "A malformed feature tree fails every host"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Structural checks read every record, selected or not, and any failure refuses every host: an area or feature that is not a record (a path listed where (import ...) was meant is named as such); a missing, empty, dotted or duplicate name; requires or platforms that is not a list of strings; an unknown descriptor key; an outer option declared at a feature's path."
+tags = ["composition"]
+acceptance_criteria = [
+  "Each malformed shape fails resolution and its corrected twin passes (testMalformedShapeFails, testNonRecordFeatureFails, testUnnamedFeatureFails, testEmptyNameFails, testDottedNameFails, testDuplicateNamesFail, testBadPlatformsShapeFails, testUnknownDescriptorKeyFails, testFlagCollisionFails)",
+]

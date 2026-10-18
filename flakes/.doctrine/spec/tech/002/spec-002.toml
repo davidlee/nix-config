@@ -1,0 +1,96 @@
+schema = "doctrine.spec.tech"
+version = 1
+
+id = 2
+slug = "host-composition"
+title = "Host composition"
+status = "active"
+kind = "tech"
+tags = ["composition", "features", "hosts"]
+responsibilities = [
+  "Read the host table from hosts/*/meta.nix and validate it",
+  "Resolve each host's feature selection once, outside every module evaluation",
+  "Refuse a malformed tree or an invalid selection before anything is built",
+  "Project selected features into each evaluation in tree order",
+  "Build each host's system and home as separate configurations on separate pins",
+  "Hold the NixOS base, the darwin base, the home base and its platform layers",
+  "Keep off features evaluated through coverage targets",
+]
+category = "composition"
+c4_level = "container"
+
+# category — OPEN domain vocabulary (a taxonomy that drifts by design). Add as:
+#   category = "cli"
+# c4_level — closed C4 set: context | container | component | code. Add as:
+#   c4_level = "container"
+# descends_from — the product capability (PRD-NNN) this spec realises; tech-only,
+#   single-valued, validated against the product specs. Add as:
+#   descends_from = "PRD-001"
+# parent — single decomposition parent (SPEC-NNN or PRD-NNN); subtype-aware, single-valued, the
+#   tree must stay acyclic. Add as:
+#   parent = "SPEC-002"
+# [[source]] — code anchors this spec governs (tech-only, repeatable). Add as:
+#   [[source]]
+#   language = "rust"
+#   identifier = "doctrine/cli"
+#   module = "doctrine::cli"   # optional
+
+[[source]]
+language = "nix"
+identifier = "features.nix"
+
+[[source]]
+language = "nix"
+identifier = "features-test.nix"
+
+[[source]]
+language = "nix"
+identifier = "features/default.nix"
+
+[[source]]
+language = "nix"
+identifier = "features/available.nix"
+
+[[source]]
+language = "nix"
+identifier = "features/platform-skips.nix"
+
+[[source]]
+language = "nix"
+identifier = "features/profiles"
+
+[[source]]
+language = "nix"
+identifier = "hosts.nix"
+
+[[source]]
+language = "nix"
+identifier = "host-meta.nix"
+
+[[source]]
+language = "nix"
+identifier = "host-meta-test.nix"
+
+[[source]]
+language = "nix"
+identifier = "hosts"
+
+[[source]]
+language = "nix"
+identifier = "modules/nixos/default.nix"
+
+[[source]]
+language = "nix"
+identifier = "modules/home/default.nix"
+
+[[source]]
+language = "nix"
+identifier = "modules/home/linux/default.nix"
+
+[[source]]
+language = "nix"
+identifier = "modules/home/darwin/default.nix"
+
+[[source]]
+language = "nix"
+identifier = "darwin/default.nix"

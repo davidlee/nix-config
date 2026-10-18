@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 13
+slug = "a-selected-feature-must-land-in-one-of-its-hosts-evaluations-on-a-supported-system"
+title = "A selected feature must land in one of its host's evaluations, on a supported system"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A selected feature must have a module for at least one of its host's evaluations (its kind, plus homeManager with a home), and its platforms, where present, must include the host's system. Absent platforms means every system."
+tags = ["composition"]
+acceptance_criteria = [
+  "A home-only feature selected on a darwin host without a home fails; with a home it projects (testNowhereToLandFails)",
+  "A feature whose platforms omit the host's system fails; on a listed system it projects (testUnsupportedPlatformFails, testDesktopCoreLinuxOnly)",
+  "A feature without platforms resolves on every flake system (testPlatformsAbsentMeansAll)",
+]

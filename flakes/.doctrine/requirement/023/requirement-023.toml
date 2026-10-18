@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 23
+slug = "lean-homes-reach-no-dev-checkout-input"
+title = "Lean homes evaluate without any dev-checkout input's outputs"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "The home base on aarch64-linux and Draupnir's home evaluate with every input on the dev-checkout list (bin/dev-checkouts) replaced by a flake with empty outputs, so neither uses any of those inputs' outputs (DEC-034). This does not show that they never reference an input's source path or fetch it: the stub still has an outPath."
+tags = ["composition"]
+acceptance_criteria = [
+  "just isolation reports ok for coverage.\"home@aarch64-linux\" and homeConfigurations.\"david@Draupnir\"",
+]

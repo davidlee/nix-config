@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 17
+slug = "profiles-set-defaults-a-hosts-plain-definition-overrides-them"
+title = "Profiles set defaults; a host's plain definition overrides them"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "feature.<area>.<name>.enable defaults to false. A profile is an outer module that sets selections with mkDefault; a host imports profiles and overrides any of them with a plain definition."
+tags = ["composition"]
+acceptance_criteria = [
+  "The workstation profile selects session.snooze in both halves; a host's plain false removes both (testProfileSelectsSnooze, testHostOverrideWins)",
+]

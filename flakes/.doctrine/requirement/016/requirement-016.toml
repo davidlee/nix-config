@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 16
+slug = "selected-features-project-in-tree-order-each-tagged-with-where-it-is-written"
+title = "Selected features project in tree order, each tagged with where it is written"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Selected features project into each class in tree order: areas in features/default.nix order, then features in their area file's order, never attribute-name order. Each projected module's _file is <flake-relative file>:<line> (<area>.<name>#<class>), from the position of the feature's name."
+tags = ["composition"]
+acceptance_criteria = [
+  "Features project in written order across and within areas (testListOrder)",
+  "_file names the line holding the feature's name, for an inline and a spilled record (testProvenance)",
+]

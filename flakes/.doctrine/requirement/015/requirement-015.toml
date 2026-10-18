@@ -1,0 +1,18 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 15
+slug = "an-unselected-features-implementation-is-never-evaluated"
+title = "An unselected feature's implementation is never evaluated"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "Resolution reads only descriptor key names, name, requires, platforms, option declarations and the position of name. It never forces a class value, so an unselected feature whose module throws, or names a missing package, leaves every host's evaluation untouched. A parse error in an area file is not isolated."
+tags = ["composition"]
+acceptance_criteria = [
+  "A tree holding an unselected feature that throws and one that names a missing package attribute evaluates the selected feature alone (testUnselectedNotForced)",
+]

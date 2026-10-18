@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 22
+slug = "system-and-home-evaluate-separately-each-on-its-own-nixpkgs-pin"
+title = "System and home evaluate separately, each on its own nixpkgs pin"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+description = "A host's system (NixOS or nix-darwin) and its home are separate configurations: separate flake outputs, separate nixpkgs pins (nixpkgs and nixpkgs-home) and separate activation. Neither reads the other's config; a feature's two halves may be activated at different times (ADR-003)."
+tags = ["composition"]
+acceptance_criteria = [
+  "Every kind x home combination yields the expected classes, and darwinConfigurations.Draupnir and homeConfigurations.\"david@Draupnir\" both exist (checks.factories)",
+  "just drvs reports nixosConfigurations, homeConfigurations and darwinConfigurations as separate families",
+]

@@ -52,7 +52,7 @@ Never `git stash` under `~`: it acts on the whole home directory, and with
 - use templates to make this easy
 - prefer unstable; pin to stable as an escape hatch for broken packages
 - use modules for maintainability and easy coarse-grained configuration changes
-  see [design doc](./modules/DESIGN.md`)
+  see [SPEC-002](.doctrine/spec/tech/002/spec-002.md), host composition
 
 ## Notes 
 
@@ -161,10 +161,10 @@ upstream and re-locks every input under development from its remote.
 
 ### Features
 
-Optional modules are features: plain data under `features/`, selected by
-options and projected straight into each evaluation's module list. The
-selection is resolved once per host by `features.nix`, outside the NixOS,
-darwin and home-manager evaluations.
+Optional modules are features: plain data under `features/`, selected per
+host and projected into each evaluation's module list. How it works, what an
+author may rely on, and every refusal: [SPEC-002](.doctrine/spec/tech/002/spec-002.md)
+(`doctrine show SPEC-002` adds its requirements). This section is operations.
 
 ```
 hosts/<host>/features.nix ──imports──> features/profiles/*.nix
@@ -178,22 +178,10 @@ hosts/<host>/features.nix ──imports──> features/profiles/*.nix
           ─> appended by mkNixos / mkHome / mkDarwin
 ```
 
-| file | role |
-|------|------|
-| `features.nix` | resolver — `lib.evalModules`, once, per host (tests: `features-test.nix`) |
-| `features/` | the feature tree: one file per area, features inline, profiles |
-| `hosts/<hostname>/features.nix` | that host's profiles and overrides (optional) |
-
-Deliberately **not** a NixOS option. The three configs evaluate independently —
-separate nixpkgs (`nixpkgs` vs `nixpkgs-home`), separate `switch` — so an option
-declared in one is invisible to the others. Evaluating the option set once,
-outside all of them, and injecting the result keeps one source of truth.
-
 #### Feature tree
 
-A feature is the unit of selection: a plain attrset that names itself and
-holds an ordinary module for each evaluation it touches, written inline,
-halves together. It is never itself a module.
+A feature is a self-named record holding an ordinary module for each
+evaluation it touches, halves together:
 
 ```nix
 # features/session.nix
@@ -207,11 +195,10 @@ _: [
 ]
 ```
 
-Features are grouped into **areas**, and reached only from written lists,
-never by listing directories. An area is a namespace with one file,
-`features/<area>.nix`: the list of its features. `features/default.nix`
-maps a written list of area names to their files (`{lib}: map area [ … ]`). List
-order is projection order.
+An area is one file, `features/<area>.nix`, listing its features;
+`features/default.nix` lists the areas. List order is projection order. A
+feature that outgrows its area file moves to `features/<area>/<name>.nix`,
+whole, and is listed as `(import ./<area>/<name>.nix)`.
 
 ```
 features/
@@ -228,7 +215,7 @@ features/
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
   agents.nix          [ registry (import ./agents/gateway.nix) eca chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; eca: linux only, requires gateway (personal-linux)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
-  audio.nix           [ pipewire mpd speech dictate alarm ] speech: coverage target; alarm requires media.spotify
+  audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
   audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature
   services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
@@ -265,21 +252,9 @@ features/
   stub/               flake.nix                       empty flake: just isolation's stand-in for local inputs
 ```
 
-- **Own file.** A feature moves to `features/<area>/<name>.nix` when it would
-  dominate its area file (about 100 lines is a prompt to reconsider, not a
-  rule). The file holds the whole record, every half; never split a feature
-  by platform. Moving one between files touches no host or profile, though
-  relative paths inside it may change. A record too big for one file may
-  import modules of its own from `features/<area>/<name>/`, listed
-  explicitly in the half that uses them (no discovery); they belong to that
-  record and to no other (`desktop.core`).
-- **Assets** (scripts, tests, data) sit near their feature. Add no directory
-  that does not help navigation.
-- **Errors** name both places: `features/session.nix:20 (session.snooze#nixos)`.
-
-Each feature gets an option `feature.<area>.<name>.enable`, default `false`.
-A **profile** is an outer module that sets those with `mkDefault`; a host
-imports profiles and overrides any of them with a plain definition:
+Each feature gets `feature.<area>.<name>.enable`, default `false`. A profile
+sets those with `mkDefault`; a host imports profiles and overrides any of
+them with a plain definition:
 
 ```nix
 # hosts/Sleipnir/features.nix
@@ -290,54 +265,29 @@ imports profiles and overrides any of them with a plain definition:
 }
 ```
 
-Nothing is selected automatically. The resolver refuses to return anything
-— so a home-only build fails just like a system one — when a selected
-feature's `requires` entry is not selected, when a selected feature has no
-module for any of the host's evaluations (a home-only feature on the Mac),
-when a selected feature's `platforms` omit the host's system, or when any hand-written `assertions` entry in an outer module is false.
-Structural errors fail every host, because they are checked over every
-feature: an area or feature that is not a record (a path listed where
-`(import …)` was meant), a missing, empty, duplicate or dotted name,
-`requires` or `platforms` that is not a list of strings, an unknown key, an unknown
-`requires` path, or an outer option at a feature's path (a second switch for it). The modules
-of unselected features are never evaluated, so a broken module blocks no
-host; only the record itself (its keys, `name`, `requires`, `platforms`) is read.
+Nothing is selected automatically, prerequisites included: a host that
+selects `services.printing` also selects `services.avahi`. A Linux-only
+record says so with `platforms = lib.platforms.linux`, or the Mac's home
+would get it. A cli package that fails on a platform although `availableOn`
+accepts it goes in `features/platform-skips.nix`; a transient skip also
+gets a probe (§ Workarounds).
 
-A darwin host with a home has a `homeManager` evaluation too, so a feature's
-`homeManager` half reaches the Mac (IMP-012). The flip side: a Linux-only
-`homeManager` half must say so with `platforms` (absent means every system;
-DEC-030). A selected feature whose `platforms` omit the host's system is
-refused. Such records carry `platforms = lib.platforms.linux`, from SL-008
-phase 3 on.
+**Coverage.** A feature no host selects is still evaluated, each half by a target in
+`flake.coverage`: `"Sleipnir+openrgb"`, `"Sleipnir+podman"`,
+`"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+sunshine"`.
+`"Sleipnir+speech"` predates Sleipnir selecting `audio.speech` and is now
+redundant. `base@aarch64-linux` and `home@aarch64-linux` evaluate the NixOS
+base and the home base alone, headless and off x86. A new off feature gets a
+target beside them in `hosts.nix`.
 
-The cli features are portable records. Each lists its packages through
-`features/available.nix`, which keeps those that `lib.meta.availableOn`
-accepts for the host's platform, minus the names `features/platform-skips.nix`
-lists for its system (DEC-036). So the Mac gets the cli packages available on
-aarch64-darwin, and Sleipnir's set is unchanged. `availableOn` reads metadata
-only: it cannot tell that a package fails to build or is not in the binary
-cache. Packages that fail to evaluate or build on darwin go in `platform-skips.nix`;
-a transient skip also gets a probe (§ Workarounds, DEC-056).
-The NixOS base's `cpuid` and `x86info` use plain `availableOn`.
+```bash
+just coverage    # one drvPath per target, then just isolation
+just isolation   # lean homes evaluate with every dev checkout stubbed
+just test        # resolver and meta tests (checks.<system>.{features,host-meta}), then the script tests
+```
 
-**Coverage.** A feature that no host selects would otherwise never be
-evaluated. `flake.coverage` holds handwritten configurations that select such
-features, one per off feature (`coverage."Sleipnir+openrgb"`, `"Sleipnir+podman"`,
-`"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+speech"`, `"Sleipnir+sunshine"`), off
-every switch path and outside `just drvs`. `just coverage` evaluates them and prints one drvPath each.
-`coverage."base@aarch64-linux"` is the NixOS base alone (no host, feature
-or machine config) on aarch64-linux: it proves the base evaluates headless
-and off x86. `coverage."home@aarch64-linux"` is its home counterpart: the
-home base and Linux layer alone (no host, feature or identity). Like the rest
-they are evaluated, never built.
-`home@aarch64-linux` selects no feature, so the availability filter is
-exercised by the two hosts' homes only; aarch64-linux homes with features are
-future work.
-`just isolation` evaluates that target and Draupnir's home with every dev
-checkout input (§ Dev checkouts) overridden to the empty `features/stub`
-flake, so a lean home that reaches one fails to evaluate, naming it.
-`just coverage` runs it.
-`nix flake check` warns about the unknown `coverage` output; that is expected.
+`nix flake check` warns about the unknown `coverage` output; that is
+expected.
 
 **docker and podman.** Docker is rootless only: `modules/nixos/security.nix`
 refuses the rootful daemon on every host. Both ship `bin/docker` (podman
@@ -345,30 +295,31 @@ through `dockerCompat`), and the system profile silently keeps whichever is
 listed first, so the `docker` feature refuses podman. podman is a feature no
 host selects; `Sleipnir+podman` swaps it in for docker (IMP-018).
 
-`just test` runs the resolver tests (`features-test.nix`, as
-`checks.<system>.features`) before the script tests.
-
 **Parked is not a feature.** Parked modules live in `parked/` at the flake
-root (DEC-043). Nothing imports them, so nothing evaluates them. They are not
-features (ADR-005).
+root (DEC-043). Nothing imports them, so nothing evaluates them.
 
 - `hyprland.nix` and `kmscon.nix` do not evaluate: `hyprlandPlugins.hyprexpo`
-  is gone and `services.kmscon.fonts` was removed upstream. A feature would
-  promise a switch that breaks the build when flipped. `hosts/Sleipnir/config.nix`
-  keeps their `../../parked/…` import lines commented out. Repair first, then
-  promote to a feature.
+  is gone and `services.kmscon.fonts` was removed upstream.
+  `hosts/Sleipnir/config.nix` keeps their `../../parked/…` import lines
+  commented out. Repair first, then promote to a feature.
 - `shpool.nix` evaluates but is unused: emacs session restore uses zmx
   (`editor.emacs`, IMP-001).
 
-danksearch is gone: neither its module nor its flake input exists.
-
 ### Hosts
 
-`hosts.nix` builds every configuration from the `hosts/` directory: each
-`hosts/<host>/meta.nix` is plain data, and `hosts/<host>/config.nix` is the
-entry point. `hosts/<host>/machine.nix` holds hand-written config bound to
-that machine's parts (microcode, mount options), beside the generated
-`hardware-configuration.nix`.
+`hosts.nix` builds every configuration from the `hosts/` directory. Where
+each kind of config belongs (base, feature, machine, host) is SPEC-002
+§ Where config lives.
+
+```
+hosts/<host>/
+  meta.nix                    kind, system, home (validated before anything resolves)
+  features.nix                profiles and overrides (optional)
+  config.nix                  system entry point: imports the base, then host config
+  home.nix                    home entry point: one home layer, identity, stateVersion
+  machine.nix                 bound to the machine's parts, beside hardware-configuration.nix
+  <name>.nix                  host config too big for config.nix (Sleipnir: dns, oom, doctor)
+```
 
 ```nix
 # hosts/Sleipnir/meta.nix
@@ -380,35 +331,18 @@ that machine's parts (microcode, mount options), beside the generated
 | `nixos` | `nixosConfigurations.<host>` | standalone, `homeConfigurations."david@<host>"` from `home.nix`, when `home = true` |
 | `darwin` | `darwinConfigurations.<host>` | standalone, as for `nixos`, when `home = true` |
 
-The NixOS **base** is `modules/nixos/default.nix`: an import list that every
-NixOS host imports first in its `config.nix`. It has no switch and is neither a
-feature nor a profile. Optional pieces are features; pieces bound to a
-machine's parts or a host's site live in `hosts/<host>/`.
-
-The base holds what every NixOS host needs (DEC-042, DEC-044): nix, user,
-boot, kernel, env, maintenance, security, network (NetworkManager, a firewall
-with no open ports, nftables, `hostName`, `timeServers`), programs (nix-ld,
+The NixOS **base** (`modules/nixos/default.nix`) holds nix, user, boot,
+kernel, env, maintenance, security, network (NetworkManager, a firewall with
+no open ports, nftables, `hostName`, `timeServers`), programs (nix-ld,
 rust-motd, root's helix) and the inspection set of cli tools. Root's login
 shell is NixOS's default, bash, and so are the system users that take the
 default (`assigner`, `postgres`); the user's own shell stays nushell. The
-base installs every terminal's terminfo (`environment.enableAllTerminfo`), so
-root's bash works from any emulator, local or over ssh.
+base installs every terminal's terminfo, so root's bash works from any
+emulator. ssh, locate, tailscale, avahi, sandboxing and the system zsh are
+features: a NixOS host that does not select `services.ssh` runs no sshd.
 
-What left the base is now a feature: `services.ssh`, `files.locate`,
-`net.tailscale`, `services.avahi`, `virt.sandbox` (bubblewrap, distrobox) and
-`terminal.zsh` (the system zsh). Dev libraries, cargo, valgrind, sysprof,
-1Password, udisks2 and ydotool became nixos halves of existing features.
-A NixOS host that does not select `services.ssh` runs no sshd.
-
-The **home base** is `modules/home/default.nix`, an import list on the same
-pattern. Home Manager cannot choose imports by platform, so it has two layers
-over it, `modules/home/linux/` and `modules/home/darwin/`, and each
-`hosts/<host>/home.nix` imports exactly one, then sets identity and
-`stateVersion`.
-
-The home base holds nushell, direnv and the base cli, which has no zsh bucket.
-zsh is `terminal.zsh` (home half `features/terminal/zsh.nix`). yazi comes only
-from `files.manage`. shpool is parked.
+The **home base** (`modules/home/default.nix`) holds nushell, direnv and the
+base cli. Each `home.nix` imports exactly one platform layer over it:
 
 ```
 hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐
@@ -416,13 +350,8 @@ hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐
 hosts/Draupnir/home.nix ──> modules/home/darwin/default.nix ─┘
 ```
 
-| class | where | who gets it |
-|---|---|---|
-| base | `modules/nixos/default.nix` and the modules it lists | every NixOS host, by importing it in `config.nix` |
-| home base | `modules/home/default.nix` and its `linux/` or `darwin/` layer | every home, by importing one layer in `home.nix` |
-| feature | a record in `features/<area>.nix` | hosts that select it, directly or through a profile |
-| machine config | `hosts/<host>/machine.nix` | that host, because of its parts |
-| host config | `hosts/<host>/config.nix`, `home.nix` and files beside them | that host, because of its site, account or tuning |
+The darwin system base is `darwin/default.nix`, imported by a darwin host's
+`config.nix`.
 
 Adding a host means adding a directory. The justfile selects the
 configuration by `hostname -s`; override with `just host=<other> system-build`
