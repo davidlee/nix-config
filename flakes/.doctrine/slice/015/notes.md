@@ -158,3 +158,17 @@ fresh-as-of: 2026-10-20 · ready · 002b58c1
 
 ### Open
 - none: inq-1..7 disposed; PHASE-03 VT-3 settles the `/proc/net/tcp`-per-netns inference behind readiness
+
+## Live: relay restartTriggers (2026-10-20, seat)
+
+- Switch with the relay service active: journal 02:04:22 stopped
+  `llm-gateway-relay.service` and `.socket`; 02:04:23 socket listening again.
+  Client socket `david` 0600, `:4000` 401 keyless. restartTriggers proven live.
+- Preconditions found the hard way (for audit): switch-to-configuration-ng
+  stops/starts the socket only if the socket is active at switch time
+  (`active_cur.contains_key(socket)`), and skips an inactive service. State
+  "service active, socket inactive" (left by `systemctl restart <socket>`
+  while the service runs) makes a switch stop the service and start nothing.
+  README's "`sudo systemctl restart llm-gateway-relay.socket`" fallback is safe
+  only with the service stopped.
+- Probe key file removed; revocation of `sl-015-probe` per user.
