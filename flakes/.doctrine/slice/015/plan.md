@@ -16,7 +16,8 @@ behaviour on top of it; then docs and the live check, which needs the user's
 
 ```
 PHASE-01 relay listener ──┐
-PHASE-02 profiles + launch dir (no launcher change) ──> PHASE-03 forwarder + socket mode ──> PHASE-04 docs + live
+PHASE-02 profiles + launch dir (no launcher change) ──> PHASE-03 forwarder + socket mode
+  ──> PHASE-05 env-deps opt-out + named home ──> PHASE-04 docs + live
 ```
 
 - **PHASE-01** touches only the system evaluation. Nothing uses the socket
