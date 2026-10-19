@@ -1,7 +1,7 @@
 id = 16
 slug = "malebolge-room-door"
 title = "Render malebolge's room door file"
-status = "audit"
+status = "done"
 created = "2026-10-19"
 updated = "2026-10-19"
 tags = []
