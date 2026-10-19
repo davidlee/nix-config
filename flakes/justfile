@@ -49,7 +49,7 @@ choose:
  @sel=$(gum choose "noop" "system-switch" "home-switch" "flake-update-all" "everything") && [ -n "$sel" ] && just "$sel"
 
 fmt: check-flake-root
-  nix fmt
+  nix fmt --no-write-lock-file
 
 # the lock holds no local source (ISS-006), resolver tests (features-test.nix),
 # factory checks (hosts.nix), the workaround probe registry (workarounds/),
