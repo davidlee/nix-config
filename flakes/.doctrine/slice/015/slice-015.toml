@@ -1,7 +1,7 @@
 id = 15
 slug = "isolated-jail-gateway"
 title = "Gateway and launch-dir options for network-isolated jails"
-status = "reconcile"
+status = "done"
 created = "2026-10-19"
 updated = "2026-10-19"
 tags = []
