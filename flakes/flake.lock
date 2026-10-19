@@ -1905,11 +1905,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1792350527,
-        "narHash": "sha256-TFQIDXWs2nuxA0TsqrRUyPT2ab8DA8XWnDKo3YrkcoA=",
+        "lastModified": 1792380158,
+        "narHash": "sha256-T3sAx9wM9Wd1HsjuLfp3SYIUSGORyvRPD8csXvkV7Q0=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "3df850b8d3e1d38e0c5788a41c160973e2becce4",
+        "rev": "c8aade601e48e7a0dcd19a1c7bfe74730bff4e03",
         "type": "github"
       },
       "original": {
@@ -3334,11 +3334,11 @@
         "rust-overlay": "rust-overlay_9"
       },
       "locked": {
-        "lastModified": 1792369621,
-        "narHash": "sha256-A+kHOWJQTMpmMHakm3nghX4DXpuKZUBoaTmaoutBf+w=",
+        "lastModified": 1792371915,
+        "narHash": "sha256-DhtnaHXUkA0PwzmjIdnR2kZoLzT5SxOr8twyewi8iEY=",
         "owner": "davidlee",
         "repo": "goad",
-        "rev": "a64e3108fff9085bfebf0157fb5356c723fc27bc",
+        "rev": "04147ca626b9411739f5e6e159430c0b0d964467",
         "type": "github"
       },
       "original": {
@@ -4097,6 +4097,26 @@
         "owner": "davidlee",
         "repo": "Malebolge",
         "rev": "4f478c4bc805f4f530b371d8f63c7079950a3c56",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "repo": "Malebolge",
+        "type": "github"
+      }
+    },
+    "malebolge_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-home"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792380921,
+        "narHash": "sha256-twfY6rrO9mJCdlhKPOP+4tmzdcZP1aY2XkUsDD2UbTU=",
+        "owner": "davidlee",
+        "repo": "Malebolge",
+        "rev": "13500bdba04ad243e86cc89773146f997e3c17f3",
         "type": "github"
       },
       "original": {
@@ -6390,6 +6410,7 @@
           "agents",
           "llm-agents"
         ],
+        "malebolge": "malebolge_2",
         "mangowm": "mangowm",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "niri": "niri",
