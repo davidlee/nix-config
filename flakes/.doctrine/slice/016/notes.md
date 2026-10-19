@@ -23,7 +23,17 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
   run as satan. Not this slice's to act on; pass to satan:SL-027 with the
   door-file handoff.
 
-## Harvest
+## PHASE-01 (2026-10-20)
+
+- Divergence from design sec-4: `evalTests` takes the test file
+  (`evalTests ./features-test.nix`), not `name failures`. The name is derived
+  from the file, so the stub drv and the throw message name the real file;
+  with `name`, `satan-room` would have reported a nonexistent
+  `satan-room-test.nix`. The existing checks' drvs and messages are unchanged
+  (VA-1, VA-2). Reconcile design sec-4 at audit.
+- The three `or`-as-identifier deprecation warnings in `just test` predate
+  this slice.
+
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
 

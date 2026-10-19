@@ -3,7 +3,17 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  # A test file (lib -> lib.runTests failures) as a check: evaluating it is the
+  # test; the build is a stub named for the file.
+  evalTests = file: let
+    name = lib.removeSuffix ".nix" (baseNameOf file);
+    failures = import file lib;
+  in
+    if failures == []
+    then pkgs.runCommand name {} "touch $out"
+    else throw "${name}.nix failed:\n${lib.generators.toPretty {} failures}";
+in {
   treefmt.programs = {
     alejandra.enable = true;
     statix.enable = true;
@@ -15,21 +25,10 @@
 
   checks =
     {
-      # Resolver tests. Evaluating them is the test; the build is a stub.
-      features = let
-        failures = import ./features-test.nix lib;
-      in
-        if failures == []
-        then pkgs.runCommand "features-test" {} "touch $out"
-        else throw "features-test.nix failed:\n${lib.generators.toPretty {} failures}";
-
-      # hosts/<h>/meta.nix schema tests (host-meta.nix), shaped like checks.features.
-      host-meta = let
-        failures = import ./host-meta-test.nix lib;
-      in
-        if failures == []
-        then pkgs.runCommand "host-meta-test" {} "touch $out"
-        else throw "host-meta-test.nix failed:\n${lib.generators.toPretty {} failures}";
+      # Resolver tests.
+      features = evalTests ./features-test.nix;
+      # hosts/<h>/meta.nix schema tests (host-meta.nix).
+      host-meta = evalTests ./host-meta-test.nix;
     }
     # The gateway is NixOS-only, so its check is Linux only.
     // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {

@@ -29,7 +29,7 @@ dependencies = []
 [[phase]]
 id        = "PHASE-01"
 name      = "evalTests helper"
-objective = "perSystem.nix gains `evalTests name failures`, a lib.runTests suite as a stub-build check; checks.features and checks.host-meta use it (design sec-4). Behaviour-neutral: no check drv moves."
+objective = "perSystem.nix gains `evalTests file` (as landed; design sec-4 sketched `evalTests name failures`), a lib.runTests suite as a stub-build check; checks.features and checks.host-meta use it (design sec-4). Behaviour-neutral: no check drv moves."
 entrance_criteria = [
   { id = "EN-1", text = "design locked (SL-016 design run, stage locked); `just test` green on the current tree" },
   { id = "EN-2", text = "drvPaths of checks.<system>.features and checks.<system>.host-meta recorded before the edit (in the phase sheet)" },
@@ -40,7 +40,7 @@ exit_criteria = [
   { id = "EX-3", text = "`just gate` green (tests + treefmt: alejandra, statix, deadnix)" },
 ]
 verification = [
-  { id = "VT-1", expects = "the helper exists and both existing checks go through it", test_file = "perSystem.nix", keywords = ["evalTests = name: failures:", "evalTests \"features\"", "evalTests \"host-meta\""], waived = false },
+  { id = "VT-1", expects = "the helper exists and both existing checks go through it", test_file = "perSystem.nix", keywords = ["evalTests = file:", "evalTests ./features-test.nix", "evalTests ./host-meta-test.nix"], waived = false },
   { id = "VA-1", text = "drvPath comparison against EN-2's baseline: identical for features and host-meta" },
   { id = "VA-2", text = "red check: a deliberately failing assertion in a scratch copy of features-test.nix makes checks.features throw `features-test.nix failed:` with the failure listed; reverted before commit" },
 ]
