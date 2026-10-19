@@ -78,6 +78,9 @@
       services.goad = {
         enable = true;
         package = inputs.goad.packages.${pkgs.stdenv.hostPlatform.system}.goad;
+        # The ingress socket is %t/satan/goad.sock, inside the directory
+        # SATAN's jails bind; goad does not create a socket's parent.
+        extraConfig.ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %t/satan";
       };
     };
   }
