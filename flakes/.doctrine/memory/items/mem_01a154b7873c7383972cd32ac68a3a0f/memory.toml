@@ -1,0 +1,46 @@
+memory_uid = "mem_01a154b7873c7383972cd32ac68a3a0f"
+memory_key = "mem.fact.linux.proc-net-tcp-listen-readiness"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "A LISTEN row in /proc/net/tcp does not prove YOUR process is listening; tie its inode to the process's fds"
+summary = "readiness without connecting: match the 127.0.0.1:<port> LISTEN row's inode against /proc/<pid>/fd socket:[inode]; a row alone accepts a foreign listener"
+created = "2026-10-19"
+updated = "2026-10-19"
+
+[scope]
+paths = ["agents/gateway-forwarder.nix"]
+globs = []
+commands = []
+tags = ["linux", "jail", "readiness"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "69146b1c7e2aff192f97c7d9ca184cc1610b7feb"
+ref_name = "refs/heads/main"
+checkout_state_id = "90d235dddc5b0269b3fa6d7da73487c3baa33d383a465a9da8c4a5bb4e77390d"
+base_commit = "f3a846d61cdfa987a815a0f97403bb07c98d6acf"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-015"
+

@@ -1,0 +1,46 @@
+memory_uid = "mem_01a154a890a07ae385b5a2248c58a453"
+memory_key = "mem.pattern.capsule.worker-model-choice"
+schema_version = 1
+memory_type = "pattern"
+status = "active"
+title = "Capsule workers: prefer sonnet where it does as well"
+summary = "capsule-worker defaults to opus; orchestrators should choose sonnet whenever the phase is mechanical or fully specified (cheaper, faster), opus only for real judgement"
+created = "2026-10-19"
+updated = "2026-10-19"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["capsule", "dispatch"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "cf6cb8317476b325b364cc42ebf65dd973bb9ac7"
+ref_name = "refs/heads/main"
+checkout_state_id = "08060b03d5e6c9b01d5b11c72c4cce8263febf6a85c8be7cc8818d552ee339ab"
+base_commit = "d1275a3eb79873535ce2f1a7766d7373d061b4a2"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "user"
+ref = "2026-10-20 SL-015 session"
+

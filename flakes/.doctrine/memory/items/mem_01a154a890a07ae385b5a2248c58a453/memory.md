@@ -1,0 +1,3 @@
+User direction (2026-10-20): capsule-workers default to opus, but sonnet should be used where it will do just as well — it is cheaper and faster.
+
+How to apply: when an orchestrator charters a worker (or a planner), pick sonnet when the phase sheet pins the edits (mechanical refactor, values specified, verified by eval/byte-identity/gate). Reserve opus for phases needing judgement: undocumented semantics, subtle shell/sandbox correctness, secret handling, demanding prose. State the reason either way; 'the default' is not a reason. Seat: pass this in every charter.

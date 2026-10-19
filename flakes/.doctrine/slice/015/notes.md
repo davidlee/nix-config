@@ -146,18 +146,25 @@ pre-flight now checks `/run/llm-gateway-client` in socket mode
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-20 · ready · 002b58c1
+fresh-as-of: 2026-10-20 · audit → reconcile · f3a846d6
 
 ### Produced
-- scope, research, locked design, plan PHASE-01..04 (commit 002b58c1); no code yet
-- minted: DEC-075 — relay client listener; DEC-076 — transport from profile, forwarder, netns guard; DEC-077 — extends DEC-047, gateway is the only direct network path; DEC-078 — mountLaunchDir
-- handback to satan:SL-027 delivered by the user (openssh, ProxyCommand, profile-switch home change, unix-socket egress audit)
+- scope, research, locked design, plan (002b58c1); PHASE-05 appended at the user's direction (046c1704)
+- minted: DEC-075 — relay client listener; DEC-076 — transport from profile, forwarder, netns guard; DEC-077 — gateway is the only direct network path; DEC-078 — mountLaunchDir
+- code: PHASE-01 4e7dba6c, PHASE-02 0537cef9, PHASE-03 77ea0a55, PHASE-05 03dc0f0a, PHASE-04 d1275a3e; audit fixes f3a846d6
+- RV-033 (reconciliation audit): F-1..F-9 terminal; brief in review-033.md
+- handback to satan:SL-027 (F-1/F-6 delivered as workspaceDepsFromEnv, persistedHome)
 
 ### Learned
 - mem.fact.bwrap.unshare-net-host-reach — netns reach, ro dir bind, multi-listener proxyd, `defer` guards, sandbox testing
+- mem.fact.nixos.switch-socket-activated-units — switch ignores changed .socket; restartTriggers need both units active
+- mem.fact.linux.proc-net-tcp-listen-readiness — LISTEN row + inode tie; sandbox launchers need LANG/TERM
+- mem.pattern.capsule.worker-model-choice — prefer sonnet where it does as well
 
 ### Open
-- none: inq-1..7 disposed; PHASE-03 VT-3 settles the `/proc/net/tcp`-per-netns inference behind readiness
+- reconcile: RV-033 brief (design.md PHASE-05 + sec-2/3/6/7, selectors, SPEC-001 REV, DEC-076 amend)
+- tolerated: RV-033 F-6 (double socket mode fails at launch), F-8, F-9
+- user: confirm `llm-gateway revoke sl-015-probe` ran
 
 ## Live: relay restartTriggers (2026-10-20, seat)
 

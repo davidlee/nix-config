@@ -1,0 +1,296 @@
+id    = 33
+slug  = "reconciliation-review-of-sl-015"
+title = "reconciliation review of SL-015"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance self-audit of SL-015 over commits 4e7dba6c..f3a846d6 against design.md sec-2..sec-8, plan.toml PHASE-01..05 EX/VT/VA, DEC-075..078, SPEC-001 and POL-001: code diff read in full; just gate and doctrine check gate green; slice conformance read (ISS-005 prefix misfire noted); live relay behaviour checked against switch-to-configuration-ng source and the journal. Two fix-now edits landed (f3a846d6); design/governance gaps mapped in the Reconciliation Brief.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-015"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "README relay-restart fallback is unsafe: expected a recovery that works in any state; observed it breaks the relay when the service runs"
+detail = """
+Expected: README § LLM gateway "Relay restart" gives recovery commands that are safe whatever the relay's state.
+Observed (d1275a3e): it said `sudo systemctl restart llm-gateway-relay.socket` applies a listener change. Live 2026-10-20 01:55:45 that command, run while llm-gateway-relay.service was active, was refused ("Socket service ... already active, refusing") and left the socket inactive with the service holding the fds. switch-to-configuration-ng (main.rs handle_modified_unit) adds the socket to stop/start only if `active_cur.contains_key(socket)`; with the socket inactive, the subsequent dry-activate showed "would stop: llm-gateway-relay.service" and nothing to start: the switch would have left :4000 and the client socket dead.
+Also undocumented: restartTriggers only fire when the service is active at the switch (a stopped service is skipped; dry-activate after stopping it listed nothing).
+"""
+disposition = "fix-now"
+response = """
+Fixed in this audit (commit following d1275a3e; see git log RV-033 F-1): README "Relay restart" now states the precondition (service and socket active at the switch), says to wake the relay with a keyless curl before switching, tabulates the three pre-switch states and what the switch does in each, and limits `systemctl restart <socket>` to a stopped service. Proven live 2026-10-20 02:04:22-23: with the service woken first, the switch stopped service and socket and started the socket (notes.md "Live: relay restartTriggers"). The precondition also goes into design.md via the brief.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in this audit (commit following d1275a3e; see git log RV-033 F-1): README "Relay restart" now states the precondition (service and socket active at the switch), says to wake the relay with a keyless curl before switching, tabulates the three pre-switch states and what the switch does in each, and limits `systemctl restart <socket>` to a stopped service. Proven live 2026-10-20 02:04:22-23: with the service woken first, the switch stopped service and socket and started the socket (notes.md "Live: relay restartTriggers"). The precondition also goes into design.md via the brief.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "design.md omits PHASE-05: expected the locked design to describe what shipped; observed workspaceDepsFromEnv, persistedHome, profiles.home absent"
+detail = """
+Expected: design.md describes the slice's delivered behaviour.
+Observed: PHASE-05 (046c1704, 03dc0f0a), added 2026-10-20 at the user's direction from satan:SL-027 RV-035 F-1/F-6 with "fix the design in reconcile", delivered: `workspaceDepsFromEnv ? true` (false skips getEnv of JAIL_WORKSPACE_DEPS); `persistedHome ? null` validated against [A-Za-z0-9][A-Za-z0-9._-]* (eval throw; it is spliced unescaped into a path and shell); `profiles` now `{ network; home; options; }` with persist-home built from `home` (design sec-3 sketch still shows `options = [(persist-home ...)]`); an impure test `agents/jailed-agents-env-test.nix` under a new `impureChecks` flake output run by `just test` with --impure. None is in design.md (sec-3, sec-6 code impact, sec-7 verification).
+"""
+disposition = "design-wrong"
+response = """
+The design, not the code, is behind: the user directed PHASE-05 into this slice and ruled the design is amended at reconcile. Brief: design.md gains a section for PHASE-05 (workspaceDepsFromEnv, persistedHome + its name validation, profiles.home), sec-3's profiles sketch updated, sec-6 code-impact rows (jailed-agents-env-test.nix, agents/flake.nix impureChecks, justfile), sec-7 verification for the impure test.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The design, not the code, is behind: the user directed PHASE-05 into this slice and ruled the design is amended at reconcile. Brief: design.md gains a section for PHASE-05 (workspaceDepsFromEnv, persistedHome + its name validation, profiles.home), sec-3's profiles sketch updated, sec-6 code-impact rows (jailed-agents-env-test.nix, agents/flake.nix impureChecks, justfile), sec-7 verification for the impure test.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Forwarder readiness and file layout diverge from design sec-3/sec-6: inode tie, reuseaddr, new file, restartTriggers"
+detail = """
+Expected: design sec-3 sketch: readiness = socat alive AND a 127.0.0.1:<port> LISTEN row in /proc/net/tcp; `gatewayForwarder` inside jailed-agents.nix; sec-6: no agents/flake.nix change; relay change = second listener + ownership.
+Observed: (a) readiness also requires the LISTEN row's inode to be one of our socat's fds (a row alone accepts a foreign listener on an occupied port, breaking VT-5b); DEC-076's text says "socat PID + /proc/net/tcp" without the inode tie. (b) the sketch already had reuseaddr; fine. (c) gatewayForwarder lives in new agents/gateway-forwarder.nix (needed to test it on its own socket/port). (d) agents/flake.nix gained `impureChecks`, justfile gained the impure build (PHASE-05). (e) features/agents/gateway.nix gained `restartTriggers` on llm-gateway-relay (PHASE-04 live finding; NixOS#74899).
+"""
+disposition = "design-wrong"
+response = """
+Each divergence is the better reading and is covered by tests (VT-5b occupied port with mutation check; restartTriggers proven live). Brief: design sec-3 readiness gains the inode tie and the file location; sec-6 lists gateway-forwarder.nix and the relay restartTriggers; sec-2 gains the switch precondition from F-1; DEC-076 amended to say readiness requires the LISTEN row to belong to our socat's fd.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Each divergence is the better reading and is covered by tests (VT-5b occupied port with mutation check; restartTriggers proven live). Brief: design sec-3 readiness gains the inode tie and the file location; sec-6 lists gateway-forwarder.nix and the relay restartTriggers; sec-2 gains the switch precondition from F-1; DEC-076 amended to say readiness requires the LISTEN row to belong to our socat's fd.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Selector registry incomplete: expected design-target selectors for every edited path; four touched paths are undeclared"
+detail = """
+Expected: `doctrine slice selector list 15` covers every path the slice edits.
+Observed: design-target selectors list 6 paths. Edited but undeclared: agents/gateway-forwarder.nix, agents/jailed-agents-env-test.nix, agents/flake.nix, justfile. (`slice conformance` additionally reports all 13 paths undeclared and all 6 selectors undelivered because git paths carry the flakes/ prefix — ISS-005; that part is not this slice's defect.)
+"""
+disposition = "design-wrong"
+response = """
+Registry is the load-bearing fix. Brief: `doctrine slice selector add 15 --intent design-target agents/gateway-forwarder.nix agents/jailed-agents-env-test.nix agents/flake.nix justfile` (exact flags per --help), mirrored in design sec-6. The flakes/ prefix misfire is ISS-005, out of this slice.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Registry is the load-bearing fix. Brief: `doctrine slice selector add 15 --intent design-target agents/gateway-forwarder.nix agents/jailed-agents-env-test.nix agents/flake.nix justfile` (exact flags per --help), mirrored in design sec-6. The flakes/ prefix misfire is ISS-005, out of this slice.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "SPEC-001 does not know the client socket: expected § Client contract (Reach) and § Perimeter to cover it"
+detail = """
+Expected: per design sec-8, SPEC-001 § Client contract (Reach) and § Perimeter describe both reach paths (DEC-075, DEC-077), revised at reconcile.
+Observed: SPEC-001 unchanged; it describes only 127.0.0.1:4000. Now shipped: /run/llm-gateway-client/api.sock (user 0600, dir 0755), socket mode for profiles without network, in-jail forwarder on the same port so the URL is unchanged, relay restartTriggers.
+"""
+disposition = "design-wrong"
+response = """
+Planned in design sec-8 as a reconcile-time REV. Brief: REV on SPEC-001 § Client contract (Reach: two paths, same bearer-key auth; socket mode keeps the URL) and § Perimeter (client socket user 0600 / dir 0755, gateway socket 0750 unchanged), citing DEC-075, DEC-077; relay restart behaviour as operations (README), not spec.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Planned in design sec-8 as a reconcile-time REV. Brief: REV on SPEC-001 § Client contract (Reach: two paths, same bearer-key auth; socket mode keeps the URL) and § Perimeter (client socket user 0600 / dir 0755, gateway socket 0750 unchanged), citing DEC-075, DEC-077; relay restart behaviour as operations (README), not spec.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Socket mode applied twice fails at launch, not at evaluation"
+detail = """
+Expected (design sec-3, GPT F-2/F-5 intent): misuse of socket mode is an evaluation error.
+Observed: offline profile + `gateway` (adds gatewaySocketOptions) + `extraOptions = gatewaySocketOptions` evaluates; at launch the second socat fails to bind 127.0.0.1:4000 and the wrapper exits "gateway forwarder exited before listening". Fails closed with a clear message; no committed jail does this (satan's jailed-malebolge has no `gateway`, so it adds the options once).
+"""
+disposition = "tolerated"
+response = """
+Fails closed at launch with a named error before the agent runs, so no unsafe state is reachable. The eval guard exists to stop socket mode in a jail sharing the host netns (a real exposure); doubling is a configuration mistake with no consumer (jailed-malebolge has no `gateway`). Deduplicating via jail.nix include-once is cheap to add if a consumer ever needs both paths.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Fails closed at launch with a named error before the agent runs, so no unsafe state is reachable. The eval guard exists to stop socket mode in a jail sharing the host netns (a real exposure); doubling is a configuration mistake with no consumer (jailed-malebolge has no `gateway`). Deduplicating via jail.nix include-once is cheap to add if a consumer ever needs both paths.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Client directory derived two ways: pre-flight from clientRuntimeDirectory, bind from dirOf clientSocket"
+detail = """
+Expected: one source for the directory the jail reaches the gateway through.
+Observed (77ea0a55): gatewayReachDirectory = "/run/${clientRuntimeDirectory}" while gateway-forwarder.nix binds `dirOf socket`. Equal today; could drift.
+"""
+disposition = "fix-now"
+response = """
+Fixed in this audit: gatewayReachDirectory now uses `dirOf gatewayData.clientSocket`, the same expression the forwarder binds. Same string, so launchers are unchanged; just gate exit 0.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in this audit: gatewayReachDirectory now uses `dirOf gatewayData.clientSocket`, the same expression the forwarder binds. Same string, so launchers are unchanged; just gate exit 0.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "nit"
+title = "refute() shell helper duplicated across the two jail test files"
+detail = """
+Observed: agents/jailed-agents-test.nix and agents/jailed-agents-env-test.nix each define the same 6-line `refute()` bash helper.
+"""
+disposition = "tolerated"
+response = """
+Two copies of a 6-line helper in two independent test entry points. A shared helper file would couple them for less code than it saves; extract on a third copy.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Two copies of a 6-line helper in two independent test entry points. A shared helper file would couple them for less code than it saves; extract on a third copy.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "PHASE-01 red step not captured: expected a failing eval before the edit"
+detail = """
+Expected: TDD red before green for PHASE-01 (VA-1 by nix eval).
+Observed: orchestrator hand-back: the worker edited before capturing the failing eval; the before-state (TCP-only listenStreams) is evident from the diff of 4e7dba6c.
+"""
+disposition = "tolerated"
+response = """
+Process lapse with no evidential gap: the pre-change listenStreams was TCP-only (visible in 4e7dba6c's diff), VA-1 confirmed the post-state by eval, and the change was then proven live. Recorded so the pattern is visible; no rework buys anything.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Process lapse with no evidential gap: the pre-change listenStreams was TCP-only (visible in 4e7dba6c's diff), VA-1 confirmed the post-state by eval, and the change was then proven live. Recorded so the pattern is visible; no rework buys anything.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

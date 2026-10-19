@@ -1,0 +1,50 @@
+memory_uid = "mem_01a154b7871d7c83b975dc56dd8e90d7"
+memory_key = "mem.fact.nixos.switch-socket-activated-units"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "NixOS switch ignores changed .socket units; restartTriggers on the service only work if both units are active"
+summary = "switch-to-configuration-ng does nothing for a changed .socket unit (NixOS#74899); put the socket unit in the service's restartTriggers, and wake the service before switching"
+created = "2026-10-19"
+updated = "2026-10-19"
+
+[scope]
+paths = ["features/agents/gateway.nix"]
+globs = []
+commands = []
+tags = ["nixos", "systemd", "llm-gateway"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "69146b1c7e2aff192f97c7d9ca184cc1610b7feb"
+ref_name = "refs/heads/main"
+checkout_state_id = "534e2cc6835a9318b1a02ba3997513a98ed23e34e03bcb6634a01bcacc1c7d55"
+base_commit = "f3a846d61cdfa987a815a0f97403bb07c98d6acf"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "high"
+weight = 0
+
+[[source]]
+kind = "review"
+ref = "RV-033"
+
+[[source]]
+kind = "slice"
+ref = "SL-015"
+
