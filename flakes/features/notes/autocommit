@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# autocommit — commit everything in a git work tree, under the day's date,
+# unless a person is mid-commit. The notes.autocommit feature runs it hourly
+# per repo (features/notes.nix, CHR-022). Push stays manual.
+#
+#   autocommit REPO
+#
+# Skips, exit 0 with one line on stdout, when:
+#   - index.lock is held: another git operation is running; the next tick retries
+#   - the index differs from HEAD: someone is staging a partial commit by hand
+#   - there is nothing to commit
+#
+# No hook runs: a machine commit is not activity for SATAN's post-commit
+# sensor (~/.config/git/hooks/post-commit).
+
+set -euo pipefail
+
+repo=${1:?usage: autocommit REPO}
+cd "$repo"
+
+skip() {
+  printf 'skip: %s\n' "$1"
+  exit 0
+}
+
+[ ! -e "$(git rev-parse --git-path index.lock)" ] ||
+  skip 'index.lock held (a git operation is running)'
+git diff --cached --quiet ||
+  skip 'the index differs from HEAD (staged by hand)'
+[ -n "$(git status --porcelain --untracked-files=normal)" ] ||
+  skip 'nothing to commit'
+
+git add --all
+git -c core.hooksPath=/dev/null commit --quiet -m "$(date +%F)"

@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Behaviour tests for autocommit, against throwaway repos. Git reads no user
+# config (GIT_CONFIG_GLOBAL), so neither the user's identity, aliases nor
+# global hooks leak in.
+#
+#   ./autocommit-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/autocommit
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.invalid
+export GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.invalid
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+# repo — a fresh repo with one commit; prints its path.
+repo() {
+  local r
+  r=$(mktemp -d "$tmp/repo.XXXX")
+  git init --quiet "$r"
+  echo one >"$r/a"
+  git -C "$r" add a
+  git -C "$r" commit --quiet -m init
+  printf '%s\n' "$r"
+}
+
+commits() { git -C "$1" rev-list --count HEAD; }
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# ------------------------------------------------------------------ cases
+
+# Edits and new files are committed together, under the day's date.
+r=$(repo)
+echo two >"$r/a"
+echo new >"$r/b"
+"$script" "$r" >/dev/null
+check 'dirty: commits' 2 "$(commits "$r")"
+check 'dirty: leaves the tree clean' '' "$(git -C "$r" status --porcelain)"
+check 'dirty: the message is the date' "$(date +%F)" "$(git -C "$r" log -1 --format=%s)"
+
+# A repo hiding untracked files from status still has them committed.
+r=$(repo)
+git -C "$r" config status.showUntrackedFiles no
+echo new >"$r/b"
+"$script" "$r" >/dev/null
+check 'untracked hidden from status: still committed' 'a,b' \
+  "$(git -C "$r" ls-files | paste -sd,)"
+
+r=$(repo)
+out=$("$script" "$r")
+check 'clean: no commit' 1 "$(commits "$r")"
+check 'clean: says it skipped' 'skip: nothing to commit' "$out"
+
+# A hand-made partial commit in progress is left alone, staging intact.
+r=$(repo)
+echo two >"$r/a"
+echo new >"$r/b"
+git -C "$r" add a
+out=$("$script" "$r")
+check 'staged by hand: no commit' 1 "$(commits "$r")"
+check 'staged by hand: staging intact' 'a' "$(git -C "$r" diff --cached --name-only)"
+check 'staged by hand: says it skipped' \
+  'skip: the index differs from HEAD (staged by hand)' "$out"
+
+# Another git operation holds the index; the next tick retries.
+r=$(repo)
+echo two >"$r/a"
+: >"$r/.git/index.lock"
+out=$("$script" "$r")
+check 'index.lock: no commit' 1 "$(commits "$r")"
+check 'index.lock: says it skipped' \
+  'skip: index.lock held (a git operation is running)' "$out"
+
+# A machine commit is not activity: no hook runs.
+r=$(repo)
+mkdir "$r/hooks"
+printf '#!/bin/sh\ntouch "%s/ran"\n' "$r" >"$r/hooks/post-commit"
+chmod +x "$r/hooks/post-commit"
+git -C "$r" config core.hooksPath "$r/hooks"
+echo two >"$r/a"
+"$script" "$r" >/dev/null
+check 'hooks: committed' 2 "$(commits "$r")"
+check 'hooks: post-commit not run' absent "$([ -e "$r/ran" ] && echo ran || echo absent)"
+
+exit "$failed"

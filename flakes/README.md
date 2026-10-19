@@ -227,7 +227,8 @@ features/
   shell.nix           [ noctalia walker ]
   editor.nix          [ (import ./editor/emacs.nix) neovim kakoune misc zed lem ]
   editor/             emacs.nix  neovim/              the emacs record; modules the neovim record imports
-  notes.nix           [ terminal joplin ]
+  notes.nix           [ terminal autocommit joplin ]  autocommit: linux only (personal-linux)
+  notes/              autocommit  autocommit-test     assets, beside their feature
   dev.nix             [ scm build runtimes runners tools ]
   docs.nix            [ diagrams typeset markdown help ]
   data.nix            [ structured hex ]
@@ -674,6 +675,30 @@ the top of the script.
 just test                                              # behaviour tests, no display needed
 SNOOZE_GRANTS='2 1' SNOOZE_UNIT=1 SNOOZE_ABSENT=1 snooze-nag   # the whole ladder in seconds
 journalctl --user -u snooze-nag -f
+```
+
+### Autocommit
+
+`features/notes.nix` (`notes.autocommit`, selected by `personal-linux`) +
+`features/notes/autocommit` — commits `~/notes` and `~/satan-corpus` hourly,
+so a capsule room, which sees a repo as its last commit, sees today's work
+(CHR-022). Push stays manual.
+
+```
+autocommit-<repo>.timer (hourly) ──> autocommit ~/<repo>
+   index.lock held            skip   a git operation is running; next tick retries
+   index differs from HEAD    skip   a partial commit staged by hand
+   clean                      skip
+   else                       git add --all; git commit -m <date>   (no hooks run)
+```
+
+No hook runs, so SATAN's post-commit sensor does not count a machine commit
+as activity. To add a repo, add it to `repos` in the feature.
+
+```bash
+just test                                     # autocommit-test: throwaway repos
+systemctl --user list-timers 'autocommit-*'
+journalctl --user -u autocommit-notes
 ```
 
 ### Printing

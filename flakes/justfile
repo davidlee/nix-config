@@ -69,6 +69,7 @@ test:
   workarounds/last-good-test
   bin/will-build-test
   features/session/snooze-nag-test
+  features/notes/autocommit-test
   features/audio/dictate-test
   features/audio/say-test
   hosts/Sleipnir/doctor/doctor-test

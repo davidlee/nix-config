@@ -18,6 +18,7 @@
   feature.net.tailscale.enable = lib.mkDefault true;
   feature.services.ssh.enable = lib.mkDefault true;
   feature.files.locate.enable = lib.mkDefault true;
+  feature.notes.autocommit.enable = lib.mkDefault true;
   # satan.attrd requires it; a profile only defaults it
   # (ADR-001 D4).
   feature.services.postgresql.enable = lib.mkDefault true;
