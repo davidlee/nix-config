@@ -72,3 +72,21 @@ clones, and the SL-027 design corrections at its own reconcile.
 
 ### Governance/spec (REV)
 - None. DEC-079 holds as accepted.
+
+## Reconciliation Outcome
+
+### Direct edits applied (user: "go")
+- design.md sec-4: evalTests block and paragraph match the landed
+  `evalTests file` (F-1).
+- design.md sec-6: red step against a wrong-valued, `git add -N`ed stub (F-2).
+- design.md sec-3: `inherit (roomDoor.shared) room;` (F-3).
+- design.md sec-5: README row dropped; README unchanged (F-3).
+
+### REVs completed
+- None needed: the brief has no governance/spec items. DEC-079 stands.
+
+### Withdrawn / tolerated
+- F-4: tolerated, plan.toml edits made mid-phase; rationale is in the disposition.
+- F-5: aligned with ISS-005 (attribution misfire); no write.
+
+Reconcile pass complete; handoff to /close.

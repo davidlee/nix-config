@@ -61,7 +61,7 @@ the shape and names are fixed here.
 
 ```nix
 roomDoor = import ./room.nix home;
-room = roomDoor.shared.room;          # was the literal; socket and quarantine keep `${room}`
+inherit (roomDoor.shared) room;      # was the literal; socket and quarantine keep `${room}`
 
 door = roomDoor.shared // {
   kind = "room";
@@ -104,25 +104,29 @@ comparison instead.
 three times:
 
 ```nix
-# A lib.runTests suite as a check: evaluating it is the test; the build is a stub.
-evalTests = name: failures:
+# A test file (lib -> lib.runTests failures) as a check: evaluating it is the
+# test; the build is a stub named for the file.
+evalTests = file: let
+  name = lib.removeSuffix ".nix" (baseNameOf file);
+  failures = import file lib;
+in
   if failures == []
-  then pkgs.runCommand "${name}-test" {} "touch $out"
-  else throw "${name}-test.nix failed:\n${lib.generators.toPretty {} failures}";
+  then pkgs.runCommand name {} "touch $out"
+  else throw "${name}.nix failed:\n${lib.generators.toPretty {} failures}";
 
 checks = {
-  features = evalTests "features" (import ./features-test.nix lib);
-  host-meta = evalTests "host-meta" (import ./host-meta-test.nix lib);
+  features = evalTests ./features-test.nix;
+  host-meta = evalTests ./host-meta-test.nix;
 } // lib.optionalAttrs isLinux {
-  satan-room = evalTests "satan-room" (import ./features/satan/room-test.nix lib);
+  satan-room = evalTests ./features/satan/room-test.nix;
   llm-gateway = …;   # unchanged
 };
 ```
 
-The throw message changes from `features-test.nix failed:` to the same text
-built from `name`, which is identical for both existing checks. The check
-derivation names stay `features-test` and `host-meta-test`, so their drvs do not
-move. `workarounds/probes.nix` keeps its own copy: it is another flake module
+The name comes from the file, so the stub drv and the throw message name the
+real file (`features-test`, `host-meta-test`, `room-test`). The existing
+checks' drvs and messages are unchanged. A `name` argument would have made
+`satan-room` report a nonexistent `satan-room-test.nix` (RV-035 F-1). `workarounds/probes.nix` keeps its own copy: it is another flake module
 and its test takes more arguments (IMP-031).
 
 `just test` gains `nix build ".#checks.$(nix config show system).satan-room"`
@@ -138,7 +142,6 @@ inside the Linux guard, beside `llm-gateway`.
 | `perSystem.nix` | `evalTests`; `features`, `host-meta` use it; `satan-room` check (sec-4) |
 | `justfile` | `test`: build `checks.<system>.satan-room` (Linux) |
 | `SATAN.md` | file table: a `door.toml` row (the daemon's door, rendered from `room.nix`) |
-| `README.md` | feature tree: `satan.nix`'s line lists `room.nix` and its test, if the tree names satan's files |
 
 New files must be `git add`ed explicitly: the flake sees only tracked files.
 <!-- doctrine:section sec-6 -->
@@ -146,7 +149,7 @@ New files must be `git add`ed explicitly: the flake sees only tracked files.
 
 | criterion | how |
 |---|---|
-| Room-data tests pass, and fail when the data breaks | `just test`. Red first: write `room-test.nix` before `room.nix` exists. Before keeping it, make sure a stray key (e.g. `ssh_config`) added to `malebolge` fails `testMalebolgeKeys` |
+| Room-data tests pass, and fail when the data breaks | `just test`. Red first: write `room-test.nix` against a stub `room.nix` that has the keys with wrong values, both `git add -N`ed; an absent or empty file fails on an eval error, not on the assertions (RV-035 F-2). Before keeping it, make sure a stray key (e.g. `ssh_config`) added to `malebolge` fails `testMalebolgeKeys` |
 | Runner `config.toml` unchanged | `nix eval --raw '.#homeConfigurations."david@Sleipnir".config.xdg.configFile."satan-runner/config.toml".source.outPath'` (with the justfile's local overrides) gives the same path before and after |
 | `evalTests` refactor is neutral | `checks.<system>.features` and `checks.<system>.host-meta` keep their drvPaths before and after |
 | Door file content | after the change, build `…xdg.configFile."malebolge/door.toml".source` and read it: one `[door]` table, six keys, values as in sec-2 |
