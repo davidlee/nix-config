@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792389988,
-        "narHash": "sha256-DFxkeis5Rt2UNO/G+94POFWU7wCiZIeCo916P1JBuVQ=",
+        "lastModified": 1792394747,
+        "narHash": "sha256-yJE6MKz98FOjU83D7kW/4sf6M/BFzGe32fUy0qQMh6A=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "3bb842985565c70d3cf9ada51dc69b6eeaaca58d",
+        "rev": "3934710b0f4fb2e3aeced11830a9ecfd656d083a",
         "type": "github"
       },
       "original": {
@@ -2119,11 +2119,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1792389988,
-        "narHash": "sha256-DFxkeis5Rt2UNO/G+94POFWU7wCiZIeCo916P1JBuVQ=",
+        "lastModified": 1792394747,
+        "narHash": "sha256-yJE6MKz98FOjU83D7kW/4sf6M/BFzGe32fUy0qQMh6A=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "3bb842985565c70d3cf9ada51dc69b6eeaaca58d",
+        "rev": "3934710b0f4fb2e3aeced11830a9ecfd656d083a",
         "type": "github"
       },
       "original": {
@@ -4726,11 +4726,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792380921,
-        "narHash": "sha256-twfY6rrO9mJCdlhKPOP+4tmzdcZP1aY2XkUsDD2UbTU=",
+        "lastModified": 1792393061,
+        "narHash": "sha256-niArS6DUOSKlcLSHBSLtZ6GT6oDQBsCJJKGU7ux4FLs=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "13500bdba04ad243e86cc89773146f997e3c17f3",
+        "rev": "9f990eb3ff38a12c062fc4b61b0ddd3556764b0e",
         "type": "github"
       },
       "original": {
