@@ -900,15 +900,24 @@ the jail's bearer key (DEC-047, DEC-077); the unix socket adds no trust.
 does nothing for a changed `.socket` unit (NixOS issue 74899). So the relay
 service carries the socket unit in its `restartTriggers`: a change to the
 listeners, owner or mode restarts the service at the switch, which stops
-service and socket and starts the socket. Not covered: a relay service that is
-stopped at switch time is not compared, and the socket keeps its old
-listeners. Nothing holds the socket then, so `sudo systemctl restart
-llm-gateway-relay.socket` applies the change. A socket refused with "Socket
-service llm-gateway-relay.service already active, refusing" has a running
-relay: `sudo systemctl stop llm-gateway-relay.service`, `sudo systemctl
-reset-failed llm-gateway-relay.service llm-gateway-relay.socket`, then `sudo
-systemctl start llm-gateway-relay.socket`. Starting the service itself fails
-with "Didn't get any sockets passed in".
+service and socket and starts the socket. That needs both active at the
+switch; the switch skips a stopped service, and stops but never restarts the
+service of an inactive socket. To apply a listener change, wake the relay
+first (`curl -s -o /dev/null 127.0.0.1:4000/v1/models`), then switch.
+
+| state before the switch | the switch | then |
+|---|---|---|
+| socket and service active | stops both, starts the socket | nothing to do |
+| socket active, service stopped | leaves both | old listeners: `sudo systemctl restart llm-gateway-relay.socket` |
+| service active, socket inactive | stops the service, starts nothing | relay down: start the socket |
+
+Restart the socket only while the service is stopped. With the relay running,
+systemd refuses ("Socket service llm-gateway-relay.service already active,
+refusing") and leaves the socket inactive, the third row. Recover with `sudo
+systemctl stop llm-gateway-relay.service`, `sudo systemctl reset-failed
+llm-gateway-relay.service llm-gateway-relay.socket`, then `sudo systemctl
+start llm-gateway-relay.socket`. Start the socket, never the service: the
+service alone fails with "Didn't get any sockets passed in".
 
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup

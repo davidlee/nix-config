@@ -483,7 +483,7 @@
     # will reach the gateway through.
     gatewayReachDirectory =
       if gatewaySocketMode
-      then "/run/${gatewayData.clientRuntimeDirectory}"
+      then dirOf gatewayData.clientSocket # the directory the forwarder binds
       else checkedGateway.runDirectory;
 
     # pi is in the jail as the agent (makeJailedPi, whatever its `name`,
