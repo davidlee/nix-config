@@ -110,8 +110,9 @@ The interactive daemon (`~/dev/malebolge` `src/daemon-main.ts`) uses
 `keys/malebolge`, which it reads from the file itself at start (default
 `~/.config/llm-gateway/keys/malebolge`, override `MALEBOLGE_GATEWAY_KEY_FILE`;
 the catalog path is `MALEBOLGE_GATEWAY_CATALOG`): on no argv, in no
-environment. Host runs only; the jailed `hello-durable` launch awaits the jail
-migration to bind the key file and catalog.
+environment. `jailed-malebolge` (`~/dev/satan/flake.nix`, satan CHR-018) binds
+both read-only and sets both overrides; no provider key, no `op run`. The
+satan flake check `malebolge-jail-profile` asserts it.
 
 ## Jails
 
