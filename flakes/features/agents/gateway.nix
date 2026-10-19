@@ -9,6 +9,7 @@
     config,
     lib,
     pkgs,
+    username,
     ...
   }: let
     cfg = config.services.llm-gateway;
@@ -122,12 +123,18 @@
           };
       };
 
-      # Jails reach the gateway over loopback TCP; the relay reaches the socket
-      # through the group.
+      # Jails reach the gateway over loopback TCP, or (isolated-netns jails) the
+      # user-owned client socket; the relay reaches the gateway socket through
+      # the group.
       systemd.sockets.llm-gateway-relay = {
         description = "LLM gateway relay on 127.0.0.1:${toString constants.relayPort}";
         wantedBy = ["sockets.target"];
-        listenStreams = ["127.0.0.1:${toString constants.relayPort}"];
+        listenStreams = ["127.0.0.1:${toString constants.relayPort}" constants.clientSocket];
+        socketConfig = {
+          SocketUser = username;
+          SocketMode = "0600";
+          DirectoryMode = "0755";
+        };
       };
       systemd.services.llm-gateway-relay = {
         description = "LLM gateway relay to ${constants.socket}";

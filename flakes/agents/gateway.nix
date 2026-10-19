@@ -4,6 +4,10 @@
 rec {
   runtimeDirectory = "llm-gateway"; # /run/<this>; the unit's RuntimeDirectory=
   socket = "/run/${runtimeDirectory}/api.sock";
+  # User-owned client listener on the relay (DEC-075); shared by the system and
+  # home evaluations (ADR-004 D4).
+  clientRuntimeDirectory = "llm-gateway-client";
+  clientSocket = "/run/${clientRuntimeDirectory}/api.sock";
   relayPort = 4000; # 4001 is taken on Sleipnir
   url = "http://127.0.0.1:${toString relayPort}/v1";
   keyDirectory = "$HOME/.config/llm-gateway/keys"; # expanded by the jail wrapper's shell
