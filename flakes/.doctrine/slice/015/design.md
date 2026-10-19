@@ -39,9 +39,18 @@ socketConfig = { SocketUser = username; SocketMode = "0600"; DirectoryMode = "07
 
 `username` is the module argument other features use (`features/audio.nix:7`).
 `SocketUser`/`SocketMode` apply to the unix listener only. The directory is
-created by PID 1. The relay service is unchanged: one `systemd-socket-proxyd`
-serves both fds (research P2). The client socket belongs to the socket unit, so
-gateway restarts do not recreate it.
+created by PID 1. One `systemd-socket-proxyd` serves both fds (research P2).
+The client socket belongs to the socket unit, so gateway restarts do not
+recreate it.
+
+The relay service gains
+`restartTriggers = [config.systemd.units."llm-gateway-relay.socket".unit]`
+(RV-033 F-3). switch-to-configuration does nothing for a changed `.socket`
+unit (NixOS#74899); for a changed, active service it stops the service and its
+active socket, then starts the socket. A listener change therefore lands only
+if both are active at the switch: wake the relay first. The states and their
+recovery are in README § LLM gateway, "Relay restart"
+(`mem.fact.nixos.switch-socket-activated-units`).
 <!-- doctrine:section sec-3 -->
 ## Transport and forwarder (DEC-076)
 
@@ -50,18 +59,24 @@ literal `network` entries:
 
 ```nix
 profiles = {
-  specDev  = { network = true;  options = [(persist-home "agent")]; };
-  research = { network = true;  options = [(persist-home "agent-research")]; };
-  offline  = { network = false; options = [(persist-home "agent-offline")]; };
+  specDev  = { network = true;  home = "agent";          options = []; };
+  research = { network = true;  home = "agent-research"; options = []; };
+  offline  = { network = false; home = "agent-offline";  options = []; };
 };
-profileOptions = p: profiles.${p}.options ++ lib.optional profiles.${p}.network jail.combinators.network;
+profileOptions = p: home:
+  [(persist-home home)] ++ profiles.${p}.options
+  ++ lib.optional profiles.${p}.network jail.combinators.network;
 ```
+
+`home` is data so a jail can override it (`persistedHome`, "Workspace deps and persisted home");
+persist-home stays first, so argv order is unchanged.
 
 `profileDefaults` (git and op toggles) stays separate: those are caller-overridable,
 network is not.
 
-**The forwarder** is a pure function of its endpoints, so the test can use a
-temporary socket and port:
+**The forwarder** is a pure function of its endpoints, in its own file
+`agents/gateway-forwarder.nix` (imported by `jailed-agents.nix`), so the test
+can use a temporary socket and port:
 
 ```
 gatewayForwarder = { socket, port }: [
@@ -69,7 +84,9 @@ gatewayForwarder = { socket, port }: [
   (wrap-entry (entry: ''
      socat TCP-LISTEN:<port>,bind=127.0.0.1,fork,reuseaddr UNIX-CONNECT:<socket> &
      pid=$!
-     # ready: socat alive AND /proc/net/tcp lists 0100007F:<PORTHEX> in state 0A (LISTEN)
+     # ready: socat alive AND /proc/net/tcp has a 0100007F:<PORTHEX> row in state 0A (LISTEN)
+     #        whose inode is one of that socat's fds (a row alone also matches a
+     #        foreign listener on an occupied port; RV-033 F-3)
      bounded loop (~2 s): kill -0 $pid || fail "forwarder exited"; listening && break
      listening || fail "forwarder not listening"
      exec <entry>''))
@@ -118,6 +135,26 @@ launchDirOptions =
 it: `mem.fact.bwrap.pid1-environ-leak`). `$HOME` is the persisted jail home
 (`persist-home` binds it at `~`). Order in `inner` is unchanged: where
 `baseJailOptions` sat. Default on: no existing jail changes.
+
+### Workspace deps and persisted home (PHASE-05)
+
+Added 2026-10-20 at the user's direction from satan:SL-027 RV-035 F-1 and
+F-6; written here at reconcile (RV-033 F-2).
+
+```nix
+workspaceDepsFromEnv ? true,  # false: never call getEnv "JAIL_WORKSPACE_DEPS"
+persistedHome ? null,         # null: profiles.${profile}.home
+```
+
+- **`workspaceDepsFromEnv = false`** drops the impure-eval merge of
+  `JAIL_WORKSPACE_DEPS`, so a devshell's environment cannot add rw
+  `/workspace/<dep>` binds to that jail. Static `workspaceDeps` still bind.
+- **`persistedHome`** gives a jail its own persisted home in place of the
+  profile's shared one (e.g. `"malebolge"`), so its writes reach no other
+  jail. The name must match `[A-Za-z0-9][A-Za-z0-9._-]*` or evaluation throws:
+  jail.nix splices it unescaped into a path and into the launcher's shell.
+- Both forward through every `makeJailed*` constructor (they pass `args` to
+  `makeJailedAgent`). Defaults leave every existing launcher byte-identical.
 <!-- doctrine:section sec-5 -->
 ## Egress and security (DEC-077)
 
@@ -137,14 +174,15 @@ it: `mem.fact.bwrap.pid1-environ-leak`). `$HOME` is the persisted jail home
 | path | change |
 |---|---|
 | `agents/gateway.nix` | `clientRuntimeDirectory`, `clientSocket` |
-| `features/agents/gateway.nix` | relay socket: second listener, ownership |
-| `agents/jailed-agents.nix` | `profiles` table; `gatewayForwarder` / `gatewaySocketOptions`; launch-dir out of `baseJailOptions`, `mountLaunchDir`; socket-mode wiring and pre-flight; export |
+| `features/agents/gateway.nix` | relay socket: second listener, ownership; relay `restartTriggers` |
+| `agents/gateway-forwarder.nix` | the forwarder (`{ socket, port }` → options) |
+| `agents/jailed-agents.nix` | `profiles` table (with `home`); `gatewaySocketOptions`; launch-dir out of `baseJailOptions`, `mountLaunchDir`; socket-mode wiring and pre-flight; `workspaceDepsFromEnv`, `persistedHome`; export |
 | `agents/jailed-agents-test.nix` | tests (sec-7) |
-| `agents/README.md` § Gateway mode | socket mode, `gatewaySocketOptions`, `mountLaunchDir` |
-| `README.md` § LLM gateway | the client socket in the topology diagram |
-
-No change to `agents/flake.nix` wiring: `checks.jailed-agents` already imports
-the test file.
+| `agents/jailed-agents-env-test.nix` | the impure test (sec-7 item 6) |
+| `agents/flake.nix` | `impureChecks.<system>.jailed-agents-env` (not under `checks`: `nix flake check` is pure) |
+| `justfile` | `just test` builds the impure check with `--impure` |
+| `agents/README.md` § Gateway mode | socket mode, `gatewaySocketOptions`, `mountLaunchDir`, PHASE-05 args |
+| `README.md` § LLM gateway | the client socket in the topology diagram; relay restart |
 <!-- doctrine:section sec-7 -->
 ## Verification
 
@@ -164,10 +202,17 @@ VT (`just test`, `checks.<system>.jailed-agents`), fake bwrap recording argv:
    = a client script. (a) upstream unix echo server: the client's request
    arrives and its reply returns; (b) port already bound: launch fails
    "forwarder exited", entry never runs; (c) the entry's exit status is the
-   wrapper's.
+   wrapper's; (d) readiness makes no upstream connection.
+6. `workspaceDepsFromEnv` (impure: `impureChecks.<system>.jailed-agents-env`,
+   built by `just test` with `--impure` and `JAIL_WORKSPACE_DEPS` set; refuses
+   pure eval): default binds the env and static deps; `false` binds only the
+   static ones.
+7. `persistedHome` per profile replaces the profile's home; default argv
+   unchanged; a name such as `../escape` fails evaluation.
 
 Eval check: `nixosConfigurations.Sleipnir.config.systemd.sockets.llm-gateway-relay`
-lists both streams with `SocketUser`/`SocketMode`.
+lists both streams with `SocketUser`/`SocketMode`; the relay service unit
+carries `X-Restart-Triggers`.
 
 VA (live, after `just system-switch`; by agent): the socket exists, owned by
 the user, `0600`; an `offline` jail with `gateway` makes an authenticated

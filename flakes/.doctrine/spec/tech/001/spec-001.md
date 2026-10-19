@@ -43,6 +43,11 @@ address and its key from `jailLib.gatewayClient "<client>"` (DEC-059); the key
 file is `~/.config/llm-gateway/keys/<client>`, passed into the jail as
 `LLM_GATEWAY_KEY` (DEC-049).
 
+A jail without network (bwrap `--unshare-net`) reaches the same URL through
+an in-jail forwarder to `/run/llm-gateway-client/api.sock` (socket mode,
+DEC-076); the client sees no difference. Authentication is the same bearer
+key; the socket adds no trust (DEC-077).
+
 **Routes.** Only these, anything else is a 404 marked
 `x-llm-gateway: no such route` (FR-001):
 
@@ -200,11 +205,14 @@ the new build's CLI, then switches (DEC-067).
 ### Perimeter
 
 ```
-any local process ──> 127.0.0.1:4000 (relay) ──group──> api.sock (0750 dir) ──> LiteLLM
-                      key check fails closed: 401
+any local process ──> 127.0.0.1:4000 ───────────────────────────┐
+the user's processes ──> /run/llm-gateway-client/api.sock ──────┴─> relay ──group──> api.sock (0750 dir) ──> LiteLLM
+                         (user 0600, dir root 0755)                 key check fails closed: 401
 ```
 
-One socket, one relay; the key is the only per-client identity (DEC-047).
+One gateway socket, one relay with two listeners (DEC-075); the key is the
+only per-client identity (DEC-047, DEC-077). The client socket is the relay's,
+so the 0750 gate on the gateway socket is unchanged.
 uvicorn makes the socket 0666, so the directory mode is the gate. Service
 and relay share a hardening set (strict filesystem, no capabilities,
 `@system-service` filter, UMask 0077); the service cannot be network-private

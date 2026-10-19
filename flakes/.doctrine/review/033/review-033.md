@@ -112,3 +112,24 @@ SPEC-001` (the client contract this slice extends).
 - F-3 — DEC-076: amend readiness wording — "socat PID + its LISTEN row in
   /proc/net/tcp" → the row's inode must be one of that socat's fds. Knowledge
   record edit (`doctrine knowledge edit` / reconcile's choice of verb).
+
+## Reconciliation Outcome
+
+### Direct edits applied (user: "agree to the edits", 2026-10-20)
+- design.md sec-2: relay `restartTriggers` and the switch precondition (F-3, F-1).
+- design.md sec-3: profiles sketch with `home`; forwarder in `agents/gateway-forwarder.nix`; readiness inode tie (F-2, F-3).
+- design.md sec-4: new subsection "Workspace deps and persisted home (PHASE-05)" (F-2).
+- design.md sec-6: code-impact rows for gateway-forwarder.nix, jailed-agents-env-test.nix, agents/flake.nix, justfile, restartTriggers; stale "no flake.nix change" removed (F-3, F-4).
+- design.md sec-7: items 5(d), 6, 7 and the restart-trigger eval check (F-2).
+- Selector registry: 4 design-target selectors added (F-4). Conformance stays red on ISS-005 (flakes/ prefix), not on the registry.
+
+### REVs completed
+- REV-012 (`reconcile-sl-015`): done — SPEC-001 § Client contract Reach and § Perimeter amended for the client socket (F-5). Narrative in revision-012.md.
+
+### Knowledge records
+- DEC-076: choice amended (readiness inode tie) and body note appended (F-3).
+
+### Tolerated
+- F-6, F-8, F-9: rationale in their dispositions.
+
+Reconcile pass complete — handoff to /close.
