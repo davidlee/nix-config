@@ -34,6 +34,24 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 - The three `or`-as-identifier deprecation warnings in `just test` predate
   this slice.
 
+## PHASE-02 (2026-10-20)
+
+- Red: the check failed on all four assertions against a wrong-valued stub
+  `room.nix`. An empty stub fails on a missing attribute instead (an eval
+  error, not a runTests failure), so the stub carries the keys with wrong
+  values.
+- VA-1: adding `ssh_config` to `malebolge` fails `testMalebolgeKeys` only.
+- VA-2: runner config.toml store path unchanged:
+  `gkanmpxgp4fq0v7k7iy874pcam5lpxp5-satan-runner-config.toml`.
+- VA-3: built door.toml = `[door]` with home = /home/satan, host_key_alias =
+  room-assistant, identity = /home/david/.ssh/malebolge-vm.key, known_hosts,
+  room = assistant, user = satan.
+- `runner.nix` binds `inherit (roomDoor.shared) room;` (statix's form of
+  design sec-3's `room = roomDoor.shared.room;`).
+- Outstanding: VH-1 (user runs `just home-switch`, then checks the file);
+  VA-4 (SL-027 handoff, with the user's OK).
+
+## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
 
