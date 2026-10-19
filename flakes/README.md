@@ -881,10 +881,34 @@ writing a client: address, routes, allowed body fields, reasoning effort
 (DEC-074), model names and refusal codes. This section is operations only.
 
 ```
-jail ──127.0.0.1:4000──> llm-gateway-relay ──/run/llm-gateway/api.sock──> llm-gateway.service
-                                                                            keys.db  /var/lib/llm-gateway
-                                                                            credentials /etc/credstore.encrypted
+jail (network) ────127.0.0.1:4000─────────────────┐
+                                                  ▼
+jail (no network) ─ socat ─> /run/llm-gateway-client/api.sock ─> llm-gateway-relay
+                  (in-jail)    (user, 0600; dir root 0755)             │
+                                                                       ▼
+   /run/llm-gateway/api.sock (group-gated) ──> llm-gateway.service
+                                                 keys.db  /var/lib/llm-gateway
+                                                 credentials /etc/credstore.encrypted
 ```
+
+One relay, one socket unit, two listeners (DEC-075): `127.0.0.1:4000` and the
+client socket. The client socket belongs to the relay's socket unit, so a
+gateway restart does not recreate it. Both paths authenticate the same way, by
+the jail's bearer key (DEC-047, DEC-077); the unix socket adds no trust.
+
+**Relay restart.** The relay is socket-activated, and switch-to-configuration
+does nothing for a changed `.socket` unit (NixOS issue 74899). So the relay
+service carries the socket unit in its `restartTriggers`: a change to the
+listeners, owner or mode restarts the service at the switch, which stops
+service and socket and starts the socket. Not covered: a relay service that is
+stopped at switch time is not compared, and the socket keeps its old
+listeners. Nothing holds the socket then, so `sudo systemctl restart
+llm-gateway-relay.socket` applies the change. A socket refused with "Socket
+service llm-gateway-relay.service already active, refusing" has a running
+relay: `sudo systemctl stop llm-gateway-relay.service`, `sudo systemctl
+reset-failed llm-gateway-relay.service llm-gateway-relay.socket`, then `sudo
+systemctl start llm-gateway-relay.socket`. Starting the service itself fails
+with "Didn't get any sockets passed in".
 
 **First run.** The service cannot start until a provider credential exists.
 On the first switch systemd itself refuses the unit at credential setup
@@ -974,7 +998,9 @@ spent too; pick the next one.
 `gateway = jailLib.gatewayClient "<client>"` (key file
 `~/.config/llm-gateway/keys/<client>`, address from `agents/gateway.nix`),
 drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
-record in this repo also adds `requires = ["agents.gateway"]`. See
+record in this repo also adds `requires = ["agents.gateway"]`. A jail whose
+profile has no network (`offline`) reaches the gateway through the client
+socket automatically (socket mode); nothing else changes. See
 `agents/README.md` § Gateway mode.
 
 **Adding a model.** It needs a cost source, or the build fails naming it
@@ -1018,7 +1044,7 @@ host that defines it replaces the whole set, so edit `proxy.nix` instead.
 - Jails not on the gateway still get provider keys through `op run`: the other
   `~/dev/*` project flakes (IMP-034) and satan (IMP-030). The unjailed `eca`
   keeps its own keys.
-- Anything off this host: the relay is loopback only.
+- Anything off this host: the relay listens on loopback and on a unix socket only.
 - Budgets are lifetime USD per key, not per period.
 
 **Tests.** `just test` runs `keystore-test`, `checks.<system>.llm-gateway`

@@ -17,6 +17,9 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `commonPkgs` — the shared package set available in every jail (minus git,
   which each jail adds itself: see [Git guard](#git-guard-guardgit))
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
+- `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
+  repo's gateway, and its socket-mode options for `extraOptions` (see
+  [Gateway mode](#gateway-mode-gateway))
 - `unjailed` — name→package map of the **bare** (un-jailed) agents, resolved
   from the same eval as the jails. Use it to put agents on the host devShell
   PATH (`with agents.unjailed; [ pi dirge ]`). Same drvs the jails bundle, so no extra rebuild.
@@ -35,7 +38,9 @@ import the file or fetch the source.
 
 Every jail gets these **base** options regardless of profile:
 
-- **Workspace mount** at `/workspace/<project>/` — host cwd bind-mounted rw.
+- **Workspace mount** at `/workspace/<project>/` — host cwd bind-mounted rw,
+  and the jail starts there. `mountLaunchDir = false` binds nothing and starts
+  in `$HOME`, the persisted home.
 - **Timezone**, terminfo, `no-new-session`.
 - **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc.
 - **Host git excludes**, read-only. The launcher resolves the host user's
@@ -81,6 +86,13 @@ any maker (default: `"specDev"`).
 | `specDev` | `agent` (shared, persistent) | yes | blocked | sandboxed (generic) | on |
 | `research` | `agent-research` (separate) | yes | blocked | host | on |
 | `offline` | `agent-offline` (separate) | no | blocked | host | on |
+
+`Network` is fixed by the profile: no option overrides it. A gateway jail on
+`offline` reaches the gateway in [socket mode](#socket-mode).
+`persistedHome = "<name>"` replaces the `Home` column for one jail, so a
+caller can keep a jail's state apart from the shared homes. The name is
+spliced into a path and the launcher, so it must match
+`[A-Za-z0-9][A-Za-z0-9._-]*`; anything else fails evaluation.
 
 Override boolean defaults per-call with `blockSshGitPush` /
 `sandboxGitIdentity` / `guardGit`. The SSH guard sets `GIT_SSH_COMMAND` to a
@@ -218,7 +230,9 @@ shadowing one another.
 For machine-local dependencies, `JAIL_WORKSPACE_DEPS` may contain newline- or
 colon-separated absolute paths. It is read only during impure evaluation and
 merged with `workspaceDeps`; under pure evaluation an unset/inaccessible value
-is simply ignored.
+is simply ignored. `workspaceDepsFromEnv = false` makes a jail ignore it, so
+its evaluation no longer reads the environment; the static `workspaceDeps`
+still bind.
 
 ### Updating agents
 
@@ -407,8 +421,53 @@ Effect:
   `LLM_GATEWAY_KEY` over `--args 22` (not argv, like the provider keys on
   `--args 21`). `LLM_GATEWAY_URL` is plain env.
 - The wrapper fails with a message in two cases: the key file is unreadable
-  (issue one: `llm-gateway issue … --out <keyFile>`), or `runDirectory` is
-  missing (the gateway is not running; `just system-switch`).
+  (issue one: `llm-gateway issue … --out <keyFile>`), or the directory the jail
+  reaches the gateway through is missing (the gateway is not running;
+  `just system-switch`). That directory is `runDirectory`, or in
+  [socket mode](#socket-mode) `/run/llm-gateway-client`.
+
+#### Socket mode
+
+A gateway jail whose profile has no network (`offline`) cannot reach
+`127.0.0.1:4000`: the relay's listener is in the host's network namespace.
+It reaches the gateway through the relay's second listener, a unix socket,
+and the URL stays `http://127.0.0.1:4000/v1`.
+
+```
+jail (no network)                                          host
+ agent ─TCP─> 127.0.0.1:4000 ─> socat ───────────────────> /run/llm-gateway-client/api.sock
+              (in-jail forwarder)   ro-bound directory       (user, 0600)
+                                                                   │
+                       llm-gateway-relay ──> /run/llm-gateway/api.sock ──> llm-gateway
+```
+
+- The profile's `network` flag alone selects it. No option sets it.
+- The jail binds the directory `/run/llm-gateway-client` read-only, not the
+  socket file: a file bind pins one inode and goes stale when the relay
+  replaces the socket. The jail cannot replace the socket either.
+- `socat` listens on the jail's own `127.0.0.1:4000` and relays each
+  connection to the socket. The agent starts only once it is listening, and
+  keeps the wrapper's PID, signals and exit status.
+- The wrapper's pre-flight checks `/run/llm-gateway-client` rather than
+  `runDirectory`. `/run/llm-gateway` is not bound.
+- The socket is owned by the user (mode `0600`), so any process of that user
+  can open it; the gateway still wants the key (`LLM_GATEWAY_KEY`).
+
+Failures:
+
+| message | meaning |
+|---|---|
+| `gateway forwarder exited before listening on 127.0.0.1:4000` | `socat` died at start; its own error precedes it (for example address in use) |
+| `gateway forwarder not listening on 127.0.0.1:4000 after 2 s` | `socat` is running but never listened |
+| `gateway socket mode needs a jail without network (DEC-076)` | an evaluation error: the jail shares the host network namespace, where the forwarder would collide with the relay's own listener |
+
+A jail without `gateway` can take the same path, for a client that holds its
+own key file: put `agents.gatewaySocketOptions` in `extraOptions`. There is no
+pre-flight then, and the same evaluation error guards a jail with network.
+
+In such a jail the gateway is the only direct network path. What it can spend
+is bounded by the key's models and budget. Any other host unix socket bound
+into the jail is the jail definition's to audit.
 
 #### pi in gateway mode
 
@@ -456,6 +515,9 @@ README, § LLM gateway.
 | `extraPkgs` | `[]` | Additional packages available in the jail |
 | `extraOptions` | `[]` | Additional jail.nix combinators |
 | `workspaceDeps` | `[]` | Absolute paths to sibling repos; each is bind-mounted at `/workspace/<basename>` |
+| `workspaceDepsFromEnv` | `true` | Merge `JAIL_WORKSPACE_DEPS` (impure evaluation) into `workspaceDeps`. `false`: ignore it |
+| `mountLaunchDir` | `true` | Bind the host cwd at `/workspace/<project>` and start there. `false`: bind nothing, start in `$HOME` |
+| `persistedHome` | `null` | Name of the persisted home (`[A-Za-z0-9][A-Za-z0-9._-]*`). `null`: the profile's |
 | `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |
 | `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |
@@ -465,7 +527,7 @@ README, § LLM gateway.
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
 | `apiKeys` | `[]` | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
-| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json` |
+| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
 

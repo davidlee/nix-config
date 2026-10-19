@@ -140,6 +140,9 @@
         description = "LLM gateway relay to ${constants.socket}";
         requires = ["llm-gateway.service"];
         after = ["llm-gateway.service"];
+        # switch-to-configuration ignores a changed .socket unit (NixOS#74899);
+        # a changed service makes it stop service and socket, then start the socket.
+        restartTriggers = [config.systemd.units."llm-gateway-relay.socket".unit];
         serviceConfig =
           hardening
           // {
