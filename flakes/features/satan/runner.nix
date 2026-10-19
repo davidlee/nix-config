@@ -2,6 +2,8 @@
 # Owns patch jobs end to end: one job at a time per repo, run by pi in the
 # oubliette room `assistant`, reached through the room's host-local door, its
 # models through the LLM gateway. Serves the control socket Emacs submits to.
+# Each submit names a mode, SATAN's acting lane, whose repos and allowed_paths
+# scope it; a submit outside them is refused (SL-025 DEC-069).
 #
 # Source: the malebolge input's packages.runner (bin/satan-runner: nodejs_24 on
 # its src/runner-main.ts, production deps only), pinned by flake.lock (CHR-017).
@@ -47,10 +49,38 @@
     # The room's door and the repos it holds. Literals: the fleet
     # (/srv/fleet/flake.nix rooms.assistant, targets/<repo>.nix) exposes no
     # room data to home-manager, so these copy it by hand (SL-023 PHASE-12
-    # E4; design §5.3 wants one source at Nix eval).
+    # E4; one source is IMP-044).
     room = "assistant";
     roomUser = "agent"; # rooms.assistant.repos.user
     socket = "/run/capsule-room/${room}/ssh.sock";
+
+    # One repo per room target, keyed by the oubliette target name (SL-025
+    # design §4.3): `path` is targets/<name>.nix `path`, `defaultBranch` the
+    # host checkout's integration branch.
+    roomRepo = path: defaultBranch: name: {
+      inherit path;
+      guest_path = "/work/${name}"; # the target's guestPath
+      default_branch = defaultBranch;
+      quarantine = "/var/lib/capsule/collect/${room}/${name}.git";
+      transfer_timeout_s = 600; # covers a first full push
+    };
+    repo = lib.mapAttrs (name: f: f name) {
+      doctrine = roomRepo "${home}/dev/doctrine" "edge";
+      goad-walk = roomRepo "${home}/dev/goad-walk" "main";
+      goad = roomRepo "${home}/dev/goad" "main";
+      satan-attrd = roomRepo "${home}/dev/satan-attrd" "main";
+      panopticon = roomRepo "${home}/dev/panopticon" "main";
+      malebolge = roomRepo "${home}/dev/malebolge" "main";
+      retrograde = roomRepo "${home}/dev/retrograde" "main";
+      oubliette = roomRepo "${home}/dev/oubliette" "main";
+      www = roomRepo "${home}/dev/www" "main";
+      resume = roomRepo "${home}/dev/resume" "main";
+      notes = roomRepo "${home}/notes" "main";
+      emacs-config = roomRepo "${home}/.config/emacs" "main";
+      nix-config = roomRepo home "main";
+      satan = roomRepo "${home}/dev/satan" "main";
+      satan-corpus = roomRepo "${home}/satan-corpus" "main";
+    };
 
     # The runner's config, held once (design §5.3); every table is closed, so a
     # misspelt key refuses start (I13). Values are never derived by the runner.
@@ -71,15 +101,30 @@
         max_pending_collection_s = 86400;
       };
       defaults.model = "gateway/deepseek-flash";
-      mode.fix = {};
-      # Keyed by the oubliette target name.
-      repo.goad-walk = {
-        path = "${home}/dev/goad-walk"; # targets/goad-walk.nix `path`
-        guest_path = "/work/goad-walk"; # the target's guestPath, /work/<target>
-        default_branch = "main"; # the host checkout's only branch
-        quarantine = "/var/lib/capsule/collect/${room}/goad-walk.git";
-        transfer_timeout_s = 600; # covers a first full push
+      # SATAN's lanes; Emacs stamps the acting one on each submit (DEC-068).
+      # Each mode's scope is required and checked at submit (DEC-069); none
+      # sets a model or ceiling, so all fall through to defaults and maxima.
+      mode = {
+        self-edit-mech = {
+          repos = ["satan"];
+          allowed_paths = ["satan/"];
+        };
+        self-edit-mind = {
+          repos = ["satan-corpus"];
+          allowed_paths = ["prompts/" "system/" "tools/"];
+        };
+        # Computed here so a new room repo joins it; the runner gets a literal.
+        tick-agent = {
+          repos = lib.subtractLists ["satan" "satan-corpus"] (lib.attrNames repo);
+          allowed_paths = "*";
+        };
+        # The human's own lane and the smoke's (RSK-019).
+        interactive = {
+          repos = "*";
+          allowed_paths = "*";
+        };
       };
+      inherit repo;
       door = {
         kind = "room";
         inherit room;

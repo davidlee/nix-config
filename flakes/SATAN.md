@@ -199,6 +199,26 @@ satan-runner`.
 - One consumer per repo (I1): satan-patcher removed (SL-023 PHASE-14); the
   runner is the only consumer. Stop the runner before any scratch instance.
 
+### Modes and their scope (SL-025)
+
+Every submit names a mode; Emacs stamps SATAN's acting run mode
+(`patch_job_create` has no `mode` argument, DEC-068). Each `[mode.<m>]`
+requires `repos` and `allowed_paths`, a list or `"*"`; the runner refuses a
+submit outside them `invalid_request`, naming what the mode allows (DEC-069).
+Scope is checked at submit only: narrowing it never touches an admitted job.
+
+| mode | `repos` | `allowed_paths` |
+|---|---|---|
+| `self-edit-mech` | `satan` | `satan/` |
+| `self-edit-mind` | `satan-corpus` | `prompts/`, `system/`, `tools/` |
+| `tick-agent` | every repo but `satan`, `satan-corpus` (computed at eval) | `"*"` |
+| `interactive` | `"*"` | `"*"` — the human's lane and the smoke's (RSK-019) |
+
+No mode sets a model or ceiling: all use `defaults` and `maxima`. The repos
+are the 15 room targets (`roomRepo` in `runner.nix`); a new room target needs
+a line there too. New clones arrive empty (`room-seed` `git init`); each job
+`capsule push`es its base branch to `refs/host/<branch>` (`/srv/fleet/PROVISION.md`).
+
 ### Room values (EX-5)
 
 For a room kind door, exactly: `known_hosts =
@@ -244,7 +264,7 @@ from jobs order by created_at desc limit 20`.
 
 ### Live checks (malebolge, env-gated, not in `just check`)
 
-- `cd ~/dev/malebolge && SATAN_RUNNER_LIVE=1 just smoke-runner`: one `fix`
+- `cd ~/dev/malebolge && SATAN_RUNNER_LIVE=1 just smoke-runner`: one `interactive`
   job on `goad-walk` (writes `SMOKE.md`) over the socket, followed to
   `needs_review`. Never promoted or rejected: it stays in quarantine.
   `just smoke-runner --slow` adds a 120 s sleep and prints `IN FLIGHT` for a
