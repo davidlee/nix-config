@@ -39,5 +39,8 @@ meaningful against a value taken from the unchanged tree.
   user's to run.
 - The SL-027 handoff (PHASE-02 VA-4) is outward-facing: only with the user's
   OK, at close.
+- The git flake (`.` on Linux) sees only tracked files: every new file is
+  `git add -N`ed before the first check that needs it, or the check fails on
+  a missing path instead of on the behaviour under test.
 - README is deliberately untouched: its feature tree lists satan's features,
   not the files under `features/satan/`.

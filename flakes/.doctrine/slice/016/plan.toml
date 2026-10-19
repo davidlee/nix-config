@@ -45,10 +45,10 @@ name      = "Room data, door render, test"
 objective = "features/satan/room.nix holds the room data (design sec-2); runner.nix builds its door from it and renders ~/.config/malebolge/door.toml (sec-3, DEC-079); room-test.nix pins the schema as checks.<system>.satan-room (sec-4); SATAN.md and runner.nix's Files header name the new file."
 entrance_criteria = [
   { id = "EN-1", text = "PHASE-01 complete (evalTests available)" },
-  { id = "EN-2", text = "store path of homeConfigurations.\"david@Sleipnir\".config.xdg.configFile.\"satan-runner/config.toml\".source recorded before the edit, evaluated with the justfile's local overrides (in the phase sheet)" },
+  { id = "EN-2", text = "store path of homeConfigurations.\"david@Sleipnir\".config.xdg.configFile.\"satan-runner/config.toml\".source recorded before the edit (in the phase sheet), by `nix eval --raw '.#homeConfigurations.\"david@Sleipnir\".config.xdg.configFile.\"satan-runner/config.toml\".source.outPath' $(just --evaluate local_override) --no-write-lock-file`; the same command after" },
 ]
 exit_criteria = [
-  { id = "EX-1", text = "red first: room-test.nix written and failing (room.nix absent) before room.nix exists; then green" },
+  { id = "EX-1", text = "red first: room-test.nix written, `git add -N`ed (the git flake sees only tracked files) and wired, and checks.satan-room failing on a test assertion against a stub room.nix (also `git add -N`ed), not on a missing file; then the real room.nix, green" },
   { id = "EX-2", text = "room.nix is plain data `hostHome: rec { shared; malebolge; }` as sec-2; malebolge's keys are exactly room, user, known_hosts, host_key_alias, identity, home (DEC-079)" },
   { id = "EX-3", text = "runner.nix: `roomDoor = import ./room.nix home; room = roomDoor.shared.room;`; door = roomDoor.shared // runner keys; xdg.configFile.\"malebolge/door.toml\" renders {door = roomDoor.malebolge;}" },
   { id = "EX-4", text = "satan-runner/config.toml store path equals EN-2's" },
