@@ -59,6 +59,10 @@
   offline = inner "offline" {};
   # specDev without the launch-dir bind: starts in $HOME (DEC-078)
   launchDirOff = inner "specDev" {mountLaunchDir = false;};
+  # A named persisted home replaces the profile's, whatever its network (satan:SL-027 RV-035 F-6)
+  homeSpec = inner "specDev" {persistedHome = "probe-home";};
+  homeResearch = inner "research" {persistedHome = "probe-home";};
+  homeOffline = inner "offline" {persistedHome = "probe-home";};
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
   gitUnguarded = inner "specDev" {guardGit = false;};
   noHostDoctrine = inner "specDev" {hostDoctrine = false;};
@@ -237,6 +241,9 @@
   duplicateWorkspaceFails = failsToEvaluate (inner "specDev" {
     workspaceDeps = ["/tmp/one/shared" "/tmp/two/shared"];
   });
+  # persistedHome is spliced unescaped into a path and shell: the twin is
+  # homeOffline, differing only in the name.
+  badHomeFails = failsToEvaluate (inner "offline" {persistedHome = "../escape";});
 
   gatewayData = import ./gateway.nix;
 
@@ -323,6 +330,8 @@ in
   assert zeroDepthFails;
   assert relativeWorkspaceFails;
   assert duplicateWorkspaceFails;
+  assert homeOffline.drvPath != "";
+  assert badHomeFails;
   assert gatewayLazySecrets.drvPath != "";
   assert gatewayEmptyKeys.drvPath != "";
   assert gatewayWithKeysFails;
@@ -399,6 +408,15 @@ in
       grep -Fq -- 'home/agent' "$spec"
       grep -Fq -- 'home/agent-research' "$research"
       grep -Fq -- 'home/agent-offline' "$offline"
+
+      # persistedHome (F-6): replaces each profile's home; network is the profile's.
+      for launcher in ${homeSpec}/bin/jailed-zsh ${homeResearch}/bin/jailed-zsh ${homeOffline}/bin/jailed-zsh; do
+        grep -Fq -- 'home/probe-home ~' "$launcher"
+        refute grep -Fq -- 'home/agent' "$launcher"
+      done
+      refute grep -Fq -- '--unshare-net' ${homeSpec}/bin/jailed-zsh
+      refute grep -Fq -- '--unshare-net' ${homeResearch}/bin/jailed-zsh
+      grep -Fq -- '--unshare-net' ${homeOffline}/bin/jailed-zsh
 
       grep -Fq -- 'GIT_SSH_COMMAND' "$spec"
       refute grep -Fq -- 'GIT_SSH_COMMAND' ${sshPushAllowed}/bin/jailed-zsh

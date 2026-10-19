@@ -200,26 +200,34 @@
       else [(unsafe-add-raw-args "--chdir \"$HOME\"")];
 
   # Policy-bearing profiles. `network` is data, not caller-overridable
-  # (DEC-076): the one source of the network flag.
-  profiles = with jail.combinators; {
+  # (DEC-076): the one source of the network flag. `home` names the persisted
+  # home; a jail may override it (`persistedHome`).
+  profiles = {
     specDev = {
       network = true;
-      options = [(persist-home "agent")];
+      home = "agent";
+      options = [];
     };
 
     research = {
       network = true;
-      options = [(persist-home "agent-research")];
+      home = "agent-research";
+      options = [];
     };
 
     offline = {
       network = false;
-      options = [(persist-home "agent-offline")];
+      home = "agent-offline";
+      options = [];
     };
   };
 
-  # A profile's jail options: its own, then `network` iff the flag is set.
-  profileOptions = p: profiles.${p}.options ++ lib.optional profiles.${p}.network jail.combinators.network;
+  # A profile's jail options: the persisted home `home`, the profile's own,
+  # then `network` iff the flag is set.
+  profileOptions = p: home:
+    [(jail.combinators.persist-home home)]
+    ++ profiles.${p}.options
+    ++ lib.optional profiles.${p}.network jail.combinators.network;
 
   # Per-profile boolean defaults for git controls + op env injection.
   # useOpEnv is off for offline (no network = no API calls = no secrets).
@@ -341,7 +349,10 @@
     mountLaunchDir ? true, # bind the host cwd at /workspace/<project> and start there (DEC-078)
     workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
-    # env var (impure eval only). See envWorkspaceDeps below.
+    # env var (impure eval only) unless workspaceDepsFromEnv is false.
+    # See envWorkspaceDeps below.
+    workspaceDepsFromEnv ? true, # false: ignore JAIL_WORKSPACE_DEPS (satan:SL-027 RV-035 F-1)
+    persistedHome ? null, # name of the persisted home; null: the profile's (satan:SL-027 RV-035 F-6)
     # Sibling agents to expose inside the jail as depth-guarded
     # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
     # (e.g. [ "pi" "codex" ]) or the string "all". A nested agent runs
@@ -538,12 +549,20 @@
     # paths). Requires impure eval (`--impure`); under pure eval getEnv
     # returns "" -> empty -> no-op. Merged with and deduped against the
     # static `workspaceDeps` arg, so a flake can ship portable defaults
-    # while each machine adds its own paths via .envrc.
-    envWorkspaceDeps = lib.filter (s: s != "") (
-      lib.splitString ":" (
-        builtins.replaceStrings ["\n"] [":"] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+    # while each machine adds its own paths via .envrc. Not read at all when
+    # workspaceDepsFromEnv is false, so that jail's eval ignores the environment.
+    envWorkspaceDeps = lib.optionals workspaceDepsFromEnv (
+      lib.filter (s: s != "") (
+        lib.splitString ":" (
+          builtins.replaceStrings ["\n"] [":"] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+        )
       )
     );
+    # The name is spliced unescaped into a path and into the launcher's shell.
+    homeName =
+      if persistedHome == null
+      then profiles.${profile}.home
+      else persistedHome;
     allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
     stripTrailingSlashes = dep:
       if dep != "/" && lib.hasSuffix "/" dep
@@ -590,7 +609,7 @@
       baseJailOptions
       ++ launchDirOptions mountLaunchDir
       ++ workspaceBinds
-      ++ profileOptions profile
+      ++ profileOptions profile homeName
       ++ lib.optionals hostDoctrine hostDoctrineOptions
       ++ hostGitExcludesOptions
       ++ termOptions
@@ -660,6 +679,9 @@
     '';
   in
     assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";
+    assert builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName
+    != null
+    || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
     assert unknownApiKeys
     == []
     || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";

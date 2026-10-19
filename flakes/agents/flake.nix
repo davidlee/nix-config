@@ -53,6 +53,14 @@
         };
       };
 
+      # Not under `checks`: `nix flake check` evaluates purely, where this
+      # test refuses to run. `just test` builds it with --impure.
+      impureChecks = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+        jailed-agents-env = import ./jailed-agents-env-test.nix {
+          inherit pkgs jail-nix;
+        };
+      };
+
       # packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
       packages.dirge = pkgs.callPackage ./dirge.nix {};

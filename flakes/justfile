@@ -54,7 +54,7 @@ fmt: check-flake-root
 # the lock holds no local source (ISS-006), resolver tests (features-test.nix),
 # factory checks (hosts.nix), the workaround probe registry (workarounds/),
 # the llm-gateway check (Linux only: the gateway is NixOS-only), the agents
-# sub-flake's jail tests (Linux only, against its own lock), then behaviour
+# sub-flake's jail tests, pure and impure (Linux only, against its own lock), then behaviour
 # tests for the plain scripts
 test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
@@ -64,6 +64,7 @@ test:
   nix build ".#checks.$(nix config show system).workarounds" {{local_override}} --no-link --no-write-lock-file
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   workarounds/check-test
   workarounds/last-good-test
