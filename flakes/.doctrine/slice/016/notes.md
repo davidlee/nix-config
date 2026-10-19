@@ -1,0 +1,34 @@
+# Notes SL-016: Render malebolge's room door file
+
+Durable per-slice scratchpad — tracked in git. The place to lift anything from a
+disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
+`rm -rf` before the slice close-out audit harvests it.
+
+## Design review (2026-10-20)
+
+- Pass: RV-034, human (user accepted sec-1..sec-6 as drafted). User input
+  folded in before review: DEC-079 widened to the `[door]` schema; `hostHome`
+  naming in `room.nix`.
+- Further passes: none needed. The change is data-only; its two risks
+  (runner `config.toml` byte-identity, `evalTests` refactor drv-neutrality)
+  are checked mechanically in design sec-6. A further pass would probe only
+  whether `pkgs.formats.toml` key order could differ, which sec-6's store-path
+  comparison settles.
+
+## Context from the user (for the SL-027 handoff)
+
+- In the room, satan reads repos with `git clone --no-local /work/<repo>`
+  (CLI flag or git config), never `safe.directory`: `/work/<repo>` is owned by
+  another room user, and trusting it would let that repo's config and hooks
+  run as satan. Not this slice's to act on; pass to satan:SL-027 with the
+  door-file handoff.
+
+## Harvest
+<!-- single-copy: updated in place each harvest; ids only, never restated content -->
+fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+
+### Produced
+
+### Learned
+
+### Open

@@ -1,7 +1,7 @@
 id = 16
 slug = "malebolge-room-door"
 title = "Render malebolge's room door file"
-status = "design"
+status = "plan"
 created = "2026-10-19"
 updated = "2026-10-19"
 tags = []
@@ -12,7 +12,7 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "features/satan/runner.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "features/satan/**"
@@ -20,11 +20,27 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "SATAN.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
 intent = "scope-relevant"
+
+[[selector]]
+selector = "features/satan/room.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan/room-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "perSystem.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "justfile"
+intent = "design-target"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

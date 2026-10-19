@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 79
+slug = "malebolges-room-door-file-path-alias-owner"
+title = "malebolge's room door file: path, schema, alias, owner"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = """satan:SL-027 room profile needs a door file (satan:DEC-077); flakes:SL-015 never scoped the render; SL-027's sample alias "assistant" does not match the live known_hosts."""
+choice = "Render exactly one [door] table with exactly the string keys room / user / known_hosts / host_key_alias / identity / home (ROOM_DOOR_KEYS plus home; no other key) to ~/.config/malebolge/door.toml from features/satan/room.nix; the shared facts come from the same data as the runner's door; host_key_alias = room-assistant."
+alternatives = ["~/.config/satan-runner/door.toml (the file is the daemon's, not the runner's)", "the nix store path (moves on every rebuild)", "host_key_alias = assistant (not the name in /var/lib/capsule/room/assistant/known_hosts)"]
+rationale = "Stable path beside gateway-models.json, the daemon's other HM-rendered file; one data source for both doors; the alias is the one known_hosts records (checked 2026-10-20)."
+consequences = ["satan:SL-027 uses the literal ~/.config/malebolge/door.toml for malebolgeDoorFile", "the key set is a cross-repo schema: a key added or dropped on either side is a coordinated change (the daemon refuses unknown keys at startup)", "flakes checks.satan-room pins the key set to a hand-copied ROOM_DOOR_KEYS + home", "satan:SL-027 §4.3 sample alias corrected to room-assistant", "flakes:SL-016 owns the render (not SL-015)"]
+decided_by = "user (SL-016 design, 2026-10-20)"
+decided_on = "2026-10-20"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-016"

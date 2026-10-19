@@ -48,7 +48,13 @@ plus `home`; any other key is refused by the parser (`onlyKeys`). No
   (the store path moves on every rebuild): proposed
   `~/.config/malebolge/door.toml`.
 - A behaviour test: the rendered file has exactly the satan parser's keys,
-  and its shared values equal the runner's.
+  and its shared values equal the runner's. Settled in design: the room data
+  is a plain data file, `features/satan/room.nix`, tested by
+  `features/satan/room-test.nix` as `checks.<system>.satan-room`.
+- Refactor (added at design, user-approved): `perSystem.nix` gains an
+  `evalTests` helper that `checks.features`, `checks.host-meta` and the new
+  check share, so the new check does not add a fourth copy of the
+  `lib.runTests` boilerplate.
 - Hand the path back to satan:SL-027 (its `malebolgeDoorFile`), and the
   correction that flakes:SL-016, not SL-015, owns the render.
 
@@ -68,7 +74,8 @@ plus `home`; any other key is refused by the parser (`onlyKeys`). No
 ## Affected surface
 
 - `features/satan/runner.nix` (the render)
-- a test beside it (exact home: design)
+- `features/satan/room.nix`, `features/satan/room-test.nix` (new)
+- `perSystem.nix` (`evalTests`, the new check), `justfile` (`test`)
 - `README.md` / `SATAN.md` runner sections, if they list the feature's files
 
 ## Risks, assumptions, open questions
@@ -78,11 +85,11 @@ plus `home`; any other key is refused by the parser (`onlyKeys`). No
   `/var/lib/capsule/room/assistant/known_hosts` names its one host
   `room-assistant` (checked 2026-10-20), so the alias is `room-assistant` for
   both doors, and SL-027's sample is wrong (told to satan).
-- **OQ-2, path:** `~/.config/malebolge/door.toml` beside `gateway-models.json`
+- **OQ-2, path (settled at design, DEC-079):** `~/.config/malebolge/door.toml` beside `gateway-models.json`
   vs `~/.config/satan-runner/`. The file is the interactive daemon's, not the
   runner's, which points to `~/.config/malebolge/`. SL-027 must use the same
   literal.
-- **OQ-3, test home:** the feature has no test today; find how this repo
+- **OQ-3, test home (settled at design: an eval check, design sec-4):** the feature has no test today; find how this repo
   tests a home-manager render (eval check vs script test).
 - **A-1:** the room user's home is `/home/satan` (SL-027 §4.8); a fleet
   literal, hand-copied.

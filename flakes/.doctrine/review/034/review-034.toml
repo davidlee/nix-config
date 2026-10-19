@@ -1,0 +1,24 @@
+id    = 34
+slug  = "design-review-of-sl-016"
+title = "design review of SL-016"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Human review by the user of SL-016 design.md sec-1..sec-6 (materialised r17); accepted 2026-10-20 with no findings. Pre-review input (DEC-079 schema, hostHome naming) was folded in before drafting."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-016"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

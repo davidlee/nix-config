@@ -1,0 +1,69 @@
+# Implementation plan for SL-016 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-016"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]]
+id        = "PHASE-01"
+name      = "evalTests helper"
+objective = "perSystem.nix gains `evalTests name failures`, a lib.runTests suite as a stub-build check; checks.features and checks.host-meta use it (design sec-4). Behaviour-neutral: no check drv moves."
+entrance_criteria = [
+  { id = "EN-1", text = "design locked (SL-016 design run, stage locked); `just test` green on the current tree" },
+  { id = "EN-2", text = "drvPaths of checks.<system>.features and checks.<system>.host-meta recorded before the edit (in the phase sheet)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "perSystem.nix defines evalTests once; features and host-meta are one line each through it; the throw message reads `<name>-test.nix failed:` as before" },
+  { id = "EX-2", text = "checks.features and checks.host-meta drvPaths equal the EN-2 baseline" },
+  { id = "EX-3", text = "`just gate` green (tests + treefmt: alejandra, statix, deadnix)" },
+]
+verification = [
+  { id = "VT-1", expects = "the helper exists and both existing checks go through it", test_file = "perSystem.nix", keywords = ["evalTests = name: failures:", "evalTests \"features\"", "evalTests \"host-meta\""], waived = false },
+  { id = "VA-1", text = "drvPath comparison against EN-2's baseline: identical for features and host-meta" },
+  { id = "VA-2", text = "red check: a deliberately failing assertion in a scratch copy of features-test.nix makes checks.features throw `features-test.nix failed:` with the failure listed; reverted before commit" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Room data, door render, test"
+objective = "features/satan/room.nix holds the room data (design sec-2); runner.nix builds its door from it and renders ~/.config/malebolge/door.toml (sec-3, DEC-079); room-test.nix pins the schema as checks.<system>.satan-room (sec-4); SATAN.md and runner.nix's Files header name the new file."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete (evalTests available)" },
+  { id = "EN-2", text = "store path of homeConfigurations.\"david@Sleipnir\".config.xdg.configFile.\"satan-runner/config.toml\".source recorded before the edit, evaluated with the justfile's local overrides (in the phase sheet)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "red first: room-test.nix written and failing (room.nix absent) before room.nix exists; then green" },
+  { id = "EX-2", text = "room.nix is plain data `hostHome: rec { shared; malebolge; }` as sec-2; malebolge's keys are exactly room, user, known_hosts, host_key_alias, identity, home (DEC-079)" },
+  { id = "EX-3", text = "runner.nix: `roomDoor = import ./room.nix home; room = roomDoor.shared.room;`; door = roomDoor.shared // runner keys; xdg.configFile.\"malebolge/door.toml\" renders {door = roomDoor.malebolge;}" },
+  { id = "EX-4", text = "satan-runner/config.toml store path equals EN-2's" },
+  { id = "EX-5", text = "checks.<system>.satan-room wired through evalTests (Linux only) and built by `just test`" },
+  { id = "EX-6", text = "runner.nix Files header and SATAN.md file table name ~/.config/malebolge/door.toml; README unchanged (its tree lists satan.nix's features, not its files)" },
+  { id = "EX-7", text = "new files git-added explicitly; `just gate` green" },
+]
+verification = [
+  { id = "VT-1", expects = "schema, shared facts, hostHome reach and alias pinned by runTests cases", test_file = "features/satan/room-test.nix", keywords = ["testMalebolgeKeys", "testSharedCarried", "testHostHome", "testAlias", "ROOM_DOOR_KEYS"], waived = false },
+  { id = "VT-2", expects = "the check is wired and run by just test", test_file = "justfile", keywords = ["checks.$(nix config show system).satan-room"], waived = false },
+  { id = "VA-1", text = "mutation: adding `ssh_config` to room.malebolge fails testMalebolgeKeys; reverted" },
+  { id = "VA-2", text = "config.toml store-path equality (EN-2 vs after)" },
+  { id = "VA-3", text = "built door.toml read back: one [door] table, six keys, values per design sec-2 (host_key_alias = room-assistant, identity under /home/david, home = /home/satan)" },
+  { id = "VH-1", text = "after `just home-switch` (the user's call): ~/.config/malebolge/door.toml exists with that content" },
+  { id = "VA-4", text = "at close, with the user's OK: satan:SL-027 told the path, the DEC-079 schema, the alias correction, the owner, and the --no-local clone note (notes.md)" },
+]
+specs        = []
+requirements = []
