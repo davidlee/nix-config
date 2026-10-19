@@ -5,7 +5,6 @@
   imports = [./personal.nix];
 
   feature.satan.harness.enable = lib.mkDefault true;
-  feature.satan.patcher.enable = lib.mkDefault true;
   feature.satan.attrd.enable = lib.mkDefault true;
   feature.satan.runner.enable = lib.mkDefault true;
   feature.attention.behaviour.enable = lib.mkDefault true;
@@ -19,7 +18,7 @@
   feature.net.tailscale.enable = lib.mkDefault true;
   feature.services.ssh.enable = lib.mkDefault true;
   feature.files.locate.enable = lib.mkDefault true;
-  # satan.patcher and satan.attrd require it; a profile only defaults it
+  # satan.attrd requires it; a profile only defaults it
   # (ADR-001 D4).
   feature.services.postgresql.enable = lib.mkDefault true;
 }

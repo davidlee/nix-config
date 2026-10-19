@@ -90,11 +90,6 @@
       };
     };
 
-    satan-patcher = {
-      url = "github:davidlee/sloptower";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-    };
-
     satan-attrd = {
       url = "github:davidlee/satan-attrd";
       inputs = {

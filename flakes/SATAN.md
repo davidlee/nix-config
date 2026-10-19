@@ -18,14 +18,13 @@ relying on a line number.
 | corpus | `~/satan-corpus` | — | own repo; `just commit` there |
 | editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`features/editor/emacs.nix`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `features/satan/attrd.nix` |
-| satan-patcher (= `~/dev/sloptower` symlink) | `~/dev/satan-patcher` | `path:` (`flake.nix:88-91`) | `features/satan/patcher.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `features/attention/behaviour.nix` |
 | goad | `~/dev/goad` | `git+file:` (`flake.nix:100-102`), **no follows** | `features/attention.nix` (`attention.goad`) |
 | oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `features/virt/capsule.nix` (host module only; no capsules at boot) |
 | jail library | `~/flakes/agents` | `agents = path:` (`flake.nix:20`) | consumed by every repo's flake |
 
 All modules are imported from `hosts/Sleipnir/home.nix:7-11`. `just
-update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
+update-local` refreshes satan, satan-attrd and panopticon, but
 **not goad**.
 
 ### Composition quirks (violate SPEC-002 NF-002 / NF-003)
@@ -40,8 +39,6 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 - **Jail library copies.** goad resolves its own `flakes/pub` pin (rev
   `6bf9955`); satan-attrd, goad and `~/notes` still name the deprecated `pub`
   alias (`pub/flake.nix:2`).
-- `~/dev/sloptower/nix/module.nix` duplicates satan-patcher's module
-  (`services.satan-patcher`); importing both would collide.
 
 ## Units (all `systemctl --user`)
 
@@ -52,7 +49,6 @@ update-local` refreshes satan, satan-attrd, panopticon and satan-patcher, but
 | `satan-tick` | `satan-run-tick` → `(satan-tick)` | **once, 5 min after boot** (`OnUnitActiveSec` commented out; ISS-022) | `satan.nix:72-84` |
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
-| `satan-patcher` | Go daemon, 30 s queue tick, no secrets (SL-022 dropped `apiKeyRefs`, so no `op read` ExecStartPre); PATH = nix, git, coreutils | disabled (fenced) by SL-023 PHASE-11, pending removal; runner is Malebolge; `satan-patch-runner-enabled` nil | `~/dev/satan-patcher/nix/module.nix:119-151`, override `satan-patcher.nix:56-68` |
 | `satan-runner` | malebolge's patch-job runner: `nodejs_24` runs the **live tree** `~/dev/malebolge/src/runner-main.ts` (SL-023 EX-9; packaging is CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
 | `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
@@ -85,9 +81,9 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 **Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
 `/run/postgresql`, no TCP; role `david` superuser; `ensureDatabases = [david
 corpus]`. **`satan_memory` is not declared** — created by hand. Migrations:
-elisp `~/dev/satan/satan/memory/migrations/0001–0008` (`schema_migrations`);
-`satan-attrd migrate` 0007–0012 (`_sqlx_migrations`); satan-patcher `just
-migrate` applies 0006. Tests use Supabase on `127.0.0.1:54322`. Nothing
+elisp `~/dev/satan/satan/memory/migrations/0001–0009` (`schema_migrations`);
+`satan-attrd migrate` 0007–0012 (`_sqlx_migrations`); the Go satan-patcher
+migration 0006 is retired (SL-023 PHASE-14; 0009 drops `patch_jobs`). Tests use Supabase on `127.0.0.1:54322`. Nothing
 found using the `corpus` database.
 
 **Secrets:** SATAN holds no provider key (SL-022). Model traffic goes through
@@ -127,19 +123,19 @@ persists `$HOME` from `~/.local/share/jail.nix/home/<profile-home>` (`specDev`
 
 ### Host path → in-jail path
 
-| Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan-corpus` flake) | patcher job (`jailed-pi`) |
-|---|---|---|---|---|
-| launcher cwd | `/workspace/<run-id>` rw — the run dir (broker sets it, ISS-037) | `/workspace/satan` | `/workspace/satan-corpus` | `/workspace/<job-id>` (job clone) |
-| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` rw (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) | — |
-| `~/notes` | `/satan/notes` ro | `/workspace/notes` **rw** | `/workspace/notes` rw | `/workspace/notes` rw |
-| `~/satan-corpus` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/satan-corpus` rw | cwd (`/workspace/satan-corpus`) | `/workspace/satan-corpus` rw |
-| run dir | `/satan/run` | — | — | — |
-| `~/.local/state/behaviour` | — | `/workspace/behaviour` rw | — | `/workspace/behaviour` rw |
-| `~/flakes`, attrd, patcher, panopticon repos | — | `/workspace/<name>` rw | — | same as dev |
+| Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan-corpus` flake) |
+|---|---|---|---|
+| launcher cwd | `/workspace/<run-id>` rw — the run dir (broker sets it, ISS-037) | `/workspace/satan` | `/workspace/satan-corpus` |
+| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` rw (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) |
+| `~/notes` | `/satan/notes` ro | `/workspace/notes` **rw** | `/workspace/notes` rw |
+| `~/satan-corpus` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/satan-corpus` rw | cwd (`/workspace/satan-corpus`) |
+| run dir | `/satan/run` | — | — |
+| `~/.local/state/behaviour` | — | `/workspace/behaviour` rw | — |
+| `~/flakes`, attrd, panopticon repos | — | `/workspace/<name>` rw | — |
 | MCP socket, Emacs server socket | — | same path, rw | MCP only | — |
 
-Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan-corpus/flake.nix:55-66`;
-`~/dev/satan-patcher/internal/worktree/worktree.go:42-70`. Other repos' dev
+Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan-corpus/flake.nix:55-66`.
+Other repos' dev
 jails differ again: satan-attrd adds `/run/postgresql` + the docker socket;
 goad adds `~/.local/src/slint` → `/workspace/slint` ro; panopticon adds the
 niri socket; `~/.config/emacs` and `~/notes` flakes add MCP only.
@@ -158,8 +154,6 @@ mounted.
 
 - MCP dev jails bind the Emacs server socket rw: arbitrary elisp from inside
   the jail.
-- satan-patcher: all 17 jobs failed (newest 2026-05-20); likely cause is
-  `jailed-pi` missing from the unit PATH.
 
 ## satan-runner
 
@@ -190,8 +184,8 @@ room data to home-manager); change them with the fleet.
   `control …`; a refusal logs `refusing to start: …`). Socket:
   `stat -c '%a %U %n' /run/user/1000/satan-runner /run/user/1000/satan-runner/control.sock`
   → `700 david`, `600 david`.
-- One consumer per repo (I1): `satan-patcher` stays disabled while the runner
-  runs; stop the runner before any scratch instance.
+- One consumer per repo (I1): satan-patcher removed (SL-023 PHASE-14); the
+  runner is the only consumer. Stop the runner before any scratch instance.
 
 ### Room values (EX-5)
 
@@ -258,8 +252,7 @@ from jobs order by created_at desc limit 20`.
    Agent: `systemctl --user status satan-runner --no-pager`; `systemctl --user
    show satan-runner -p ExecStart -p Environment -p LoadCredential -p
    ActiveState`; journal has no `refusing to start`; socket modes above; key
-   absent from `-p Environment` and from `ps -o args` of the pid;
-   `systemctl --user is-active satan-patcher` is not `active`.
+   absent from `-p Environment` and from `ps -o args` of the pid.
 2. `capsule assistant start` if the room is down.
 3. Confirm no producer submits (the PHASE-11 fence).
 4. Enable (Switches above). Agent: journal shows the runner unparked.

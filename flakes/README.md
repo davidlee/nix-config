@@ -245,7 +245,7 @@ features/
   terminal/           zsh.nix                         the zsh record's home module
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
-  satan.nix           [ harness patcher attrd runner ] each its own file under satan/
+  satan.nix           [ harness attrd runner ] each its own file under satan/
   available.nix       the cli availability filter: availableOn minus platform-skips.nix (DEC-036)
   platform-skips.nix  per-system names the cli features skip though availableOn accepts them (plain data)
   profiles/           workstation.nix  personal.nix  personal-linux.nix  personal-darwin.nix

@@ -371,7 +371,7 @@ in
       expected = [true true true true];
     };
 
-    # satan.patcher needs the queue's postgres; satan.harness needs emacsclient;
+    # satan.attrd needs its postgres; satan.harness needs emacsclient;
     # audio.alarm calls spotify_player. No host file, whose plain selections
     # would satisfy the requires.
     testPersonalRequires = {
@@ -380,8 +380,8 @@ in
           tree = real;
           modules = map on sel;
         }) [
-        ["satan.patcher"]
-        ["satan.patcher" "services.postgresql"]
+        ["satan.attrd"]
+        ["satan.attrd" "services.postgresql"]
         ["satan.harness"]
         ["satan.harness" "editor.emacs"]
         ["audio.alarm"]
@@ -547,7 +547,6 @@ in
         "terminal.utils#homeManager"
         # P5: personal-linux, host
         "satan.harness#homeManager"
-        "satan.patcher#homeManager"
         "satan.attrd#homeManager"
         "satan.runner#homeManager"
         "attention.behaviour#homeManager"

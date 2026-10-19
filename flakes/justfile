@@ -231,7 +231,7 @@ update-local:
   nix flake update satan agents emacs $(bin/dev-checkouts names)
 
 push-local:
-  for x in satan satan-attrd panopticon doctrine goad oubliette satan-patcher; do cd "$HOME/dev/${x}"; git push; done
+  for x in satan satan-attrd panopticon doctrine goad oubliette; do cd "$HOME/dev/${x}"; git push; done
 
   cd ~/flakes
 

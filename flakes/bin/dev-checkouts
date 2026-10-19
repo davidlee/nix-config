@@ -15,7 +15,7 @@
 # fetch of the same revision gives a machine without the checkout.
 set -euo pipefail
 
-inputs=(fleet goad panopticon satan-patcher satan-attrd)
+inputs=(fleet goad panopticon satan-attrd)
 root=${FLAKES_DEV:-$HOME/dev}
 fleet=${FLAKES_FLEET:-/srv/fleet}
 repo=$(cd "$(dirname "$0")/.." && pwd)

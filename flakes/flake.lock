@@ -2922,24 +2922,6 @@
         "type": "github"
       }
     },
-    "flake-utils_19": {
-      "inputs": {
-        "systems": "systems_41"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "flake-utils_2": {
       "inputs": {
         "systems": "systems_4"
@@ -6212,7 +6194,6 @@
         "panopticon": "panopticon_2",
         "satan": "satan",
         "satan-attrd": "satan-attrd_2",
-        "satan-patcher": "satan-patcher",
         "stable": "stable",
         "treefmt-nix": "treefmt-nix_19",
         "ucodenix": "ucodenix",
@@ -6497,27 +6478,6 @@
       "original": {
         "owner": "davidlee",
         "repo": "satan-attrd",
-        "type": "github"
-      }
-    },
-    "satan-patcher": {
-      "inputs": {
-        "flake-utils": "flake-utils_19",
-        "nixpkgs": [
-          "nixpkgs-home"
-        ]
-      },
-      "locked": {
-        "lastModified": 1790749964,
-        "narHash": "sha256-7pQ7CO6IFzvORwvKpwd+Rx+gjdJ1CjdFhY3YJeIveT4=",
-        "owner": "davidlee",
-        "repo": "sloptower",
-        "rev": "4efa20542b77d4aad83079da267121a38b08e94f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "davidlee",
-        "repo": "sloptower",
         "type": "github"
       }
     },
@@ -7210,21 +7170,6 @@
     },
     "systems_42": {
       "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_43": {
-      "locked": {
         "lastModified": 1689347949,
         "narHash": "sha256-12tWmuL2zgBgZkdoB6qXZsgJEH9LR3oUgpaQq2RbI80=",
         "owner": "nix-systems",
@@ -7804,7 +7749,7 @@
         "nixpkgs": "nixpkgs_86",
         "numen": "numen",
         "soulver-cpp": "soulver-cpp",
-        "systems": "systems_42"
+        "systems": "systems_41"
       },
       "locked": {
         "lastModified": 1791831476,
@@ -7826,7 +7771,7 @@
           "elephant"
         ],
         "nixpkgs": "nixpkgs_87",
-        "systems": "systems_43"
+        "systems": "systems_42"
       },
       "locked": {
         "lastModified": 1791441924,

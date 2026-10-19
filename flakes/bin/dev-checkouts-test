@@ -70,10 +70,10 @@ check 'override: a directory without .git is not present' \
 
 dc "$none" stub
 check 'stub: every listed input, present or not' \
-  "--override-input fleet $stub --override-input goad $stub --override-input panopticon $stub --override-input satan-patcher $stub --override-input satan-attrd $stub" "$out"
+  "--override-input fleet $stub --override-input goad $stub --override-input panopticon $stub --override-input satan-attrd $stub" "$out"
 
 dc "$none" names
-check 'names: the list, space-separated' 'fleet goad panopticon satan-patcher satan-attrd' "$out"
+check 'names: the list, space-separated' 'fleet goad panopticon satan-attrd' "$out"
 
 # the fleet's checkout is FLAKES_FLEET, not <root>/fleet, and keeps list order
 git init -q "$FLAKES_FLEET"
@@ -112,9 +112,9 @@ check 'ahead: prints nothing on stdout' '' "$out"
 check 'ahead: is not an error' 0 "$rc"
 
 # ahead: a present checkout with no upstream is named, not an error
-lone=$(root lone satan-patcher)
+lone=$(root lone satan-attrd)
 dc "$lone" ahead
-check 'ahead: no upstream is named' 1 "$(grep -c 'satan-patcher has no upstream' <<<"$err")"
+check 'ahead: no upstream is named' 1 "$(grep -c 'satan-attrd has no upstream' <<<"$err")"
 check 'ahead: no upstream is not an error' 0 "$rc"
 
 # a git worktree (its .git is a file) is a checkout
