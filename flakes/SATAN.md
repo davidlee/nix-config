@@ -19,13 +19,15 @@ relying on a line number.
 | editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`features/editor/emacs.nix`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `features/satan/attrd.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `features/attention/behaviour.nix` |
+| malebolge | `~/dev/malebolge` | `malebolge = github:davidlee/Malebolge` (`just` overrides to `git+file:`) | runner: `features/satan/runner.nix` from the **pin**; the interactive daemon runs the **live tree** (`just daemon`, not a unit) |
 | goad | `~/dev/goad` | `git+file:` (`flake.nix:100-102`), **no follows** | `features/attention.nix` (`attention.goad`) |
 | oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `features/virt/capsule.nix` (host module only; no capsules at boot) |
 | jail library | `~/flakes/agents` | `agents = path:` (`flake.nix:20`) | consumed by every repo's flake |
 
 All modules are imported from `hosts/Sleipnir/home.nix:7-11`. `just
-update-local` refreshes satan, satan-attrd and panopticon, but
-**not goad**.
+update-local` re-locks satan, agents, emacs and every `bin/dev-checkouts`
+input (fleet, goad, malebolge, panopticon, satan-attrd) from its remote:
+push first.
 
 ### Composition quirks (violate SPEC-002 NF-002 / NF-003)
 
@@ -49,7 +51,7 @@ update-local` refreshes satan, satan-attrd and panopticon, but
 | `satan-tick` | `satan-run-tick` → `(satan-tick)` | **once, 5 min after boot** (`OnUnitActiveSec` commented out; ISS-022) | `satan.nix:72-84` |
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
-| `satan-runner` | malebolge's patch-job runner: `nodejs_24` runs the **live tree** `~/dev/malebolge/src/runner-main.ts` (SL-023 EX-9; packaging is CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
+| `satan-runner` | malebolge's patch-job runner: `bin/satan-runner` of the **pin** `inputs.malebolge.packages.<system>.runner` (`nodejs_24` on its `src/runner-main.ts`, production deps; CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
 | `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -164,6 +166,15 @@ config file, one SQLite store; jobs run in the oubliette room `assistant`
 `/run/capsule-room/assistant/ssh.sock`. The room and repo values in
 `features/satan/runner.nix` are literals copied from the fleet (it exposes no
 room data to home-manager); change them with the fleet.
+
+The unit runs a store build, `inputs.malebolge.packages.<system>.runner`
+(malebolge `flake.nix`; its check `runner-starts` proves the build loads),
+never the working tree: an edit to `~/dev/malebolge` reaches the runner only
+at the next `just home-switch`. That switch builds from the checkout when one
+is present (`bin/dev-checkouts`; `git+file:`, so tracked files, dirty edits
+included), else from the lock. Deploy a change: commit, push,
+`just update-local`, `just home-switch`, `systemctl --user restart
+satan-runner`.
 
 ### Switches
 

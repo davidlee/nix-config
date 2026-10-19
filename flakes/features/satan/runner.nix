@@ -3,9 +3,8 @@
 # oubliette room `assistant`, reached through the room's host-local door, its
 # models through the LLM gateway. Serves the control socket Emacs submits to.
 #
-# Source: the live tree ~/dev/malebolge, run by nodejs_24 (type stripping; SL-023
-# EX-9): a dirty tree changes the deployed runner on restart, so smoke against
-# committed HEAD. Packaging malebolge's flake as an input is CHR-017.
+# Source: the malebolge input's packages.runner (bin/satan-runner: nodejs_24 on
+# its src/runner-main.ts, production deps only), pinned by flake.lock (CHR-017).
 #
 # Runs as the user (a user unit): the oubliette module owner, the only uid that
 # reads the room's 0700 /var/lib/capsule/room/assistant/ (CON-003, SL-023 EX-5).
@@ -28,12 +27,13 @@
   name = "runner";
   platforms = lib.platforms.linux;
   homeManager = {
+    inputs,
     pkgs,
     config,
     ...
   }: let
     home = config.home.homeDirectory;
-    malebolge = "${home}/dev/malebolge";
+    runner = inputs.malebolge.packages.${pkgs.stdenv.hostPlatform.system}.runner;
     configDir = "${home}/.config/satan-runner";
 
     gatewayData = import ../../agents/gateway.nix;
@@ -126,8 +126,7 @@
         StartLimitBurst = 5;
       };
       Service = {
-        ExecStart = "${pkgs.nodejs_24}/bin/node ${malebolge}/src/runner-main.ts";
-        WorkingDirectory = malebolge;
+        ExecStart = "${runner}/bin/satan-runner";
         Environment = [
           "SATAN_RUNNER_CONFIG=${configDir}/config.toml"
           # StateDirectory's root for a user unit (%S) when the manager sets no

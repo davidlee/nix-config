@@ -72,6 +72,11 @@
 
     # Developed in ~/dev checkouts (bin/dev-checkouts): declared and locked by
     # remote; read-only recipes override each with a present checkout.
+    malebolge = {
+      url = "github:davidlee/Malebolge";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     panopticon = {
       url = "github:davidlee/panopticon";
       inputs = {
