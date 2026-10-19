@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792394747,
-        "narHash": "sha256-yJE6MKz98FOjU83D7kW/4sf6M/BFzGe32fUy0qQMh6A=",
+        "lastModified": 1792395510,
+        "narHash": "sha256-TWZ7M1abzc1ck3uBgAfMg5jnonKEdPKUHYDMfcLh0ro=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "3934710b0f4fb2e3aeced11830a9ecfd656d083a",
+        "rev": "9f65b242f811634dcd51cb481f4dbbb641d0140d",
         "type": "github"
       },
       "original": {
@@ -128,11 +128,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792329380,
-        "narHash": "sha256-CmdRTh55hh8MpRZWNQI68ngeJk1GC99MkIkCki8qADM=",
+        "lastModified": 1792366266,
+        "narHash": "sha256-VuwmG8QLCzHyePCkcRgRbA+5/9PDa7y0W+DG5R5v05I=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "ea3cf561bc633bd8a36a5526ea0c657dc049e88d",
+        "rev": "92fe91c2c69951dd4909e6b45d712e5cfe9f2678",
         "type": "github"
       },
       "original": {
@@ -1583,11 +1583,11 @@
     },
     "crane_7": {
       "locked": {
-        "lastModified": 1791754810,
-        "narHash": "sha256-cN0Mgk+sQtCJcGWs9H4M0CnLRAuC4I8aCwiBTcBJs6E=",
+        "lastModified": 1792350552,
+        "narHash": "sha256-292lvpvxTGKryKxh3/3tcIVi85CwYGdl4oOi113Sob8=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "bd63bf1d0a0f6dcacd7549c714a671ee63b0db6a",
+        "rev": "e675a36b7377bebe41d548388a2501cbb16d380d",
         "type": "github"
       },
       "original": {
@@ -2119,11 +2119,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1792394747,
-        "narHash": "sha256-yJE6MKz98FOjU83D7kW/4sf6M/BFzGe32fUy0qQMh6A=",
+        "lastModified": 1792395510,
+        "narHash": "sha256-TWZ7M1abzc1ck3uBgAfMg5jnonKEdPKUHYDMfcLh0ro=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "3934710b0f4fb2e3aeced11830a9ecfd656d083a",
+        "rev": "9f65b242f811634dcd51cb481f4dbbb641d0140d",
         "type": "github"
       },
       "original": {
@@ -3816,11 +3816,11 @@
         "rust-overlay": "rust-overlay_9"
       },
       "locked": {
-        "lastModified": 1792371915,
-        "narHash": "sha256-DhtnaHXUkA0PwzmjIdnR2kZoLzT5SxOr8twyewi8iEY=",
+        "lastModified": 1792400455,
+        "narHash": "sha256-EaXgCoyADjg/oG3UgMayXl0q7zSAamSiXnIU4GIVoRg=",
         "owner": "davidlee",
         "repo": "goad",
-        "rev": "04147ca626b9411739f5e6e159430c0b0d964467",
+        "rev": "adaa062a7217d099b1bdf6403489076589b1c125",
         "type": "github"
       },
       "original": {
@@ -4726,11 +4726,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792393061,
-        "narHash": "sha256-niArS6DUOSKlcLSHBSLtZ6GT6oDQBsCJJKGU7ux4FLs=",
+        "lastModified": 1792396367,
+        "narHash": "sha256-LEtrnpPLZTMw4tNMQldEz7nkG6C7YZPkvvTvO5648qo=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "9f990eb3ff38a12c062fc4b61b0ddd3556764b0e",
+        "rev": "5758b812c61bc08b0e64c874a88f1ba35eeb6e60",
         "type": "github"
       },
       "original": {
@@ -6550,11 +6550,11 @@
     },
     "nixpkgs_76": {
       "locked": {
-        "lastModified": 1791956154,
-        "narHash": "sha256-jBYGPi4udQ9uo4KQp9m2J0546nJVQitG15gvZSaVVAs=",
+        "lastModified": 1792094642,
+        "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "55bfb4d7437bd4e09ab7cba58a43bd68eb310044",
+        "rev": "fe13242281a67641c0102cdb1087f0ebe586c7df",
         "type": "github"
       },
       "original": {
@@ -7094,11 +7094,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792331089,
-        "narHash": "sha256-42tWnsPU7frThcRN16FBjJQ2Tm+HtltM6gZTyOTzIZo=",
+        "lastModified": 1792397542,
+        "narHash": "sha256-5oPdsYmP8E5mRO0CURhilS1JrJ/6s5d0PDf8uzyRwYU=",
         "owner": "davidlee",
         "repo": "panopticon",
-        "rev": "78e52ab823317ca2c5bd79750d59e07eb7db08bd",
+        "rev": "b67b2d30335febe47bf69a4a015ed91f7eaee4d9",
         "type": "github"
       },
       "original": {
@@ -7501,11 +7501,11 @@
         "nixpkgs": "nixpkgs_77"
       },
       "locked": {
-        "lastModified": 1792133817,
-        "narHash": "sha256-LivT78KkZ18adR5daoXj2nlIOxuLw6B96nvW4FOl4d0=",
+        "lastModified": 1792307278,
+        "narHash": "sha256-wJgFFtw/vlzsjWrQFmTn40TTkSkqHM4XXN0nh4q4uMk=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "ec07af44be2e0ce4e1a17e00a97d44232607c1ec",
+        "rev": "42076d1c6a0fb405ed04f9a674e4a8f69de62ba3",
         "type": "github"
       },
       "original": {
@@ -7641,11 +7641,11 @@
         "zig-overlay": "zig-overlay_4"
       },
       "locked": {
-        "lastModified": 1792388651,
-        "narHash": "sha256-JXbsodTXm9qUuSvJnMkJz1xMrmOxFMWPLcT0rQp4Eo0=",
+        "lastModified": 1792397861,
+        "narHash": "sha256-lUOgjru/egPMXn5iaNfpNSaDRnJtd/RttFPggQY/91E=",
         "owner": "davidlee",
         "repo": "satan",
-        "rev": "5eee5c876719f83d0e6a3d6e666e419eac4b8a8c",
+        "rev": "b4ae55910d62de145a11bc8785432cdf0e541a4d",
         "type": "github"
       },
       "original": {
