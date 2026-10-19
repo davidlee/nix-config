@@ -156,6 +156,63 @@
   claudeGateway = fakeBwrapAgents.makeJailedClaude {gateway = gw;};
   ecaGateway = fakeBwrapAgents.makeJailedEca {gateway = gw;};
 
+  # gatewayForwarder's behaviour, without namespaces: this bwrap drops its
+  # options (everything up to `--`) and execs the entry, so the real launcher
+  # runs the real wrap-entry wrapper on the build sandbox's own loopback.
+  passBwrap = pkgs.writeShellScriptBin "bwrap" ''
+    while [ "$#" -gt 0 ] && [ "$1" != -- ]; do shift; done
+    shift
+    exec "$@"
+  '';
+  passJail = jail-nix.lib.extend {
+    inherit pkgs;
+    bubblewrapPackage = passBwrap;
+  };
+  gatewayForwarder = import ./gateway-forwarder.nix {
+    inherit pkgs;
+    inherit (passJail) combinators;
+  };
+  forwarderSocket = "/tmp/jailed-agents-forwarder/api.sock";
+  # The probe jail's entry: argv reaches it through the launcher's and the
+  # wrapper's "$@".
+  #   relay PORT LOG  no upstream connection yet; a request round-trips;
+  #                   then exactly one upstream connection (LOG's lines)
+  #   ran MARKER      the entry ran
+  #   exit N          the entry's exit status
+  forwarderClient = pkgs.writeShellApplication {
+    name = "forwarder-client";
+    runtimeInputs = [pkgs.socat pkgs.coreutils];
+    text = ''
+      fail() {
+        echo "forwarder-client: $*" >&2
+        exit 1
+      }
+      case "$1" in
+        relay)
+          port="$2" log="$3"
+          [ ! -e "$log" ] || fail "the upstream was reached before the entry ran"
+          reply="$(printf 'ping\n' | socat -t 5 - "TCP:127.0.0.1:$port")"
+          [ "$reply" = "pong ping" ] || fail "reply: '$reply'"
+          [ "$(wc -l < "$log")" = 1 ] || fail "upstream connections: $(wc -l < "$log")"
+          ;;
+        ran) touch "$2" ;;
+        exit) exit "$2" ;;
+        *) fail "unknown mode: $1" ;;
+      esac
+    '';
+  };
+  forwarderProbe = port:
+    passJail "forwarder-probe-${toString port}" forwarderClient
+    (gatewayForwarder {
+      socket = forwarderSocket;
+      inherit port;
+    });
+  forwarderUpstream = pkgs.writeShellScript "forwarder-upstream" ''
+    echo accepted >> "$FORWARDER_LOG"
+    read -r line
+    printf 'pong %s\n' "$line"
+  '';
+
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;
   unknownApiKeyFails = failsToEvaluate (agents.makeJailedPi {
     apiKeys = ["NOT_CONFIGURED"];
@@ -211,6 +268,24 @@
     gateway = gw // {socket = "/nonexistent/llm-gateway/api.sock";};
   });
 
+  # Socket mode (DEC-076): a gateway jail whose profile has no network.
+  offlineGateway = agents.makeJailedPi {
+    profile = "offline";
+    gateway = gw;
+  };
+  # gatewaySocketOptions without `gateway` (key-file clients, e.g. jailed-malebolge).
+  offlineSocketOptions = inner "offline" {extraOptions = agents.gatewaySocketOptions;};
+  # The netns guard, each paired with a twin: offlineGateway (no network
+  # option), offlineSocketOptions (the profile).
+  socketModeNetworkFails = failsToEvaluate (agents.makeJailedPi {
+    profile = "offline";
+    gateway = gw;
+    extraOptions = [agents.combinators.network];
+  });
+  gatewaySocketOptionsNetworkedFails = failsToEvaluate (inner "specDev" {
+    extraOptions = agents.gatewaySocketOptions;
+  });
+
   # pi's gateway provider. A served model without a pi block is left out
   # (DEC-066). One fixture holds both, differing only in the pi block, so the
   # omission cannot pass vacuously. toJSON forces the model list: a bare
@@ -253,6 +328,10 @@ in
   assert gatewayWithKeysFails;
   assert gatewayMissingKeyFileFails;
   assert gatewayUnknownAttrFails;
+  assert offlineGateway.drvPath != "";
+  assert offlineSocketOptions.drvPath != "";
+  assert socketModeNetworkFails;
+  assert gatewaySocketOptionsNetworkedFails;
   assert agents.gatewayClient "pi"
   == {
     keyFile = "$HOME/.config/llm-gateway/keys/pi";
@@ -446,6 +525,39 @@ in
       grep -Fq -- 'just gateway-credentials' "$TMPDIR/gw-no-gateway"
       refute grep -Fq -- 'sk-test-SENTINEL' "$TMPDIR/gw-no-gateway"
 
+      # Socket mode (offlineGateway): no network, the client socket's
+      # directory bound read-only, and the entry is the forwarder wrapper,
+      # relaying the gateway's port to llm-gateway-client's socket.
+      og_outer=${offlineGateway}/bin/jailed-pi
+      og_inner="$(gateway_inner_of "$og_outer" pi)"
+      gateway_probes "$og_outer" "$og_inner"
+      grep -Fq -- '--ro-bind /run/llm-gateway-client /run/llm-gateway-client' "$og_inner"
+      grep -Fq -- '--unshare-net' "$og_inner"
+      refute grep -Fq -- '--share-net' "$og_inner"
+      wrapper="$(grep -o -- '-- /nix/store/[^ ]*-jailed-pi-jail-wrapper/bin/jailed-pi-jail-wrapper' "$og_inner" | cut -c4-)"
+      test -n "$wrapper"
+      grep -Fq -- 'TCP-LISTEN:${toString gatewayData.relayPort},bind=127.0.0.1' "$wrapper"
+      grep -Fq -- 'UNIX-CONNECT:/run/llm-gateway-client/api.sock' "$wrapper"
+      # Its pre-flight checks the client socket's directory, not runDirectory.
+      grep -Fq -- '/run/llm-gateway-client' "$og_outer"
+      refute grep -Fq -- '${gw.runDirectory}' "$og_outer"
+      grep -Fq -- '${gw.runDirectory}' "$gw_outer"
+      if "$og_outer" 2> "$TMPDIR/og-no-gateway"; then exit 1; fi
+      grep -Fq -- '/run/llm-gateway-client' "$TMPDIR/og-no-gateway"
+      grep -Fq -- 'just system-switch' "$TMPDIR/og-no-gateway"
+      grep -Fq -- 'systemctl status llm-gateway' "$TMPDIR/og-no-gateway"
+      grep -Fq -- 'just gateway-credentials' "$TMPDIR/og-no-gateway"
+      # gatewaySocketOptions alone (offlineSocketOptions): the inner launcher
+      # itself, so the bind and the forwarder entry, and no pre-flight.
+      so=${offlineSocketOptions}/bin/jailed-zsh
+      grep -Fq -- '--ro-bind /run/llm-gateway-client /run/llm-gateway-client' "$so"
+      grep -q -- '-- /nix/store/[^ ]*-jailed-zsh-jail-wrapper/bin/jailed-zsh-jail-wrapper' "$so"
+      # A gateway jail with network is unchanged: no client socket, no wrapper.
+      for launcher in "$gw_inner" "$gw_outer"; do
+        refute grep -Fq -- 'llm-gateway-client' "$launcher"
+      done
+      refute grep -Fq -- 'jail-wrapper' "$gw_inner"
+
       # Behaviour: the emitted read expands keyFile at run time and yields
       # the key intact, as one NUL-separated --setenv.
       read_key="$(grep -o "printf '%s\\\\0' --setenv LLM_GATEWAY_KEY \"\$(< \"[^\"]*\")\"" "$gw_inner")"
@@ -571,6 +683,53 @@ in
       refute grep -Fq -- '/workspace/$(basename' "$launch_off"
       grep -Fq -- '--chdir "$HOME"' "$launch_off"
       grep -Fq -- '--chdir' "$launch_off"
+
+      # gatewayForwarder: real socat, passthrough bwrap (see passBwrap). Every
+      # launch and wait is bounded, and no launch is captured by $(…): the
+      # forwarder outlives the entry and holds the launch's descriptors.
+      socat=${pkgs.socat}/bin/socat
+      fwd_fail() {
+        echo "gatewayForwarder: $*" >&2
+        cat "$TMPDIR"/fwd-*.err >&2 || true
+        exit 1
+      }
+      fwd_wait() { # about 30 s
+        for _ in $(seq 600); do
+          if eval "$1"; then return 0; fi
+          sleep 0.05
+        done
+        fwd_fail "timed out waiting for: $1"
+      }
+      mkdir -p /tmp/jailed-agents-forwarder "$TMPDIR/fwd-home"
+      export HOME="$TMPDIR/fwd-home" LANG=C.UTF-8 TERM=dumb # what the launcher forwards
+
+      # (c) No upstream at all: readiness needs none, and the entry's exit
+      # status is the launch's.
+      status=0
+      timeout 30 ${forwarderProbe 4002}/bin/forwarder-probe-4002 exit 7 \
+        < /dev/null > "$TMPDIR/fwd-c.out" 2> "$TMPDIR/fwd-c.err" || status=$?
+      [ "$status" = 7 ] || fwd_fail "(c) exit status $status, expected 7"
+
+      # (b) The port is already bound by another process: the launch fails
+      # before the entry runs, even though that process's row is in LISTEN.
+      "$socat" TCP-LISTEN:4001,bind=127.0.0.1,fork EXEC:true \
+        < /dev/null > "$TMPDIR/fwd-occupier.out" 2> "$TMPDIR/fwd-occupier.log" &
+      fwd_wait "grep -q ' 0100007F:0FA1 00000000:0000 0A ' /proc/net/tcp"
+      if timeout 30 ${forwarderProbe 4001}/bin/forwarder-probe-4001 ran "$TMPDIR/fwd-b.ran" \
+        < /dev/null > "$TMPDIR/fwd-b.out" 2> "$TMPDIR/fwd-b.err"; then
+        fwd_fail "(b) launched on an occupied port"
+      fi
+      grep -Fq -- 'forwarder exited' "$TMPDIR/fwd-b.err" || fwd_fail "(b) no 'forwarder exited'"
+      refute test -e "$TMPDIR/fwd-b.ran"
+
+      # (a) Request and reply pass through. The UNIX-LISTEN upstream logs each
+      # connection: none during readiness, one for the client's request.
+      export FORWARDER_LOG="$TMPDIR/fwd-a.log"
+      "$socat" UNIX-LISTEN:${forwarderSocket},fork EXEC:${forwarderUpstream} \
+        < /dev/null > "$TMPDIR/fwd-upstream.out" 2> "$TMPDIR/fwd-upstream.log" &
+      fwd_wait "[ -S ${forwarderSocket} ]"
+      timeout 30 ${forwarderProbe 4000}/bin/forwarder-probe-4000 relay 4000 "$FORWARDER_LOG" \
+        < /dev/null > "$TMPDIR/fwd-a.out" 2> "$TMPDIR/fwd-a.err" || fwd_fail "(a) relay failed"
 
       touch "$out"
     ''

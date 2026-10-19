@@ -163,6 +163,18 @@
   # `gateway`, which makeJailedAgent takes as an argument.
   gatewayData = import ./gateway.nix;
 
+  # Socket mode (DEC-076, DEC-077): a jail without network reaches the
+  # gateway through the relay's client socket and an in-jail forwarder on the
+  # gateway's own port, so its URL is unchanged.
+  gatewaySocketOptions =
+    import ./gateway-forwarder.nix {
+      inherit pkgs;
+      inherit (jail) combinators;
+    } {
+      socket = gatewayData.clientSocket;
+      port = gatewayData.relayPort;
+    };
+
   # pi's provider for an LLM gateway; shared with the satan-runner unit.
   piGatewayConfig = import ./pi-gateway.nix {inherit lib;};
 
@@ -363,6 +375,8 @@
     # The jail gets LLM_GATEWAY_KEY (over `--args FD`) and LLM_GATEWAY_URL,
     # and no provider key: gateway plus a non-empty `apiKeys` is refused.
     # With pi in the jail, also a read-only models.json (piGatewayOptions).
+    # In a profile without network, the jail reaches the gateway through the
+    # client socket and an in-jail forwarder (socket mode, DEC-076).
     gateway ? null,
     # Names from apiKeyOpRefs to resolve and/or forward for this jail.
     # None by default: each jail names the keys its agent uses (IMP-020).
@@ -450,6 +464,16 @@
         LLM_GATEWAY_KEY = "\"$(< \"${checkedGateway.keyFile}\")\"";
       })
     ];
+
+    # Socket mode: the profile's network flag alone selects it (DEC-076).
+    gatewaySocketMode = gateway != null && !profiles.${profile}.network;
+
+    # What the gateway wrapper checks before launch: the directory the jail
+    # will reach the gateway through.
+    gatewayReachDirectory =
+      if gatewaySocketMode
+      then "/run/${gatewayData.clientRuntimeDirectory}"
+      else checkedGateway.runDirectory;
 
     # pi is in the jail as the agent (makeJailedPi, whatever its `name`,
     # e.g. pi-research) or as a subagent. Derivations compare by output path.
@@ -576,6 +600,7 @@
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
       ++ gatewayOptions
+      ++ lib.optionals gatewaySocketMode gatewaySocketOptions
       ++ piGatewayOptions
       ++ [
         (jail.combinators.add-pkg-deps (
@@ -624,8 +649,8 @@
         echo "  Issue one: llm-gateway issue ${name} --models <a,b> --budget <usd> --out \"$key_file\"" >&2
         exit 1
       fi
-      if [ ! -d ${lib.escapeShellArg checkedGateway.runDirectory} ]; then
-        echo "jailed-${name}: the LLM gateway is not running (no ${checkedGateway.runDirectory})." >&2
+      if [ ! -d ${lib.escapeShellArg gatewayReachDirectory} ]; then
+        echo "jailed-${name}: the LLM gateway is not running (no ${gatewayReachDirectory})." >&2
         echo "  Not yet switched to a system with it: just system-switch" >&2
         echo "  Otherwise the service is failing: systemctl status llm-gateway" >&2
         echo "  (first run, no provider credential yet: just gateway-credentials)" >&2
@@ -768,6 +793,9 @@ in {
   gatewayClient = gatewayData.client;
   # pi's gateway provider for any model set: piGatewayConfig url models.
   inherit piGatewayConfig;
+  # Socket mode for a jail without `gateway` (e.g. a key-file client), via
+  # `extraOptions`; refused at evaluation in a jail sharing the host netns.
+  inherit gatewaySocketOptions;
   # Bare (unjailed) agent packages, resolved from the same eval as the
   # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
   # `unjailed.pi` etc. without separately wiring llm-agents.
