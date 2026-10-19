@@ -79,6 +79,7 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | runner control socket | `/run/user/1000/satan-runner/control.sock` (dir 0700 `RuntimeDirectory=`, socket 0600) |
 | runner config | `~/.config/satan-runner/{config.toml,ssh_config}` (HM-rendered from `features/satan/runner.nix`) |
 | runner model catalog | `/nix/store/…-satan-runner-gateway.json`, the jails' own render (`agents/pi-gateway.nix` over `agents/gateway.nix` `models`) |
+| daemon model catalog | `~/.config/malebolge/gateway-models.json`: HM symlink to the same store file as the runner's catalog (`features/satan/runner.nix`); read by the interactive daemon, which is not a unit (started by `just hello-durable` / `just daemon`) |
 | room `known_hosts` | `/var/lib/capsule/room/assistant/known_hosts`: oubliette's; the runner only reads it |
 
 **Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
@@ -108,6 +109,13 @@ unit's `LoadCredential=satan-runner:~/.config/llm-gateway/keys/satan-runner`
 no environment. Its room identity is `~/.ssh/malebolge.key` (`[door]
 identity`); its public half and `david@Sleipnir` are both in `/srv/fleet`
 `rooms.assistant.users.agent.keys` (CON-004).
+
+The interactive daemon (`~/dev/malebolge` `src/daemon-main.ts`) uses
+`keys/malebolge`, which it reads from the file itself at start (default
+`~/.config/llm-gateway/keys/malebolge`, override `MALEBOLGE_GATEWAY_KEY_FILE`;
+the catalog path is `MALEBOLGE_GATEWAY_CATALOG`): on no argv, in no
+environment. Host runs only; the jailed `hello-durable` launch awaits the jail
+migration to bind the key file and catalog.
 
 ## Jails
 

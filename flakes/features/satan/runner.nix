@@ -13,6 +13,9 @@
 # Files:
 #   ~/.config/satan-runner/config.toml       ← rendered below; read once at start
 #   ~/.config/satan-runner/ssh_config        ← the door's ProxyCommand
+#   ~/.config/malebolge/gateway-models.json  ← the same catalog render, for the interactive
+#                                              daemon (not this unit); a stable path, since
+#                                              the store path moves on every rebuild
 #   ~/.local/state/satan/runner/runner.sqlite ← jobs, job_events, pi-durable
 #   $XDG_RUNTIME_DIR/satan-runner/control.sock ← bound into no jail (I4)
 #   gateway key: LoadCredential=, never argv or environment (DEC-049)
@@ -97,6 +100,9 @@
     };
   in {
     xdg.configFile = {
+      # The interactive daemon (`node src/daemon-main.ts`, not this unit) reads
+      # the runner's own catalog render, never a copy; see SATAN.md.
+      "malebolge/gateway-models.json".source = catalog;
       "satan-runner/config.toml".source =
         (pkgs.formats.toml {}).generate "satan-runner-config.toml" settings;
       # pi-env fixes ServerAliveInterval=15 on its command line and passes
