@@ -172,27 +172,42 @@
     no-new-session
     # make shebangs work
     (ro-bind "${pkgs.coreutils}/bin/env" "/usr/bin/env")
-    # Mount host cwd at /workspace/<project> and start there
-    (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
-    (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
   ];
 
-  # Policy-bearing options keyed by profile name
-  profileOptions = {
-    specDev = with jail.combinators; [
-      (persist-home "agent")
-      network
-    ];
+  # Where the jail starts (DEC-078). On: mount the host cwd at
+  # /workspace/<project> and start there. Off: bind nothing and start in
+  # $HOME. --chdir is passed either way: without it bwrap reads HOME from its
+  # own environment (mem.fact.bwrap.pid1-environ-leak).
+  launchDirOptions = mountLaunchDir:
+    with jail.combinators;
+      if mountLaunchDir
+      then [
+        (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
+        (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
+      ]
+      else [(unsafe-add-raw-args "--chdir \"$HOME\"")];
 
-    research = with jail.combinators; [
-      (persist-home "agent-research")
-      network
-    ];
+  # Policy-bearing profiles. `network` is data, not caller-overridable
+  # (DEC-076): the one source of the network flag.
+  profiles = with jail.combinators; {
+    specDev = {
+      network = true;
+      options = [(persist-home "agent")];
+    };
 
-    offline = with jail.combinators; [
-      (persist-home "agent-offline")
-    ];
+    research = {
+      network = true;
+      options = [(persist-home "agent-research")];
+    };
+
+    offline = {
+      network = false;
+      options = [(persist-home "agent-offline")];
+    };
   };
+
+  # A profile's jail options: its own, then `network` iff the flag is set.
+  profileOptions = p: profiles.${p}.options ++ lib.optional profiles.${p}.network jail.combinators.network;
 
   # Per-profile boolean defaults for git controls + op env injection.
   # useOpEnv is off for offline (no network = no API calls = no secrets).
@@ -311,6 +326,7 @@
     profile ? "specDev",
     extraPkgs ? [],
     extraOptions ? [],
+    mountLaunchDir ? true, # bind the host cwd at /workspace/<project> and start there (DEC-078)
     workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
     # env var (impure eval only). See envWorkspaceDeps below.
@@ -548,8 +564,9 @@
 
     inner = jail "jailed-${name}" agent (
       baseJailOptions
+      ++ launchDirOptions mountLaunchDir
       ++ workspaceBinds
-      ++ profileOptions.${profile}
+      ++ profileOptions profile
       ++ lib.optionals hostDoctrine hostDoctrineOptions
       ++ hostGitExcludesOptions
       ++ termOptions
@@ -617,7 +634,7 @@
       exec ${inner}/bin/jailed-${name} "$@"
     '';
   in
-    assert builtins.hasAttr profile profileOptions || throw "Unknown jailed agent profile: ${profile}";
+    assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";
     assert unknownApiKeys
     == []
     || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";

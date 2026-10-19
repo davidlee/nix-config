@@ -57,6 +57,8 @@
   specDev = inner "specDev" {};
   research = inner "research" {};
   offline = inner "offline" {};
+  # specDev without the launch-dir bind: starts in $HOME (DEC-078)
+  launchDirOff = inner "specDev" {mountLaunchDir = false;};
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
   gitUnguarded = inner "specDev" {guardGit = false;};
   noHostDoctrine = inner "specDev" {hostDoctrine = false;};
@@ -559,6 +561,16 @@ in
       test "$1" = '--bind'
       test "$2" = ${lib.escapeShellArg dangerousWorkspacePath}
       test "$3" = ${lib.escapeShellArg "/workspace/quo'te$dollar;semi"}
+
+      # mountLaunchDir: on (default) binds the cwd and starts in it; off binds
+      # nothing and starts in $HOME. --chdir is passed either way, or bwrap
+      # reads HOME from its own environment.
+      launch_off=${launchDirOff}/bin/jailed-zsh
+      grep -Fq -- '/workspace/$(basename' "$spec"
+      grep -Fq -- '--chdir "/workspace/$(basename' "$spec"
+      refute grep -Fq -- '/workspace/$(basename' "$launch_off"
+      grep -Fq -- '--chdir "$HOME"' "$launch_off"
+      grep -Fq -- '--chdir' "$launch_off"
 
       touch "$out"
     ''
