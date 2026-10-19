@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 78
+slug = "launch-dir-bind-optional"
+title = "The launch-dir bind is a policy-bearing jail option, on by default"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "baseJailOptions binds $PWD rw at /workspace/<basename> and chdirs there for every jail, commented 'not policy-bearing'. It is the host write behind satan:CHR-020. bwrap reads HOME from its env only without --chdir (mem.fact.bwrap.pid1-environ-leak), and every jail passes --chdir."
+choice = 'makeJailedAgent takes mountLaunchDir ? true. Off: no /workspace bind, and --chdir "$HOME" (the jail home). The bind leaves baseJailOptions; the comment names it policy-bearing.'
+alternatives = ["A startDir argument: no consumer yet", "Per-profile default: changes existing jails"]
+rationale = "Existing jails unchanged; the off case has one obvious start directory; --chdir is always passed."
+consequences = ["Resolves the jailLib side of satan:CHR-020; jailed-malebolge sets it off in SL-027"]
+decided_by = "user (2026-10-20)"
+decided_on = "2026-10-20"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-015"

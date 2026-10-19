@@ -1,0 +1,53 @@
+id = 15
+slug = "isolated-jail-gateway"
+title = "Gateway and launch-dir options for network-isolated jails"
+status = "ready"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "features/agents/gateway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/gateway.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/jailed-agents.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/jailed-agents-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/README.md"
+intent = "design-target"
+
+[[selector]]
+selector = "README.md"
+intent = "design-target"
+
+[[relation]]
+label = "governed_by"
+target = "ADR-004"
+
+[[relation]]
+label = "references"
+role = "concerns"
+target = "DEC-047"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 75
+slug = "relay-user-unix-listener"
+title = "The gateway relay gains a user-owned unix listener on the same socket unit"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A jail with its own network namespace cannot reach the relay on host 127.0.0.1:4000. The gateway's own socket sits in a 0750 directory owned by llm-gateway (DEC-047's gate); the user is not in that group. SL-015 research P2: one systemd-socket-proxyd serves every listening fd systemd passes it."
+choice = "The llm-gateway-relay socket unit gets a second listenStreams entry, /run/llm-gateway-client/api.sock, with SocketUser = username, SocketMode = 0600, DirectoryMode = 0755 (directory created by PID 1). The relay service is unchanged. The path is a constant in agents/gateway.nix (ADR-004 D4). /run/llm-gateway/api.sock keeps its group gate."
+alternatives = ["A second socket unit and service per transport (a template): two units where one serves both fds", "Add the user to the llm-gateway group and bind api.sock: every user process reaches the gateway socket directly and DEC-047's gate loses meaning"]
+rationale = "Least mechanism: one line of listener plus ownership; DEC-047's gate stays; the client socket belongs to the socket unit, so it survives gateway restarts."
+consequences = ["Every process of the user can reach the client socket, as every local process already reaches :4000; keys stay the authentication", "SPEC-001 § Perimeter gains the listener (REV at reconcile)"]
+decided_by = "user (2026-10-20)"
+decided_on = "2026-10-20"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-015"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 76
+slug = "gateway-transport-from-profile"
+title = "Gateway transport is derived from the jail profile's network; socket reach is one exported option list"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "satan:SL-027 needs gateway reach from a jail without network. jailed-malebolge passes no `gateway` (it reads its key from a file), so a transport inside `gateway` would not reach it. In a networked jail the forwarder's bind on 127.0.0.1:4000 collides with the host relay; in a jail without network TCP is unreachable. Neither override is ever valid."
+choice = "Transport is not a caller's choice. Each profile declares network = true|false (specDev and research: true; offline: false), and the profile adds the `network` combinator from that flag: one source of truth. jailLib exports gatewaySocketOptions: a read-only bind of the client socket's directory; a wrap-entry that starts socat TCP-LISTEN:<relayPort>,bind=127.0.0.1,fork UNIX-CONNECT:<clientSocket> in the background, waits (bounded) until that socat PID is alive and /proc/net/tcp shows 127.0.0.1:<relayPort> in LISTEN, fails closed on early exit or timeout, then execs the agent; and a deferred guard (jail.nix `defer`) that refuses at evaluation if the final jail state shares the net namespace. makeJailedAgent adds the list when `gateway` is set and the profile has no network; its wrapper pre-flight then checks the client socket directory. A jail without `gateway` opts in through extraOptions. Clients keep http://127.0.0.1:4000/v1. The `gateway` value's shape (DEC-059) is unchanged."
+alternatives = ["An explicit gatewayTransport = tcp | socket argument: two settings that are each broken in one profile class", "Transport as a field of `gateway`: does not reach key-file clients such as jailed-malebolge", "A gatewayReach boolean: a second argument for what extraOptions already expresses", "An exported function taking the profile (GPT review F-5): the deferred guard checks the final state instead and covers extraOptions too", "A connect probe for readiness (GPT review F-4): touches the gateway and can hit a foreign listener"]
+rationale = "One source of truth (the profile); one forwarder implementation with two entry points; reach stays opt-in, so an offline jail without either gets nothing."
+consequences = ["Resolves OQ-2: offline + gateway works and there is nothing to refuse", "Bind the directory and not the socket file (satan:ISS-042); read-only suffices (SL-015 research P3)", "socat dies with the jail's PID namespace; a forwarder that dies mid-run surfaces as connection refused (not supervised)", "Readiness makes no upstream connection", "Socket mode in a jail that shares the host netns (via extraOptions network or a networked profile) is an evaluation error"]
+decided_by = "user (2026-10-20)"
+decided_on = "2026-10-20"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-015"

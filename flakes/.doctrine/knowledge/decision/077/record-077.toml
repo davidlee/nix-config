@@ -1,0 +1,39 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 77
+slug = "isolated-jail-forwarder-extends-dec-047"
+title = "Network-isolated jails reach the gateway through an in-jail forwarder; the gateway is their only direct network path"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-19"
+updated = "2026-10-19"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-047 rejected 'bind the socket into each jail and run a forwarder inside it' because jails shared the host netns, so an in-jail listener was host-wide. In an --unshare-net jail that premise is false: loopback is the jail's own, the host's :4000 is refused and outbound is unreachable (SL-015 research P1). SPEC-001's client contract changes only by decision."
+choice = "Extends DEC-047 (one gateway socket; keys are the only per-client identity): a jail without network reaches the gateway through the user-owned relay listener and an in-jail forwarder on 127.0.0.1:4000. In such a jail the gateway is the only direct network path, bounded by the key's model list and budget. Host unix sockets bound into the jail are channels to host processes with those processes' reach, so they may act on the network for the jail; auditing them is the jail definition's responsibility, not jailLib's."
+alternatives = ["Keep the host netns for room-profile jails: egress exclusion by convention, contrary to satan:CON-005", "A client socketPath in each harness: unverified per client; pi needs a URL"]
+rationale = "Restores DEC-047's rejected alternative exactly where its rejection reason no longer holds; clients keep the TCP contract."
+consequences = ["SPEC-001 § Client contract (Reach) and § Perimeter get a REV at reconcile citing this", "Model providers still receive what the client sends: inherent, accepted", "satan:SL-027 audits its own unix-socket binds (/run/user/1000/satan)"]
+decided_by = "user (2026-10-20)"
+decided_on = "2026-10-20"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "extends: in-jail forwarder for network-isolated jails"
+target = "DEC-047"
+
+[[relation]]
+label = "shapes"
+target = "SL-015"

@@ -1,0 +1,102 @@
+# Implementation plan for SL-015 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-015"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]]
+id        = "PHASE-01"
+name      = "Relay client listener"
+objective = "The llm-gateway-relay socket unit serves a second, user-owned unix listener at the client socket constant; the original socket's gate is unchanged (DEC-075, design sec-2)."
+entrance_criteria = [
+  { id = "EN-1", text = "design.md locked (SL-015 design run, stage locked)" },
+  { id = "EN-2", text = "just test green on the current tree" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "agents/gateway.nix defines clientRuntimeDirectory and clientSocket beside runtimeDirectory/socket" },
+  { id = "EX-2", text = "the relay socket unit lists 127.0.0.1:<relayPort> and clientSocket, with SocketUser = username, SocketMode 0600, DirectoryMode 0755; the relay service is unchanged" },
+  { id = "EX-3", text = "just gate green (treefmt + tests); just coverage evaluates" },
+]
+verification = [
+  { id = "VA-1", text = "nix eval of nixosConfigurations.Sleipnir.config.systemd.sockets.llm-gateway-relay shows both listenStreams and the socketConfig ownership; systemd.services.llm-gateway RuntimeDirectoryMode still 0750" },
+  { id = "VA-2", text = "just gate and just coverage pass" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Profile table and launch-dir option"
+objective = "Profiles declare network as data and the network combinator follows from it; the launch-dir bind leaves baseJailOptions as mountLaunchDir ? true, off meaning --chdir \"$HOME\" (DEC-076 profile flag, DEC-078, design sec-3 and sec-4). Existing jails' launchers are unchanged."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "one profiles table { network; options; } replaces profileOptions' literal network entries; the network combinator keeps its position after persist-home, so argv order is unchanged" },
+  { id = "EX-2", text = "mountLaunchDir = false: no /workspace bind and --chdir \"$HOME\"; default: today's bind and chdir" },
+  { id = "EX-3", text = "existing jail tests pass unmodified (specDev, research, offline launchers unchanged)" },
+  { id = "EX-4", text = "just gate green" },
+]
+verification = [
+  { id = "VT-1", expects = "launch dir off: the launcher has no /workspace bind and chdirs to $HOME; default keeps both", test_file = "agents/jailed-agents-test.nix", keywords = ["mountLaunchDir", "launchDirOff"], waived = false },
+  { id = "VT-2", expects = "profile network flag: specDev and research launchers carry no --unshare-net; offline carries it", test_file = "agents/jailed-agents-test.nix", keywords = ["specDev", "research", "offline", "unshare-net"], waived = false },
+  { id = "VA-1", text = "the existing jailed-agents checks pass with no edit to their expectations (diff of the test file touches only added tests)" },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Gateway forwarder and socket mode"
+objective = "gatewayForwarder { socket, port } and the exported gatewaySocketOptions give a jail without network gateway reach through an in-jail socat, with PID + /proc/net/tcp readiness, fail-closed launch and a deferred netns guard; makeJailedAgent wires it for gateway jails without network, with a client-directory pre-flight (DEC-076, DEC-077, design sec-3, sec-5)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete (profiles table exists)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "offline + gateway: read-only bind of the client socket directory, the entry wrapped by the forwarder, pre-flight names the client directory" },
+  { id = "EX-2", text = "specDev + gateway: launcher unchanged (no client bind, no forwarder)" },
+  { id = "EX-3", text = "socket mode in a jail sharing the host netns is an evaluation error (extraOptions network, or gatewaySocketOptions on a networked profile)" },
+  { id = "EX-4", text = "forwarder behaviour with real socat: request and reply pass through; an occupied port fails the launch before the entry runs; the entry's exit status is the wrapper's; readiness makes no upstream connection" },
+  { id = "EX-5", text = "jailLib exports gatewaySocketOptions; just gate green" },
+]
+verification = [
+  { id = "VT-1", expects = "offline+gateway argv: ro-bind of /run/llm-gateway-client and the forwarder entry; specDev+gateway argv unchanged", test_file = "agents/jailed-agents-test.nix", keywords = ["offlineGateway", "llm-gateway-client"], waived = false },
+  { id = "VT-2", expects = "netns guard: offline+gateway+network and specDev+gatewaySocketOptions fail to evaluate", test_file = "agents/jailed-agents-test.nix", keywords = ["gatewaySocketOptions", "failsToEvaluate", "socketModeNetworkFails"], waived = false },
+  { id = "VT-3", expects = "forwarder behaviour: pass-through, occupied port fails before entry, exit status propagated, no upstream connect during readiness", test_file = "agents/jailed-agents-test.nix", keywords = ["gatewayForwarder", "forwarder exited", "UNIX-LISTEN"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Docs and live verification"
+objective = "agents/README.md and README.md describe socket mode, gatewaySocketOptions and mountLaunchDir; the live system serves the client socket and an offline gateway jail reaches the gateway and nothing else (design sec-6, sec-7 VA)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete" },
+  { id = "EN-2", text = "the user has run just system-switch on Sleipnir (sudo)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "agents/README.md § Gateway mode and README.md § LLM gateway updated" },
+  { id = "EX-2", text = "live checks pass (VA-1)" },
+  { id = "EX-3", text = "notes.md carries the live evidence" },
+]
+verification = [
+  { id = "VA-1", text = "live, using an ad hoc jail built from the agents flake (makeJailedZsh, profile offline, gateway = gatewayClient with a probe key issued by the user; nothing committed): /run/llm-gateway-client/api.sock exists, owned by the user, 0600; /run/llm-gateway still 0750 llm-gateway; an offline jail with gateway gets 200 from GET /v1/models with its key; from that jail 127.0.0.1:22 and a LAN address are refused/unreachable; an existing TCP gateway jail still answers" },
+  { id = "VA-2", text = "README sections read against the shipped code: names, paths and defaults match" },
+]
+specs        = []
+requirements = []
