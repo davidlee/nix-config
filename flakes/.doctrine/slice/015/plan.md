@@ -42,3 +42,11 @@ PHASE-02 profiles + launch dir (no launcher change) ──> PHASE-03 forwarder +
 - The live check's TCP-jail control is any existing gateway jail (e.g.
   `jailed-pi`).
 - satan:SL-027 consumes the result; its jail changes are not in this plan.
+- 2026-10-20: PHASE-05 added at the user's direction (satan:SL-027 RV-035
+  F-1 env workspace-deps opt-out, F-6 named persisted home), ordered before
+  PHASE-04 so the docs cover it. Order is now 01 → 02 → 03 → 05 → 04. The
+  design is amended at reconcile.
+- Live finding (2026-10-20): after `just system-switch` the relay socket
+  unit lists the client socket but `/run/llm-gateway-client/` is absent:
+  the running socket unit was not restarted. PHASE-04 must handle it
+  (restart, plus docs or a restart trigger).

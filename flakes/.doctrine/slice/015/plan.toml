@@ -85,6 +85,30 @@ verification = [
 specs        = []
 requirements = []
 
+# PHASE-05 runs before PHASE-04 (array order is execution order). Added
+# 2026-10-20 at the user's direction from satan:SL-027 review RV-035 F-1/F-6;
+# the design is amended at reconcile, not before.
+[[phase]]
+id        = "PHASE-05"
+name      = "Env workspace-deps opt-out and named persisted home"
+objective = "A consumer can refuse JAIL_WORKSPACE_DEPS (workspaceDepsFromEnv ? true; false skips the getEnv merge, static workspaceDeps still bind) and can name its own persisted home (persistedHome ? null; null keeps the profile's). profiles carries the home name as data ({ network; home; options; }) so persist-home stays first and argv order is unchanged. Source: satan:SL-027 RV-035 F-1, F-6."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 complete" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "workspaceDepsFromEnv = false: under impure eval with JAIL_WORKSPACE_DEPS set, the launcher has no /workspace/<dep> bind from the env; default true keeps today's merge" },
+  { id = "EX-2", text = "persistedHome = \"<name>\" persists that home in place of the profile's; null reproduces each profile's current home" },
+  { id = "EX-3", text = "existing jail tests pass unmodified; launchers built without the new args are byte-identical to before" },
+  { id = "EX-4", text = "just gate green" },
+]
+verification = [
+  { id = "VT-1", text = "behaviour test, run by just test, evaluating impurely with JAIL_WORKSPACE_DEPS set: default launcher binds the dep; workspaceDepsFromEnv = false launcher has no /workspace/ bind from it (static workspaceDeps still bound)" },
+  { id = "VT-2", text = "jail test: persistedHome sets the persisted home name per profile; default argv unchanged" },
+  { id = "VA-1", text = "test-file diff for existing assertions is additions only; store paths of existing launchers unchanged" },
+]
+specs        = []
+requirements = []
+
 [[phase]]
 id        = "PHASE-04"
 name      = "Docs and live verification"
@@ -92,11 +116,13 @@ objective = "agents/README.md and README.md describe socket mode, gatewaySocketO
 entrance_criteria = [
   { id = "EN-1", text = "PHASE-03 complete" },
   { id = "EN-2", text = "the user has run just system-switch on Sleipnir (sudo)" },
+  { id = "EN-3", text = "PHASE-05 complete" },
 ]
 exit_criteria = [
   { id = "EX-1", text = "agents/README.md § Gateway mode and README.md § LLM gateway updated" },
   { id = "EX-2", text = "live checks pass (VA-1)" },
   { id = "EX-3", text = "notes.md carries the live evidence" },
+  { id = "EX-4", text = "agents/README.md documents workspaceDepsFromEnv and persistedHome (PHASE-05)" },
 ]
 verification = [
   { id = "VA-1", text = "live, using an ad hoc jail built from the agents flake (makeJailedZsh, profile offline, gateway = gatewayClient with a probe key issued by the user; nothing committed): /run/llm-gateway-client/api.sock exists, owned by the user, 0600; /run/llm-gateway still 0750 llm-gateway; an offline jail with gateway gets 200 from GET /v1/models with its key; from that jail 127.0.0.1:22 and a LAN address are refused/unreachable; an existing TCP gateway jail still answers" },
