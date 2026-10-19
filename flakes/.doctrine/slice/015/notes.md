@@ -45,10 +45,15 @@ closure (satan-side; report to SL-027).
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-20 · ready · 002b58c1
 
 ### Produced
+- scope, research, locked design, plan PHASE-01..04 (commit 002b58c1); no code yet
+- minted: DEC-075 — relay client listener; DEC-076 — transport from profile, forwarder, netns guard; DEC-077 — extends DEC-047, gateway is the only direct network path; DEC-078 — mountLaunchDir
+- handback to satan:SL-027 delivered by the user (openssh, ProxyCommand, profile-switch home change, unix-socket egress audit)
 
 ### Learned
+- mem.fact.bwrap.unshare-net-host-reach — netns reach, ro dir bind, multi-listener proxyd, `defer` guards, sandbox testing
 
 ### Open
+- none: inq-1..7 disposed; PHASE-03 VT-3 settles the `/proc/net/tcp`-per-netns inference behind readiness

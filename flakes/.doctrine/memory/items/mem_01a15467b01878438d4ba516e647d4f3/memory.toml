@@ -1,0 +1,46 @@
+memory_uid = "mem_01a15467b01878438d4ba516e647d4f3"
+memory_key = "mem.fact.bwrap.unshare-net-host-reach"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Reaching host services from an --unshare-net bwrap jail"
+summary = "Own loopback; host 127.0.0.1 unreachable; unix sockets via ro dir bind work; one socket-proxyd serves many listeners"
+created = "2026-10-19"
+updated = "2026-10-19"
+
+[scope]
+paths = ["agents/jailed-agents.nix", "features/agents/gateway.nix"]
+globs = []
+commands = []
+tags = ["bwrap", "jail", "gateway", "network"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "32a991001ea6d7d400c10cc5e1d2860c306ec99e"
+ref_name = "refs/heads/main"
+checkout_state_id = "d14eb841eae141f4305a6eab2be52deed3c43d9298e243ddfd50055003e1624b"
+base_commit = "f451aaf436ab14b94f120eef29b4d8af69cd8a17"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-015"
+
