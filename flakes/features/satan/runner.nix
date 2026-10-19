@@ -17,6 +17,8 @@
 #   ~/.config/malebolge/gateway-models.json  ← the same catalog render, for the interactive
 #                                              daemon (not this unit); a stable path, since
 #                                              the store path moves on every rebuild
+#   ~/.config/malebolge/door.toml            ← the interactive daemon's room door (DEC-079),
+#                                              from ./room.nix like this unit's [door]
 #   ~/.local/state/satan/runner/runner.sqlite ← jobs, job_events, pi-durable
 #   $XDG_RUNTIME_DIR/satan-runner/control.sock ← bound into no jail (I4)
 #   gateway key: LoadCredential=, never argv or environment (DEC-049)
@@ -49,8 +51,9 @@
     # The room's door and the repos it holds. Literals: the fleet
     # (/srv/fleet/flake.nix rooms.assistant, targets/<repo>.nix) exposes no
     # room data to home-manager, so these copy it by hand (SL-023 PHASE-12
-    # E4; one source is IMP-044).
-    room = "assistant";
+    # E4; one source is IMP-044). What both doors share is in ./room.nix.
+    roomDoor = import ./room.nix home;
+    inherit (roomDoor.shared) room;
     roomUser = "agent"; # rooms.assistant.repos.user
     socket = "/run/capsule-room/${room}/ssh.sock";
 
@@ -125,18 +128,16 @@
         };
       };
       inherit repo;
-      door = {
-        kind = "room";
-        inherit room;
-        user = roomUser;
-        # The runner's own key; its public half is in rooms.assistant.users.agent.keys (CON-004).
-        identity = "${home}/.ssh/malebolge.key";
-        # oubliette's, learnt by its push (accept-new); the runner only reads it.
-        known_hosts = "/var/lib/capsule/room/${room}/known_hosts";
-        host_key_alias = "room-${room}";
-        session_path = "/run/current-system/sw/bin/session"; # the guest's
-        ssh_config = "${configDir}/ssh_config";
-      };
+      door =
+        roomDoor.shared
+        // {
+          kind = "room";
+          user = roomUser;
+          # The runner's own key; its public half is in rooms.assistant.users.agent.keys (CON-004).
+          identity = "${home}/.ssh/malebolge.key";
+          session_path = "/run/current-system/sw/bin/session"; # the guest's
+          ssh_config = "${configDir}/ssh_config";
+        };
       gateway = {
         catalog = "${catalog}";
         # A file name in $CREDENTIALS_DIRECTORY: the LoadCredential= id below.
@@ -148,6 +149,10 @@
       # The interactive daemon (`node src/daemon-main.ts`, not this unit) reads
       # the runner's own catalog render, never a copy; see SATAN.md.
       "malebolge/gateway-models.json".source = catalog;
+      # The interactive daemon's room door, at a stable path for its jail's
+      # bind (MALEBOLGE_DOOR, satan:SL-027): one [door] table, schema DEC-079.
+      "malebolge/door.toml".source =
+        (pkgs.formats.toml {}).generate "malebolge-door.toml" {door = roomDoor.malebolge;};
       "satan-runner/config.toml".source =
         (pkgs.formats.toml {}).generate "satan-runner-config.toml" settings;
       # pi-env fixes ServerAliveInterval=15 on its command line and passes

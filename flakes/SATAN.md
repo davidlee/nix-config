@@ -78,6 +78,7 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | runner config | `~/.config/satan-runner/{config.toml,ssh_config}` (HM-rendered from `features/satan/runner.nix`) |
 | runner model catalog | `/nix/store/…-satan-runner-gateway.json`, the jails' own render (`agents/pi-gateway.nix` over `agents/gateway.nix` `models`) |
 | daemon model catalog | `~/.config/malebolge/gateway-models.json`: HM symlink to the same store file as the runner's catalog (`features/satan/runner.nix`); read by the interactive daemon, which is not a unit (started by `just hello-durable` / `just daemon`) |
+| daemon room door | `~/.config/malebolge/door.toml`: one `[door]` table, exactly `room user known_hosts host_key_alias identity home` (DEC-079; the daemon refuses any other key). HM-rendered in `features/satan/runner.nix` from `features/satan/room.nix`, which the runner's `[door]` shares; read by the interactive daemon's room profile through `MALEBOLGE_DOOR` (satan:SL-027). Names `~/.ssh/malebolge-vm.key`, made by hand |
 | room `known_hosts` | `/var/lib/capsule/room/assistant/known_hosts`: oubliette's; the runner only reads it |
 
 **Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
