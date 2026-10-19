@@ -1,0 +1,46 @@
+memory_uid = "mem_01a154e8653b7b31953a81ae0e476ef8"
+memory_key = "mem.pattern.flakes.runtests-red-stub"
+schema_version = 1
+memory_type = "pattern"
+status = "active"
+title = "Red step for a lib.runTests eval check"
+summary = "A runTests check goes red on assertions only if the data file exists, is tracked, and carries the keys with wrong values"
+created = "2026-10-19"
+updated = "2026-10-19"
+
+[scope]
+paths = ["perSystem.nix", "features"]
+globs = []
+commands = []
+tags = ["nix", "tests"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "0d83bac7382bfadd47ba93a28ec2f8c07a97bf3e"
+ref_name = "refs/heads/main"
+checkout_state_id = "afd04e37470aee133dfe025309fc68fd6d43c4a2ba639496e530bf34b923d10f"
+base_commit = "599631724f218d86e52a8e486a9345699b13de63"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-016"
+

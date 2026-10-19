@@ -1,0 +1,181 @@
+id    = 35
+slug  = "reconciliation-review-of-sl-016"
+title = "reconciliation review of SL-016"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-016: b08fe1f2 and fc3ca4c8 against design.md (r28), plan.toml and DEC-079. Ran doctrine check gate (green); compared config.toml and check drvPaths to baselines; read back the built and live door.toml; ran the mutation test; judged slice conformance and verify-vt by inspection (ISS-005).
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-016"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "design sec-4 specifies evalTests = name: failures:; landed evalTests takes the test file"
+detail = """
+Expected (design.md sec-4): `evalTests = name: failures: …`, called as
+`evalTests "features" (import ./features-test.nix lib)`.
+Observed (perSystem.nix, b08fe1f2): `evalTests = file: let name = lib.removeSuffix ".nix" (baseNameOf file); failures = import file lib; …`, called as `evalTests ./features-test.nix`.
+Why: with `name`, checks.satan-room would throw `satan-room-test.nix failed:`, naming a file that does not exist (the file is room-test.nix). The existing checks' drvPaths and messages are unchanged (PHASE-01 VA-1, VA-2; notes.md § PHASE-01). The design text is the defect.
+"""
+disposition = "design-wrong"
+response = """
+The code is right; the design text is stale. Reconciliation brief: design.md sec-4, change evalTests to the landed `evalTests file` form and its three call sites.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The code is right; the design text is stale. Reconciliation brief: design.md sec-4, change evalTests to the landed `evalTests file` form and its three call sites.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "brief entry exists (## Reconciliation Brief)"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "design sec-6 says write room-test.nix before room.nix exists; red needs a wrong-valued stub"
+detail = """
+Expected (design.md sec-6): "Red first: write room-test.nix before room.nix exists."
+Observed: with room.nix absent (or empty), the check fails on a missing file or attribute, which is an eval error rather than a runTests assertion failure. PHASE-02 went red against a stub room.nix with wrong values: all four tests failed on assertions (notes.md § PHASE-02). plan.toml PHASE-02 EX-1 already says "stub"; design sec-6 does not.
+"""
+disposition = "design-wrong"
+response = """
+Reconciliation brief: design.md sec-6, red against a wrong-valued stub room.nix (git add -N'ed), not an absent file.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconciliation brief: design.md sec-6, red against a wrong-valued stub room.nix (git add -N'ed), not an absent file.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "brief entry exists (## Reconciliation Brief)"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "nit"
+title = "design sec-3 binds room = roomDoor.shared.room; landed inherit (roomDoor.shared) room; sec-5 README row still conditional"
+detail = """
+Expected (design.md sec-3): `room = roomDoor.shared.room;`. Observed (runner.nix): `inherit (roomDoor.shared) room;`, statix's form of the same binding. Same value.
+Expected (design.md sec-5): README.md changes "if the tree names satan's files". Observed: README is unchanged, because its feature tree lists satan.nix's features, not the files under features/satan/. The condition is settled and sec-5 should say so.
+"""
+disposition = "design-wrong"
+response = """
+Reconciliation brief: design.md sec-3, show `inherit (roomDoor.shared) room;`; sec-5, drop the README row (README unchanged: its tree names features, not files).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Reconciliation brief: design.md sec-3, show `inherit (roomDoor.shared) room;`; sec-5, drop the README row (README unchanged: its tree names features, not files).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "brief entry exists (## Reconciliation Brief)"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "plan.toml PHASE-01 VT-1 keywords and objective edited during the phase"
+detail = """
+Expected: plan criteria are append-only once authored (boot rule: ids immutable, edits append).
+Observed: during PHASE-01 (before completion), VT-1's `keywords` changed from ["evalTests = name: failures:", ...] to ["evalTests = file:", "evalTests ./features-test.nix", "evalTests ./host-meta-test.nix"], and the objective text gained "(as landed; design sec-4 sketched …)". No id changed. Separately, 3e670506 restored PHASE-01's `[[phase]]` header, which an earlier authoring script had dropped. That was a repair, not a change of meaning.
+"""
+disposition = "tolerated"
+response = """
+Tolerated. The edits came before the phase completed, kept every id, and made VT-1 test the code that actually landed rather than a signature the design abandoned. Keeping the old keywords would have left VT-1 failing against correct code. The header restore repaired an authoring error and changed no meaning. Reconcile changes no plan criterion (off-surface).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Tolerated. The edits came before the phase completed, kept every id, and made VT-1 test the code that actually landed rather than a signature the design abandoned. Keeping the old keywords would have left VT-1 failing against correct code. The header restore repaired an authoring error and changed no meaning. Reconcile changes no plan criterion (off-surface).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "slice conformance reports all six design-target paths undelivered and their edits undeclared"
+detail = """
+Expected: conformance lists features/satan/{room,room-test,runner}.nix, perSystem.nix, justfile and SATAN.md as conformant.
+Observed: each selector is reported undelivered and the same path, prefixed `flakes/`, undeclared. The git worktree is $HOME, so recorded deltas carry the `flakes/` prefix (ISS-005; CLAUDE.md: judge by agent). By inspection, all six declared paths were delivered and nothing undeclared was touched apart from doctrine workflow files (notes.md, plan.toml). verify-vt's UNATTRIBUTABLE results have the same cause; every VT keyword is present.
+"""
+disposition = "aligned"
+response = """
+Aligned: a known tool limitation, tracked as ISS-005, not a slice defect. Attribution judged by inspection, as recorded in the finding.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Aligned: a known tool limitation, tracked as ISS-005, not a slice defect. Attribution judged by inspection, as recorded in the finding.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

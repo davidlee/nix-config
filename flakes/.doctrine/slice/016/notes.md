@@ -55,10 +55,16 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: <yyyy-mm-dd> · <PHASE-NN | stage> · <head-commit>
+fresh-as-of: 2026-10-20 · audit · 270f60bc
 
 ### Produced
+- PHASE-01 — evalTests helper, drv-neutral (b08fe1f2)
+- PHASE-02 — room.nix, door.toml render, checks.satan-room (fc3ca4c8)
+- RV-035 — audit; brief: design.md sec-3/4/5/6 text fixes
+- handoff to satan:SL-027 acknowledged (satan 002448b)
 
 ### Learned
+- mem.pattern.flakes.runtests-red-stub — red a runTests check with a tracked, wrong-valued stub
 
 ### Open
+- DEC-079 — door file path, schema, alias, owner (cross-repo contract)
