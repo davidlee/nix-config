@@ -48,8 +48,10 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
   room = assistant, user = satan.
 - `runner.nix` binds `inherit (roomDoor.shared) room;` (statix's form of
   design sec-3's `room = roomDoor.shared.room;`).
-- Outstanding: VH-1 (user runs `just home-switch`, then checks the file);
-  VA-4 (SL-027 handoff, with the user's OK).
+- VH-1: after the user's `just home-switch`, ~/.config/malebolge/door.toml
+  is the HM symlink with the content above.
+- VA-4: handoff sent to session satan-a4 (msg bf8535c8) on the user's OK:
+  path, schema (DEC-079), alias correction, owner, key, --no-local note.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
