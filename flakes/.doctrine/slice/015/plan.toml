@@ -18,7 +18,11 @@ collaborators = []
 targets      = []
 dependencies = []
 
-# One [[phase]]
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber. Criterion ids
+# are local to their phase, bare, and equally immutable.
+[[phase]]
 id        = "PHASE-01"
 name      = "Relay client listener"
 objective = "The llm-gateway-relay socket unit serves a second, user-owned unix listener at the client socket constant; the original socket's gate is unchanged (DEC-075, design sec-2)."
