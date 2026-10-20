@@ -20,6 +20,10 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
   repo's gateway, and its socket-mode options for `extraOptions` (see
   [Gateway mode](#gateway-mode-gateway))
+- `satanMcpOptions` — a satan-mcp client, for `extraOptions`: the socket's
+  directory `/run/user/1000/satan/mcp` read-only (never the socket file, whose
+  inode satan-mcp replaces on restart), plus `XDG_RUNTIME_DIR` and
+  `SATAN_MCP_SOCKET`
 - `unjailed` — name→package map of the **bare** (un-jailed) agents, resolved
   from the same eval as the jails. Use it to put agents on the host devShell
   PATH (`with agents.unjailed; [ pi dirge ]`). Same drvs the jails bundle, so no extra rebuild.

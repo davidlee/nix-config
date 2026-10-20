@@ -292,6 +292,8 @@
   gatewaySocketOptionsNetworkedFails = failsToEvaluate (inner "specDev" {
     extraOptions = agents.gatewaySocketOptions;
   });
+  # A satan-mcp client (DEC-088): the socket's directory, read-only.
+  satanMcp = inner "specDev" {extraOptions = agents.satanMcpOptions;};
 
   # pi's gateway provider. A served model without a pi block is left out
   # (DEC-066). One fixture holds both, differing only in the pi block, so the
@@ -341,6 +343,7 @@ in
   assert offlineSocketOptions.drvPath != "";
   assert socketModeNetworkFails;
   assert gatewaySocketOptionsNetworkedFails;
+  assert satanMcp.drvPath != "";
   assert agents.gatewayClient "pi"
   == {
     keyFile = "$HOME/.config/llm-gateway/keys/pi";
@@ -570,6 +573,15 @@ in
       so=${offlineSocketOptions}/bin/jailed-zsh
       grep -Fq -- '--ro-bind /run/llm-gateway-client /run/llm-gateway-client' "$so"
       grep -q -- '-- /nix/store/[^ ]*-jailed-zsh-jail-wrapper/bin/jailed-zsh-jail-wrapper' "$so"
+      # satanMcpOptions: the directory read-only, never the socket file (it
+      # pins the inode satan-mcp-start replaces, ISS-042) and never writable
+      # (the jail could replace the socket and impersonate satan-mcp).
+      sm=${satanMcp}/bin/jailed-zsh
+      grep -Fq -- '--ro-bind-try /run/user/1000/satan/mcp /run/user/1000/satan/mcp ' "$sm"
+      grep -Fq -- 'SATAN_MCP_SOCKET' "$sm"
+      grep -Fq -- 'XDG_RUNTIME_DIR' "$sm"
+      refute grep -Fq -- 'mcp/mcp.sock' "$sm"
+      refute grep -Eq -- '--bind(-try)? /run/user/1000/satan/mcp' "$sm"
       # A gateway jail with network is unchanged: no client socket, no wrapper.
       for launcher in "$gw_inner" "$gw_outer"; do
         refute grep -Fq -- 'llm-gateway-client' "$launcher"

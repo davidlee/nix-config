@@ -175,6 +175,15 @@
       port = gatewayData.relayPort;
     };
 
+  # A satan-mcp client: the socket's directory, read-only. A file bind pins
+  # the inode satan-mcp-start replaces (ISS-042); a writable directory lets
+  # the jail replace the socket and impersonate satan-mcp.
+  satanMcpOptions = with jail.combinators; [
+    (try-readonly "/run/user/1000/satan/mcp")
+    (try-fwd-env "XDG_RUNTIME_DIR")
+    (try-fwd-env "SATAN_MCP_SOCKET")
+  ];
+
   # pi's provider for an LLM gateway; shared with the satan-runner unit.
   piGatewayConfig = import ./pi-gateway.nix {inherit lib;};
 
@@ -818,6 +827,8 @@ in {
   # Socket mode for a jail without `gateway` (e.g. a key-file client), via
   # `extraOptions`; refused at evaluation in a jail sharing the host netns.
   inherit gatewaySocketOptions;
+  # A satan-mcp client's bind and env, via `extraOptions`.
+  inherit satanMcpOptions;
   # Bare (unjailed) agent packages, resolved from the same eval as the
   # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
   # `unjailed.pi` etc. without separately wiring llm-agents.
