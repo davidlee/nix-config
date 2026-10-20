@@ -75,6 +75,23 @@ check 'stub: every listed input, present or not' \
 dc "$none" names
 check 'names: the list, space-separated' 'fleet goad malebolge panopticon satan-attrd' "$out"
 
+check 'override: clean checkouts warn nothing' '' "$err"
+
+# override: a present checkout's untracked files miss the git+file build (only
+# tracked files reach the store), so each such checkout is named on stderr
+dirty=$(root dirty goad panopticon)
+mkdir -p "$dirty/goad/src"
+touch "$dirty/goad/src/new.ts" "$dirty/goad/src/other.ts"
+printf 'ignored.ts\n' >"$dirty/panopticon/.gitignore"
+git -C "$dirty/panopticon" add .gitignore
+touch "$dirty/panopticon/ignored.ts"
+dc "$dirty" override
+check 'untracked: warns once, for the checkout with untracked files' 1 "$(grep -c . <<<"$err")"
+check 'untracked: names the checkout and its files' 1 "$(grep -c 'goad has 2 untracked .*src/new.ts' <<<"$err")"
+check 'untracked: stdout keeps the flags' \
+  "--override-input goad git+file://$dirty/goad --override-input panopticon git+file://$dirty/panopticon" "$out"
+check 'untracked: is not an error' 0 "$rc"
+
 # the fleet's checkout is FLAKES_FLEET, not <root>/fleet, and keeps list order
 git init -q "$FLAKES_FLEET"
 dc "$some" override

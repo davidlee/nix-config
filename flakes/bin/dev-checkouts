@@ -3,7 +3,8 @@
 # that list is written. Every input is declared by its remote URL; a checkout
 # on this machine overrides it for read-only recipes only (DEC-038).
 #
-#   dev-checkouts override   --override-input <i> git+file://<root>/<i>, per present checkout
+#   dev-checkouts override   --override-input <i> git+file://<root>/<i>, per present checkout;
+#                            warns (stderr) per checkout with untracked files the build won't see
 #   dev-checkouts stub       --override-input <i> path:<repo>/features/stub, per listed input
 #   dev-checkouts ahead      warn (stderr) per present checkout ahead of its upstream
 #   dev-checkouts names      the listed inputs
@@ -20,27 +21,49 @@ root=${FLAKES_DEV:-$HOME/dev}
 fleet=${FLAKES_FLEET:-/srv/fleet}
 repo=$(cd "$(dirname "$0")/.." && pwd)
 
+# warn <message> — "dev-checkouts: <message>" on stderr; red on a terminal
+# unless NO_COLOR is set, and blank-line separated there, to stand apart from
+# each other and from the flags on stdout.
+warn() {
+  if [[ -t 2 && -z ${NO_COLOR:-} ]]; then
+    printf '\e[31mdev-checkouts: %s\e[0m\n\n' "$1" >&2
+  else
+    printf 'dev-checkouts: %s\n' "$1" >&2
+  fi
+}
+
 usage() { echo "usage: dev-checkouts override|stub|ahead|names" >&2; }
 
 # The flags travel as one space-separated string (justfile, gate-probe), so a
 # root with whitespace would split into wrong flags.
 if [[ $root =~ [[:space:]] ]]; then
-  echo "dev-checkouts: checkout root '$root' contains whitespace; set FLAKES_DEV" >&2
+  warn "checkout root '$root' contains whitespace; set FLAKES_DEV"
   exit 1
 fi
 if [[ $fleet =~ [[:space:]] ]]; then
-  echo "dev-checkouts: fleet checkout '$fleet' contains whitespace; set FLAKES_FLEET" >&2
+  warn "fleet checkout '$fleet' contains whitespace; set FLAKES_FLEET"
   exit 1
 fi
 
 checkout() { if [[ $1 == fleet ]]; then echo "$fleet"; else echo "$root/$1"; fi; }
 present() { [[ -e $(checkout "$1")/.git ]]; }
 
+# git+file builds a dirty tree's tracked edits but not its untracked files, so
+# an edit that imports a not-yet-added file builds broken.
+warn_untracked() {
+  local files
+  mapfile -t files < <(git -C "$(checkout "$1")" ls-files --others --exclude-standard)
+  ((${#files[@]})) || return 0
+  warn "$1 has ${#files[@]} untracked file(s) its build won't see (git add or ignore them): ${files[*]:0:3}$( ((${#files[@]} > 3)) && echo ' …')"
+}
+
 flags=()
 case ${1:-} in
 override)
   for i in "${inputs[@]}"; do
-    if present "$i"; then flags+=(--override-input "$i" "git+file://$(checkout "$i")"); fi
+    present "$i" || continue
+    flags+=(--override-input "$i" "git+file://$(checkout "$i")")
+    warn_untracked "$i"
   done
   ;;
 stub)
@@ -50,9 +73,9 @@ ahead)
   for i in "${inputs[@]}"; do
     present "$i" || continue
     if ! n=$(git -C "$(checkout "$i")" rev-list --count '@{upstream}..HEAD' 2>/dev/null); then
-      echo "dev-checkouts: $i has no upstream; update-local locks its remote" >&2
+      warn "$i has no upstream; update-local locks its remote"
     elif ((n > 0)); then
-      echo "dev-checkouts: $i is $n commit(s) ahead of its upstream; update-local locks the remote" >&2
+      warn "$i is $n commit(s) ahead of its upstream; update-local locks the remote"
     fi
   done
   ;;
