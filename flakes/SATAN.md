@@ -182,9 +182,10 @@ The exception is `malebolge-room`, the interactive daemon
 (`features/satan/malebolge.nix`): `jailed-malebolge` binds and runs the
 **live tree** `~/dev/malebolge`, so production runs two malebolge revisions,
 the runner's pin and the daemon's working tree (RSK-020, accepted). The unit
-sets `X-RestartIfChanged=false`, so neither a switch nor a tree edit reaches a
-running daemon: after changing either, `systemctl --user restart
-malebolge-room` (or `M-x malebolge-stop` / `malebolge-start`).
+sets `X-RestartIfChanged=false`, so a switch never restarts it; a changed
+wrapper (a switch) or live tree (an edit) takes effect only at the next start:
+`systemctl --user restart malebolge-room` (or `M-x malebolge-stop` /
+`malebolge-start`).
 
 ### Switches
 
