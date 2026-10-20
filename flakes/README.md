@@ -214,7 +214,7 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
-  agents.nix          [ registry (import ./agents/gateway.nix) eca chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; eca: linux only, requires gateway (personal-linux)
+  agents.nix          [ registry (import ./agents/gateway.nix) eca pi chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; eca: linux only, requires gateway; pi: bare, linux only (personal-linux)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
   audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
   audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature

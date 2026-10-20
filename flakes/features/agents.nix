@@ -70,6 +70,23 @@
     };
   }
   {
+    name = "pi";
+    # Bare pi on PATH, outside any project devshell. Unjailed: a system-wide
+    # jail would bake in a toolset, so ad-hoc confinement is a launcher
+    # concern (IDE-009). From the agents pin, not home's llm-agents, so it
+    # is the drv the jails bundle. Linux only: the jail library is.
+    platforms = lib.platforms.linux;
+    homeManager = {
+      inputs,
+      pkgs,
+      ...
+    }: {
+      home.packages = [
+        (inputs.agents.lib.${pkgs.stdenv.hostPlatform.system}.mkJailedAgents {}).unjailed.pi
+      ];
+    };
+  }
+  {
     name = "chatgpt";
     # pkgs.llm-agents.chatgpt builds on aarch64-darwin too: no platforms.
     homeManager = {pkgs, ...}: {
