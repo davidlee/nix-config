@@ -50,11 +50,12 @@
           satan-tick = {
             Unit.Description = "SATAN tick timer";
             Timer = {
-              # Fires once, 5 minutes after boot.  The 30-minute recurrence and
-              # jitter below are disabled (satan ISS-022).
+              # 5 minutes after boot, then every 40 minutes with up to 5 minutes
+              # of jitter. Recurrence was off while credential prompts swarmed;
+              # the LLM gateway ended those (satan ISS-022).
               OnBootSec = "5min";
-              # OnUnitActiveSec = "30min";
-              # RandomizedDelaySec = "5min";
+              OnUnitActiveSec = "40min";
+              RandomizedDelaySec = "5min";
               Persistent = false;
             };
             Install.WantedBy = ["timers.target"];

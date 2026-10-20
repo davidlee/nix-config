@@ -36,4 +36,4 @@ allow-local-fallback = true
 reach = "local"
 
 [install]
-installed-version = "0.46.6"
+installed-version = "0.46.7"

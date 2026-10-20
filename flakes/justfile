@@ -13,6 +13,10 @@
 # In-tree inputs (agents/, emacs/), present wherever this justfile is.
 tree_override := "--override-input agents path:" + justfile_directory() + "/agents" + " --override-input emacs path:" + justfile_directory() + "/emacs"
 
+# Backticks run only when a recipe uses them, so dev-checkouts' untracked-file
+# warning reaches the recipes that build with local_override, not every `just`.
+set lazy
+
 # Dev checkouts present on this machine (bin/dev-checkouts, DEC-037): empty
 # where ~/dev has none (the Mac), so no recipe needs one.
 dev_override := `bin/dev-checkouts override`

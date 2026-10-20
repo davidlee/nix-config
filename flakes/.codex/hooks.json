@@ -5,7 +5,7 @@
         "hooks": [
           {
             "additionalContextLimit": 1200,
-            "command": "/home/david/.cargo/bin/doctrine memory surface --input codex",
+            "command": "/home/david/.local/share/doctrine/bin/doctrine memory surface --input codex",
             "timeout": 5,
             "type": "command"
           }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "additionalContextLimit": 1200,
-            "command": "/home/david/.cargo/bin/doctrine memory surface --input codex",
+            "command": "/home/david/.local/share/doctrine/bin/doctrine memory surface --input codex",
             "timeout": 5,
             "type": "command"
           }
@@ -28,7 +28,7 @@
       {
         "hooks": [
           {
-            "command": "/home/david/.cargo/bin/doctrine prompt resolve --role orchestrator",
+            "command": "/home/david/.local/share/doctrine/bin/doctrine prompt resolve --role orchestrator",
             "type": "command"
           }
         ],

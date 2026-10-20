@@ -48,7 +48,7 @@ push first.
 |---|---|---|---|
 | `satan-morning` | `~/dev/satan/satan/bin/satan-run morning` → `emacsclient --eval '(satan-run "morning")'` | 09:15 | `satan.nix:23-41` |
 | `satan-motd` | `satan-run motd` | 08:15 | `satan.nix:43-58` |
-| `satan-tick` | `satan-run-tick` → `(satan-tick)` | **once, 5 min after boot** (`OnUnitActiveSec` commented out; ISS-022) | `satan.nix:72-84` |
+| `satan-tick` | `satan-run-tick` → `(satan-tick)` | 5 min after boot, then every 40 min (+≤5 min jitter; ISS-022) | `features/satan/harness.nix:50-62` |
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
 | `satan-runner` | malebolge's patch-job runner: `bin/satan-runner` of the **pin** `inputs.malebolge.packages.<system>.runner` (`nodejs_24` on its `src/runner-main.ts`, production deps; CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
@@ -59,7 +59,7 @@ push first.
 
 Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 (file does not exist — point it here); `dl-satan-*` names and "default
-400000" (real: `satan-budget-daily-tokens` = 2500000); "every 30 minutes".
+400000" (real: `satan-budget-daily-tokens` = 2500000).
 
 ## Storage
 
