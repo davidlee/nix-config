@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792488421,
-        "narHash": "sha256-Lmwf9xdWXkdCSfB7y/v1WwNc5/jANM41zeaqfk+qxWU=",
+        "lastModified": 1792492489,
+        "narHash": "sha256-GcPmkE4jmnyi/YVluQCQiwDTYpTA3/l88fByGGTt34U=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "d73eddd5832b074edc2ce61d04801ce1b2bd4c59",
+        "rev": "62cebbe5fda7d04f9b722605fcc7092554eddef0",
         "type": "github"
       },
       "original": {
@@ -2540,11 +2540,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1792473663,
-        "narHash": "sha256-eCZ4KqPHi3K2JEruh6L5GBLomSQseJdrbzZzppfiMZE=",
+        "lastModified": 1792528313,
+        "narHash": "sha256-AOFDzKGuf3knmNP0LHnPKfP41eAA346thhAkroP0EH8=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "afefd62c732d340033ef85744f7085bbf86fc626",
+        "rev": "c9605be396afe87535c9c371c5889f95e06692db",
         "type": "github"
       },
       "original": {

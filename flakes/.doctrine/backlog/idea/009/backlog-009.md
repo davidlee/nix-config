@@ -60,3 +60,42 @@ needed, bind `git rev-parse --git-common-dir` rw.
 
 Related: IDE-004 (brokered git for jailed agents) — a broker would remove
 the need for `--with cfg`.
+
+## First cut (2026-10-20)
+
+`~/nushell/modules/pi-dev/mod.nu`: `jail [--with ssh,cfg] cmd …` (generic)
+and `pox` (pi in the jail, `LLM_GATEWAY_KEY` from `keys/pi`). The command
+cannot be named `pi-dev`, the module's own name. Network on. Checked by
+hand, all as the tables above:
+
+- `~/.ssh`, `~/.config/op`, atuin history and the other `HIDDEN` paths are
+  empty; `~/.config/gh/hosts.yml` is unreadable. `$HOME` is ro; cwd and
+  `~/.pi/agent` are rw.
+- `ps` sees only the jail's processes; `sudo` refuses (no_new_privs).
+- `~/flakes`: without `cfg`, a clean refusal; with `cfg`, git reads and writes
+  the index, and `~` stays ro.
+- `--with ssh`: `ssh-add -l` lists keys; `~/.ssh` holds only `config` and
+  `known_hosts`.
+- Refuses a cwd that is `$HOME` or an ancestor of it.
+
+Changes from the sketch above:
+
+- `/run/user/$UID` is an allowlist (empty tmpfs), not a denylist: it also
+  holds `systemd/private`, `op-daemon.sock`, emacs, docker and podman
+  sockets. `/run/dbus` (the system bus, polkit) is hidden too.
+- The gateway key travels in the environment; `~/.config/llm-gateway` is
+  hidden whole.
+- Agent dir: `~/.pi/agent`, the same as unjailed pi (`AGENT_DIR`), not a
+  separate one.
+- `GIT_DISCOVERY_ACROSS_FILESYSTEM=1`: cwd is a bind mount, and git stops
+  discovery at mount points.
+
+Open:
+
+- `dbus` flag: not built. Needs `xdg-dbus-proxy` (not installed) filtered to
+  `org.freedesktop.Notifications`.
+- With the network shared, abstract unix sockets (X11 `@/tmp/.X11-unix/X0`)
+  and loopback TCP services remain reachable. Closing that means
+  `--unshare-net` plus the gateway socket only.
+- `~/.cache` and other ro paths may break tools that expect to write; add rw
+  binds as they surface.
