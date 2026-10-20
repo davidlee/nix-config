@@ -19,7 +19,7 @@ relying on a line number.
 | editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`features/editor/emacs.nix`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `features/satan/attrd.nix` |
 | panopticon | `~/dev/panopticon` | `path:` (`flake.nix:73-78`) | `features/attention/behaviour.nix` |
-| malebolge | `~/dev/malebolge` | `malebolge = github:davidlee/Malebolge` (`just` overrides to `git+file:`) | runner: `features/satan/runner.nix` from the **pin**; the interactive daemon runs the **live tree** (`just daemon`, not a unit) |
+| malebolge | `~/dev/malebolge` | `malebolge = github:davidlee/Malebolge` (`just` overrides to `git+file:`) | runner: `features/satan/runner.nix` from the **pin**; the interactive daemon runs the **live tree** (unit `malebolge-room`, `features/satan/malebolge.nix`; `just daemon` for dev) |
 | goad | `~/dev/goad` | `git+file:` (`flake.nix:100-102`), **no follows** | `features/attention.nix` (`attention.goad`) |
 | oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `features/virt/capsule.nix` (host module only; no capsules at boot) |
 | jail library | `~/flakes/agents` | `agents = path:` (`flake.nix:20`) | consumed by every repo's flake |
@@ -52,6 +52,7 @@ push first.
 | `emacs` | `emacs --fg-daemon`, WorkingDirectory `~` | always | HM `services.emacs` |
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
 | `satan-runner` | malebolge's patch-job runner: `bin/satan-runner` of the **pin** `inputs.malebolge.packages.<system>.runner` (`nodejs_24` on its `src/runner-main.ts`, production deps; CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
+| `malebolge-room` | the interactive daemon, room profile: `jailed-malebolge` from the satan **pin**, running the malebolge **live tree** (RSK-020; see [satan-runner](#satan-runner)); `Restart=on-failure`, 5 starts / 300 s; `X-RestartIfChanged=false` — restart by hand after a wrapper or tree change | on demand: no `[Install]`; `M-x malebolge-start` / `malebolge-stop` | `features/satan/malebolge.nix` |
 | `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -77,7 +78,7 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | runner control socket | `/run/user/1000/satan-runner/control.sock` (dir 0700 `RuntimeDirectory=`, socket 0600) |
 | runner config | `~/.config/satan-runner/{config.toml,ssh_config}` (HM-rendered from `features/satan/runner.nix`) |
 | runner model catalog | `/nix/store/…-satan-runner-gateway.json`, the jails' own render (`agents/pi-gateway.nix` over `agents/gateway.nix` `models`) |
-| daemon model catalog | `~/.config/malebolge/gateway-models.json`: HM symlink to the same store file as the runner's catalog (`features/satan/runner.nix`); read by the interactive daemon, which is not a unit (started by `just hello-durable` / `just daemon`) |
+| daemon model catalog | `~/.config/malebolge/gateway-models.json`: HM symlink to the same store file as the runner's catalog (`features/satan/runner.nix`); read by the interactive daemon (unit `malebolge-room`; `just daemon` for dev) |
 | daemon room door | `~/.config/malebolge/door.toml`: one `[door]` table, exactly `room user known_hosts host_key_alias identity home` (DEC-079; the daemon refuses any other key). HM-rendered in `features/satan/runner.nix` from `features/satan/room.nix`, which the runner's `[door]` shares; read by the interactive daemon's room profile through `MALEBOLGE_DOOR` (satan:SL-027). Names `~/.ssh/malebolge-vm.key`, made by hand |
 | room `known_hosts` | `/var/lib/capsule/room/assistant/known_hosts`: oubliette's; the runner only reads it |
 
@@ -176,6 +177,14 @@ is present (`bin/dev-checkouts`; `git+file:`, so tracked files, dirty edits
 included), else from the lock. Deploy a change: commit, push,
 `just update-local`, `just home-switch`, `systemctl --user restart
 satan-runner`.
+
+The exception is `malebolge-room`, the interactive daemon
+(`features/satan/malebolge.nix`): `jailed-malebolge` binds and runs the
+**live tree** `~/dev/malebolge`, so production runs two malebolge revisions,
+the runner's pin and the daemon's working tree (RSK-020, accepted). The unit
+sets `X-RestartIfChanged=false`, so neither a switch nor a tree edit reaches a
+running daemon: after changing either, `systemctl --user restart
+malebolge-room` (or `M-x malebolge-stop` / `malebolge-start`).
 
 ### Switches
 

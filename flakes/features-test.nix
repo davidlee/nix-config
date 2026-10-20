@@ -549,6 +549,7 @@ in
         "satan.harness#homeManager"
         "satan.attrd#homeManager"
         "satan.runner#homeManager"
+        "satan.malebolge#homeManager"
         "attention.behaviour#homeManager"
         "attention.nudge#homeManager"
         "attention.goad#homeManager"
