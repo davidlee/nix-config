@@ -3,6 +3,7 @@
 use std/dirs
 use modules/nav *
 use modules/niri-wm *
+use modules/pi-dev *
 
 use std/util "path add"
 
