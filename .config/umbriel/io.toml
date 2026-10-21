@@ -20,7 +20,7 @@ theme = "breeze_cursors"
 size = 48
 hardware_cursor = true
 hide_when_typing = true
-hide_timeout_ms = 2400 # niri: hide-after-inactive-ms 800
+hide_timeout_ms = 440 # niri: hide-after-inactive-ms 800
 
 # niri: focus-follows-mouse max-scroll-amount="30%"
 [input.focus]
