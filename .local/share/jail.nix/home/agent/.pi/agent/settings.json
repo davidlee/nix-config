@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.99.1",
+  "lastChangelogVersion": "1.3.0",
   "defaultProjectTrust": "always",
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
@@ -8,35 +8,32 @@
   "compaction": {
     "enabled": false
   },
+  "defaultTools": [
+    "+codemode"
+  ],
   "doubleEscapeAction": "tree",
   "packages": [
     "npm:@juanibiapina/pi-extension-settings",
-    "/home/david/.pi/packages/node_modules/pi-subagents",
-    "/home/david/.pi/packages/node_modules/pi-web-access",
     "npm:pi-subagents",
-    "npm:pi-ask-user",
-    "npm:pi-mcp-adapter",
     "npm:pi-web-access",
-    "npm:@devkade/pi-plan",
     "npm:pi-simplify",
     "npm:pi-add-dir",
     "npm:pi-prompt-template-model",
-    "npm:pi-claude-cli",
-    "npm:pi-slopchop",
     "npm:@juanibiapina/pi-powerbar",
     "npm:@tmustier/pi-usage-extension",
     "npm:@tmustier/pi-raw-paste",
     "npm:pi-btw",
     "npm:pi-interactive-shell",
-    "git:github.com/davebcn87/pi-autoresearch",
-    "npm:@tmustier/pi-ralph-wiggum",
-    "git:github.com/javierportillo/pi-hackerman@63b0a3ef2c7b14985ffeb6cac44614ba59cd5693",
     "npm:@victor-software-house/pi-curated-themes",
     "npm:pi-terminal-theme",
     "https://github.com/cathrynlavery/diagram-design"
   ],
   "enabledModels": [
-    "llm-gateway/deepseek-flash"
+    "llm-gateway/deepseek-flash",
+    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-6-luna",
+    "openai-codex/gpt-6-sol"
   ],
   "theme": "adwaita-dark",
   "retry": {
@@ -68,7 +65,5 @@
       }
     }
   },
-  "extensions": [
-    "-builtin:mcp"
-  ]
+  "extensions": []
 }

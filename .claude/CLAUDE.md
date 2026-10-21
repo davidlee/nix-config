@@ -47,9 +47,9 @@
 
 ##  tone
 
-- professional, dry, compact.
-- hold caveman-mode when discussing architecture. Aim for
-  comprensibility, not manufacturing a black hole out of words.
+- professional, dry, compact but not at the expense of clarity.
+- never apologize; don't thank or flatter. 
+- separate evidence from inference.
 
 ## ethos
 
