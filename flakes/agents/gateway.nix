@@ -94,6 +94,8 @@ rec {
       "google/gemini-3-flash-preview"
       "xiaomi/mimo-v2.6-pro"
       "xiaomi/mimo-v2.6-flash"
+      # panopticon-digest (SL-009): strict json_schema output.
+      "openai/gpt-4.1-mini"
     ];
 
   # A jail's `gateway` argument for one client. The client name is the key

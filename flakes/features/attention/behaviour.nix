@@ -57,6 +57,21 @@
               ExecStart = "${panopticon}/bin/panopticon-git";
             };
           };
+
+          panopticon-digest = {
+            # The sole network egress (panopticon DEC-002), through the local LLM
+            # gateway. Off unless ~/.config/panopticon/digest.toml says
+            # `enabled = true`; the key comes from its `api_key_file`.
+            Unit.Description = "panopticon — opt-in page digest via the LLM gateway";
+            Service = {
+              Type = "oneshot";
+              # Absolute store path: see panopticon-git above.
+              ExecStart = "${panopticon}/bin/panopticon-digest -v";
+              # A backstop, not a bound the breakers guarantee. Killing a run is
+              # safe: records are atomic and held markers are dropped.
+              TimeoutStartSec = "2h";
+            };
+          };
         };
 
         timers = {
@@ -101,6 +116,18 @@
               OnBootSec = "2min";
               OnCalendar = "*:0/10";
               AccuracySec = "1min";
+              Persistent = true;
+            };
+            Install.WantedBy = ["timers.target"];
+          };
+
+          panopticon-digest = {
+            # ~10 pages pass the gate a day; max_pages_per_run keeps up daily.
+            Unit.Description = "panopticon — daily page digest";
+            Timer = {
+              Unit = "panopticon-digest.service";
+              OnCalendar = "daily";
+              RandomizedDelaySec = "30min";
               Persistent = true;
             };
             Install.WantedBy = ["timers.target"];
