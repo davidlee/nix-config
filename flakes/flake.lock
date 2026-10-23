@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792587287,
-        "narHash": "sha256-HVV39GoKUDR19mVNPUyl+6zenLTL8/eNVZ0OzuP9EfY=",
+        "lastModified": 1792731218,
+        "narHash": "sha256-Pyq3zcfED/oW9vOgf9WaqRcCVJNa2QpF0etJ2OTY/tQ=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "f5050d6e1d3a47040432537d137c88ab4ac3abb5",
+        "rev": "39afeed9d838a737b0fce46c5cc3fd991a34f165",
         "type": "github"
       },
       "original": {
@@ -2540,11 +2540,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1792587287,
-        "narHash": "sha256-HVV39GoKUDR19mVNPUyl+6zenLTL8/eNVZ0OzuP9EfY=",
+        "lastModified": 1792731218,
+        "narHash": "sha256-Pyq3zcfED/oW9vOgf9WaqRcCVJNa2QpF0etJ2OTY/tQ=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "f5050d6e1d3a47040432537d137c88ab4ac3abb5",
+        "rev": "39afeed9d838a737b0fce46c5cc3fd991a34f165",
         "type": "github"
       },
       "original": {
@@ -8358,6 +8358,28 @@
         "type": "github"
       }
     },
+    "quotient_2": {
+      "inputs": {
+        "nixpkgs": [
+          "satan",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1792713504,
+        "narHash": "sha256-3Iz/f+2pTbTBitRVdeB5y9SL2NEUpD35RukyZ5JhK1s=",
+        "owner": "davidlee",
+        "repo": "quotient",
+        "rev": "3395eabfad444d10a105efcdbbe95f9b7d80825c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "ref": "v0.1.1",
+        "repo": "quotient",
+        "type": "github"
+      }
+    },
     "resume": {
       "inputs": {
         "nixpkgs": [
@@ -8815,14 +8837,15 @@
         "nixpkgs": [
           "nixpkgs-home"
         ],
+        "quotient": "quotient_2",
         "zig-overlay": "zig-overlay_5"
       },
       "locked": {
-        "lastModified": 1792533526,
-        "narHash": "sha256-YiI/dFuc4sugN2Z+UotYu2GSHD/vHdH0ndxm8MKdWEQ=",
+        "lastModified": 1792733376,
+        "narHash": "sha256-K8M1ys4/XdNpzEKsB/F8eYADSlXmL3a035+2L6ZB7wE=",
         "owner": "davidlee",
         "repo": "satan",
-        "rev": "5e23a5aab0547c6978e8e1369c05ec11af29f7aa",
+        "rev": "b1828b7bdc66701310df0cc8e6d1501d2ed9fbdc",
         "type": "github"
       },
       "original": {

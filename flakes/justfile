@@ -285,12 +285,14 @@ assistant-push:
   capsule assistant push deck_of_dwarf main
   capsule assistant push quotient main
   capsule assistant push doctrine edge
+  sleep 3
   capsule assistant push goad-walk main
   capsule assistant push goad main
   capsule assistant push satan-attrd main
   capsule assistant push panopticon main
   capsule assistant push malebolge main
   capsule assistant push retrograde main
+  sleep 3
   capsule assistant push oubliette main
   capsule assistant push www main
   capsule assistant push resume main
@@ -301,7 +303,7 @@ assistant-push:
   capsule assistant push satan-corpus main
 
 [script]
-sync-room: #assistant-push
+sync-room: assistant-push
   capsule assistant ssh agent -- sh -s <<'REMOTE'
   set -eu
 
