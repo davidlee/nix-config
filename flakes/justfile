@@ -274,3 +274,88 @@ gc:
 
 melpa-list:
   nix eval --impure --raw --expr 'let f = builtins.getFlake "{{justfile_directory()}}/emacs"; pkgs = import f.inputs.nixpkgs { system = builtins.currentSystem; overlays = [ f.inputs.emacs-overlay.overlays.default ]; }; in builtins.concatStringsSep "\n" (builtins.attrNames pkgs.emacsPackages)' > emacs-packages.txt
+
+update-room:
+  sudo microvm -u assistant
+  capsule assistant stop
+  capsule assistant start
+
+assistant-push:
+  capsule assistant push pi main
+  capsule assistant push deck_of_dwarf main
+  capsule assistant push quotient main
+  capsule assistant push doctrine edge
+  capsule assistant push goad-walk main
+  capsule assistant push goad main
+  capsule assistant push satan-attrd main
+  capsule assistant push panopticon main
+  capsule assistant push malebolge main
+  capsule assistant push retrograde main
+  capsule assistant push oubliette main
+  capsule assistant push www main
+  capsule assistant push resume main
+  capsule assistant push notes main
+  capsule assistant push emacs-config main
+  capsule assistant push nix-config main
+  capsule assistant push satan main
+  capsule assistant push satan-corpus main
+
+[script]
+sync-room: #assistant-push
+  capsule assistant ssh agent -- sh -s <<'REMOTE'
+  set -eu
+
+  sync_repo() {
+    repo=$1
+    branch=$2
+    dir="/work/$repo"
+    ref="refs/host/$branch"
+
+    if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      echo "SKIP $repo: checkout missing"
+      return 0
+    fi
+
+    if ! git -C "$dir" show-ref --verify --quiet "$ref"; then
+      echo "SKIP $repo: $ref is missing"
+      return 0
+    fi
+
+    if [ -n "$(git -C "$dir" status --porcelain --untracked-files=all)" ]; then
+      echo "SKIP $repo: worktree has local changes"
+      return 0
+    fi
+
+    if git -C "$dir" show-ref --verify --quiet "refs/heads/$branch"; then
+      if ! git -C "$dir" merge-base --is-ancestor "refs/heads/$branch" "$ref"; then
+        echo "SKIP $repo: local $branch has commits absent from $ref"
+        return 0
+      fi
+      git -C "$dir" switch "$branch"
+    else
+      git -C "$dir" switch -c "$branch" "$ref"
+    fi
+
+    git -C "$dir" merge --ff-only "$ref"
+  }
+
+  sync_repo satan main
+  sync_repo doctrine edge
+  sync_repo goad-walk main
+  sync_repo goad main
+  sync_repo satan-attrd main
+  sync_repo panopticon main
+  sync_repo malebolge main
+  sync_repo retrograde main
+  sync_repo oubliette main
+  sync_repo www main
+  sync_repo resume main
+  sync_repo notes main
+  sync_repo deck_of_dwarf main
+  sync_repo quotient main
+  sync_repo pi main
+  sync_repo emacs-config main
+  sync_repo nix-config main
+  sync_repo satan-corpus main
+  REMOTE
+
