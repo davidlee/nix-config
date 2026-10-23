@@ -10,10 +10,10 @@ window_drag_toggle = "floating"
 
 [input.keyboard]
 options = "compose:menu"
-numlock_toggle = true # niri: keyboard { numlock }
+numlock_toggle = true
 
 [input.mouse]
-sensitivity = 0.4 # niri: mouse { accel-speed 0.4 }
+sensitivity = 0.4
 
 [input.cursor]
 theme = "breeze_cursors"
@@ -22,20 +22,9 @@ hardware_cursor = true
 hide_when_typing = true
 hide_timeout_ms = 440 # niri: hide-after-inactive-ms 800
 
-# niri: focus-follows-mouse max-scroll-amount="30%"
 [input.focus]
-follows_mouse = true
+# follows_mouse = true
 follows_mouse_max_scroll = 0.3
-
-# niri had a device-class `trackball` block (accel-speed 0.2,
-# scroll-button-lock). Umbriel overrides per device name only, so fill in
-# the exact name from `libinput list-devices` and uncomment. No trackball is
-# attached right now, so this stays commented rather than guessing a name.
-# [[input.device]]
-# name = "<trackball name from libinput list-devices>"
-# sensitivity = 0.2
-# scroll_button = "MouseMiddle"
-# scroll_button_lock = true
 
 # --- outputs ----------------------------------------------------------
 [output.DP-3]
