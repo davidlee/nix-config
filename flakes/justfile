@@ -235,7 +235,7 @@ workarounds-check pin="":
 # re-lock everything under development from its remote: push first
 update-local:
   bin/dev-checkouts ahead
-  nix flake update satan agents emacs $(bin/dev-checkouts names)
+  nix flake update fleet satan agents emacs $(bin/dev-checkouts names)
 
 push-local:
   for x in satan satan-attrd panopticon doctrine goad oubliette malebolge; do cd "$HOME/dev/${x}"; git push; done
