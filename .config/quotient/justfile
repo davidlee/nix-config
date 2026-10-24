@@ -1,7 +1,7 @@
-policy-install src="policy.src.json":
+policy-install src="policy.src.json" dst="policy.json":
   #!/usr/bin/env bash
   set -euo pipefail
-  dst=~/.config/quotient/policy.json
+  dst=~/.config/quotient/{{dst}}
   tmp=$(mktemp "$dst.XXXXXX")            # same directory, so mv is a rename(2)
   jq -e . {{src}} > "$tmp"               # also a validation step
   chmod 0444 "$tmp"
