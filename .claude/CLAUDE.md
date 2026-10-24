@@ -57,6 +57,13 @@
 
 # GPT
 
-separate billing. Use (judiciously) for design reviews, etc.
+separate billing. Use (judiciously) for design reviews, etc. Delegate via the `codex:ask` skill.
 
-gpt-6-sol unless instructed otherwise - frontier, best day to day architect / reviewer.
+Model tiers (the only place model names live; update when models change):
+- default: omit `--model` (Codex config default) - general delegation
+- strong: gpt-6.1-sol - best day to day architect / reviewer; complex delegation
+- strongest: gpt-6-astra - very complex reviews only
+
+Before the first Codex delegation in a session, list the current models:
+`codex debug models | jq -r '.models[] | select(.visibility=="list") | "\(.slug)\t\(.description)"'`
+If a listed model supersedes one of the tiers above (a newer version of the same family, or the tier's model is now described as previous/older), tell me before proceeding. Don't edit the tiers yourself.
