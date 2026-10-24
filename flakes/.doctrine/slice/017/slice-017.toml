@@ -1,7 +1,7 @@
 id = 17
 slug = "daily-oubliette-postgresql-backups"
 title = "Daily host-side PostgreSQL backups for the Oubliette room"
-status = "started"
+status = "reconcile"
 created = "2026-10-24"
 updated = "2026-10-24"
 tags = []
@@ -11,11 +11,15 @@ needs = []                      # slice→work hard prerequisite
 after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
-selector = "features/satan/**"
-intent = "scope-relevant"
+selector = "SATAN.md"
+intent = "design-target"
 
 [[selector]]
-selector = "SATAN.md"
+selector = "features/profiles/personal-linux.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan.nix"
 intent = "design-target"
 
 [[selector]]
@@ -27,12 +31,56 @@ selector = "features/satan/postgres-backup"
 intent = "design-target"
 
 [[selector]]
-selector = "features/satan.nix"
+selector = ".doctrine/backlog/improvement/040/**"
 intent = "design-target"
 
 [[selector]]
-selector = "features/profiles/personal-linux.nix"
+selector = ".doctrine/backlog/improvement/040-*"
 intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/knowledge/decision/080/**"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/knowledge/decision/080-*"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/review/036/**"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/review/036-*"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/review/037/**"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/review/037-*"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/slice/017/**"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/slice/017-*"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan/room.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/satan/runner.nix"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "features/satan/malebolge.nix"
+intent = "scope-relevant"
 
 [[relation]]
 label = "references"

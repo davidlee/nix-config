@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792746862,
-        "narHash": "sha256-DmVK2Tynnl+HvYnnGOGKOgpY3jDRxccNCl7kWfRLjgs=",
+        "lastModified": 1792817781,
+        "narHash": "sha256-QAdx2J0UENHHfvnJJf4ApJBj7hf43Ed5UzE6P6qdcVU=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "9c7dec189406e42440ad6d9ad6b81c6385a6a464",
+        "rev": "fe0f21eff447095833723964ed01fe510a097447",
         "type": "github"
       },
       "original": {
@@ -2567,11 +2567,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1792746862,
-        "narHash": "sha256-DmVK2Tynnl+HvYnnGOGKOgpY3jDRxccNCl7kWfRLjgs=",
+        "lastModified": 1792817781,
+        "narHash": "sha256-QAdx2J0UENHHfvnJJf4ApJBj7hf43Ed5UzE6P6qdcVU=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "9c7dec189406e42440ad6d9ad6b81c6385a6a464",
+        "rev": "fe0f21eff447095833723964ed01fe510a097447",
         "type": "github"
       },
       "original": {
@@ -2615,11 +2615,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1792787980,
-        "narHash": "sha256-kb2GKmqf2NlGx5bikoRd75KcOt7KhNqjUl0topKxCj4=",
+        "lastModified": 1792815328,
+        "narHash": "sha256-lFHX2KQI/vLi171kE/5XHh6H1ZuaM33YUCWTdhYLK68=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "04a66a57a189556e50d6ae3c1ac8e2c238d5a154",
+        "rev": "8070424d91ce0660bebe760ac066148150980a75",
         "type": "github"
       },
       "original": {
@@ -5583,11 +5583,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792742234,
-        "narHash": "sha256-XmgqKlH+i03i0zZIzXq7HrLzycpxHcVnsuOnIMQ8O70=",
+        "lastModified": 1792822122,
+        "narHash": "sha256-OYl2JXBOfqNRgj6ZGR+XBGJ3pBaXd2p/Hgjse3RekXM=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "68ab70e0282f0721c8f6c54fc6dfd25d5fb9a3a2",
+        "rev": "bd3288f1d28b4c53215f7a69b61fb7e68ea94b89",
         "type": "github"
       },
       "original": {
@@ -8818,11 +8818,11 @@
         "zig-overlay": "zig-overlay_5"
       },
       "locked": {
-        "lastModified": 1792742257,
-        "narHash": "sha256-6Qanmre2u0ITuDLsaJCMO+71PLJsL19+OgXW4b7uw2U=",
+        "lastModified": 1792818933,
+        "narHash": "sha256-eEPMsjPCZLqDfHgm8uVX6dAQyajTQzjFojzPCxlvfhc=",
         "owner": "davidlee",
         "repo": "satan",
-        "rev": "9ba44615801ecb4299f24bfde67b7ada897880d2",
+        "rev": "3520623cbd75f268fb30269e16a5a72263a480a8",
         "type": "github"
       },
       "original": {

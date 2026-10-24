@@ -1,0 +1,60 @@
+id    = 38
+slug  = "sl-017-implementation-conformance-audit"
+title = "SL-017 implementation conformance audit"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Reviewed the SL-017 commit fe0f21ef against the locked design and plan, inspected package and room-door wiring, systemd unit/timer attributes, script closure and failure paths, atomic publication and retention ordering, and SATAN.md claims. bash -n and Nix parsing passed. Builds, tests, activation, service runs, tunnels, and database operations were excluded by the design. F-1 is verified and routed to existing ISS-005; selector doctor passes with Doctrine-root-relative selectors, while the conformance path-root mismatch remains tracked there.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-017"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "minor"
+title = "Conformance compares Git-root paths with Doctrine-root selectors"
+detail = """
+Expected: the slice conformance report compares the PHASE-01 source delta with selectors rooted at the Doctrine project root `/home/david/flakes`.
+
+Observed: `doctrine slice selector doctor 17 --assert` passes for the root-relative selectors, but `doctrine slice conformance 17` reports the 24 committed paths as `flakes/...`, all 24 undeclared, and all 15 design-target selectors undelivered. Prefixing those selectors with `flakes/` made conformance report 24 conformant paths but caused selector doctor to report every prefixed selector unmatched.
+
+Evidence: Git's worktree root is `/home/david`; the Doctrine root is `/home/david/flakes`. The commit is `fe0f21ef`. Existing ISS-005 records this exact source-delta/selector root mismatch and calls for upstream path normalization. This is an audit-tool limitation; source review did not find an implementation divergence.
+"""
+disposition = "follow-up"
+response = """
+Route this known Doctrine path-normalization limitation to existing ISS-005, which states that source-delta paths are Git-root-relative while selectors are Doctrine-root-relative. The slice keeps selectors in the project-root-relative form validated by `selector doctor`; do not prefix them merely to silence conformance. No SL-017 implementation or design repair is indicated by this finding.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Route this known Doctrine path-normalization limitation to existing ISS-005, which states that source-delta paths are Git-root-relative while selectors are Doctrine-root-relative. The slice keeps selectors in the project-root-relative form validated by `selector doctor`; do not prefix them merely to silence conformance. No SL-017 implementation or design repair is indicated by this finding.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "The observation is confirmed and correctly routed to existing ISS-005; source review still finds the implementation aligned with the locked design."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
