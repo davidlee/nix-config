@@ -1,25 +1,23 @@
 
 #!/usr/bin/env nu
 use std/dirs
-use modules/nav *
-use modules/niri-wm *
-use modules/pi-dev *
+use mod/pi-dev *
 
 use std/util "path add"
 
 path add "~/nushell"
-use ./keys.nu
+source ./util/keys.nu
 use ./aliases.nu *
 
-source ./private.local.nu
-source ./just.nu
 source ./env.nu
-source ./completion.nu
+source ./private.local.nu
+source ./completion/init.nu
+source ./util/nav.nu
+source ./util/keys.nu
+
 # after completion.nu: fzf wraps whichever external completer is already registered
 source ./fzf.nu
-const ghostel_nu = "~/.config/emacs/elpa/ghostel/etc/shell/ghostel.nu"
-const conditionally = if ($ghostel_nu | path exists) { $ghostel_nu } else { null }
-source $conditionally
+source ./ghostel.nu
 
 # the rest of these live in flakes/modules/nixos/env.nix, so pam_env puts them
 # on PATH for GUI apps and systemd --user units too, not just shells.

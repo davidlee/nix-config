@@ -18,3 +18,4 @@ $env.config.completions.external = {
 }
 
 source ./zmx-completions.nu
+source ./just.nu
