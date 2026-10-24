@@ -80,7 +80,7 @@ for set_name in "${candidates[@]}"; do
   completed+=("$set_name")
 done
 while [ "${#completed[@]}" -gt 30 ]; do
-  rm -rf -- "$dest/${completed[0]}"
+  rm -rf -- "${dest:?}/${completed[0]:?}"
   completed=("${completed[@]:1}")
 done
 
