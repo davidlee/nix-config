@@ -1,0 +1,55 @@
+# Implementation plan for SL-017 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-017"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber, so the id
+# sequence goes non-monotonic after a split and that is expected. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms). The prefix is
+# the only mode marker; there is no mode field. Reference a criterion from
+# another phase phase-qualified (PHASE-03/EX-8) — bare EX-8 is ambiguous.
+[[phase]]
+id        = "PHASE-01"
+name      = "Implement host-side daily backup"
+objective = "Add the approved daily dump mechanism and its operator runbook in one coherent change."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-017 design is locked and accepted; DEC-080 governs destination and retention." },
+  { id = "EN-2", text = "The current tree confirms the satan door identity, nested room-client package path, personal-linux profile, and PostgreSQL 18 client package." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "The `satan.postgres-backup` Home Manager feature is registered and enabled by default in `personal-linux`; it declares a daily 03:00 persistent user timer without `WakeSystem`." },
+  { id = "EX-2", text = "The backup script creates a private local socket tunnel as `satan`, waits for PostgreSQL readiness with a bound, produces both full and schema-only PostgreSQL 18 custom-format dumps for database `satan`, cleans up its tunnel and temporary files, and prunes oldest complete sets only after successful publication." },
+  { id = "EX-3", text = "Completed sets are private, timestamped directories under host `$HOME/.local/state/oubliette/backups/assistant/satan`; at most the newest 30 complete sets remain." },
+  { id = "EX-4", text = "`SATAN.md` documents the output, timer inspection, manual run, logs, and restore source; no private key contents or database dumps enter tracked files." },
+]
+verification = [
+  { id = "VA-1", text = "Agent source review confirms the Nix feature uses the pinned nested room-client package and room door identity, all script commands are present in its runtime closure, and unit/timer attributes match the design." },
+  { id = "VA-2", text = "Agent source review confirms errors leave prior complete sets untouched, only complete timestamped directories are retention candidates, and the runbook does not claim a live restore was tested." },
+]
+specs             = []
+requirements      = []
+# VT/VA/VH by mode. Every VT row MUST carry a structured mandate:
+                                 #   { id = "VT-1", expects = "…",
+                                 #     test_file = "src/foo.rs", keywords = ["fn_name", "struct_name"],
+                                 #     patterns = ["^\\s*pub fn"], waived = false }
+                                 # test_file = path that must exist, keywords = raw substrings that must
+                                 # appear in it. Without a mandate verify-vt reports UNCHECKABLE (inert).
+# No automated tests or builds are added or run for this phase.

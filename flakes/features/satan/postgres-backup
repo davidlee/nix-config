@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+
+: "${HOME:?HOME must be set by the user service}"
+: "${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR must be set by the user service}"
+: "${ROOM_CLIENT:?ROOM_CLIENT must name the room-client bundle}"
+: "${ROOM_IDENTITY:?ROOM_IDENTITY must name the room SSH identity}"
+
+dest="$HOME/.local/state/oubliette/backups/assistant/satan"
+mkdir -p -- "$dest"
+chmod 700 -- "$dest"
+
+sockdir=$(mktemp -d "$XDG_RUNTIME_DIR/satan-db-forward.XXXXXX")
+tmp=
+ssh_pid=
+
+cleanup() {
+  status=$?
+  trap - EXIT INT TERM
+  if [ -n "$ssh_pid" ]; then
+    kill "$ssh_pid" 2>/dev/null || true
+    wait "$ssh_pid" 2>/dev/null || true
+  fi
+  rm -rf -- "$sockdir"
+  if [ -n "$tmp" ] && [ -d "$tmp" ]; then
+    rm -rf -- "$tmp"
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+chmod 700 -- "$sockdir"
+tmp=$(mktemp -d "$dest/.partial.XXXXXX")
+
+"$ROOM_CLIENT/bin/ssh" -F "$ROOM_CLIENT/etc/ssh_config" \
+  -i "$ROOM_IDENTITY" \
+  -o BatchMode=yes -o IdentitiesOnly=yes -o ExitOnForwardFailure=yes \
+  -N -L "$sockdir/.s.PGSQL.5432:/run/postgresql/.s.PGSQL.5432" \
+  satan@room-assistant &
+ssh_pid=$!
+
+ready=0
+for _ in {1..60}; do
+  if pg_isready -h "$sockdir" -p 5432 -U satan -d satan >/dev/null; then
+    ready=1
+    break
+  fi
+  if ! kill -0 "$ssh_pid" 2>/dev/null; then
+    wait "$ssh_pid" || true
+    echo "SSH tunnel exited before PostgreSQL became ready" >&2
+    exit 1
+  fi
+  sleep 1
+done
+if [ "$ready" -ne 1 ]; then
+  echo "PostgreSQL did not become ready through the room tunnel" >&2
+  exit 1
+fi
+
+stamp="$(date -u +%Y%m%dT%H%M%SZ)-$$"
+pg_dump -h "$sockdir" -p 5432 -U satan -d satan -F c \
+  -f "$tmp/full.dump"
+pg_dump -h "$sockdir" -p 5432 -U satan -d satan -F c --schema-only \
+  -f "$tmp/schema.dump"
+
+final="$dest/$stamp"
+mv -T -- "$tmp" "$final"
+tmp=
+
+mapfile -t candidates < <(
+  find "$dest" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort
+)
+completed=()
+for set_name in "${candidates[@]}"; do
+  [[ "$set_name" =~ ^20[0-9]{6}T[0-9]{6}Z-[0-9]+$ ]] || continue
+  [[ -f "$dest/$set_name/full.dump" && -f "$dest/$set_name/schema.dump" ]] || continue
+  completed+=("$set_name")
+done
+while [ "${#completed[@]}" -gt 30 ]; do
+  rm -rf -- "$dest/${completed[0]}"
+  completed=("${completed[@]:1}")
+done
+
+printf 'Created full and schema dumps in %s\n' "$final"

@@ -8,6 +8,7 @@
   feature.satan.attrd.enable = lib.mkDefault true;
   feature.satan.runner.enable = lib.mkDefault true;
   feature.satan.malebolge.enable = lib.mkDefault true;
+  feature.satan.postgres-backup.enable = lib.mkDefault true;
   feature.attention.behaviour.enable = lib.mkDefault true;
   feature.attention.nudge.enable = lib.mkDefault true;
   feature.attention.goad.enable = lib.mkDefault true;

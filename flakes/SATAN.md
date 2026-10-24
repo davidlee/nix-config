@@ -53,6 +53,7 @@ push first.
 | `satan-attrd` | `satan-attrd run`, `DATABASE_URL=postgres:///satan_memory?host=/run/postgresql` | always | `~/dev/satan-attrd/nix/module.nix:44-91` |
 | `satan-runner` | malebolge's patch-job runner: `bin/satan-runner` of the **pin** `inputs.malebolge.packages.<system>.runner` (`nodejs_24` on its `src/runner-main.ts`, production deps; CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
 | `malebolge-room` | the interactive daemon, room profile: `jailed-malebolge` from the satan **pin**, running the malebolge **live tree** (RSK-020; see [satan-runner](#satan-runner)); `Restart=on-failure`, 5 starts / 300 s; `X-RestartIfChanged=false` — restart by hand after a wrapper or tree change | on demand: no `[Install]`; `M-x malebolge-start` / `malebolge-stop` | `features/satan/malebolge.nix` |
+| `satan-postgres-backup` | host-side full and schema-only PostgreSQL 18 custom-format dumps of database `satan` through the assistant room's forwarded Unix socket | daily at 03:00 local time; persistent catch-up when the timer was inactive, no machine wake | `features/satan/postgres-backup.nix` |
 | `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -75,6 +76,7 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | Emacs server socket | `/run/user/1000/emacs/server` |
 | goad ingress | `/run/user/1000/goad.sock` |
 | runner store | `~/.local/state/satan/runner/runner.sqlite` (0700 dir, unit `StateDirectory=`): jobs, `job_events`, pi-durable |
+| Oubliette database backups | `~/.local/state/oubliette/backups/assistant/satan/<UTC timestamp>-<pid>/{full.dump,schema.dump}` (0700 set directories; newest 30 complete sets) |
 | runner control socket | `/run/user/1000/satan-runner/control.sock` (dir 0700 `RuntimeDirectory=`, socket 0600) |
 | runner config | `~/.config/satan-runner/{config.toml,ssh_config}` (HM-rendered from `features/satan/runner.nix`) |
 | runner model catalog | `/nix/store/…-satan-runner-gateway.json`, the jails' own render (`agents/pi-gateway.nix` over `agents/gateway.nix` `models`) |
@@ -238,6 +240,27 @@ the unit runs as the uid owning that 0700 directory (`david`). Each repo:
 `guest_path = /work/<target>`, `quarantine =
 /var/lib/capsule/collect/<room>/<target>.git` (created by oubliette's first
 collect; never by hand).
+
+### Daily PostgreSQL backup
+
+`satan-postgres-backup.timer` runs as the host user at 03:00 local time. A
+missed event is caught up after resume or when the user timer becomes active
+again; the timer does not wake the machine. If the room is unavailable, the
+service fails in the journal and the next scheduled event is the next attempt.
+
+- Inspect the schedule: `systemctl --user list-timers satan-postgres-backup.timer`
+- Run it manually: `systemctl --user start satan-postgres-backup.service`
+- Inspect the last run: `systemctl --user status satan-postgres-backup.service`
+- Read logs: `journalctl --user -u satan-postgres-backup.service`
+
+Each completed UTC timestamped directory under
+`~/.local/state/oubliette/backups/assistant/satan/` contains `full.dump` and
+`schema.dump`. Both are PostgreSQL 18 custom-format archives. The full dump is
+the database restore source; the schema-only dump is available for schema
+inspection or restoration. After a new set is published, the service retains
+the newest 30 complete sets. Restore has not been rehearsed; use `pg_restore`
+with `full.dump` and an appropriately prepared target database, and do not
+interpret the schema archive as a replacement for the full data dump.
 
 ### Host keys
 

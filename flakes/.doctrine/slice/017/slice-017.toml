@@ -1,0 +1,49 @@
+id = 17
+slug = "daily-oubliette-postgresql-backups"
+title = "Daily host-side PostgreSQL backups for the Oubliette room"
+status = "started"
+created = "2026-10-24"
+updated = "2026-10-24"
+tags = []
+
+[relationships]
+needs = []                      # slice→work hard prerequisite
+after = []                      # slice→work soft sequence: { to, rank }
+
+[[selector]]
+selector = "features/satan/**"
+intent = "scope-relevant"
+
+[[selector]]
+selector = "SATAN.md"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan/postgres-backup.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan/postgres-backup"
+intent = "design-target"
+
+[[selector]]
+selector = "features/satan.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/personal-linux.nix"
+intent = "design-target"
+
+[[relation]]
+label = "references"
+role = "originates_from"
+target = "IMP-040"
+
+# STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
+# `[relationships]` axis. Slices carry no typed STRUCTURAL
+# relation axes — the `[relationships]` table above holds only the dep/seq payload
+# (`needs`/`after`). Author a structural edge with the `doctrine link` verb
+# — it validates the (source, label) pair and resolves the target:
+#   doctrine link SL-NNN specs SPEC-NNN
+#   doctrine link SL-NNN governed_by ADR-NNN
+# `doctrine inspect SL-NNN` renders the inbound + outbound edges.

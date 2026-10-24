@@ -7,4 +7,5 @@
   (import ./satan/attrd.nix {inherit lib;})
   (import ./satan/runner.nix {inherit lib;})
   (import ./satan/malebolge.nix {inherit lib;})
+  (import ./satan/postgres-backup.nix {inherit lib;})
 ]

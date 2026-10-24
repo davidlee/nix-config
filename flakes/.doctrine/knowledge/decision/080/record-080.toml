@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 80
+slug = "host-side-oubliette-backups-use-30-day-retention"
+title = "Host-side Oubliette backups use 30-day retention"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-24"
+updated = "2026-10-24"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Oubliette room assistant persists PostgreSQL on its /home volume; a separate daily host-side backup is required for room-volume loss."
+choice = "Store dated full and schema-only dumps under the host users $HOME/.local/state/oubliette/backups/assistant/satan with mode 0700; retain 30 daily sets; prune expired sets only after both current dumps succeed."
+alternatives = ["Room-local dumps", "Unbounded host retention", "Off-host archival"]
+rationale = "The host path is independent of the room volume, private to the host user, bounded against indefinite growth, and the post-success prune rule preserves the prior set when a dump fails."
+consequences = ["Room-volume loss does not remove dumps", "Host disk loss is not covered", "Expired sets are deleted after 30 days"]
+decided_by = "user"
+decided_on = "2026-10-24"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-017"

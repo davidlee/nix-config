@@ -1,0 +1,24 @@
+id    = 37
+slug  = "design-review-of-sl-017"
+title = "design review of SL-017"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Adversarially checked the final materialised design against the current room-client contract, peer-auth and volume decisions, Flakes ADR-003 and POL-001, systemd 261 timer semantics, failure cleanup, retention ordering, and code-impact paths. No unresolved design finding remains; the user approved this design and requested implementation."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-017"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
