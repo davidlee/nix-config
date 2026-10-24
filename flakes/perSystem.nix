@@ -96,6 +96,8 @@ in {
           LLM_GATEWAY_REPORTS_COST =
             builtins.toJSON (lib.mapAttrsToList (_: p: p.env)
               (lib.filterAttrs (_: p: p.reportsCost or false) proxy.defaults.providers));
+          LLM_GATEWAY_MODELS =
+            builtins.toJSON (lib.mapAttrs (_: m: proxy.defaults.providers.${m.provider}.env) proxy.defaults.models);
           LLM_GATEWAY_TEST_CONFIG = proxy.configDir {
             extraModels.unpriced = {
               model = "deepseek/no-such-model-gateway-test";
