@@ -47,7 +47,7 @@
     signal = "manual";
   }
   {
-    attr = ["linuxPackages_latest" "v4l2loopback"];
+    attr = ["linuxPackages_latest" "v4l2loopback"]; # boot.kernelPackages (modules/nixos/kernel.nix): keep in step
     pin = "nixpkgs";
     system = "x86_64-linux";
     issue = "ISS-017";

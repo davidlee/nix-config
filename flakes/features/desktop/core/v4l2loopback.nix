@@ -1,9 +1,9 @@
 # Virtual camera (from kernel.nix).
-{pkgs, ...}: let
+{config, ...}: let
   # On kernel 7.3 the module's install leaves depmod's index (modules.dep, …)
   # in its output, which collides with the kernel's in the modules tree; that
   # tree builds its own index (ISS-017, probe in workarounds/default.nix).
-  v4l2loopback = pkgs.linuxPackages_latest.v4l2loopback.overrideAttrs (old: {
+  v4l2loopback = config.boot.kernelPackages.v4l2loopback.overrideAttrs (old: {
     postInstall =
       (old.postInstall or "")
       + ''
