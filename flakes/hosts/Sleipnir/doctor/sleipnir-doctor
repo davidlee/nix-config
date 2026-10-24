@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """sleipnir-doctor — at-a-glance system health check.
 
+  sleipnir-doctor [all|warn|crit] [--daily]     (-h for details)
+
 Add a check: write a function decorated with @check("Category", "Name") that
 returns Result(status, detail). Status is one of OK / WARN / CRIT.
 Registry preserves declaration order, which is also display order.
@@ -8,6 +10,8 @@ Registry preserves declaration order, which is also display order.
 
 from __future__ import annotations
 
+import argparse
+import datetime
 import json
 import os
 import re
@@ -26,19 +30,22 @@ BOLD = "\033[1m"
 DIM = "\033[2m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
-ORANGE = "\033[38;5;208m"
+RED = "\033[31m"
 CYAN = "\033[36m"
 
 USE_COLOR = sys.stdout.isatty() and os.environ.get("NO_COLOR") is None
 if not USE_COLOR:
-    RESET = BOLD = DIM = GREEN = YELLOW = ORANGE = CYAN = ""
+    RESET = BOLD = DIM = GREEN = YELLOW = RED = CYAN = ""
 
 OK, WARN, CRIT = "OK", "WARN", "CRIT"
+# CRIT differs in shape as well as colour: some themes render yellow as orange.
 GLYPH = {
     OK: f"{GREEN}●{RESET}",
     WARN: f"{YELLOW}●{RESET}",
-    CRIT: f"{ORANGE}●{RESET}",
+    CRIT: f"{BOLD}{RED}✖{RESET}",
 }
+RANK = {OK: 0, WARN: 1, CRIT: 2}
+LEVELS = {"all": OK, "warn": WARN, "crit": CRIT}  # CLI level → minimum status shown
 
 # ── Configurable lists ────────────────────────────────────────────────────────
 DAEMONS_USER = ["spotifyd", "swayosd"]
@@ -47,6 +54,10 @@ DAEMONS_SYSTEM = ["cups"]
 HOME = Path.home()
 FLAKES = HOME / "flakes"
 CHECKS_DIR = HOME / ".config" / "sleipnir-doctor" / "checks.d"
+DAILY_STAMP = (
+    Path(os.environ.get("XDG_STATE_HOME") or HOME / ".local" / "state")
+    / "sleipnir-doctor" / "last-daily"
+)
 
 
 # ── Registry ──────────────────────────────────────────────────────────────────
@@ -575,8 +586,8 @@ def run_external_checks() -> list[tuple[str, str, Result]]:
 NAME_WIDTH = 28
 
 
-def shown(checks: list[tuple[str, str, Result]], problems: bool):
-    return [c for c in checks if not problems or c[2].status != OK]
+def shown(checks: list[tuple[str, str, Result]], minimum: str):
+    return [c for c in checks if RANK[c[2].status] >= RANK[minimum]]
 
 
 def render_checks(checks: list[tuple[str, str, Result]]) -> None:
@@ -587,12 +598,47 @@ def render_checks(checks: list[tuple[str, str, Result]]) -> None:
                 print()
             print(f"{BOLD}{CYAN}── {category} ──{RESET}")
             current_cat = category
-        print(f"  {GLYPH[r.status]}  {name:<{NAME_WIDTH}} {DIM}{r.detail}{RESET}")
+        label = f"{name:<{NAME_WIDTH}}"
+        if r.status == CRIT:
+            label = f"{BOLD}{RED}{label}{RESET}"
+        print(f"  {GLYPH[r.status]}  {label} {DIM}{r.detail}{RESET}")
+
+
+# ── CLI ───────────────────────────────────────────────────────────────────────
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        prog="sleipnir-doctor",
+        description="At-a-glance system health. Exits 1 if any check is CRIT.",
+    )
+    p.add_argument(
+        "level", nargs="?", default="all", choices=LEVELS,
+        help="lowest status to list: all (default), warn, crit; "
+        "the summary always counts everything",
+    )
+    p.add_argument(
+        "--daily", action="store_true",
+        help=f"run at most once a day, for login hooks (stamp: {DAILY_STAMP})",
+    )
+    return p.parse_args(argv)
+
+
+def claim_day(stamp: Path, today: str) -> bool:
+    """Record `today` in `stamp`; False if it was already recorded."""
+    try:
+        if stamp.read_text().strip() == today:
+            return False
+    except OSError:
+        pass
+    stamp.parent.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(today + "\n")
+    return True
 
 
 def main() -> int:
+    args = parse_args(sys.argv[1:])
+    if args.daily and not claim_day(DAILY_STAMP, datetime.date.today().isoformat()):
+        return 0
     t0 = time.time()
-    problems = "--problems" in sys.argv[1:]  # only WARN/CRIT lines, then the summary
 
     builtin = []
     for category, name, fn in CHECKS:
@@ -603,7 +649,7 @@ def main() -> int:
         builtin.append((category, name, r))
 
     checks = builtin + run_external_checks()
-    render_checks(shown(checks, problems))
+    render_checks(shown(checks, LEVELS[args.level]))
     results = [r for _, _, r in checks]
 
     n_ok = sum(1 for r in results if r.status == OK)
@@ -616,7 +662,7 @@ def main() -> int:
     print(
         f"  {GREEN}{n_ok} ok{RESET}  "
         f"{YELLOW}{n_warn} warn{RESET}  "
-        f"{ORANGE}{n_crit} crit{RESET}    "
+        f"{BOLD if n_crit else ''}{RED}{n_crit} crit{RESET}    "
         f"{DIM}{dt:.2f}s{RESET}"
     )
     return 0 if n_crit == 0 else 1

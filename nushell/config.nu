@@ -66,12 +66,10 @@ def motd [] {
   if ("~/satan/motd.txt" | path exists) {
     print $"\e[31m(cat ~/satan/motd.txt)\e[0m\n"
   }
-  # sleipnir-doctor, once per login session: the stamp lives in the runtime
-  # dir, which logout clears. Problems only; `j doctor` shows everything.
-  let stamp = ($env.XDG_RUNTIME_DIR? | default "" | path join "sleipnir-doctor.motd")
-  if ($env.XDG_RUNTIME_DIR? != null) and (which sleipnir-doctor | is-not-empty) and not ($stamp | path exists) {
-    touch $stamp
-    sleipnir-doctor --problems
+  # sleipnir-doctor problems, once a day (the doctor keeps the stamp).
+  # `j doctor` shows everything.
+  if (which sleipnir-doctor | is-not-empty) {
+    sleipnir-doctor warn --daily
   }
 }
 

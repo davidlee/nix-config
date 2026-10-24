@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 """Panopticon health checks for sleipnir-doctor.
 
-Checks service health, raw event freshness (catches dead producers),
-and segment/histogram currency (catches broken segmentizer).
+Checks service health, the Firefox host manifest, raw event freshness
+(catches dead producers), and segment/histogram currency (catches broken
+segmentizer).
 """
 
 import json
 import os
 import subprocess
 import time
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, timedelta
 from pathlib import Path
 
 STATE = Path.home() / ".local" / "state" / "behaviour"
 RAW = STATE / "raw"
 SEGMENTS = STATE / "segments"
 HISTOGRAMS = STATE / "histograms"
+MANIFEST = Path.home() / ".mozilla" / "native-messaging-hosts" / "panopticon_firefox.json"
+NIX_STORE = Path("/nix/store")
 
-OK, WARN = "OK", "WARN"
+OK, WARN, CRIT = "OK", "WARN", "CRIT"
 CAT = "Panopticon"
 UNIT = "panopticon-desktop.service"  # the long-running watcher
 
@@ -28,7 +31,9 @@ UNIT = "panopticon-desktop.service"  # the long-running watcher
 SOURCES = {
   "desktop": {"warn_minutes": 30, "prefix": "focus"},
   # `app`: a feed that is silent while its app is closed (pgrep pattern).
-  "firefox": {"warn_minutes": 240, "prefix": "browser", "app": "firefox"},
+  # `crit_minutes`: silent this long while its app runs is a dead feed, not lag.
+  "firefox": {"warn_minutes": 240, "crit_minutes": 24 * 60, "prefix": "browser",
+              "app": "firefox"},
 }
 
 
@@ -60,17 +65,13 @@ def fmt_age(minutes):
   return f"{minutes / 60:.1f} h ago"
 
 
-def freshest_today(source):
-  """Age of the freshest raw file dated *today*, local or UTC.
+def freshest(source):
+  """Age of the newest raw file for `source`, whatever day it is bucketed on.
 
-  Raw files are bucketed on the day as the producer stamped it. The desktop
-  watcher stamps local-offset, firefox likewise post-fix — but a producer stamping
-  UTC `Z` buckets on the UTC day, which lags the local day by the offset (e.g.
-  until 10:00 in AEST). Checking both dates means a wrong-tz producer reports
-  its real freshness instead of a phantom "no events today" each morning.
+  Reading mtimes, not dated names, sidesteps producers that bucket on the UTC
+  day, and lets a feed dead for days read as days, not "no events today".
   """
-  days = {date.today().isoformat(), datetime.now(timezone.utc).date().isoformat()}
-  ages = [a for a in (file_age_minutes(RAW / f"{source}-{d}.jsonl") for d in days)
+  ages = [a for a in map(file_age_minutes, RAW.glob(f"{source}-*.jsonl"))
           if a is not None]
   return min(ages) if ages else None
 
@@ -93,7 +94,7 @@ def check_services():
 def check_raw_freshness():
   ages = {}
   for source in SOURCES:
-    ages[source] = freshest_today(source)
+    ages[source] = freshest(source)
 
   # Primary "is the machine even in use" signal — the compositor watcher.
   desktop_fresh = ages.get("desktop") is not None and ages["desktop"] < 30
@@ -122,14 +123,40 @@ def app_running(pattern):
 
 def freshness_result(cfg, age, desktop_fresh, running):
   # desktop_fresh: whether to blame the machine being idle rather than this feed.
-  detail = "no events today" if age is None else fmt_age(age)
+  detail = fmt_age(age)
   if not running:
     return OK, f"{detail} ({cfg['app']} not running)"
   if age is not None and age <= cfg["warn_minutes"]:
     return OK, detail
   if not desktop_fresh:
-    detail += " (desktop also stale)"
+    return WARN, f"{detail} (desktop also stale)"
+  crit = cfg.get("crit_minutes")
+  if crit is not None and (age is None or age > crit):
+    return CRIT, detail
   return WARN, detail
+
+
+def manifest_result(host_path, executable):
+  """Firefox starts the host from the manifest's path; a dangling path means
+  no browser capture at all, silently. A store path dangles after GC."""
+  if host_path is None:
+    return CRIT, f"no manifest at {MANIFEST}"
+  if not executable:
+    return CRIT, f"host missing: {host_path}"
+  if Path(host_path).is_relative_to(NIX_STORE):
+    return WARN, f"store path, GC will break it: {host_path}"
+  return OK, host_path
+
+
+def check_manifest():
+  try:
+    host_path = json.loads(MANIFEST.read_text())["path"]
+  except (OSError, ValueError, KeyError, TypeError):
+    host_path = None
+  executable = host_path is not None and os.access(host_path, os.X_OK)
+  status, detail = manifest_result(host_path, executable)
+  return {"category": CAT, "name": "firefox host manifest",
+          "status": status, "detail": detail}
 
 
 def check_segments():
@@ -237,6 +264,7 @@ def check_git_segments():
 
 def main():
   results = check_services()
+  results.append(check_manifest())
   results.extend(check_raw_freshness())
   results.extend(check_segments())
   results.append(check_git_segments())

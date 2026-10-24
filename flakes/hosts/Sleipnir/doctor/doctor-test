@@ -8,8 +8,11 @@ records it reads, so each case passes records in.
 
 import importlib.machinery
 import importlib.util
+import io
 import sys
+import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 
 sys.dont_write_bytecode = True  # SourceFileLoader would leave __pycache__ in the repo
@@ -83,7 +86,7 @@ class Crashes(unittest.TestCase):
 
 
 class Freshness(unittest.TestCase):
-  firefox = {"warn_minutes": 240, "app": "firefox"}
+  firefox = {"warn_minutes": 240, "crit_minutes": 24 * 60, "app": "firefox"}
 
   def result(self, age, running, cfg=None):
     return panopticon.freshness_result(cfg or self.firefox, age, True, running)
@@ -100,7 +103,15 @@ class Freshness(unittest.TestCase):
 
   def test_a_source_without_an_app_is_judged_on_age_alone(self):
     self.assertEqual(self.result(None, running=True, cfg={"warn_minutes": 30}),
-                     ("WARN", "no events today"))
+                     ("WARN", "no file"))
+
+  def test_a_feed_dead_for_a_day_is_crit(self):
+    self.assertEqual(self.result(25 * 60, running=True)[0], "CRIT")
+    self.assertEqual(self.result(None, running=True)[0], "CRIT")
+
+  def test_an_idle_machine_does_not_escalate(self):
+    self.assertEqual(
+      panopticon.freshness_result(self.firefox, 25 * 60, False, True)[0], "WARN")
 
 
 class Zombies(unittest.TestCase):
@@ -112,19 +123,56 @@ class Zombies(unittest.TestCase):
     self.assertEqual(doctor.zombie_result(50).status, doctor.CRIT)
 
 
-class Problems(unittest.TestCase):
+class Levels(unittest.TestCase):
   checks = [
     ("System", "disk", doctor.Result(doctor.OK, "fine")),
     ("System", "swap", doctor.Result(doctor.WARN, "low")),
     ("Nix", "store", doctor.Result(doctor.CRIT, "broken")),
   ]
 
-  def test_everything_by_default(self):
-    self.assertEqual(doctor.shown(self.checks, problems=False), self.checks)
+  def names(self, level):
+    return [n for _, n, _ in doctor.shown(self.checks, doctor.LEVELS[level])]
 
-  def test_problems_only_drops_ok(self):
-    self.assertEqual([n for _, n, _ in doctor.shown(self.checks, problems=True)],
-                     ["swap", "store"])
+  def test_all_by_default(self):
+    self.assertEqual(self.names(doctor.parse_args([]).level), ["disk", "swap", "store"])
+
+  def test_warn_drops_ok(self):
+    self.assertEqual(self.names("warn"), ["swap", "store"])
+
+  def test_crit_shows_only_crit(self):
+    self.assertEqual(self.names("crit"), ["store"])
+
+  def test_an_unknown_level_is_a_usage_error(self):
+    with self.assertRaises(SystemExit) as e, redirect_stderr(io.StringIO()):
+      doctor.parse_args(["warnings"])
+    self.assertEqual(e.exception.code, 2)
+
+
+class Daily(unittest.TestCase):
+  def test_runs_once_per_day(self):
+    with tempfile.TemporaryDirectory() as d:
+      stamp = Path(d) / "sub" / "last-run"
+      self.assertTrue(doctor.claim_day(stamp, "2026-10-25"))
+      self.assertFalse(doctor.claim_day(stamp, "2026-10-25"))
+      self.assertTrue(doctor.claim_day(stamp, "2026-10-26"))
+
+
+class Manifest(unittest.TestCase):
+  def test_an_executable_profile_path_is_ok(self):
+    path = "/home/u/.nix-profile/bin/panopticon-firefox-host"
+    self.assertEqual(panopticon.manifest_result(path, executable=True), ("OK", path))
+
+  def test_a_missing_manifest_is_crit(self):
+    self.assertEqual(panopticon.manifest_result(None, executable=False)[0], "CRIT")
+
+  def test_a_dangling_host_path_is_crit(self):
+    status, detail = panopticon.manifest_result("/gone/host", executable=False)
+    self.assertEqual(status, "CRIT")
+    self.assertIn("/gone/host", detail)
+
+  def test_a_store_path_warns_before_gc_breaks_it(self):
+    path = "/nix/store/0000-panopticon/bin/panopticon-firefox-host"
+    self.assertEqual(panopticon.manifest_result(path, executable=True)[0], "WARN")
 
 
 if __name__ == "__main__":
