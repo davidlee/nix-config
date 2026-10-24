@@ -185,9 +185,13 @@
       }));
       # withTrain=false drops the torch(-rocm)+aotriton+lightning/tensorboard
       # closure; piper inference runs on onnxruntime. Re-enable only to train.
+      # withJapanese=false drops pyopenjtalk: every pinned voice is English.
       # A later --data-dir still wins.
       piper = pkgs.writeShellScriptBin "piper" ''
-        exec ${pkgs.piper-tts.override {withTrain = false;}}/bin/piper \
+        exec ${pkgs.piper-tts.override {
+          withTrain = false;
+          withJapanese = false;
+        }}/bin/piper \
           --data-dir ${piperVoices} "$@"
       '';
 

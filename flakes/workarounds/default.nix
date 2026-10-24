@@ -46,4 +46,14 @@
     sites = ["features/platform-skips.nix"];
     signal = "manual";
   }
+  {
+    attr = ["linuxPackages_latest" "v4l2loopback"];
+    pin = "nixpkgs";
+    system = "x86_64-linux";
+    issue = "ISS-017";
+    reason = "0.15.4 output carries depmod's index on kernel 7.3; the modules tree conflicts";
+    sites = ["features/desktop/core/v4l2loopback.nix"];
+    # cached either way: the package builds; the conflict is downstream
+    signal = "manual";
+  }
 ]

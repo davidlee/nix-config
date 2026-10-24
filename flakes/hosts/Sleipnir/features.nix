@@ -60,6 +60,8 @@
   };
   feature.notes.joplin.enable = true;
   feature.ai.claude-desktop.enable = true;
+  # Off while llm-agents' chatgpt fails to build (ISS-016); personal-linux selects it.
+  feature.agents.chatgpt.enable = false;
 
   feature.desktop.greeter.enable = true; # the login screen; default session in config.nix
   feature.shell = {
