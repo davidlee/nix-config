@@ -31,7 +31,7 @@ alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
 
 alias clock="clock-rs -Bbt --fmt '%d %b' -c blue"
 
-alias warn="sleipnir-doctor --problems"
+alias warn="sleipnir-doctor warn"
 
 # single character aliases
 alias g=git;

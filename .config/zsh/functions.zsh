@@ -44,12 +44,22 @@ wm() {
 }
 
 #
-# satan motd, then sleipnir-doctor problems once a day (the doctor keeps
-# the stamp). `j doctor` shows everything.
+# motd [-v]: the satan motd if unseen, then sleipnir-doctor problems once a
+# day (the doctor keeps that stamp). -v: both, regardless. `j doctor` shows
+# everything.
 #
 motd() {
-  [[ -f ~/satan/motd.txt ]] && print -r -- $'\e[31m'"$(<~/satan/motd.txt)"$'\e[0m\n'
-  (( $+commands[sleipnir-doctor] )) && sleipnir-doctor warn --daily
+  local msg=~/satan/motd.txt seen=${XDG_STATE_HOME:-$HOME/.local/state}/motd/seen
+  local all=0
+  [[ $1 == -v ]] && all=1
+  # $seen carries the mtime of the last message shown
+  if [[ -f $msg ]] && { (( all )) || [[ ! -e $seen || $msg -nt $seen ]] }; then
+    print -r -- $'\e[31m'"$(<$msg)"$'\e[0m\n'
+    mkdir -p ${seen:h} && touch -r $msg $seen
+  fi
+  if (( $+commands[sleipnir-doctor] )); then
+    if (( all )); then sleipnir-doctor warn; else sleipnir-doctor warn --daily; fi
+  fi
 }
 
 #

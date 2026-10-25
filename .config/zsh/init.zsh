@@ -47,6 +47,14 @@ select-word-style normal
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 #
+# history-substring-search on up/down (trial; replaces omz's prefix-only
+# up-line-or-beginning-search). Atuin keeps ^R and leaves the arrows alone.
+#
+for key in '^[[A' '^[OA'; do bindkey $key history-substring-search-up; done
+for key in '^[[B' '^[OB'; do bindkey $key history-substring-search-down; done
+unset key
+
+#
 # brew
 #
 if [ -f /opt/homebrew/bin/brew ]; then
@@ -70,3 +78,6 @@ eval "$(zoxide init zsh --cmd cd --hook prompt)"
 if [[ "${${INSIDE_EMACS-}%%,*}" = 'ghostel' ]]; then
   source ~/.config/emacs/elpa/ghostel/etc/shell/ghostel.zsh
 fi
+
+# unseen satan motd; daily doctor problems
+motd
