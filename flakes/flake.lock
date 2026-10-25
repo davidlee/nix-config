@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1792829794,
-        "narHash": "sha256-5xPdh4d/70EKtHO76ePCqplS0HPvN41DhqGUruYDvF8=",
+        "lastModified": 1792846150,
+        "narHash": "sha256-1bfglBWeARJQwx/jxjAOH23fAjZWC+ES6og5VCI0LSA=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "821195fead6bba441a2cd448fb84a1ab71d2d199",
+        "rev": "b1e303ef1dba79b5dde9147a78f590ef2dbd85bf",
         "type": "github"
       },
       "original": {
@@ -2567,11 +2567,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1792829794,
-        "narHash": "sha256-5xPdh4d/70EKtHO76ePCqplS0HPvN41DhqGUruYDvF8=",
+        "lastModified": 1792846150,
+        "narHash": "sha256-1bfglBWeARJQwx/jxjAOH23fAjZWC+ES6og5VCI0LSA=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "821195fead6bba441a2cd448fb84a1ab71d2d199",
+        "rev": "b1e303ef1dba79b5dde9147a78f590ef2dbd85bf",
         "type": "github"
       },
       "original": {
@@ -2615,11 +2615,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1792815328,
-        "narHash": "sha256-lFHX2KQI/vLi171kE/5XHh6H1ZuaM33YUCWTdhYLK68=",
+        "lastModified": 1792848148,
+        "narHash": "sha256-wKs9C638U8hCt/ZCVDCIuj516Vgm8Vv8bWRMsfFJvHE=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "8070424d91ce0660bebe760ac066148150980a75",
+        "rev": "9ed3cc4796aba2b8aac5c17f6b5f34eaf946e97d",
         "type": "github"
       },
       "original": {
@@ -4422,11 +4422,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1792829728,
-        "narHash": "sha256-BFfaOi53cwiCjL5ODMEd1UqcupSy9wpRRh2o0LgwhUU=",
+        "lastModified": 1792849629,
+        "narHash": "sha256-FBOGCZHdBCPuCCbbVzHiRR58jZaqelSC4n7jCej01Ng=",
         "ref": "refs/heads/main",
-        "rev": "22c7b2c12b2b7ffbbf9a1427d048fd9327ca2b91",
-        "revCount": 21,
+        "rev": "d7f9eff2e0978e596a814d2c1e142aeac03a20df",
+        "revCount": 22,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -5583,11 +5583,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792832307,
-        "narHash": "sha256-nsvppdWiM/QV9+PRrzRC0atVrgXlph4qQgsrrzq8Qms=",
+        "lastModified": 1792847715,
+        "narHash": "sha256-42bLZKnTCDkl6mmeI0JZHp/WY9uHN5cuu/dngHfQQ90=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "c984996e1e509d844ae97b8a08c97a65f52d4579",
+        "rev": "07541f987bbd619829bf6e7a2bc8bef61c1fac5b",
         "type": "github"
       },
       "original": {
@@ -8212,11 +8212,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1792828807,
-        "narHash": "sha256-QpbMYgQD0ML++a1kxh+4N8BzwhgQUFbEbdKJ7kEMqCA=",
+        "lastModified": 1792844258,
+        "narHash": "sha256-VkgwbhC9t9Wz9GztvSVlwb+TBthJ6EqRaffp+K1DDEo=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "f715a15c101ca8a44d759bceeb7ec2a51024c81c",
+        "rev": "f321e5bdd26b3624bfb2ab182a334d0a5edb698a",
         "type": "github"
       },
       "original": {

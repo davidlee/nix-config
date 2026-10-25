@@ -13,7 +13,7 @@
       extraGroups = ["networkmanager" "wheel"];
       home = "/home/${username}";
       #shell = pkgs.zsh;
-      shell = pkgs.nushell;
+      shell = pkgs.zsh;
       packages = [
         pkgs.home-manager
       ];

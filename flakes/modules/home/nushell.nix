@@ -3,7 +3,8 @@
     nushell = {
       enable = true;
       # nu can't source hm-session-vars.sh, so pass home.sessionVariables directly
-      environmentVariables = config.home.sessionVariables;
+      # environmentVariables = config.home.sessionVariables; # deprecated
+      loadSessionVariables = true;
       settings = {
         show_banner = false;
       };
@@ -35,6 +36,7 @@
       enableNushellIntegration = true;
       enable = true;
     };
+
     # this was a piece of shit to get working
     # should do something neater than a hacked version of M365Princess theme
     # but I lost enthusiasm
@@ -42,13 +44,14 @@
       enable = true;
       enableNushellIntegration = true;
       enableBashIntegration = true;
+
       settings = builtins.fromJSON (
         builtins.readFile ../../files/omp.custom.json
       );
     };
     eza = {
       enable = true;
-      # enableNushellIntegration = true;
+      enableNushellIntegration = true;
     };
     fzf = {
       enable = true;
