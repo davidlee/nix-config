@@ -115,19 +115,9 @@
             Service.RestartSec = lib.mkForce "5s";
           };
 
-          wpm-daemon = {
-            Unit = {
-              Description = "Keypress counter for Waybar WPM";
-              PartOf = ["graphical-session.target"];
-            };
-            Service = {
-              ExecStart = "${wpmPython}/bin/python3 ${wpmScript} --daemon";
-              Restart = "always";
-              RestartSec = "2s";
-            };
-            Install = {WantedBy = ["graphical-session.target"];};
-          };
-
+          # The keypress counter is panopticon-keyrate (features/attention/
+          # behaviour.nix); it writes the TSV this archives until SATAN reads
+          # panopticon's raw stream (panopticon IMP-005).
           wpm-archive = {
             Unit.Description = "Roll yesterday's WPM log into hourly buckets";
             Service = {

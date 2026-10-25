@@ -39,6 +39,23 @@
             Install.WantedBy = ["graphical-session.target"];
           };
 
+          # Replaced wpm-daemon; also writes its TSV under satan/log/wpm until
+          # SATAN reads raw/keyrate-* (panopticon IMP-005). Needs the `input` group.
+          panopticon-keyrate = {
+            Unit = {
+              Description = "panopticon — key and pointer activity per minute, live rate socket";
+              After = ["graphical-session.target"];
+              PartOf = ["graphical-session.target"];
+            };
+            Service = {
+              Type = "simple";
+              ExecStart = "${panopticon}/bin/panopticon-keyrate";
+              Restart = "always";
+              RestartSec = 2;
+            };
+            Install.WantedBy = ["graphical-session.target"];
+          };
+
           panopticon-segmentize = {
             Unit.Description = "panopticon — derive segments + enforce retention";
             Service = {
