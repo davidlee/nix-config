@@ -6,7 +6,7 @@
 # don't load system-wide nixos defaults for ZSH from /etc/zprofile and /etc/zshrc:
 setopt no_global_rcs
 
-export EDITOR="emacsclient"
+export EDITOR="emacsclient -t"
 export VISUAL="emacsclient"
 export ALTERNATE_EDITOR=nvim
 export PAGER=ov
@@ -36,12 +36,11 @@ export MCFLY_INTERFACE_VIEW=BOTTOM
 # Secrets
 #
 
-export DEEPSEEK_API_KEY="op://API_KEYS/DEEPSEEK_API_KEY/credential"
-export OPENROUTER_API_KEY="op://API_KEYS/OPENROUTER_API_KEY/credential"
-export MISTRAL_API_KEY="op://API_KEYS/MISTRAL_API_KEY/credential"
-export VOYAGE_API_KEY="op://API_KEYS/VOYAGE_API_KEY/credential"
-export OPENAI_API_KEY="op://API_KEYS/OPENAI_API_KEY/credential"
-export GEMINI_API_KEY="op://API_KEYS/GEMINI_API_KEY/credential"
-export ANTHROPIC_API_KEY="op://API_KEYS/ANTHROPIC_API_KEY/credential"
+# 1password uris
+for provider in DEEPSEEK OPENROUTER MISTRAL VOYAGE GEMINI; do
+  key="${provider}_API_KEY"
+  export "$key"="op://API_KEYS/${key}/credential"
+done
 
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+

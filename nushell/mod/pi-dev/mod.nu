@@ -1,6 +1,11 @@
 
-export def ppi [...args] {
-  with-env {LLM_GATEWAY_KEY: (cat ~/.config/llm-gateway/keys/pi) } {
+def gateway-key []: nothing -> string {
+  open --raw ~/.config/llm-gateway/keys/pi | str trim
+}
+
+# pi on the gateway.
+export def --wrapped ppi [...args] {
+  with-env {LLM_GATEWAY_KEY: (gateway-key)} {
     pi ...$args
   }
 }
@@ -80,7 +85,7 @@ export def --wrapped jail [--with: string = "", cmd: string, ...args] {
 
 # pi in the jail, on the gateway.
 export def --wrapped pox [--with: string = "", ...args] {
-  with-env {LLM_GATEWAY_KEY: (open --raw ~/.config/llm-gateway/keys/pi | str trim)} {
+  with-env {LLM_GATEWAY_KEY: (gateway-key)} {
     jail --with $with pi ...$args
   }
 }

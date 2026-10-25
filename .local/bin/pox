@@ -1,0 +1,7 @@
+#!/usr/bin/env nu
+# pi in the pi-dev jail, on the gateway. Implementation: ~/nushell/mod/pi-dev.
+use ~/nushell/mod/pi-dev pox
+
+def --wrapped main [--with: string = "", ...args] {
+  pox --with $with ...$args
+}

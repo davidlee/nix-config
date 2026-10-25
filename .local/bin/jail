@@ -1,0 +1,9 @@
+#!/usr/bin/env nu
+# Run a command in the pi-dev bwrap jail. Implementation: ~/nushell/mod/pi-dev.
+use ~/nushell/mod/pi-dev jail
+
+# A --wrapped rest takes args as raw strings; a typed positional would parse
+# e.g. `true` or `1` as nu literals.
+def --wrapped main [--with: string = "", ...cmd] {
+  jail --with $with ($cmd | first) ...($cmd | skip 1)
+}

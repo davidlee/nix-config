@@ -1,0 +1,7 @@
+#!/usr/bin/env nu
+# pi on the gateway, unjailed. Implementation: ~/nushell/mod/pi-dev.
+use ~/nushell/mod/pi-dev ppi
+
+def --wrapped main [...args] {
+  ppi ...$args
+}

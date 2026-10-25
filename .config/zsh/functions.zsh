@@ -68,14 +68,45 @@ wm() {
 }
 
 #
-# find subdir in a zoxide dir
+# navigation
 #
 
-cz() {
-  base=$(zoxide query $1);
-  dir="$base/$(fd . -t d --base-directory $base --strip-cwd-prefix=always | fzf)";
-  chdir $dir
+git-root() { git rev-parse --show-toplevel }
+gr() { cd "$(git-root)" }
+
+# cd to an fzf-picked subdir of $1; further args go to fd
+cd-pick() {
+  local base=$1 sub
+  sub=$(fd . -t d "${@:2}" --base-directory "$base" --strip-cwd-prefix=always | fzf) &&
+    cd "$base/$sub"
 }
+
+# zoxide's match for $1, or the git root
+cz-base() { if (( $# )); then zoxide query "$1"; else git-root; fi }
+
+# cz [query]: pick a subdir of the git root, or of a zoxide dir; czh: incl. hidden
+cz() { local base; base=$(cz-base "$@") && cd-pick "$base" }
+czh() { local base; base=$(cz-base "$@") && cd-pick "$base" --hidden }
+
+# pick from favourite dirs
+ch() {
+  local dir
+  dir=$(gum choose ~/dev/doctrine ~/.config/emacs ~/dev/notes ~/flakes ~/nushell \
+    ~/Downloads ~/.local/src ~/.local/bin) && cd "$dir"
+}
+
+#
+# zmx: attach to a session, creating it in its own systemd scope if new
+#
+za() { systemd-run --user --scope --collect --quiet zmx attach "$@" }
+_za() { (( CURRENT == 2 )) && compadd -- ${(f)"$(zmx list --short 2>/dev/null)"} }
+compdef _za za
+
+#
+# snooze-nag
+#
+nag() { systemctl --user start snooze-nag snooze-nag.timer }
+nonag() { systemctl --user stop snooze-nag.timer snooze-nag }
 
 #
 # find & edit a file in a zoxide dir

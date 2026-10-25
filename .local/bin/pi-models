@@ -1,0 +1,8 @@
+#!/usr/bin/env nu
+# pi's models.json for the gateway: pi-models o> ~/.pi/models.json
+# Implementation: ~/nushell/mod/pi-dev.
+use ~/nushell/mod/pi-dev models
+
+def main [] {
+  models
+}

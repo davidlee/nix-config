@@ -5,37 +5,49 @@ unfunction d
 alias s=z
 alias si=zi
 
-alias v="vice";
-alias vm="vice -W meta";
-alias vin="vice -W inlight";
-alias x="vice -i";
+# alias v="vice";
+# alias vm="vice -W meta";
+# alias vin="vice -W inlight";
+# alias x="vice -i";
 
-alias em="emacsclient";
+alias et="emacsclient -t";
+alias e="emacsclient";
+alias ea="emacsclient -a";
+alias ec="emacsclient -c";
 alias emt="emacsclient --tty";
-alias emn="emacsclient --tty --no-wait";
+alias en="emacsclient --no-wait";
+alias ee="emacsclient --eval";
+alias er="emacsclient --reuse-frame";
+alias ent="emacsclient --tty --no-wait";
+
+alias nw="emacs -nw"
 
 alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
-alias ea="distrobox enter --root archlinux"
+# alias ea="distrobox enter --root archlinux"
 # alias gcal="gcalcli agenda --calendar $WORK_EMAIL"
 
-alias clock="clock-rs --fmt \"%d %b\""
+alias clock="clock-rs -Bbt --fmt '%d %b' -c blue"
 
 # single character aliases
 alias g=git;
+alias d=doctrine;
 alias j=just;
-alias jc="just --choose"
+alias jc="just --choose" # !!
 alias _=sudo;
 
 alias dr="sleipnir-doctor"
 
-alias nw="emacs -nw"
 
 alias c="cd $HOME/.config";
-alias cfg="fzd $HOME/.config";
+alias cfg="cd-pick ~/.config";
 
-alias tx="exec tmx default"
-alias gg=git;
-alias yy=yazi;
+# alias tx="exec tmx default"
+# y, lg: home-manager functions in .zshrc (cd on exit); no aliases here.
+
+# bookmarks
+alias dev="cd ~/dev";
+alias fl="cd ~/flakes";
+alias notes="cd ~/notes";
 
 # editors
 alias vi=nvim;
@@ -43,9 +55,9 @@ alias vim=nvim;
 alias zed=zeditor;
 
 # TUI shortcuts
-alias yz=yazi;
-alias lg=lazygit;
-alias ip=ip -color;
+alias st="git status";
+alias zf=zi;
+# alias ip=ip -color;
 
 # alias -g G="| grep -E --color=auto";
 alias -g C="| wl-copy -rp"
@@ -78,18 +90,11 @@ alias -g "...."="../../.."
 # list files
 alias vdir="vdir --color=auto";
 alias dir="dir --color=auto";
-alias l="eza -lh";
-alias ll="eza -lh --grid --group-directories-first";
-alias la="eza -lah --grid --group-directories-first";
+# ls, la, ll, lla, lt: home-manager eza integration (defined after this file)
 alias ld="eza -lhD";
-alias lt="eza --tree";
-alias ls='eza $eza_params'
 alias l='eza --git-ignore $eza_params'
-alias ll='eza --all --header --long $eza_params'
 alias llm='eza --all --header --long --sort=modified $eza_params'
-alias la='eza -lbhHigUmuSa'
 alias lx='eza -lbhHigUmuSa@'
-alias lt='eza --tree $eza_params'
 alias tree='eza --tree $eza_params'
 
 # grep
@@ -103,12 +108,13 @@ alias drs="cd ~/flakes && just darwin-switch";
 alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch --flake /home/david/flakes/\#$HOST |& nom --json' ";
 alias nrb="sudo zsh -c 'nixos-rebuild --no-reexec -v --log-format internal-json --flake /home/david/flakes/\#$HOST |& nom --json --show-trace' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
+
 alias ns="nix-search-tv print | fzf --preview 'nix-search-tv preview {}' --scheme history"
 
-alias waybar-reload='pkill waybar --signal SIGUSR2'
+# alias waybar-reload='pkill waybar --signal SIGUSR2'
 
 # misc
 
 alias cl="clock-rs -Bbt --fmt '%Y-%m-%d'";
-alias arch="distrobox enter archlinux";
+# alias arch="distrobox enter archlinux";
 alias supabase-kill="docker ps -q --filter "name=supabase_" | xargs -r docker stop"
