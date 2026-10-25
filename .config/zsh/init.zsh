@@ -13,7 +13,6 @@ path=(~/bin
 path+=$HOME/.npm-global/bin
 path+=$PNPM_HOME
 path+=$HOME/go/bin
-path+=$PWD/bin
 
 fpath+=$HOME/.config/zsh/completions
 
@@ -24,45 +23,16 @@ setopt BEEP
 
 unsetopt FLOW_CONTROL
 
-# OMZ plugins
-# plugins=(colored-man-pages extract 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
-# plugins=(colored-man-pages extract 1password copypath copybuffer copyfile colorize eza fancy-ctrl-z kitty rust systemd globalias podman zsh-syntax-highlighting zsh-autosuggestions)
-
-# zle -N menu-search
-# zle -N recent-paths
-
-#
-# powerlevel10K
-#
-[[ ! -f ~/.config/zsh/_p10k.zsh ]] || source ~/.config/zsh/_p10k.zsh
-export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
-
+# Integrations (atuin, carapace, direnv, eza, fzf, oh-my-posh, television,
+# yazi, lazygit) are set up by home-manager in .zshrc, after this file.
 
 ## Antidote
 zstyle ':antidote:bundle' use-friendly-names 'yes'
 antidote load ${ZDOTDIR}/.zsh_plugins.txt
-# source ${ZDOTDIR}/.zsh_plugins.zsh
-
-if [[ $OSTYPE = 'linux-gnu' ]]; then
-  alias open=xdg-open
-fi
 
 source $HOME/.config/zsh/functions.zsh
 source $HOME/.config/zsh/functions/fzf.zsh
-source $HOME/.config/zsh/zstyle.zsh
 source $HOME/.config/zsh/aliases.zsh
-
-#
-# override marlonrichert/zsh-autocomplete keybindings:
-#
-
-# tab & shift-tab
-#bindkey              '^I' menu-select
-#bindkey "$terminfo[kcbt]" menu-select
-#
-## tab + shift-tab cycle listed completions
-#bindkey -M menuselect              '^I'         menu-complete
-#bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete
 
 #
 # fix word-style
@@ -76,10 +46,6 @@ select-word-style normal
 #
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
-# fffff
-# eval "$(pay-respects zsh --alias)"
-
-
 #
 # brew
 #
@@ -87,76 +53,23 @@ if [ -f /opt/homebrew/bin/brew ]; then
   eval $(/opt/homebrew/bin/brew shellenv);
 fi
 
-
-#
-# tmux
-#
-if [[ -z $TMUX ]]; then
-  (tmux list-sessions 2>/dev/null | grep -v -E '^_')
-fi
-
 #
 # carapace - https://carapace-sh.github.io/carapace-bin/setup.html
 #
 export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
 zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
-source <(carapace _carapace)
 
 #
-# skim - https://github.com/skim-rs/skim?tab=readme-ov-file#manually
-#
-source <(sk --shell zsh)
-
-#
-# fzf
-#
-source <(fzf --zsh)
-export FZF_CTRL_T_COMMAND='bfs -type f'
-export FZF_CTRL_C_COMMAND='bfs -type d'
-export FZF_CTRL_T_OPTS="--bind 'f1:execute(less -f {}),ctrl-y:execute-silent(echo {} | wl-copy),ctrl-o:execute(nvim {})+abort'"
-
-#
-# mcfly
-#
-eval "$(mcfly init zsh)"
-
-#
-# zoxide - must be AFTER compinit
+# zoxide: cd is zoxide. Overrides home-manager's plain init (z, zi stay).
 #
 eval "$(zoxide init zsh --cmd cd --hook prompt)"
 
-
 #
-# silence, nix-direnv
+# ghostel (emacs terminal) shell integration
 #
-export DIRENV_LOG_FORMAT="$(printf "\033[2mdirenv: %%s\033[0m")"
-eval "$(direnv hook zsh)"
-_direnv_hook() {
-  eval "$(direnv export zsh 2> >(egrep -v -e '^....direnv: export' >&2))"
-};
-
-
-##
-## VTERM
-##
-vterm_printf() {
-    if [ -n "$TMUX" ] \
-        && { [ "${TERM%%-*}" = "tmux" ] \
-            || [ "${TERM%%-*}" = "screen" ]; }; then
-        # Tell tmux to pass the escape sequences through
-        printf "\ePtmux;\e\e]%s\007\e\\" "$1"
-    elif [ "${TERM%%-*}" = "screen" ]; then
-        # GNU screen (screen, screen-256color, screen-256color-bce)
-        printf "\eP\e]%s\007\e\\" "$1"
-    else
-        printf "\e]%s\e\\" "$1"
-    fi
-}
-if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
-    alias clear='vterm_printf "51;Evterm-clear-scrollback";tput clear'
+if [[ "${${INSIDE_EMACS-}%%,*}" = 'ghostel' ]]; then
+  source ~/.config/emacs/elpa/ghostel/etc/shell/ghostel.zsh
 fi
-## END
 
 ## SATAN MOTD
 [[ -f ~/satan/motd.txt ]] && echo -ne "\e[31m$(cat ~/satan/motd.txt)\e[0m\n"
-

@@ -51,7 +51,6 @@ in [
       imports = [./terminal/zsh.nix];
       home.packages = with pkgs; [
         zsh
-        zsh-autocomplete
         antidote
       ];
     };

@@ -10,7 +10,6 @@ export EDITOR="emacsclient -t"
 export VISUAL="emacsclient"
 export ALTERNATE_EDITOR=nvim
 export PAGER=ov
-export GOHOME="~/go"
 # export MANPAGER='nvim +Man!'
 export MANPAGER='most'
 
@@ -21,16 +20,6 @@ if [[ "Darwin" != "$(uname -o)" ]]; then
     echo "$XDG_RUNTIME_DIR not set, can't set SSH_AUTH_SOCK"
   fi
 fi
-
-#
-# mcfly
-#
-
-export MCFLY_KEY_SCHEME=vim
-export MCFLY_FUZZY=2
-export MCFLY_RESULTS=50
-export MCFLY_RESULTS_SORT=LAST_RUN
-export MCFLY_INTERFACE_VIEW=BOTTOM
 
 #
 # Secrets

@@ -27,30 +27,6 @@ tempe () {
   fi
 }
 
-#
-# log - zig/it/am
-#
-
-vilog () {
-  date=$(date +'%Y-%m-%d');
-  file="~/log/$date.md";
-  echo $file
-  echo $(which nvim)
-  nvim ~/log/$date.md;
-}
-
-log () {
-  date=$(date +'%Y-%m-%d');
-  file="~/log/$date.md";
-  glow ~/log/$date.md;
-}
-
-logf () {
-  date=$(date +'%Y-%m-%d');
-  file="~/log/$date.md";
-  echo $file
-}
-
 #################
 # compost:
 #
@@ -195,7 +171,6 @@ colors () {
 my_bfs_excludes="-exclude -name .git -exclude -name result -exclude -name .obsidian"
 
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --ansi"
-FZF_CTRL_T_COMMAND="bfs -color -mindepth 1 $my_bfs_excludes -printf '%P\n' 2>/dev/null"
 FZF_ALT_C_COMMAND="bfs -color -mindepth 1 $my_bfs_excludes -type d -printf '%P\n' 2>/dev/null"
 
 _fzf_compgen_path() {
@@ -205,44 +180,3 @@ _fzf_compgen_path() {
 _fzf_compgen_dir() {
     bfs -H "$1" -color $my_bfs_excludes -type d 2>/dev/null
 }
-
-#
-# Sesh https://github.com/joshmedeski/sesh?tab=readme-ov-file
-#
-
-# open a session such that you can have different windows open
-# who'd have thought this would require such a shell game? [sic]
-#
-function sesh-graft() {
-  base_session=$1
-  session_id=$(date +%Y%m%d%H%M%S)
-  # Create a new session (without attaching it) and link to base session
-  # to share windows
-  tmux new-session -d -t $base_session -s $session_id
-  if [[ "$2" == "1" ]]; then
-    # Create a new window in that session
-    tmux new-window
-  fi
-  # Attach to the new session & kill it once orphaned
-  tmux attach-session -t $session_id \; set-option destroy-unattached
-}
-
-function sesh-sessions() {
-  {
-    exec </dev/tty
-    exec <&1
-    local session
-    session=$(sesh list -t -c | fzf --height 40% --reverse --border-label ' sesh ' --border --prompt '⚡  ')
-    zle reset-prompt > /dev/null 2>&1 || true
-    [[ -z "$session" ]] && return
-    sesh connect $session
-    sesh-graft $session
-  }
-}
-
-# hit <Esc>s for a sesh-sessions popup
-zle     -N             sesh-sessions
-bindkey -M emacs '\es' sesh-sessions
-bindkey -M vicmd '\es' sesh-sessions
-bindkey -M viins '\es' sesh-sessions
-

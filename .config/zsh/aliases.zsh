@@ -1,6 +1,9 @@
 # undef oh-my-zsh lib/directories.zsh function for
 # directory management so i can use it for doctrine
-unfunction d
+(( $+functions[d] )) && unfunction d
+
+# the zsh builtin `log` (watch) hides ~/.local/bin/log
+disable log
 
 alias s=z
 alias si=zi
@@ -27,6 +30,8 @@ alias phones="pactl set-default-sink bluez_output.80_99_E7_ED_2D_2D.1"
 # alias gcal="gcalcli agenda --calendar $WORK_EMAIL"
 
 alias clock="clock-rs -Bbt --fmt '%d %b' -c blue"
+
+alias warn="sleipnir-doctor --problems"
 
 # single character aliases
 alias g=git;
@@ -70,9 +75,7 @@ alias -g L='| less'
 alias -g T="| tr -d '\n' "
 alias -g W='| wc -l'
 
-if [[ $OSTYPE = 'linux-gnu' ]]; then
-  alias open=xdg-open
-fi
+[[ $OSTYPE = linux* ]] && alias open=xdg-open
 
 # util / override
 alias scr="grimshot save area";
@@ -92,10 +95,10 @@ alias vdir="vdir --color=auto";
 alias dir="dir --color=auto";
 # ls, la, ll, lla, lt: home-manager eza integration (defined after this file)
 alias ld="eza -lhD";
-alias l='eza --git-ignore $eza_params'
-alias llm='eza --all --header --long --sort=modified $eza_params'
+alias l='eza --git-ignore'
+alias llm='eza --all --header --long --sort=modified'
 alias lx='eza -lbhHigUmuSa@'
-alias tree='eza --tree $eza_params'
+alias tree='eza --tree'
 
 # grep
 alias egrep="grep -E --color=auto";
@@ -105,7 +108,7 @@ alias grep="grep --color=auto";
 # nix
 # alias -g nomjson=' --log-format internal-json -v |& nom --json';
 alias drs="cd ~/flakes && just darwin-switch";
-alias nrs="sudo zsh -c 'nixos-rebuild --log-format internal-json -v switch --flake /home/david/flakes/\#$HOST |& nom --json' ";
+# nrs: ~/.local/bin/nrs
 alias nrb="sudo zsh -c 'nixos-rebuild --no-reexec -v --log-format internal-json --flake /home/david/flakes/\#$HOST |& nom --json --show-trace' ";
 alias ngc="nix-collect-garbage --delete-old && sudo nix-collect-garbage -d && sudo /run/current-system/bin/switch-to-configuration boot";
 

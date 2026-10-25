@@ -10,7 +10,7 @@
 # f 'echo Selected music:' --extension mp3
 # fm rm # To rm files in current directory
 f() {
-    sels=( "${(@f)$(fd "${fd_default[@]}" "${@:2}"| fzf)}" )
+    sels=( "${(@f)$(fd "${@:2}"| fzf)}" )
     test -n "$sels" && print -z -- "$1 ${sels[@]:q:q}"
 }
 
@@ -24,16 +24,8 @@ fzf-noempty () {
   test -z "$in" && (
     exit 130
   ) || {
-    ec "$in" | fzf "$@"
+    print -r -- "$in" | fzf "$@"
   }
-}
-ec () {
-  if [[ -n $ZSH_VERSION ]]
-  then
-    print -r -- "$@"
-  else
-    echo -E -- "$@"
-  fi
 }
 
 #
