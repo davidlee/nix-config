@@ -44,6 +44,15 @@ wm() {
 }
 
 #
+# satan motd, then sleipnir-doctor problems once a day (the doctor keeps
+# the stamp). `j doctor` shows everything.
+#
+motd() {
+  [[ -f ~/satan/motd.txt ]] && print -r -- $'\e[31m'"$(<~/satan/motd.txt)"$'\e[0m\n'
+  (( $+commands[sleipnir-doctor] )) && sleipnir-doctor warn --daily
+}
+
+#
 # navigation
 #
 

@@ -70,6 +70,3 @@ eval "$(zoxide init zsh --cmd cd --hook prompt)"
 if [[ "${${INSIDE_EMACS-}%%,*}" = 'ghostel' ]]; then
   source ~/.config/emacs/elpa/ghostel/etc/shell/ghostel.zsh
 fi
-
-## SATAN MOTD
-[[ -f ~/satan/motd.txt ]] && echo -ne "\e[31m$(cat ~/satan/motd.txt)\e[0m\n"
