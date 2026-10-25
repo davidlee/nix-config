@@ -59,7 +59,7 @@ duration_ms = 150
 curve = "easeout"
 dim = 0.0
 blur = false
-scale = 0.0
+# scale = 0.0
 
 [animation.border]
 duration_ms = 160
