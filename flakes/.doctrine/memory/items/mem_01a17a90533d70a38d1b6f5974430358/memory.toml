@@ -1,0 +1,46 @@
+memory_uid = "mem_01a17a90533d70a38d1b6f5974430358"
+memory_key = "mem.fact.doctrine.plan-toml-editing"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Hand-editing a scaffolded plan.toml: the header comment contains [[phase]], and inline tables must be one line"
+summary = "Splice phases after the real [[phase]] table line, not the first '[[phase]]' substring; keep { … } rows on one line (TOML 1.0)"
+created = "2026-10-26"
+updated = "2026-10-26"
+
+[scope]
+paths = []
+globs = [".doctrine/slice/*/plan.toml"]
+commands = []
+tags = ["doctrine", "plan"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "78c22d69c056cbb227439ab07f377e198baa2d9a"
+ref_name = "refs/heads/main"
+checkout_state_id = "c91dcde30612836163fed18193fbb694bd364a315a0ba13f0f2ed2465ba3e4bb"
+base_commit = "044ec3e96aac3d2cf544bb959acaebd0d30446b4"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-018"
+
