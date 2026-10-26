@@ -251,6 +251,7 @@ in
           mcp
           tldr
           dogears
+          elpher # gopher / gemini
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [

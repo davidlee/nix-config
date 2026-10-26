@@ -1,4 +1,4 @@
-{config, ...}: {
+_: {
   programs = {
     nushell = {
       enable = true;

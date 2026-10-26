@@ -70,10 +70,10 @@ check 'override: a directory without .git is not present' \
 
 dc "$none" stub
 check 'stub: every listed input, present or not' \
-  "--override-input fleet $stub --override-input goad $stub --override-input malebolge $stub --override-input panopticon $stub --override-input satan-attrd $stub" "$out"
+  "--override-input fleet $stub --override-input goad $stub --override-input malebolge $stub --override-input panopticon $stub --override-input satan-attrd $stub --override-input screwtape $stub" "$out"
 
 dc "$none" names
-check 'names: the list, space-separated' 'fleet goad malebolge panopticon satan-attrd' "$out"
+check 'names: the list, space-separated' 'fleet goad malebolge panopticon satan-attrd screwtape' "$out"
 
 check 'override: clean checkouts warn nothing' '' "$err"
 

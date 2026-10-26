@@ -8,4 +8,5 @@
   (import ./satan/runner.nix {inherit lib;})
   (import ./satan/malebolge.nix {inherit lib;})
   (import ./satan/postgres-backup.nix {inherit lib;})
+  (import ./satan/screwtape.nix {inherit lib;})
 ]

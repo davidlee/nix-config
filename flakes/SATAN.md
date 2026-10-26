@@ -22,11 +22,12 @@ relying on a line number.
 | malebolge | `~/dev/malebolge` | `malebolge = github:davidlee/Malebolge` (`just` overrides to `git+file:`) | runner: `features/satan/runner.nix` from the **pin**; the interactive daemon runs the **live tree** (unit `malebolge-room`, `features/satan/malebolge.nix`; `just daemon` for dev) |
 | goad | `~/dev/goad` | `git+file:` (`flake.nix:100-102`), **no follows** | `features/attention.nix` (`attention.goad`) |
 | oubliette (= `~/dev/microvm-spike`) | `~/dev/oubliette` | `github:davidlee/oubliette` (`just` overrides to `git+file:`) | `features/virt/capsule.nix` (host module only; no capsules at boot) |
+| screwtape (Belphegor's JMAP mirror) | `~/dev/screwtape` | `screwtape = github:davidlee/screwtape` (`just` overrides to `git+file:`) | `features/satan/screwtape.nix` (the flake's `homeManagerModules.default`) |
 | jail library | `~/flakes/agents` | `agents = path:` (`flake.nix:20`) | consumed by every repo's flake |
 
 All modules are imported from `hosts/Sleipnir/home.nix:7-11`. `just
 update-local` re-locks satan, agents, emacs and every `bin/dev-checkouts`
-input (fleet, goad, malebolge, panopticon, satan-attrd) from its remote:
+input (fleet, goad, malebolge, panopticon, satan-attrd, screwtape) from its remote:
 push first.
 
 ### Composition quirks (violate SPEC-002 NF-002 / NF-003)
@@ -54,6 +55,7 @@ push first.
 | `satan-runner` | malebolge's patch-job runner: `bin/satan-runner` of the **pin** `inputs.malebolge.packages.<system>.runner` (`nodejs_24` on its `src/runner-main.ts`, production deps; CHR-017); as `david`, the oubliette module owner (CON-003); gateway key by `LoadCredential=`; PATH = `/run/current-system/sw/bin` (capsule), git, openssh, socat, coreutils | always (`WantedBy=default.target`); config ships `enabled = false` (parked) until enabled, see [satan-runner](#satan-runner) | `features/satan/runner.nix` |
 | `malebolge-room` | the interactive daemon, room profile: `jailed-malebolge` from the satan **pin**, running the malebolge **live tree** (RSK-020; see [satan-runner](#satan-runner)); `Restart=on-failure`, 5 starts / 300 s; `X-RestartIfChanged=false` — restart by hand after a wrapper or tree change | on demand: no `[Install]`; `M-x malebolge-start` / `malebolge-stop` | `features/satan/malebolge.nix` |
 | `satan-postgres-backup` | host-side full and schema-only PostgreSQL 18 custom-format dumps of database `satan` through the assistant room's forwarded Unix socket | daily at 03:00 local time; persistent catch-up when the timer was inactive, no machine wake | `features/satan/postgres-backup.nix` |
+| `screwtape` | `screwtape sync` (wrapper adds `--config`), oneshot; Fastmail token by `LoadCredentialEncrypted=`; hardened (`ProtectHome=tmpfs`, `SystemCallFilter=@system-service`, …), `MemoryMax=1G` | `screwtape.timer`: `*:0/15`, `Persistent=true`; no lingering, so only while logged in | `~/dev/screwtape/nix/module.nix` |
 | `panopticon-desktop` | `panopticon-desktop` (auto compositor) | graphical session | `behaviour.nix:22-35` |
 | `panopticon-git` / `panopticon-segmentize` | pollers | every 5 / 10 min | `behaviour.nix:37-100` |
 | `goad` | tray GUI; config `~/.config/goad/config.toml` (not nix-managed) | graphical session | `goad.nix` |
@@ -83,6 +85,8 @@ Stale comments in `satan.nix`: `Documentation=%h/.emacs.d/SATAN.local.md`
 | daemon model catalog | `~/.config/malebolge/gateway-models.json`: HM symlink to the same store file as the runner's catalog (`features/satan/runner.nix`); read by the interactive daemon (unit `malebolge-room`; `just daemon` for dev) |
 | daemon room door | `~/.config/malebolge/door.toml`: one `[door]` table, exactly `room user known_hosts host_key_alias identity home` (DEC-079; the daemon refuses any other key). HM-rendered in `features/satan/runner.nix` from `features/satan/room.nix`, which the runner's `[door]` shares; read by the interactive daemon's room profile through `MALEBOLGE_DOOR` (satan:SL-027). Names `~/.ssh/malebolge-vm.key`, made by hand |
 | room `known_hosts` | `/var/lib/capsule/room/assistant/known_hosts`: oubliette's; the runner only reads it |
+| mail mirror | `~/.local/state/screwtape/mail.sqlite3` (0700 dir, unit `StateDirectory=`; file and its `-wal`/`-shm` 0600): window inbox, 30 days, ≤ 2000 messages |
+| mail credential | `~/.config/credstore.encrypted/screwtape.fastmail` (0600; host key + TPM2, user-scoped) |
 
 **Postgres** (`features/services.nix`, `services.postgresql`): PostgreSQL 18, socket
 `/run/postgresql`, no TCP; role `david` superuser; `ensureDatabases = [david
@@ -119,6 +123,25 @@ the catalog path is `MALEBOLGE_GATEWAY_CATALOG`): on no argv, in no
 environment. `jailed-malebolge` (`~/dev/satan/flake.nix`, satan CHR-018) binds
 both read-only and sets both overrides; no provider key, no `op run`. The
 satan flake check `malebolge-jail-profile` asserts it.
+
+## Screwtape
+
+Read-only JMAP mirror of the Fastmail inbox (`~/dev/screwtape`, SL-001).
+Humans read the store directly as `david`; no agent process holds the token.
+
+- **Token:** a Fastmail "Read-only access" API token (mail scope) at
+  `op://SLEIPNIR_CREDENTIALS/udcn7s4ervqa3mrvadczu6lqoy/credential`. The
+  session reports one account, `isReadOnly: true`.
+- **Provision / rotate:** `screwtape-provision` (1Password prompt): `op read`
+  straight into `systemd-creds encrypt --user`, then one sync. The unit gets
+  the token in `/run/user/1000/credentials/screwtape.service/fastmail`: on no
+  argv, in no environment.
+- **Disable:** `feature.satan.screwtape.enable = false`.
+- **Smoke:**
+  - `systemctl --user status screwtape.service` (last run `status=0/SUCCESS`)
+  - `journalctl --user -u screwtape` (one `{"kind":"sync",…}` line per run)
+  - `screwtape mailboxes` (36 mailboxes at deploy, 2026-10-27)
+  - `stat -c '%a %U' ~/.local/state/screwtape ~/.local/state/screwtape/mail.sqlite3` → `700 david`, `600 david`
 
 ## Jails
 
@@ -161,6 +184,9 @@ mounted.
 
 - MCP dev jails bind the Emacs server socket rw: arbitrary elisp from inside
   the jail.
+- A jail that binds the whole `$HOME` would expose Screwtape's mail store and
+  encrypted credential (screwtape:SL-001 I7's launch condition; IMP-042,
+  satan:ISS-028). No launcher in the table above does.
 
 ## satan-runner
 

@@ -104,6 +104,18 @@
       };
     };
 
+    # Its own quotient input is a git+file pin to ~/dev/quotient, so this
+    # input evaluates only on a host with that checkout (screwtape CHR-003).
+    screwtape = {
+      url = "github:davidlee/screwtape";
+      inputs = {
+        nixpkgs.follows = "nixpkgs-home";
+        home-manager.follows = "home-manager";
+        agents.follows = "agents";
+        doctrine.inputs.agents.follows = "agents";
+      };
+    };
+
     goad.url = "github:davidlee/goad";
 
     # The capsule's host-side perimeter as systemd units under dedicated uids
