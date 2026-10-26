@@ -53,7 +53,8 @@ Done when:
   is unchanged.
 - 3 needs nothing: screwtape's form drvPaths are unchanged, so their
   identities are too.
-- Left: once `~/flakes` is pushed, `nix flake update agents` in screwtape
-  and satan, commit; then resolve.
+- Re-locked from the pushed `73516b60`: screwtape `19ae504` (`nix flake
+  check` green); satan `dfa115e`, verified by `nix flake check --no-build` of
+  its HEAD (a full build was running there under another agent).
 - Out of scope: `features/satan/runner.nix` renders the same catalog
   in-tree (relative import, no `jailLib` in that home module).
