@@ -18,7 +18,8 @@ collaborators = []
 targets      = []
 dependencies = []
 
-# One [[phase]]
+# One [[phase]] per ordered phase, in execution order; ids immutable.
+[[phase]]
 id        = "PHASE-01"
 name      = "Read-only default and rw opt-in in the jail library"
 objective = "makeJailedAgent binds workspaceDeps/JAIL_WORKSPACE_DEPS --ro-bind and workspaceDepsRw/JAIL_WORKSPACE_DEPS_RW --bind through one mode-tagged pipeline, with guards over the union, and binds the launch dir after the deps (DEC-081, DEC-082). Tests first."
