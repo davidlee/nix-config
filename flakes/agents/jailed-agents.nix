@@ -361,11 +361,12 @@
     extraPkgs ? [],
     extraOptions ? [],
     mountLaunchDir ? true, # bind the host cwd at /workspace/<project> and start there (DEC-078)
-    workspaceDeps ? [], # sibling repo paths to bind-mount (editable deps);
+    workspaceDeps ? [], # sibling repo paths bound read-only at /workspace/<basename> (DEC-081);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
     # env var (impure eval only) unless workspaceDepsFromEnv is false.
-    # See envWorkspaceDeps below.
-    workspaceDepsFromEnv ? true, # false: ignore JAIL_WORKSPACE_DEPS (satan:SL-027 RV-035 F-1)
+    # See envDeps below.
+    workspaceDepsRw ? [], # as workspaceDeps, bound read-write; env var JAIL_WORKSPACE_DEPS_RW
+    workspaceDepsFromEnv ? true, # false: ignore both env vars (satan:SL-027 RV-035 F-1)
     persistedHome ? null, # name of the persisted home; null: the profile's (satan:SL-027 RV-035 F-6)
     # Sibling agents to expose inside the jail as depth-guarded
     # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
@@ -556,38 +557,47 @@
     # Bare binaries for sibling agents (the wrapper execs them); the
     # current agent is already added below, so exclude it here.
     subagentAgents = map resolveAgent (lib.filter (n: n != name) subagentNames);
-    # Machine-local editable deps can be supplied at eval time via the
-    # JAIL_WORKSPACE_DEPS env var (newline- or colon-separated absolute
-    # paths). Requires impure eval (`--impure`); under pure eval getEnv
-    # returns "" -> empty -> no-op. Merged with and deduped against the
-    # static `workspaceDeps` arg, so a flake can ship portable defaults
-    # while each machine adds its own paths via .envrc. Not read at all when
-    # workspaceDepsFromEnv is false, so that jail's eval ignores the environment.
-    envWorkspaceDeps = lib.optionals workspaceDepsFromEnv (
-      lib.filter (s: s != "") (
-        lib.splitString ":" (
-          builtins.replaceStrings ["\n"] [":"] (builtins.getEnv "JAIL_WORKSPACE_DEPS")
+    # Machine-local deps can be supplied at eval time via the env vars
+    # JAIL_WORKSPACE_DEPS (ro) and JAIL_WORKSPACE_DEPS_RW (rw), newline- or
+    # colon-separated absolute paths. Requires impure eval (`--impure`);
+    # under pure eval getEnv returns "" -> empty -> no-op. Merged with and
+    # deduped against the static list of the same mode, so a flake can ship
+    # portable defaults while each machine adds its own paths via .envrc.
+    # Not read at all when workspaceDepsFromEnv is false, so that jail's eval
+    # ignores the environment.
+    envDeps = var:
+      lib.optionals workspaceDepsFromEnv (
+        lib.filter (s: s != "") (
+          lib.splitString ":" (
+            builtins.replaceStrings ["\n"] [":"] (builtins.getEnv var)
+          )
         )
-      )
-    );
+      );
     # The name is spliced unescaped into a path and into the launcher's shell.
     homeName =
       if persistedHome == null
       then profiles.${profile}.home
       else persistedHome;
-    allWorkspaceDeps = lib.unique (workspaceDeps ++ envWorkspaceDeps);
     stripTrailingSlashes = dep:
       if dep != "/" && lib.hasSuffix "/" dep
       then stripTrailingSlashes (lib.removeSuffix "/" dep)
       else dep;
-    normalizedWorkspaceDeps = map stripTrailingSlashes allWorkspaceDeps;
-    relativeWorkspaceDeps = lib.filter (dep: !(lib.hasPrefix "/" dep)) normalizedWorkspaceDeps;
+    # One mode's deps, static and env merged, as bind specs tagged with it.
+    bindSpecsFor = mode: static: var:
+      map (dep: let
+        source = stripTrailingSlashes dep;
+      in {
+        inherit mode source;
+        destination = "/workspace/${builtins.baseNameOf source}";
+      }) (lib.unique (static ++ envDeps var));
+    # Both modes in one list: the guards below span it, so a destination is
+    # refused when shared within or across the lists.
     workspaceBindSpecs =
-      map (dep: {
-        source = dep;
-        destination = "/workspace/${builtins.baseNameOf dep}";
-      })
-      normalizedWorkspaceDeps;
+      bindSpecsFor "ro" workspaceDeps "JAIL_WORKSPACE_DEPS"
+      ++ bindSpecsFor "rw" workspaceDepsRw "JAIL_WORKSPACE_DEPS_RW";
+    relativeWorkspaceDeps = map (bind: bind.source) (
+      lib.filter (bind: !(lib.hasPrefix "/" bind.source)) workspaceBindSpecs
+    );
     workspaceBindsByDestination = lib.groupBy (bind: bind.destination) workspaceBindSpecs;
     duplicateWorkspaceBinds =
       lib.filterAttrs (
@@ -606,11 +616,15 @@
     # literal. Split dollars into an adjacent, isolated quoted segment:
     # 'foo$dollar' becomes 'foo'"$"'dollar' with the same argv value.
     escapeWorkspaceBindArgs = args: builtins.replaceStrings ["$"] ["'\"$\"'"] (lib.escapeShellArgs args);
+    bindFlags = {
+      ro = "--ro-bind";
+      rw = "--bind";
+    };
     workspaceBinds =
       map (
         bind:
           jail.combinators.unsafe-add-raw-args (escapeWorkspaceBindArgs [
-            "--bind"
+            bindFlags.${bind.mode}
             bind.source
             bind.destination
           ])
@@ -619,8 +633,10 @@
 
     inner = jail "jailed-${name}" agent (
       baseJailOptions
-      ++ launchDirOptions mountLaunchDir
       ++ workspaceBinds
+      # After the deps: bwrap mounts in argv order, so the project wins
+      # /workspace/<project> over a dep that shares its basename (DEC-082).
+      ++ launchDirOptions mountLaunchDir
       ++ profileOptions profile homeName
       ++ lib.optionals hostDoctrine hostDoctrineOptions
       ++ hostGitExcludesOptions

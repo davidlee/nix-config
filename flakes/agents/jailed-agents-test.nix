@@ -104,15 +104,22 @@
   workspace = inner "specDev" {
     workspaceDeps = ["/tmp/normal/" dangerousWorkspacePath];
   };
-  expectedWorkspaceBind = pkgs.writeText "expected-workspace-bind" (
-    builtins.replaceStrings ["$"] ["'\"$\"'"] (
-      lib.escapeShellArgs [
-        "--bind"
-        dangerousWorkspacePath
-        "/workspace/quo'te$dollar;semi"
-      ]
-    )
-  );
+  # workspaceDeps bind read-only, workspaceDepsRw read-write (DEC-081)
+  workspaceRw = inner "specDev" {
+    workspaceDepsRw = ["/tmp/normal-rw/" dangerousWorkspacePath];
+  };
+  expectedWorkspaceBindAs = flag:
+    pkgs.writeText "expected-workspace-bind${flag}" (
+      builtins.replaceStrings ["$"] ["'\"$\"'"] (
+        lib.escapeShellArgs [
+          flag
+          dangerousWorkspacePath
+          "/workspace/quo'te$dollar;semi"
+        ]
+      )
+    );
+  expectedWorkspaceBind = expectedWorkspaceBindAs "--ro-bind";
+  expectedWorkspaceRwBind = expectedWorkspaceBindAs "--bind";
 
   # Real bwrap needs user namespaces, which the build sandbox lacks. This
   # stand-in, under bwrap's own name and store slot, records what bwrap
@@ -241,6 +248,14 @@
   duplicateWorkspaceFails = failsToEvaluate (inner "specDev" {
     workspaceDeps = ["/tmp/one/shared" "/tmp/two/shared"];
   });
+  relativeRwWorkspaceFails = failsToEvaluate (inner "specDev" {
+    workspaceDepsRw = ["relative/path"];
+  });
+  # One destination, whatever the modes: the lists are guarded as a union.
+  crossListDuplicateFails = failsToEvaluate (inner "specDev" {
+    workspaceDeps = ["/tmp/one/shared"];
+    workspaceDepsRw = ["/tmp/one/shared"];
+  });
   # persistedHome is spliced unescaped into a path and shell: the twin is
   # homeOffline, differing only in the name.
   badHomeFails = failsToEvaluate (inner "offline" {persistedHome = "../escape";});
@@ -332,6 +347,8 @@ in
   assert zeroDepthFails;
   assert relativeWorkspaceFails;
   assert duplicateWorkspaceFails;
+  assert relativeRwWorkspaceFails;
+  assert crossListDuplicateFails;
   assert homeOffline.drvPath != "";
   assert badHomeFails;
   assert gatewayLazySecrets.drvPath != "";
@@ -703,11 +720,28 @@ in
 
       workspace=${workspace}/bin/jailed-zsh
       grep -Fq -- "$(cat ${expectedWorkspaceBind})" "$workspace"
-      grep -Fq -- '/tmp/normal /workspace/normal' "$workspace"
+      grep -Fq -- '--ro-bind /tmp/normal /workspace/normal' "$workspace"
       eval "set -- $(cat ${expectedWorkspaceBind})"
+      test "$1" = '--ro-bind'
+      test "$2" = ${lib.escapeShellArg dangerousWorkspacePath}
+      test "$3" = ${lib.escapeShellArg "/workspace/quo'te$dollar;semi"}
+
+      workspace_rw=${workspaceRw}/bin/jailed-zsh
+      grep -Fq -- "$(cat ${expectedWorkspaceRwBind})" "$workspace_rw"
+      grep -Fq -- '--bind /tmp/normal-rw /workspace/normal-rw' "$workspace_rw"
+      eval "set -- $(cat ${expectedWorkspaceRwBind})"
       test "$1" = '--bind'
       test "$2" = ${lib.escapeShellArg dangerousWorkspacePath}
       test "$3" = ${lib.escapeShellArg "/workspace/quo'te$dollar;semi"}
+
+      # The launch dir binds after every workspace dep, so the project is the
+      # one visible when a dep shares its basename (DEC-082).
+      # The bwrap call is one line, so compare byte offsets, not line numbers.
+      dep_at="$(grep -boF -- '/workspace/normal' "$workspace" | head -1 | cut -d: -f1)"
+      launch_at="$(grep -boF -- '--bind "$PWD"' "$workspace" | head -1 | cut -d: -f1)"
+      test -n "$dep_at"
+      test -n "$launch_at"
+      test "$dep_at" -lt "$launch_at"
 
       # mountLaunchDir: on (default) binds the cwd and starts in it; off binds
       # nothing and starts in $HOME. --chdir is passed either way, or bwrap

@@ -69,7 +69,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).satan-room" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   bin/room-bump-test
   workarounds/check-test

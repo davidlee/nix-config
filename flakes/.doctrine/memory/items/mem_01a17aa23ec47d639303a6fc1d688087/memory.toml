@@ -1,0 +1,46 @@
+memory_uid = "mem_01a17aa23ec47d639303a6fc1d688087"
+memory_key = "mem.fact.jail-nix.launcher-one-line"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "jail.nix launchers put the whole bwrap call on one line"
+summary = "Assert bwrap argument order in a built jail.nix launcher by byte offset (grep -bo), not line number"
+created = "2026-10-26"
+updated = "2026-10-26"
+
+[scope]
+paths = ["agents/jailed-agents-test.nix", "agents/jailed-agents.nix"]
+globs = []
+commands = []
+tags = ["jail-nix", "testing"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "c571b47f3d3e345daee74fc7766ffc61c8fae8bc"
+ref_name = "refs/heads/main"
+checkout_state_id = "0e18c4667394a04bb469332eaeaae9408925cb674f259be54e26090b0f837ade"
+base_commit = "543ad01390ea05c7893145a52639434cdc39f4a0"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "low"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-018"
+
