@@ -187,6 +187,11 @@
   # pi's provider for an LLM gateway; shared with the satan-runner unit.
   piGatewayConfig = import ./pi-gateway.nix {inherit lib;};
 
+  # The models.json pi reads in gateway mode, for a gateway at `url`.
+  piGatewayModelsFor = url:
+    pkgs.writeText "pi-gateway-models.json"
+    (builtins.toJSON (piGatewayConfig url gatewayData.models));
+
   # Always applied — not policy-bearing
   baseJailOptions = with jail.combinators; [
     time-zone
@@ -499,9 +504,7 @@
     # e.g. pi-research) or as a subagent. Derivations compare by output path.
     piInJail = agent == pi || lib.elem "pi" subagentNames;
 
-    piGatewayModels =
-      pkgs.writeText "pi-gateway-models.json"
-      (builtins.toJSON (piGatewayConfig checkedGateway.url gatewayData.models));
+    piGatewayModels = piGatewayModelsFor checkedGateway.url;
 
     # pi reads its providers only from ~/.pi/agent/models.json, which the
     # persisted home shares with every jail on it: in gateway mode, bind the
@@ -824,6 +827,10 @@ in {
   gatewayClient = gatewayData.client;
   # pi's gateway provider for any model set: piGatewayConfig url models.
   inherit piGatewayConfig;
+  # What a client outside this flake reads instead of importing gateway.nix
+  # (IMP-043): the models.json a gateway jail binds, and the gateway's facts.
+  piGatewayModels = piGatewayModelsFor gatewayData.url;
+  gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
   # Socket mode for a jail without `gateway` (e.g. a key-file client), via
   # `extraOptions`; refused at evaluation in a jail sharing the host netns.
   inherit gatewaySocketOptions;

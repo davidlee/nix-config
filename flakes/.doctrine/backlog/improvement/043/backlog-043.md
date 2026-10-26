@@ -39,3 +39,21 @@ Done when:
    each with its own `nix flake check` green;
 3. screwtape's forms are rebuilt (`just quotient-forms`), and the operator
    re-runs `quotient allow ~/dev/screwtape` if their identities changed.
+
+**Progress (2026-10-27).**
+
+- Done 1: `jailed-agents.nix` exports `piGatewayModels` (one renderer,
+  `piGatewayModelsFor url`, which `makeJailedAgent` also uses) and
+  `gatewayFacts` (`url clientSocket relayPort models`);
+  `checks.jailed-agents` asserts the export is the file a gateway jail binds
+  (and matches the literal oracle) and the facts' names.
+- Done 2, against `--override-input agents path:~/flakes/agents`:
+  screwtape and satan use the exports; no `.nix` under `~/dev` imports
+  `gateway.nix`; each `nix flake check` green; every package drvPath of both
+  is unchanged.
+- 3 needs nothing: screwtape's form drvPaths are unchanged, so their
+  identities are too.
+- Left: once `~/flakes` is pushed, `nix flake update agents` in screwtape
+  and satan, commit; then resolve.
+- Out of scope: `features/satan/runner.nix` renders the same catalog
+  in-tree (relative import, no `jailLib` in that home module).

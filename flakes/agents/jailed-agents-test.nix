@@ -351,6 +351,9 @@ in
     runDirectory = "/run/llm-gateway";
   };
   assert noPiEntryOmitted;
+  # The gateway facts out-of-tree consumers read instead of gateway.nix (IMP-043).
+  assert lib.attrNames agents.gatewayFacts == ["clientSocket" "models" "relayPort" "url"];
+  assert agents.gatewayFacts.clientSocket == gatewayData.clientSocket;
   assert mixedPiConfig
   == {
     providers.llm-gateway = {
@@ -694,6 +697,8 @@ in
       models_file="$(grep -o '/nix/store/[^ ]*-pi-gateway-models.json' "$probe_gw" | head -1)"
       test -n "$models_file"
       cmp "$models_file" ${expectedPiModels}
+      # the lib's export (IMP-043) is the file a gateway jail binds
+      test "$models_file" = ${agents.piGatewayModels}
       grep -Fq -- '"apiKey":"$LLM_GATEWAY_KEY"' "$models_file"
 
       workspace=${workspace}/bin/jailed-zsh
