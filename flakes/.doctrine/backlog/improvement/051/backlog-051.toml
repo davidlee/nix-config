@@ -9,7 +9,7 @@ status = "open"
 resolution = ""                 # seeded empty so `backlog edit` sets it in place
 created = "2026-10-26"
 updated = "2026-10-26"
-tags = ["agents", "jail", "satan", "security"]
+tags = ["agents", "dev-flakes", "jail", "satan", "security"]
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
 # — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
@@ -18,7 +18,7 @@ tags = ["agents", "jail", "satan", "security"]
 # them. The dep/seq axes below stay typed (they carry per-edge payloads).
 [relationships]
 needs    = []                   # item→item hard prerequisite
-after    = []                   # item→item soft sequence: { to, rank? }
+after    = [{ to = "IMP-045", rank = 0 }]                   # item→item soft sequence: { to, rank? }
 triggers = []                   # watched source globs: { globs, note? }
 
 [[relation]]

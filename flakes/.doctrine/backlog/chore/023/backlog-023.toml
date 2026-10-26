@@ -1,0 +1,22 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 23
+slug = "w5-migrate-workspace-repos-to-the-canonical-dev-flake-pattern"
+title = "W5 — Migrate /workspace repos to the canonical dev-flake pattern"
+kind = "chore"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-10-26"
+updated = "2026-10-26"
+tags = ["agents", "dev-flakes", "jail"]
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = [{ to = "IMP-047", rank = 0 }, { to = "IMP-051", rank = 0 }]                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
