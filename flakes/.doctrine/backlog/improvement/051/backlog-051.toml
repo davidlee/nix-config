@@ -1,0 +1,26 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 51
+slug = "agents-lib-owns-the-jail-scan-checks-op-unjailed-and-the-launcher-walker-move-upstream-from-satan"
+title = "Agents lib owns the jail-scan checks: op-unjailed and the launcher walker move upstream from satan"
+kind = "improvement"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-10-26"
+updated = "2026-10-26"
+tags = ["agents", "jail", "satan", "security"]
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "related"
+target = "IMP-045"
