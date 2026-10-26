@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 82
+slug = "the-jails-launch-dir-is-bound-after-workspace-deps-so-the-project-always-wins"
+title = "The jail's launch dir is bound after workspace deps, so the project always wins"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-26"
+updated = "2026-10-26"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "launch dir binds at /workspace/$(basename $PWD) at run time, before workspace deps; a same-basename dep (now ro) would cover the rw project."
+choice = "emit the launch-dir bind after the workspace-dep binds; bwrap's later mount wins, so the project is always visible and rw."
+alternatives = ["launcher refuses at run time on a clash", "launcher skips the clashing dep"]
+rationale = "no run-time logic; the eval-time list cannot see $PWD"
+consequences = ["a dep with the project's basename is shadowed (inverse of today's behaviour)"]
+decided_by = "user"
+decided_on = "2026-10-27"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-018"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 81
+slug = "jail-workspace-deps-bind-read-only-read-write-is-an-explicit-opt-in"
+title = "Jail workspace deps bind read-only; read-write is an explicit opt-in"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-26"
+updated = "2026-10-26"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "agents jail lib bound every workspace dep (workspaceDeps, JAIL_WORKSPACE_DEPS) rw at /workspace/<basename>; agents could write every collaborator repo they could see."
+choice = "workspaceDeps and JAIL_WORKSPACE_DEPS bind --ro-bind; new workspaceDepsRw and JAIL_WORKSPACE_DEPS_RW bind --bind. One parse/normalise pipeline tagged by mode; relative-path and duplicate-destination guards run over the union, so a path in both lists is refused. workspaceDepsFromEnv = false ignores both env vars. The launch dir stays rw."
+alternatives = ["keep rw default, add a ro list", "let rw win when a path is in both lists"]
+rationale = "least privilege by default; every consumer is the operator's, so the breaking flip is affordable; one destination, one mode"
+consequences = ["consumers that write a dep must list it in the rw list", "live .envrc consumers flip at next direnv reload"]
+decided_by = "user"
+decided_on = "2026-10-27"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-018"

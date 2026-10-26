@@ -1,7 +1,7 @@
 id = 18
 slug = "ro-workspace-deps"
 title = "Read-only workspace deps by default; rw opt-in"
-status = "design"
+status = "plan"
 created = "2026-10-26"
 updated = "2026-10-26"
 tags = []
@@ -12,19 +12,19 @@ after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
 selector = "agents/jailed-agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents-env-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "_templates/agents/**"
@@ -32,7 +32,11 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "_templates/agents/flake.nix"
+intent = "design-target"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

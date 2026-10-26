@@ -47,19 +47,16 @@ JAIL_WORKSPACE_DEPS_RW┴─> --bind     <dep> /workspace/<basename>
 
 ## Summary
 
-Risks and open questions, for `/design`:
+Settled in design (`design.md`, DEC-081, DEC-082):
 
-- **Live consumers flip immediately.** Repos using the `.envrc` hack (variants
-  B–D) evaluate the live `~/flakes/agents`, so the flip reaches them at the
-  next direnv reload, not at their next lock bump. Any dep they genuinely
-  write to (inferred candidates: satan's `~/notes`, `~/flakes` in several)
-  goes read-only until moved to the rw list. Design must decide: accept and
-  fix forward per repo, or land with a list of known rw needs handed to W5.
-- **A path in both lists.** Refuse (duplicate destination, as today) or let
-  rw win? Leaning refuse: one destination, one mode.
-- **Nested ro under rw / overlapping paths** — e.g. `~/flakes` ro and
-  `~/flakes/agents` rw at different basenames. bwrap applies binds in order;
-  design checks whether ordering matters.
+- **Live consumers flip immediately** (`.envrc` variants B–D evaluate the live
+  `~/flakes/agents`). Out-of-repo rw lists go to W5 (CHR-023); everything
+  else goes ro and is fixed forward.
+- **A path in both lists** is refused (duplicate destination).
+- **Overlapping sources** don't nest: destinations are flat siblings under
+  `/workspace`.
+- **Launch dir vs same-basename dep:** the launch dir is bound after the
+  deps, so the project wins and stays rw (DEC-082).
 
 Verification / closure: `just test` green (pure and impure jail tests
 asserting `--ro-bind` vs `--bind` per list and env var), lint and format
