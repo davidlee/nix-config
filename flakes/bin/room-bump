@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Re-lock fleet inputs (the room's tool sets) to their remote heads, and commit
+# the fleet's flake.lock alone. The fleet locks remotes only, so a checkout
+# ahead of its upstream would lock a revision without that work: refused.
+#
+#   room-bump <input>…
+#
+# The fleet is $FLAKES_FLEET, default /srv/fleet; an input's checkout is
+# $FLAKES_DEV/<input>, default ~/dev/<input>. An input with no checkout there
+# (notes lives at ~/notes) is bumped unchecked, and said so.
+set -euo pipefail
+
+root=${FLAKES_DEV:-$HOME/dev}
+fleet=${FLAKES_FLEET:-/srv/fleet}
+
+warn() { printf 'room-bump: %s\n' "$1" >&2; }
+
+if (($# == 0)); then
+  echo "usage: room-bump <input>…" >&2
+  exit 1
+fi
+
+refused=0
+for i in "$@"; do
+  if [[ ! -e $root/$i/.git ]]; then
+    warn "$i: no checkout at $root/$i; not checked for unpushed work"
+  elif ! n=$(git -C "$root/$i" rev-list --count '@{upstream}..HEAD' 2>/dev/null); then
+    warn "$i has no upstream; push it first"
+    refused=1
+  elif ((n > 0)); then
+    warn "$i is $n commit(s) ahead of its upstream; push it first"
+    refused=1
+  fi
+done
+((refused == 0)) || exit 1
+
+if ! git -C "$fleet" diff --quiet HEAD -- flake.lock; then
+  warn "$fleet/flake.lock has uncommitted changes; commit or revert them first"
+  exit 1
+fi
+
+(cd "$fleet" && nix flake update "$@")
+
+if git -C "$fleet" diff --quiet HEAD -- flake.lock; then
+  warn "already current: $*"
+  exit 0
+fi
+git -C "$fleet" commit -q -m "bump $*" -- flake.lock
+git -C "$fleet" log -1 --format='room-bump: %h %s' >&2

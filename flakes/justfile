@@ -71,6 +71,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
+  bin/room-bump-test
   workarounds/check-test
   workarounds/last-good-test
   bin/will-build-test
@@ -235,7 +236,7 @@ workarounds-check pin="":
 # re-lock everything under development from its remote: push first
 update-local:
   bin/dev-checkouts ahead
-  nix flake update satan agents emacs $(bin/dev-checkouts names)
+  nix flake update agents emacs $(bin/dev-checkouts names)
 
 push-local:
   for x in satan satan-attrd panopticon doctrine goad oubliette malebolge; do cd "$HOME/dev/${x}"; git push; done
@@ -274,6 +275,13 @@ gc:
 
 melpa-list:
   nix eval --impure --raw --expr 'let f = builtins.getFlake "{{justfile_directory()}}/emacs"; pkgs = import f.inputs.nixpkgs { system = builtins.currentSystem; overlays = [ f.inputs.emacs-overlay.overlays.default ]; }; in builtins.concatStringsSep "\n" (builtins.attrNames pkgs.emacsPackages)' > emacs-packages.txt
+
+# Refuses unpushed checkouts; commits /srv/fleet's flake.lock alone. No host
+# switch: the host's closure does not depend on the room's tool sets.
+# re-lock fleet inputs to their pushed heads, then rebuild and restart the room
+room-bump +inputs:
+  bin/room-bump {{inputs}}
+  just update-room
 
 update-room:
   sudo microvm -u assistant
