@@ -1,0 +1,68 @@
+# Implementation plan for SL-018 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-018"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]]
+id        = "PHASE-01"
+name      = "Read-only default and rw opt-in in the jail library"
+objective = "makeJailedAgent binds workspaceDeps/JAIL_WORKSPACE_DEPS --ro-bind and workspaceDepsRw/JAIL_WORKSPACE_DEPS_RW --bind through one mode-tagged pipeline, with guards over the union, and binds the launch dir after the deps (DEC-081, DEC-082). Tests first."
+entrance_criteria = [
+  { id = "EN-1", text = "design.md locked; DEC-081 and DEC-082 accepted" },
+  { id = "EN-2", text = "just test green before the change (baseline recorded in notes)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "workspaceDeps and JAIL_WORKSPACE_DEPS entries appear in the launcher as --ro-bind <src> /workspace/<basename>" },
+  { id = "EX-2", text = "workspaceDepsRw and JAIL_WORKSPACE_DEPS_RW entries appear as --bind <src> /workspace/<basename>" },
+  { id = "EX-3", text = "relative paths refused in either list; a shared destination across or within the lists refused" },
+  { id = "EX-4", text = "workspaceDepsFromEnv = false ignores both env vars; static lists still bind" },
+  { id = "EX-5", text = "the launch-dir --bind follows every workspace bind in the launcher" },
+  { id = "EX-6", text = "existing quoting of dangerous paths holds for both modes" },
+  { id = "EX-7", text = "just test and just gate green" },
+]
+verification = [
+  { id = "VT-1", expects = "pure: ro default, rw opt-in, quoting in both modes, cross-list duplicate refused, launch dir after workspace binds", test_file = "agents/jailed-agents-test.nix", keywords = ["workspaceDepsRw", "--ro-bind", "crossListDuplicateFails"], waived = false },
+  { id = "VT-2", expects = "impure: JAIL_WORKSPACE_DEPS binds ro, JAIL_WORKSPACE_DEPS_RW binds rw, workspaceDepsFromEnv = false drops both", test_file = "agents/jailed-agents-env-test.nix", keywords = ["JAIL_WORKSPACE_DEPS_RW", "--ro-bind", "--bind"], waived = false },
+  { id = "VT-3", expects = "just test runs the impure check with both env vars set", test_file = "justfile", keywords = ["JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep"], waived = false },
+  { id = "VT-4", expects = "library carries the rw argument and env var", test_file = "agents/jailed-agents.nix", keywords = ["workspaceDepsRw ? []", "JAIL_WORKSPACE_DEPS_RW", "--ro-bind"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Docs, consumers and rollout"
+objective = "README, template and the Emacs devshell flake reflect the ro default and rw opt-in; live consumers' dep lists handed to W5 (CHR-023)."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "agents/README.md prose and option table describe workspaceDeps (ro), workspaceDepsRw, both env vars, and launch-dir-last" },
+  { id = "EX-2", text = "_templates/agents/flake.nix shows both lists and its jails inherit both" },
+  { id = "EX-3", text = "~/.config/emacs/flake.nix: notes and .local/state/behaviour in workspaceDepsRw; the rest in workspaceDeps; jails inherit both" },
+  { id = "EX-4", text = "CHR-023 lists each live consumer's deps (doctrine, panopticon, satan, goad, org-incremental-writing, satan-attrd) and notes writes now need the rw list" },
+  { id = "EX-5", text = "just test and just gate green" },
+]
+verification = [
+  { id = "VT-1", expects = "README option table names the rw argument and env var", test_file = "agents/README.md", keywords = ["workspaceDepsRw", "JAIL_WORKSPACE_DEPS_RW"], waived = false },
+  { id = "VT-2", expects = "template wires the rw list", test_file = "_templates/agents/flake.nix", keywords = ["workspaceDepsRw"], waived = false },
+  { id = "VA-1", text = "a launcher built from the Emacs devshell flake shows --ro-bind for flakes/satan-attrd/satan-patcher/panopticon, --bind for notes and .local/state/behaviour, launch dir last" },
+  { id = "VA-2", text = "CHR-023 body carries the consumer dep lists" },
+]
+specs        = []
+requirements = []
