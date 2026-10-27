@@ -5,10 +5,10 @@ id = 46
 slug = "w3-agents-lib-helper-for-quotient-confinement-forms"
 title = "W3 — Agents lib helper for quotient confinement forms"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-10-26"
-updated = "2026-10-26"
+updated = "2026-10-27"
 tags = ["agents", "dev-flakes", "jail", "quotient"]
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

@@ -187,6 +187,34 @@
     pkgs.writeText "pi-gateway-models.json"
     (builtins.toJSON (piGatewayConfig url gatewayData.models));
 
+  # quotient's per-call forms (`quotient help form`) for a gateway client:
+  # quotient.lib.mkFormFamily with this lib's pkgs, jail-nix and pi, and the
+  # gateway's URL, key and models.json merged into the caller's env, secretEnv
+  # and piFiles (IMP-046). `quotient` is the flake or its lib, passed in so
+  # this flake takes no quotient input. Every other arg goes to mkFormFamily.
+  # The gateway is reached over TCP, so the form keeps its network.
+  quotientFormFamily = {
+    quotient,
+    client ? "pi",
+    env ? {},
+    secretEnv ? {},
+    piFiles ? {},
+    ...
+  } @ args: let
+    gateway = gatewayData.client client;
+  in
+    assert (args.network or true) || throw "quotientFormFamily: the gateway is reached over TCP; network = false would cut it off";
+      (quotient.lib or quotient).mkFormFamily (
+        builtins.removeAttrs args ["quotient" "client"]
+        // {
+          inherit pkgs jail-nix;
+          inherit (agentsByName) pi;
+          env = env // {LLM_GATEWAY_URL = gateway.url;};
+          secretEnv = secretEnv // {LLM_GATEWAY_KEY = ''$(< "${gateway.keyFile}")'';};
+          piFiles = piFiles // {"models.json" = piGatewayModelsFor gatewayData.url;};
+        }
+      );
+
   # Always applied — not policy-bearing
   baseJailOptions = with jail.combinators; [
     time-zone
@@ -586,6 +614,7 @@ in
     # What a client outside this flake reads instead of importing gateway.nix
     # (IMP-043): the models.json a gateway jail binds, and the gateway's facts.
     piGatewayModels = piGatewayModelsFor gatewayData.url;
+    inherit quotientFormFamily;
     gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
     # Socket mode for a jail without `gateway` (e.g. a key-file client), via
     # `extraOptions`; refused at evaluation in a jail sharing the host netns.

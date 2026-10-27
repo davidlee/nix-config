@@ -340,6 +340,22 @@
     x = noPi;
     y = withPi;
   };
+
+  # quotient's builder, stubbed to return what it was called with (IMP-046).
+  stubQuotient.lib.mkFormFamily = args: args;
+  formArgs = agents.quotientFormFamily {
+    quotient = stubQuotient;
+    prefix = "proj";
+    packages = [pkgs.hello];
+    env.EXTRA = "x";
+    piFiles."settings.json" = pkgs.writeText "settings.json" "{}";
+  };
+  piClient = agents.gatewayClient "pi";
+  formNetworkOffFails =
+    !(builtins.tryEval (agents.quotientFormFamily {
+      quotient = stubQuotient;
+      network = false;
+    } ? pi)).success;
 in
   assert knownSubagent.drvPath != "";
   assert noSecretMachinery.drvPath != "";
@@ -370,6 +386,19 @@ in
     inherit (gatewayData) url;
     runDirectory = "/run/llm-gateway";
   };
+  # A form family carries the gateway wiring and the caller's own args.
+  assert formArgs.pi == agents.unjailed.pi;
+  assert formArgs.prefix == "proj";
+  assert formArgs.packages == [pkgs.hello];
+  assert formArgs.env
+  == {
+    EXTRA = "x";
+    LLM_GATEWAY_URL = piClient.url;
+  };
+  assert formArgs.secretEnv == {LLM_GATEWAY_KEY = ''$(< "${piClient.keyFile}")'';};
+  assert lib.attrNames formArgs.piFiles == ["models.json" "settings.json"];
+  assert formArgs.piFiles."models.json" == agents.piGatewayModels;
+  assert formNetworkOffFails;
   assert noPiEntryOmitted;
   # The gateway facts out-of-tree consumers read instead of gateway.nix (IMP-043).
   assert lib.attrNames agents.gatewayFacts == ["clientSocket" "models" "relayPort" "url"];

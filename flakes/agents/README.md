@@ -19,6 +19,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
   repo's gateway, and its socket-mode options for `extraOptions` (see
   [Gateway mode](#gateway-mode-gateway))
+- `quotientFormFamily` — quotient's per-call forms for a gateway client (see
+  [quotient forms](#quotient-forms))
 - `satanMcpOptions` — a satan-mcp client, for `extraOptions`: the socket's
   directory `/run/user/1000/satan/mcp` read-only (never the socket file, whose
   inode satan-mcp replaces on restart), plus `XDG_RUNTIME_DIR` and
@@ -519,6 +521,31 @@ for the upstream model, and check it through the gateway (`--thinking off`
 gives no reasoning tokens). A served model without `pi` is served but not
 listed in pi's `models.json`. The gateway side (price map, key model lists) is in the top-level
 README, § LLM gateway.
+
+### quotient forms
+
+`quotientFormFamily` builds a project's quotient form family (the read and
+write jails quotient's `pi_agent` runs a delegate in; `quotient help form`). It
+calls quotient's `lib.mkFormFamily` with this lib's `pkgs`, `jail-nix` and pi,
+and merges the gateway wiring into the caller's own `env`, `secretEnv` and
+`piFiles`:
+
+| arg | gets |
+|---|---|
+| `env` | `LLM_GATEWAY_URL` |
+| `secretEnv` | `LLM_GATEWAY_KEY`, read from the client's key file at launch |
+| `piFiles` | `models.json` (`piGatewayModels`) |
+
+```nix
+formFamily = jailLib.quotientFormFamily {
+  inherit quotient;            # the flake or its lib; this flake takes no quotient input
+  # client = "pi";             # gateway key, ~/.config/llm-gateway/keys/<client>
+  packages = toolchain;        # the rest goes to mkFormFamily as given
+};
+# formFamily.read, formFamily.write; quotient.lib.checkFormFamily { family = formFamily; … }
+```
+
+`network = false` is refused: the form reaches the gateway over TCP.
 
 ### makeJailedAgent options
 
