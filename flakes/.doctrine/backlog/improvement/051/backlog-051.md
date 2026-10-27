@@ -123,10 +123,10 @@ Then CHR-023: satan's form, satan-corpus and panopticon finish there.
    passes over 9 test jails (20 scripts), fails over a `/run`-bound twin
    (`testBuildFailure`, names the argument), and a custom scan passes.
    README § Jail scan.
-4. Written, uncommitted in satan: its walker goes; `op-unjailed` is
-   `jailLib.opUnjailed (lib.attrValues jailPkgs)`, `runner-socket-unjailed`
-   a `mkJailScanCheck` call. Against the local lib both scan 27 scripts
-   clean, as HEAD's walker does. Waits on a push of `~/flakes` and a relock
-   of satan's agents input: the locked lib lacks `opUnjailed`.
+4. Done, satan `5d349fd` (after `~/flakes` was pushed): its walker goes;
+   `op-unjailed` is `jailLib.opUnjailed (lib.attrValues jailPkgs)`,
+   `runner-socket-unjailed` a `mkJailScanCheck` call; agents relocked to
+   84efebe6. On the lock, both scan 27 scripts clean, as HEAD's walker did;
+   every satan check builds, devshell evaluates.
 5. Done: screwtape DEC-013 consequences amended (`0103779`); known limits
    above.

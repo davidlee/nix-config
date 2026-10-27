@@ -148,3 +148,21 @@ paths) and `exposure: []` in `~/.config/quotient/doctrine.policy.json` (was
 
 doctrine CHR-183: builder half recorded done (`77cec7966`); its ISS-001 half
 stays open.
+
+## After IMP-051 (2026-10-27)
+
+IMP-051 done: the gateway is a jail's only model access (`497d1f56`, the
+receipt), and the jail scan is the lib's (`mkJailScanCheck`, `opUnjailed`).
+Its CHR-023 parts: satan-corpus on the gateway (`de38a66`), panopticon's
+`jpi` without `op run` (`a5b49ff`), satan's scans on the lib (`5d349fd`,
+agents relocked).
+
+Left:
+- satan's form: its hand-rolled `quotientFormFamily` (`flake.nix:325`) and
+  `quotientFormsCheck` onto `jailLib.quotientFormFamily` + one
+  `projectOptions`, as doctrine did; quotient input unpinned (was `v0.3.1`;
+  user, 2026-10-27).
+- ISS-019 (`~/.emacs.d` gone; bwrap refuses jails that bind it) in satan and
+  satan-corpus at least; the other five repos are one-line chores.
+- panopticon: `agents.inputs.nixpkgs.follows`; relock.
+- satan-corpus: live check of a gateway jail once ISS-019 lets it start.
