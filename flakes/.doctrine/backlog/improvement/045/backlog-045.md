@@ -118,8 +118,9 @@ and gateway-jail.nix (90). Left for later, as planned: `unjailed` vs
 - commonPkgs: `python3` removed (the user's call; the remaining trims are not
   pursued). Consumer jail derivations change, as intended. Two repos depend on
   it: forgettable and agentdoc run `python3 -c` in `.claude/hooks/startup.sh`,
-  so their jailed claude's session-start hook fails until they add `python3`
-  to `extraPkgs` or the hook uses `jq`. rpg-multiplayer-spike and doctrine
-  bring their own Python.
+  so their jailed claude's session-start hook would fail. Fixed: both hooks
+  now read the id with `jq -r '.session_id // empty'` (forgettable,
+  agentdoc: one commit each). rpg-multiplayer-spike and doctrine bring their
+  own Python.
 
 Resolved 2026-10-27.
