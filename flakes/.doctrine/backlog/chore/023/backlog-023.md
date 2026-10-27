@@ -199,3 +199,20 @@ forms and the 0.6.1 server), `exposure: []` in `~/.config/quotient/policy.json`
 and `policy.src.json`, restart the quotient MCP server, `quotient allow` per
 root if approvals pin the old forms' hashes; optionally `just
 quotient-hostile-audit`.
+
+## satan-corpus and panopticon (2026-10-27)
+
+- satan-corpus `fda8ebe` (ISS-019): both `~/.emacs.d` binds (real path and
+  workspace dep) now name `~/.config/emacs`. Every devshell jail launches
+  again (pi 1.4.0), and an authenticated `GET /v1/models` from `jailed-shell`
+  through the gateway returns 200: the live gateway check.
+- panopticon `a703c26`: agents follows nixpkgs; agents relocked to
+  `91b5b098`. Devshell builds, evaluates against the live agents too, and
+  `jailed-pi --version` launches.
+
+Open in satan-corpus, not changed: `jailed-pi-emacs` still binds the Emacs
+server socket (`jailEnvOptionsWithEmacs`), which is that jail's purpose; the
+user removed the socket from satan's jails.
+
+Left: ISS-019's one-line fix in bough, forgettable, org-incremental-writing,
+vk, satan-attrd. Then CHR-023 can close.

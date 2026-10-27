@@ -22,3 +22,10 @@ static deps may not; check per repo).
 Per repo: `~/.config/emacs` if the jail needs the Emacs config, else drop the
 entry. Fold into CHR-023 where that repo is still open (satan,
 satan-corpus); the rest are one-line chores.
+
+## Progress (2026-10-27)
+
+satan: not affected (its `.emacs.d` line is commented out; `.envrc` names
+`~/.config/emacs`). satan-corpus: fixed (`fda8ebe`, both binds →
+`~/.config/emacs`). Left: bough, forgettable, org-incremental-writing, vk,
+satan-attrd.
