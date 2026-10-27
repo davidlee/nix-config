@@ -216,3 +216,12 @@ user removed the socket from satan's jails.
 
 Left: ISS-019's one-line fix in bough, forgettable, org-incremental-writing,
 vk, satan-attrd. Then CHR-023 can close.
+
+## Done (2026-10-27)
+
+ISS-019's last five repos fixed (see ISS-019 § Resolved). Every W5 repo is
+on the canonical pattern; nothing on this item's list remains.
+
+Seen on the way, not in scope: bough, forgettable and satan-attrd lock an
+older agents (pi 0.99.1 in their jails); the next relock picks up the
+current lib.

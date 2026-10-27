@@ -5,10 +5,10 @@ id = 23
 slug = "w5-migrate-workspace-repos-to-the-canonical-dev-flake-pattern"
 title = "W5 — Migrate /workspace repos to the canonical dev-flake pattern"
 kind = "chore"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-10-26"
-updated = "2026-10-26"
+updated = "2026-10-27"
 tags = ["agents", "dev-flakes", "jail"]
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

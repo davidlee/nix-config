@@ -29,3 +29,10 @@ satan: not affected (its `.emacs.d` line is commented out; `.envrc` names
 `~/.config/emacs`). satan-corpus: fixed (`fda8ebe`, both binds →
 `~/.config/emacs`). Left: bough, forgettable, org-incremental-writing, vk,
 satan-attrd.
+
+## Resolved (2026-10-27)
+
+Workspace dep `~/.emacs.d/` → `~/.config/emacs/`: bough `f8fc90bb` (vk is a
+symlink to it), forgettable `51c9619`, org-incremental-writing `1bc85d2`,
+satan-attrd `210ac3a`. Each devshell builds against its lock and evaluates
+against the live agents; `jailed-pi --version` launches in each.
