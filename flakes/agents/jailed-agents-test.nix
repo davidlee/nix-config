@@ -328,6 +328,30 @@
   noProviderKeyArgs =
     lib.all (a: !(builtins.functionArgs agents.makeJailedAgent ? ${a})) ["apiKeys" "useOpEnv" "passApiKeysFromEnv"]
     && !(builtins.functionArgs (import ./jailed-agents.nix) ? apiKeyOpRefs);
+
+  # The jail scan (IMP-051). Every test jail, outer and nested launchers.
+  scannedJails = [
+    specDev
+    research
+    offline
+    knownSubagent
+    gatewayJail
+    offlineGateway
+    ecaGateway
+    claudePiGateway
+    piResearchGateway
+  ];
+  opUnjailedClean = agents.opUnjailed scannedJails;
+  # Twin: specDev, differing only in the ancestor bind.
+  runBound = inner "specDev" {extraOptions = [(agents.combinators.ro-bind "/run" "/run")];};
+  opUnjailedCatches = pkgs.testers.testBuildFailure (agents.opUnjailed [runBound]);
+  customScan = agents.mkJailScanCheck {
+    name = "probe-scan";
+    launchers = scannedJails;
+    literals = ["satan-runner"];
+    tokens = ["/run/user/[0-9]+/?"];
+    controlBind = "--bind /run/user/1000 /run/user/1000";
+  };
 in
   assert noProviderKeyArgs;
   assert knownSubagent.drvPath != "";
@@ -805,6 +829,11 @@ in
       fwd_wait "[ -S ${forwarderSocket} ]"
       timeout 30 ${forwarderProbe 4000}/bin/forwarder-probe-4000 relay 4000 "$FORWARDER_LOG" \
         < /dev/null > "$TMPDIR/fwd-a.out" 2> "$TMPDIR/fwd-a.err" || fwd_fail "(a) relay failed"
+
+      # The jail scan: clean over every test jail; an ancestor bind fails it.
+      grep -Fq -- 'op-unjailed: ' ${opUnjailedClean}
+      grep -Fq -- "has the argument '/run'" ${opUnjailedCatches}/testBuildFailure.log
+      grep -Fq -- 'probe-scan: ' ${customScan}
 
       touch "$out"
     ''

@@ -583,6 +583,9 @@ in
     inherit posture;
     # Env forwarding that a quotient form accepts: tryFwdEnv combinators NAME.
     inherit tryFwdEnv;
+    # Checks that no jail reaches a path: mkJailScanCheck { … }, and its op
+    # preset, opUnjailed launchers (jail-scan.nix).
+    inherit (import ./jail-scan.nix {inherit lib pkgs;}) mkJailScanCheck opUnjailed;
     inherit agentsByName; # unjailed binaries
     inherit (jail) combinators;
     # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".

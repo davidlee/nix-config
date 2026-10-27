@@ -25,6 +25,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   a combinator set (see [quotient forms](#quotient-forms))
 - `tryFwdEnv` — `tryFwdEnv c "NAME"`: forward a host variable if set, in a jail
   or a form (see [quotient forms](#quotient-forms))
+- `mkJailScanCheck`, `opUnjailed` — flake checks that no jail reaches a path
+  (see [Jail scan](#jail-scan))
 - `satanMcpOptions` — a satan-mcp client, for `extraOptions`: the socket's
   directory `/run/user/1000/satan/mcp` read-only (never the socket file, whose
   inode satan-mcp replaces on restart), plus `XDG_RUNTIME_DIR` and
@@ -496,6 +498,35 @@ formFamily = jailLib.quotientFormFamily {
   The project half follows the same rule: forward a host variable with
   `jailLib.tryFwdEnv c "NAME"`, not jail.nix's `try-fwd-env`, whose
   `${NAME+…}` the check refuses.
+
+### Jail scan
+
+A flake check over built launchers as text (`jail-scan.nix`, IMP-051). From
+each launcher it follows the scripts it execs, the `--args` files it opens and
+the nested `-jailed-` launchers on its PATH, and fails on a forbidden string or
+a bare argument matching a forbidden path. A positive control (a synthetic
+launcher binding `controlBind` through an args file) must fail the same walk,
+and a scan of no scripts fails.
+
+```nix
+checks.op-unjailed = jailLib.opUnjailed (lib.attrValues jailPkgs);
+checks.socket-unjailed = jailLib.mkJailScanCheck {
+  name = "socket-unjailed";
+  launchers = lib.attrValues jailPkgs;   # each one's bin/* is scanned
+  literals = ["my-socket"];              # fixed strings, anywhere
+  tokens = ["/run/user/[0-9]+/?"];       # extended regexes, a whole argument
+  controlBind = "--bind /run/user/1000 /run/user/1000";
+};
+```
+
+`opUnjailed` refuses `op`, 1Password's sockets and every ancestor bind that
+would expose them (`/`, `/run`, `/run/wrappers`, `/run/user/<uid>`,
+`$XDG_RUNTIME_DIR`). This flake runs it over its own test jails.
+
+A guard for known paths, not proof: it misses indirection
+(`B=/run; --bind "$B"`), helpers not named `-jailed-`, and arguments computed
+at run time (`RUNTIME_ARGS`, the closure binds), which it reads as code, not
+as the paths they produce.
 
 ### makeJailedAgent options
 
