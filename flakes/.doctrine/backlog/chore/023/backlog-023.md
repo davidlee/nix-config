@@ -115,10 +115,36 @@ own nixpkgs against 4 on the agents pin. Commits are scoped to
 Kept: oubliette and screwtape stay on `use flake` (no live input wanted).
 
 Left:
-- form step: doctrine's interim form and satan's hand-rolled family wait on
-  IMP-052. `quotientFormFamily` cannot carry the agents lib's posture (ssh-push
-  block, git identity, host doctrine), and doctrine's interim form lacks
-  quotient's guarantees.
+- form step: satan's hand-rolled family (doctrine's is done, below).
 - satan-corpus: still off the gateway (`useOpEnv = false;
   passApiKeysFromEnv = true`), with IMP-051's op consumers.
 - panopticon and satan, after IMP-051.
+
+## doctrine's form (2026-10-27, after IMP-052)
+
+doctrine `0b683c3df`: `quotientForms` is `jailLib.quotientFormFamily`
+(prefix `doctrine-quotient`, so the policy's form paths hold);
+`projectOptions = c: [ … ]` is the one project half for jails and forms;
+`checks.quotient-forms` runs `quotient.lib.checkFormFamily`. quotient input
+follows `main` unpinned (user: a break should surface). The form no longer
+binds the persisted jail home; the jails keep it.
+
+Found by the check: jail.nix `try-fwd-env` renders `${NAME+…}` on the bwrap
+line, which quotient's check refuses. New `jailLib.tryFwdEnv c NAME`
+(53ffeefa) appends `--setenv` to `RUNTIME_ARGS` instead; tested in
+`jailed-agents-test.nix` and live (`jailed-shell`: set → forwarded, unset →
+absent). Use it in any shared project half.
+
+Verified: jail drvPaths identical before/after the flake.nix change on the
+same lock; both forms build; the check passes; `doctrine-quotient-read
+<session> --version` launches (pi 1.4.0); the launcher carries the posture
+(host doctrine, ssh-push block, git identity, guarded git), both forwards,
+`TERM=dumb` and the gateway.
+
+Operator steps (not done here; the classifier refused them):
+`just quotient-forms` in doctrine (installs the new forms at the policy's
+paths) and `exposure: []` in `~/.config/quotient/doctrine.policy.json` (was
+`["~/.local/share/jail.nix/home/agent"]`, now unused).
+
+doctrine CHR-183: builder half recorded done (`77cec7966`); its ISS-001 half
+stays open.
