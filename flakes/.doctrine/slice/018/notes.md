@@ -48,7 +48,7 @@ launcher-text tests, and the consumer is the operator.
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-27 · audit (RV-040 done) · see git log
+fresh-as-of: 2026-10-27 · done · see git log
 
 ### Produced
 - design locked, plan authored (commits 113a59bf..044ec3e9); PHASE-01 sheet filled
@@ -64,5 +64,5 @@ fresh-as-of: 2026-10-27 · audit (RV-040 done) · see git log
 
 ### Open
 - CHR-023 — other consumers' rw lists (handed over; satan, satan-corpus, org-incremental-writing likely need notes rw)
-- IMP-044 — resolve `done` at close
-- RV-040 brief — design.md sec-5, sec-6 edits (reconcile)
+- IMP-044 resolved done at close; RV-040 brief applied (design sec-5, sec-6)
+- rejected as memory: the both-lists eval trap — documented in agents/README.md and CHR-023
