@@ -102,9 +102,29 @@ Done, verified:
   `npm uninstall -g @davlee/quotient`.
 
 Left:
-- operator: `quotient allow` for ~/dev/satan and ~/dev/satan-attrd (until then
-  satan's calls get the generic form); then `just policy-install` in
-  ~/.config/quotient; restart MCP clients.
+- operator: `quotient allow` for ~/dev/satan (until then satan's calls get
+  the generic form); `just policy-install` in ~/.config/quotient; then
+  `quotient allow` for ~/dev/satan-attrd (allow refuses a path outside the
+  installed policy's roots, and satan-attrd is a root only once it is
+  installed); restart MCP clients.
 - verify: a call from goad accepted, generic form; satan's carries `PG*`.
 - commits (flakes, satan, satan-attrd; push agents so satan-attrd and the root
   lock can follow `commonPkgs`).
+
+## Verified live, closed (2026-10-27)
+
+Operator steps done by the user: `quotient allow` for satan, `just
+policy-install`, `quotient allow` for satan-attrd. Installed policy equals
+`just policy` (16 roots); approvals.json names exactly the built project
+forms. One `read` call each, `env | grep -E '^(PG|SATAN_DB|DATABASE_URL)'`:
+
+| root | form | env |
+|---|---|---|
+| goad (new root) | machine default | none (grep exit 1) |
+| satan | project | `PGHOST PGPORT PGUSER PGPASSWORD SATAN_DB_HOST` |
+| satan-attrd (new root) | project | `DATABASE_URL` (…@127.0.0.1:54322) |
+
+Follow-ups, not this card: push `~` so locked builds see the lib's
+`commonPkgs`; `base@aarch64-linux` coverage (zsh shell without
+`programs.zsh.enable`, since 85686442); satan-attrd's docker socket and
+`DOCKER_HOST` forward (against CHR-023's ruling).
