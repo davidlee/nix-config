@@ -43,7 +43,7 @@ import the file or fetch the source.
 Every jail gets these **base** options regardless of profile:
 
 - **Workspace mount** at `/workspace/<project>/` — host cwd bind-mounted rw,
-  and the jail starts there. `mountLaunchDir = false` binds nothing and starts
+  after any workspace deps, and the jail starts there. `mountLaunchDir = false` binds nothing and starts
   in `$HOME`, the persisted home.
 - **Timezone**, terminfo, `no-new-session`.
 - **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc.
@@ -214,29 +214,43 @@ Add this flake as an input, then call `mkJailedAgents`:
 }
 ```
 
-If the project has editable dependencies on sibling repos (e.g. a workspace
-symlink), use `workspaceDeps` to bind-mount them into the jail:
+If the project depends on sibling repos (e.g. through a workspace symlink),
+bind them into the jail. `workspaceDeps` binds read-only; `workspaceDepsRw`
+binds read-write, for the deps the agents must write (DEC-081):
 
 ```nix
 (agents.makeJailedClaude {
   profile = "specDev";
-  workspaceDeps = [ "/home/you/dev/some-lib" ];
+  workspaceDeps = [ "/home/you/dev/some-lib" ];   # read-only
+  workspaceDepsRw = [ "/home/you/notes" ];        # read-write
 })
+```
+
+```
+workspaceDeps   ++ $JAIL_WORKSPACE_DEPS     ─> --ro-bind <src> /workspace/<basename>
+workspaceDepsRw ++ $JAIL_WORKSPACE_DEPS_RW  ─> --bind    <src> /workspace/<basename>
+host cwd (launch dir), bound last           ─> --bind    $PWD  /workspace/<project>
 ```
 
 Each path is mounted at `/workspace/<basename>`, so a symlink like
 `./some-lib → ../some-lib` resolves correctly inside the jail.
 Paths must be absolute but do not need to exist at pure evaluation time.
-Trailing slashes are normalized, shell metacharacters remain literal, and two
-different sources with the same basename fail evaluation instead of silently
-shadowing one another.
+Trailing slashes are normalized and shell metacharacters remain literal. Two
+sources with the same basename fail evaluation instead of silently shadowing
+one another, within a list or across the two, so a path cannot be in both.
+The launch dir is bound after the deps, so when a dep shares the project's
+basename, the project is the one visible (DEC-082).
 
-For machine-local dependencies, `JAIL_WORKSPACE_DEPS` may contain newline- or
-colon-separated absolute paths. It is read only during impure evaluation and
-merged with `workspaceDeps`; under pure evaluation an unset/inaccessible value
-is simply ignored. `workspaceDepsFromEnv = false` makes a jail ignore it, so
-its evaluation no longer reads the environment; the static `workspaceDeps`
-still bind.
+Before SL-018, `workspaceDeps` bound read-write. A consumer whose agents write
+a dep moves it to `workspaceDepsRw` (or `JAIL_WORKSPACE_DEPS_RW`).
+
+For machine-local dependencies, `JAIL_WORKSPACE_DEPS` (read-only) and
+`JAIL_WORKSPACE_DEPS_RW` (read-write) may contain newline- or colon-separated
+absolute paths. They are read only during impure evaluation and merged with
+the static list of the same mode; under pure evaluation an unset or
+inaccessible value is simply ignored. `workspaceDepsFromEnv = false` makes a
+jail ignore both, so its evaluation no longer reads the environment; the
+static lists still bind.
 
 ### Updating agents
 
@@ -518,8 +532,9 @@ README, § LLM gateway.
 | `profile` | `"specDev"` | Sandbox profile (see table above) |
 | `extraPkgs` | `[]` | Additional packages available in the jail |
 | `extraOptions` | `[]` | Additional jail.nix combinators |
-| `workspaceDeps` | `[]` | Absolute paths to sibling repos; each is bind-mounted at `/workspace/<basename>` |
-| `workspaceDepsFromEnv` | `true` | Merge `JAIL_WORKSPACE_DEPS` (impure evaluation) into `workspaceDeps`. `false`: ignore it |
+| `workspaceDeps` | `[]` | Absolute paths to sibling repos; each is bound read-only at `/workspace/<basename>` |
+| `workspaceDepsRw` | `[]` | As `workspaceDeps`, bound read-write |
+| `workspaceDepsFromEnv` | `true` | Merge `JAIL_WORKSPACE_DEPS` into `workspaceDeps` and `JAIL_WORKSPACE_DEPS_RW` into `workspaceDepsRw` (impure evaluation). `false`: ignore both |
 | `mountLaunchDir` | `true` | Bind the host cwd at `/workspace/<project>` and start there. `false`: bind nothing, start in `$HOME` |
 | `persistedHome` | `null` | Name of the persisted home (`[A-Za-z0-9][A-Za-z0-9._-]*`). `null`: the profile's |
 | `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |

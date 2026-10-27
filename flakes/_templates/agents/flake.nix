@@ -2,7 +2,8 @@
 #
 # Copy into project, then:
 #   1. Adjust projectPkgs for the language/toolchain
-#   2. Set workspaceDeps to sibling repos the agents need to see
+#   2. Set workspaceDeps (read-only) and workspaceDepsRw (read-write) to
+#      sibling repos the agents need to see
 #   3. Tune jailEnvOptions: forward host env vars into the jail
 #   4. Trim jailPkgs to the agents actually wanted
 #   5. Jails use the LLM gateway; see `gateway` below to opt out
@@ -71,8 +72,14 @@
         # Sibling repos to bind-mount (for editable deps / source inspection).
         # Each path appears at /workspace/<basename> inside the jail; a host
         # symlink like ./some-lib -> ../some-lib resolves correctly.
+        # workspaceDeps bind read-only; list a dep the agents must write in
+        # workspaceDepsRw instead. Machine-local additions: the .envrc's
+        # JAIL_WORKSPACE_DEPS and JAIL_WORKSPACE_DEPS_RW.
         workspaceDeps = [
           # "/home/you/dev/some-lib"
+        ];
+        workspaceDepsRw = [
+          # "/home/you/notes"
         ];
 
         # bwrap starts with a clean env. Forward / set what agents need.
@@ -115,38 +122,38 @@
             maxSubagentDepth = 2;
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit gateway workspaceDeps;
+            inherit gateway workspaceDeps workspaceDepsRw;
           };
           jailed-pi-research = jailLib.makeJailedPi {
             name = "pi-research";
             profile = "research";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit gateway workspaceDeps;
+            inherit gateway workspaceDeps workspaceDepsRw;
           };
           jailed-claude = jailLib.makeJailedClaude {
             profile = "specDev";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit gateway workspaceDeps;
+            inherit gateway workspaceDeps workspaceDepsRw;
           };
           jailed-codex = jailLib.makeJailedCodex {
             profile = "specDev";
             extraPkgs = projectPkgs;
             extraOptions = jailEnvOptions;
-            inherit gateway workspaceDeps;
+            inherit gateway workspaceDeps workspaceDepsRw;
           };
           # jailed-zero = jailLib.makeJailedZerostack {
           #   profile = "specDev";
           #   extraPkgs = projectPkgs;
           #   extraOptions = jailEnvOptions;
-          #   inherit workspaceDeps;
+          #   inherit workspaceDeps workspaceDepsRw;
           # };
           # jailed-dirge = jailLib.makeJailedDirge {
           #   profile = "specDev";
           #   extraPkgs = projectPkgs;
           #   extraOptions = jailEnvOptions;
-          #   inherit workspaceDeps;
+          #   inherit workspaceDeps workspaceDepsRw;
           # };
           inherit (pkgs) bubblewrap;
         };

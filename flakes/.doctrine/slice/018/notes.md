@@ -27,20 +27,39 @@ launcher-text tests, and the consumer is the operator.
 - `just test`, `just gate` green. `verify-vt` reports UNATTRIBUTABLE for every
   VT: ISS-005 path-prefix misattribution; keywords present, judged met.
 
+## PHASE-02 progress (2026-10-27)
+
+- README: workspace-deps prose (both lists, both env vars, bind diagram,
+  cross-list refusal, launch dir last, breaking note); option table row for
+  `workspaceDepsRw`; sandbox-defaults line says the cwd binds after the deps.
+- Template: header step, both lists with comments, all jails (incl.
+  commented) inherit both.
+- Emacs flake (`~/.config/emacs` 94a1f9e): notes and .local/state/behaviour
+  rw, rest ro. Its untracked `.envrc` listed notes/ in `JAIL_WORKSPACE_DEPS`
+  too; removed, since a path in both modes fails evaluation.
+- VA-1: built jailed-claude and jailed-pi from the Emacs flake against live
+  ~/flakes/agents with the .envrc env: `--ro-bind` flakes, satan-attrd,
+  satan-patcher, panopticon, satan (env); `--bind` notes, behaviour; `--bind
+  "$PWD"` after every dep (byte offsets).
+- VA-2: CHR-023 body has the per-consumer table, the both-lists trap
+  (satan's notes) and goad's literal-`~` path (pre-existing refusal).
+- `just test`, `just gate` green; verify-vt UNATTRIBUTABLE per ISS-005,
+  keywords present.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-27 · PHASE-01 completed · see git log
+fresh-as-of: 2026-10-27 · PHASE-02 completed · see git log
 
 ### Produced
 - design locked, plan authored (commits 113a59bf..044ec3e9); PHASE-01 sheet filled
 - minted: DEC-081 — ro default, rw opt-in; DEC-082 — launch dir bound last; RV-039 — design review pass (waived)
 - programme backlog W1–W8: IMP-044..050, CHR-023; IMP-051 sequenced; IMP-047 carries the envrc include pattern
 - PHASE-01: ro default + rw opt-in in `agents/jailed-agents.nix`, tests, justfile env var
+- PHASE-02: README, template, Emacs flake (~/.config/emacs 94a1f9e), CHR-023 hand-off
 
 ### Learned
 - mem.fact.doctrine.plan-toml-editing — plan.toml splice and inline-table traps
 - mem.fact.jail-nix.launcher-one-line — bwrap argv is one line; order by byte offset
 
 ### Open
-- CHR-023 — live consumers' rw lists (handed over in PHASE-02)
-- live `.envrc` consumers now see deps ro (working tree is live): PHASE-02 emacs flake rw list is urgent
+- CHR-023 — other consumers' rw lists (handed over; satan, org-incremental-writing likely need notes rw)
