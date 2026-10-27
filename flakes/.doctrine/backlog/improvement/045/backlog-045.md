@@ -78,3 +78,7 @@ source tree, so any edit under agents/, a README one included, changes it.
 - Step 1 done. The handover was untracked (`*.local.md`) and was deleted
   without a commit; it is gone. The README loses its `commonPkgs`,
   `blockGitPush` and "Full example" entries. Gate green, consumers unchanged.
+- Step 2 done. There is one `profiles` map (`network`, `home`,
+  `sandboxGitIdentity`, `useOpEnv`). `blockSshGitPush` and `guardGit` default
+  to `true` and `exposePostgres` to `false`, the same in every profile.
+  README option table updated. Gate green, consumers unchanged.

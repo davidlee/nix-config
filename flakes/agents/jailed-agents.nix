@@ -215,61 +215,37 @@
 
   # Policy-bearing profiles. `network` is data, not caller-overridable
   # (DEC-076): the one source of the network flag. `home` names the persisted
-  # home; a jail may override it (`persistedHome`).
+  # home; a jail may override it (`persistedHome`). The rest are defaults a
+  # jail may override; useOpEnv is off for offline (no network = no API
+  # calls = no secrets).
   profiles = {
     specDev = {
       network = true;
       home = "agent";
-      options = [];
+      sandboxGitIdentity = true;
+      useOpEnv = true;
     };
 
     research = {
       network = true;
       home = "agent-research";
-      options = [];
+      sandboxGitIdentity = false;
+      useOpEnv = true;
     };
 
     offline = {
       network = false;
       home = "agent-offline";
-      options = [];
-    };
-  };
-
-  # A profile's jail options: the persisted home `home`, the profile's own,
-  # then `network` iff the flag is set.
-  profileOptions = p: home:
-    [(jail.combinators.persist-home home)]
-    ++ profiles.${p}.options
-    ++ lib.optional profiles.${p}.network jail.combinators.network;
-
-  # Per-profile boolean defaults for git controls + op env injection.
-  # useOpEnv is off for offline (no network = no API calls = no secrets).
-  profileDefaults = {
-    specDev = {
-      blockSshGitPush = true;
-      sandboxGitIdentity = true;
-      guardGit = true;
-      exposePostgres = false;
-      useOpEnv = true;
-    };
-
-    research = {
-      blockSshGitPush = true;
       sandboxGitIdentity = false;
-      guardGit = true;
-      exposePostgres = false;
-      useOpEnv = true;
-    };
-
-    offline = {
-      blockSshGitPush = true;
-      sandboxGitIdentity = false;
-      guardGit = true;
-      exposePostgres = false;
       useOpEnv = false;
     };
   };
+
+  # A profile's jail options: the persisted home `home`, then `network` iff
+  # the flag is set.
+  profileOptions = p: home:
+    [(jail.combinators.persist-home home)]
+    ++ lib.optional profiles.${p}.network jail.combinators.network;
 
   # Sandbox-originated commits are visually distinct
   gitIdentityOptions = with jail.combinators; [
@@ -376,14 +352,14 @@
     # Back-compat sugar: adds this agent's own `name` to `subagents`.
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
-    blockSshGitPush ? profileDefaults.${profile}.blockSshGitPush,
-    sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
+    blockSshGitPush ? true,
+    sandboxGitIdentity ? profiles.${profile}.sandboxGitIdentity,
     # Swap git for guardedGit (refuses stash, checkout --, reset --hard, ...).
-    guardGit ? profileDefaults.${profile}.guardGit,
-    exposePostgres ? profileDefaults.${profile}.exposePostgres,
+    guardGit ? true,
+    exposePostgres ? false,
     # The host's doctrine install root, read-only (hostDoctrineOptions).
     hostDoctrine ? true,
-    useOpEnv ? profileDefaults.${profile}.useOpEnv,
+    useOpEnv ? profiles.${profile}.useOpEnv,
     # When the caller pre-resolves op:// refs and exports plaintext into
     # the wrapper's env (e.g. Emacs broker with a per-session cache),
     # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the

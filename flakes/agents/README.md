@@ -536,9 +536,9 @@ README, § LLM gateway.
 | `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |
 | `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |
-| `blockSshGitPush` | per profile | Disable Git pushes over SSH. HTTPS is unaffected. |
-| `sandboxGitIdentity` | per profile | Override git author/committer |
-| `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
+| `blockSshGitPush` | `true` | Disable Git pushes over SSH. HTTPS is unaffected. |
+| `sandboxGitIdentity` | per profile (true for `specDev` only) | Override git author/committer |
+| `guardGit` | `true` | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
 | `apiKeys` | `[]` | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
