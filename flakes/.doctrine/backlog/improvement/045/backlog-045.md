@@ -115,3 +115,11 @@ source tree, so any edit under agents/, a README one included, changes it.
 Done: jailed-agents.nix 859 → about 600 lines, plus workspace-binds.nix (87)
 and gateway-jail.nix (90). Left for later, as planned: `unjailed` vs
 `agentsByName` (CHR-023), `/run/user/1000` in `satanMcpOptions`, HTTPS push.
+- commonPkgs: `python3` removed (the user's call; the remaining trims are not
+  pursued). Consumer jail derivations change, as intended. Two repos depend on
+  it: forgettable and agentdoc run `python3 -c` in `.claude/hooks/startup.sh`,
+  so their jailed claude's session-start hook fails until they add `python3`
+  to `extraPkgs` or the hook uses `jq`. rpg-multiplayer-spike and doctrine
+  bring their own Python.
+
+Resolved 2026-10-27.

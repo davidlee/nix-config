@@ -122,9 +122,6 @@
     tree
     ps
     libnotify
-
-    # for spec-driver hook
-    python3
   ];
 
   # git with bin/git replaced by git-guard.sh, which refuses the subcommands
