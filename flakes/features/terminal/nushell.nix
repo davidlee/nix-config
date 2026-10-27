@@ -2,8 +2,25 @@
 {
   lib,
   pkgs,
+  config,
   ...
-}: {
+}: let
+  omp = config.programs.oh-my-posh;
+  # Where nu looks for vendor autoloads: its data dir on Linux, and on darwin.
+  ompAutoloads =
+    map (d: "${d}/nushell/vendor/autoload/oh-my-posh.nu")
+    [config.xdg.dataHome "${config.home.homeDirectory}/Library/Application Support"];
+in {
+  # oh-my-posh's nu integration runs `oh-my-posh init nu` at every start,
+  # which writes its prompt script into nu's vendor autoload. Nothing removes
+  # it, so with the integration off nu would still load it, with no config:
+  # oh-my-posh's default theme. Remove it whenever the integration is off.
+  home.activation.removeOhMyPoshNuScript =
+    lib.mkIf (!(omp.enable && omp.enableNushellIntegration))
+    (lib.hm.dag.entryAfter ["writeBoundary"] ''
+      run rm -f ${lib.escapeShellArgs ompAutoloads}
+    '');
+
   programs = {
     nushell = {
       enable = true;
