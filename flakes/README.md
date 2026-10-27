@@ -144,7 +144,7 @@ sources instead, so an edit lands without a push and a re-lock:
 ```
 tree_override   agents/, emacs/                       in this repo, always present
 dev_override    fleet goad malebolge panopticon       ~/dev/<input>, where checked out
-                satan satan-attrd screwtape
+                quotient satan satan-attrd screwtape
                 fleet: $FLAKES_FLEET (default /srv/fleet)
 ```
 
@@ -214,8 +214,9 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
-  agents.nix          [ registry (import ./agents/gateway.nix) eca pi chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; eca: linux only, requires gateway; pi: bare, linux only (personal-linux)
+  agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, linux only (personal-linux)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
+                      quotient.nix  quotient/         the quotient server on PATH; the machine-default forms (family.nix)
   audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
   audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature
   services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target

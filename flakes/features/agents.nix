@@ -22,6 +22,7 @@
     };
   }
   (import ./agents/gateway.nix)
+  (import ./agents/quotient.nix {inherit lib;})
   {
     name = "eca";
     # ECA (editor-code-assistant) server, jailed — spawned by eca-emacs via

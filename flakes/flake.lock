@@ -2875,11 +2875,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1793050282,
-        "narHash": "sha256-fgif4aM0Jl87se7l8tx5AJTtb5Z5Bjfcgud6p2qOs0c=",
+        "lastModified": 1793075281,
+        "narHash": "sha256-KroX9t4vx49vPTNjDrmpbHoZww7y6ZPv1v+mKNEC7dE=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "a6c4255533196c3910e5866e5465c19680ffec4a",
+        "rev": "f11a79856c8110f8366253feeecff7f19f94f889",
         "type": "github"
       },
       "original": {
@@ -9059,6 +9059,26 @@
     "quotient_4": {
       "inputs": {
         "nixpkgs": [
+          "nixpkgs-home"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793074058,
+        "narHash": "sha256-e4NsCP192YG/JtJcFUj31eCIy2dHjcbQZmVDgON5xXk=",
+        "owner": "davidlee",
+        "repo": "quotient",
+        "rev": "1f18594f3a390504d9f4cc83288f7c168ec75eb3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "repo": "quotient",
+        "type": "github"
+      }
+    },
+    "quotient_5": {
+      "inputs": {
+        "nixpkgs": [
           "satan",
           "nixpkgs"
         ]
@@ -9078,7 +9098,7 @@
         "type": "github"
       }
     },
-    "quotient_5": {
+    "quotient_6": {
       "inputs": {
         "nixpkgs": [
           "screwtape",
@@ -9172,6 +9192,7 @@
         "nixpkgs-home": "nixpkgs-home",
         "noctalia": "noctalia",
         "panopticon": "panopticon_2",
+        "quotient": "quotient_4",
         "satan": "satan_2",
         "satan-attrd": "satan-attrd_2",
         "screwtape": "screwtape_2",
@@ -9591,7 +9612,7 @@
         "nixpkgs": [
           "nixpkgs-home"
         ],
-        "quotient": "quotient_4",
+        "quotient": "quotient_5",
         "zig-overlay": "zig-overlay_5"
       },
       "locked": {
@@ -9681,7 +9702,7 @@
         "nixpkgs": [
           "nixpkgs-home"
         ],
-        "quotient": "quotient_5"
+        "quotient": "quotient_6"
       },
       "locked": {
         "lastModified": 1793051021,

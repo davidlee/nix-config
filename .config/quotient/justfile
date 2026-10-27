@@ -1,8 +1,54 @@
+# The policy as installed, on stdout: src with `roots_from` (IMP-048), when
+# present, replaced by the resolved targets of its links, added to `roots`.
+# Every root is resolved, as quotient resolves them, so the policy names the
+# paths its approvals and refusals do, and a link retargeted later moves no
+# root. A root inside another is dropped: the deepest entry would decide where
+# quotient records approvals.
+policy src="policy.src.json":
+  #!/usr/bin/env bash
+  set -euo pipefail
+  from=$(jq -r '.roots_from // empty' {{src}})
+  roots=$(
+    { jq -r '.roots[]' {{src}}; [ -z "$from" ] || printf '%s\n' "$from"/*; } \
+      | xargs -d '\n' realpath -e | jq -R . | jq -s .
+  )
+  jq -e --argjson roots "$roots" '
+    ($roots | unique) as $r
+    | del(.roots_from)
+    | .roots = [$r[] | . as $p | select(all($r[]; . as $q | $q == $p or ($p | startswith($q + "/") | not)))]
+  ' {{src}}
+
 policy-install src="policy.src.json" dst="policy.json":
   #!/usr/bin/env bash
   set -euo pipefail
   dst=~/.config/quotient/{{dst}}
   tmp=$(mktemp "$dst.XXXXXX")            # same directory, so mv is a rename(2)
-  jq -e . {{src}} > "$tmp"               # also a validation step
+  just policy {{src}} > "$tmp"           # jq -e: also a validation step
   chmod 0444 "$tmp"
   mv -f "$tmp" "$dst"
+
+diff src="policy.src.json" dst="policy.json":
+  delta <(just policy {{src}}) {{dst}}
+
+# The generator's behaviour, on a throwaway tree: links resolved and merged
+# with the listed roots, nested and duplicate roots dropped, a source without
+# roots_from left alone, a dangling link refused.
+test:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  t=$(mktemp -d); trap 'rm -rf "$t"' EXIT
+  mkdir -p "$t"/dev/{a,b/docs,c} "$t/links" "$t/other"
+  ln -s "$t/dev/a" "$t/links/a"; ln -s "$t/dev/b" "$t/links/b"
+  ln -s "$t/dev/b/docs" "$t/links/docs"; ln -s "$t/dev/a/" "$t/links/a2"
+  ln -s "$t/other" "$t/link-to-other"
+  src() { jq -n --arg from "$1" --argjson roots "$2" '{schema: "s", roots: $roots} + (if $from == "" then {} else {roots_from: $from} end)' > "$t/src.json"; }
+  want() { [ "$got" = "$1" ] && echo "ok   $2" || { echo "FAIL $2: got $got, want $1"; exit 1; }; }
+  src "$t/links" "[\"$t/link-to-other\", \"$t/dev/c/\"]"
+  got=$(just policy "$t/src.json" | jq -c --arg t "$t" '[.roots[] | ltrimstr($t)], has("roots_from")')
+  want '["/dev/a","/dev/b","/dev/c","/other"]'$'\n''false' "links and listed roots resolved; nested, duplicate and trailing-slash roots folded"
+  src "" "[\"$t/dev/a\"]"
+  got=$(just policy "$t/src.json" | jq -c --arg t "$t" '[.roots[] | ltrimstr($t)]')
+  want '["/dev/a"]' "no roots_from: roots only"
+  ln -s "$t/gone" "$t/links/dangling"; src "$t/links" '[]'
+  if just policy "$t/src.json" >/dev/null 2>&1; then got=accepted; else got=refused; fi
+  want refused "a dangling link fails the build"

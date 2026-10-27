@@ -596,6 +596,8 @@ in
     # (IMP-043): the models.json a gateway jail binds, and the gateway's facts.
     piGatewayModels = piGatewayModelsFor gatewayData.url;
     inherit quotientFormFamily;
+    # The base tools every jail carries; a form adds them itself.
+    inherit commonPkgs;
     gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
     # Socket mode for a jail without `gateway` (e.g. a key-file client), via
     # `extraOptions`; refused at evaluation in a jail sharing the host netns.

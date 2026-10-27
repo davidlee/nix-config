@@ -57,7 +57,8 @@ fmt: check-flake-root
 
 # the lock holds no local source (ISS-006), resolver tests (features-test.nix),
 # factory checks (hosts.nix), the workaround probe registry (workarounds/),
-# the llm-gateway check (Linux only: the gateway is NixOS-only), the agents
+# the llm-gateway check (Linux only: the gateway is NixOS-only), the
+# machine-default quotient forms' contract (Linux only), the agents
 # sub-flake's jail tests, pure and impure (Linux only, against its own lock), then behaviour
 # tests for the plain scripts
 test:
@@ -68,6 +69,7 @@ test:
   nix build ".#checks.$(nix config show system).workarounds" {{local_override}} --no-link --no-write-lock-file
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).satan-room" {{local_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).quotient-forms" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test

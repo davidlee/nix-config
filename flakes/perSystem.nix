@@ -1,4 +1,4 @@
-{
+{inputs}: {
   config,
   lib,
   pkgs,
@@ -34,6 +34,12 @@ in {
     // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
       # The satan room's door data (features/satan/room.nix); the feature is Linux only.
       satan-room = evalTests ./features/satan/room-test.nix;
+
+      # quotient's form contract over the machine-default family (agents.quotient).
+      quotient-forms = inputs.quotient.lib.checkFormFamily {
+        inherit pkgs;
+        family = import ./features/agents/quotient/family.nix {inherit inputs pkgs;};
+      };
 
       # llm-gateway's LiteLLM adapter, offline, against the system nixpkgs'
       # LiteLLM (gateway-test).

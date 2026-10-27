@@ -118,6 +118,12 @@
 
     goad.url = "github:davidlee/goad";
 
+    # The quotient MCP server and its form builder (features/agents/quotient.nix).
+    quotient = {
+      url = "github:davidlee/quotient";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     # The capsule's host-side perimeter as systemd units under dedicated uids
     # (nixosModules.capsule-perimeter, wired in features/virt/capsule.nix, which
     # also takes microvm.nix's host module through oubliette rather than locking
@@ -196,7 +202,7 @@
 
         systems = linuxSystems ++ ["aarch64-darwin"];
 
-        perSystem = ./perSystem.nix;
+        perSystem = import ./perSystem.nix {inherit inputs;};
 
         flake = {
           templates = {
