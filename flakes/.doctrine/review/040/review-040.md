@@ -71,3 +71,26 @@ conformance reads red only through ISS-005 (F-4).
 
 ### Backlog (at close)
 - IMP-044 (W1) is still `started`: resolve it `done` when SL-018 closes.
+
+## Reconciliation Outcome
+
+### Direct edits applied (user agreed, 2026-10-27)
+- design.md sec-5: the VA now names the Emacs devshell launcher (plan
+  PHASE-02 VA-1), with the template build as audit evidence (F-3).
+- design.md sec-6: consumer list defers to CHR-023's full table and names the
+  seven repos the first list missed (F-2).
+
+### REVs completed
+- None needed: no governance or spec item in the brief.
+
+### Fixed in the audit unit
+- F-1 SATAN.md, F-2 CHR-023 body (commit 048197af).
+
+### Withdrawn / tolerated
+- F-4 aligned (ISS-005 path prefix); F-5 tolerated (missed `started` flip);
+  rationale in each disposition.
+
+### Carried to close
+- IMP-044: resolve `done`.
+
+Reconcile pass complete — handoff to /close.

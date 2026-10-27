@@ -77,9 +77,10 @@ nest at the destination even when their sources do (research.md finding 1).
   `workspaceDepsFromEnv = false`, relative and cross-list duplicate refusals,
   and launch-dir-last ordering (VT).
 - `just gate` (alejandra, statix, deadnix) clean (VT).
-- A built launcher from the template inspected: `--ro-bind` for a
-  `workspaceDeps` entry, `--bind` for a `workspaceDepsRw` entry, launch dir
-  last (VA).
+- A built launcher from the Emacs devshell flake inspected: `--ro-bind` for
+  its `workspaceDeps`, `--bind` for its `workspaceDepsRw`, launch dir last
+  (VA, plan PHASE-02 VA-1). The template, built with one entry in each list,
+  shows the same at audit (RV-040 F-3).
 - README option table matches the arguments (VA).
 <!-- doctrine:section sec-6 -->
 ## Rollout
@@ -87,8 +88,10 @@ nest at the destination even when their sources do (research.md finding 1).
 - Repos on the live-agents `.envrc` hack pick the flip up at the next direnv
   reload; locked consumers at their next agents bump.
 - Out-of-repo rw lists are W5 (CHR-023): on landing, append to CHR-023 the
-  dep lists of each consumer (doctrine, panopticon, satan, goad,
-  org-incremental-writing, satan-attrd) with the note that writes now need
-  the rw list. Anything else goes ro and is fixed forward (inq-2).
+  dep lists of every consumer of the agents lib, with the note that writes
+  now need the rw list. CHR-023 holds the full table (thirteen repos; the
+  six first named here missed satan-corpus, bough, vk, forgettable,
+  spec-driver, _SDLC and notes, RV-040 F-2). Anything else goes ro and is
+  fixed forward (inq-2).
 - satan is being reworked by another agent; it is told of the flip through
   CHR-023 rather than edited here.
