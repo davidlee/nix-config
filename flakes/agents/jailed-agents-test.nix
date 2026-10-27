@@ -370,6 +370,9 @@
     quotient = stubQuotient;
     postureFlags.hostDoctrine = false;
   });
+  # A form-safe env forward, over plain combinators as a form passes them.
+  fwdProbe = plainJail "fwd-probe" pkgs.hello [(agents.tryFwdEnv plainJail.combinators "PROJECT_VAR")];
+  fwdBadNameFails = !(builtins.tryEval (agents.tryFwdEnv plainJail.combinators "1-bad")).success;
   piClient = agents.gatewayClient "pi";
   formNetworkOffFails =
     !(builtins.tryEval (agents.quotientFormFamily {
@@ -378,6 +381,7 @@
     } ? pi)).success;
 in
   assert knownSubagent.drvPath != "";
+  assert fwdBadNameFails;
   assert noSecretMachinery.drvPath != "";
   assert defaultNoSecrets.drvPath != "";
   assert unknownApiKeyFails;
@@ -589,6 +593,13 @@ in
         grep -Fq -- "$marker" "$form"
       done
       refute grep -Fq -- 'doctrine' ${formNoDoctrine}/bin/form-probe
+
+      # tryFwdEnv forwards at launch through RUNTIME_ARGS, so the bwrap line
+      # stays plain words for quotient's check; unset, nothing is added.
+      fwd=${fwdProbe}/bin/fwd-probe
+      grep -Fq -- 'RUNTIME_ARGS+=(--setenv PROJECT_VAR "$PROJECT_VAR")' "$fwd"
+      grep -- '/bin/bwrap ' "$fwd" > "$TMPDIR/fwd-bwrap-line"
+      refute grep -Fq -- 'PROJECT_VAR' "$TMPDIR/fwd-bwrap-line"
 
       refute grep -Fq -- '/home/david' "$spec"
       for launcher in "$spec" "$research" "$offline"; do

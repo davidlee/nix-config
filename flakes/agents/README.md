@@ -23,6 +23,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   [quotient forms](#quotient-forms))
 - `posture` — the confinement every jail and every form gets, as a function of
   a combinator set (see [quotient forms](#quotient-forms))
+- `tryFwdEnv` — `tryFwdEnv c "NAME"`: forward a host variable if set, in a jail
+  or a form (see [quotient forms](#quotient-forms))
 - `satanMcpOptions` — a satan-mcp client, for `extraOptions`: the socket's
   directory `/run/user/1000/satan/mcp` read-only (never the socket file, whose
   inode satan-mcp replaces on restart), plus `XDG_RUNTIME_DIR` and
@@ -582,6 +584,9 @@ formFamily = jailLib.quotientFormFamily {
   substitution or `$(…)` on it, so the posture's launch-time binds (doctrine's
   closure, the excludes file) are `add-runtime` code that appends to
   `RUNTIME_ARGS`. The check lists them as runtime binds it cannot see.
+  The project half follows the same rule: forward a host variable with
+  `jailLib.tryFwdEnv c "NAME"`, not jail.nix's `try-fwd-env`, whose
+  `${NAME+…}` the check refuses.
 
 ### makeJailedAgent options
 

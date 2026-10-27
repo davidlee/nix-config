@@ -152,6 +152,16 @@
   # persisted-home bind, or that bind would cover it: a runtime arg, so it
   # follows every static one. -try: no file, no mount. Off the bwrap line,
   # which quotient's form check requires to be plain words (IMP-052).
+  # `tryFwdEnv c NAME`: forward NAME into the jail if it is set at launch.
+  # jail.nix's `try-fwd-env` puts `${NAME+…}` on the bwrap line, which
+  # quotient's form check refuses (it must be plain words), so this is
+  # runtime code instead: safe in a jail and in a form alike.
+  tryFwdEnv = c: name:
+    assert lib.isValidPosixName name || throw "tryFwdEnv: not a POSIX name: ${name}";
+      c.add-runtime ''
+        [ -z "''${${name}+x}" ] || RUNTIME_ARGS+=(--setenv ${name} "''$${name}")
+      '';
+
   hostGitExcludesOptions = c: [
     (c.add-runtime ''
       RUNTIME_ARGS+=(--ro-bind-try "$(${hostGitExcludesFile})" "$HOME/.config/git/ignore")
@@ -649,6 +659,8 @@ in
     inherit makeJailedAgent;
     # The shared confinement: posture { sandboxGitIdentity; … } combinators.
     inherit posture;
+    # Env forwarding that a quotient form accepts: tryFwdEnv combinators NAME.
+    inherit tryFwdEnv;
     inherit agentsByName; # unjailed binaries
     inherit (jail) combinators;
     # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
