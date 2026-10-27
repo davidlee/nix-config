@@ -325,6 +325,11 @@
     (add-path "/run/doctrine-bin")
   ];
 
+  workspaceBindsFor = import ./workspace-binds.nix {
+    inherit lib;
+    inherit (jail.combinators) unsafe-add-raw-args;
+  };
+
   # Expose host PostgreSQL unix socket
   postgresOptions = with jail.combinators; [
     (try-readwrite "/run/postgresql")
@@ -340,7 +345,7 @@
     workspaceDeps ? [], # sibling repo paths bound read-only at /workspace/<basename> (DEC-081);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
     # env var (impure eval only) unless workspaceDepsFromEnv is false.
-    # See envDeps below.
+    # See workspace-binds.nix.
     workspaceDepsRw ? [], # as workspaceDeps, bound read-write; env var JAIL_WORKSPACE_DEPS_RW
     workspaceDepsFromEnv ? true, # false: ignore both env vars (satan:SL-027 RV-035 F-1)
     persistedHome ? null, # name of the persisted home; null: the profile's (satan:SL-027 RV-035 F-6)
@@ -520,79 +525,17 @@
     # Bare binaries for sibling agents (the wrapper execs them); the
     # current agent is already added below, so exclude it here.
     subagentAgents = map resolveAgent (lib.filter (n: n != name) subagentNames);
-    # Machine-local deps can be supplied at eval time via the env vars
-    # JAIL_WORKSPACE_DEPS (ro) and JAIL_WORKSPACE_DEPS_RW (rw), newline- or
-    # colon-separated absolute paths. Requires impure eval (`--impure`);
-    # under pure eval getEnv returns "" -> empty -> no-op. Merged with and
-    # deduped against the static list of the same mode, so a flake can ship
-    # portable defaults while each machine adds its own paths via .envrc.
-    # Not read at all when workspaceDepsFromEnv is false, so that jail's eval
-    # ignores the environment.
-    envDeps = var:
-      lib.optionals workspaceDepsFromEnv (
-        lib.filter (s: s != "") (
-          lib.splitString ":" (
-            builtins.replaceStrings ["\n"] [":"] (builtins.getEnv var)
-          )
-        )
-      );
     # The name is spliced unescaped into a path and into the launcher's shell.
     homeName =
       if persistedHome == null
       then profiles.${profile}.home
       else persistedHome;
-    stripTrailingSlashes = dep:
-      if dep != "/" && lib.hasSuffix "/" dep
-      then stripTrailingSlashes (lib.removeSuffix "/" dep)
-      else dep;
-    # One mode's deps, static and env merged, as bind specs tagged with it.
-    bindSpecsFor = mode: static: var:
-      map (dep: let
-        source = stripTrailingSlashes dep;
-      in {
-        inherit mode source;
-        destination = "/workspace/${builtins.baseNameOf source}";
-      }) (lib.unique (static ++ envDeps var));
-    # Both modes in one list: the guards below span it, so a destination is
-    # refused when shared within or across the lists.
-    workspaceBindSpecs =
-      bindSpecsFor "ro" workspaceDeps "JAIL_WORKSPACE_DEPS"
-      ++ bindSpecsFor "rw" workspaceDepsRw "JAIL_WORKSPACE_DEPS_RW";
-    relativeWorkspaceDeps = map (bind: bind.source) (
-      lib.filter (bind: !(lib.hasPrefix "/" bind.source)) workspaceBindSpecs
-    );
-    workspaceBindsByDestination = lib.groupBy (bind: bind.destination) workspaceBindSpecs;
-    duplicateWorkspaceBinds =
-      lib.filterAttrs (
-        _: binds: builtins.length binds > 1
-      )
-      workspaceBindsByDestination;
-    duplicateWorkspaceBindMessage = lib.concatStringsSep "; " (
-      lib.mapAttrsToList (
-        destination: binds: "${destination} <- ${lib.concatStringsSep ", " (map (bind: bind.source) binds)}"
-      )
-      duplicateWorkspaceBinds
-    );
-    # jail.nix builds launchers with ShellCheck enabled. Its SC2016 check
-    # rejects a dollar followed by a name inside the single quotes emitted
-    # by escapeShellArgs, even though that is precisely what keeps it
-    # literal. Split dollars into an adjacent, isolated quoted segment:
-    # 'foo$dollar' becomes 'foo'"$"'dollar' with the same argv value.
-    escapeWorkspaceBindArgs = args: builtins.replaceStrings ["$"] ["'\"$\"'"] (lib.escapeShellArgs args);
-    bindFlags = {
-      ro = "--ro-bind";
-      rw = "--bind";
+    workspaceBinds = workspaceBindsFor {
+      inherit name;
+      ro = workspaceDeps;
+      rw = workspaceDepsRw;
+      fromEnv = workspaceDepsFromEnv;
     };
-    workspaceBinds =
-      map (
-        bind:
-          jail.combinators.unsafe-add-raw-args (escapeWorkspaceBindArgs [
-            bindFlags.${bind.mode}
-            bind.source
-            bind.destination
-          ])
-      )
-      workspaceBindSpecs;
 
     inner = jail "jailed-${name}" agent (
       baseJailOptions
@@ -676,12 +619,6 @@
     assert unknownApiKeys
     == []
     || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
-    assert relativeWorkspaceDeps
-    == []
-    || throw "Workspace dependencies for jailed-${name} must be absolute paths: ${lib.concatStringsSep ", " relativeWorkspaceDeps}";
-    assert duplicateWorkspaceBinds
-    == {}
-    || throw "Workspace dependencies for jailed-${name} have duplicate destinations: ${duplicateWorkspaceBindMessage}";
     assert (subagentNames == [])
     || maxSubagentDepth > 0
     || throw "maxSubagentDepth must be > 0 when subagents are exposed";

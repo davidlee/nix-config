@@ -86,3 +86,8 @@ source tree, so any edit under agents/, a README one included, changes it.
   and replaces 11 hand-written makers (about 90 lines). The export names are
   the same as before (attrNames compared with the previous commit). README's
   maker list now includes dirge and zsh. Gate green, consumers unchanged.
+- Step 4a done. `agents/workspace-binds.nix` takes `{lib,
+  unsafe-add-raw-args}`, then `{name, ro, rw, fromEnv}`, and returns the bind
+  options. It owns both refusals (relative path, shared destination), which
+  fire when the options are forced, that is when the jail is built; the
+  existing failure tests still pass. Gate green, consumers unchanged.
