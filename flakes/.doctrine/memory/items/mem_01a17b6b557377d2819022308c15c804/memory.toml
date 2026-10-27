@@ -1,0 +1,50 @@
+memory_uid = "mem_01a17b6b557377d2819022308c15c804"
+memory_key = "mem.fact.quotient.form-check-plain-words"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "quotient form check refuses non-plain words on the bwrap line"
+summary = "quotient's form check refuses any non-plain word on the bwrap line; launch-time args go through add-runtime/RUNTIME_ARGS (tryFwdEnv)"
+created = "2026-10-27"
+updated = "2026-10-27"
+
+[scope]
+paths = ["agents/jailed-agents.nix"]
+globs = []
+commands = []
+tags = ["quotient", "jail", "agents"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "4b1a94178c5f5c13ffe6d4f2a6a238769be1b2ea"
+ref_name = "refs/heads/main"
+checkout_state_id = "8fe8772a5f611f8958f42b31559740ab9808ebb8bcc2f36590156971b75d4cbd"
+base_commit = "370a176b3f07342ce8de52469b7e171f6eb2e99c"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+
+[[source]]
+kind = "backlog"
+ref = "IMP-052"
+
+[[source]]
+kind = "backlog"
+ref = "CHR-023"
+
