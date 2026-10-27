@@ -335,6 +335,43 @@
     (try-readwrite "/run/postgresql")
   ];
 
+  # A bwrap raw arg that sets each `name = value` of `setenvs` inside the
+  # jail, where a value is a shell expression evaluated at run time.
+  #
+  # The values travel over `--args FD`, NOT as `--setenv VAR "$VAR"` on
+  # the bwrap command line. `/proc/<pid>/cmdline` is mode 444 and /proc is
+  # routinely mounted without hidepid, so an argv-borne secret is readable
+  # by EVERY process on the host for as long as the jail runs — including
+  # uids that execute untrusted code, such as `nixbld*` running an upstream
+  # package's build script during any `nix build`. bwrap's `--args FD`
+  # parses NUL-separated arguments from a descriptor instead, so the
+  # plaintext travels down an anonymous pipe: absent from argv, never
+  # written to disk. jail.nix already relies on the same mechanism for its
+  # runtime-closure bind args, and bwrap accepts more than one `--args`.
+  #
+  # The descriptor is a literal rather than `{FD}<`-allocated because bash
+  # expands a command's words BEFORE performing its redirections: an
+  # `--args "$FD"` sharing a line with `{FD}< <(…)` expands to the empty
+  # string. Literals sit clear of bash's auto-allocation floor of 10,
+  # which jail.nix's own runtime-closure `--args` already holds.
+  #
+  # `setenvs` must be non-empty: `printf '%s\0'` with no arguments emits a
+  # single empty NUL-terminated string, which bwrap would read back as an
+  # empty option and reject.
+  setenvsByArgsFd = fd: setenvs:
+    jail.combinators.unsafe-add-raw-args (
+      "--args ${fd} ${fd}< <(printf '%s\\0'"
+      + lib.concatStrings (lib.mapAttrsToList (var: value: " --setenv ${var} ${value}") setenvs)
+      + ")"
+    );
+
+  gatewayJailFor = import ./gateway-jail.nix {
+    inherit lib pkgs setenvsByArgsFd piGatewayModelsFor;
+    inherit (jail) combinators;
+    inherit (gatewayData) clientSocket;
+    socketOptions = gatewaySocketOptions;
+  };
+
   makeJailedAgent = {
     name,
     agent,
@@ -378,7 +415,7 @@
     #   runDirectory  present while the gateway runs (its RuntimeDirectory).
     # The jail gets LLM_GATEWAY_KEY (over `--args FD`) and LLM_GATEWAY_URL,
     # and no provider key: gateway plus a non-empty `apiKeys` is refused.
-    # With pi in the jail, also a read-only models.json (piGatewayOptions).
+    # With pi in the jail, also a read-only models.json (gateway-jail.nix).
     # In a profile without network, the jail reaches the gateway through the
     # client socket and an in-jail forwarder (socket mode, DEC-076).
     gateway ? null,
@@ -396,36 +433,6 @@
       lib.concatStringsSep "\n" (lib.mapAttrsToList (key: value: "${key}=${value}") selectedApiKeyOpRefs)
     );
 
-    # A bwrap raw arg that sets each `name = value` of `setenvs` inside the
-    # jail, where a value is a shell expression evaluated at run time.
-    #
-    # The values travel over `--args FD`, NOT as `--setenv VAR "$VAR"` on
-    # the bwrap command line. `/proc/<pid>/cmdline` is mode 444 and /proc is
-    # routinely mounted without hidepid, so an argv-borne secret is readable
-    # by EVERY process on the host for as long as the jail runs — including
-    # uids that execute untrusted code, such as `nixbld*` running an upstream
-    # package's build script during any `nix build`. bwrap's `--args FD`
-    # parses NUL-separated arguments from a descriptor instead, so the
-    # plaintext travels down an anonymous pipe: absent from argv, never
-    # written to disk. jail.nix already relies on the same mechanism for its
-    # runtime-closure bind args, and bwrap accepts more than one `--args`.
-    #
-    # The descriptor is a literal rather than `{FD}<`-allocated because bash
-    # expands a command's words BEFORE performing its redirections: an
-    # `--args "$FD"` sharing a line with `{FD}< <(…)` expands to the empty
-    # string. Literals sit clear of bash's auto-allocation floor of 10,
-    # which jail.nix's own runtime-closure `--args` already holds.
-    #
-    # `setenvs` must be non-empty: `printf '%s\0'` with no arguments emits a
-    # single empty NUL-terminated string, which bwrap would read back as an
-    # empty option and reject.
-    setenvsByArgsFd = fd: setenvs:
-      jail.combinators.unsafe-add-raw-args (
-        "--args ${fd} ${fd}< <(printf '%s\\0'"
-        + lib.concatStrings (lib.mapAttrsToList (var: value: " --setenv ${var} ${value}") setenvs)
-        + ")"
-      );
-
     # Forwards each selected API key from the wrapper's env. `$VAR` is left
     # for runtime shell expansion; the `:-` guard keeps empty/unset vars
     # from breaking set -u callers.
@@ -436,55 +443,14 @@
       )
     );
 
-    # Gateway mode (see the `gateway` argument). The shape is checked by
-    # `throw` before any attribute is read, so a bad shape is an evaluation
-    # error a caller can observe, not an abort on a missing attribute.
-    gatewayAttrNames = ["keyFile" "runDirectory" "url"];
-    checkedGateway =
-      if
-        builtins.isAttrs gateway
-        && lib.attrNames gateway == gatewayAttrNames
-        && lib.all builtins.isString (lib.attrValues gateway)
-      then gateway
-      else throw "jailed-${name}: gateway must be { keyFile; url; runDirectory; }, all strings";
-
-    # The key is read by `$(< …)`, a shell builtin, inside the descriptor's
-    # process substitution: it is in no process's argv. A second descriptor,
-    # so it never shares 21 with provider keys.
-    gatewayKeyArgsFd = "22";
-    gatewayOptions = lib.optionals (gateway != null) [
-      (jail.combinators.set-env "LLM_GATEWAY_URL" checkedGateway.url)
-      (setenvsByArgsFd gatewayKeyArgsFd {
-        LLM_GATEWAY_KEY = "\"$(< \"${checkedGateway.keyFile}\")\"";
-      })
-    ];
-
-    # Socket mode: the profile's network flag alone selects it (DEC-076).
-    gatewaySocketMode = gateway != null && !profiles.${profile}.network;
-
-    # What the gateway wrapper checks before launch: the directory the jail
-    # will reach the gateway through.
-    gatewayReachDirectory =
-      if gatewaySocketMode
-      then dirOf gatewayData.clientSocket # the directory the forwarder binds
-      else checkedGateway.runDirectory;
-
     # pi is in the jail as the agent (makeJailedPi, whatever its `name`,
     # e.g. pi-research) or as a subagent. Derivations compare by output path.
     piInJail = agent == pi || lib.elem "pi" subagentNames;
 
-    piGatewayModels = piGatewayModelsFor checkedGateway.url;
-
-    # pi reads its providers only from ~/.pi/agent/models.json, which the
-    # persisted home shares with every jail on it: in gateway mode, bind the
-    # generated one over it, read-only. Must follow the persisted-home bind,
-    # or that bind would cover it (as hostGitExcludesOptions). No seed for a
-    # missing target: a host-side write inside the jail-writable home would
-    # follow a symlink the jail planted (RV-028 F-1). gateway is tested
-    # first, so a jail without one never forces pi.
-    piGatewayOptions = lib.optionals (gateway != null && piInJail) [
-      (jail.combinators.unsafe-add-raw-args "--ro-bind ${piGatewayModels} ~/.pi/agent/models.json")
-    ];
+    gatewayJail = gatewayJailFor {
+      inherit name gateway piInJail;
+      inherit (profiles.${profile}) network;
+    };
 
     # Resolve a subagent name to its package. The current agent is
     # reachable under its own `name` even for custom (non-map) agents.
@@ -552,9 +518,7 @@
       ++ lib.optionals sandboxGitIdentity gitIdentityOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
-      ++ gatewayOptions
-      ++ lib.optionals gatewaySocketMode gatewaySocketOptions
-      ++ piGatewayOptions
+      ++ gatewayJail.options
       ++ [
         (jail.combinators.add-pkg-deps (
           commonPkgs
@@ -592,25 +556,6 @@
       exec "$op" run --no-masking --env-file=${apiKeyEnvFile} -- \
         ${inner}/bin/jailed-${name} "$@"
     '';
-
-    # Gateway wrapper, in place of `outer`: checks only — it never reads the
-    # key — and names the fix when the jail could not reach the gateway.
-    gatewayOuter = pkgs.writeShellScriptBin "jailed-${name}" ''
-      key_file="${checkedGateway.keyFile}"
-      if [ ! -r "$key_file" ] || [ ! -s "$key_file" ]; then
-        echo "jailed-${name}: gateway key $key_file is missing, empty or unreadable." >&2
-        echo "  Issue one: llm-gateway issue ${name} --models <a,b> --budget <usd> --out \"$key_file\"" >&2
-        exit 1
-      fi
-      if [ ! -d ${lib.escapeShellArg gatewayReachDirectory} ]; then
-        echo "jailed-${name}: the LLM gateway is not running (no ${gatewayReachDirectory})." >&2
-        echo "  Not yet switched to a system with it: just system-switch" >&2
-        echo "  Otherwise the service is failing: systemctl status llm-gateway" >&2
-        echo "  (first run, no provider credential yet: just gateway-credentials)" >&2
-        exit 1
-      fi
-      exec ${inner}/bin/jailed-${name} "$@"
-    '';
   in
     assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";
     assert builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName
@@ -627,7 +572,7 @@
     || selectedApiKeys == []
     || throw "jailed-${name}: gateway mode carries no provider keys; drop apiKeys (${lib.concatStringsSep ", " selectedApiKeys})";
       if gateway != null
-      then gatewayOuter
+      then gatewayJail.wrap inner
       else if useOpEnv && selectedApiKeys != []
       then outer
       else inner;

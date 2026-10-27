@@ -91,3 +91,12 @@ source tree, so any edit under agents/, a README one included, changes it.
   options. It owns both refusals (relative path, shared destination), which
   fire when the options are forced, that is when the jail is built; the
   existing failure tests still pass. Gate green, consumers unchanged.
+- Step 4b done. `agents/gateway-jail.nix` takes `{lib, pkgs, combinators,
+  setenvsByArgsFd, clientSocket, socketOptions, piGatewayModelsFor}`, then
+  `{name, gateway, network, piInJail}`, and returns `{options, wrap}`.
+  `wrap inner` is the gateway wrapper; with `gateway = null` it is `[]` and
+  the identity function, and `piInJail` is never forced. `setenvsByArgsFd`
+  moved to the top level (it uses no per-jail argument; the gateway and the
+  key code share it). `makeJailedAgent` keeps the gateway-plus-`apiKeys`
+  refusal, which spans both modes. jailed-agents.nix: 859 → 612 lines. Gate
+  green, consumers unchanged.
