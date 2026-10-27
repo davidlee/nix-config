@@ -158,7 +158,7 @@ Its CHR-023 parts: satan-corpus on the gateway (`de38a66`), panopticon's
 agents relocked).
 
 Left:
-- satan's form: its hand-rolled `quotientFormFamily` (`flake.nix:325`) and
+- (done, below) satan's form: its hand-rolled `quotientFormFamily` (`flake.nix:325`) and
   `quotientFormsCheck` onto `jailLib.quotientFormFamily` + one
   `projectOptions`, as doctrine did; quotient input unpinned (was `v0.3.1`;
   user, 2026-10-27).
@@ -166,3 +166,36 @@ Left:
   satan-corpus at least; the other five repos are one-line chores.
 - panopticon: `agents.inputs.nixpkgs.follows`; relock.
 - satan-corpus: live check of a gateway jail once ISS-019 lets it start.
+
+## satan's form (2026-10-27)
+
+satan's hand-rolled `quotientFormFamily`, `formProbes` and
+`quotientFormsCheck` are replaced: the forms are
+`jailLib.quotientFormFamily { prefix = "quotient"; packages = projectPkgs;
+options = projectOptions; }`, and `checks.quotient-forms` is
+`quotient.lib.checkFormFamily` (satan DEC-116: the form contract is
+quotient's; SL-029's residue property is its rule (f)). quotient follows
+`main` unpinned (v0.6.1; the server bumps with it, policy schema unchanged at
+`quotient-policy/2`).
+
+User rulings: `projectOptions` (shared by the dev jails and the forms) is the
+supabase env only; satan-corpus stays in the jails; the Emacs server socket
+is gone from every jail; no container socket anywhere (the podman socket was
+dead on this host, and a live docker socket would let a delegate mount any
+path), and `.envrc`'s stale `DOCKER_HOST` is gone. Forms have no persisted
+home; the jails keep theirs. The posture is accepted for every root the host
+policy allows.
+
+Verified: jail drvPaths unchanged except the three on `jailEnvOptions`
+(jailed-pi, -claude, -shell), whose launchers lose exactly `DOCKER_HOST`, the
+podman bind and the Emacs server bind; every check builds (quotient-forms,
+harness and malebolge profiles, runner-socket-unjailed, op-unjailed); the
+devshell evaluates locked and against the live agents; `quotient-read
+<session> --version` launches (pi 1.4.0). satan's IMP-048 (gap 2 closed by
+rule (g)) and SL-029 notes record the move.
+
+Operator steps (the user's): `just quotient-forms` in satan (installs the
+forms and the 0.6.1 server), `exposure: []` in `~/.config/quotient/policy.json`
+and `policy.src.json`, restart the quotient MCP server, `quotient allow` per
+root if approvals pin the old forms' hashes; optionally `just
+quotient-hostile-audit`.
