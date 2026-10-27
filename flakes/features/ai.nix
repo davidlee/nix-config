@@ -1,4 +1,4 @@
-# AI features, in projection order. Shape: README § Feature tree.
+# Model infrastructure and general AI desktop clients, in projection order. Shape: README § Feature tree.
 {lib, ...}: [
   {
     name = "llama-cpp";
@@ -80,6 +80,13 @@
         pkgs.claude-desktop
         #inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
+    };
+  }
+  {
+    name = "chatgpt";
+    # pkgs.llm-agents.chatgpt builds on aarch64-darwin too: no platforms.
+    homeManager = {pkgs, ...}: {
+      home.packages = [pkgs.llm-agents.chatgpt];
     };
   }
 ]

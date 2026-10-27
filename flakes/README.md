@@ -204,7 +204,7 @@ whole, and is listed as `(import ./<area>/<name>.nix)`.
 ```
 features/
   default.nix         [ hardware session virt non-nix-packages games ai agents audio services desktop compositor
-                        shell editor notes dev docs data files net web system text office security media
+                        desktop-shell editor notes dev docs data files net web system text office security media
                         graphics comms fun terminal attention satan ]
   hardware.nix        [ openrgb bluetooth qmk tablet logitech ]
   session.nix         [ snooze ]
@@ -213,8 +213,8 @@ features/
   virt/capsule.nix    a feature big enough for its own file
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
-  ai.nix              [ llama-cpp rocm claude-desktop ]  llama-cpp, rocm: coverage targets
-  agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi chatgpt ]  registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, linux only (personal-linux)
+  ai.nix              [ llama-cpp rocm claude-desktop chatgpt ]  model infrastructure and general AI clients; llama-cpp, rocm: coverage targets
+  agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi ]  agent tools and shared infrastructure; registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, linux only (personal-linux)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
                       quotient.nix  quotient/         the quotient server on PATH; the machine-default forms (family.nix)
   audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
@@ -225,7 +225,7 @@ features/
   desktop/core/       wayland.nix  xdg.nix  gui.nix …  home.nix   modules the core record imports; home.nix its home half
   compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ]   each requires desktop.core
   compositor/         sway.nix
-  shell.nix           [ noctalia walker ]
+  desktop-shell.nix   [ noctalia walker ]
   editor.nix          [ (import ./editor/emacs.nix) neovim kakoune misc zed lem ]
   editor/             emacs.nix  neovim/              the emacs record; modules the neovim record imports
   notes.nix           [ terminal autocommit joplin ]  autocommit: linux only (personal-linux)
@@ -508,7 +508,7 @@ just test                             # offline: check, last-good and will-build
 
 ### Dictation
 
-`features/audio.nix` (`audio.dictate`) + `features/audio/dictate` — streaming
+`features/audio/dictate.nix` (`audio.dictate`) + `features/audio/dictate` — streaming
 speech-to-text, typed at the cursor as you speak. Local and CPU-only.
 
 ```
@@ -549,7 +549,7 @@ Measurements and open options: [DICTATE.md](./DICTATE.md).
 
 ### Speech
 
-`features/audio.nix` (`audio.speech`) + `features/audio/say` — text to speech,
+`features/audio/speech.nix` (`audio.speech`) + `features/audio/say` — text to speech,
 played on any PipeWire sink. Local; voices are pinned in the module, so
 neither engine downloads anything at runtime.
 
@@ -797,7 +797,7 @@ system message, first.
 
 ### Spotify Alarm
 
-See [ALARM.md](./ALARM.md). `features/audio.nix` (`audio.alarm`, selected by Sleipnir) — plays a playlist through speakers at scheduled times via `spotifyd` + `spotify_player` + systemd user timers.
+See [ALARM.md](./ALARM.md). `features/audio/alarm.nix` (`audio.alarm`, selected by Sleipnir) — plays a playlist through speakers at scheduled times via `spotifyd` + `spotify_player` + systemd user timers.
 
 ### Emacs
 

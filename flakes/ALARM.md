@@ -1,12 +1,12 @@
 # Spotify Alarm
 
-`features/audio.nix` (`audio.alarm`) — plays a playlist through speakers at scheduled times.
+`features/audio/alarm.nix` (`audio.alarm`) — plays a playlist through speakers at scheduled times.
 
 **Stack:** `spotifyd` (headless Spotify Connect device) + `spotify_player` (CLI control) + systemd user timers.
 
 **Scripts:** the alarm and watchdog logic live as plain shell scripts in `features/audio/alarm/` and are installed via `home.file` to `~/.local/bin/{spotify-alarm,spotifyd-watchdog}`. Edit there, `home-manager switch`, or invoke directly (`spotify-alarm`, `spotifyd-watchdog`) for ad-hoc testing.
 
-**Timers:** `spotify-alarm` (weekdays 07:30) and `spotify-alarm-weekend` (Sat/Sun 08:30). Change times in `features/audio.nix` (`audio.alarm`), then `home-manager switch` — no manual systemctl needed.
+**Timers:** `spotify-alarm` (weekdays 07:30) and `spotify-alarm-weekend` (Sat/Sun 08:30). Change times in `features/audio/alarm.nix` (`audio.alarm`), then `home-manager switch` — no manual systemctl needed.
 
 **First-time setup** (after a rebuild or re-install):
 ```bash

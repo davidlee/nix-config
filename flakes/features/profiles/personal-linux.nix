@@ -19,7 +19,7 @@
   feature.agents.quotient.enable = lib.mkDefault true;
   feature.agents.eca.enable = lib.mkDefault true;
   feature.agents.pi.enable = lib.mkDefault true;
-  feature.agents.chatgpt.enable = lib.mkDefault true;
+  feature.ai.chatgpt.enable = lib.mkDefault true;
   feature.net.tailscale.enable = lib.mkDefault true;
   feature.services.ssh.enable = lib.mkDefault true;
   feature.files.locate.enable = lib.mkDefault true;

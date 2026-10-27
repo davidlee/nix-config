@@ -449,7 +449,7 @@ in
         "desktop.fonts#nixos" # through the workstation profile
         "desktop.greeter#nixos"
         "compositor.umbriel#nixos"
-        "shell.noctalia#nixos"
+        "desktop-shell.noctalia#nixos"
         "audio.pipewire#nixos" # through the workstation profile
         "hardware.bluetooth#nixos"
         "hardware.qmk#nixos"
@@ -504,7 +504,7 @@ in
         "editor.lem#homeManager"
         "notes.joplin#homeManager"
         "ai.claude-desktop#homeManager"
-        "shell.walker#homeManager"
+        "desktop-shell.walker#homeManager"
         # P4: personal
         "editor.emacs#homeManager"
         "editor.neovim#homeManager"

@@ -1,4 +1,4 @@
-# Agents features, in projection order. Shape: README § Feature tree.
+# Agent tools and shared agent infrastructure, in projection order. Shape: README § Feature tree.
 {lib, ...}: [
   {
     name = "registry";
@@ -85,13 +85,6 @@
       home.packages = [
         (inputs.agents.lib.${pkgs.stdenv.hostPlatform.system}.mkJailedAgents {}).unjailed.pi
       ];
-    };
-  }
-  {
-    name = "chatgpt";
-    # pkgs.llm-agents.chatgpt builds on aarch64-darwin too: no platforms.
-    homeManager = {pkgs, ...}: {
-      home.packages = [pkgs.llm-agents.chatgpt];
     };
   }
 ]

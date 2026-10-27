@@ -1,0 +1,58 @@
+# Streaming dictation: Nemotron 3.5 ASR on the CPU, typed at the cursor.
+#
+# The daemon loads the model at login and keeps the mic closed; a keybind
+# runs `dictate toggle` to start or stop. How it streams, and why typing as
+# you speak is safe, are in the script; `dictate-test` alongside it holds
+# that behaviour without a mic or display.
+#
+# Smoke:
+#   systemctl --user status dictate
+#   journalctl --user -u dictate -f
+#   dictate toggle
+{
+  name = "dictate";
+  homeManager = {
+    lib,
+    pkgs,
+    ...
+  }: let
+    # sherpa-onnx's int8 export. The chunk size is baked into the export: 560ms
+    # beat 320ms on both accuracy and CPU (DICTATE.md), for text arriving in
+    # bigger bursts. 1120ms needs a longer tail pad in the script's `finish`.
+    model = pkgs.fetchzip {
+      name = "nemotron-3.5-asr-streaming-0.6b-560ms-int8";
+      url = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemotron-3.5-asr-streaming-0.6b-560ms-int8-2026-06-11.tar.bz2";
+      hash = "sha256-BLk8afX1okpEHMoV2oAmyQw53eJ6zNqLutjM2Tqb6qk=";
+    };
+    python = pkgs.python3.withPackages (p: [p.sherpa-onnx p.numpy]);
+  in {
+    # A plain script in ~/.local/bin, as snooze-nag is. `dictate toggle` needs
+    # only the standard library, so any python3 will run it from a keybind.
+    home.file.".local/bin/dictate" = {
+      source = ./dictate;
+      executable = true;
+    };
+
+    systemd.user.services.dictate = {
+      Unit = {
+        Description = "Streaming dictation";
+        # wtype types into the compositor; with no session there is nowhere
+        # to type.
+        After = ["graphical-session.target"];
+        PartOf = ["graphical-session.target"];
+      };
+      Install.WantedBy = ["graphical-session.target"];
+      Service = {
+        # The store path, not ~/.local/bin: a changed script then changes the
+        # unit, so home-manager restarts the daemon on switch.
+        ExecStart = "${python}/bin/python3 ${./dictate}";
+        Environment = [
+          "DICTATE_MODEL=${model}"
+          "DICTATE_LANG=en"
+          "PATH=${lib.makeBinPath [pkgs.wtype pkgs.pipewire pkgs.libnotify]}"
+        ];
+        Restart = "on-failure";
+      };
+    };
+  };
+}

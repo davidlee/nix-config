@@ -8,4 +8,4 @@
     value = import ./${name}.nix {inherit lib;};
   };
 in
-  map area ["hardware" "session" "virt" "non-nix-packages" "games" "ai" "agents" "audio" "services" "desktop" "compositor" "shell" "editor" "notes" "dev" "docs" "data" "files" "net" "web" "system" "text" "office" "security" "media" "graphics" "comms" "fun" "terminal" "attention" "satan"]
+  map area ["hardware" "session" "virt" "non-nix-packages" "games" "ai" "agents" "audio" "services" "desktop" "compositor" "desktop-shell" "editor" "notes" "dev" "docs" "data" "files" "net" "web" "system" "text" "office" "security" "media" "graphics" "comms" "fun" "terminal" "attention" "satan"]
