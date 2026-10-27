@@ -1005,8 +1005,8 @@ spent too; pick the next one.
 
 **Adding a client.** Another jail passes
 `gateway = jailLib.gatewayClient "<client>"` (key file
-`~/.config/llm-gateway/keys/<client>`, address from `agents/gateway.nix`),
-drops its `apiKeys`, and gets a key issued with `--out` that path. A feature
+`~/.config/llm-gateway/keys/<client>`, address from `agents/gateway.nix`)
+and gets a key issued with `--out` that path. A feature
 record in this repo also adds `requires = ["agents.gateway"]`. A jail whose
 profile has no network (`offline`) reaches the gateway through the client
 socket automatically (socket mode); nothing else changes. See
@@ -1050,9 +1050,8 @@ host that defines it replaces the whole set, so edit `proxy.nix` instead.
 
 - OAuth/subscription logins (claude, codex and the like sign in their own way; OpenAI through a subscription is IMP-035). OpenAI
   API-billed models are not configured (DEC-072).
-- Jails not on the gateway still get provider keys through `op run`: the other
-  `~/dev/*` project flakes (IMP-034) and satan (IMP-030). The unjailed `eca`
-  keeps its own keys.
+- Provider keys outside a jail: the unjailed `eca` keeps its own. No jail
+  carries one (IMP-051).
 - Anything off this host: the relay listens on loopback and on a unix socket only.
 - Budgets are lifetime USD per key, not per period.
 

@@ -105,8 +105,7 @@
 
         # Every jail reaches models through the local LLM gateway with the shared
         # `pi` key (~/.config/llm-gateway/keys/pi); no provider key enters a jail.
-        # On a host without the gateway, set `gateway = null` on a jail to fall back
-        # to `op run` with provider keys (see agents/README.md § Gateway mode).
+        # It is the only model access (agents/README.md § Model access).
         gateway = jailLib.gatewayClient "pi";
 
         # -- Agents --
@@ -114,16 +113,14 @@
         # Profiles:
         #   specDev   — shared persistent home, network on, SSH push blocked, sandboxed identity
         #   research  — separate persistent home, network on, SSH push blocked, host identity
-        #   offline   — separate persistent home, no network, no op env injection
+        #   offline   — separate persistent home, no network
         #
         # Extra per-agent knobs (all optional):
         #   exposePostgres       = true;   # bind /run/postgresql into the jail
         #   blockSshGitPush      = false;  # SSH only; HTTPS remains available
         #   allowSelfAsSubagent  = true;   # let agent recursively spawn itself
         #   maxSubagentDepth     = 2;      # cap recursion depth (default 1)
-        #   gateway              = null;   # off the gateway: name the provider keys
-        #                                  # in apiKeys (none by default), resolved
-        #                                  # from 1Password (agents/README.md)
+        #   gateway              = null;   # no model, unless the agent signs in itself
         jailPkgs = lib.optionalAttrs isLinux {
           jailed-pi = jailLib.makeJailedPi {
             profile = "specDev";

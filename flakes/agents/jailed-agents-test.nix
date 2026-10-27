@@ -20,14 +20,10 @@
       eca = fakeAgent "eca";
     };
   };
-  apiKeyOpRefs = {
-    OPENAI_API_KEY = "op://Test/OpenAI/credential";
-    OPENROUTER_API_KEY = "op://Test/OpenRouter/credential";
-  };
   mkAgents = extra:
     import ./jailed-agents.nix (
       {
-        inherit pkgs jail-nix apiKeyOpRefs;
+        inherit pkgs jail-nix;
         llm-agents = fakeAgents;
       }
       // extra
@@ -41,16 +37,11 @@
       committerEmail = "committer@example.test";
     };
   };
-  lazySecretAgents = mkAgents {
-    apiKeyOpRefs.BROKEN_API_KEY = throw "secret refs must remain lazy";
-  };
 
   inner = profile: args:
     agents.makeJailedZsh (
       {
         inherit profile;
-        useOpEnv = false;
-        passApiKeysFromEnv = false;
       }
       // args
     );
@@ -68,36 +59,12 @@
   noHostDoctrine = inner "specDev" {hostDoctrine = false;};
   customIdentity = customIdentityAgents.makeJailedZsh {
     profile = "specDev";
-    useOpEnv = false;
-    passApiKeysFromEnv = false;
-  };
-  selectedKeyOuter = agents.makeJailedPi {
-    apiKeys = ["OPENROUTER_API_KEY"];
-    passApiKeysFromEnv = false;
-  };
-  selectedKeyFromEnv = agents.makeJailedPi {
-    apiKeys = ["OPENROUTER_API_KEY"];
-    useOpEnv = false;
-    passApiKeysFromEnv = true;
-  };
-  noKeys = agents.makeJailedPi {
-    apiKeys = [];
-    useOpEnv = true;
-    passApiKeysFromEnv = true;
-  };
-  # The default selects no key, so it never reads apiKeyOpRefs (IMP-020).
-  defaultNoSecrets = lazySecretAgents.makeJailedPi {};
-  noSecretMachinery = lazySecretAgents.makeJailedPi {
-    useOpEnv = false;
-    passApiKeysFromEnv = false;
   };
   knownSubagent = agents.makeJailedAgent {
     name = "custom";
     agent = fakeAgent "custom";
     subagents = ["pi"];
     maxSubagentDepth = 2;
-    useOpEnv = false;
-    passApiKeysFromEnv = false;
   };
   dangerousWorkspacePath = "/tmp/work dep/quo'te$dollar;semi";
   workspace = inner "specDev" {
@@ -129,17 +96,12 @@
     tr=${pkgs.coreutils}/bin/tr
     "$tr" '\0' '\n' < /proc/$$/environ > bwrap-environ
     printf '%s\n' "$@" > bwrap-argv
-    for fd in 21 22; do
+    for fd in 22; do
       if [ -e /dev/fd/$fd ]; then "$tr" '\0' '\n' < /dev/fd/$fd > bwrap-args-$fd; fi
     done
   '';
   fakeBwrapAgents = mkAgents {
     pkgs = pkgs.extend (_: _: {bubblewrap = fakeBwrap;});
-  };
-  probeKeys = fakeBwrapAgents.makeJailedPi {
-    apiKeys = ["OPENROUTER_API_KEY"];
-    useOpEnv = false;
-    passApiKeysFromEnv = true;
   };
   probeGateway = fakeBwrapAgents.makeJailedPi {gateway = gw;};
   # pi's models.json bind (bind, or twin without it, differing only in):
@@ -224,22 +186,16 @@
   '';
 
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;
-  unknownApiKeyFails = failsToEvaluate (agents.makeJailedPi {
-    apiKeys = ["NOT_CONFIGURED"];
-    useOpEnv = false;
-  });
   unknownSubagentFails = failsToEvaluate (agents.makeJailedAgent {
     name = "custom";
     agent = fakeAgent "custom";
     subagents = ["not-an-agent"];
-    useOpEnv = false;
   });
   zeroDepthFails = failsToEvaluate (agents.makeJailedAgent {
     name = "custom";
     agent = fakeAgent "custom";
     subagents = ["pi"];
     maxSubagentDepth = 0;
-    useOpEnv = false;
   });
   relativeWorkspaceFails = failsToEvaluate (inner "specDev" {
     workspaceDeps = ["relative/path"];
@@ -271,20 +227,8 @@
     url = "http://127.0.0.1:4000/v1";
     runDirectory = "/nonexistent/llm-gateway";
   };
-  # Profile defaults (useOpEnv = true): gateway wins over the op wrapper.
   gatewayJail = agents.makeJailedPi {gateway = gw;};
-  # Gateway mode never forces apiKeyOpRefs.
-  gatewayLazySecrets = lazySecretAgents.makeJailedPi {gateway = gw;};
-  # Each refusal is paired with a twin that differs only in the property
-  # under test: gatewayEmptyKeys for the keys, gatewayJail for the shape.
-  gatewayEmptyKeys = agents.makeJailedPi {
-    gateway = gw;
-    apiKeys = [];
-  };
-  gatewayWithKeysFails = failsToEvaluate (agents.makeJailedPi {
-    gateway = gw;
-    apiKeys = ["OPENAI_API_KEY"];
-  });
+  # Each refusal's twin is gatewayJail, differing only in the shape.
   gatewayMissingKeyFileFails = failsToEvaluate (agents.makeJailedPi {
     gateway = builtins.removeAttrs gw ["keyFile"];
   });
@@ -379,12 +323,15 @@
       quotient = stubQuotient;
       network = false;
     } ? pi)).success;
+  # IMP-051: models are reached through the gateway only. No argument
+  # resolves or forwards a provider key.
+  noProviderKeyArgs =
+    lib.all (a: !(builtins.functionArgs agents.makeJailedAgent ? ${a})) ["apiKeys" "useOpEnv" "passApiKeysFromEnv"]
+    && !(builtins.functionArgs (import ./jailed-agents.nix) ? apiKeyOpRefs);
 in
+  assert noProviderKeyArgs;
   assert knownSubagent.drvPath != "";
   assert fwdBadNameFails;
-  assert noSecretMachinery.drvPath != "";
-  assert defaultNoSecrets.drvPath != "";
-  assert unknownApiKeyFails;
   assert unknownSubagentFails;
   assert zeroDepthFails;
   assert relativeWorkspaceFails;
@@ -394,9 +341,6 @@ in
   assert homeOffline.drvPath != "";
   assert badHomeFails;
   assert prefixedNameFails;
-  assert gatewayLazySecrets.drvPath != "";
-  assert gatewayEmptyKeys.drvPath != "";
-  assert gatewayWithKeysFails;
   assert gatewayMissingKeyFileFails;
   assert gatewayUnknownAttrFails;
   assert offlineGateway.drvPath != "";
@@ -606,37 +550,7 @@ in
         refute grep -Fq -- '/run/user/1000' "$launcher"
       done
 
-      outer=${selectedKeyOuter}/bin/jailed-pi
-      grep -Fqx -- 'op=/run/wrappers/bin/op' "$outer"
-      grep -Fq -- 'exec "$op" run --no-masking --env-file=' "$outer"
-      env_file="$(sed -n 's/.*--env-file=\([^ ]*\).*/\1/p' "$outer")"
-      test -n "$env_file"
-      grep -Fqx -- 'OPENROUTER_API_KEY=op://Test/OpenRouter/credential' "$env_file"
-      refute grep -Fq -- 'OPENAI_API_KEY' "$env_file"
-      inner_path="$(sed -n 's|.*\(/nix/store/[^ ]*-jailed-pi\)/bin/jailed-pi.*|\1|p' "$outer")"
-      test -n "$inner_path"
-      refute grep -Fq -- 'OPENROUTER_API_KEY' "$inner_path/bin/jailed-pi"
-
-      forwarded=${selectedKeyFromEnv}/bin/jailed-pi
-      refute grep -Fq -- 'op run' "$forwarded"
-      grep -Fq -- 'OPENROUTER_API_KEY' "$forwarded"
-      refute grep -Fq -- 'OPENAI_API_KEY' "$forwarded"
-
-      # Keys reach the jail over `--args FD`, never over bwrap's argv:
-      # /proc/<pid>/cmdline is mode 444 and /proc is routinely mounted with
-      # no hidepid, so an argv-borne secret is readable by every process on
-      # the host for the jail's lifetime. Both forms are textually on the
-      # same physical line, so assert structurally: strip every process
-      # substitution, and no key name may survive into the command line.
-      grep -Fq -- '--args 21 21< <(printf' "$forwarded"
-      sed 's/<(printf[^)]*)//g' "$forwarded" > "$TMPDIR/argv-only"
-      refute grep -Fq -- 'API_KEY' "$TMPDIR/argv-only"
-
-      no_keys=${noKeys}/bin/jailed-pi
-      refute grep -Fq -- 'op run' "$no_keys"
-      refute grep -Fq -- 'API_KEY' "$no_keys"
-
-      # The default is no key at all (IMP-020): a jail names what it needs.
+      # No provider key and no `op run` without a gateway either (IMP-051).
       default_keys=${piNoGateway}/bin/jailed-pi
       refute grep -Fq -- 'op run' "$default_keys"
       refute grep -Fq -- 'API_KEY' "$default_keys"
@@ -713,7 +627,8 @@ in
       # Behaviour: bwrap starts with an EMPTY environment. --clearenv empties
       # only the child's; bwrap's own environ is what it was exec'd with, and
       # bwrap is PID 1 in the jail, where /proc/1/environ is readable. The
-      # launch env carries a selected key and an unselected session key.
+      # launch env carries a provider key and a session key; neither may
+      # reach bwrap.
       # Every value bwrap needs must already be expanded into its argv or a
       # descriptor. Launch through the fake bwrap, in a scratch cwd.
       probe_launch() {
@@ -724,12 +639,9 @@ in
         test -e "$TMPDIR/$1/bwrap-environ"
         refute test -s "$TMPDIR/$1/bwrap-environ"
         refute grep -rFq -- 'sk-fake-SESSION' "$TMPDIR/$1"
+        refute grep -rFq -- 'sk-fake-SENTINEL' "$TMPDIR/$1"
         grep -Fxq -- "$TMPDIR/$1-home" "$TMPDIR/$1/bwrap-argv"
       }
-
-      probe_launch keys ${probeKeys}/bin/jailed-pi
-      grep -Fxq -- 'OPENROUTER_API_KEY' "$TMPDIR/keys/bwrap-args-21"
-      grep -Fxq -- 'sk-fake-SENTINEL' "$TMPDIR/keys/bwrap-args-21"
 
       # Gateway: the inner launcher, past the outer's runDirectory check,
       # with gw's key staged (keys/pi, whichever the jail). fd 22 carries
@@ -740,14 +652,13 @@ in
         test -n "$2"
         probe_launch "$1" "$2"
         grep -Fxq -- 'sk-fake-GATEWAY' "$TMPDIR/$1/bwrap-args-22"
-        refute grep -Fq -- 'sk-fake-SENTINEL' "$TMPDIR/$1/bwrap-args-22"
       }
       probe_gw="$(gateway_inner_of ${probeGateway}/bin/jailed-pi pi)"
       gateway_launch gateway "$probe_gw"
 
-      # The real launchers exec the same seam: every one (op-run inner and
-      # gateway inner included) names an `env -i` bwrap, never bwrap bare.
-      for launcher in "$spec" "$inner_path/bin/jailed-pi" "$gw_inner"; do
+      # The real launchers exec the same seam: every one (gateway inner
+      # included) names an `env -i` bwrap, never bwrap bare.
+      for launcher in "$spec" "$gw_inner"; do
         seam="$(sed -n 's|^exec \(/nix/store/[^ ]*/bin/bwrap\) .*|\1|p' "$launcher")"
         test -n "$seam"
         grep -Fq -- 'env -i ${lib.getExe pkgs.bubblewrap} "$@"' "$seam"
@@ -786,7 +697,7 @@ in
 
       # I4 (SL-023 REQ-016): the satan-runner control socket is bound into no
       # jail. Every launcher built above, outer and inner.
-      for launcher in "$spec" "$research" "$offline" "$inner_path/bin/jailed-pi" \
+      for launcher in "$spec" "$research" "$offline" \
         "$gw_outer" "$gw_inner" "$research_inner" "$claude_pi_inner" \
         "$eca_outer" "$eca_inner"; do
         test -f "$launcher" # a missing file would make the refute vacuous

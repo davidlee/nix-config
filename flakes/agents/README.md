@@ -314,110 +314,21 @@ launcher (bash, session env) ── expands $VARS, ~, $(…), <(printf …) into
 ```
 
 This is safe because the launcher has expanded every value before the exec:
-`set-env`/`fwd-env` values into argv, API and gateway keys into the
-`--args 21`/`--args 22` pipes, which survive the exec. bwrap reads only `HOME`
+`set-env`/`fwd-env` values into argv, the gateway key into the `--args 22`
+pipe, which survives the exec. bwrap reads only `HOME`
 from its own environment, and only without `--chdir`, which every jail passes.
 
-### Secrets via 1Password (`useOpEnv`)
+### Model access
 
-For online profiles (`specDev`, `research`), `makeJailedAgent` wraps the
-sandbox in `op run --env-file=<refs> -- <inner-jail>` by default. The flow:
-
-1. `apiKeyOpRefs` (defaulted in `jailed-agents.nix`, overridable at import
-   time) maps env-var names to `op://vault/item/field` references.
-2. A nix-store text file is generated from that attrset — refs only, no
-   secrets, so world-readable in `/nix/store` is fine.
-3. The outer wrapper script execs `op run --env-file=<that-file> -- ...`.
-   NixOS's setgid wrapper `/run/wrappers/bin/op` is used when present,
-   regardless of `PATH` order (the raw binary can't reach the desktop
-   integration socket); otherwise `op` is resolved from `PATH`.
-4. `op run` resolves each ref via the 1Password desktop app
-   (biometric/CLI unlock) and injects plaintext into the wrapper's env.
-5. The bwrap launch then forwards each var into the sandbox over `--args 21`:
-   NUL-separated `--setenv` pairs written down a pipe, so no key is in bwrap's
-   argv (`/proc/<pid>/cmdline` is world-readable). See `setenvsByArgsFd` in
-   `jailed-agents.nix`.
-
-Result: secrets live only in process memory — `op run`'s environment and the
-agent's, both owner-only — for the agent's lifetime; never in bwrap's
-environment, never on disk, never in the store, never in the host shell
-history. The offline profile sets `useOpEnv = false` (no network, no
-need).
-
-Override the ref map at import time:
-
-```nix
-agents = inputs.agents.lib.${system}.mkJailedAgents {
-  apiKeyOpRefs = {
-    OPENROUTER_API_KEY = "op://Work/OpenRouter/credential";
-    OPENAI_API_KEY     = "op://Work/OpenAI/credential";
-  };
-};
-```
-
-A jail receives no key unless it names one in `apiKeys` (IMP-020): every key
-in a jail's environment reaches every child process, and one `env` dump sends
-them all to the agent's provider. Unknown names fail evaluation with the jail
-name in the diagnostic:
-
-```nix
-(agents.makeJailedPi {
-  apiKeys = [ "OPENROUTER_API_KEY" ];
-})
-```
-
-The selected subset controls both the outer `op run` env file and bwrap's
-environment forwarding. With no keys selected there is no secret wrapper.
-`useOpEnv` and `passApiKeysFromEnv` otherwise remain independent.
-
-If `op` is missing from `PATH`, the wrapper bails with a clear message —
-build the agent with `useOpEnv = false` to bypass, or install
-`_1password-cli` / `_1password-gui` on the host.
-
-Tradeoffs already baked in: `op run --no-masking` is set because masking
-corrupts streamed agent output. Agents shouldn't print key values to
-stdout regardless.
-
-#### Pre-resolved secrets: `passApiKeysFromEnv`
-
-`op run` resolves refs on every launch. For one-shot interactive use
-that's fine — one biometric tap per session is unobtrusive. For an
-agent that spawns the jail on a timer (e.g. a 30-minute heartbeat from
-Emacs), the biometric prompt becomes per-tick noise.
-
-If the calling process already holds resolved plaintext in memory
-(a long-lived Emacs broker, a daemon with its own credential cache,
-etc.), drop the outer wrapper and let the caller's env feed the jail:
-
-```nix
-satan-jailed-gptel-harness = jailLib.makeJailedAgent {
-  name    = "satan-gptel-harness";
-  agent   = satanGptelHarness;
-  profile = "specDev";
-  apiKeys            = [ "OPENROUTER_API_KEY" ];
-  useOpEnv           = false;  # skip the outer `op run` wrapper
-  passApiKeysFromEnv = true;   # keep the FD forwarding
-};
-```
-
-Effect:
-
-- The outer `op run` wrapper is omitted, so launching the jail does not
-  call `op` and never prompts 1Password.
-- The inner bwrap launcher still forwards over `--args 21` each name in `apiKeys`, so whatever plaintext the caller has
-  set in `process-environment` (or its equivalent) for those names is
-  forwarded into the sandbox.
-- If the caller fails to set a key, `${VAR:-}` expands to empty and the
-  agent simply sees an unset key — same failure mode as a missing env
-  var anywhere else, no special handling required.
-
-The caller now owns the credential-cache policy: TTL, clearing on
-suspend/lock, refreshing after rotation. The defaults (`useOpEnv =
-passApiKeysFromEnv = per-profile`) keep the simple case simple.
+A jail reaches models through the LLM gateway ([Gateway mode](#gateway-mode-gateway))
+and no other way: no provider key enters a jail, and nothing in the lib runs
+`op` (IMP-051). A jail without `gateway` reaches no model unless its agent
+signs in on its own (claude, codex). Provider keys resolved by 1Password
+`op run` were removed; IMP-051 names the commit to revert for them.
 
 ### Gateway mode (`gateway`)
 
-A jail can hold one key for a local LLM gateway instead of provider keys. The
+A jail can hold one key for a local LLM gateway. The
 argument is exactly three strings; `gatewayClient` builds it for this repo's
 gateway:
 
@@ -441,11 +352,9 @@ README, § LLM gateway.
 
 Effect:
 
-- No `op run`. A non-empty `apiKeys`
-  is refused at evaluation.
 - The launcher reads `keyFile` with a shell builtin and passes it as
-  `LLM_GATEWAY_KEY` over `--args 22` (not argv, like the provider keys on
-  `--args 21`). `LLM_GATEWAY_URL` is plain env.
+  `LLM_GATEWAY_KEY` over `--args 22` (not argv). `LLM_GATEWAY_URL` is plain
+  env.
 - The wrapper fails with a message in two cases: the key file is unreadable
   (issue one: `llm-gateway issue … --out <keyFile>`), or the directory the jail
   reaches the gateway through is missing (the gateway is not running;
@@ -609,10 +518,7 @@ formFamily = jailLib.quotientFormFamily {
 | `sandboxGitIdentity` | per profile (true for `specDev` only) | Override git author/committer |
 | `guardGit` | `true` | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
-| `apiKeys` | `[]` | API key names from `apiKeyOpRefs` to resolve and/or forward for this jail |
-| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
-| `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
-| `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
+| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
 ## helium
 

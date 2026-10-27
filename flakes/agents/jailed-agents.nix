@@ -6,30 +6,20 @@
 # persisted home and some policy defaults. Pieces with their own file:
 # workspace-binds.nix (sibling repos at /workspace/<name>) and gateway-jail.nix.
 #
-# Model access, two ways:
+# Model access is through an LLM gateway (`gateway = { … }`; the agents
+# template's default), and only that: no provider key enters a jail, and no
+# `op run`. The jail gets one gateway key, read from a file by a shell
+# builtin and forwarded over its own `--args FD`, and the gateway's URL; a
+# thin wrapper names the fix when either is missing. With pi in the jail, it
+# also binds a generated, read-only `~/.pi/agent/models.json` (one provider,
+# `llm-gateway`). A jail without `gateway` reaches no model unless its agent
+# signs in on its own (claude, codex). Provider keys via 1Password `op run`
+# were removed in IMP-051; the card names the commit to revert for them.
 #
-#   Gateway mode (`gateway = { … }`; the agents template's default): no
-#   provider key and no `op run`. The jail gets one gateway key, read from a
-#   file by a shell builtin and forwarded over its own `--args FD`, and the
-#   gateway's URL; a thin wrapper names the fix when either is missing. With
-#   pi in the jail, it also binds a generated, read-only
-#   `~/.pi/agent/models.json` (one provider, `llm-gateway`).
-#
-#   Provider keys (`apiKeys`; IMP-051 retires this): with `useOpEnv = true`
-#   (the online profiles' default), the binary wraps the bwrap launch in
-#   `op run --env-file=<refs>`, so 1Password resolves the op:// refs on the
-#   host and injects the plaintext into the launcher's own env, where
-#   `/proc/<pid>/environ` keeps them 0600 and owner-only. They are then
-#   forwarded into the agent over `--args FD` (see apiKeyPassThrough). A
-#   caller that already holds resolved secrets (e.g. an Emacs broker) sets
-#   `useOpEnv = false; passApiKeysFromEnv = true;`: no `op run`, the same
-#   forwarding.
-#
-#   Either way secrets never sit on disk or in argv. Those are NOT the same
-#   guarantee: until 2026-08-11 keys went as `--setenv VAR "$VAR"` on the
-#   bwrap command line, in plaintext in world-readable `/proc/<pid>/cmdline`
-#   for the jail's whole lifetime. Off-disk is not off-limits; treat argv as
-#   public.
+# The key never sits on disk or in argv. Off-disk is not off-limits: until
+# 2026-08-11 keys went as `--setenv VAR "$VAR"` on the bwrap command line, in
+# plaintext in world-readable `/proc/<pid>/cmdline` for the jail's whole
+# lifetime. Treat argv as public.
 #
 # Usage:
 #   makeJailedPi { profile = "specDev"; gateway = gatewayClient "pi"; }
@@ -38,15 +28,6 @@
   pkgs,
   jail-nix,
   llm-agents,
-  apiKeyOpRefs ? {
-    DEEPSEEK_API_KEY = "op://API_KEYS/DEEPSEEK_API_KEY/credential";
-    OPENROUTER_API_KEY = "op://API_KEYS/OPENROUTER_API_KEY/credential";
-    MISTRAL_API_KEY = "op://API_KEYS/MISTRAL_API_KEY/credential";
-    VOYAGE_API_KEY = "op://API_KEYS/VOYAGE_API_KEY/credential";
-    OPENAI_API_KEY = "op://API_KEYS/OPENAI_API_KEY/credential";
-    GEMINI_API_KEY = "op://API_KEYS/GEMINI_API_KEY/credential";
-    JEV_API_KEY = "op://API_KEYS/JEV_API_KEY/credential";
-  },
   gitIdentity ? {
     authorName = "Jailed agent";
     authorEmail = "jailed-agent@localhost";
@@ -260,28 +241,24 @@
   # Policy-bearing profiles. `network` is data, not caller-overridable
   # (DEC-076): the one source of the network flag. `home` names the persisted
   # home; a jail may override it (`persistedHome`). The rest are defaults a
-  # jail may override; useOpEnv is off for offline (no network = no API
-  # calls = no secrets).
+  # jail may override.
   profiles = {
     specDev = {
       network = true;
       home = "agent";
       sandboxGitIdentity = true;
-      useOpEnv = true;
     };
 
     research = {
       network = true;
       home = "agent-research";
       sandboxGitIdentity = false;
-      useOpEnv = true;
     };
 
     offline = {
       network = false;
       home = "agent-offline";
       sandboxGitIdentity = false;
-      useOpEnv = false;
     };
   };
 
@@ -486,12 +463,6 @@
     exposePostgres ? false,
     # The host's doctrine install root, read-only (hostDoctrineOptions).
     hostDoctrine ? true,
-    useOpEnv ? profiles.${profile}.useOpEnv,
-    # When the caller pre-resolves op:// refs and exports plaintext into
-    # the wrapper's env (e.g. Emacs broker with a per-session cache),
-    # disable `useOpEnv` but keep `passApiKeysFromEnv = true` so the
-    # bwrap `--args FD` forwarding still runs.
-    passApiKeysFromEnv ? useOpEnv,
     # Opt-in: reach models through an LLM gateway instead of provider keys.
     # `{ keyFile; url; runDirectory; }`, all strings, exactly those:
     #   keyFile       the gateway key's path, a shell word expanded inside
@@ -499,35 +470,12 @@
     #   url           the gateway's OpenAI-compatible base URL, not secret;
     #   runDirectory  present while the gateway runs (its RuntimeDirectory).
     # The jail gets LLM_GATEWAY_KEY (over `--args FD`) and LLM_GATEWAY_URL,
-    # and no provider key: gateway plus a non-empty `apiKeys` is refused.
+    # and no provider key.
     # With pi in the jail, also a read-only models.json (gateway-jail.nix).
     # In a profile without network, the jail reaches the gateway through the
     # client socket and an in-jail forwarder (socket mode, DEC-076).
     gateway ? null,
-    # Names from apiKeyOpRefs to resolve and/or forward for this jail.
-    # None by default: each jail names the keys its agent uses (IMP-020).
-    apiKeys ? [],
   }: let
-    selectedApiKeys = lib.unique apiKeys;
-    unknownApiKeys = lib.filter (key: !(builtins.hasAttr key apiKeyOpRefs)) selectedApiKeys;
-    selectedApiKeyOpRefs = lib.genAttrs selectedApiKeys (key: apiKeyOpRefs.${key});
-
-    # File of selected op:// refs that `op run` reads. Contents are not
-    # secret (just pointers); resolved values never land in the store.
-    apiKeyEnvFile = pkgs.writeText "jailed-${name}-api-keys.env" (
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (key: value: "${key}=${value}") selectedApiKeyOpRefs)
-    );
-
-    # Forwards each selected API key from the wrapper's env. `$VAR` is left
-    # for runtime shell expansion; the `:-` guard keeps empty/unset vars
-    # from breaking set -u callers.
-    apiKeyArgsFd = "21";
-    apiKeyPassThrough = lib.optional (selectedApiKeys != []) (
-      setenvsByArgsFd apiKeyArgsFd (
-        lib.mapAttrs (var: _: "\"\${${var}:-}\"") selectedApiKeyOpRefs
-      )
-    );
-
     # pi is in the jail as the agent (makeJailedPi, whatever its `name`,
     # e.g. pi-research) or as a subagent. Derivations compare by output path.
     piInJail = agent == pi || lib.elem "pi" subagentNames;
@@ -597,7 +545,6 @@
       ++ profileOptions profile homeName
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
-      ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
       ++ gatewayJail.options
       ++ [
         (jail.combinators.add-pkg-deps (
@@ -609,39 +556,14 @@
       ]
       ++ extraOptions
     );
-
-    # Outer wrapper: resolve op:// refs on the host (uses the 1Password
-    # desktop app + biometric unlock via the user's PATH `op'), inject
-    # plaintext into the wrapper's env, then exec the bwrap'd agent.
-    # The setgid NixOS wrapper /run/wrappers/bin/op is used when present:
-    # the raw binary (e.g. /run/current-system/sw/bin/op) can't reach the
-    # desktop integration socket, and PATH order can't be trusted to
-    # prefer the wrapper (Emacs' inherited PATH lists sw/bin first).
-    # Elsewhere (darwin), `op' comes from PATH.
-    outer = pkgs.writeShellScriptBin "jailed-${name}" ''
-      op=/run/wrappers/bin/op
-      [ -x "$op" ] || op=$(command -v op) || {
-        echo "jailed-${name}: \`op' (1Password CLI) not found on PATH; cannot resolve secrets." >&2
-        echo "  Either install 1password-cli or build this agent with useOpEnv = false." >&2
-        exit 127
-      }
-      exec "$op" run --no-masking --env-file=${apiKeyEnvFile} -- \
-        ${inner}/bin/jailed-${name} "$@"
-    '';
   in
     assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";
     assert !(lib.hasPrefix "jailed-" name) || throw "jailed-${name}: the maker adds the jailed- prefix; pass name = \"${lib.removePrefix "jailed-" name}\"";
     assert (builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName != null)
     || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
-    assert (unknownApiKeys == []) || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
     assert (subagentNames == []) || (maxSubagentDepth > 0) || throw "maxSubagentDepth must be > 0 when subagents are exposed";
-    assert (gateway == null)
-    || (selectedApiKeys == [])
-    || throw "jailed-${name}: gateway mode carries no provider keys; drop apiKeys (${lib.concatStringsSep ", " selectedApiKeys})";
       if gateway != null
       then gatewayJail.wrap inner
-      else if useOpEnv && selectedApiKeys != []
-      then outer
       else inner;
 
   # makeJailed<Name> for each agent: makeJailedAgent with that name and

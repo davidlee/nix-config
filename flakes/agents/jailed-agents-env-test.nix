@@ -16,8 +16,6 @@
   launcher = args:
     agents.makeJailedZsh (
       {
-        useOpEnv = false;
-        passApiKeysFromEnv = false;
         workspaceDeps = ["/nonexistent/static-dep"];
         workspaceDepsRw = ["/nonexistent/static-rw-dep"];
       }

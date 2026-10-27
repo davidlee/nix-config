@@ -1,6 +1,6 @@
 # Gateway mode for one jail (see makeJailedAgent's `gateway` argument): its
 # jail options, and the wrapper that checks the gateway is reachable before
-# launch. No provider key and no `op run`.
+# launch. No provider key.
 {
   lib,
   pkgs,
@@ -68,8 +68,8 @@ in
       ++ lib.optionals socketMode socketOptions
       ++ piOptions;
 
-    # In place of the `op run` wrapper: checks only — it never reads the key
-    # — and names the fix when the jail could not reach the gateway.
+    # The outer launcher: checks only — it never reads the key — and names
+    # the fix when the jail could not reach the gateway.
     wrap = inner:
       pkgs.writeShellScriptBin "jailed-${name}" ''
         key_file="${checked.keyFile}"
