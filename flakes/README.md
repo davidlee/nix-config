@@ -244,8 +244,8 @@ features/
   graphics.nix        [ paint modelling color cad ]
   comms.nix           [ chat mail feeds ]
   fun.nix             [ toys ]
-  terminal.nix        [ emulators utils zsh ]
-  terminal/           zsh.nix                         the zsh record's home module
+  terminal.nix        [ emulators utils zsh nushell amenities ]  zsh owns the login shell; nushell requires amenities
+  terminal/           zsh.nix  nushell.nix  amenities.nix   the records' home modules
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness attrd runner ] each its own file under satan/
@@ -339,13 +339,21 @@ kernel, env, maintenance, security, network (NetworkManager, a firewall with
 no open ports, nftables, `hostName`, `timeServers`), programs (nix-ld,
 rust-motd, root's helix) and the inspection set of cli tools. Root's login
 shell is NixOS's default, bash, and so are the system users that take the
-default (`assigner`, `postgres`); the user's own shell stays nushell. The
-base installs every terminal's terminfo, so root's bash works from any
-emulator. ssh, locate, tailscale, avahi, sandboxing and the system zsh are
-features: a NixOS host that does not select `services.ssh` runs no sshd.
+default (`assigner`, `postgres`). The base sets no shell for the user
+either: the `terminal.zsh` feature makes it zsh (with `programs.zsh`), and
+its login hook execs nushell. A host without it gives the user bash. To
+change the login shell, move the `shell =` line to another shell's record in
+`features/terminal.nix`. The base installs every terminal's terminfo, so
+root's bash works from any emulator. ssh, locate, tailscale, avahi,
+sandboxing and zsh are features: a NixOS host that does not select
+`services.ssh` runs no sshd.
 
-The **home base** (`modules/home/default.nix`) holds nushell, direnv and the
-base cli. Each `home.nix` imports exactly one platform layer over it:
+The **home base** (`modules/home/default.nix`) holds direnv and the base
+cli. The shells are features (`terminal.zsh`, `terminal.nushell`), and so
+are the tools they share (`terminal.amenities`: prompt, completion, history,
+zoxide, fzf). Each tool hooks into whichever shells are selected: Home
+Manager's `enable<Shell>Integration` defaults on and only acts on an enabled
+`programs.<shell>`, so a module sets one only to differ from that default. Each `home.nix` imports exactly one platform layer over it:
 
 ```
 hosts/Sleipnir/home.nix ──> modules/home/linux/default.nix ──┐

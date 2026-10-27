@@ -41,9 +41,6 @@ in [
       # From the home base (DEC-042).
       programs.yazi = {
         enable = true;
-        enableZshIntegration = true;
-        enableBashIntegration = true;
-        enableNushellIntegration = true;
         plugins = with pkgs.yaziPlugins; {
           lazygit.package = lazygit;
           jjui.package = jjui;

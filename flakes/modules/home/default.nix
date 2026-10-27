@@ -3,7 +3,6 @@
 # imports this.
 {...}: {
   imports = [
-    ./nushell.nix
     ./programs.nix
     ./cli.nix
   ];

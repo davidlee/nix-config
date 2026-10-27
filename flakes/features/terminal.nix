@@ -43,9 +43,15 @@ in [
     };
   }
 
+  # A shell's record owns the user's login shell (`users.users.<user>.shell`),
+  # beside the system setup it needs. To change the login shell, move the
+  # `shell =` line from one record to the other and select that feature.
+  # Without one, the user gets NixOS's bash (modules/nixos/user.nix).
+
   {
     # zsh: the home half (dotfiles, mcfly, plugins) and the system half
-    # (programs.zsh, /share/zsh completions). Root's shell is bash (DEC-042).
+    # (programs.zsh, /share/zsh completions, the login shell). Its login hook
+    # execs nu. Root's shell is bash (DEC-042).
     name = "zsh";
     homeManager = {pkgs, ...}: {
       imports = [./terminal/zsh.nix];
@@ -54,9 +60,29 @@ in [
         antidote
       ];
     };
-    nixos = _: {
-      programs.zsh.enable = true;
+    nixos = {
+      pkgs,
+      username,
+      ...
+    }: {
+      programs.zsh.enable = true; # NixOS refuses a zsh login shell without it
+      users.users.${username}.shell = pkgs.zsh;
       environment.pathsToLink = ["/share/zsh"]; # completions from packages
     };
+  }
+
+  {
+    # nushell, and fish for its completions. Home only: to make nu the login
+    # shell, add a nixos half here holding the `shell =` line from zsh's.
+    name = "nushell";
+    requires = ["terminal.amenities"]; # its cd alias is zoxide's
+    homeManager = {imports = [./terminal/nushell.nix];};
+  }
+
+  {
+    # Interactive tools shared by the shells (prompt, completion, history,
+    # jump, fuzzy find); each hooks into whichever shell records are selected.
+    name = "amenities";
+    homeManager = {imports = [./terminal/amenities.nix];};
   }
 ]

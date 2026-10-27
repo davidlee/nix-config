@@ -42,4 +42,6 @@
   feature.fun.toys.enable = lib.mkDefault true;
   feature.terminal.utils.enable = lib.mkDefault true;
   feature.terminal.zsh.enable = lib.mkDefault true;
+  feature.terminal.nushell.enable = lib.mkDefault true;
+  feature.terminal.amenities.enable = lib.mkDefault true;
 }
