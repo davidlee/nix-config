@@ -90,3 +90,35 @@ satan-corpus, later the same day: its rw move was reverted by someone else's
 edit, deliberately as far as can be told (my comment and an empty
 `workspaceDepsRw` were kept). Its jail rename (`jailed-pi-emacs` →
 `pi-emacs`, IMP-045 step 5) is done, uncommitted there.
+
+## Ready repos migrated (2026-10-27)
+
+Option 1 of the W5 split: every repo but panopticon and satan. IMP-047 had
+already put every `.envrc` but satan-corpus's on the helper, and W1's rw
+moves were done or reverted (above), so what remained was the template's
+`agents.inputs.nixpkgs.follows = "nixpkgs"`, satan-corpus's `.envrc`, and
+two stale locks.
+
+| repo | change | commit |
+|---|---|---|
+| retrograde, satan-attrd, www, goad, malebolge, oubliette, doctrine, bough (vk), forgettable, spec-driver, notes | agents follows nixpkgs; relock | one each |
+| org-incremental-writing | same; agents lock bumped to a369b021 (the old lock predated `workspaceDepsRw`, so a pure eval failed) | cd32580 |
+| satan-corpus | same; `.envrc` onto `use agents_dev`; agents lock bumped (same reason) | ea1efe7 |
+| screwtape | nothing: already follows and uses `quotientFormFamily` | — |
+
+Verified: every devshell evaluates against both the locked and the local
+agents; `jailed-pi` builds against the local agents in the 11 repos that
+export it. The `follows` costs little: www's `jailed-pi` needs 5 builds on its
+own nixpkgs against 4 on the agents pin. Commits are scoped to
+`flake.nix`/`flake.lock` (and satan-corpus's `.envrc`); nothing pushed.
+
+Kept: oubliette and screwtape stay on `use flake` (no live input wanted).
+
+Left:
+- form step: doctrine's interim form and satan's hand-rolled family wait on
+  IMP-052. `quotientFormFamily` cannot carry the agents lib's posture (ssh-push
+  block, git identity, host doctrine), and doctrine's interim form lacks
+  quotient's guarantees.
+- satan-corpus: still off the gateway (`useOpEnv = false;
+  passApiKeysFromEnv = true`), with IMP-051's op consumers.
+- panopticon and satan, after IMP-051.

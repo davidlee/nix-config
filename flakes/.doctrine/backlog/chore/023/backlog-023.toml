@@ -18,5 +18,5 @@ tags = ["agents", "dev-flakes", "jail"]
 # them. The dep/seq axes below stay typed (they carry per-edge payloads).
 [relationships]
 needs    = []                   # item→item hard prerequisite
-after    = [{ to = "IMP-047", rank = 0 }, { to = "IMP-051", rank = 0 }]                   # item→item soft sequence: { to, rank? }
+after    = [{ to = "IMP-047", rank = 0 }, { to = "IMP-051", rank = 0 }, { to = "IMP-052", rank = 0 }]                   # item→item soft sequence: { to, rank? }
 triggers = []                   # watched source globs: { globs, note? }
