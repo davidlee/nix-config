@@ -695,127 +695,36 @@
       then outer
       else inner;
 
-  makeJailedPi = args:
-    makeJailedAgent (
-      {
-        name = "pi";
-        agent = pi;
-      }
-      // args
-    );
-
-  makeJailedCrush = args:
-    makeJailedAgent (
-      {
-        name = "crush";
-        agent = crush;
-      }
-      // args
-    );
-
-  makeJailedOpencode = args:
-    makeJailedAgent (
-      {
-        name = "opencode";
-        agent = opencode;
-      }
-      // args
-    );
-
-  makeJailedClaude = args:
-    makeJailedAgent (
-      {
-        name = "claude";
-        agent = claude-code;
-      }
-      // args
-    );
-
-  makeJailedCodex = args:
-    makeJailedAgent (
-      {
-        name = "codex";
-        agent = codex;
-      }
-      // args
-    );
-
-  makeJailedGemini = args:
-    makeJailedAgent (
-      {
-        name = "gemini";
-        agent = gemini-cli;
-      }
-      // args
-    );
-
-  makeJailedEca = args:
-    makeJailedAgent (
-      {
-        name = "eca";
-        agent = eca;
-      }
-      // args
-    );
-
-  makeJailedZerostack = args:
-    makeJailedAgent (
-      {
-        name = "zerostack";
-        agent = zerostack;
-      }
-      // args
-    );
-
-  makeJailedDirge = args:
-    makeJailedAgent (
-      {
-        name = "dirge";
-        agent = dirge;
-      }
-      // args
-    );
-
-  # for testing & installation
-  makeJailedZsh = args:
-    makeJailedAgent (
-      {
-        name = "zsh";
-        agent = pkgs.zsh;
-      }
-      // args
-    );
-in {
-  inherit
-    makeJailedAgent
-    makeJailedPi
-    makeJailedCrush
-    makeJailedOpencode
-    makeJailedClaude
-    makeJailedCodex
-    makeJailedGemini
-    makeJailedEca
-    makeJailedZerostack
-    makeJailedDirge
-    makeJailedZsh
-    ;
-  inherit agentsByName; # unjailed binaries
-  inherit (jail) combinators;
-  # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
-  gatewayClient = gatewayData.client;
-  # pi's gateway provider for any model set: piGatewayConfig url models.
-  inherit piGatewayConfig;
-  # What a client outside this flake reads instead of importing gateway.nix
-  # (IMP-043): the models.json a gateway jail binds, and the gateway's facts.
-  piGatewayModels = piGatewayModelsFor gatewayData.url;
-  gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
-  # Socket mode for a jail without `gateway` (e.g. a key-file client), via
-  # `extraOptions`; refused at evaluation in a jail sharing the host netns.
-  inherit gatewaySocketOptions;
-  # A satan-mcp client's bind and env, via `extraOptions`.
-  inherit satanMcpOptions;
-  # Bare (unjailed) agent packages, resolved from the same eval as the
-  # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
-  # `unjailed.pi` etc. without separately wiring llm-agents.
-  unjailed = agentsByName;
-}
+  # makeJailed<Name> for each agent: makeJailedAgent with that name and
+  # package. zsh is for testing and installation.
+  capitalise = s: lib.toUpper (builtins.substring 0 1 s) + builtins.substring 1 (-1) s;
+  makers =
+    lib.mapAttrs' (
+      name: agent:
+        lib.nameValuePair "makeJailed${capitalise name}" (args: makeJailedAgent ({inherit name agent;} // args))
+    )
+    (agentsByName // {inherit (pkgs) zsh;});
+in
+  makers
+  // {
+    inherit makeJailedAgent;
+    inherit agentsByName; # unjailed binaries
+    inherit (jail) combinators;
+    # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
+    gatewayClient = gatewayData.client;
+    # pi's gateway provider for any model set: piGatewayConfig url models.
+    inherit piGatewayConfig;
+    # What a client outside this flake reads instead of importing gateway.nix
+    # (IMP-043): the models.json a gateway jail binds, and the gateway's facts.
+    piGatewayModels = piGatewayModelsFor gatewayData.url;
+    gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
+    # Socket mode for a jail without `gateway` (e.g. a key-file client), via
+    # `extraOptions`; refused at evaluation in a jail sharing the host netns.
+    inherit gatewaySocketOptions;
+    # A satan-mcp client's bind and env, via `extraOptions`.
+    inherit satanMcpOptions;
+    # Bare (unjailed) agent packages, resolved from the same eval as the
+    # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
+    # `unjailed.pi` etc. without separately wiring llm-agents.
+    unjailed = agentsByName;
+  }

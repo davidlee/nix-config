@@ -82,3 +82,7 @@ source tree, so any edit under agents/, a README one included, changes it.
   `sandboxGitIdentity`, `useOpEnv`). `blockSshGitPush` and `guardGit` default
   to `true` and `exposePostgres` to `false`, the same in every profile.
   README option table updated. Gate green, consumers unchanged.
+- Step 3 done. The `makers` attrset is generated from `agentsByName // {zsh}`
+  and replaces 11 hand-written makers (about 90 lines). The export names are
+  the same as before (attrNames compared with the previous commit). README's
+  maker list now includes dirge and zsh. Gate green, consumers unchanged.

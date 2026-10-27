@@ -11,8 +11,9 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 ### What it provides
 
 - `makeJailedPi`, `makeJailedCrush`, `makeJailedOpencode`, `makeJailedClaude`,
-  `makeJailedCodex`, `makeJailedGemini`, `makeJailedEca`, `makeJailedZerostack` — pre-configured
-  makers for each agent
+  `makeJailedCodex`, `makeJailedGemini`, `makeJailedEca`, `makeJailedZerostack`,
+  `makeJailedDirge`, `makeJailedZsh` — pre-configured makers, one per
+  `agentsByName` entry plus zsh
 - `makeJailedAgent` — generic maker for custom agents
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 - `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
