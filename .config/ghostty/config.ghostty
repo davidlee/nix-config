@@ -4,15 +4,24 @@ theme = noctalia
 background-opacity = 1.0
 background-blur = true
 
-# stop dropping clipboard on upgrades
-gtk-single-instance = false
+gtk-single-instance = true
 macos-option-as-alt = true
 
 clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
 
-# window-decoration = none
+cursor-style = block
+cursor-style-blink = true
+scrollback-limit = 3023
+mouse-hide-while-typing = true
+confirm-close-surface = false
+app-notifications = no-clipboard-copy,no-config-reload
+
+unfocused-split-opacity = 0.7
+unfocused-split-fill = #44464f
+
+window-decoration = false
 window-padding-x = 5
 window-padding-y = 5
 window-title-font-family="Hack"
@@ -32,6 +41,7 @@ shell-integration-features = cursor
 
 bell-features = system
 
+gtk-titlebar = false
 gtk-titlebar-style = native
 faint-opacity = 0.2
 
@@ -59,9 +69,12 @@ font-family="Hasklug Nerd Font"
 font-size=14
 font-feature=-liga
 
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+plus=increase_font_size:1
+keybind = ctrl+minus=decrease_font_size:1
+keybind = ctrl+zero=reset_font_size
+keybind = shift+enter=text:\n
 # keybind = shift+enter=text:\x1b\r
-
-keybind = control+t=unbind
 
 # more widespread support if we impersonate kitty
 # term = xterm-kitty

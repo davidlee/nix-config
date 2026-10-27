@@ -5,7 +5,17 @@ in [
   {
     name = "emulators";
     platforms = lib.platforms.linux;
-    homeManager = {pkgs, ...}: {
+    homeManager = {
+      lib,
+      pkgs,
+      ...
+    }: {
+      # A running ghostty stops seeing other apps' clipboard after a switch,
+      # pasting its own last copy; a new process, or a config reload, is fine.
+      # Cause unknown. SIGUSR2 is ghostty's reload signal.
+      home.activation.reloadGhostty = lib.hm.dag.entryAfter ["linkGeneration"] ''
+        run ${pkgs.procps}/bin/pkill -USR2 -x .ghostty-wrappe || true
+      '';
       home.packages = with pkgs; [
         # alacritty
         # wezterm
