@@ -149,9 +149,13 @@
   # Mount the host's excludes read-only at git's default excludes path, so
   # agents do not stage files the host user ignores. No gitconfig edit: the
   # jail's git finds it when core.excludesFile is unset. Must follow the
-  # persisted-home bind, or that bind would cover it. -try: no file, no mount.
-  hostGitExcludesOptions = [
-    (jail.combinators.unsafe-add-raw-args "--ro-bind-try \"$(${hostGitExcludesFile})\" ~/.config/git/ignore")
+  # persisted-home bind, or that bind would cover it: a runtime arg, so it
+  # follows every static one. -try: no file, no mount. Off the bwrap line,
+  # which quotient's form check requires to be plain words (IMP-052).
+  hostGitExcludesOptions = c: [
+    (c.add-runtime ''
+      RUNTIME_ARGS+=(--ro-bind-try "$(${hostGitExcludesFile})" "$HOME/.config/git/ignore")
+    '')
   ];
 
   # This repo's gateway: its address, served models and clients. Not
@@ -192,10 +196,15 @@
   # gateway's URL, key and models.json merged into the caller's env, secretEnv
   # and piFiles (IMP-046). `quotient` is the flake or its lib, passed in so
   # this flake takes no quotient input. Every other arg goes to mkFormFamily.
-  # The gateway is reached over TCP, so the form keeps its network.
+  # The gateway is reached over TCP, so the form keeps its network. The
+  # form's options are the posture (sandboxed git identity on unless
+  # `postureFlags` says otherwise), then the caller's `options` (IMP-052):
+  # both take the combinator set built from this lib's jail.nix pin.
   quotientFormFamily = {
     quotient,
     client ? "pi",
+    postureFlags ? {},
+    options ? (_: []),
     env ? {},
     secretEnv ? {},
     piFiles ? {},
@@ -205,9 +214,10 @@
   in
     assert (args.network or true) || throw "quotientFormFamily: the gateway is reached over TCP; network = false would cut it off";
       (quotient.lib or quotient).mkFormFamily (
-        builtins.removeAttrs args ["quotient" "client"]
+        builtins.removeAttrs args ["quotient" "client" "postureFlags"]
         // {
           inherit pkgs jail-nix;
+          options = c: posture ({sandboxGitIdentity = true;} // postureFlags) c ++ options c;
           inherit (agentsByName) pi;
           env = env // {LLM_GATEWAY_URL = gateway.url;};
           secretEnv = secretEnv // {LLM_GATEWAY_KEY = ''$(< "${gateway.keyFile}")'';};
@@ -216,12 +226,13 @@
       );
 
   # Always applied — not policy-bearing
-  baseJailOptions = with jail.combinators; [
-    time-zone
-    no-new-session
-    # make shebangs work
-    (ro-bind "${pkgs.coreutils}/bin/env" "/usr/bin/env")
-  ];
+  baseJailOptions = c:
+    with c; [
+      time-zone
+      no-new-session
+      # make shebangs work
+      (ro-bind "${pkgs.coreutils}/bin/env" "/usr/bin/env")
+    ];
 
   # Where the jail starts (DEC-078). On: mount the host cwd at
   # /workspace/<project> and start there. Off: bind nothing and start in
@@ -271,43 +282,51 @@
     ++ lib.optional profiles.${p}.network jail.combinators.network;
 
   # Sandbox-originated commits are visually distinct
-  gitIdentityOptions = with jail.combinators; [
-    (set-env "GIT_AUTHOR_NAME" gitIdentity.authorName)
-    (set-env "GIT_AUTHOR_EMAIL" gitIdentity.authorEmail)
-    (set-env "GIT_COMMITTER_NAME" gitIdentity.committerName)
-    (set-env "GIT_COMMITTER_EMAIL" gitIdentity.committerEmail)
-  ];
+  gitIdentityOptions = c:
+    with c; [
+      (set-env "GIT_AUTHOR_NAME" gitIdentity.authorName)
+      (set-env "GIT_AUTHOR_EMAIL" gitIdentity.authorEmail)
+      (set-env "GIT_COMMITTER_NAME" gitIdentity.committerName)
+      (set-env "GIT_COMMITTER_EMAIL" gitIdentity.committerEmail)
+    ];
 
   # Block git push over SSH
-  sshGitPushBlockOptions = with jail.combinators; [
-    (set-env "GIT_SSH_COMMAND" "${pkgs.writeShellScript "git-ssh-disabled" ''
-      echo "git push over SSH is disabled in this sandbox" >&2
-      exit 1
-    ''}")
-    (set-env "SSH_AUTH_SOCK" "")
-    (set-env "GIT_ASKPASS" "")
-  ];
+  sshGitPushBlockOptions = c:
+    with c; [
+      (set-env "GIT_SSH_COMMAND" "${pkgs.writeShellScript "git-ssh-disabled" ''
+        echo "git push over SSH is disabled in this sandbox" >&2
+        exit 1
+      ''}")
+      (set-env "SSH_AUTH_SOCK" "")
+      (set-env "GIT_ASKPASS" "")
+    ];
 
-  # Environment every jail gets.
-  envOptions = with jail.combinators; [
+  # The terminal a jail's launcher runs in. Not posture: a quotient form is
+  # headless and sets TERM=dumb itself (IMP-052).
+  terminalOptions = with jail.combinators; [
     (set-env "TERM" "xterm-256color")
     (set-env "COLORTERM" "truecolor")
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
-    # Claude Code runs Bash-tool commands under `bash` or `zsh` ONLY. Its
-    # auto-detection reads $SHELL and falls back to "first working zsh, then
-    # bash on PATH" when $SHELL is neither — so a jailed agent lands on zsh
-    # (the jail login shell) and gets non-bash semantics it does not expect.
-    # The usual bite is zsh globbing: `grep --include=*.md` dies with "no
-    # matches found". Pin the store path: bashInteractive is in commonPkgs,
-    # but `/run/current-system` and `/bin/bash` are not jail-visible, so a
-    # host-stable path would be silently ignored. Inert for non-claude agents,
-    # and a bad value only falls back to auto-detection — it cannot hard-break.
-    (set-env "CLAUDE_CODE_SHELL" "${pkgs.bashInteractive}/bin/bash")
-    # Package-manager caches in the project, not the persisted home.
-    (set-env "UV_CACHE_DIR" ".uv-cache")
   ];
 
-  # `elf-closure-binds BINARY`: bwrap args, NUL-separated for `--args FD`,
+  # Environment every jail and form gets.
+  envOptions = c:
+    with c; [
+      # Claude Code runs Bash-tool commands under `bash` or `zsh` ONLY. Its
+      # auto-detection reads $SHELL and falls back to "first working zsh, then
+      # bash on PATH" when $SHELL is neither — so a jailed agent lands on zsh
+      # (the jail login shell) and gets non-bash semantics it does not expect.
+      # The usual bite is zsh globbing: `grep --include=*.md` dies with "no
+      # matches found". Pin the store path: bashInteractive is in commonPkgs,
+      # but `/run/current-system` and `/bin/bash` are not jail-visible, so a
+      # host-stable path would be silently ignored. Inert for non-claude agents,
+      # and a bad value only falls back to auto-detection — it cannot hard-break.
+      (set-env "CLAUDE_CODE_SHELL" "${pkgs.bashInteractive}/bin/bash")
+      # Package-manager caches in the project, not the persisted home.
+      (set-env "UV_CACHE_DIR" ".uv-cache")
+    ];
+
+  # `elf-closure-binds BINARY`: bwrap args, NUL-separated,
   # binding read-only the store paths a host-built ELF needs to run: the
   # closure of its interpreter and RUNPATH. The jail sees only its own
   # closure, and a binary built outside Nix (`cargo install`) is in none.
@@ -337,14 +356,18 @@
   #   and hide the jail's own (persist-home gives it a writable ~/.cargo).
   # The store paths it links against are bound too, as found at launch: a
   # reinstall built by a different toolchain needs a relaunch. All tries, so
-  # a host without it launches anyway. Descriptor 23: clear of the key
-  # descriptors, 21 and 22 (setenvsByArgsFd).
+  # a host without it launches anyway. Runtime args, off the bwrap line
+  # (IMP-052); store paths only, so argv is no exposure.
   hostDoctrineDir = "~/.local/share/doctrine/bin";
-  hostDoctrineOptions = with jail.combinators; [
-    (try-ro-bind (noescape hostDoctrineDir) "/run/doctrine-bin")
-    (unsafe-add-raw-args "--args 23 23< <(${elfClosureBinds} ${hostDoctrineDir}/doctrine)")
-    (add-path "/run/doctrine-bin")
-  ];
+  hostDoctrineOptions = c:
+    with c; [
+      (try-ro-bind (noescape hostDoctrineDir) "/run/doctrine-bin")
+      (add-runtime ''
+        mapfile -d "" -t doctrine_binds < <(${elfClosureBinds} ${hostDoctrineDir}/doctrine)
+        RUNTIME_ARGS+=("''${doctrine_binds[@]}")
+      '')
+      (add-path "/run/doctrine-bin")
+    ];
 
   workspaceBindsFor = import ./workspace-binds.nix {
     inherit lib;
@@ -385,6 +408,37 @@
       + lib.concatStrings (lib.mapAttrsToList (var: value: " --setenv ${var} ${value}") setenvs)
       + ")"
     );
+
+  # The confinement every jail and every quotient form gets (IMP-052): a
+  # function of a jail.nix combinator set, so makeJailedAgent applies it to
+  # jail.combinators and quotientFormFamily to mkFormFamily's `c`. It runs
+  # before the launcher's options, and nothing in it depends on their order:
+  # its one static mount outside the base (/run/doctrine-bin) overlaps none of
+  # theirs, the excludes bind is a runtime arg (after every static one), and
+  # a later add-pkg-deps prepends to PATH, so the launcher's packages still
+  # come first. No default for sandboxGitIdentity: each caller chooses.
+  posture = {
+    sandboxGitIdentity,
+    hostDoctrine ? true,
+    blockSshGitPush ? true,
+    guardGit ? true,
+  }: c:
+    baseJailOptions c
+    ++ lib.optionals hostDoctrine (hostDoctrineOptions c)
+    ++ hostGitExcludesOptions c
+    ++ envOptions c
+    ++ lib.optionals blockSshGitPush (sshGitPushBlockOptions c)
+    ++ lib.optionals sandboxGitIdentity (gitIdentityOptions c)
+    ++ [
+      (c.add-pkg-deps (commonPkgs
+        ++ [
+          (
+            if guardGit
+            then guardedGit
+            else pkgs.git
+          )
+        ]))
+    ];
 
   gatewayJailFor = import ./gateway-jail.nix {
     inherit lib pkgs setenvsByArgsFd piGatewayModelsFor;
@@ -525,31 +579,19 @@
     };
 
     inner = jail "jailed-${name}" agent (
-      baseJailOptions
+      posture {inherit sandboxGitIdentity hostDoctrine blockSshGitPush guardGit;} jail.combinators
       ++ workspaceBinds
       # After the deps: bwrap mounts in argv order, so the project wins
       # /workspace/<project> over a dep that shares its basename (DEC-082).
       ++ launchDirOptions mountLaunchDir
       ++ profileOptions profile homeName
-      ++ lib.optionals hostDoctrine hostDoctrineOptions
-      ++ hostGitExcludesOptions
-      ++ envOptions
-      ++ lib.optionals blockSshGitPush sshGitPushBlockOptions
-      ++ lib.optionals sandboxGitIdentity gitIdentityOptions
+      ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
       ++ gatewayJail.options
       ++ [
         (jail.combinators.add-pkg-deps (
-          commonPkgs
-          ++ [
-            (
-              if guardGit
-              then guardedGit
-              else pkgs.git
-            )
-          ]
-          ++ extraPkgs
+          extraPkgs
           ++ [agent] # allow sub-agent invocation
           ++ subagentAgents # bare binaries the subagent wrappers exec
           ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
@@ -605,6 +647,8 @@ in
   makers
   // {
     inherit makeJailedAgent;
+    # The shared confinement: posture { sandboxGitIdentity; … } combinators.
+    inherit posture;
     inherit agentsByName; # unjailed binaries
     inherit (jail) combinators;
     # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".

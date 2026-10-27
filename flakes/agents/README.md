@@ -21,6 +21,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   [Gateway mode](#gateway-mode-gateway))
 - `quotientFormFamily` — quotient's per-call forms for a gateway client (see
   [quotient forms](#quotient-forms))
+- `posture` — the confinement every jail and every form gets, as a function of
+  a combinator set (see [quotient forms](#quotient-forms))
 - `satanMcpOptions` — a satan-mcp client, for `extraOptions`: the socket's
   directory `/run/user/1000/satan/mcp` read-only (never the socket file, whose
   inode satan-mcp replaces on restart), plus `XDG_RUNTIME_DIR` and
@@ -41,20 +43,25 @@ import the file or fetch the source.
 
 ### Sandbox defaults
 
-Every jail gets these **base** options regardless of profile:
+Every jail gets these **base** options regardless of profile. Those marked
+*posture* are also every quotient form's ([quotient forms](#quotient-forms)):
 
 - **Workspace mount** at `/workspace/<project>/` — host cwd bind-mounted rw,
   after any workspace deps, and the jail starts there. `mountLaunchDir = false` binds nothing and starts
   in `$HOME`, the persisted home.
-- **Timezone**, terminfo, `no-new-session`.
-- **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc.
-- **Host git excludes**, read-only. The launcher resolves the host user's
+- **Timezone**, `no-new-session` (*posture*), terminfo (launcher only: a form is
+  headless and sets `TERM=dumb`).
+- **Common CLI tools**: git, ripgrep, fd, jq, curl, coreutils, etc. (*posture*;
+  git is the guarded one unless `guardGit = false`). Also *posture*: the ssh
+  push block, the sandboxed git identity, `CLAUDE_CODE_SHELL` and
+  `UV_CACHE_DIR`.
+- **Host git excludes** (*posture*), read-only. The launcher resolves the host user's
   global excludes file as git does (`core.excludesFile`, else
   `$XDG_CONFIG_HOME/git/ignore`) and mounts it at `~/.config/git/ignore` in
   the jail — git's default excludes path, so no jail gitconfig is touched.
   Agents therefore don't stage what you ignore. Skipped if the file is absent;
   overridden if the jail's own `~/.gitconfig` sets `core.excludesFile`.
-- **Host doctrine** (`hostDoctrine`, default on), read-only. doctrine's own
+- **Host doctrine** (`hostDoctrine`, default on; *posture*), read-only. doctrine's own
   cargo install root, `~/.local/share/doctrine/bin`, holds only doctrine; that
   directory is bound at `/run/doctrine-bin`, which goes on `PATH`. A directory,
   not the file: `cargo install` renames a new file over the old one, and a file
@@ -546,6 +553,35 @@ formFamily = jailLib.quotientFormFamily {
 ```
 
 `network = false` is refused: the form reaches the gateway over TCP.
+
+**Posture.** A form's `options` are the lib's `posture`, then the caller's own
+`options` (IMP-052). The posture is the confinement half of
+[Sandbox defaults](#sandbox-defaults): host doctrine, host git excludes, the
+ssh push block, the sandboxed git identity, guarded git and the common tools.
+`makeJailedAgent` applies the same function to its own combinators, so the
+two cannot drift. `postureFlags` sets its flags; a form defaults
+`sandboxGitIdentity` to `true` (a form runs a delegate):
+
+```nix
+formFamily = jailLib.quotientFormFamily {
+  inherit quotient;
+  postureFlags.hostDoctrine = false;           # sandboxGitIdentity, blockSshGitPush, guardGit too
+  options = c: projectOptions c;               # the project half, after the posture
+};
+```
+
+- **Write the project half once**, as `c: [ … ]`, and pass it to both
+  builders: `options = projectOptions` here, `extraOptions = projectOptions
+  jailLib.combinators` in a jail. That holds because both take the combinator
+  set of this lib's jail.nix pin; go through `quotientFormFamily`, not
+  `mkFormFamily` with another pin.
+- **PATH**: quotient adds `packages` before `options`, so the posture's tools
+  (guarded git included) come before a form's `packages`. A project that needs
+  its own build of a common tool adds it with `c.add-pkg-deps` in `options`.
+- **The bwrap line stays plain words.** quotient's check refuses a process
+  substitution or `$(…)` on it, so the posture's launch-time binds (doctrine's
+  closure, the excludes file) are `add-runtime` code that appends to
+  `RUNTIME_ARGS`. The check lists them as runtime binds it cannot see.
 
 ### makeJailedAgent options
 

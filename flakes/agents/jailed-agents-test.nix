@@ -341,15 +341,35 @@
     y = withPi;
   };
 
+  # The posture over plain jail.nix combinators, as quotient's builder
+  # passes them (IMP-052), in a jail of its own.
+  plainJail = jail-nix.lib.extend {inherit pkgs;};
+  postureProbe = args: plainJail "posture-probe" pkgs.hello (agents.posture args plainJail.combinators);
+  postureFull = postureProbe {sandboxGitIdentity = true;};
+  postureBare = postureProbe {
+    sandboxGitIdentity = false;
+    hostDoctrine = false;
+    blockSshGitPush = false;
+    guardGit = false;
+  };
+
   # quotient's builder, stubbed to return what it was called with (IMP-046).
   stubQuotient.lib.mkFormFamily = args: args;
   formArgs = agents.quotientFormFamily {
     quotient = stubQuotient;
+    options = c: [(c.set-env "PROJECT_OPTION" "x")];
     prefix = "proj";
     packages = [pkgs.hello];
     env.EXTRA = "x";
     piFiles."settings.json" = pkgs.writeText "settings.json" "{}";
   };
+  # A form's options are the posture, then the caller's (IMP-052).
+  formProbe = args: plainJail "form-probe" pkgs.hello (args.options plainJail.combinators);
+  formFull = formProbe formArgs;
+  formNoDoctrine = formProbe (agents.quotientFormFamily {
+    quotient = stubQuotient;
+    postureFlags.hostDoctrine = false;
+  });
   piClient = agents.gatewayClient "pi";
   formNetworkOffFails =
     !(builtins.tryEval (agents.quotientFormFamily {
@@ -496,14 +516,17 @@ in
       HOME="$TMPDIR/probe-home" PATH="$guarded_bin:$PATH" \
         sh ${./git-guard.test.sh}
 
-      # Host excludes: mounted read-only at git's default excludes path,
-      # after (so on top of) the persisted home bind.
+      # Host excludes: mounted read-only at git's default excludes path, as a
+      # runtime arg, so after (on top of) the persisted home bind and off the
+      # bwrap line (quotient's form check refuses `$(` there, IMP-052).
       for launcher in "$spec" "$research" "$offline"; do
+        grep -q -- 'RUNTIME_ARGS+=(--ro-bind-try "$([^)]*-host-git-excludes-file)" "$HOME/.config/git/ignore")' "$launcher"
+        refute grep -Fq -- ' ~/.config/git/ignore' "$launcher"
         home_at="$(grep -bo -- '--bind ~/.local/share/jail.nix/home/[^ ]* ~' "$launcher" | cut -d: -f1)"
-        excl_at="$(grep -bo -- '--ro-bind-try "$([^)]*-host-git-excludes-file)" ~/.config/git/ignore' "$launcher" | cut -d: -f1)"
+        runtime_at="$(grep -boF -- '"''${RUNTIME_ARGS[@]}"' "$launcher" | cut -d: -f1)"
         test -n "$home_at"
-        test -n "$excl_at"
-        test "$excl_at" -gt "$home_at"
+        test -n "$runtime_at"
+        test "$runtime_at" -gt "$home_at"
       done
 
       # Host doctrine: the directory of its own install root, read-only and
@@ -514,6 +537,10 @@ in
         grep -Fq -- '--ro-bind-try ~/.local/share/doctrine/bin /run/doctrine-bin' "$launcher"
         grep -q -- '--setenv PATH [^ ]*/run/doctrine-bin' "$launcher"
         refute grep -Fq -- '/bin/doctrine ' "$launcher"
+        # Closure binds as runtime args, not a descriptor on the bwrap line.
+        grep -q -- 'mapfile -d .. -t doctrine_binds < <([^ ]*-elf-closure-binds ~/.local/share/doctrine/bin/doctrine)' "$launcher"
+        grep -Fq -- 'RUNTIME_ARGS+=("''${doctrine_binds[@]}")' "$launcher"
+        refute grep -Fq -- '--args 23' "$launcher"
       done
       refute grep -Fq -- 'doctrine' ${noHostDoctrine}/bin/jailed-zsh
 
@@ -536,6 +563,32 @@ in
       test "$(env -i HOME="$fake" XDG_CONFIG_HOME="$fake/xdg" "$resolver")" = "$fake/xdg/git/ignore"
       printf '[core]\n  excludesFile = ~/.gitignore_global\n' > "$fake/.gitconfig"
       test "$(env -i HOME="$fake" "$resolver")" = "$fake/.gitignore_global"
+
+      # The posture alone, over plain combinators: every part, and each
+      # flag removes its own.
+      full=${postureFull}/bin/posture-probe
+      bare=${postureBare}/bin/posture-probe
+      for marker in -git-guarded/bin /run/doctrine-bin -host-git-excludes-file \
+        GIT_SSH_COMMAND GIT_AUTHOR_NAME CLAUDE_CODE_SHELL /usr/bin/env; do
+        grep -Fq -- "$marker" "$full"
+      done
+      for marker in -git-guarded doctrine GIT_SSH_COMMAND GIT_AUTHOR_NAME; do
+        refute grep -Fq -- "$marker" "$bare"
+      done
+      grep -Fq -- '${pkgs.git}/bin' "$bare"
+      grep -Fq -- '-host-git-excludes-file' "$bare"
+      # Terminal settings are the launcher's: a quotient form is headless and
+      # sets TERM=dumb itself.
+      refute grep -Fq -- 'xterm-256color' "$full"
+      grep -Fq -- 'xterm-256color' "$spec"
+
+      # A form: the posture with sandboxed git identity on, then the
+      # caller's options; a posture flag reaches it.
+      form=${formFull}/bin/form-probe
+      for marker in -git-guarded/bin /run/doctrine-bin GIT_AUTHOR_NAME PROJECT_OPTION; do
+        grep -Fq -- "$marker" "$form"
+      done
+      refute grep -Fq -- 'doctrine' ${formNoDoctrine}/bin/form-probe
 
       refute grep -Fq -- '/home/david' "$spec"
       for launcher in "$spec" "$research" "$offline"; do
