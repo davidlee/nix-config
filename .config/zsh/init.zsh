@@ -23,8 +23,13 @@ setopt BEEP
 
 unsetopt FLOW_CONTROL
 
-# Integrations (atuin, carapace, direnv, eza, fzf, oh-my-posh, television,
-# yazi, lazygit) are set up by home-manager in .zshrc, after this file.
+# Prompt: powerlevel10k (antidote bundle), not oh-my-posh; the zsh feature
+# opts zsh out of oh-my-posh's integration.
+[[ ! -f ~/.config/zsh/_p10k.zsh ]] || source ~/.config/zsh/_p10k.zsh
+export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+
+# Integrations (atuin, carapace, direnv, eza, fzf, television, yazi, lazygit)
+# are set up by home-manager in .zshrc, after this file.
 
 ## Antidote
 zstyle ':antidote:bundle' use-friendly-names 'yes'

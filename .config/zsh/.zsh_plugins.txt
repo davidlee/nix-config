@@ -1,6 +1,8 @@
 mattmc3/ez-compinit
 zsh-users/zsh-completions kind:fpath path:src
 
+romkatv/powerlevel10k
+
 getantidote/use-omz
 ohmyzsh/ohmyzsh path:lib
 ohmyzsh/ohmyzsh path:plugins/colored-man-pages

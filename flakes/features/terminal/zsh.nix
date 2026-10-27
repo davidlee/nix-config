@@ -4,6 +4,9 @@
   config,
   ...
 }: {
+  # zsh draws its own prompt: powerlevel10k, ~/.config/zsh/_p10k.zsh.
+  programs.oh-my-posh.enableZshIntegration = false;
+
   # using antidote vanilla because it's easier to reason about
   programs.zsh = {
     enable = true;
