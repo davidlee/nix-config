@@ -41,7 +41,9 @@ wrapper and every bind come from, so a regression lands here first.
 
 A guard for known paths, not proof of SPEC-002 NF-004: indirection
 (`B=/run; --bind "$B"`), runtime-generated args (`elf-closure-binds`,
-`printf` process substitutions), helpers not named `-jailed-`.
+`printf` process substitutions), helpers not named `-jailed-`. Posture
+parts that append to `RUNTIME_ARGS` (IMP-052: host doctrine, git excludes)
+are read as code, not as the paths they compute.
 
 Related: IMP-045 (refactor pass over the jail library), satan ISS-028, RSK-021.
 
@@ -114,3 +116,17 @@ Then CHR-023: satan's form, satan-corpus and panopticon finish there.
    satan-corpus's devshell identical. Every other consumer devshell
    evaluates against the new lib. `_SDLC` comments `5837f22`. `just gate`
    green.
+3. Done, `24177d47`. `agents/jail-scan.nix`: `mkJailScanCheck { name,
+   launchers, literals, tokens, controlBind }` (satan's walker and control,
+   moved as is; the check's output is its summary line) and
+   `opUnjailed launchers`, exported from `mkJailedAgents`. Tests: the preset
+   passes over 9 test jails (20 scripts), fails over a `/run`-bound twin
+   (`testBuildFailure`, names the argument), and a custom scan passes.
+   README § Jail scan.
+4. Written, uncommitted in satan: its walker goes; `op-unjailed` is
+   `jailLib.opUnjailed (lib.attrValues jailPkgs)`, `runner-socket-unjailed`
+   a `mkJailScanCheck` call. Against the local lib both scan 27 scripts
+   clean, as HEAD's walker does. Waits on a push of `~/flakes` and a relock
+   of satan's agents input: the locked lib lacks `opUnjailed`.
+5. Done: screwtape DEC-013 consequences amended (`0103779`); known limits
+   above.
