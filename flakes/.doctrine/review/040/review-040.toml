@@ -1,0 +1,254 @@
+id    = 40
+slug  = "reconciliation-review-of-sl-018"
+title = "reconciliation review of SL-018"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-018 against locked design.md (sec-2 API, sec-3 order,
+sec-5 verification, sec-6 rollout), DEC-081/082 and plan PHASE-01/02 EX/VT.
+Evidence: diff bdc8a72f..adb782ac and ~/.config/emacs 94a1f9e; slice
+conformance (ISS-005-adjusted); just test, just gate, doctrine check gate
+green; three mutants killed; Emacs and template launchers built and their
+bind order read; tracked *.md grep for stale binding prose; consumer scan of
+~/dev/*, ~/satan-corpus, ~/notes.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-018"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Expected tracked docs to say workspace deps bind ro; SATAN.md says rw"
+detail = """
+Expected: after DEC-081 every tracked description of `workspaceDeps` binding
+says read-only, with rw via `workspaceDepsRw`.
+Observed: SATAN.md:149-150 "binds each `workspaceDeps` entry rw at
+/workspace/<basename>"; the host→jail table (:159-164) lists satan dev-jail and
+corpus-jail deps (notes, behaviour, flakes, attrd, panopticon, satan) as rw.
+Those come from satan's and satan-corpus's static `workspaceDeps`, which now
+bind ro (both read ~/flakes/agents live). grep over tracked *.md found no
+other stale description (agents/README.md updated in PHASE-02).
+"""
+disposition = "fix-now"
+response = """
+SATAN.md § Jails updated: the library sentence says workspaceDeps ro,
+workspaceDepsRw rw, both before the launch dir (DEC-081, DEC-082). Table
+cells for satan dev jails and corpus jails that come from static
+workspaceDeps now read ro†, with a footnote: rw before SL-018, moves to
+workspaceDepsRw under CHR-023. Prod-harness column untouched (its binds are
+explicit, not workspaceDeps).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+SATAN.md § Jails updated: the library sentence says workspaceDeps ro,
+workspaceDepsRw rw, both before the launch dir (DEC-081, DEC-082). Table
+cells for satan dev jails and corpus jails that come from static
+workspaceDeps now read ro†, with a footnote: rw before SL-018, moves to
+workspaceDepsRw under CHR-023. Prod-harness column untouched (its binds are
+explicit, not workspaceDeps).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "Expected CHR-023 to list every live consumer; it lists six, seven more exist"
+detail = """
+Expected (design sec-6, plan PHASE-02 EX-4): CHR-023 carries the deps of each
+consumer whose writes the flip can break.
+Observed: CHR-023 lists doctrine, panopticon, satan, goad,
+org-incremental-writing, satan-attrd (the set design sec-6 named). A scan of
+~/dev/*, ~/satan-corpus, ~/notes for `workspaceDeps =` or
+JAIL_WORKSPACE_DEPS finds more agents consumers, all but notes on the live
+`use flake_local` .envrc (so already ro):
+- satan-corpus: .emacs.d, notes, goad, oubliette, panopticon, satan-attrd,
+  satan, satan-patcher (SATAN.md says corpus jails write notes and satan)
+- bough, vk: .emacs.d
+- forgettable: .emacs.d; env doctrine, superpowers, flakes
+- spec-driver: autobahn; env doctrine
+- _SDLC: the template placeholder /home/you/dev/some-lib
+- notes (locked, not live): ~/.config/emacs
+The design's consumer list was incomplete, so EX-4 was met against a short list.
+"""
+disposition = "fix-now"
+response = """
+CHR-023 body extended with the seven extra consumers and their deps
+(satan-corpus, bough, vk, forgettable, spec-driver, _SDLC, notes), flagging
+satan-corpus notes/satan as likely rw. design.md sec-6's consumer list is
+also short; reconcile brings it in line (brief, per-slice).
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+CHR-023 body extended with the seven extra consumers and their deps
+(satan-corpus, bough, vk, forgettable, spec-driver, _SDLC, notes), flagging
+satan-corpus notes/satan as likely rw. design.md sec-6's consumer list is
+also short; reconcile brings it in line (brief, per-slice).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Expected design sec-5 VA on a template launcher; PHASE-02 inspected the Emacs flake"
+detail = """
+Expected (design sec-5): "A built launcher from the template inspected:
+--ro-bind for a workspaceDeps entry, --bind for a workspaceDepsRw entry,
+launch dir last (VA)".
+Observed: plan PHASE-02 VA-1 moved the check to the Emacs devshell flake, which
+was done; the template itself was never built in either phase. The template's
+lists are empty placeholders, so its inherits were unexercised.
+Audit evidence: copied the template to scratch, set one entry in each list,
+built jailed-pi with agents overridden to ~/flakes/agents. Launcher:
+`--ro-bind /tmp/tpl-ro-dep /workspace/tpl-ro-dep` @2767,
+`--bind /tmp/tpl-rw-dep /workspace/tpl-rw-dep` @2815, `--bind "$PWD"` @2860.
+Behaviour holds; the design and the plan disagree on where the VA runs.
+"""
+disposition = "design-wrong"
+response = """
+Behaviour verified at audit (template built with one ro and one rw entry:
+ro, rw, launch dir in that order). The defect is the design/plan split on
+where the VA runs: design sec-5 names the template, plan PHASE-02 VA-1 the
+Emacs flake. Reconcile: design sec-5 names both — the Emacs flake as the
+real-consumer VA, the template build as audit evidence (RV-040 F-3). Plan
+criteria are immutable and stay as written.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Behaviour verified at audit (template built with one ro and one rw entry:
+ro, rw, launch dir in that order). The defect is the design/plan split on
+where the VA runs: design sec-5 names the template, plan PHASE-02 VA-1 the
+Emacs flake. Reconcile: design sec-5 names both — the Emacs flake as the
+real-consumer VA, the template build as audit evidence (RV-040 F-3). Plan
+criteria are immutable and stay as written.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "nit"
+title = "Expected conformance to show the delivered paths conformant; all read undeclared/undelivered"
+detail = """
+Expected: README, template, three agents files and justfile conformant to their
+design-target selectors.
+Observed: `doctrine slice conformance 18` reports those six as undeclared
+(git paths `flakes/…`) and the six selectors as undelivered; conformant (0).
+The two sets are the same files modulo the `flakes/` prefix (ISS-005, worktree
+is $HOME). The remaining undeclared entries are .doctrine workflow artefacts
+(notes, CHR-023 body, a memory). Real path conformance: complete; nothing
+outside the declared set changed in the repo. The Emacs flake is outside the
+repo by design (sec-4, "no selector").
+"""
+disposition = "aligned"
+response = """
+Path-prefix misattribution, tracked as ISS-005; the delivered set equals the
+declared set modulo `flakes/`. Nothing to change in this slice.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Path-prefix misattribution, tracked as ISS-005; the delivered set equals the
+declared set modulo `flakes/`. Nothing to change in this slice.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "Expected the slice to pass through started; it went ready -> audit"
+detail = """
+Expected (/execute step 4): first phase starting moves the slice to `started`.
+Observed: never flipped; `doctrine slice status 18 audit` recorded
+"ready → audit [skip]". Phase status was kept current throughout
+(in_progress / completed with code oids), so only the slice-level timestamp
+for started is missing.
+"""
+disposition = "tolerated"
+response = """
+The missed `started` flip loses one slice-level timestamp; phase records
+(in_progress/completed, code oids bdc8a72f) and commits carry the real
+history, and nothing gates on `started`. Rewriting lifecycle history after the
+fact would be less honest than the recorded skip.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+The missed `started` flip loses one slice-level timestamp; phase records
+(in_progress/completed, code oids bdc8a72f) and commits carry the real
+history, and nothing gates on `started`. Rewriting lifecycle history after the
+fact would be less honest than the recorded skip.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

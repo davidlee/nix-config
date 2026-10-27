@@ -147,7 +147,8 @@ Humans read the store directly as `david`; no agent process holds the token.
 
 Library `agents/jailed-agents.nix` (bwrap via jail.nix). Every jail binds the
 launcher's `$PWD` **rw** at `/workspace/$(basename $PWD)` and chdirs there
-(`:115-116`); binds each `workspaceDeps` entry rw at `/workspace/<basename>`;
+(`:115-116`); binds each `workspaceDeps` entry ro and each `workspaceDepsRw`
+entry rw at `/workspace/<basename>`, before the launch dir (DEC-081, DEC-082);
 persists `$HOME` from `~/.local/share/jail.nix/home/<profile-home>` (`specDev`
 → `agent`, shared by the harness and every interactive dev jail).
 
@@ -156,15 +157,17 @@ persists `$HOME` from `~/.local/share/jail.nix/home/<profile-home>` (`specDev`
 | Host path | prod harness `jailed-satan-gptel-harness` | satan dev jails (`~/dev/satan` flake) | corpus jails (`~/satan-corpus` flake) |
 |---|---|---|---|
 | launcher cwd | `/workspace/<run-id>` rw — the run dir (broker sets it, ISS-037) | `/workspace/satan` | `/workspace/satan-corpus` |
-| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` rw (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) |
-| `~/notes` | `/satan/notes` ro | `/workspace/notes` **rw** | `/workspace/notes` rw |
+| `~/dev/satan` | `/workspace/satan` **rw** ("Migration !!") | cwd | `/workspace/satan` ro† (CHR-010: `workspaceDeps` basename mount, alongside the legacy `satan-src` ro-bind) |
+| `~/notes` | `/satan/notes` ro | `/workspace/notes` ro† | `/workspace/notes` ro† |
 | `~/satan-corpus` | only `hippocampus/` → `/satan/hippocampus` | `/workspace/satan-corpus` rw | cwd (`/workspace/satan-corpus`) |
 | run dir | `/satan/run` | — | — |
-| `~/.local/state/behaviour` | — | `/workspace/behaviour` rw | — |
-| `~/flakes`, attrd, panopticon repos | — | `/workspace/<name>` rw | — |
+| `~/.local/state/behaviour` | — | `/workspace/behaviour` ro† | — |
+| `~/flakes`, attrd, panopticon repos | — | `/workspace/<name>` ro† | — |
 | MCP socket, Emacs server socket | — | same path, rw | MCP only | — |
 
 Sources: `~/dev/satan/flake.nix:70-148, 213-289`; `~/satan-corpus/flake.nix:55-66`.
+† rw before SL-018. These flakes list the path in `workspaceDeps`, now
+read-only; the ones their jails write move to `workspaceDepsRw` under CHR-023.
 Other repos' dev
 jails differ again: satan-attrd adds `/run/postgresql` + the docker socket;
 goad adds `~/.local/src/slint` → `/workspace/slint` ro; panopticon adds the

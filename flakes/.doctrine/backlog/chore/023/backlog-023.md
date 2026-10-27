@@ -48,3 +48,19 @@ in both its static deps and its `.envrc`.
 goad: the `~` in its `.envrc` is literal inside double quotes, so the path is
 relative and the jail refuses evaluation. That predates SL-018; use
 `$HOME/.local/src/slint`.
+
+More consumers on the same flip, found at audit (RV-040 F-2), all on the live
+`use flake_local agents` `.envrc` unless shown:
+
+| repo | static `workspaceDeps` | `.envrc` `JAIL_WORKSPACE_DEPS` |
+|---|---|---|
+| satan-corpus | .emacs.d, notes, goad, oubliette, panopticon, satan-attrd, satan, satan-patcher | — |
+| bough | .emacs.d | — |
+| vk | .emacs.d | — |
+| forgettable | .emacs.d | doctrine, ~/.local/src/superpowers, flakes |
+| spec-driver | autobahn | doctrine |
+| _SDLC | `/home/you/dev/some-lib` (template placeholder) | — |
+| notes (locked, flips at its next agents bump) | ~/.config/emacs | — |
+
+Likely rw: satan-corpus's `notes` and `satan` (SATAN.md § Jails: corpus jails
+write both).
