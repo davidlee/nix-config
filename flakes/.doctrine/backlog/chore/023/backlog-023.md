@@ -64,3 +64,24 @@ More consumers on the same flip, found at audit (RV-040 F-2), all on the live
 
 Likely rw: satan-corpus's `notes` and `satan` (SATAN.md § Jails: corpus jails
 write both).
+
+## Write-fix done early (2026-10-27)
+
+The first part of W5, done ahead of IMP-047 and IMP-051 so that jails which
+write their deps work again. Uncommitted in each repo:
+
+| repo | moved to `workspaceDepsRw` | still ro |
+|---|---|---|
+| satan-corpus | `~/notes`, `~/dev/satan` | .emacs.d, goad, oubliette, panopticon, satan-attrd, satan-patcher |
+| org-incremental-writing | `~/notes` | .emacs.d |
+| satan | `.local/state/behaviour` (handed to satan-d4, which owns the flake rework) | `notes`: the user ruled satan does not write it, so the `.envrc` entry stays |
+
+Verified against the live agents lib (`--override-input agents
+path:~/flakes/agents`). Each built jail's wrapper has `--bind` for the rw deps
+and `--ro-bind` for the rest.
+
+Found on the way: satan-corpus's `jailed-pi-emacs` builds as
+`jailed-jailed-pi-emacs`. It passes `name = "jailed-pi-emacs"`, and the maker
+adds the prefix again. Fix it with the W5 migration.
+
+The rest of CHR-023 still waits for IMP-047 and IMP-051.
