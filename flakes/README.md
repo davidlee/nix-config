@@ -244,8 +244,8 @@ features/
   graphics.nix        [ paint modelling color cad ]
   comms.nix           [ chat mail feeds ]
   fun.nix             [ toys ]
-  terminal.nix        [ emulators utils zsh nushell amenities ]  zsh owns the login shell; nushell requires amenities
-  terminal/           zsh.nix  nushell.nix  amenities.nix   the records' home modules
+  terminal.nix        [ emulators utils zsh nushell amenities oh-my-posh ]  zsh owns the login shell; nushell requires amenities
+  terminal/           zsh.nix  nushell.nix  amenities.nix  oh-my-posh.json   the records' home modules; the prompt theme
   attention.nix       [ (import ./attention/behaviour.nix {inherit lib;}) nudge goad ]
   attention/          behaviour.nix  nudge/           the behaviour record; nudge's scripts, run from the checkout
   satan.nix           [ harness attrd runner ] each its own file under satan/
@@ -350,8 +350,8 @@ sandboxing and zsh are features: a NixOS host that does not select
 
 The **home base** (`modules/home/default.nix`) holds direnv and the base
 cli. The shells are features (`terminal.zsh`, `terminal.nushell`), and so
-are the tools they share (`terminal.amenities`: prompt, completion, history,
-zoxide, fzf). Each tool hooks into whichever shells are selected: Home
+are the tools they share (`terminal.amenities`: completion, history, zoxide,
+fzf; `terminal.oh-my-posh`: the prompt). Each tool hooks into whichever shells are selected: Home
 Manager's `enable<Shell>Integration` defaults on and only acts on an enabled
 `programs.<shell>`, so a module sets one only to differ from that default. Each `home.nix` imports exactly one platform layer over it:
 

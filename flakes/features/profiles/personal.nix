@@ -44,4 +44,5 @@
   feature.terminal.zsh.enable = lib.mkDefault true;
   feature.terminal.nushell.enable = lib.mkDefault true;
   feature.terminal.amenities.enable = lib.mkDefault true;
+  feature.terminal.oh-my-posh.enable = lib.mkDefault true;
 }

@@ -7,16 +7,6 @@
   programs = {
     carapace.enable = true;
     zoxide.enable = true;
-
-    # this was a piece of shit to get working
-    # should do something neater than a hacked version of M365Princess theme
-    # but I lost enthusiasm
-    oh-my-posh = {
-      enable = true;
-      settings = builtins.fromJSON (
-        builtins.readFile ../../files/omp.custom.json
-      );
-    };
     eza = {
       enable = true;
       enableNushellIntegration = true; # off by default: shadows nu's ls

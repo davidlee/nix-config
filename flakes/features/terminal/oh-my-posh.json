@@ -1,0 +1,102 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "version": 4,
+  "final_space": true,
+  "palette": {
+    "white": "#FFFFFF",
+    "plum": "#9A348E",
+    "blush": "#DA627D",
+    "salmon": "#FCA17D",
+    "sky": "#86BBD8",
+    "teal_blue": "#33658A",
+    "red": "#E03A3A"
+  },
+  "blocks": [
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "segments": [
+        {
+          "type": "session",
+          "style": "diamond",
+          "foreground": "p:white",
+          "background": "p:plum",
+          "leading_diamond": "",
+          "template": "{{ .UserName }} "
+        },
+        {
+          "type": "path",
+          "style": "powerline",
+          "foreground": "p:white",
+          "background": "p:blush",
+          "powerline_symbol": "",
+          "options": {
+            "style": "fish",
+            "max_depth": 3,
+            "dir_length": 3,
+            "full_length_dirs": 3,
+            "mapped_locations": {
+              "~/dev": " ",
+              "~/flakes": " ",
+              "~/Downloads": "󰇚",
+              "~/.config/emacs": "",
+              "~/notes": "󱇗"
+            }
+          },
+          "template": " {{ .Path }} "
+        },
+        {
+          "type": "git",
+          "style": "powerline",
+          "foreground": "p:white",
+          "background": "p:salmon",
+          "powerline_symbol": "",
+          "options": {
+            "branch_icon": "",
+            "fetch_status": false,
+            "fetch_upstream_icon": true
+          },
+          "template": " ➜ ({{ .UpstreamIcon }}{{ .HEAD }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }}) "
+        },
+        {
+          "type": "node",
+          "style": "powerline",
+          "foreground": "p:white",
+          "background": "p:sky",
+          "powerline_symbol": "",
+          "template": "  {{ if .PackageManagerIcon }}{{ .PackageManagerIcon }} {{ end }}{{ .Full }} "
+        },
+        {
+          "type": "time",
+          "style": "diamond",
+          "foreground": "p:white",
+          "background": "p:teal_blue",
+          "trailing_diamond": "",
+          "options": {
+            "time_format": "15:04"
+          },
+          "template": " ♥ {{ .CurrentDate | date .Format }}"
+        }
+      ]
+    },
+    {
+      "type": "prompt",
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "type": "status",
+          "style": "plain",
+          "foreground": "p:teal_blue",
+          "foreground_templates": [
+            "{{ if gt .Code 0 }}p:red{{ end }}"
+          ],
+          "options": {
+            "always_enabled": true
+          },
+          "template": "❯"
+        }
+      ]
+    }
+  ]
+}

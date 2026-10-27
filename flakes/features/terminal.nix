@@ -80,9 +80,22 @@ in [
   }
 
   {
-    # Interactive tools shared by the shells (prompt, completion, history,
-    # jump, fuzzy find); each hooks into whichever shell records are selected.
+    # Interactive tools shared by the shells (completion, history, jump, fuzzy
+    # find); each hooks into whichever shell records are selected.
     name = "amenities";
     homeManager = {imports = [./terminal/amenities.nix];};
+  }
+
+  {
+    # The prompt, in every selected shell; theme beside it, derived from
+    # oh-my-posh's M365Princess. Preview an edit without a switch:
+    #   oh-my-posh print primary --config features/terminal/oh-my-posh.json
+    name = "oh-my-posh";
+    homeManager = {
+      programs.oh-my-posh = {
+        enable = true;
+        configFile = ./terminal/oh-my-posh.json;
+      };
+    };
   }
 ]
