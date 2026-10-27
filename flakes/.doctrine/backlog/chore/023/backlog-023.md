@@ -72,7 +72,7 @@ write their deps work again. Uncommitted in each repo:
 
 | repo | moved to `workspaceDepsRw` | still ro |
 |---|---|---|
-| satan-corpus | `~/notes`, `~/dev/satan` | .emacs.d, goad, oubliette, panopticon, satan-attrd, satan-patcher |
+| satan-corpus | none: someone else's edit at 11:53 put `~/notes` and `~/dev/satan` back to ro (the file was also reformatted) | all |
 | org-incremental-writing | `~/notes` | .emacs.d |
 | satan | `.local/state/behaviour` (handed to satan-d4, which owns the flake rework) | `notes`: the user ruled satan does not write it, so the `.envrc` entry stays |
 
@@ -85,3 +85,8 @@ Found on the way: satan-corpus's `jailed-pi-emacs` builds as
 adds the prefix again. Fix it with the W5 migration.
 
 The rest of CHR-023 still waits for IMP-047 and IMP-051.
+
+satan-corpus, later the same day: its rw move was reverted by someone else's
+edit, deliberately as far as can be told (my comment and an empty
+`workspaceDepsRw` were kept). Its jail rename (`jailed-pi-emacs` →
+`pi-emacs`, IMP-045 step 5) is done, uncommitted there.

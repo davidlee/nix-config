@@ -258,6 +258,9 @@
   # persistedHome is spliced unescaped into a path and shell: the twin is
   # homeOffline, differing only in the name.
   badHomeFails = failsToEvaluate (inner "offline" {persistedHome = "../escape";});
+  # The maker adds the prefix: "jailed-pi-x" would build jailed-jailed-pi-x.
+  # Twin: knownSubagent, a custom name without it.
+  prefixedNameFails = failsToEvaluate (agents.makeJailedPi {name = "jailed-pi-x";});
 
   gatewayData = import ./gateway.nix;
 
@@ -350,6 +353,7 @@ in
   assert crossListDuplicateFails;
   assert homeOffline.drvPath != "";
   assert badHomeFails;
+  assert prefixedNameFails;
   assert gatewayLazySecrets.drvPath != "";
   assert gatewayEmptyKeys.drvPath != "";
   assert gatewayWithKeysFails;

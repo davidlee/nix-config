@@ -1,40 +1,38 @@
 # Centralised jailed LLM agent definitions.
 #
-# Each agent (pi, crush, opencode, claude, codex, gemini, eca, zerostack, dirge) can run under any sandbox profile.
-# Profiles control persistence, networking, and policy defaults;
-# agent wrappers remain thin.
+# makeJailedAgent runs an agent (pi, crush, opencode, claude, codex, gemini,
+# eca, zerostack, dirge; makeJailed<Name> for each) in a bubblewrap jail under
+# a profile (specDev, research, offline), which sets the network, the
+# persisted home and some policy defaults. Pieces with their own file:
+# workspace-binds.nix (sibling repos at /workspace/<name>) and gateway-jail.nix.
 #
-# Secret injection:
-#   When `useOpEnv = true` (default for online profiles), the resulting
-#   binary wraps the bwrap launch in `op run --env-file=<refs>` so
-#   1Password resolves API key op:// refs on the host (with biometric /
-#   desktop unlock) and injects the plaintext values into the launcher's
-#   own process env, where `/proc/<pid>/environ` keeps them 0600 and
-#   owner-only. The values are then forwarded through bwrap into the
-#   agent over `--args FD` (see apiKeyPassThrough).
+# Model access, two ways:
 #
-#   Secrets never sit on disk, and — since the FD rework — never sit in
-#   argv either. The two are NOT the same guarantee: this code forwarded
-#   keys as `--setenv VAR "$VAR"` on the bwrap command line until
-#   2026-08-11, which put every configured key in plaintext into
-#   world-readable `/proc/<pid>/cmdline` for the jail's whole lifetime.
-#   Off-disk is not off-limits; treat argv as public.
-#
-#   Callers that already cache resolved secrets in their own process
-#   (e.g. an Emacs broker with a per-session cache) should set
-#   `useOpEnv = false; passApiKeysFromEnv = true;` — the outer `op run`
-#   is skipped, but the FD forwarding still copies plaintext from the
-#   caller's env into the jail.
-#
-#   Gateway mode (`gateway = { … }`, opt-in) replaces all of that: no
-#   provider key and no `op run`. The jail gets one gateway key, read from
-#   a file by a shell builtin and forwarded over its own `--args FD`, and
-#   the gateway's URL; a thin wrapper names the fix when either is missing.
-#   With pi in the jail, gateway mode also binds a generated, read-only
+#   Gateway mode (`gateway = { … }`; the agents template's default): no
+#   provider key and no `op run`. The jail gets one gateway key, read from a
+#   file by a shell builtin and forwarded over its own `--args FD`, and the
+#   gateway's URL; a thin wrapper names the fix when either is missing. With
+#   pi in the jail, it also binds a generated, read-only
 #   `~/.pi/agent/models.json` (one provider, `llm-gateway`).
 #
+#   Provider keys (`apiKeys`; IMP-051 retires this): with `useOpEnv = true`
+#   (the online profiles' default), the binary wraps the bwrap launch in
+#   `op run --env-file=<refs>`, so 1Password resolves the op:// refs on the
+#   host and injects the plaintext into the launcher's own env, where
+#   `/proc/<pid>/environ` keeps them 0600 and owner-only. They are then
+#   forwarded into the agent over `--args FD` (see apiKeyPassThrough). A
+#   caller that already holds resolved secrets (e.g. an Emacs broker) sets
+#   `useOpEnv = false; passApiKeysFromEnv = true;`: no `op run`, the same
+#   forwarding.
+#
+#   Either way secrets never sit on disk or in argv. Those are NOT the same
+#   guarantee: until 2026-08-11 keys went as `--setenv VAR "$VAR"` on the
+#   bwrap command line, in plaintext in world-readable `/proc/<pid>/cmdline`
+#   for the jail's whole lifetime. Off-disk is not off-limits; treat argv as
+#   public.
+#
 # Usage:
-#   makeJailedPi { profile = "specDev"; extraPkgs = [ go ]; }
+#   makeJailedPi { profile = "specDev"; gateway = gatewayClient "pi"; }
 #   makeJailedAgent { name = "foo"; agent = foo-pkg; profile = "research"; }
 {
   pkgs,
@@ -265,7 +263,8 @@
     (set-env "GIT_ASKPASS" "")
   ];
 
-  termOptions = with jail.combinators; [
+  # Environment every jail gets.
+  envOptions = with jail.combinators; [
     (set-env "TERM" "xterm-256color")
     (set-env "COLORTERM" "truecolor")
     (set-env "TERMINFO_DIRS" "${pkgs.ncurses}/share/terminfo")
@@ -279,11 +278,8 @@
     # host-stable path would be silently ignored. Inert for non-claude agents,
     # and a bad value only falls back to auto-detection — it cannot hard-break.
     (set-env "CLAUDE_CODE_SHELL" "${pkgs.bashInteractive}/bin/bash")
-  ];
-
-  packageManagerOptions = with jail.combinators; [
+    # Package-manager caches in the project, not the persisted home.
     (set-env "UV_CACHE_DIR" ".uv-cache")
-    # TODO: npm, pnpm, bun, cargo, ...
   ];
 
   # `elf-closure-binds BINARY`: bwrap args, NUL-separated for `--args FD`,
@@ -512,8 +508,7 @@
       ++ profileOptions profile homeName
       ++ lib.optionals hostDoctrine hostDoctrineOptions
       ++ hostGitExcludesOptions
-      ++ termOptions
-      ++ packageManagerOptions
+      ++ envOptions
       ++ lib.optionals blockSshGitPush sshGitPushBlockOptions
       ++ lib.optionals sandboxGitIdentity gitIdentityOptions
       ++ lib.optionals exposePostgres postgresOptions
@@ -558,18 +553,13 @@
     '';
   in
     assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";
-    assert builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName
-    != null
+    assert !(lib.hasPrefix "jailed-" name) || throw "jailed-${name}: the maker adds the jailed- prefix; pass name = \"${lib.removePrefix "jailed-" name}\"";
+    assert (builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName != null)
     || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
-    assert unknownApiKeys
-    == []
-    || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
-    assert (subagentNames == [])
-    || maxSubagentDepth > 0
-    || throw "maxSubagentDepth must be > 0 when subagents are exposed";
-    assert gateway
-    == null
-    || selectedApiKeys == []
+    assert (unknownApiKeys == []) || throw "Unknown API key(s) for jailed-${name}: ${lib.concatStringsSep ", " unknownApiKeys}";
+    assert (subagentNames == []) || (maxSubagentDepth > 0) || throw "maxSubagentDepth must be > 0 when subagents are exposed";
+    assert (gateway == null)
+    || (selectedApiKeys == [])
     || throw "jailed-${name}: gateway mode carries no provider keys; drop apiKeys (${lib.concatStringsSep ", " selectedApiKeys})";
       if gateway != null
       then gatewayJail.wrap inner
