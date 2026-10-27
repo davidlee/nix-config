@@ -141,7 +141,7 @@ same lock; both forms build; the check passes; `doctrine-quotient-read
 (host doctrine, ssh-push block, git identity, guarded git), both forwards,
 `TERM=dumb` and the gateway.
 
-Operator steps (not done here; the classifier refused them):
+Operator steps, done by the user (2026-10-27):
 `just quotient-forms` in doctrine (installs the new forms at the policy's
 paths) and `exposure: []` in `~/.config/quotient/doctrine.policy.json` (was
 `["~/.local/share/jail.nix/home/agent"]`, now unused).
