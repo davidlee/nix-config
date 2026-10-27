@@ -259,15 +259,15 @@ The pin lives in `agents/flake.lock`. Bump it once:
 cd ~/flakes/agents && nix flake update llm-agents
 ```
 
-Projects whose `.envrc` uses `use flake_local agents` (or `use flake_pub` for
-an input still named `pub`; template:
-`_templates/agents/_envrc`; helper: direnv stdlib in
-`modules/home/programs.nix`) read this flake live via `--override-input`, so
-the bump lands on their next direnv reload — no per-project lock update. The
+Projects whose `.envrc` uses `use agents_dev` (template:
+`_templates/agents/_envrc`; helper: `envrc/agents.sh`, sourced by the
+`.envrc`) read this flake live via `--override-input`, so the bump lands on
+their next direnv reload — no per-project lock update. The helper evaluates
+impurely only when `JAIL_WORKSPACE_DEPS` or `JAIL_WORKSPACE_DEPS_RW` is set:
+those are read with `getEnv`, which a pure evaluation answers with "". The
 host picks it up on `nix flake update agents` + `just home-switch`.
 Plain `nix develop`, CI, and other machines use the project's committed lock;
-refresh that with `nix flake update agents` (or `pub`, for consumers not yet
-migrated).
+refresh that with `nix flake update agents`.
 
 Then from the project directory:
 

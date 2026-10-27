@@ -1,8 +1,8 @@
-# Copy to .envrc. `use flake_local agents` reads ~/flakes/agents live, not
-# from flake.lock, so agent bumps land on the next reload (helper: direnv
-# stdlib in ~/flakes/modules/home/programs.nix). Elsewhere: plain flake.
-if declare -F use_flake_local >/dev/null; then
-  use flake_local agents --impure
-else
-  use flake . --impure
-fi
+# Copy to .envrc. `use agents_dev` reads ~/flakes/agents live, not from
+# flake.lock, so agent bumps land on the next reload, and evaluates impurely
+# only when JAIL_WORKSPACE_DEPS(_RW) is set (helper: ~/flakes/envrc/agents.sh).
+# Elsewhere: plain flake.
+# export JAIL_WORKSPACE_DEPS="$HOME/dev/some-lib"     # machine-local, read-only
+# export JAIL_WORKSPACE_DEPS_RW="$HOME/notes"         # machine-local, writable
+source_env_if_exists ~/flakes/envrc/agents.sh
+if has use_agents_dev; then use agents_dev; else use flake .; fi

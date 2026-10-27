@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Behaviour tests for agents.sh, with direnv's stdlib stubbed: `use` prints the
+# words it was given, `watch_file` and `log_status` record theirs.
+#
+#   ./agents-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [[ $2 == "$3" ]]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n  expected: %s\n  actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# envrc <cmd>… — run cmd after sourcing agents.sh, with HOME at a fake home
+# holding ~/flakes/{agents,emacs}; prints what `use` was given.
+# shellcheck disable=SC2329 # the stubs are called by agents.sh
+envrc() {
+  (
+    export HOME=$tmp/home
+    use() { echo "use $*"; }
+    watch_file() { :; }
+    log_status() { echo "log $*" >&2; }
+    # shellcheck source=/dev/null
+    source "$here/agents.sh"
+    "$@"
+  )
+}
+
+mkdir -p "$tmp/home/flakes/agents" "$tmp/home/flakes/emacs"
+live="--override-input agents path:$tmp/home/flakes/agents"
+
+# ------------------------------------------------------------------ tests
+
+unset JAIL_WORKSPACE_DEPS JAIL_WORKSPACE_DEPS_RW
+
+check 'no deps: live agents, pure' \
+  "use flake . $live" "$(envrc use_agents_dev)"
+
+check 'ro deps: impure, so the jail sees them' \
+  "use flake . $live --impure" "$(JAIL_WORKSPACE_DEPS=/x envrc use_agents_dev)"
+
+check 'rw deps: impure' \
+  "use flake . $live --impure" "$(JAIL_WORKSPACE_DEPS_RW=/x envrc use_agents_dev)"
+
+check 'empty deps: pure' \
+  "use flake . $live" "$(JAIL_WORKSPACE_DEPS='' envrc use_agents_dev)"
+
+check 'named inputs replace the default' \
+  "use flake . $live --override-input emacs path:$tmp/home/flakes/emacs" \
+  "$(envrc use_agents_dev agents emacs)"
+
+check 'flags pass through' \
+  "use flake . $live --show-trace" "$(envrc use_agents_dev --show-trace)"
+
+check 'explicit --impure is not doubled' \
+  "use flake . $live --impure" "$(JAIL_WORKSPACE_DEPS=/x envrc use_agents_dev --impure)"
+
+check 'input:dir reads another checkout' \
+  "use flake . --override-input pub path:$tmp/home/flakes/agents" \
+  "$(envrc use_flake_local pub:agents)"
+
+check 'absent checkout: input from the lock, and says so' \
+  'log flake_local: no '"$tmp"'/home/flakes/nope; nope from lock|use flake .' \
+  "$(envrc use_flake_local nope 2>&1 | paste -sd'|')"
+
+exit $failed

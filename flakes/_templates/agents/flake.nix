@@ -7,6 +7,7 @@
 #   3. Tune jailEnvOptions: forward host env vars into the jail
 #   4. Trim jailPkgs to the agents actually wanted
 #   5. Jails use the LLM gateway; see `gateway` below to opt out
+#   6. quotient forms: `quotient-forms` links them, then `quotient allow`
 #
 # Jails reach models through the local LLM gateway (`gateway` below).
 #
@@ -22,7 +23,15 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     devshell.url = "github:numtide/devshell";
-    agents.url = "github:davidlee/nix-config?dir=flakes/agents";
+    agents = {
+      url = "github:davidlee/nix-config?dir=flakes/agents";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # quotient's form-family builder, for quotientForms below.
+    quotient = {
+      url = "github:davidlee/quotient/v0.6.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -157,8 +166,21 @@
           # };
           inherit (pkgs) bubblewrap;
         };
+
+        # quotient's per-call forms for this root (`quotient help form`): the
+        # jails quotient's `pi_agent` runs a delegate in, on the gateway's pi
+        # key, with the project's toolchain.
+        quotientForms = lib.optionalAttrs isLinux (let
+          family = jailLib.quotientFormFamily {
+            inherit (inputs) quotient;
+            packages = projectPkgs ++ (with pkgs; [bash findutils gnugrep gnused gawk ripgrep fd git]);
+          };
+        in {
+          quotient-read = family.read;
+          quotient-write = family.write;
+        });
       in {
-        packages = jailPkgs;
+        packages = jailPkgs // quotientForms;
 
         devshells.default = {
           packages =
@@ -170,6 +192,17 @@
               name = "jcl";
               help = "jailed-claude --dangerously-skip-permissions";
               command = "jailed-claude --dangerously-skip-permissions $@";
+            }
+            {
+              name = "quotient-forms";
+              help = "link .quotient/forms/{read,write}; then `quotient allow`";
+              command = ''
+                mkdir -p .quotient/forms
+                for c in read write; do
+                  nix build -o ".quotient/result-$c" ".#quotient-$c"
+                  ln -sfn "$(readlink -f ".quotient/result-$c")/bin/quotient-$c" ".quotient/forms/$c"
+                done
+              '';
             }
           ];
         };

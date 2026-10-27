@@ -71,6 +71,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
+  envrc/agents-test
   bin/room-bump-test
   workarounds/check-test
   workarounds/last-good-test
