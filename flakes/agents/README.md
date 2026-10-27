@@ -14,8 +14,6 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   `makeJailedCodex`, `makeJailedGemini`, `makeJailedEca`, `makeJailedZerostack` — pre-configured
   makers for each agent
 - `makeJailedAgent` — generic maker for custom agents
-- `commonPkgs` — the shared package set available in every jail (minus git,
-  which each jail adds itself: see [Git guard](#git-guard-guardgit))
 - `combinators` — re-exported jail.nix combinators for use in `extraOptions`
 - `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
   repo's gateway, and its socket-mode options for `extraOptions` (see
@@ -101,9 +99,7 @@ spliced into a path and the launcher, so it must match
 Override boolean defaults per-call with `blockSshGitPush` /
 `sandboxGitIdentity` / `guardGit`. The SSH guard sets `GIT_SSH_COMMAND` to a
 failing helper and clears SSH helpers. It does **not** block HTTPS pushes in networked
-profiles, and is a guardrail rather than a security boundary. The old
-`blockGitPush` spelling remains as a warning-producing compatibility alias for
-one transition.
+profiles, and is a guardrail rather than a security boundary.
 
 The reusable sandbox identity defaults to `Jailed agent
 <jailed-agent@localhost>`. Override all four fields when constructing the
@@ -541,7 +537,6 @@ README, § LLM gateway.
 | `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |
 | `blockSshGitPush` | per profile | Disable Git pushes over SSH. HTTPS is unaffected. |
-| `blockGitPush` | deprecated | Compatibility alias for `blockSshGitPush`; emits a warning |
 | `sandboxGitIdentity` | per profile | Override git author/committer |
 | `guardGit` | per profile (`true`) | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
@@ -549,10 +544,6 @@ README, § LLM gateway.
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway instead of provider keys (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 | `useOpEnv` | per profile (true for `specDev`/`research`, false for `offline`) | Wrap launch in `op run` to resolve `op://` API key refs at process start |
 | `passApiKeysFromEnv` | defaults to `useOpEnv` | Forward each `apiKeyOpRefs` var from the wrapper's env into the jail over `--args 21` (not argv). Set independently of `useOpEnv` when the caller pre-resolves secrets (e.g. an Emacs broker with a session-cache) and the outer `op run` would just prompt biometric per launch. |
-
-### Full example
-
-See `examples/go-project/flake.nix`.
 
 ## helium
 

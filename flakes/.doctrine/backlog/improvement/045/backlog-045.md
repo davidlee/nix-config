@@ -62,4 +62,19 @@ Out of scope: `unjailed`/`agentsByName` duplication (pick one during
 CHR-023), `/run/user/1000` in `satanMcpOptions`, blocking pushes over HTTPS.
 
 Consumer baseline: drvPaths recorded before step 1. Steps 1–4 and step 5's
-comment and helper changes must reproduce them exactly.
+comment and helper changes must reproduce them exactly. The comparison is
+`nix eval --impure --raw <flake>#<attr>.drvPath --override-input agents
+path:~/flakes/agents` for:
+- org-incremental-writing: `packages.x86_64-linux.jailed-{claude,codex,pi,pi-research}`
+- ~/.config/emacs: every `packages.x86_64-linux.*`
+- ~/satan-corpus and `_templates/agents`: `devShells.x86_64-linux.default`
+- ~/flakes: `homeConfigurations."david@Sleipnir".activationPackage`, with
+  `just --evaluate local_override`. This covers the `eca` jail.
+The NixOS system is left out: its `/etc/nix/registry.json` names the agents
+source tree, so any edit under agents/, a README one included, changes it.
+
+## Progress
+
+- Step 1 done. The handover was untracked (`*.local.md`) and was deleted
+  without a commit; it is gone. The README loses its `commonPkgs`,
+  `blockGitPush` and "Full example" entries. Gate green, consumers unchanged.

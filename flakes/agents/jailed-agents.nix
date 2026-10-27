@@ -376,10 +376,7 @@
     # Back-compat sugar: adds this agent's own `name` to `subagents`.
     allowSelfAsSubagent ? false,
     maxSubagentDepth ? 1,
-    blockSshGitPush ? null,
-    # Deprecated compatibility alias. Remove after external callers have
-    # migrated to blockSshGitPush.
-    blockGitPush ? null,
+    blockSshGitPush ? profileDefaults.${profile}.blockSshGitPush,
     sandboxGitIdentity ? profileDefaults.${profile}.sandboxGitIdentity,
     # Swap git for guardedGit (refuses stash, checkout --, reset --hard, ...).
     guardGit ? profileDefaults.${profile}.guardGit,
@@ -408,16 +405,6 @@
     # None by default: each jail names the keys its agent uses (IMP-020).
     apiKeys ? [],
   }: let
-    resolvedBlockSshGitPush =
-      if blockSshGitPush != null
-      then
-        if blockGitPush != null
-        then lib.warn "jailed-${name}: blockGitPush is deprecated and ignored because blockSshGitPush is set" blockSshGitPush
-        else blockSshGitPush
-      else if blockGitPush != null
-      then lib.warn "jailed-${name}: blockGitPush is deprecated; use blockSshGitPush" blockGitPush
-      else profileDefaults.${profile}.blockSshGitPush;
-
     selectedApiKeys = lib.unique apiKeys;
     unknownApiKeys = lib.filter (key: !(builtins.hasAttr key apiKeyOpRefs)) selectedApiKeys;
     selectedApiKeyOpRefs = lib.genAttrs selectedApiKeys (key: apiKeyOpRefs.${key});
@@ -642,7 +629,7 @@
       ++ hostGitExcludesOptions
       ++ termOptions
       ++ packageManagerOptions
-      ++ lib.optionals resolvedBlockSshGitPush sshGitPushBlockOptions
+      ++ lib.optionals blockSshGitPush sshGitPushBlockOptions
       ++ lib.optionals sandboxGitIdentity gitIdentityOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ lib.optionals passApiKeysFromEnv apiKeyPassThrough
@@ -837,7 +824,6 @@ in {
     makeJailedZsh
     ;
   inherit agentsByName; # unjailed binaries
-  inherit commonPkgs;
   inherit (jail) combinators;
   # A jail's `gateway` value for one client (DEC-059): gatewayClient "pi".
   gatewayClient = gatewayData.client;

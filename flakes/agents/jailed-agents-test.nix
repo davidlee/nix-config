@@ -66,7 +66,6 @@
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
   gitUnguarded = inner "specDev" {guardGit = false;};
   noHostDoctrine = inner "specDev" {hostDoctrine = false;};
-  legacySshPushAllowed = inner "specDev" {blockGitPush = false;};
   customIdentity = customIdentityAgents.makeJailedZsh {
     profile = "specDev";
     useOpEnv = false;
@@ -443,7 +442,6 @@ in
 
       grep -Fq -- 'GIT_SSH_COMMAND' "$spec"
       refute grep -Fq -- 'GIT_SSH_COMMAND' ${sshPushAllowed}/bin/jailed-zsh
-      refute grep -Fq -- 'GIT_SSH_COMMAND' ${legacySshPushAllowed}/bin/jailed-zsh
       grep -Fq -- 'GIT_AUTHOR_NAME' "$spec"
       grep -Fq -- "'Jailed agent'" "$spec"
       grep -Fq -- 'jailed-agent@localhost' "$spec"
