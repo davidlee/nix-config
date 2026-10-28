@@ -1,0 +1,46 @@
+memory_uid = "mem_01a18256b7d57b60a6e94d1579ae7830"
+memory_key = "mem.fact.python.zstd-decompressor-bounds"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Python 3.14 compression.zstd: bounding a one-shot decode"
+summary = "max_length bounds output, not the window; truncated frames raise nothing; check eof and unused_data"
+created = "2026-10-28"
+updated = "2026-10-28"
+
+[scope]
+paths = ["features/agents/gateway/gateway_hooks.py"]
+globs = []
+commands = []
+tags = ["zstd", "gateway"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "95ce71687a40011693e868c1889c88e9af0e03f3"
+ref_name = "refs/heads/main"
+checkout_state_id = "078d4a607297de8126e894c1b347be733bc674b8392be337df51450070b5e132"
+base_commit = "4a184afcbab9e3f068c32a627e950e86a787a1c1"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-019"
+

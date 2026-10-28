@@ -9,6 +9,8 @@ provider keys where the service can load them (design SL-011 sec-4).
 
 Admin subcommands act on the key store as the service user, re-executing
 themselves under `sudo -u llm-gateway` when run by anyone else (DEC-050).
+Run as root, every command refuses (exit 2), so an `issue --out` file is
+always the invoking user's (DEC-091).
 `credentials` runs as you: `op read` is piped straight into
 `sudo systemd-creds encrypt`, so the provider key never touches argv, a file
 in clear, or this process's memory (DEC-048). The credential is staged beside

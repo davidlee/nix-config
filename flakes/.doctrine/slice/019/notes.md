@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-28 · PHASE-04 (all phases complete; pre-audit) · 761e0165
+fresh-as-of: 2026-10-28 · audit RV-042 concluded (8 findings, all verified) · 4a184afc
 
 ### Produced
 - ISS-020 hotfix + LiteLLM 1.106.2 roll-forward (504ebca5; § Roll-forward)
@@ -22,15 +22,15 @@ fresh-as-of: 2026-10-28 · PHASE-04 (all phases complete; pre-audit) · 761e0165
 - mem.fact.gateway.litellm-decisions-routes — native TypeSafe in 1.106.2; reply `model` is the bare upstream id (prefix stripped)
 - mem.fact.typesafe.sdk-js-wire — SDK sends zstd and multipart; `models.list()` shape
 - mem.fact.litellm.proxy-hook-behaviours — updated for 1.106.2 in b73eb889
+- mem.fact.python.zstd-decompressor-bounds — A1 probe, lifted from the PHASE-01 sheet at audit
 
 ### Open
-- SPEC-001 drift for reconcile — listed in § Autonomy log (PHASE-04 VA-1), one item beyond design sec-8
-- DEC-084 — its choice text names "both decisions routes"; DEC-092 narrows it to `/v1/systemone`
-- audit flag: empty content-encoding elements refused (A3, § Autonomy log)
-- audit flag: README SDK limits rest on mem.fact.typesafe.sdk-js-wire (medium trust)
-- CHR-017 — ruff + pylint in the gate; 3 pre-existing ruff findings in gateway-test; `llm-gateway` docstring omits the root refusal
+- RV-042 § Reconciliation Brief — SPEC-001 REV (F-1, incl. ALLOWED_FIELDS → ROUTES), DEC-084 text (F-2), design sec-4 empty encoding elements (F-3), close IMP-054, ISS-015, ISS-020
+- RV-042 F-4 (tolerated) — SDK zstd and SDK limits unverified live; screwtape:SL-004 exercises them
+- CHR-026 — treefmt red on _templates/rust/shell.nix (not SL-019); `doctrine check gate` red until it lands
+- CHR-017 — ruff + pylint in the gate; 3 pre-existing ruff findings in gateway-test
 - CHR-025 — drop redundant `allowed_openai_params`
-- IMP-054, ISS-015, ISS-020 — close at reconcile (PHASE-04 EX-3)
+- audit fixed in place: llm-gateway docstring names the root refusal (F-6); PHASE-02 delta recorded (F-7)
 
 ## Further review
 

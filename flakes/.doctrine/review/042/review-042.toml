@@ -1,0 +1,278 @@
+id    = 42
+slug  = "reconciliation-review-of-sl-019"
+title = "reconciliation review of SL-019"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Conformance audit of SL-019 at 761e0165 (impl range e4a88373..761e0165 plus hotfix 504ebca5's gateway files): production diff read against design sec-1..5; tests against sec-6 and plan VT/VA/VH; README against code; notes Autonomy log and Rollout; slice conformance (judged by agent under ISS-005, PHASE-02 delta recorded); `just test` green (exit 0); `doctrine check gate` red only on CHR-026, outside the slice.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-019"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "SPEC-001 should describe the gateway as built; it lacks /v1/systemone, per-route fields, zstd, typesafe and the root refusal"
+detail = """
+Expected: SPEC-001 (binding tech spec) tells the truth about the client contract after SL-019.
+Observed (notes § Autonomy log, PHASE-04 VA-1; checked against gateway_hooks.py at 761e0165):
+- § Client contract routes lack POST /v1/systemone and the /v1/decisions 404 (DEC-092).
+- § Body and FR-002's REQ text name ALLOWED_FIELDS; the code now has ROUTES with per-route CHAT_FIELDS / SYSTEMONE_FIELDS (DEC-087). Not in design sec-8's list.
+- Refusals table lacks 415 (encoding), 400 (zstd not one frame / does not decode), 413 on decoded size.
+- § Request path lacks the zstd decode and the application/json canonical replay.
+- § Model names / Providers lack typesafe and the four Jev models.
+- TypeSafe SDK limits (models.list() shape, multipart images; DEC-089) absent.
+- § Admin CLI lacks the root refusal (DEC-091).
+"""
+disposition = "design-wrong"
+response = """
+The code is right; SPEC-001 is stale. Reconcile writes it by REV: every item in the finding, including the ALLOWED_FIELDS → ROUTES change, which design sec-8 omitted. Reconciliation Brief, Governance/spec.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+The code is right; SPEC-001 is stale. Reconcile writes it by REV: every item in the finding, including the ALLOWED_FIELDS → ROUTES change, which design sec-8 omitted. Reconciliation Brief, Governance/spec.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "DEC-084 should name only /v1/systemone; its choice text still says both decisions routes"
+detail = """
+Expected: DEC-084 (goal: a Jev consumer needs only a gateway key) agrees with DEC-092, which narrows the served surface to POST /v1/systemone because LiteLLM fetches remote image URLs on /v1/decisions.
+Observed: DEC-084's choice text names "both decisions routes" (notes § Harvest > Open). design sec-1 already says "DEC-084 holds for /v1/systemone"; the record itself was not amended.
+"""
+disposition = "design-wrong"
+response = """
+DEC-092 is the later, narrower decision and the code follows it. Reconcile amends DEC-084's choice text to name /v1/systemone only, citing DEC-092. Reconciliation Brief, Governance/spec.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+DEC-092 is the later, narrower decision and the code follows it. Reconcile amends DEC-084's choice text to name /v1/systemone only, citing DEC-092. Reconciliation Brief, Governance/spec.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Design sec-4 should say what an empty content-encoding element does; the code answers 415"
+detail = """
+Expected: design sec-4 fixes the encoding grammar fully.
+Observed: sec-4 says split on commas, trimmed, lowercased; [] | [identity] pass. It is silent on empty elements. _encodings keeps them, so `Content-Encoding: zstd,` and an empty header value ([""]) are 415. RFC 9110 § 5.6.1 lets a recipient ignore empty list elements, so this is the stricter reading (PHASE-01 Autonomy log A3).
+Effect: fail-closed; no known client (TypeSafe SDK, OpenAI clients) sends either form.
+"""
+disposition = "design-wrong"
+response = """
+Keep the code: refusing an ambiguous encoding list fails closed, and no known client sends one. Reconcile adds one line to design sec-4: empty elements are kept, so `zstd,` and an empty header value are 415. Reconciliation Brief, Per-slice.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Keep the code: refusing an ambiguous encoding list fails closed, and no known client sends one. Reconcile adds one line to design sec-4: empty elements are kept, so `zstd,` and an empty header value are 415. Reconciliation Brief, Per-slice.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "VH-1 evidence is weaker than its criterion: zstd not sent by the SDK, spend below the ledger's display precision"
+detail = """
+Expected (plan PHASE-04 VH-1): one /v1/systemone call, 200 and spend recorded; the same zstd-encoded via the SDK, 200.
+Observed (notes § Rollout):
+- the zstd call was a hand-encoded Content-Encoding: zstd body, not the TypeSafe JS SDK. README's "Its default zstd bodies work" and the SDK limits (models.list(), multipart) rest on mem.fact.typesafe.sdk-js-wire (medium trust, read from SDK source), not a live SDK call.
+- `llm-gateway list` shows spend to 4 decimals; 2.4e-05 reads 0.0000, so the ledger write was not observed live. x-litellm-response-cost (1.1802e-05 = 281 x 4.2e-8) was.
+Operator accepted VH-1 ("agreed"). JevTest asserts spend exactly and covers zstd through the real proxy.
+"""
+disposition = "tolerated"
+response = """
+Accepted: the operator passed VH-1 on this evidence. The gaps are covered elsewhere: JevTest asserts the ledger spend exactly and serves a zstd systemone body through the real proxy; the live call showed the provider cost header. What stays unverified live is the SDK's own zstd and the SDK limits in README, which rest on mem.fact.typesafe.sdk-js-wire. screwtape:SL-004, the first SDK consumer, will exercise that path; a failure there reopens this.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = """
+Accepted: the operator passed VH-1 on this evidence. The gaps are covered elsewhere: JevTest asserts the ledger spend exactly and serves a zstd systemone body through the real proxy; the live call showed the provider cost header. What stays unverified live is the SDK's own zstd and the SDK limits in README, which rest on mem.fact.typesafe.sdk-js-wire. screwtape:SL-004, the first SDK consumer, will exercise that path; a failure there reopens this.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "nit"
+title = "agents/gateway.nix: routed generalised to named, shared by openrouter and typesafe"
+detail = """
+Expected (design sec-2): Jev models "built by one helper like openrouter".
+Observed: PHASE-02 generalised `routed` into `named <provider> <helper> <ids>` and redefined `routed = named "openrouter" openrouter`. One helper, two providers; not named in the design. Flagged for coupling review (notes § Harvest > Open).
+"""
+disposition = "aligned"
+response = """
+Within design sec-2's intent ("built by one helper like openrouter"): one helper that names <provider>/<id> (DEC-069) instead of two copies of the same map. The two providers share only the naming rule, which DEC-069 already makes common; their model records stay separate (`openrouter`, `typesafe`). No design change needed.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Within design sec-2's intent ("built by one helper like openrouter"): one helper that names <provider>/<id> (DEC-069) instead of two copies of the same map. The two providers share only the naming rule, which DEC-069 already makes common; their model records stay separate (`openrouter`, `typesafe`). No design change needed.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "llm-gateway module docstring should mention the root refusal"
+detail = """
+Expected: the module docstring, which describes how the CLI runs (sudo, service user), mentions DEC-091.
+Observed: main() refuses root first (exit 2), but the docstring (lines 2-19) does not say so. PHASE-04 Autonomy log deferred it.
+"""
+disposition = "fix-now"
+response = """
+Fixed in the audit: the module docstring now says every command refuses as root (exit 2), so an `issue --out` file is the invoking user's (DEC-091). Comment-only; ruff clean.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in the audit: the module docstring now says every command refuses as root (exit 2), so an `issue --out` file is the invoking user's (DEC-091). Comment-only; ruff clean.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "Source-delta registry should hold every completed phase; PHASE-02 had no row"
+detail = """
+Expected: each completed phase has a source-delta row, so `slice conformance` reads the whole slice.
+Observed: before this audit, conformance's undeclared list held no PHASE-02 path (proxy.nix, agents/gateway.nix, perSystem.nix), and it did not report `incomplete`. Recorded during the audit: `doctrine slice record-delta 019 PHASE-02 --commit bd26aef4`; conformance now lists all nine touched paths.
+Separately, every path reads undeclared/undelivered because delta paths carry the git-root prefix `flakes/` (ISS-005). Judged by agent: all 8 design-target code paths plus README are delivered; only .doctrine/spec/tech/001/** is undelivered (reconcile's REV).
+"""
+disposition = "fix-now"
+response = """
+Fixed in the audit: PHASE-02's row recorded with `slice record-delta 019 PHASE-02 --commit bd26aef4`; conformance now lists all nine touched paths. The prefix misattribution is ISS-005, already open, and is not SL-019's to fix.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Fixed in the audit: PHASE-02's row recorded with `slice record-delta 019 PHASE-02 --commit bd26aef4`; conformance now lists all nine touched paths. The prefix misattribution is ISS-005, already open, and is not SL-019's to fix.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "doctrine check gate is red: treefmt wants to reformat _templates/rust/shell.nix"
+detail = """
+Expected: the gate is green at the slice tip.
+Observed: `doctrine check gate` fails in checks.treefmt on _templates/rust/shell.nix only (a function-argument layout change). The file was last changed in d6fcaf2e (2025-10-20), before this slice; the formatter moved under it, most likely with the flake.lock bump in 504ebca5. No SL-019 file is affected. `just test` is green (exit 0).
+"""
+disposition = "follow-up"
+response = """
+Not SL-019 code: a pre-existing template the formatter moved under. Captured as CHR-026.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Not SL-019 code: a pre-existing template the formatter moved under. Captured as CHR-026.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
