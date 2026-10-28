@@ -20,3 +20,9 @@ Sharp edges:
   (`proxy/litellm_pre_call_utils.py`), DEC-090.
 - The upstream URL is `api_base` minus a trailing `/v1`, plus `/v1/systemone`.
 Line numbers drift with the pin; grep the names.
+
+Observed live through the gateway (SL-019 VH-1, 2026-10-28): the reply's
+`model` is TypeSafe's bare id: a request for `typesafe/jev-1.14.0` answers
+`"model": "jev-1.14.0"`. A client that exact-matches the reply against the
+gateway name must strip `typesafe/` first. Only jev-1.14.0 was checked; an
+alias (`jev-latest`) may answer with the version served.

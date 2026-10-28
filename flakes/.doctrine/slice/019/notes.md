@@ -6,29 +6,31 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-28 · ready (design locked rev 39; PHASE-01..04 planned, none started; ISS-020 hotfix live, committed) · 504ebca5
+fresh-as-of: 2026-10-28 · PHASE-04 (all phases complete; pre-audit) · 761e0165
 
 ### Produced
-- IMP-054 rewritten: native LiteLLM TypeSafe provider, not a pass-through
-- slice, research.md, design run → `design.md` (sec-1..8); no code yet
-- minted: CHR-024 — stale LiteLLM 1.102.1 line references in gateway code
-- folded in: ISS-015 (DEC-091)
-- minted: ISS-020 — live body-guard bypass via form Content-Type (RV-041 F-1); fixed by sec-4
-- roll-forward (operator, 2026-10-28): the ISS-020 hotfix, master-key boot override (DEC-050), `ParserAgreementTest`, two test repairs for LiteLLM 1.106.2; see § Roll-forward
-- minted: CHR-025
-- plan.toml / plan.md: PHASE-01..04; committed 71ef935e. No code changed
-  by SL-019 yet; gate not run.
+- ISS-020 hotfix + LiteLLM 1.106.2 roll-forward (504ebca5; § Roll-forward)
+- PHASE-01 route gate: ROUTES, /v1/systemone, bounded zstd (10559b4c)
+- PHASE-02 typesafe provider, four Jev models, through-proxy tests (bd26aef4)
+- PHASE-03 llm-gateway refuses root, ISS-015 (26ef21fa)
+- PHASE-04 README § LLM gateway (653e7d43); rollout + VH-1 passed live (761e0165; § Rollout)
+- `just test` green at 26ef21fa; `just coverage` evaluates at bd26aef4; code unchanged since
+- envelope decisions and deferrals: § Autonomy log (audit reads it)
+- minted earlier: CHR-024, CHR-025; folded in ISS-015
 
 ### Learned
-- mem.fact.gateway.litellm-decisions-routes — native TypeSafe in 1.106.2; `/v1/decisions` fetches remote images
+- mem.fact.gateway.litellm-decisions-routes — native TypeSafe in 1.106.2; reply `model` is the bare upstream id (prefix stripped)
 - mem.fact.typesafe.sdk-js-wire — SDK sends zstd and multipart; `models.list()` shape
+- mem.fact.litellm.proxy-hook-behaviours — updated for 1.106.2 in b73eb889
 
 ### Open
-- ISS-020 hotfix verified (check + live probe) and deployed; committed 504ebca5. Next: /phase-plan PHASE-01 (sec-4 must keep canonical replay)
-- CHR-025 — drop redundant `allowed_openai_params` (LiteLLM 1.106.2)
-- CHR-017 widened — ruff + pylint in the devshell and gate, then a lint pass
-- ASM-002 — TypeSafe's 1Password ref, to confirm at rollout
+- SPEC-001 drift for reconcile — listed in § Autonomy log (PHASE-04 VA-1), one item beyond design sec-8
 - DEC-084 — its choice text names "both decisions routes"; DEC-092 narrows it to `/v1/systemone`
+- audit flag: empty content-encoding elements refused (A3, § Autonomy log)
+- audit flag: README SDK limits rest on mem.fact.typesafe.sdk-js-wire (medium trust)
+- CHR-017 — ruff + pylint in the gate; 3 pre-existing ruff findings in gateway-test; `llm-gateway` docstring omits the root refusal
+- CHR-025 — drop redundant `allowed_openai_params`
+- IMP-054, ISS-015, ISS-020 — close at reconcile (PHASE-04 EX-3)
 
 ## Further review
 
