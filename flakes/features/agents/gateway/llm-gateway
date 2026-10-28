@@ -67,6 +67,7 @@ class Host:
     sudo, the service user, processes and the terminal."""
 
     config: Config
+    is_root: Callable[[], bool]
     is_service_user: Callable[[], bool]
     privileged: Callable[
         [list], tuple
@@ -91,6 +92,7 @@ def production_host():
 
     return Host(
         config=Config(MODELS, PROVIDERS, DB, CREDSTORE, SOCKET),
+        is_root=lambda: os.geteuid() == 0,
         is_service_user=lambda: pwd.getpwuid(os.geteuid()).pw_name == SERVICE_USER,
         privileged=privileged,
         spawn=subprocess.Popen,
@@ -161,6 +163,8 @@ def parser():
 
 
 def main(argv, *, host):
+    if host.is_root():  # DEC-091: a key file written by root would be root's
+        return fail(host, "run as your user, not root: llm-gateway runs sudo itself")
     try:
         args = parser().parse_args(argv)
     except UsageError as error:
