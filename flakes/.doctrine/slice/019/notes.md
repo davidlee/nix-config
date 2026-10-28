@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-28 · design reviewing (run rev 34), RV-041 done · 3699b1aa (uncommitted)
+fresh-as-of: 2026-10-28 · design locked (run rev 39), planned (PHASE-01..04) · 71ef935e
 
 ### Produced
 - IMP-054 rewritten: native LiteLLM TypeSafe provider, not a pass-through
@@ -23,8 +23,7 @@ fresh-as-of: 2026-10-28 · design reviewing (run rev 34), RV-041 done · 3699b1a
 - mem.fact.typesafe.sdk-js-wire — SDK sends zstd and multipart; `models.list()` shape
 
 ### Open
-- RV-041 — done (3 verified); awaiting operator `section-reviewed` ×8, `review-disposed`
-- ISS-020 — live now; fix with SL-019 or hot-fix the current gate first (operator's call)
+- PHASE-01 waits on the operator's ISS-020 fix (gateway_hooks.py, uncommitted): verify it, then /phase-plan
 - ASM-002 — TypeSafe's 1Password ref, to confirm at rollout
 - DEC-084 — its choice text names "both decisions routes"; DEC-092 narrows it to `/v1/systemone`
 

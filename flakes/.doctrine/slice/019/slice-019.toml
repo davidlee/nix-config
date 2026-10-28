@@ -1,7 +1,7 @@
 id = 19
 slug = "gateway-typesafe-jev"
 title = "TypeSafe Jev behind the LLM gateway"
-status = "plan"
+status = "ready"
 created = "2026-10-28"
 updated = "2026-10-28"
 tags = []
