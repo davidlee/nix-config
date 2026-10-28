@@ -14,9 +14,8 @@ fresh-as-of: 2026-10-28 · design locked (run rev 39), planned (PHASE-01..04) ·
 - minted: CHR-024 — stale LiteLLM 1.102.1 line references in gateway code
 - folded in: ISS-015 (DEC-091)
 - minted: ISS-020 — live body-guard bypass via form Content-Type (RV-041 F-1); fixed by sec-4
-- uncommitted: all `.doctrine/` changes this session (staged in part; new
-  files under `slice/019/`, `knowledge/`, `memory/`, `backlog/chore/024`
-  untracked). No code changed; gate not run.
+- plan.toml / plan.md: PHASE-01..04; committed 71ef935e. No code changed
+  by SL-019 yet; gate not run.
 
 ### Learned
 - mem.fact.gateway.litellm-decisions-routes — native TypeSafe in 1.106.2; `/v1/decisions` fetches remote images
