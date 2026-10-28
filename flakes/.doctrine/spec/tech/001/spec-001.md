@@ -11,12 +11,12 @@ its budget is spent.
 
 ```
 clients (jails: eca, pi, claude …; gptel, minuet; later satan, oubliette rooms)
-   │  OpenAI chat-completions, Bearer <gateway key>
+   │  OpenAI chat-completions or TypeSafe systemone, Bearer <gateway key>
    ▼
 127.0.0.1:4000 ── relay (systemd-socket-proxyd, socket-activated, group llm-gateway)
    ▼
 /run/llm-gateway/api.sock (dir 0750) ── llm-gateway.service: LiteLLM + our hooks
-   ├─ route gate   route on the list? body fields on the list? size ≤ 16 MiB?
+   ├─ route gate   route on the list? size ≤ 16 MiB? body decoded, fields on the route's list?
    ├─ auth         key known, live, under budget?             ┐
    ├─ model gate   model and fallbacks on the key's list?      ├─ keys.db (SQLite)
    ├─ provider     LiteLLM adapter, key from systemd creds     │
@@ -28,7 +28,7 @@ specs of their own. There is no product spec yet; the why is the paragraph
 above.
 
 **Posture: retrospective.** This describes the gateway as shipped by SL-011,
-SL-013 and SL-014 (2026-10). Requirements are `pending` until reconciled
+SL-013, SL-014 and SL-019 (2026-10). Requirements are `pending` until reconciled
 against evidence; the tests named here are where that evidence lives.
 
 **Reading order.** A client author needs only § Client contract. A
@@ -54,11 +54,16 @@ key; the socket adds no trust (DEC-077).
 | method | path |
 |---|---|
 | POST | `/chat/completions`, `/v1/chat/completions` |
+| POST | `/v1/systemone` (TypeSafe's Jev) |
 | GET | `/models`, `/v1/models` |
 
-**Body.** A JSON object whose top-level fields are all from this list, else
-a 400 naming the field; over 16 MiB is a 413 (FR-002, DEC-073). The list is
-complete; it is `ALLOWED_FIELDS` in `gateway_hooks.py`:
+`/v1/decisions` and `/decisions` are not served: LiteLLM would fetch remote
+image URLs on them (DEC-092).
+
+**Body.** A JSON object whose top-level fields are all on its route's list,
+else a 400 naming the field; over 16 MiB is a 413 (FR-002, DEC-073,
+DEC-087). The lists are complete; they are `ROUTES` in `gateway_hooks.py`.
+Chat completions (`CHAT_FIELDS`):
 
 | fields | from |
 |---|---|
@@ -67,6 +72,10 @@ complete; it is `ALLOWED_FIELDS` in `gateway_hooks.py`:
 | `thinking` | DeepSeek's native switch; pi sends it |
 | `reasoning` | OpenRouter's native `{effort}`; older gptel sends it |
 | `provider` | OpenRouter routing preferences (`sort`, `order`, …); minuet sends it |
+
+`POST /v1/systemone` (`SYSTEMONE_FIELDS`): `model`, `state`, `questions`,
+`assets`. A chat field on systemone, or a systemone field on chat, is a 400.
+`typesafe-danger-zone-*` headers pass through (DEC-090).
 
 Fields are checked by name at the top level only; their contents pass to
 LiteLLM as sent. A field OpenAI adds later is not admitted until it is added
@@ -79,6 +88,12 @@ fallback form (`fallbacks`, `context_window_fallbacks`,
 the key's list. Each could re-route a request past the model gate or
 suppress the cost report.
 
+**Encoding.** `Content-Encoding` absent, `identity` or `zstd` (DEC-088);
+anything else (another coding, a chain, a repeat, an empty element) is a
+415. A zstd body is one complete frame (else 400) of at most 16 MiB decoded
+(else 413). Every admitted body reaches LiteLLM decoded, as
+`application/json`, whatever content type the client sent.
+
 **Reasoning effort.** Send flat `reasoning_effort`, on any model (FR-006).
 The gateway translates nothing; LiteLLM's adapter maps it to each provider's
 form. Given both a native shape and `reasoning_effort`, the adapter decides
@@ -87,14 +102,22 @@ form. Given both a native shape and `reasoning_effort`, the adapter decides
 **Model names.** `<provider>/<upstream id>`, e.g.
 `openrouter/z-ai/glm-5.3-flash`, `fireworks/nemotron-lightning-3p5-30b-a3b`
 (DEC-069). The one exception is `deepseek-flash`. Names are exact.
+Jev: `typesafe/jev-latest`, `typesafe/jev-preview`, `typesafe/jev-1.14.0`,
+`typesafe/jev-1.13.0`, on `/v1/systemone` only (DEC-085); a Jev model on
+chat completions fails.
+
+**TypeSafe SDK.** Point its `baseURL` at the gateway. Its default zstd
+bodies work. `models.list()` (it expects `{models: […]}`) and multipart
+image assets do not: send `assets[].data_base64` in the JSON body (DEC-089).
 
 **Refusals.**
 
 | status | meaning | marker |
 |---|---|---|
 | 404 | route not served | `x-llm-gateway: no such route` |
-| 400 | body field not allowed (fallbacks included), or body not a JSON object | `x-llm-gateway: body refused` |
-| 413 | body over 16 MiB | `x-llm-gateway: body refused` |
+| 400 | body field not allowed (fallbacks included), body not a JSON object, or a zstd body not one complete frame or not decodable | `x-llm-gateway: body refused` |
+| 413 | body over 16 MiB, sent or decoded | `x-llm-gateway: body refused` |
+| 415 | content-encoding other than none, `identity` or `zstd` | `x-llm-gateway: body refused` |
 | 401 | key missing, unknown, revoked or out of budget | — |
 | 403 | model not on the key's list | — |
 
@@ -122,7 +145,8 @@ A client that retries sends a new request and is charged for it.
 
 ## Responsibilities
 
-- Serve an OpenAI-compatible chat-completions endpoint to local clients.
+- Serve an OpenAI-compatible chat-completions endpoint, and TypeSafe's
+  systemone, to local clients.
 - Hold the provider keys so no client needs one (NF-001).
 - Authenticate each client by its own key; enforce its model list and budget
   (FR-003, FR-004).
@@ -140,8 +164,12 @@ this host.
 
 `route_gate` is an ASGI wrapper around LiteLLM's app
 (`gateway_hooks.py`). It sees the client's verbatim request before LiteLLM
-adds anything, so it checks the route, buffers the body (bounded at 16 MiB)
-and checks its top-level fields, then replays the body to LiteLLM. The rest
+adds anything, so it checks the route, buffers the body (bounded at 16 MiB),
+decodes zstd (window and output each capped at 16 MiB) and checks the
+top-level fields against the route's list. It then replays the decoded body
+with exactly one `content-type: application/json` and one `content-length`,
+and no `content-encoding` or `transfer-encoding`, so LiteLLM parses the body
+the gate checked (ISS-020). The rest
 are LiteLLM hooks named in the generated `config.yaml`:
 
 | hook | LiteLLM slot | does |
@@ -194,7 +222,9 @@ At run time a cost of 0 or none is warned and counted 0 (DEC-068).
 ### Providers and credentials
 
 `services.llm-gateway.providers` (default in `proxy.nix`): name → key
-variable, 1Password reference, `reportsCost`. Only providers that a served
+variable, 1Password reference, `reportsCost`: deepseek, openrouter
+(`reportsCost`), fireworks and typesafe (Jev, priced from the packaged map
+by input tokens). Only providers that a served
 model uses get a credential. `llm-gateway credentials` reads each key with
 `op read` and encrypts it with `systemd-creds` against the host key and
 TPM2 into `/etc/credstore.encrypted/llm-gateway.<provider>`; the unit loads
@@ -224,7 +254,8 @@ because it reaches the providers.
 and no admin route (DEC-050). Verbs: `issue`, `list`, `revoke`, `budget`,
 `models` (replace a live key's list, DEC-071), `reset`, `credentials`. Keys
 travel on stdin, never argv; `issue --out` writes a new 0600 file and revokes
-the key if the write fails.
+the key if the write fails. It refuses to run as root (exit 2), so that file
+is always the invoking user's (DEC-091).
 
 ## Concerns
 
@@ -267,11 +298,11 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 
 | area | decisions |
 |---|---|
-| store, auth, budgets | DEC-046, DEC-050, DEC-051, DEC-071 |
+| store, auth, budgets | DEC-046, DEC-050, DEC-051, DEC-071, DEC-091 |
 | perimeter, credentials | DEC-047, DEC-048, DEC-067 |
 | client side (in `agents/`) | DEC-049, DEC-058, DEC-059, DEC-061, DEC-062 |
-| served models, cost | DEC-063, DEC-064, DEC-065, DEC-066, DEC-068, DEC-069, DEC-070, DEC-072 |
-| wire contract | DEC-073, DEC-074 |
+| served models, cost | DEC-063, DEC-064, DEC-065, DEC-066, DEC-068, DEC-069, DEC-070, DEC-072, DEC-084, DEC-085 |
+| wire contract | DEC-073, DEC-074, DEC-087, DEC-088, DEC-089, DEC-090, DEC-092 |
 
 ## Open questions
 

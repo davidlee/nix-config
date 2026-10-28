@@ -85,3 +85,35 @@ formatter check on a file outside the slice (CHR-026).
 - DEC-084 (F-2): amend the choice text to name POST /v1/systemone only,
   citing DEC-092.
 - Backlog closures (PHASE-04 EX-3): IMP-054, ISS-015, ISS-020 → done.
+
+## Reconciliation Outcome
+
+Operator agreed 2026-10-28 ("agreed") to every item below.
+
+### Direct edits applied
+- design.md sec-4: empty content-encoding elements are kept, so `zstd,` and
+  an empty header value are 415 (F-3).
+
+### REVs completed
+- REV-013 (`reconcile-sl-019`): done. SPEC-001 § Client contract (routes,
+  per-route bodies, encoding, Jev names, TypeSafe SDK, refusals),
+  Responsibilities, Request path, Providers, Admin CLI and Decisions;
+  REQ-001 (systemone route), REQ-002 (per-route fields, encoding), REQ-008
+  (root refusal). Statuses unchanged (pending). Covers F-1; rationale in
+  revision-013.md. `spec validate SPEC-001` clean.
+
+### Other governance writes
+- DEC-084 choice text names `POST /v1/systemone`, citing DEC-092
+  (`knowledge edit decision`; decision records are not a REV target) (F-2).
+- Backlog: IMP-054 closed done; ISS-015 and ISS-020 closed fixed (PHASE-04 EX-3).
+- README § LLM gateway: dropped "SPEC-001 … does not yet list `/v1/systemone`", now false.
+
+### Fixed during audit / tolerated / follow-up
+- F-6, F-7 fixed in the audit (7d2eda9c). F-4 tolerated, F-5 aligned (see
+  dispositions). F-8 → CHR-026.
+
+### Not taken (outside the brief)
+- SPEC-001 § Concerns still says LiteLLM hook behaviour was verified on
+  1.102.1; the pin is 1.106.2. Raised with the operator, not folded in.
+
+Reconcile pass complete — handoff to /close.

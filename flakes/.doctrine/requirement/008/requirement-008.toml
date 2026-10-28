@@ -17,4 +17,5 @@ acceptance_criteria = [
   "LiteLLM starts and authenticates with custom_auth and no master_key",
   "issue prints the key once or writes a new 0600 file; it refuses an existing file",
   "issue of a revoked alias is refused",
+  "Run as root, every command exits 2 before doing anything",
 ]

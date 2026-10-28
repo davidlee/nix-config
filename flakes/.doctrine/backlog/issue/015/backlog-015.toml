@@ -5,10 +5,10 @@ id = 15
 slug = "llm-gateway-issue-out-under-sudo-leaves-the-key-file-root-owned"
 title = "llm-gateway issue --out under sudo leaves the key file root-owned"
 kind = "issue"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "closed"
+resolution = "fixed"
 created = "2026-10-17"
-updated = "2026-10-17"
+updated = "2026-10-28"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

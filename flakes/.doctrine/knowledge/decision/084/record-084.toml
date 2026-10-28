@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "SL-019 serves TypeSafe Jev through the LLM gateway; screwtape:SL-004 is the first consumer, others will follow."
-choice = "The gateway serves Jev so that the next project needs no gateway change, only `llm-gateway issue` with the Jev models it wants: every packaged-map Jev name, both decisions routes, the TypeSafe SDK's default zstd bodies, and raw-JSON image assets."
+choice = "The gateway serves Jev so that the next project needs no gateway change, only `llm-gateway issue` with the Jev models it wants: every packaged-map Jev name, `POST /v1/systemone` (DEC-092 narrowed it from both decisions routes), the TypeSafe SDK's default zstd bodies, and raw-JSON image assets."
 alternatives = ["serve only what screwtape:SL-004 uses, extend per consumer"]
 rationale = "Operator direction 2026-10-28. Each later extension is a gateway change, a switch and a SPEC-001 revision; the extras are cheap now."
 consequences = ["A new upstream Jev version still needs a model entry (no wildcard, DEC-065; price map lag)", "SDK models.list() and SDK multipart images stay out of contract"]

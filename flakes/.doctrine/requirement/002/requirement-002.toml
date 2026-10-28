@@ -3,7 +3,7 @@ version = 1
 
 id = 2
 slug = "chat-completion-bodies-carry-only-allow-listed-top-level-fields"
-title = "Chat-completion bodies carry only allow-listed top-level fields"
+title = "Request bodies carry only their route's allow-listed top-level fields"
 status = "pending"
 kind = "functional"
 
@@ -11,10 +11,12 @@ kind = "functional"
 # it as the statement line — the storage rule forbids deriving it from prose).
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
-description = "A chat-completion body must be a JSON object whose top-level fields are all on ALLOWED_FIELDS: a listed subset of the OpenAI chat-completions fields, reasoning_effort, and the provider-native thinking, reasoning and provider. Any other field, fallback forms included, gets a 400 naming it; a body over 16 MiB gets a 413. Both are marked x-llm-gateway: body refused."
+description = "A POST body must be a JSON object whose top-level fields are all on its route's list in ROUTES: for chat completions, a listed subset of the OpenAI chat-completions fields, reasoning_effort, and the provider-native thinking, reasoning and provider; for /v1/systemone, model, state, questions and assets. Any other field, fallback forms included, gets a 400 naming it. Content-Encoding must be absent, identity or zstd, else 415; a zstd body must be one complete frame (else 400). A body over 16 MiB, sent or decoded, gets a 413. All are marked x-llm-gateway: body refused."
 tags = ["gateway"]
 acceptance_criteria = [
   "extra_body, litellm_params, custom_llm_provider, models, route, usage, metadata and fallbacks are each refused with a 400 naming the field",
   "A non-object body is refused",
   "A 16 MiB + 1 byte body is refused with 413 before it is buffered whole",
+  "systemone refuses messages and api_base; chat completions refuses state",
+  "A gzip-encoded body gets 415; a zstd body decoding past 16 MiB gets 413",
 ]

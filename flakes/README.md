@@ -988,8 +988,7 @@ field list: a chat field on systemone, or `state` on chat, is a 400.
 (DEC-092). `Content-Encoding` may be absent, `identity` or `zstd`; any other
 is a 415. A zstd body is one complete frame (400 otherwise) of at most 16 MiB
 decoded (413). Every admitted body reaches LiteLLM decoded, as
-`application/json`, whatever content type the client sent. SPEC-001's client
-contract does not yet list `/v1/systemone` (pending its revision, SL-019).
+`application/json`, whatever content type the client sent.
 
 **TypeSafe's JS SDK.** Point it at the gateway with `baseURL` or
 `TYPESAFE_BASE_URL`; the key is sent as `Authorization: Bearer`. Its default

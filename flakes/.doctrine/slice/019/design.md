@@ -112,6 +112,9 @@ field check on the decoded body                       → 400
 replay the decoded body with canonical headers
 ```
 
+Empty elements are kept, so `zstd,` and an empty header value fall to
+"any other list": 415.
+
 **Two decode bounds.** `max_length` bounds the output. The decoder sizes
 its window from the frame header, before any output: an 11-byte frame can
 ask for 128 MiB, and `max_length` does not limit that. `window_log_max = 24`
