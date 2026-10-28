@@ -28,12 +28,20 @@ rec {
       provider = "openrouter";
       params.allowed_openai_params = ["reasoning_effort"];
     };
-    routed = ids:
+    # TypeSafe's Jev: a native LiteLLM provider on /v1/systemone, priced from
+    # the packaged map (input tokens only). Not offered to pi: no chat.
+    typesafe = id: {
+      model = "typesafe/${id}";
+      provider = "typesafe";
+    };
+    # named <provider>/<id> (DEC-069)
+    named = provider: helper: ids:
       builtins.listToAttrs (map (id: {
-          name = "openrouter/${id}";
-          value = openrouter id;
+          name = "${provider}/${id}";
+          value = helper id;
         })
         ids);
+    routed = named "openrouter" openrouter;
   in
     {
       deepseek-flash = {
@@ -96,6 +104,12 @@ rec {
       "xiaomi/mimo-v2.6-flash"
       # panopticon-digest (SL-009): strict json_schema output.
       "openai/gpt-4.1-mini"
+    ]
+    // named "typesafe" typesafe [
+      "jev-latest"
+      "jev-preview"
+      "jev-1.14.0"
+      "jev-1.13.0"
     ];
 
   # A jail's `gateway` argument for one client. The client name is the key

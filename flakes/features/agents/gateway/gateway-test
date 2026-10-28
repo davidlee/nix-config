@@ -144,14 +144,33 @@ def spent(alias):
     return next(r["spent_usd"] for r in keystore.rows(DB) if r["alias"] == alias)
 
 
+def post_json(path, payload, key=None, via=None, headers=(), compress=False):
+    """POST `payload` as JSON to the in-process app, or to the app `via` (an
+    httpx client); `compress` sends it as one zstd frame (Content-Encoding)."""
+    headers = {**({"Authorization": f"Bearer {key}"} if key else {}), **dict(headers)}
+    if compress:
+        return (via or client).post(
+            path,
+            headers={"Content-Type": "application/json", **headers}
+            | {"Content-Encoding": "zstd"},
+            content=zstd(json.dumps(payload).encode()),
+        )
+    return (via or client).post(path, headers=headers, json=payload)
+
+
 def chat(
-    key=None, model=PRICED, path="/chat/completions", via=None, headers=(), **body
+    key=None,
+    model=PRICED,
+    path="/chat/completions",
+    via=None,
+    headers=(),
+    compress=False,
+    **body,
 ):
     """POST a chat completion to the in-process app, or to the app `via`
     (an httpx client)."""
-    headers = {**({"Authorization": f"Bearer {key}"} if key else {}), **dict(headers)}
     payload = {"model": model, "messages": [{"role": "user", "content": "hi"}], **body}
-    return (via or client).post(path, headers=headers, json=payload)
+    return post_json(path, payload, key, via, headers, compress)
 
 
 def spend_after(alias, before, wait):
@@ -1047,13 +1066,19 @@ def refused_by_price_rule(config_dir):
 FAKE_COST = 0.0123  # the cost the fake reports; no price map has it
 
 
-class FakeOpenRouter:
-    """OpenRouter's chat completions on loopback (SL-014 EX-5): records each
-    request body and answers it with usage.cost, streamed or not. The cost is
-    left out when the body asks for no usage."""
+SYSTEMONE_USAGE = {"input_tokens": 1000, "output_tokens": 50}  # the fake's
+
+
+class FakeUpstream:
+    """The providers' endpoints on loopback. OpenRouter's chat completions
+    (SL-014 EX-5): records each request body and answers it with usage.cost,
+    streamed or not; the cost is left out when the body asks for no usage.
+    TypeSafe's POST /v1/systemone (SL-019): records each request (path,
+    headers, body) and answers with SYSTEMONE_USAGE and one answer per question."""
 
     def __init__(self, port):
-        self.bodies = []
+        self.bodies = []  # chat completions
+        self.systemone = []  # (headers, body) of each /v1/systemone request
         fake = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -1063,6 +1088,11 @@ class FakeOpenRouter:
             def do_POST(self):
                 length = int(self.headers["Content-Length"])
                 body = json.loads(self.rfile.read(length))
+                if self.path == "/v1/systemone":
+                    headers = {k.lower(): v for k, v in self.headers.items()}
+                    fake.systemone.append((headers, body))
+                    self.reply("application/json", json.dumps(fake.answer(body)))
+                    return
                 fake.bodies.append(body)
                 if body.get("stream"):
                     self.reply(
@@ -1091,6 +1121,13 @@ class FakeOpenRouter:
 
     def reset(self):
         self.bodies.clear()
+        self.systemone.clear()
+
+    @staticmethod
+    def answer(body):
+        """A SystemOneResponse: one noul answer per question."""
+        answers = {name: {"type": "noul", "noul": 0.9} for name in body["questions"]}
+        return {"model": body["model"], "answers": answers, "usage": SYSTEMONE_USAGE}
 
     @staticmethod
     def usage(body):
@@ -1156,7 +1193,7 @@ class FakeGateway:
     START_WAIT = 120.0
 
     def __init__(self):
-        self.upstream = FakeOpenRouter(FAKE_PORT)
+        self.upstream = FakeUpstream(FAKE_PORT)
         self.directory = tempfile.TemporaryDirectory()
         uds = str(Path(self.directory.name) / "gateway.sock")
         self.log = open(Path(self.directory.name) / "child.log", "w+")
@@ -1301,18 +1338,26 @@ class ParserAgreementTest(unittest.TestCase):
     )
 
     def test_a_polyglot_is_served_as_json_and_never_redirected(self):
+        self.assert_served_as_json()
+
+    def test_a_zstd_polyglot_is_served_as_json_and_never_redirected(self):
+        """VT-2: the same body, zstd-encoded, is decoded before the guard and
+        parsed as JSON whatever type the client declared."""
+        self.assert_served_as_json(compress=True)
+
+    def assert_served_as_json(self, **send):
         gateway = fake()
-        elsewhere = FakeOpenRouter(0)
+        elsewhere = FakeUpstream(0)
         self.addCleanup(elsewhere.close)
         port = elsewhere.server.server_address[1]
         content = (
             f"x&model={REPORTED}&api_base=http://127.0.0.1:{port}/v1"
             "&custom_llm_provider=openai&x="
         )
-        key = issue("polyglot", models=[REPORTED])
+        key = issue(f"polyglot-{bool(send)}", models=[REPORTED])
         for content_type in self.CONTENT_TYPES:
             for path in ("/chat/completions", "/v1/chat/completions"):
-                with self.subTest(content_type=content_type, path=path):
+                with self.subTest(content_type=content_type, path=path, **send):
                     gateway.upstream.reset()
                     response = chat(
                         key,
@@ -1321,11 +1366,80 @@ class ParserAgreementTest(unittest.TestCase):
                         via=gateway.client,
                         headers={"Content-Type": content_type},
                         messages=[{"role": "user", "content": content}],
+                        **send,
                     )
                     self.assertEqual(response.status_code, 200, response.text)
                     [body] = gateway.upstream.bodies
                     self.assertEqual(body["messages"][-1]["content"], content)
         self.assertEqual(elsewhere.bodies, [])
+
+
+JEV = "typesafe/jev-1.14.0"  # on the fake: LiteLLM's native typesafe provider
+
+
+def systemone(key=None, model=JEV, via=None, compress=False, **body):
+    """POST a systemone request (a state and one noul question)."""
+    payload = {
+        "model": model,
+        "state": "I was charged twice.",
+        "questions": {"billing": {"type": "noul", "instructions": "Billing?"}},
+        **body,
+    }
+    return post_json("/v1/systemone", payload, key, via, compress=compress)
+
+
+class JevTest(unittest.TestCase):
+    """SL-019 sec-6, VT-1: a TypeSafe Jev model through the proxy, on the fake
+    TypeSafe: authenticated, model-gated, forwarded with the provider's key and
+    the bare model name, and charged by input tokens at the packaged price."""
+
+    def test_no_key_gets_401_and_a_key_without_jev_gets_403(self):
+        gateway = fake()
+        response = systemone(via=gateway.client)
+        self.assertEqual(response.status_code, 401, response.text)
+        key = issue("no-jev", models=[REPORTED])
+        response = systemone(key, via=gateway.client)
+        self.assertEqual(response.status_code, 403, response.text)
+        self.assertIn(f"no-jev: model {JEV!r} not allowed", response.text)
+        self.assertEqual(gateway.upstream.systemone, [])
+        self.assertEqual(spent("no-jev"), 0)
+
+    def test_a_jev_key_is_served_forwarded_and_charged_by_input_tokens(self):
+        for compress in (False, True):
+            with self.subTest(compress=compress):
+                gateway = fake()
+                alias = f"jev-{compress}"
+                key = issue(alias, models=[JEV])
+                before = spent(alias)
+                response = systemone(key, via=gateway.client, compress=compress)
+                self.assertEqual(response.status_code, 200, response.text)
+                self.assertEqual(response.json()["answers"]["billing"]["type"], "noul")
+                [(headers, body)] = gateway.upstream.systemone
+                self.assertEqual(headers["authorization"], f"Bearer {PROVIDER_SECRET}")
+                self.assertEqual(body["model"], "jev-1.14.0")
+                self.assertEqual(body["state"], "I was charged twice.")
+                self.assertEqual(
+                    body["questions"],
+                    {"billing": {"type": "noul", "instructions": "Billing?"}},
+                )
+                price = price_now(JEV)
+                # a zero price would make the spend assertion vacuous
+                self.assertGreater(price["input_cost_per_token"], 0)
+                assert_spend_rose_by(
+                    alias,
+                    before,
+                    SYSTEMONE_USAGE["input_tokens"] * price["input_cost_per_token"]
+                    + SYSTEMONE_USAGE["output_tokens"] * price["output_cost_per_token"],
+                )
+
+    def test_a_jev_model_on_chat_completions_is_refused_upstream_untouched(self):
+        gateway = fake()
+        key = issue("jev-chat", models=[JEV])
+        response = chat(key, model=JEV, path="/v1/chat/completions", via=gateway.client)
+        self.assertNotEqual(response.status_code, 200, response.text)
+        self.assertEqual(gateway.upstream.systemone, [])
+        self.assertEqual(gateway.upstream.bodies, [])
+        self.assertEqual(spent("jev-chat"), 0)
 
 
 class ClientBodyTest(unittest.TestCase):

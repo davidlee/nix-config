@@ -40,6 +40,11 @@
         env = "FIREWORKS_API_KEY";
         ref = "op://API_KEYS/FIREWORKS_API_KEY/credential";
       };
+      typesafe = {
+        env = "TYPESAFE_API_KEY";
+        # by convention; confirm the item at rollout (SL-019 ASM-002)
+        ref = "op://API_KEYS/TYPESAFE_API_KEY/credential";
+      };
     };
   };
 

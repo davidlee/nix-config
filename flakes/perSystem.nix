@@ -140,6 +140,8 @@ in {
             models = {};
             extraModels = lib.mapAttrs (_: onFake) {
               inherit reported;
+              # LiteLLM strips the api_base's /v1 and appends /v1/systemone
+              "typesafe/jev-1.14.0" = proxy.defaults.models."typesafe/jev-1.14.0";
               # its twin without allowed_openai_params
               unallowed = removeAttrs reported ["params"];
               # never requested: its params try to replace its model and key
