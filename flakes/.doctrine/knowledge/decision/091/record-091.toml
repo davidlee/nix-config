@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 91
+slug = "llm-gateway-refuses-to-run-as-root"
+title = "llm-gateway refuses to run as root"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "llm-gateway runs its store operations through sudo itself. Run as `sudo llm-gateway issue --out FILE`, FILE is root:root 0600 and the client cannot read it (ISS-015)."
+choice = "llm-gateway exits non-zero when run as root, saying it uses sudo itself and to run it as the user."
+alternatives = ["write --out as $SUDO_USER"]
+rationale = "DEC-084: minting a key is the whole onboarding, so it must not leave an unreadable file. Refusing is one check; impersonating $SUDO_USER is more code and trusts an environment variable."
+consequences = ["Root-only use (no invoking user) is not supported"]
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

@@ -1,0 +1,34 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 2
+slug = "typesafes-1password-item-is-opapi-keystypesafe-api-keycredential"
+title = "TypeSafe's 1Password item is op://API_KEYS/TYPESAFE_API_KEY/credential"
+record_kind = "assumption"
+status = "held"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = ["gateway"]
+
+[facet]                         # every field typed; seeded empty (captured later)
+claim = "The TypeSafe key lives in 1Password at op://API_KEYS/TYPESAFE_API_KEY/credential, the convention of the other gateway providers (proxy.nix)"
+confidence = "medium"
+basis = "prior-art"
+validation_plan = "Operator confirms before SL-019 rollout; llm-gateway credentials typesafe reads it"
+validated_by    = ""
+validated_on    = ""
+invalidated_by  = ""
+invalidated_on  = ""
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

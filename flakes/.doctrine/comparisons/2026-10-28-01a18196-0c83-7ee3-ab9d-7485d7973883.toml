@@ -1,0 +1,21 @@
+schema = "doctrine.comparison-session"
+version = 3
+tombstone = []
+
+[session]
+uid = "01a18196-0c83-7ee3-ab9d-7485d7973883"
+date = "2026-10-28"
+
+[[judgement]]
+uid = "01a18196-0c83-7ee3-ab9d-74981a45e218"
+seq = 0
+a = "IMP-054"
+domain = "estimate"
+frame = "cost-anchor"
+form = "anchor"
+est_lower = 2.0
+est_upper = 3.0
+rater = "agent"
+by = "claude-opus-5-5"
+note = "unit: phases. Native TypeSafe provider in pinned LiteLLM 1.106.2; was medium (3+) under the pass-through approach"
+date = "2026-10-28"

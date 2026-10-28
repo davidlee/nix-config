@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 89
+slug = "typesafe-sdk-modelslist-and-multipart-images-are-out-of-contract"
+title = "TypeSafe SDK models.list and multipart images are out of contract"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The SDK's models.list() expects GET /v1/models as {models:[...]}; LiteLLM answers {data:[...]}. The SDK sends images as multipart/form-data; LiteLLM's decisions route parses JSON only (endpoints.py:102-104)."
+choice = "Neither is supported; SPEC-001 and the README say so. SDK systemOne() without images, and raw-JSON image assets, work."
+alternatives = ["serve a TypeSafe-shaped model list", "convert multipart to JSON assets in route_gate"]
+rationale = "Each needs a new mechanism; deferring costs nothing extra later."
+consequences = []
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

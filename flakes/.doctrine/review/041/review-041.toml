@@ -1,0 +1,157 @@
+id    = 41
+slug  = "design-review-of-sl-019"
+title = "design review of SL-019"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Completed an adversarial design pass over the full .doctrine/slice/019/design.md and research/research.md (including raw code-map and the available OpenAPI evidence), the current gateway_hooks.py, llm-gateway, proxy.nix, launcher and affected test/config seams; compared SL-019, SPEC-001's client contract and DEC-073 / DEC-084 / DEC-085 / DEC-087..092. Traced the pinned LiteLLM 1.106.2 systemone validation, pre-call/model-gate path, native TypeSafe configuration and nested image representation/fetch path. The route/method/raw-path filter remains exact; the examined native systemone state/assets path does not establish a remote-image fetch bypass. The research supports the native-provider/top-level-field approach, but does not settle the parser and decoder-bound defects raised here.
+
+Raised F-1 blocker (JSON/form parser disagreement bypasses the retained allow-list), F-2 major (zstd window allocation outside the output bound), and F-3 minor (Transfer-Encoding retained alongside synthesized Content-Length). Reproductions used the pinned Python 3.14.8/LiteLLM parser with synthetic data and network connections disabled, and synthetic h11 HTTP bytes without sockets. Verified that the proposed eof/unused_data/output checks reject truncated frames, concatenated frames and output above the cap; a standalone skippable frame yields empty bytes, which the JSON-object guard refuses. No fail-open claim is made for those cases, and F-3 does not claim a wire-level smuggling exploit. The decoder probe measured address-space allocation, not resident-memory exhaustion.
+
+Only RV-041 was authored; its context cache was primed through the review workflow. No design/code edits, builds, activation, provider calls, credential access, full integration suite or live rollout verification. Findings remain open for the responder; concluding this raiser pass does not resolve them or prove the implementation.
+"""
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Follow-up pass completed over every responder disposition and the revised full SL-019 design, with particular attention to sec-4 (:93-146), sec-6 (:175-198), and sec-1/sec-7/sec-8 projections. Verified F-1, F-2 and F-3 at design level, each with file/line evidence and the limits of the verification recorded on its verify turn. No new finding was established and no finding remains contested.
+
+Checked the pinned LiteLLM form/JSON parser and current unchanged gateway replay, the SDK compression callsite, and ISS-020. Isolated synthetic probes of the prescribed recipe confirmed JSON parser agreement on both chat aliases with plain/zstd polyglots and conflicting duplicate incoming headers; window-limit refusal of the original large-window frame; complete-frame checks; encoding-list rejection; and canonical replay of a chunked zstd request. Default Node v26.12.1 compression fixtures through 16 MiB decoded under the proposed Python 3.14.8 window cap. These probes modeled the revised design in memory; no gateway implementation was changed or tested as repaired. Runtime repair is inferred pending implementation, required tests and rollout, with the live F-1 defect retained in ISS-020.
+
+Only RV-041's acts and synthesis were changed. No source/design/backlog edits, builds, activation, provider calls, secrets or full integration suite. All three findings used route review, so this pass settles their design repairs without claiming implementation proof.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-019"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "blocker"
+title = "Content-Type lets the downstream parser reintroduce forbidden top-level fields"
+detail = """
+Evidence: .doctrine/slice/019/design.md:65-77 retains today's CHAT_FIELDS and _body_refusal mechanism, while :98-109 replays decoded bytes on every POST and changes only Content-Encoding/Content-Length. No Content-Type rule ensures that LiteLLM interprets those bytes as the JSON object the guard checked. features/agents/gateway/gateway_hooks.py:147-155 uses json.loads(body); the pinned LiteLLM 1.106.2 proxy/common_utils/http_parsing_utils.py:231-262 selects request.form() for form content types, and proxy/proxy_server.py:12333 consumes that parser's result for chat completions. This violates DEC-073 and SPEC-001's fail-closed field boundary.
+
+Verified reproduction against the current route_gate and the pinned LiteLLM parser, in-process with network connections disabled: POST /v1/chat/completions, Content-Type: application/x-www-form-urlencoded, body:
+{"messages":"&model=deepseek-flash&api_base=http%3A%2F%2F127.0.0.1%3A9&custom_llm_provider=typesafe&ignored="}
+The guard returned no refusal and called the inner app. LiteLLM's read_request_body returned a dictionary containing model='deepseek-flash', api_base='http://127.0.0.1:9' and custom_llm_provider='typesafe', plus form artefacts. Under application/json the same bytes remained only a messages field. These are fields the allow-list explicitly claims cannot reach LiteLLM. The defect is present in the retained path; the proposed per-route refactor and zstd replay preserve it.
+
+Concrete failure: a client embeds form delimiters in an allowed JSON value, chooses the form media type, and supplies internal routing/provider fields after the guard has approved a different object. ModelGate only checks model/fallback names (gateway_hooks.py:225-240), so it cannot repair the field boundary. Provider redirection/credential misuse is an inference from the injected controls, not a provider-call reproduction; no real provider or secret was used.
+
+Repair: specify and enforce one downstream interpretation for every accepted POST. Reject conflicting/unsupported Content-Type values (including duplicates), or normalize accepted JSON to one application/json header before replay so downstream form parsing cannot occur. Add a real-parser regression with this polyglot body, plain and zstd-encoded, on both chat aliases, and verify injected fields never enter request processing. The recording Reader alone cannot detect this defect.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Accepted. Verified: LiteLLM 1.106.2 read_request_body parses form content types with request.form() (common_utils/http_parsing_utils.py:238-262), and the chat handler takes that result (proxy_server.py:12333), so the guard's json.loads view and LiteLLM's can differ. Defect is live in today's gate, not only in the design. Repair (sec-4): every POST the guard admits is replayed with canonical headers: all content-type, content-encoding, content-length and transfer-encoding occurrences removed, then exactly content-type: application/json and content-length: len(body). LiteLLM then takes its orjson branch on the bytes the guard checked. Normalise rather than refuse: no client's declared type is load-bearing, and refusing would break clients that omit it. VT (sec-6): the polyglot form body, plain and zstd, on both chat aliases, through the real proxy: injected fields never reach the fake upstream. Sibling checked, not a defect: query parameters merged at auth are dropped from the handler's parsed-body cache (http_parsing_utils.py:351-353); only api-version reaches handler data (litellm_pre_call_utils.py:2313-2317)."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Accepted. Verified: LiteLLM 1.106.2 read_request_body parses form content types with request.form() (common_utils/http_parsing_utils.py:238-262), and the chat handler takes that result (proxy_server.py:12333), so the guard's json.loads view and LiteLLM's can differ. Defect is live in today's gate, not only in the design. Repair (sec-4): every POST the guard admits is replayed with canonical headers: all content-type, content-encoding, content-length and transfer-encoding occurrences removed, then exactly content-type: application/json and content-length: len(body). LiteLLM then takes its orjson branch on the bytes the guard checked. Normalise rather than refuse: no client's declared type is load-bearing, and refusing would break clients that omit it. VT (sec-6): the polyglot form body, plain and zstd, on both chat aliases, through the real proxy: injected fields never reach the fake upstream. Sibling checked, not a defect: query parameters merged at auth are dropped from the handler's parsed-body cache (http_parsing_utils.py:351-353); only api-version reaches handler data (litellm_pre_call_utils.py:2313-2317)."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+VERIFIED at design level. .doctrine/slice/019/design.md:122-142 now requires every admitted POST, plain or decoded, to discard all Content-Type occurrences and append exactly one application/json header; :180-182 makes the canonical inner headers observable, and :195-198 adds the polyglot regression on both chat aliases, plain and zstd. This closes the mechanism in the original finding: pinned LiteLLM 1.106.2 proxy/common_utils/http_parsing_utils.py:231-262 chooses request.form() only for form types, while :263-300 uses the JSON parsers for the canonical type.
+
+Verified by an isolated in-memory application of the revised recipe to the pinned parser: the original polyglot containing &model=deepseek-flash, &api_base=http://127.0.0.1:9 and &custom_llm_provider=typesafe remained a single messages value on both chat aliases, plain and zstd, even with duplicate conflicting incoming Content-Type and Content-Length headers. No injected top-level fields appeared. This tested the design recipe, not an implementation change or the full proxy. Runtime closure after implementation remains an inference; gateway_hooks.py:128-140 still retains the original replay today, and ISS-020 explicitly tracks that live defect until rollout. The sec-1/sec-7/sec-8 projections at design.md:15, :23, :226, :237 and :252-256 consistently include canonical replay and ISS-020 closure.
+"""
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "The zstd output cap leaves decoder window memory outside the bound"
+detail = """
+Evidence: .doctrine/slice/019/design.md:101-106 constructs ZstdDecompressor() with no options and relies on max_length=MAX+1 as its bomb bound; :149-151 tests only oversized decoded output, truncation and multiple frames. The guard executes before authentication (gateway_hooks.py:98-101, :121-130; MAX_BODY_BYTES comment at :81). Python documents max_length as a returned-output limit and provides a separate DecompressionParameter.window_log_max to limit decoder memory: https://docs.python.org/3.14/library/compression.zstd.html#compression.zstd.DecompressionParameter.window_log_max .
+
+Verified reproduction with the gateway's Python 3.14.8 compression.zstd: bytes.fromhex('28b52ffd00881100007b7d') is an 11-byte, single complete frame advertising a 128 MiB window and decoding to b'{}'. ZstdDecompressor().decompress(frame, max_length=16777217) returned b'{}', eof=True, unused_data=b''. Process VmSize rose from 16948 kB to 148492 kB while the decoder remained alive. VmRSS rose only from 10624 kB to 10756 kB: this proves a large decoder allocation/address-space reservation, not 128 MiB of resident memory consumption. All of the design's encoded-size, decoded-size and frame checks accept this input.
+
+Concrete failure: any local caller, without a key, can make the pre-auth guard allocate a window far larger than its body limit using a tiny request. Repetition or overlapping live decoder instances create memory/address-space pressure that the claimed bomb bound does not control. Service exhaustion is an inference; no exhaustion attack was run.
+
+Repair: choose and state an explicit decoder window cap, e.g. ZstdDecompressor(options={DecompressionParameter.window_log_max: 24}) for a 16 MiB window, alongside the existing encoded/output caps. The same frame was refused under that option with ZstdError: 'Frame requires too much memory for decoding'. Define the guarded refusal status and add an oversized-window fixture whose actual decoded JSON is tiny, so output-size tests cannot substitute for this check.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Accepted. max_length bounds output only; the decoder window is sized from the frame header. Repair (sec-4): ZstdDecompressor(options={DecompressionParameter.window_log_max: 24}), a 16 MiB window, equal to MAX_BODY_BYTES; a frame needing more raises ZstdError, refused 400 like any undecodable body. Compatibility checked: the TypeSafe SDK compresses with Node's one-shot zlib.zstdCompress at default parameters (~/.local/src/typesafe-sdk-js/src/compression.ts), whose window is bounded by the source size, so no legitimate body under MAX_BODY_BYTES needs a larger window. VT (sec-6): an oversized-window frame whose content is {} is 400."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Accepted. max_length bounds output only; the decoder window is sized from the frame header. Repair (sec-4): ZstdDecompressor(options={DecompressionParameter.window_log_max: 24}), a 16 MiB window, equal to MAX_BODY_BYTES; a frame needing more raises ZstdError, refused 400 like any undecodable body. Compatibility checked: the TypeSafe SDK compresses with Node's one-shot zlib.zstdCompress at default parameters (~/.local/src/typesafe-sdk-js/src/compression.ts), whose window is bounded by the source size, so no legitimate body under MAX_BODY_BYTES needs a larger window. VT (sec-6): an oversized-window frame whose content is {} is 400."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+VERIFIED at design level. .doctrine/slice/019/design.md:103-109 and :115-120 now explicitly set window_log_max=24 independently of max_length=MAX+1; oversized windows raise ZstdError and receive a marked 400. The tiny-content, 128 MiB-window regression is required at :183-186, so the output-size test cannot substitute for the memory-bound test.
+
+Rechecked with the pinned Python 3.14.8 decoder: the original 11-byte frame 28b52ffd00881100007b7d raises ZstdError with DecompressionParameter.window_log_max:24, rather than returning '{}'. Ordinary compressed JSON still decodes; truncated and concatenated frames remain refused by the eof/unused_data checks. Checked the new SDK evidence directly: /home/david/.local/src/typesafe-sdk-js/src/compression.ts:53-58 calls Node zstdCompress without custom options. Synthetic default Node v26.12.1 zstdCompressSync output at input sizes 1024, 1048576 and 16777216 bytes all decoded completely under the 24-bit window cap. This is bounded compatibility evidence for the default encoder path, not proof for every possible encoder/frame. Production enforcement remains an inference until the implementation and planned tests run.
+"""
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Decoded replay retains Transfer-Encoding while synthesizing Content-Length"
+detail = """
+Evidence: .doctrine/slice/019/design.md:109 specifies only 'drop content-encoding, content-length = len(decoded)' and :114-115 claims that the rewritten headers describe the replayed body. There is no removal of Transfer-Encoding or policy for repeated encoding/length headers. The gateway really uses Uvicorn (features/agents/gateway/llm-gateway-serve:56-58). In the pinned Uvicorn 0.51.0, protocols/http/h11_impl.py:199-217 copies the incoming request headers, including transfer-encoding, into the ASGI scope; httptools_impl.py:242-246 similarly preserves them.
+
+Verified synthetic HTTP parsing reproduction using the pinned h11 environment, without sockets: a valid chunked HTTP/1.1 POST carrying Content-Encoding: zstd and a compressed '{}' produced request headers containing transfer-encoding: chunked and body events containing only the compressed bytes (HTTP chunks already removed). Applying the design's stated rewrite yielded transfer-encoding: chunked plus content-length: 2, while replaying plain b'{}'. Thus a normal chunked client request reaches LiteLLM with both framing headers and an already dechunked/decompressed body. The current recording-app test plan (:149-151) does not assert removal of Transfer-Encoding.
+
+Concrete failure: the new rewrite manufactures inconsistent transport metadata on otherwise valid chunked requests; downstream body consumers see a fixed plain body marked both chunked and length-delimited. No request-smuggling exploit is claimed: this rewrite occurs after Uvicorn has already parsed the wire request, so that stronger claim is unproven. This is a concrete framing-contract defect, hence minor.
+
+Repair: define one header canonicalization rule: remove every Content-Encoding, Content-Length and Transfer-Encoding occurrence and append exactly one decoded Content-Length; define handling of duplicate/list Content-Encoding values before choosing a decoder, rejecting unsupported/ambiguous chains instead of silently selecting one occurrence. Add an incoming chunked zstd request test that asserts the complete inner header multimap and body, plus duplicate-encoding/length cases.
+"""
+disposition = "fix-now"
+route = "review"
+response = "Accepted; repaired by F-1's canonical replay headers, which remove every transfer-encoding occurrence. Content-encoding is read as the list of all its occurrences and values; only none, [identity] or [zstd] is accepted, every other list (chains, repeats, other codings) is 415. VT (sec-6): a chunked zstd request reaches the app with exactly the canonical header set; repeated and chained encodings are 415."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Accepted; repaired by F-1's canonical replay headers, which remove every transfer-encoding occurrence. Content-encoding is read as the list of all its occurrences and values; only none, [identity] or [zstd] is accepted, every other list (chains, repeats, other codings) is 415. VT (sec-6): a chunked zstd request reaches the app with exactly the canonical header set; repeated and chained encodings are 415."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+VERIFIED at design level. .doctrine/slice/019/design.md:130-139 now removes every occurrence of Content-Type, Content-Length, Content-Encoding and Transfer-Encoding before appending exactly one JSON content type and decoded length. This removes the Transfer-Encoding/Content-Length contradiction in the original finding while preserving unrelated headers. At :103-110 the complete multimap of Content-Encoding values is split, trimmed and lowercased; only [], [identity] and [zstd] are accepted. Chains, repeats and other lists are 415, without selecting a convenient single occurrence. Tests at :180-186 cover canonical headers, chunked zstd, repeated/chained encodings and frame failures.
+
+Verified with synthetic h11 wire bytes and the proposed canonicalization recipe: a chunked zstd POST decoding to '{}' retained Host and reached the inner representation with exactly Content-Type: application/json and Content-Length: 2, with no Transfer-Encoding/Content-Encoding. Separate duplicate length/type inputs were collapsed to one correct value each, and an unrelated control header was preserved. The recipe rejected gzip, zstd/identity chains, repeated zstd header occurrences, blank encodings and trailing empty list elements. No production rewrite or wire-level smuggling exploit was tested; implementation correctness remains an inference pending the specified tests.
+"""
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

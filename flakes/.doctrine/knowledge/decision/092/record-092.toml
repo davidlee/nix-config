@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 92
+slug = "serve-v1systemone-only-not-v1decisions"
+title = "Serve /v1/systemone only; not /v1/decisions"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-086 admitted /v1/decisions as cheap. On that route LiteLLM 1.106.2 fetches every remote input_image URL itself before calling TypeSafe (decisions/call.py:560-587, llms/base_llm/decisions/transformation.py:180-187). Any Jev key could make the gateway GET arbitrary URLs, including for an offline jail whose only network path is the gateway (DEC-077). /v1/systemone has no such path: its images field is off DEC-087's list, and assets are data_base64."
+choice = "route_gate admits POST /v1/systemone only. /v1/decisions stays a 404. DEC-087's field set for decisions is dropped."
+alternatives = ["keep /v1/decisions; route_gate refuses any input_image that is not a data: URL (nested inspection)", "keep it and accept the fetch"]
+rationale = "Closing the fetch needs nested body inspection, a new mechanism; that makes the route no longer cheap, the operator's condition for it. No consumer uses it."
+consequences = ["Supersedes DEC-086", "A consumer wanting the OpenAI Decisions format needs gateway work, an exception to DEC-084, with the fetch handled first"]
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-086"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

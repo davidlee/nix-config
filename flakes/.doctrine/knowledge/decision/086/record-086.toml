@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 86
+slug = "serve-v1systemone-and-v1decisions"
+title = "Serve /v1/systemone and /v1/decisions"
+record_kind = "decision"
+status = "superseded"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "LiteLLM 1.106.2 serves TypeSafe through /v1/systemone (TypeSafe's format) and /v1/decisions (OpenAI Decisions, translated), both via _process_decisions."
+choice = "Admit POST /v1/systemone and POST /v1/decisions in route_gate; no unversioned twins."
+alternatives = ["/v1/systemone only", "also /systemone and /decisions"]
+rationale = "Operator: take /v1/decisions if cheap and cheaper now; it is one field set and test rows on the same seam. TypeSafe and its SDK use /v1/."
+consequences = []
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = ["DEC-092"]   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

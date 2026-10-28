@@ -1,0 +1,22 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 20
+slug = "gateway-body-guard-a-form-content-type-lets-litellm-parse-fields-the-guard-never-saw"
+title = "Gateway body guard: a form Content-Type lets LiteLLM parse fields the guard never saw"
+kind = "issue"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }

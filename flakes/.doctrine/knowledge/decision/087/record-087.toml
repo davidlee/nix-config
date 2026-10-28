@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 87
+slug = "the-body-allow-list-is-per-route"
+title = "The body allow-list is per route"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-073's ALLOWED_FIELDS is one set for chat. LiteLLM's decisions bodies are extra=allow, so unlisted fields (api_base, fallbacks, metadata) would reach it."
+choice = "route_gate holds a field set per POST route: chat unchanged; /v1/systemone {model, state, questions, assets}; /v1/decisions {model, input, questions, safety_identifier}."
+alternatives = ["one union set for all routes"]
+rationale = "A union would admit chat fields on decisions and vice versa. assets lets raw-JSON clients send images (header opt-in)."
+consequences = ["Extends DEC-073 to new routes"]
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 90
+slug = "typesafe-danger-zone-headers-pass-through"
+title = "typesafe-danger-zone headers pass through"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "LiteLLM 1.106.2 forwards any client header prefixed typesafe-danger-zone- to TypeSafe (litellm_pre_call_utils.py:3609-3620)."
+choice = "The gateway does not filter them; that is how a raw-JSON client opts in to images (DEC on per-route fields)."
+alternatives = ["strip them in route_gate"]
+rationale = "Stripping would add header filtering and block image requests DEC-084 wants to work."
+consequences = ["A client can opt in to any experimental TypeSafe feature on its own key's spend"]
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

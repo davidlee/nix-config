@@ -1,0 +1,106 @@
+# Implementation plan for SL-019 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-019"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms).
+[[phase]]
+id        = "PHASE-01"
+name      = "Route gate: per-route fields, /v1/systemone, bounded zstd"
+objective = "gateway_hooks.py serves POST /v1/systemone with its own field list (ROUTES map, design sec-3) and decodes zstd bodies within both bounds, refusing every other encoding list (sec-4). Builds on ISS-020's canonical replay headers."
+entrance_criteria = [
+  { id = "EN-1", text = "Design locked (SL-019 run rev 39); ISS-020's canonical-replay fix committed, or folded into this phase if it is not" },
+  { id = "EN-2", text = "just test green before the change" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "ALLOWED_ROUTES and ALLOWED_FIELDS replaced by one ROUTES map; _body_refusal takes the route's field set; /systemone, /v1/decisions and /decisions stay 404" },
+  { id = "EX-2", text = "zstd decoded with window_log_max = 24 and max_length = MAX_BODY_BYTES + 1; refusals per the sec-4 table (413 output bound, 400 incomplete / multi-frame / ZstdError, 415 any other encoding list)" },
+  { id = "EX-3", text = "Every admitted POST, decoded or not, reaches the app with exactly the canonical headers (sec-4 table)" },
+  { id = "EX-4", text = "Module docstring and comments name ROUTES, not the removed constants; just test green" },
+]
+verification = [
+  { id = "VT-1", expects = "systemone admits {model, state, questions, assets}, refuses messages and api_base (400); chat refuses state (400); /systemone, /v1/decisions, /decisions are 404 with the gate marker", test_file = "features/agents/gateway/gateway-test", keywords = ["/v1/systemone", "/v1/decisions", "SYSTEMONE_FIELDS"], waived = false },
+  { id = "VT-2", expects = "test_zstd_* cases: a zstd body (chunked included) reaches the app decoded with the canonical headers; gzip, 'zstd, identity' and two content-encoding headers are 415; a bomb is 413; a 128 MiB-window frame decoding to {} is 400; truncated and two-frame bodies are 400", test_file = "features/agents/gateway/gateway-test", keywords = ["compression.zstd", "test_zstd_", "415"], waived = false },
+  { id = "VT-3", expects = "the gate's constants and decoder options are in the module", test_file = "features/agents/gateway/gateway_hooks.py", keywords = ["ROUTES", "SYSTEMONE_FIELDS", "window_log_max", "ZstdDecompressor"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "TypeSafe provider and Jev models through the proxy"
+objective = "proxy.nix gains the typesafe provider and agents/gateway.nix the four Jev models (sec-2); the proxy test's fake upstream also serves /v1/systemone, and the through-proxy cases of sec-6 pass, parser agreement included."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 completed" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "typesafe provider in defaults.providers (TYPESAFE_API_KEY, op ref per ASM-002, no reportsCost); four typesafe/jev-* models from one helper, no pi block, no params; the build's price check passes" },
+  { id = "EX-2", text = "The fake upstream serves /v1/chat/completions and /v1/systemone and records each request's headers and body; the fake config carries typesafe/jev-1.14.0 on onFake" },
+  { id = "EX-3", text = "Through the proxy: no key 401, key without Jev 403, key with Jev 200 with the provider's bearer secret and model jev-1.14.0 upstream; spend rises by input_tokens x the packaged price; zstd systemone served the same; a Jev model on chat is non-200" },
+  { id = "EX-4", text = "Parser agreement: the polyglot form body, plain and zstd, on both chat aliases, never reaches a second loopback listener named in its api_base" },
+  { id = "EX-5", text = "just test green; just coverage evaluates" },
+]
+verification = [
+  { id = "VT-1", expects = "Jev served through the real proxy: auth, model scope, provider credential, upstream model name, spend, zstd, cross-route", test_file = "features/agents/gateway/gateway-test", keywords = ["jev-1.14.0", "input_tokens", "systemone"], waived = false },
+  { id = "VT-2", expects = "a ParserAgreement test class: the polyglot form body cannot redirect a request through the real proxy (RV-041 F-1); the gate-unit form test from ISS-020 does not count", test_file = "features/agents/gateway/gateway-test", keywords = ["ParserAgreement", "application/x-www-form-urlencoded"], waived = false },
+  { id = "VT-3", expects = "provider and models declared", test_file = "agents/gateway.nix", keywords = ["typesafe/", "jev-latest", "jev-preview", "jev-1.14.0", "jev-1.13.0"], waived = false },
+  { id = "VT-4", expects = "provider entry", test_file = "features/agents/gateway/proxy.nix", keywords = ["typesafe", "TYPESAFE_API_KEY"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "llm-gateway refuses root"
+objective = "The admin CLI refuses to run as root (sec-5, DEC-091, ISS-015): Host.is_root, checked first in main, exit 2 with the sec-5 message."
+entrance_criteria = [
+  { id = "EN-1", text = "Design locked; independent of PHASE-01/02" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Host gains is_root (production os.geteuid() == 0); main refuses first, before any command" },
+  { id = "EX-2", text = "just test green" },
+]
+verification = [
+  { id = "VT-1", expects = "as root every command exits 2 with the message, and nothing reaches privileged or spawn", test_file = "features/agents/gateway/keystore-test", keywords = ["is_root", "run as your user"], waived = false },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Docs, rollout and live check"
+objective = "README § LLM gateway documents the provider, route, zstd and SDK limits and issuing without sudo; the operator rolls out (sec-7) and the live call passes."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01..03 completed and committed" },
+  { id = "EN-2", text = "1Password item for TypeSafe exists (ASM-002 confirmed or corrected)" },
+]
+exit_criteria = [
+  { id = "EX-1", text = "README: providers table gains typesafe; client routes name /v1/systemone; zstd accepted, other encodings 415; TypeSafe SDK models.list() and multipart images unsupported; issue runs without sudo" },
+  { id = "EX-2", text = "Rollout per sec-7: credentials from the new build, switch, screwtape key issued" },
+  { id = "EX-3", text = "IMP-054, ISS-015, ISS-020 ready to close at reconcile" },
+]
+verification = [
+  { id = "VA-1", expects = "README section reads true against the code and SPEC-001's client contract" },
+  { id = "VH-1", expects = "one /v1/systemone call through the relay with the screwtape key on typesafe/jev-1.14.0: 200 and spend recorded; the same zstd-encoded via the SDK: 200" },
+]
+specs        = []
+requirements = []

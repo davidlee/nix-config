@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 88
+slug = "route-gate-decodes-zstd-request-bodies"
+title = "route_gate decodes zstd request bodies"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-28"
+updated = "2026-10-28"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The TypeSafe JS SDK sends bodies over 1 KiB with Content-Encoding: zstd by default (Node >= 22.15). The guard parses JSON; LiteLLM's decisions route parses JSON only."
+choice = "route_gate decodes Content-Encoding: zstd (Python 3.14 compression.zstd) on every POST before the field check, bounded at MAX_BODY_BYTES encoded and decoded, and passes plain JSON on with the encoding and length headers rewritten. Any other Content-Encoding is a 415 with the guard marker."
+alternatives = ["consumers set compression: false", "no compression at all"]
+rationale = "DEC-084: the SDK's defaults must work. Bounded decode stops a decompression bomb."
+consequences = ["Supersedes the earlier 'no compression' scope note in IMP-054 and SL-019"]
+decided_by = "operator"
+decided_on = "2026-10-28"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-019"

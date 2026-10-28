@@ -1,0 +1,46 @@
+memory_uid = "mem_01a181b03c717250aaf285176861fb34"
+memory_key = "mem.fact.gateway.litellm-decisions-routes"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "LiteLLM's decisions routes: native TypeSafe, and /v1/decisions fetches remote images"
+summary = "LiteLLM 1.106.2 serves TypeSafe Jev natively on /v1/systemone and /v1/decisions; /v1/decisions inlines remote image URLs server-side"
+created = "2026-10-28"
+updated = "2026-10-28"
+
+[scope]
+paths = ["features/agents/gateway/", "agents/gateway.nix"]
+globs = []
+commands = []
+tags = ["gateway", "litellm", "typesafe"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "7654b4218adee30939d467e056724496337f61e4"
+ref_name = "refs/heads/main"
+checkout_state_id = "11d74fc609ac1247d7e3d415697d85bd703a3e1eeab04f2e630a43f9bb5655db"
+base_commit = "3699b1aab3889deaf80a3bb7f398cc76ec8322fc"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-019"
+
