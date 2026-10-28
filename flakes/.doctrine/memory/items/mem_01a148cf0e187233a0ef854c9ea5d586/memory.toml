@@ -4,13 +4,13 @@ schema_version = 1
 lifespan = "semantic"
 memory_type = "fact"
 status = "active"
-title = "LiteLLM 1.102.1 proxy behaviours the llm-gateway hooks depend on"
+title = "LiteLLM proxy behaviours the llm-gateway hooks depend on (1.102.1, rechecked 1.106.2)"
 summary = "Facts about LiteLLM 1.102.1's proxy that shape features/agents/gateway: hooks are stateless, client mock_response is stripped, unpriced models cost 0, non-sk- keys go unhashed on failure paths, Router fallbacks bypass a data[model]-only gate."
 created = "2026-10-17"
-updated = "2026-10-17"
+updated = "2026-10-28"
 
 [scope]
-paths = ["features/agents/gateway/gateway_hooks.py", "features/agents/gateway/llm-gateway-serve", "features/agents/gateway/proxy.nix"]
+paths = ["features/agents/gateway/gateway_hooks.py", "features/agents/gateway/llm-gateway-serve", "features/agents/gateway/proxy.nix", "features/agents/gateway/gateway-test"]
 globs = []
 commands = []
 tags = ["litellm", "llm-gateway", "security"]

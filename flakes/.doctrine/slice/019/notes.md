@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-10-28 · ready (design locked rev 39; PHASE-01..04 planned, none started) · 54ea835f
+fresh-as-of: 2026-10-28 · ready (design locked rev 39; PHASE-01..04 planned, none started; ISS-020 hotfix live, committed) · 504ebca5
 
 ### Produced
 - IMP-054 rewritten: native LiteLLM TypeSafe provider, not a pass-through
@@ -14,6 +14,8 @@ fresh-as-of: 2026-10-28 · ready (design locked rev 39; PHASE-01..04 planned, no
 - minted: CHR-024 — stale LiteLLM 1.102.1 line references in gateway code
 - folded in: ISS-015 (DEC-091)
 - minted: ISS-020 — live body-guard bypass via form Content-Type (RV-041 F-1); fixed by sec-4
+- roll-forward (operator, 2026-10-28): the ISS-020 hotfix, master-key boot override (DEC-050), `ParserAgreementTest`, two test repairs for LiteLLM 1.106.2; see § Roll-forward
+- minted: CHR-025
 - plan.toml / plan.md: PHASE-01..04; committed 71ef935e. No code changed
   by SL-019 yet; gate not run.
 
@@ -22,7 +24,9 @@ fresh-as-of: 2026-10-28 · ready (design locked rev 39; PHASE-01..04 planned, no
 - mem.fact.typesafe.sdk-js-wire — SDK sends zstd and multipart; `models.list()` shape
 
 ### Open
-- PHASE-01 waits on the operator's ISS-020 fix (gateway_hooks.py, uncommitted): verify it, then /phase-plan
+- ISS-020 hotfix verified (check + live probe) and deployed; committed 504ebca5. Next: /phase-plan PHASE-01 (sec-4 must keep canonical replay)
+- CHR-025 — drop redundant `allowed_openai_params` (LiteLLM 1.106.2)
+- CHR-017 widened — ruff + pylint in the devshell and gate, then a lint pass
 - ASM-002 — TypeSafe's 1Password ref, to confirm at rollout
 - DEC-084 — its choice text names "both decisions routes"; DEC-092 narrows it to `/v1/systemone`
 
@@ -77,6 +81,13 @@ there is none. `checks.llm-gateway` failed at the same point, so no test ran.
 - Verified: `checks.llm-gateway` 56/56 OK. Live (operator switched): the
   service is active, its config carries the flag and the hook fix, and an
   unauthenticated `GET /v1/models` on 127.0.0.1:4000 gets 401.
-- Still open: ISS-020 closes at SL-019's rollout (sec-7). The live
-  authenticated polyglot probe (`/tmp/iss-020-probe.py`) has not been run
-  since the switch. Not committed.
+- Live probe (`/tmp/iss-020-probe.py`, key `pi-2`, which allows
+  deepseek-flash): the JSON and form-typed polyglots both got 403 `model None
+  not allowed`. The model appears only inside the `messages` string. Had
+  LiteLLM parsed the form, it would have seen the embedded
+  `model=deepseek-flash`, and the model gate would have judged that model
+  instead. So LiteLLM read the form body as JSON: the canonical replay holds
+  live. Neither request reached a provider. The probe script calls this
+  INCONCLUSIVE because it treats every 403 that way.
+- Still open: ISS-020 closes at SL-019's rollout (sec-7), per design. Committed
+  504ebca5.

@@ -21,3 +21,9 @@ Codex on RV-041 F-1 (reproduced in-process against the pinned parser).
 Fix: SL-019 sec-4. Every admitted POST is replayed with canonical headers:
 one `content-type: application/json`, one `content-length`, no
 `content-encoding` or `transfer-encoding`. Close at SL-019's rollout.
+
+Status 2026-10-28: operator hotfix live on Sleipnir, committed 504ebca5
+(`gateway_hooks.py` `_guard_body`, the canonical replay). Tests:
+`test_scope_headers_are_canonicalized`, `test_form_type_cannot_change_the_guarded_body_interpretation`
+and `ParserAgreementTest` (through the real proxy). Verified by `just test` and
+a live probe: SL-019 notes, § Roll-forward. Still closes at SL-019's rollout.
