@@ -45,3 +45,38 @@ header forwarding, `litellm_pre_call_utils.py` `add_provider_specific_headers_to
 which the field allow-list does not see. That surface predates SL-019 and
 applies to every route; inference, not checked. Query parameters were
 checked: only `api-version` reaches handler data.
+
+## Roll-forward 2026-10-28: gateway restored on LiteLLM 1.106.2
+
+The lock bump to LiteLLM 1.106.2 put the gateway in a restart loop:
+a new boot check (`proxy/auth/master_key_boot_check.py`, called at
+`proxy_server.py:1471`) refuses to start without a master key. DEC-050 decides
+there is none. `checks.llm-gateway` failed at the same point, so no test ran.
+
+- `proxy.nix`: `general_settings.dangerously_permit_weak_or_unset_master_key = true`.
+  Evidence: the flag is read only by that boot check (grep of the pinned
+  package); `custom_auth` returns before any master-key comparison
+  (`user_api_key_auth.py:1637`). Startup behaviour is as before 1.106.2.
+  The rejected alternative was an ephemeral in-memory key: it breaks
+  DEC-050 and makes `master_key` non-None, which changes LiteLLM's auth
+  branches (`is_no_auth_dev_mode`).
+- `gateway-test` `ParserAgreementTest`: the ISS-020 real-parser VT from sec-6,
+  plain variant (zstd comes with sec-4). It sends a form-urlencoded, multipart
+  or protobuf polyglot through the real proxy on both chat aliases. The body
+  must reach the fake upstream as the JSON the guard checked, and a second
+  loopback listener must receive nothing. Red with the fix disabled
+  (form: 500, multipart: 400); protobuf passes either way, so it is a control.
+- The upgrade surfaced two other failures, both upstream behaviour changes:
+  - `SpendTest`: LiteLLM now applies the price map's `off_peak_pricing`
+    (deepseek-flash: half price, weekdays 10:00–00:00 UTC). The ledger was
+    right; the test's restated price was not. It now uses `price_now`.
+  - `PassThroughTest` twin: OpenRouter accepts `reasoning_effort` on every
+    model (`llms/openrouter/chat/transformation.py:41-46`). The twin now
+    asserts that the request is served. Dropping the redundant
+    `allowed_openai_params` is CHR-025.
+- Verified: `checks.llm-gateway` 56/56 OK. Live (operator switched): the
+  service is active, its config carries the flag and the hook fix, and an
+  unauthenticated `GET /v1/models` on 127.0.0.1:4000 gets 401.
+- Still open: ISS-020 closes at SL-019's rollout (sec-7). The live
+  authenticated polyglot probe (`/tmp/iss-020-probe.py`) has not been run
+  since the switch. Not committed.

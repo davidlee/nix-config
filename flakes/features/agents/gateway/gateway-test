@@ -57,7 +57,7 @@ PROVIDER_SECRET = "sk-test-not-a-secret"  # dummy (POL-001)
 PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
 REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
-UNALLOWED = "unallowed"  # the same without allowed_openai_params
+UNALLOWED = "unallowed"  # the same without allowed_openai_params (CHR-025)
 
 
 def model_list(config_dir):
@@ -78,6 +78,19 @@ SPEND_WAIT = 10.0  # success callbacks run after the response returns
 PRICE_MAP = json.loads(
     (files("litellm") / "model_prices_and_context_window_backup.json").read_text()
 )
+
+
+def price_now(model):
+    """The packaged per-token rates of `model` now: LiteLLM prices a model
+    with an off_peak_pricing block at that block's rates inside its UTC
+    windows (llm_cost_calc/utils.py, 1.106.2). Only the clock is LiteLLM's;
+    the rates are the map's."""
+    from litellm.litellm_core_utils.llm_cost_calc.utils import _is_off_peak
+
+    price = PRICE_MAP[model]
+    off_peak = price.get("off_peak_pricing")
+    return {**price, **off_peak} if off_peak and _is_off_peak(off_peak) else price
+
 
 state = tempfile.TemporaryDirectory()
 credentials = tempfile.TemporaryDirectory()
@@ -513,11 +526,23 @@ class RouteGateUnitTest(unittest.TestCase):
             ],
         )
 
-    def test_scope_headers_reach_the_inner_app_unchanged(self):
+    def test_scope_headers_are_canonicalized(self):
         headers = [(k.lower().encode(), v.encode()) for k, v in ECA_HEADERS.items()]
+        headers += [(b"content-type", b"application/x-www-form-urlencoded"),
+                    (b"content-type", b"text/plain"), (b"content-length", b"2"),
+                    (b"content-encoding", b"identity"), (b"transfer-encoding", b"chunked")]
         scope = post(headers)
         inner, _, _ = self.guarded([b"{}"], scope)
-        self.assertEqual(inner.scopes, [scope])
+        self.assertEqual(inner.scopes[0]["headers"],
+                         headers[:len(ECA_HEADERS)] + [(b"content-type", b"application/json"),
+                                                       (b"content-length", b"2")])
+
+    def test_form_type_cannot_change_the_guarded_body_interpretation(self):
+        body = b'{"user":"x&api_base=https://example.com&custom_llm_provider=x"}'
+        inner, sent, _ = self.guarded([body], post([(b"content-type", b"application/x-www-form-urlencoded")]))
+        self.assertEqual(sent[0]["status"], 200)
+        self.assertIn((b"content-type", b"application/json"), inner.scopes[0]["headers"])
+        self.assertEqual(json.loads(inner.bodies[0]), {"user": "x&api_base=https://example.com&custom_llm_provider=x"})
 
     def test_routes_without_a_body_pass_unread(self):
         for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
@@ -703,8 +728,9 @@ class SpendTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         assert_spend_raised("spender")
         # priced from the usage the response reports (mock_response's fixed
-        # token counts) at the packaged price map's per-token rates
-        usage, price = response.json()["usage"], PRICE_MAP[model]
+        # token counts) at the packaged price map's per-token rates, off-peak
+        # when the clock says so
+        usage, price = response.json()["usage"], price_now(model)
         response_cost = (
             usage["prompt_tokens"] * price["input_cost_per_token"]
             + usage["completion_tokens"] * price["output_cost_per_token"]
@@ -1036,7 +1062,7 @@ class OpenRouterCostTest(unittest.TestCase):
 class PassThroughTest(unittest.TestCase):
     """minuet's routing fields reach OpenRouter on an unmapped model: the
     provider preference (sort by throughput) as is, and reasoning_effort
-    because the deployment allows it (allowed_openai_params)."""
+    which LiteLLM supports on every OpenRouter model."""
 
     BODY = {"provider": {"sort": "throughput"}, "reasoning_effort": "none"}
 
@@ -1049,14 +1075,16 @@ class PassThroughTest(unittest.TestCase):
         self.assertEqual(body["provider"], {"sort": "throughput"})
         self.assertEqual(body["reasoning_effort"], "none")
 
-    def test_twin_without_allowed_openai_params_gets_400_and_never_reaches_it(self):
+    def test_twin_without_allowed_openai_params_also_reaches_it(self):
+        """LiteLLM 1.106.2 supports reasoning_effort on every OpenRouter
+        model (llms/openrouter/chat/transformation.py:41-46), so
+        allowed_openai_params is now redundant (CHR-025)."""
         gateway = fake()
         key = issue("unallowed", models=[UNALLOWED])
         response = chat(key, model=UNALLOWED, via=gateway.client, **self.BODY)
-        self.assertEqual(response.status_code, 400, response.text)
-        self.assertIn("reasoning_effort", response.text)
-        self.assertEqual(gateway.upstream.bodies, [])
-        self.assertEqual(spent("unallowed"), 0)
+        self.assertEqual(response.status_code, 200, response.text)
+        [body] = gateway.upstream.bodies
+        self.assertEqual(body["reasoning_effort"], "none")
 
 
 class BodyGuardTest(unittest.TestCase):
@@ -1085,6 +1113,47 @@ class BodyGuardTest(unittest.TestCase):
         response = chat(key, model=REPORTED, via=gateway.client, **body)
         self.assertEqual(response.status_code, 200, response.text)
         assert_spend_rose_by("include-usage", 0, FAKE_COST)
+
+
+class ParserAgreementTest(unittest.TestCase):
+    """ISS-020, SL-019 sec-6: LiteLLM parses a body by its Content-Type, so
+    a JSON body sent as a form could reach it as fields the guard never saw.
+    A polyglot whose message names a second loopback listener is served as
+    the JSON the guard checked, by the configured upstream, whatever type
+    the client declared."""
+
+    CONTENT_TYPES = (
+        "application/x-www-form-urlencoded",
+        "multipart/form-data; boundary=b",
+        "application/x-protobuf",
+    )
+
+    def test_a_polyglot_is_served_as_json_and_never_redirected(self):
+        gateway = fake()
+        elsewhere = FakeOpenRouter(0)
+        self.addCleanup(elsewhere.close)
+        port = elsewhere.server.server_address[1]
+        content = (
+            f"x&model={REPORTED}&api_base=http://127.0.0.1:{port}/v1"
+            "&custom_llm_provider=openai&x="
+        )
+        key = issue("polyglot", models=[REPORTED])
+        for content_type in self.CONTENT_TYPES:
+            for path in ("/chat/completions", "/v1/chat/completions"):
+                with self.subTest(content_type=content_type, path=path):
+                    gateway.upstream.reset()
+                    response = chat(
+                        key,
+                        model=REPORTED,
+                        path=path,
+                        via=gateway.client,
+                        headers={"Content-Type": content_type},
+                        messages=[{"role": "user", "content": content}],
+                    )
+                    self.assertEqual(response.status_code, 200, response.text)
+                    [body] = gateway.upstream.bodies
+                    self.assertEqual(body["messages"][-1]["content"], content)
+        self.assertEqual(elsewhere.bodies, [])
 
 
 class ClientBodyTest(unittest.TestCase):

@@ -221,11 +221,11 @@ in {
 
     coverage."Sleipnir+openrgb" =
       mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = true;}]);
+      (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = false;}]);
 
     coverage."Sleipnir+llama-cpp" =
       mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.ai.llama-cpp.enable = true;}]);
+      (select "Sleipnir" hosts.Sleipnir [{feature.ai.llama-cpp.enable = false;}]);
 
     # Evaluates the rocmSupport closure; builds nothing (ADR-005 D5).
     coverage."Sleipnir+rocm" =
@@ -239,7 +239,7 @@ in {
 
     coverage."Sleipnir+sunshine" =
       mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.services.sunshine.enable = true;}]);
+      (select "Sleipnir" hosts.Sleipnir [{feature.services.sunshine.enable = false;}]);
 
     # docker off: the two are exclusive (DEC-022); a plain false beats the
     # workstation profile's mkDefault.

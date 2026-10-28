@@ -3,12 +3,12 @@ version = 1
 
 id = 17
 slug = "lint-and-format-the-gateway-python-in-just-fmt-just-test"
-title = "Lint and format the gateway Python in just fmt / just test"
+title = "Python lint: ruff + pylint in the devshell and gate, then a lint pass"
 kind = "chore"
 status = "open"
 resolution = ""                 # seeded empty so `backlog edit` sets it in place
 created = "2026-10-17"
-updated = "2026-10-17"
+updated = "2026-10-28"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

@@ -80,7 +80,15 @@
     };
     config = {
       model_list = lib.mapAttrsToList entry (models // extraModels);
-      general_settings.custom_auth = "gateway_hooks.authenticate";
+      general_settings = {
+        custom_auth = "gateway_hooks.authenticate";
+        # No master key (DEC-050): custom_auth authenticates every request
+        # the route gate admits, before any master-key comparison
+        # (proxy/auth/user_api_key_auth.py:1637, 1.106.2). This flag is read
+        # only by the boot check that otherwise refuses to start without one
+        # (proxy/auth/master_key_boot_check.py).
+        dangerously_permit_weak_or_unset_master_key = true;
+      };
       litellm_settings.callbacks = ["gateway_hooks.model_gate" "gateway_hooks.ledger"];
     };
     yaml = (pkgs.formats.yaml {}).generate "config.yaml" config;

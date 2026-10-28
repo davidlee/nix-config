@@ -137,7 +137,10 @@ async def _guard_body(app, scope, receive, send):
         replayed = True
         return {"type": "http.request", "body": body, "more_body": False}
 
-    await app(scope, replay, send)
+    rewritten = {b"content-type", b"content-length", b"content-encoding", b"transfer-encoding"}
+    headers = [(name, value) for name, value in scope.get("headers", ()) if name.lower() not in rewritten]
+    headers.extend([(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())])
+    await app({**scope, "headers": headers}, replay, send)
 
 
 def _body_refusal(body):
