@@ -111,8 +111,8 @@ Super-orchestrator run, started 2026-10-28, from b73eb889 (tree clean under `~/f
   findings only in lines the phase changes.
 - Charters: PHASE-01 (alone, heavy); PHASE-02 (alone, heavy); PHASE-03 + the
   README part of PHASE-04 (EX-1, VA-1). PHASE-04 EX-2/EX-3/VH-1 (rollout, live
-  call) are the operator's: the run halts before them. PHASE-04 stays
-  `planned`.
+  call) are the operator's: the run halts before them. PHASE-04 is
+  `in_progress` (README done, rollout pending); it completes after VH-1.
 - ASM-002 stays assumed: PHASE-02 uses `op://API_KEYS/TYPESAFE_API_KEY/credential`;
   the operator confirms at rollout.
 - Out of bounds for every phase: flake.lock, hosts.nix,
@@ -133,3 +133,8 @@ Super-orchestrator run, started 2026-10-28, from b73eb889 (tree clean under `~/f
 - PHASE-02 · `routed` generalised to `named <provider> <helper> <ids>` (agents/gateway.nix), shared by openrouter and typesafe; `FakeOpenRouter` renamed `FakeUpstream`, systemone requests recorded as (lowercased headers, body); test class `JevTest`; `post_json` helper under `chat`/`systemone` · names and fixture shape, in scope · decided
 - PHASE-02 · JevTest asserts the packaged Jev price is > 0 (else the spend check is vacuous) and the Jev-on-chat case also leaves chat upstream untouched · strengthens VT-1 · decided
 - PHASE-02 · Sonnet capsule-worker (operator default) did the phase in one pass; ruff's 3 findings are pre-existing lines (23, FakeGateway `open`, `BODY` class attr), left per the lint rule · friction · decided
+- PHASE-03 · done by the sub-orchestrator, no spawn (4 source lines + one test class); the root check runs before argument parsing, so a usage error as root is also exit 2 with the sec-5 message; RootRefused also asserts no `--out` file and a non-root control · "first in main" read strictly; strengthens VT-1 · decided
+- PHASE-04 · flipped `in_progress` and left there: EX-1/VA-1 done (README), EN-2 (ASM-002), EX-2, EX-3, VH-1 are the operator's rollout · charter; supersedes the "stays planned" line · decided
+- PHASE-04 · README: Routes and TypeSafe-SDK paragraphs after the Providers table; no parallel rollout runbook (sec-7 is "Adding a provider" + the `issue` examples); screwtape worked example left out · structure within § LLM gateway · decided
+- PHASE-04 · VA-1 SPEC-001 drift for reconcile (all in design sec-8, plus one): § Client contract routes lack `POST /v1/systemone` and the `/v1/decisions` 404; § Body and FR-002 (REQ text) name `ALLOWED_FIELDS`, now per-route `CHAT_FIELDS`/`SYSTEMONE_FIELDS` via `ROUTES` (not in sec-8); refusals table lacks 415 encoding, 400 zstd frame/decode, 413 on decoded size; § Request path lacks zstd decode and the application/json replay; § Model names / Providers lack typesafe and Jev; SDK `models.list()`/multipart unsupported (DEC-089); § Admin CLI lacks the root refusal · deferred
+- PHASE-04 · `llm-gateway` module docstring does not mention the root refusal (comment-only gap, left; fold into CHR-017's lint pass or reconcile) · deferred

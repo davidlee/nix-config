@@ -881,7 +881,7 @@ key: useful on this host alone, within its budget and its model list. Clients
 are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
-It serves DeepSeek, OpenRouter and Fireworks models.
+It serves DeepSeek, OpenRouter, Fireworks and TypeSafe (Jev) models.
 
 **What it is, and what clients may rely on:**
 [SPEC-001](.doctrine/spec/tech/001/spec-001.md) (`doctrine show SPEC-001`
@@ -934,8 +934,8 @@ On the first switch systemd itself refuses the unit at credential setup
 up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
 That is expected. `just gateway-credentials` (with no argument, every provider's
-1Password item: deepseek, openrouter, fireworks; name the ones a host has
-otherwise) clears the start limit those
+1Password item: deepseek, openrouter, fireworks, typesafe; name the ones a
+host has otherwise) clears the start limit those
 failures hit, restarts the service, and returns once the gateway's socket
 exists (it gives up after 90 s, naming `systemctl status llm-gateway`).
 
@@ -976,11 +976,32 @@ the file):
 | deepseek | `DEEPSEEK_API_KEY` | packaged price map |
 | openrouter | `OPENROUTER_API_KEY` | `reportsCost`: OpenRouter's per-request `usage.cost` |
 | fireworks | `FIREWORKS_API_KEY` | packaged price map |
+| typesafe | `TYPESAFE_API_KEY` | packaged price map |
 
 Cost sources: SPEC-001 § Served models and cost.
 
+**Routes.** `features/agents/gateway/gateway_hooks.py` serves chat
+completions, `GET /v1/models` and `POST /v1/systemone` (TypeSafe's Jev; body
+fields `model`, `state`, `questions`, `assets` only). Each route has its own
+field list: a chat field on systemone, or `state` on chat, is a 400.
+`/v1/decisions` is a 404, since LiteLLM would fetch remote image URLs on it
+(DEC-092). `Content-Encoding` may be absent, `identity` or `zstd`; any other
+is a 415. A zstd body is one complete frame (400 otherwise) of at most 16 MiB
+decoded (413). Every admitted body reaches LiteLLM decoded, as
+`application/json`, whatever content type the client sent. SPEC-001's client
+contract does not yet list `/v1/systemone` (pending its revision, SL-019).
+
+**TypeSafe's JS SDK.** Point it at the gateway with `baseURL` or
+`TYPESAFE_BASE_URL`; the key is sent as `Authorization: Bearer`. Its default
+zstd bodies work. `models.list()` expects `{models: […]}` and the gateway
+answers OpenAI's `{data: […]}`, so it is unsupported. Image assets sent as
+`multipart/form-data` fail; send `assets[].data_base64` in the JSON body
+instead (DEC-089). Jev models carry no `pi` block, so pi is not offered them.
+
 **Admin.** `llm-gateway` runs as the `llm-gateway` user via sudo on the
-SQLite file (DEC-050). Keys travel on stdin, never argv.
+SQLite file (DEC-050). Run it as your user: it calls sudo itself, and as
+root it refuses every command (exit 2, DEC-091), so an `issue --out` file is
+always yours, 0600. Keys travel on stdin, never argv.
 
 | command | does |
 |---|---|
