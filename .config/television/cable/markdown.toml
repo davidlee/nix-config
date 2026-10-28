@@ -1,0 +1,11 @@
+[metadata]
+name = "markdown"
+description = "Markdown files, including hidden ones such as .doctrine/"
+requirements = ["fd", "bat"]
+
+[source]
+command = "fd -t f -e md -H -E .git"
+
+[preview]
+command = "bat -n --color=always '{}'"
+env = { BAT_THEME = "ansi" }

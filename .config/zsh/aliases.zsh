@@ -14,7 +14,6 @@ alias si=zi
 # alias x="vice -i";
 
 alias et="emacsclient -t";
-alias e="emacsclient";
 alias ea="emacsclient -a";
 alias ec="emacsclient -c";
 alias emt="emacsclient --tty";

@@ -69,12 +69,15 @@ motd() {
 git-root() { git rev-parse --show-toplevel }
 gr() { cd "$(git-root)" }
 
-# cd to an fzf-picked subdir of $1; further args go to fd
-cd-pick() {
-  local base=$1 sub
-  sub=$(fd . -t d "${@:2}" --base-directory "$base" --strip-cwd-prefix=always | fzf) &&
-    cd "$base/$sub"
+# print an fzf-picked path under $1, relative to it; $2 pre-fills fzf, which
+# takes a sole match itself; further args go to fd
+fd-pick() {
+  fd . "${@:3}" --base-directory "$1" --strip-cwd-prefix=always |
+    fzf --query="$2" --select-1 --exit-0
 }
+
+# cd to an fzf-picked subdir of $1; further args go to fd
+cd-pick() { local sub; sub=$(fd-pick "$1" "" -t d "${@:2}") && cd "$1/$sub" }
 
 # zoxide's match for $1, or the git root
 cz-base() { if (( $# )); then zoxide query "$1"; else git-root; fi }
@@ -104,72 +107,29 @@ nag() { systemctl --user start snooze-nag snooze-nag.timer }
 nonag() { systemctl --user stop snooze-nag.timer snooze-nag }
 
 #
-# find & edit a file in a zoxide dir
+# editing
 #
-vfe() {
-  base=$(zoxide query $1);
-  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)";
-  chdir $base
-  $VISUAL $dir
+
+# emacsclient; options replace the default mode: reuse the GUI frame without
+# waiting (dl-umbriel focuses it), or the tty when there is no display
+e() {
+  if [[ $1 == -* ]]; then emacsclient "$@"
+  elif [[ -n $WAYLAND_DISPLAY ]]; then emacsclient -r -n "$@"
+  else emacsclient -t "$@"; fi
 }
 
-#
-# find & edit a file in the notes dir
-#
-vn() {
-  base=$OBS_VAULT_PATH
-  dir="$base/$(fd . -t f --base-directory $base --strip-cwd-prefix=always | fzf)";
-  chdir $base
-  $VISUAL $dir
+# e a picked file; -options go to e
+# ez [opts] [query]: under the git root, or under zoxide's dir for query
+# ne [opts] [query]: a note; query pre-fills fzf
+ez() {
+  local base sub
+  base=$(cz-base ${@:#-*}) && sub=$(fd-pick $base "" -t f) && e ${(M)@:#-*} $base/$sub
+}
+ne() {
+  local sub
+  sub=$(fd-pick ~/notes "${(j: :)@:#-*}" -t f -e org -e md) && e ${(M)@:#-*} ~/notes/$sub
 }
 
-# like ij (interstitial writing) but open note in obsidian
-# oj() {
-#   uri="obsidian://new?vault=workbench&file=`date +$OBS_DAY_NOTE_FORMAT`"
-#   echo "opening $uri"
-#   open $uri
-# }
-
-#################################################################################
-# periodic files
-#################################################################################
-
-# _rel_day_note_path() { date +$OBS_DAY_NOTE_FORMAT }
-# _rel_week_note_path() { date +$OBS_WEEK_NOTE_FORMAT }
-# _rel_month_note_path() { date +$OBS_MONTH_NOTE_FORMAT }
-# _rel_year_note_path() { date +$OBS_YEAR_NOTE_FORMAT }
-#
-# _day_note_path() { date +$DAY_NOTE_FORMAT }
-# _week_note_path() { date +$WEEK_NOTE_FORMAT }
-# _month_note_path() { date +$MONTH_NOTE_FORMAT }
-# _year_note_path() { date +$YEAR_NOTE_FORMAT }
-#
-# # $1 = vault-relative path
-# _ensure_periodic_note_exists() {
-#   abs_path="$OBS_VAULT_PATH/$1"
-#   if [ ! -f $abs_path ]; then
-#     echo "creating note with Obsidian: $1" # ensure we apply the template
-#     uri="obsidian://new?vault=workbench&file=$1"
-#     open $uri
-#   fi
-# }
-#
-# _obs_uri() {
-#   uri="obsidian://new?vault=workbench&file=$1"
-# }
-#
-# # $1 = vault-relative path, $2 = heading
-# _edit_periodic_note() {
-#   _ensure_periodic_note_exists $1 $2;
-#   sleep 1
-#   $VISUAL "$OBS_VAULT_PATH/$1"
-# }
-#
-# daily() { _edit_periodic_note $(_rel_day_note_path) `date +"%F"` }
-# weekly() { _edit_periodic_note $(_rel_week_note_path) `date +"%Ywk%U"` }
-# monthly() { _edit_periodic_note $(_rel_month_note_path) `date +"%m"` }
-# yearly() { _edit_periodic_note $(_rel_year_note_path) `date +"%Y"` }
-#
 #
 # Color Palette
 #
