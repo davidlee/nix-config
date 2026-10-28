@@ -136,7 +136,12 @@ Humans read the store directly as `david`; no agent process holds the token.
   straight into `systemd-creds encrypt --user`, then one sync. The unit gets
   the token in `/run/user/1000/credentials/screwtape.service/fastmail`: on no
   argv, in no environment.
-- **Disable:** `feature.satan.screwtape.enable = false`.
+- **Disable:** `feature.satan.screwtape.enable = false`. `malebolge-room`
+  then fails evaluation: its mail tools read the store.
+- **Jailed reader:** `malebolge-room`'s launcher (satan `mkJailedMalebolge`,
+  from `features/satan/malebolge.nix`) binds the unwrapped binary, the config
+  and `~/.local/state/screwtape` read-write (screwtape DEC-031). Not the
+  credstore: only `sync` reads the token.
 - **Smoke:**
   - `systemctl --user status screwtape.service` (last run `status=0/SUCCESS`)
   - `journalctl --user -u screwtape` (one `{"kind":"sync",…}` line per run)
