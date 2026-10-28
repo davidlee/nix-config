@@ -91,3 +91,35 @@ there is none. `checks.llm-gateway` failed at the same point, so no test ran.
   INCONCLUSIVE because it treats every 403 that way.
 - Still open: ISS-020 closes at SL-019's rollout (sec-7), per design. Committed
   504ebca5.
+
+## Implementation run
+
+Super-orchestrator run, started 2026-10-28, from b73eb889 (tree clean under `~/flakes`).
+
+- Operator ruling: **Claude-only workers.** quotient's policy does not allow
+  `~/flakes` as a root, and the operator chose not to widen it. No pi runs.
+  Sub-orchestrators use `capsule-worker`: **Sonnet by default** (operator:
+  "use sonnet where sonnet makes sense, it's pretty strong"), Opus only for
+  real judgement, reason stated; or they do small steps themselves.
+- Host gate: `just test`, run from `~/flakes` (it builds `checks.<system>.*`
+  with the local overrides, then the script tests; `keystore-test` included).
+  Targeted, for iteration: `nix build ".#checks.x86_64-linux.llm-gateway"
+  --no-link --no-write-lock-file`. The gate is authoritative; end each phase
+  on a full `just test`.
+- Lint: no Python lint gate yet (CHR-017). Ad hoc:
+  `nix run nixpkgs#ruff -- check <file>` on files the phase touches; fix
+  findings only in lines the phase changes.
+- Charters: PHASE-01 (alone, heavy); PHASE-02 (alone, heavy); PHASE-03 + the
+  README part of PHASE-04 (EX-1, VA-1). PHASE-04 EX-2/EX-3/VH-1 (rollout, live
+  call) are the operator's: the run halts before them. PHASE-04 stays
+  `planned`.
+- ASM-002 stays assumed: PHASE-02 uses `op://API_KEYS/TYPESAFE_API_KEY/credential`;
+  the operator confirms at rollout.
+- Out of bounds for every phase: flake.lock, hosts.nix,
+  hosts/Sleipnir/features.nix, modules/nixos/kernel.nix. The git worktree is
+  `$HOME`: scope every git command to a path; commit with `git commit <paths>`.
+- Preflight warnings: background tasks are on (spawns run in the
+  background; the parent is notified when they finish).
+
+## Autonomy log
+<!-- one line per envelope decision: phase · what · why · decided|deferred|escalated -->
