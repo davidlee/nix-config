@@ -21,6 +21,7 @@ One process, one app: the proxy's state is module-global.
 """
 
 import asyncio
+import compression.zstd
 import importlib.machinery
 import importlib.util
 import json
@@ -366,14 +367,27 @@ def http(method, path, raw_path=None, headers=()):
     return scope
 
 
-def post(headers=()):
-    return http("POST", "/v1/chat/completions", b"/v1/chat/completions", headers)
+def post(headers=(), path="/v1/chat/completions"):
+    return http("POST", path, path.encode(), headers)
 
 
 def sized(n):
     """A JSON object of exactly `n` bytes, every field on the list."""
     shell = b'{"model": ""}'
     return shell[:-2] + b"x" * (n - len(shell)) + shell[-2:]
+
+
+def zstd(data):
+    """`data` as one zstd frame, at default parameters (the TypeSafe SDK's)."""
+    return compression.zstd.compress(data)
+
+
+# One zstd frame, 11 bytes, decoding to `{}`. After the magic 28b52ffd: frame
+# header descriptor 00 (no size, no checksum, window descriptor follows), window
+# descriptor 88 (exponent 17: a 128 MiB window), then one raw last block, 3 byte
+# header 110000 (size 2), payload 7b7d. The gateway's 16 MiB window cap refuses it.
+WINDOW_128_MIB_FRAME = bytes.fromhex("28b52ffd00881100007b7d")
+UNSUPPORTED_ENCODING = "llm-gateway: content-encoding not supported"
 
 
 class RouteGateUnitTest(unittest.TestCase):
@@ -385,7 +399,7 @@ class RouteGateUnitTest(unittest.TestCase):
         return inner, gateway_hooks.route_gate(inner)
 
     def test_allowed_routes_reach_the_inner_app(self):
-        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+        for method, path in sorted(gateway_hooks.ROUTES):
             with self.subTest(method=method, path=path):
                 inner, gate = self.gate()
                 sent = call(gate, http(method, path, path.encode()))
@@ -416,6 +430,10 @@ class RouteGateUnitTest(unittest.TestCase):
             ("post", "/chat/completions", b"/chat/completions"),
             ("PUT", "/chat/completions", b"/chat/completions"),
             ("DELETE", "/v1/models", b"/v1/models"),
+            ("POST", "/systemone", b"/systemone"),
+            ("POST", "/v1/decisions", b"/v1/decisions"),
+            ("POST", "/decisions", b"/decisions"),
+            ("GET", "/v1/systemone", b"/v1/systemone"),
         ]
         for method, path, raw in cases:
             with self.subTest(method=method, raw_path=raw):
@@ -437,7 +455,7 @@ class RouteGateUnitTest(unittest.TestCase):
         self.assertEqual(sent, [{"type": "websocket.close", "code": 1008}])
         self.assertEqual(inner.scopes, [])
 
-    # the body guard: ALLOWED_FIELDS, MAX_BODY_BYTES
+    # the body guard: ROUTES' field sets, the decode, MAX_BODY_BYTES
 
     def guarded(self, chunks, scope=None):
         """Post `chunks` through the gate to a Reader: the inner app, the
@@ -455,7 +473,7 @@ class RouteGateUnitTest(unittest.TestCase):
         self.assertEqual(json.loads(sent[1]["body"]), {"error": error})
         self.assertEqual(inner.scopes, [])
 
-    def test_a_field_off_ALLOWED_FIELDS_gets_400_naming_it(self):
+    def test_a_field_off_CHAT_FIELDS_gets_400_naming_it(self):
         for field in (
             "extra_body",
             "models",
@@ -474,6 +492,34 @@ class RouteGateUnitTest(unittest.TestCase):
                 self.assert_refused(
                     sent, inner, 400, f"llm-gateway: field {field!r} not allowed"
                 )
+
+    def test_systemone_admits_exactly_SYSTEMONE_FIELDS(self):
+        body = {"model": "m", "state": {"a": 1}, "questions": [], "assets": []}
+        self.assertEqual(set(body), gateway_hooks.SYSTEMONE_FIELDS)
+        inner, sent, _ = self.guarded(
+            [json.dumps(body).encode()], post(path="/v1/systemone")
+        )
+        self.assertEqual(sent[0]["status"], 200)
+        self.assertEqual(len(inner.scopes), 1)
+
+    def test_systemone_refuses_chat_fields_and_provider_overrides(self):
+        for field in ("messages", "api_base", "images", "metadata"):
+            with self.subTest(field=field):
+                body = json.dumps({"model": "m", field: None}).encode()
+                inner, sent, _ = self.guarded([body], post(path="/v1/systemone"))
+                self.assert_refused(
+                    sent, inner, 400, f"llm-gateway: field {field!r} not allowed"
+                )
+
+    def test_chat_refuses_systemone_fields(self):
+        for path in ("/chat/completions", "/v1/chat/completions"):
+            for field in ("state", "questions", "assets"):
+                with self.subTest(path=path, field=field):
+                    body = json.dumps({"model": "m", field: None}).encode()
+                    inner, sent, _ = self.guarded([body], post(path=path))
+                    self.assert_refused(
+                        sent, inner, 400, f"llm-gateway: field {field!r} not allowed"
+                    )
 
     def test_every_field_off_the_list_is_named_sorted(self):
         body = json.dumps({"route": 1, "model": PRICED, "extra_body": {}}).encode()
@@ -545,7 +591,7 @@ class RouteGateUnitTest(unittest.TestCase):
         self.assertEqual(json.loads(inner.bodies[0]), {"user": "x&api_base=https://example.com&custom_llm_provider=x"})
 
     def test_routes_without_a_body_pass_unread(self):
-        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+        for method, path in sorted(gateway_hooks.ROUTES):
             if method == "POST":
                 continue
             with self.subTest(path=path):
@@ -577,6 +623,132 @@ class RouteGateUnitTest(unittest.TestCase):
         inner, sent, _ = self.guarded(chunks, post(length))
         self.assertEqual(sent[0]["status"], 200)
         self.assertEqual(inner.bodies, [body])
+
+    # content-encoding: zstd is decoded within both bounds; every other
+    # coding is refused (DEC-088)
+
+    def zstd_headers(self, *extra):
+        return post([(b"content-encoding", b"zstd"), *extra])
+
+    def test_zstd_body_reaches_the_inner_app_decoded_with_canonical_headers(self):
+        body = json.dumps(CLIENT_BODIES["pi"]).encode()
+        packed = zstd(body)
+        chunked = [(b"transfer-encoding", b"chunked")]
+        for chunks, extra in (
+            ([packed], []),
+            ([packed[:7], packed[7:20], b"", packed[20:]], chunked),
+        ):
+            with self.subTest(chunks=len(chunks)):
+                scope = self.zstd_headers(
+                    (b"content-type", b"application/x-www-form-urlencoded"),
+                    (b"content-length", str(len(packed)).encode()),
+                    (b"authorization", b"Bearer k"),
+                    *extra,
+                )
+                inner, sent, _ = self.guarded(chunks, scope)
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(inner.bodies, [body])
+                self.assertEqual(
+                    inner.scopes[0]["headers"],
+                    [
+                        (b"authorization", b"Bearer k"),
+                        (b"content-type", b"application/json"),
+                        (b"content-length", str(len(body)).encode()),
+                    ],
+                )
+
+    def test_zstd_encoding_is_matched_case_and_space_insensitively(self):
+        for value in (b"ZSTD", b" zstd ", b"Zstd"):
+            with self.subTest(value=value):
+                scope = post([(b"content-encoding", value)])
+                inner, sent, _ = self.guarded([zstd(b"{}")], scope)
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(inner.bodies, [b"{}"])
+
+    def test_identity_encoding_passes_as_plain(self):
+        for value in (b"identity", b" Identity "):
+            with self.subTest(value=value):
+                scope = post([(b"content-encoding", value)])
+                inner, sent, _ = self.guarded([b"{}"], scope)
+                self.assertEqual(sent[0]["status"], 200)
+                self.assertEqual(inner.bodies, [b"{}"])
+
+    def test_zstd_other_codings_chains_and_repeats_get_415(self):
+        zstd_body = zstd(b"{}")
+        cases = {
+            "gzip": [(b"content-encoding", b"gzip")],
+            "br": [(b"content-encoding", b"br")],
+            "zstd, identity": [(b"content-encoding", b"zstd, identity")],
+            "identity, zstd": [(b"content-encoding", b"identity, zstd")],
+            "zstd,": [(b"content-encoding", b"zstd,")],
+            "two headers": [(b"content-encoding", b"zstd")] * 2,
+            "zstd and identity headers": [
+                (b"content-encoding", b"zstd"),
+                (b"content-encoding", b"identity"),
+            ],
+        }
+        for label, headers in cases.items():
+            with self.subTest(label):
+                inner, sent, _ = self.guarded([zstd_body], post(headers))
+                self.assert_refused(sent, inner, 415, UNSUPPORTED_ENCODING)
+
+    def test_zstd_an_oversize_encoded_body_is_413_before_the_encoding_is_judged(self):
+        cap = gateway_hooks.MAX_BODY_BYTES
+        scope = post([(b"content-encoding", b"gzip")])
+        inner, sent, _ = self.guarded([b" " * (cap + 1)], scope)
+        self.assert_refused(sent, inner, 413, "llm-gateway: request body too large")
+
+    def test_zstd_bomb_gets_413_on_the_decoded_size(self):
+        cap = gateway_hooks.MAX_BODY_BYTES
+        packed = zstd(sized(cap + 1))
+        self.assertLess(len(packed), cap)  # small on the wire
+        inner, sent, _ = self.guarded([packed], self.zstd_headers())
+        self.assert_refused(sent, inner, 413, "llm-gateway: request body too large")
+
+    def test_zstd_body_decoding_to_exactly_the_cap_passes(self):
+        cap = gateway_hooks.MAX_BODY_BYTES
+        body = sized(cap)
+        inner, sent, _ = self.guarded([zstd(body)], self.zstd_headers())
+        self.assertEqual(sent[0]["status"], 200)
+        self.assertEqual(inner.bodies, [body])
+
+    def test_zstd_window_beyond_the_cap_gets_400(self):
+        # control: the frame is valid; only its window is refused
+        self.assertEqual(compression.zstd.decompress(WINDOW_128_MIB_FRAME), b"{}")
+        inner, sent, _ = self.guarded([WINDOW_128_MIB_FRAME], self.zstd_headers())
+        self.assert_refused(
+            sent, inner, 400, "llm-gateway: zstd body does not decode"
+        )
+
+    def test_zstd_bodies_that_are_not_one_complete_frame_get_400(self):
+        frame = zstd(b"{}")
+        cases = {
+            "truncated": frame[:-2],
+            "two frames": frame + frame,
+            "trailing bytes": frame + b"x",
+            "empty": b"",
+        }
+        for label, packed in cases.items():
+            with self.subTest(label):
+                inner, sent, _ = self.guarded([packed], self.zstd_headers())
+                self.assert_refused(
+                    sent, inner, 400, "llm-gateway: zstd body is not one complete frame"
+                )
+
+    def test_zstd_garbage_gets_400(self):
+        inner, sent, _ = self.guarded([b"not zstd at all"], self.zstd_headers())
+        self.assert_refused(sent, inner, 400, "llm-gateway: zstd body does not decode")
+
+    def test_zstd_body_still_gets_the_field_check_on_its_route(self):
+        packed = zstd(json.dumps({"api_base": 1}).encode())
+        inner, sent, _ = self.guarded([packed], self.zstd_headers())
+        self.assert_refused(sent, inner, 400, "llm-gateway: field 'api_base' not allowed")
+        state = zstd(json.dumps({"model": "m", "state": {}}).encode())
+        for path, status in (("/v1/systemone", 200), ("/v1/chat/completions", 400)):
+            with self.subTest(path=path):
+                scope = post([(b"content-encoding", b"zstd")], path)
+                _, sent, _ = self.guarded([state], scope)
+                self.assertEqual(sent[0]["status"], status)
 
 
 # --- through the real proxy app ----------------------------------------------
@@ -619,7 +791,7 @@ class RouteGateTest(unittest.TestCase):
                 )
 
     def test_allowed_routes_without_a_key_reach_custom_auth(self):
-        for method, path in sorted(gateway_hooks.ALLOWED_ROUTES):
+        for method, path in sorted(gateway_hooks.ROUTES):
             with self.subTest(method=method, path=path):
                 response = client.request(method, path, json={"model": PRICED})
                 self.assertEqual(response.status_code, 401)

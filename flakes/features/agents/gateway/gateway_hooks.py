@@ -2,9 +2,10 @@
 front of the proxy app, and the hooks config.yaml names, which turn LiteLLM
 calls into `keystore` calls.
 
-  route_gate(app)    ASGI wrapper: only ALLOWED_ROUTES reach LiteLLM, and a
-                     chat completion only with a body whose fields are all
-                     on ALLOWED_FIELDS (SL-014 sec-9)
+  route_gate(app)    ASGI wrapper: only ROUTES reach LiteLLM, and a POST only
+                     with a body, zstd-decoded, whose fields are all on its
+                     route's list (SL-014 sec-9, SL-019 sec-3, sec-4), replayed
+                     decoded under canonical headers
   authenticate       general_settings.custom_auth: the key must be live
   model_gate         callback, pre-call: every model the request names must
                      be on the key's list
@@ -20,8 +21,10 @@ import json
 import logging
 import os
 from pathlib import Path
+from typing import NamedTuple
 
 import keystore
+from compression.zstd import DecompressionParameter, ZstdDecompressor, ZstdError
 from fastapi import HTTPException
 from litellm.integrations.custom_logger import CustomLogger
 from litellm.proxy._types import UserAPIKeyAuth
@@ -29,20 +32,12 @@ from litellm.proxy.auth.auth_utils import iter_request_fallback_targets
 
 log = logging.getLogger("llm-gateway.hooks")
 
-ALLOWED_ROUTES = frozenset(
-    {
-        ("POST", "/chat/completions"),
-        ("POST", "/v1/chat/completions"),
-        ("GET", "/models"),
-        ("GET", "/v1/models"),
-    }
-)
 GATE_REFUSAL = b'{"error": "llm-gateway: no such route"}'
 GATE_HEADER = (b"x-llm-gateway", b"no such route")  # marks the gate's 404, HEAD too
 
 # The top-level fields a chat completion may carry (DEC-073, SL-014 sec-9).
 # Nested objects are not inspected: none merges into LiteLLM's own params.
-ALLOWED_FIELDS = frozenset(
+CHAT_FIELDS = frozenset(
     {
         # OpenAI chat completions
         "model",
@@ -75,20 +70,42 @@ ALLOWED_FIELDS = frozenset(
         "provider",
     }
 )
+# The fields TypeSafe's systemone body may carry (SL-019 DEC-087). LiteLLM
+# takes extra top-level keys there too, so the list is closed as for chat.
+SYSTEMONE_FIELDS = frozenset({"model", "state", "questions", "assets"})
+# The routes that reach LiteLLM, each with the fields its body may carry; a
+# GET has no body (None).
+ROUTES = {
+    ("POST", "/chat/completions"): CHAT_FIELDS,
+    ("POST", "/v1/chat/completions"): CHAT_FIELDS,
+    ("POST", "/v1/systemone"): SYSTEMONE_FIELDS,
+    ("GET", "/models"): None,
+    ("GET", "/v1/models"): None,
+}
 # The guard reads the body before authentication: this bounds its memory.
 MAX_BODY_BYTES = 16 * 1024 * 1024
 TOO_LARGE = "llm-gateway: request body too large"
-GUARD_HEADER = (b"x-llm-gateway", b"body refused")  # marks the guard's 400 and 413
+GUARD_HEADER = (b"x-llm-gateway", b"body refused")  # marks the guard's refusals
+UNSUPPORTED_ENCODING = "llm-gateway: content-encoding not supported"
+# A zstd frame names its window before any output, and max_length does not
+# bound that: capping it at MAX_BODY_BYTES (a power of two) bounds the
+# decoder's memory. A one-shot encoder never needs more for a body that size.
+WINDOW_LOG_MAX = MAX_BODY_BYTES.bit_length() - 1
+
+
+class Refusal(NamedTuple):
+    status: int
+    error: str
 
 
 def route_gate(app):
-    """Pass lifespan events and ALLOWED_ROUTES to `app`; answer every other
+    """Pass lifespan events and ROUTES to `app`; answer every other
     request 404 (GATE_REFUSAL, GATE_HEADER) and close every websocket,
     without reaching it. Some LiteLLM routes never call custom_auth (RV-024
     F-1), so routes are filtered here rather than in a hook. A route matches
     only verbatim: method, decoded path and, when given, raw path, so
     encodings, case, slashes and other methods all miss. A POST passes only
-    through the body guard."""
+    through the body guard, with its route's field set from ROUTES."""
 
     async def gated(scope, receive, send):
         if scope["type"] == "lifespan":
@@ -98,7 +115,8 @@ def route_gate(app):
         elif not _allowed(scope):
             await _respond(send, 404, GATE_HEADER, GATE_REFUSAL)
         elif scope["method"] == "POST":
-            await _guard_body(app, scope, receive, send)
+            fields = ROUTES[(scope["method"], scope["path"])]
+            await _guard_body(app, scope, receive, send, fields)
         else:
             await app(scope, receive, send)
 
@@ -110,14 +128,18 @@ def _allowed(scope):
         return False
     route = (scope["method"], scope["path"])
     raw = scope.get("raw_path")
-    return route in ALLOWED_ROUTES and (raw is None or raw == scope["path"].encode())
+    return route in ROUTES and (raw is None or raw == scope["path"].encode())
 
 
-async def _guard_body(app, scope, receive, send):
-    """Read the whole body, before LiteLLM, and pass it on only when it is a
-    JSON object whose fields are all on ALLOWED_FIELDS: else 400, or 413
-    over MAX_BODY_BYTES (declared, or once read). `app` reads the body as
-    one http.request message, then `receive` as it was."""
+async def _guard_body(app, scope, receive, send, fields):
+    """Read the whole body, before LiteLLM, decode it (`_decoded`: 415, 413,
+    400) and pass it on only when it is a JSON object whose fields are all
+    in `fields`: else 400, or 413 over MAX_BODY_BYTES (declared, read or
+    decoded). The canonical replay: `app` gets the decoded body as one
+    http.request message, then `receive` as it was, and exactly one
+    content-type (application/json) and content-length (the decoded length)
+    in place of the client's, with content-encoding and transfer-encoding
+    removed, so LiteLLM reads what the guard read."""
     if _too_large(_declared_length(scope)):
         return await _refuse(send, 413, TOO_LARGE)
     body = await _read_body(receive)
@@ -125,7 +147,10 @@ async def _guard_body(app, scope, receive, send):
         return  # the client left
     if _too_large(len(body)):
         return await _refuse(send, 413, TOO_LARGE)
-    error = _body_refusal(body)
+    body = _decoded(_encodings(scope), body)
+    if isinstance(body, Refusal):
+        return await _refuse(send, *body)
+    error = _body_refusal(body, fields)
     if error:
         return await _refuse(send, 400, error)
     replayed = False
@@ -137,15 +162,62 @@ async def _guard_body(app, scope, receive, send):
         replayed = True
         return {"type": "http.request", "body": body, "more_body": False}
 
-    rewritten = {b"content-type", b"content-length", b"content-encoding", b"transfer-encoding"}
-    headers = [(name, value) for name, value in scope.get("headers", ()) if name.lower() not in rewritten]
-    headers.extend([(b"content-type", b"application/json"), (b"content-length", str(len(body)).encode())])
+    rewritten = {
+        b"content-type",
+        b"content-length",
+        b"content-encoding",
+        b"transfer-encoding",
+    }
+    headers = [
+        (name, value)
+        for name, value in scope.get("headers", ())
+        if name.lower() not in rewritten
+    ]
+    headers.extend(
+        [
+            (b"content-type", b"application/json"),
+            (b"content-length", str(len(body)).encode()),
+        ]
+    )
     await app({**scope, "headers": headers}, replay, send)
 
 
-def _body_refusal(body):
+def _encodings(scope):
+    """Every content-encoding coding the request names, in order: each header
+    occurrence split on commas, trimmed, lowercased. Empty elements stay."""
+    return [
+        coding.strip().lower()
+        for name, value in scope.get("headers", ())
+        if name.lower() == b"content-encoding"
+        for coding in value.decode("latin-1").split(",")
+    ]
+
+
+def _decoded(encodings, body):
+    """`body` with its content-encoding undone, or a Refusal: only none,
+    identity or zstd are served (415). A zstd body must be exactly one
+    complete frame (400) of at most MAX_BODY_BYTES decoded (413)."""
+    if encodings in ([], ["identity"]):
+        return body
+    if encodings != ["zstd"]:
+        return Refusal(415, UNSUPPORTED_ENCODING)
+    decoder = ZstdDecompressor(
+        options={DecompressionParameter.window_log_max: WINDOW_LOG_MAX}
+    )
+    try:
+        decoded = decoder.decompress(body, max_length=MAX_BODY_BYTES + 1)
+    except ZstdError:
+        return Refusal(400, "llm-gateway: zstd body does not decode")
+    if _too_large(len(decoded)):
+        return Refusal(413, TOO_LARGE)
+    if not decoder.eof or decoder.unused_data:
+        return Refusal(400, "llm-gateway: zstd body is not one complete frame")
+    return decoded
+
+
+def _body_refusal(body, fields):
     """Why a request body is refused, or None: it must be a JSON object
-    whose top-level fields are all on ALLOWED_FIELDS. Every unlisted field
+    whose top-level fields are all in `fields`. Every unlisted field
     is named, sorted."""
     try:
         data = json.loads(body)
@@ -153,7 +225,7 @@ def _body_refusal(body):
         data = None
     if not isinstance(data, dict):
         return "llm-gateway: body is not a JSON object"
-    refused = sorted(data.keys() - ALLOWED_FIELDS)
+    refused = sorted(data.keys() - fields)
     if refused:
         return "llm-gateway: " + ", ".join(f"field {f!r} not allowed" for f in refused)
     return None

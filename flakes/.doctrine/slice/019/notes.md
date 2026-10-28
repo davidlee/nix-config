@@ -123,3 +123,9 @@ Super-orchestrator run, started 2026-10-28, from b73eb889 (tree clean under `~/f
 
 ## Autonomy log
 <!-- one line per envelope decision: phase · what · why · decided|deferred|escalated -->
+- PHASE-01 · A1 probe (3.14.8 `compression.zstd`) holds: window_log_max 24 refuses the 11-byte 2^27-window frame; max_length, eof, unused_data as designed · design's two decode bounds stand · decided
+- PHASE-01 · A3: content-encoding list kept literal; empty elements not dropped (`zstd,` and an empty header are 415), though RFC 9110 § 5.6.1 lets a recipient ignore them · stricter reading of sec-4; flag at audit · decided
+- PHASE-01 · A5 refusal texts: 415 `content-encoding not supported`; 400 `zstd body is not one complete frame` / `zstd body does not decode`; 413 reuses TOO_LARGE; an empty zstd body is 400 (not one frame) · design leaves wording open · decided
+- PHASE-01 · `_decoded` returns a `Refusal(status, error)` NamedTuple; `WINDOW_LOG_MAX = MAX_BODY_BYTES.bit_length() - 1` (24) ties the window cap to the body cap · helper names, in scope · decided
+- PHASE-01 · systemone refusal test also covers `images` and `metadata`; window test asserts the frame decodes uncapped (control) · strengthens VT-1/VT-2 · decided
+- PHASE-01 · the Sonnet worker staged its first green (git index) against the no-staging brief; harmless, commit is path-scoped · friction · decided
