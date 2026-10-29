@@ -68,5 +68,5 @@ above; a unit test of the pure function.
   `input` items (400, the backend's body). Red reproduced the live error
   verbatim; `ChatGPTTest.test_system_messages_after_the_prompt_reach_it_in_place`
   and `ChatGPTMessagesTest` (3 tests) are green. `just test` green.
-- Live check pending a `system-switch`: a room turn on
-  `chatgpt/gpt-6.1-terra` with a tool call, no `stopReason: "error"`.
+- Live (2026-10-30, after the 00:33 gateway restart): user confirmed room turns on
+  `chatgpt/gpt-6.1-terra` work.
