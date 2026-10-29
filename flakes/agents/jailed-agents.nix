@@ -552,6 +552,9 @@
           ++ [agent] # allow sub-agent invocation
           ++ subagentAgents # bare binaries the subagent wrappers exec
           ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
+          # malebolge-bridge (satan SL-009, DEC-075) is a node script run with
+          # type stripping (node >= 23.6), wherever pi runs.
+          ++ lib.optional piInJail pkgs.nodejs_24
         ))
       ]
       ++ extraOptions

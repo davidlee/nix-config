@@ -733,6 +733,17 @@ in
       done
       refute grep -Fq -- 'models.json' "$TMPDIR/eca/bwrap-argv"
 
+      # node on PATH wherever pi is (malebolge-bridge, satan SL-009 DEC-075),
+      # and only there.
+      node_path='--setenv PATH [^ ]*-nodejs-24[^ /]*/bin'
+      for i in "$probe_gw" "$research_inner" "$claude_pi_inner"; do
+        grep -q -- "$node_path" "$i"
+      done
+      for i in "$eca_inner" "$(gateway_inner_of ${claudeGateway}/bin/jailed-claude claude)"; do
+        test -f "$i" # a missing file would make the refute vacuous
+        refute grep -q -- "$node_path" "$i"
+      done
+
       for i in \
         "$eca_inner" \
         "$(gateway_inner_of ${customResearchGateway}/bin/jailed-pi-research pi-research)" \
