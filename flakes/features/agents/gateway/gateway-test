@@ -4,8 +4,9 @@ P2; SL-014 sec-6), run by checks.<system>.llm-gateway against the LiteLLM the
 system nixpkgs ships. Offline: the proxy app is driven in-process (no
 socket), and every model of the test config answers from its
 `mock_response`. The fake-backed tests run a second app, on the fake config,
-in a child process: its models call a fake OpenRouter on loopback. Keys live
-in a temp store, shared by both apps. Provider keys are dummies.
+in a child process: its models call fake providers on loopback. Keys live
+in a temp store, shared by both apps. Provider keys and the ChatGPT token
+are dummies.
 
 Environment, set by the check:
   LLM_GATEWAY_SERVE         the launcher, llm-gateway-serve, PROVIDERS baked
@@ -14,7 +15,8 @@ Environment, set by the check:
   LLM_GATEWAY_FAKE_CONFIG   config dir: models served by the fake OpenRouter
   LLM_GATEWAY_FAKE_PORT     the loopback port the fake config names
   LLM_GATEWAY_REPORTS_COST  JSON list: the variables of cost-reporting providers
-  LLM_GATEWAY_MODELS        JSON object: each agents/gateway.nix model -> its provider's key variable
+  LLM_GATEWAY_MODELS        JSON object: each agents/gateway.nix model -> its provider's key
+                            variable, or null for a provider without a key (chatgpt)
 plus LiteLLM's offline settings (see perSystem.nix).
 
 One process, one app: the proxy's state is module-global.
@@ -59,7 +61,9 @@ PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
 REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
 UNALLOWED = "unallowed"  # the same without allowed_openai_params (CHR-025)
-HAND_PRICED = "openai-david/gpt-6.1-terra"  # production, priced in params, on the fake
+# production ChatGPT subscription models, on the fake: one the price map
+# lists (at no price), one it lacks
+CHATGPT = ("chatgpt/gpt-6.1-sol", "chatgpt/gpt-6.1-terra")
 
 
 def model_list(config_dir):
@@ -109,6 +113,23 @@ os.environ.update(
     serve.load_credentials(serve.PROVIDERS, {"CREDENTIALS_DIRECTORY": credentials.name})
 )
 os.environ["STATE_DIRECTORY"] = state.name
+
+# The subscription login (IMP-035): LiteLLM reads the token from
+# CHATGPT_TOKEN_DIR/auth.json and calls CHATGPT_API_BASE, here the fake.
+chatgpt_tokens = tempfile.TemporaryDirectory()
+CHATGPT_TOKEN = "chatgpt-test-token-not-a-secret"  # dummy (POL-001)
+(Path(chatgpt_tokens.name) / "auth.json").write_text(
+    json.dumps(
+        {
+            "access_token": CHATGPT_TOKEN,
+            "refresh_token": "chatgpt-test-refresh-not-a-secret",
+            "expires_at": int(time.time()) + 86400,
+            "account_id": "chatgpt-test-account",
+        }
+    )
+)
+os.environ["CHATGPT_TOKEN_DIR"] = chatgpt_tokens.name
+os.environ["CHATGPT_API_BASE"] = f"http://127.0.0.1:{FAKE_PORT}/v1"
 os.environ["CONFIG_FILE_PATH"] = str(TEST_CONFIG / "config.yaml")
 
 # The app the launcher serves, built by the launcher (it puts the config dir
@@ -594,21 +615,34 @@ class RouteGateUnitTest(unittest.TestCase):
 
     def test_scope_headers_are_canonicalized(self):
         headers = [(k.lower().encode(), v.encode()) for k, v in ECA_HEADERS.items()]
-        headers += [(b"content-type", b"application/x-www-form-urlencoded"),
-                    (b"content-type", b"text/plain"), (b"content-length", b"2"),
-                    (b"content-encoding", b"identity"), (b"transfer-encoding", b"chunked")]
+        headers += [
+            (b"content-type", b"application/x-www-form-urlencoded"),
+            (b"content-type", b"text/plain"),
+            (b"content-length", b"2"),
+            (b"content-encoding", b"identity"),
+            (b"transfer-encoding", b"chunked"),
+        ]
         scope = post(headers)
         inner, _, _ = self.guarded([b"{}"], scope)
-        self.assertEqual(inner.scopes[0]["headers"],
-                         headers[:len(ECA_HEADERS)] + [(b"content-type", b"application/json"),
-                                                       (b"content-length", b"2")])
+        self.assertEqual(
+            inner.scopes[0]["headers"],
+            headers[: len(ECA_HEADERS)]
+            + [(b"content-type", b"application/json"), (b"content-length", b"2")],
+        )
 
     def test_form_type_cannot_change_the_guarded_body_interpretation(self):
         body = b'{"user":"x&api_base=https://example.com&custom_llm_provider=x"}'
-        inner, sent, _ = self.guarded([body], post([(b"content-type", b"application/x-www-form-urlencoded")]))
+        inner, sent, _ = self.guarded(
+            [body], post([(b"content-type", b"application/x-www-form-urlencoded")])
+        )
         self.assertEqual(sent[0]["status"], 200)
-        self.assertIn((b"content-type", b"application/json"), inner.scopes[0]["headers"])
-        self.assertEqual(json.loads(inner.bodies[0]), {"user": "x&api_base=https://example.com&custom_llm_provider=x"})
+        self.assertIn(
+            (b"content-type", b"application/json"), inner.scopes[0]["headers"]
+        )
+        self.assertEqual(
+            json.loads(inner.bodies[0]),
+            {"user": "x&api_base=https://example.com&custom_llm_provider=x"},
+        )
 
     def test_routes_without_a_body_pass_unread(self):
         for method, path in sorted(gateway_hooks.ROUTES):
@@ -736,9 +770,7 @@ class RouteGateUnitTest(unittest.TestCase):
         # control: the frame is valid; only its window is refused
         self.assertEqual(compression.zstd.decompress(WINDOW_128_MIB_FRAME), b"{}")
         inner, sent, _ = self.guarded([WINDOW_128_MIB_FRAME], self.zstd_headers())
-        self.assert_refused(
-            sent, inner, 400, "llm-gateway: zstd body does not decode"
-        )
+        self.assert_refused(sent, inner, 400, "llm-gateway: zstd body does not decode")
 
     def test_zstd_bodies_that_are_not_one_complete_frame_get_400(self):
         frame = zstd(b"{}")
@@ -762,7 +794,9 @@ class RouteGateUnitTest(unittest.TestCase):
     def test_zstd_body_still_gets_the_field_check_on_its_route(self):
         packed = zstd(json.dumps({"api_base": 1}).encode())
         inner, sent, _ = self.guarded([packed], self.zstd_headers())
-        self.assert_refused(sent, inner, 400, "llm-gateway: field 'api_base' not allowed")
+        self.assert_refused(
+            sent, inner, 400, "llm-gateway: field 'api_base' not allowed"
+        )
         state = zstd(json.dumps({"model": "m", "state": {}}).encode())
         for path, status in (("/v1/systemone", 200), ("/v1/chat/completions", 400)):
             with self.subTest(path=path):
@@ -1012,16 +1046,36 @@ class PriceMapTest(unittest.TestCase):
                     ["reasoning_effort"],
                 )
 
+    def test_every_chatgpt_model_sets_both_prices(self):
+        """The subscription bills nothing per request and the price map
+        lists its models at no price, so each is charged at the API's rates
+        to keep key budgets binding (IMP-035)."""
+        entries = [
+            m
+            for m in model_list(PRODUCTION_CONFIG)
+            if m["model_name"].startswith("chatgpt/")
+        ]
+        self.assertTrue(entries)
+        for entry in entries:
+            with self.subTest(model=entry["model_name"]):
+                params = entry["litellm_params"]
+                self.assertEqual(
+                    params["model"], entry["model_name"].replace("/", "/responses/", 1)
+                )
+                self.assertNotIn("api_key", params)
+                self.assertGreater(params["input_cost_per_token"], 0)
+                self.assertGreater(params["output_cost_per_token"], 0)
+
     def test_the_served_set(self):
         """Every agents/gateway.nix model, under its own name and its
-        provider's key; OpenRouter models named as their LiteLLM ids
-        (DEC-069); deepseek-flash with only its model and key."""
+        provider's key, if it has one; OpenRouter models named as their
+        LiteLLM ids (DEC-069); deepseek-flash with only its model and key."""
         self.assertEqual(
             {
-                m["model_name"]: m["litellm_params"]["api_key"]
+                m["model_name"]: m["litellm_params"].get("api_key")
                 for m in model_list(PRODUCTION_CONFIG)
             },
-            {name: f"os.environ/{env}" for name, env in MODELS.items()},
+            {name: env and f"os.environ/{env}" for name, env in MODELS.items()},
         )
         for entry in served_by(PRODUCTION_CONFIG, "OPENROUTER_API_KEY"):
             self.assertEqual(entry["model_name"], entry["litellm_params"]["model"])
@@ -1039,7 +1093,7 @@ def served_by(config_dir, env):
     return [
         m
         for m in model_list(config_dir)
-        if m["litellm_params"]["api_key"] == f"os.environ/{env}"
+        if m["litellm_params"].get("api_key") == f"os.environ/{env}"
     ]
 
 
@@ -1050,7 +1104,7 @@ def refused_by_price_rule(config_dir):
 
     def admitted(params):
         return (
-            params["api_key"] in {f"os.environ/{env}" for env in REPORTS_COST}
+            params.get("api_key") in {f"os.environ/{env}" for env in REPORTS_COST}
             or {"input_cost_per_token", "output_cost_per_token"} <= params.keys()
             or params["model"] in PRICE_MAP
         )
@@ -1068,6 +1122,7 @@ FAKE_COST = 0.0123  # the cost the fake reports; no price map has it
 
 
 SYSTEMONE_USAGE = {"input_tokens": 1000, "output_tokens": 50}  # the fake's
+RESPONSES_USAGE = {"input_tokens": 1000, "output_tokens": 50, "total_tokens": 1050}
 
 
 class FakeUpstream:
@@ -1075,11 +1130,15 @@ class FakeUpstream:
     (SL-014 EX-5): records each request body and answers it with usage.cost,
     streamed or not; the cost is left out when the body asks for no usage.
     TypeSafe's POST /v1/systemone (SL-019): records each request (path,
-    headers, body) and answers with SYSTEMONE_USAGE and one answer per question."""
+    headers, body) and answers with SYSTEMONE_USAGE and one answer per question.
+    ChatGPT's POST /v1/responses (IMP-035): records each request's headers and
+    body and streams a response with RESPONSES_USAGE, as the backend always
+    does."""
 
     def __init__(self, port):
         self.bodies = []  # chat completions
         self.systemone = []  # (headers, body) of each /v1/systemone request
+        self.responses = []  # (headers, body) of each /v1/responses request
         fake = self
 
         class Handler(BaseHTTPRequestHandler):
@@ -1094,6 +1153,28 @@ class FakeUpstream:
                     fake.systemone.append((headers, body))
                     self.reply("application/json", json.dumps(fake.answer(body)))
                     return
+                if self.path == "/v1/responses":
+                    headers = {k.lower(): v for k, v in self.headers.items()}
+                    fake.responses.append((headers, body))
+                    if any(
+                        item.get("role") in ("system", "developer")
+                        for item in body.get("input") or ()
+                    ):
+                        # the backend's refusal (ISS-021)
+                        self.reply(
+                            "application/json",
+                            json.dumps({"detail": "System messages are not allowed"}),
+                            status=400,
+                        )
+                        return
+                    self.reply(
+                        "text/event-stream",
+                        "".join(
+                            f"event: {e['type']}\ndata: {json.dumps(e)}\n\n"
+                            for e in fake.events(body)
+                        ),
+                    )
+                    return
                 fake.bodies.append(body)
                 if body.get("stream"):
                     self.reply(
@@ -1104,9 +1185,9 @@ class FakeUpstream:
                 else:
                     self.reply("application/json", json.dumps(fake.completion(body)))
 
-            def reply(self, content_type, text):
+            def reply(self, content_type, text, status=200):
                 data = text.encode()
-                self.send_response(200)
+                self.send_response(status)
                 self.send_header("Content-Type", content_type)
                 self.send_header("Content-Length", str(len(data)))
                 self.end_headers()
@@ -1123,12 +1204,71 @@ class FakeUpstream:
     def reset(self):
         self.bodies.clear()
         self.systemone.clear()
+        self.responses.clear()
 
     @staticmethod
     def answer(body):
         """A SystemOneResponse: one noul answer per question."""
         answers = {name: {"type": "noul", "noul": 0.9} for name in body["questions"]}
         return {"model": body["model"], "answers": answers, "usage": SYSTEMONE_USAGE}
+
+    @staticmethod
+    def events(body):
+        """A Responses API event stream answering "OK"."""
+        text = {"type": "output_text", "text": "OK", "annotations": []}
+        message = {
+            "type": "message",
+            "id": "msg_fake",
+            "status": "completed",
+            "role": "assistant",
+            "content": [text],
+        }
+        response = {
+            "id": "resp_fake",
+            "object": "response",
+            "created_at": 1,
+            "model": body["model"],
+            "status": "in_progress",
+            "output": [],
+            "parallel_tool_calls": True,
+            "tool_choice": "auto",
+            "tools": [],
+        }
+        done = {
+            **response,
+            "status": "completed",
+            "output": [message],
+            "usage": RESPONSES_USAGE,
+        }
+        item = {"item_id": "msg_fake", "output_index": 0, "content_index": 0}
+        return [
+            {"type": "response.created", "sequence_number": 0, "response": response},
+            {
+                "type": "response.output_item.added",
+                "sequence_number": 1,
+                "output_index": 0,
+                "item": {**message, "status": "in_progress", "content": []},
+            },
+            {
+                "type": "response.output_text.delta",
+                "sequence_number": 2,
+                **item,
+                "delta": "OK",
+            },
+            {
+                "type": "response.output_text.done",
+                "sequence_number": 3,
+                **item,
+                "text": "OK",
+            },
+            {
+                "type": "response.output_item.done",
+                "sequence_number": 4,
+                "output_index": 0,
+                "item": message,
+            },
+            {"type": "response.completed", "sequence_number": 5, "response": done},
+        ]
 
     @staticmethod
     def usage(body):
@@ -1269,26 +1409,123 @@ class OpenRouterCostTest(unittest.TestCase):
                 assert_spend_rose_by("reporter", before, FAKE_COST)
 
 
-class HandPricedTest(unittest.TestCase):
-    """An OpenAI model the price map lacks (gpt-6.1-terra): the bare id
-    reaches the upstream, and spend rises by the usage at its params'
-    prices, not by any cost the upstream reports."""
+class ChatGPTTest(unittest.TestCase):
+    """IMP-035: a ChatGPT subscription model is served on the token in
+    CHATGPT_TOKEN_DIR, never a provider key, through the Responses API, and
+    charged by the usage at its params' prices, streamed and not."""
 
-    def test_spend_rises_by_the_usage_at_the_params_prices(self):
+    def test_served_on_the_subscription_token_and_charged_at_params_prices(self):
         gateway = fake()
-        key = issue("hand-priced", models=[HAND_PRICED])
-        params = deployment(PRODUCTION_CONFIG, HAND_PRICED)
-        before = spent("hand-priced")
-        response = chat(key, model=HAND_PRICED, via=gateway.client)
+        for model in CHATGPT:
+            alias = f"subscriber-{model.rsplit('/', 1)[1]}"
+            key = issue(alias, models=[model])
+            params = deployment(PRODUCTION_CONFIG, model)
+            for stream in (False, True):
+                with self.subTest(model=model, stream=stream):
+                    gateway.upstream.reset()
+                    before = spent(alias)
+                    response = chat(key, model=model, via=gateway.client, stream=stream)
+                    self.assertEqual(response.status_code, 200, response.text)
+                    self.assertIn("OK", response.text)
+                    [(headers, body)] = gateway.upstream.responses
+                    self.assertEqual(
+                        headers["authorization"], f"Bearer {CHATGPT_TOKEN}"
+                    )
+                    self.assertNotIn(PROVIDER_SECRET, json.dumps([headers, body]))
+                    self.assertEqual(body["model"], model.removeprefix("chatgpt/"))
+                    assert_spend_rose_by(
+                        alias,
+                        before,
+                        RESPONSES_USAGE["input_tokens"] * params["input_cost_per_token"]
+                        + RESPONSES_USAGE["output_tokens"]
+                        * params["output_cost_per_token"],
+                    )
+
+    def test_reasoning_effort_reaches_the_upstream(self):
+        gateway = fake()
+        key = issue("subscriber-effort", models=list(CHATGPT))
+        for model in CHATGPT:
+            with self.subTest(model=model):
+                gateway.upstream.reset()
+                response = chat(
+                    key, model=model, via=gateway.client, reasoning_effort="high"
+                )
+                self.assertEqual(response.status_code, 200, response.text)
+                [(_, body)] = gateway.upstream.responses
+                self.assertEqual(body["reasoning"]["effort"], "high")
+
+    def test_system_messages_after_the_prompt_reach_it_in_place(self):
+        """ISS-021: the backend takes system text only as `instructions`. A
+        list-content prompt still gets there, and a later system or developer
+        message (pi's mid-conversation prompt update) arrives where it was
+        sent, as a marked user message, so the prompt's prefix is unchanged."""
+        gateway = fake()
+        key = issue("subscriber-update", models=[CHATGPT[1]])
+        messages = [
+            {"role": "developer", "content": [{"type": "text", "text": "Be terse."}]},
+            *HI,
+            {"role": "assistant", "content": "OK"},
+            {"role": "developer", "content": 'Updated system prompt section "cwd".'},
+            {"role": "system", "content": "Be brief."},
+        ]
+        response = chat(key, model=CHATGPT[1], via=gateway.client, messages=messages)
         self.assertEqual(response.status_code, 200, response.text)
-        [body] = gateway.upstream.bodies
-        self.assertEqual(body["model"], "gpt-6.1-terra")
-        usage = response.json()["usage"]
-        assert_spend_rose_by(
-            "hand-priced",
-            before,
-            usage["prompt_tokens"] * params["input_cost_per_token"]
-            + usage["completion_tokens"] * params["output_cost_per_token"],
+        [(_, body)] = gateway.upstream.responses
+        self.assertTrue(body["instructions"].endswith("Be terse."))
+        self.assertEqual(
+            [(item["role"], texts(item)) for item in body["input"]],
+            [
+                ("user", ["hi"]),
+                ("assistant", ["OK"]),
+                ("user", ['<system>\nUpdated system prompt section "cwd".\n</system>']),
+                ("user", ["<system>\nBe brief.\n</system>"]),
+            ],
+        )
+
+
+def texts(item):
+    """The text parts of a Responses API input message."""
+    return [part["text"] for part in item["content"]]
+
+
+class ChatGPTMessagesTest(unittest.TestCase):
+    """ISS-021: the messages a ChatGPT deployment is sent, and only it."""
+
+    def test_the_leading_prompt_is_one_string_system_message_each(self):
+        self.assertEqual(
+            gateway_hooks.chatgpt_messages(
+                [
+                    {"role": "developer", "content": "A."},
+                    {"role": "system", "content": [{"type": "text", "text": "B."}]},
+                    *HI,
+                ]
+            ),
+            [
+                {"role": "system", "content": "A."},
+                {"role": "system", "content": "B."},
+                *HI,
+            ],
+        )
+
+    def test_a_system_only_request_is_sent_as_marked_user_messages(self):
+        self.assertEqual(
+            gateway_hooks.chatgpt_messages([{"role": "system", "content": "A."}]),
+            [{"role": "user", "content": "<system>\nA.\n</system>"}],
+        )
+
+    def hook(self, model, messages):
+        return asyncio.run(
+            gateway_hooks.chatgpt_roles.async_pre_call_deployment_hook(
+                {"model": model, "messages": messages}, None
+            )
+        )
+
+    def test_only_a_chatgpt_deployment_is_rewritten(self):
+        later = [*HI, {"role": "system", "content": "A."}]
+        self.assertIsNone(self.hook("openrouter/some/model", later))
+        self.assertEqual(
+            self.hook("chatgpt/responses/gpt-6.1-terra", later)["messages"][-1],
+            {"role": "user", "content": "<system>\nA.\n</system>"},
         )
 
 
@@ -1537,7 +1774,11 @@ class CredentialTest(unittest.TestCase):
     def test_the_baked_PROVIDERS_are_the_production_configs(self):
         self.assertEqual(
             {f"os.environ/{env}" for env in serve.PROVIDERS.values()},
-            {m["litellm_params"]["api_key"] for m in model_list(PRODUCTION_CONFIG)},
+            {
+                m["litellm_params"]["api_key"]
+                for m in model_list(PRODUCTION_CONFIG)
+                if "api_key" in m["litellm_params"]
+            },
         )
 
     def refusal(self, environ):

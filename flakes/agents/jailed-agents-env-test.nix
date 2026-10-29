@@ -11,7 +11,8 @@
   system = pkgs.stdenv.hostPlatform.system;
   agents = import ./jailed-agents.nix {
     inherit pkgs jail-nix;
-    llm-agents.packages.${system} = {};
+    # pi is compared against (piInJail), never built
+    llm-agents.packages.${system}.pi = null;
   };
   launcher = args:
     agents.makeJailedZsh (

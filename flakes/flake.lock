@@ -6094,11 +6094,11 @@
         "quotient": "quotient_8"
       },
       "locked": {
-        "lastModified": 1793215639,
-        "narHash": "sha256-rdT2+46vI+KwYfxjaiINEZaMIKQouQBe4ZNiZekcc9c=",
+        "lastModified": 1793280588,
+        "narHash": "sha256-erAjrAVAZbI6St5387dRFA8AcCi2cKnx5YT1IsZ8oC8=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "cd6d53e7878f22b27f2040990b991b3239144be7",
+        "rev": "0df3e9e31834f022d14488b0ddbf915e07cf5029",
         "type": "github"
       },
       "original": {
@@ -9754,11 +9754,11 @@
         "quotient": "quotient_13"
       },
       "locked": {
-        "lastModified": 1793232292,
-        "narHash": "sha256-m8pNR14myCPno4UKvaSG0TyzaNmyo5YRFjcDwjpqIT8=",
+        "lastModified": 1793275200,
+        "narHash": "sha256-rMmRJNl8KoP76K8LTTBpXjNbB90a/619PT32kGhECKE=",
         "owner": "davidlee",
         "repo": "screwtape",
-        "rev": "bbc4bffd4fb9c5842a6c43137cc29195281ae966",
+        "rev": "d705f5b47f9b2315c3a4640c95ec31593f4db258",
         "type": "github"
       },
       "original": {

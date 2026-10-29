@@ -27,16 +27,21 @@
     # decryption.
     credstore = "/etc/credstore.encrypted";
     credentialPath = provider: "${credstore}/${user}.${provider}";
+    # Where LiteLLM keeps the ChatGPT subscription token, which it refreshes
+    # and rewrites (IMP-035): state, not a credential.
+    chatgptTokenDir = "/var/lib/${user}/chatgpt";
 
     # stdlib only; keystore.py beside it, where it imports from (and the path
     # its sudo re-exec runs: resolved, in the store).
     cli = pkgs.runCommand "llm-gateway" {} ''
       install -Dm755 ${script "llm-gateway" pkgs.python3 {
         MODELS = lib.attrNames models;
-        PROVIDERS = lib.mapAttrs (_: p: p.ref) providers;
+        PROVIDERS = lib.mapAttrs (_: p: p.ref) (proxy.keyed providers);
         DB = "/var/lib/${user}/keys.db";
         CREDSTORE = credstore;
         SOCKET = constants.socket;
+        CHATGPT_PYTHON = proxy.python.interpreter;
+        CHATGPT_TOKEN_DIR = chatgptTokenDir;
       }} $out/libexec/llm-gateway/llm-gateway
       install -Dm644 ${./gateway/keystore.py} $out/libexec/llm-gateway/keystore.py
       mkdir $out/bin
@@ -63,11 +68,13 @@
         type = lib.types.attrsOf (lib.types.submodule {
           options = {
             env = lib.mkOption {
-              type = lib.types.str;
-              description = "the variable LiteLLM reads the key from";
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = "the variable LiteLLM reads the key from; null for a provider without a key (chatgpt)";
             };
             ref = lib.mkOption {
-              type = lib.types.str;
+              type = lib.types.nullOr lib.types.str;
+              default = null;
               description = "its 1Password reference (public)";
             };
             reportsCost = lib.mkOption {
@@ -107,6 +114,7 @@
             inherit (cfg) providers;
           }}/config.yaml";
           LITELLM_LOCAL_MODEL_COST_MAP = "True"; # the packaged price map; no fetch at start
+          CHATGPT_TOKEN_DIR = chatgptTokenDir;
         };
         serviceConfig =
           hardening
@@ -117,7 +125,7 @@
             RuntimeDirectoryMode = "0750"; # uvicorn makes the socket 0666; this gates it
             StateDirectory = user;
             StateDirectoryMode = "0700";
-            LoadCredentialEncrypted = map (p: "${p}:${credentialPath p}") (lib.attrNames providers);
+            LoadCredentialEncrypted = map (p: "${p}:${credentialPath p}") (lib.attrNames (proxy.keyed providers));
             ExecStart = "${serve}";
             Restart = "on-failure";
           };

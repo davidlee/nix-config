@@ -882,7 +882,7 @@ are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
 It serves DeepSeek, OpenRouter, Fireworks, TypeSafe (Jev) and OpenAI models,
-the last on two accounts.
+the last on the ChatGPT subscription.
 
 **What it is, and what clients may rely on:**
 [SPEC-001](.doctrine/spec/tech/001/spec-001.md) (`doctrine show SPEC-001`
@@ -935,14 +935,15 @@ On the first switch systemd itself refuses the unit at credential setup
 up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
 That is expected. `just gateway-credentials` (with no argument, every provider's
-1Password item: deepseek, openrouter, fireworks, typesafe, openai-dav,
-openai-david; name the ones a host has otherwise) clears the start limit those
+1Password item: deepseek, openrouter, fireworks, typesafe; name the ones a
+host has otherwise) clears the start limit those
 failures hit, restarts the service, and returns once the gateway's socket
 exists (it gives up after 90 s, naming `systemctl status llm-gateway`).
 
 ```bash
 just system-switch          # llm-gateway.service fails: no credential yet (expected)
 just gateway-credentials    # one 1Password unlock; encrypts with host+TPM2; restarts, waits until serving
+llm-gateway chatgpt-login   # once: the ChatGPT subscription (below)
 llm-gateway issue eca --models deepseek-flash --budget 5 \
   --out ~/.config/llm-gateway/keys/eca   # 0600; refuses an existing file
 llm-gateway issue pi --models deepseek-flash --budget 50 \
@@ -970,7 +971,8 @@ the file):
 ```
 
 **Providers.** Each is an entry in `defaults.providers` in
-`features/agents/gateway/proxy.nix`: key variable, 1Password ref, `reportsCost`.
+`features/agents/gateway/proxy.nix`: key variable, 1Password ref,
+`reportsCost`. `chatgpt` has neither key nor ref: it signs in.
 
 | provider | key variable | cost source |
 |---|---|---|
@@ -978,9 +980,39 @@ the file):
 | openrouter | `OPENROUTER_API_KEY` | `reportsCost`: OpenRouter's per-request `usage.cost` |
 | fireworks | `FIREWORKS_API_KEY` | packaged price map |
 | typesafe | `TYPESAFE_API_KEY` | packaged price map |
-| openai-dav, openai-david | `OPENAI_DAV_API_KEY`, `OPENAI_DAVID_API_KEY` | packaged price map; `gpt-6.1-terra` priced in its `params` |
+| chatgpt | none: a login token | `params`: API rates, from each model's pi cost |
 
 Cost sources: SPEC-001 § Served models and cost.
+
+**ChatGPT subscription** (DEC-094). LiteLLM's `chatgpt` provider serves
+`chatgpt/<id>` (gpt-6-luna, gpt-6.1-sol, gpt-6.1-terra, gpt-6-astra) on one
+subscription account through the Responses API.
+
+```
+llm-gateway chatgpt-login ──sudo -u llm-gateway──> device-code login (you, once)
+                                                     └─> /var/lib/llm-gateway/chatgpt/auth.json (0600)
+llm-gateway.service  CHATGPT_TOKEN_DIR=/var/lib/llm-gateway/chatgpt
+  LiteLLM ── reads, refreshes, rewrites auth.json ──> chatgpt.com
+```
+
+- The token is service state, not a systemd credential: LiteLLM refreshes it
+  and writes it back. There is one token directory per process, so one
+  account.
+- `chatgpt-login` prints a URL and a code; sign in with the subscription's
+  account. Then it restarts the gateway and waits until it serves (~25 s).
+  With a valid token it only restarts. To change account or recover from a
+  revoked login, `sudo rm /var/lib/llm-gateway/chatgpt/auth.json`, then log in
+  again.
+- A gateway started without a token drops the `chatgpt/*` models until it
+  restarts (journal: "Error creating deployment … device-code login needs a
+  human"); requests get 400 "no healthy deployments". `chatgpt-login`'s
+  restart is what brings them up.
+- A login that timed out leaves a 5-minute cooldown in `auth.json`: a
+  re-run within it waits silently instead of printing a new code. Wait, or
+  `sudo rm` the file.
+- The subscription bills nothing per request, but each model is charged at
+  OpenAI's API rates, so key budgets still bound it. A price change is a hand
+  edit of the pi `cost` in `agents/gateway.nix`.
 
 **Routes.** `features/agents/gateway/gateway_hooks.py` serves chat
 completions, `GET /v1/models` and `POST /v1/systemone` (TypeSafe's Jev; body
@@ -1013,6 +1045,7 @@ always yours, 0600. Keys travel on stdin, never argv.
 | `models ALIAS M,…` | replace a key's model list; the key is unchanged, live at once, no restart; refuses a revoked key and unserved models |
 | `reset ALIAS` | set spend back to 0 |
 | `credentials [PROVIDER…]` | encrypt provider keys from 1Password for the service; a failed read leaves the stored one |
+| `chatgpt-login` | sign the service in to the ChatGPT subscription (device code), then restart it and wait until it serves |
 
 **Rotation.**
 
@@ -1079,15 +1112,16 @@ host that defines it replaces the whole set, so edit `proxy.nix` instead.
 
 **What it does not cover.**
 
-- OAuth/subscription logins (claude, codex and the like sign in their own way; OpenAI through a subscription is IMP-035).
+- OAuth/subscription logins other than ChatGPT's (claude, codex and the like sign in their own way).
 - Provider keys outside a jail: the unjailed `eca` keeps its own. No jail
   carries one (IMP-051).
 - Anything off this host: the relay listens on loopback and on a unix socket only.
 - Budgets are lifetime USD per key, not per period.
 
 **Tests.** `just test` runs `keystore-test`, `checks.<system>.llm-gateway`
-(the real proxy app, offline, with a fake OpenRouter: cost to the ledger, the
-body guard) and the jail tests.
+(the real proxy app, offline, with fake OpenRouter, TypeSafe and ChatGPT
+upstreams: cost to the ledger, the body guard, the subscription token) and
+the jail tests.
 
 ## Jailed Agents 
 

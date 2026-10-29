@@ -9,7 +9,9 @@ calls into `keystore` calls.
   authenticate       general_settings.custom_auth: the key must be live
   model_gate         callback, pre-call: every model the request names must
                      be on the key's list
-  ledger             callback, success: spent += response_cost
+  chatgpt_roles      callback, per deployment: a ChatGPT deployment's system
+                     messages, as its backend accepts them (ISS-021)
+  ledger            callback, success: spent += response_cost
 
 LiteLLM loads each hook reference from this file afresh, without sys.modules
 (litellm/proxy/types_utils/utils.py:42-50, 1.102.1), so the hooks hold no
@@ -342,7 +344,52 @@ class Ledger(CustomLogger):
             log.exception("spend not recorded")
 
 
+class ChatGPTRoles(CustomLogger):
+    """Rewrites a ChatGPT deployment's messages to ones its backend accepts
+    (ISS-021). Per deployment, not per request: a fallback to one is covered."""
+
+    async def async_pre_call_deployment_hook(self, kwargs, call_type):
+        model = kwargs.get("model") or ""
+        messages = kwargs.get("messages")
+        if not model.startswith("chatgpt/") or not messages:
+            return None
+        return {**kwargs, "messages": chatgpt_messages(messages)}
+
+
+SYSTEM_ROLES = frozenset({"system", "developer"})
+
+
+def chatgpt_messages(messages):
+    """The ChatGPT backend takes system text only as `instructions`, which
+    LiteLLM fills from the leading string system messages, and refuses any
+    other system or developer message. So the leading ones become string
+    system messages, and each later one a user message in its place, marked
+    <system>: the prefix, and the prompt cache, survive a prompt update. A
+    request of system messages alone has no prefix to keep: all are marked."""
+    lead = next(
+        (i for i, m in enumerate(messages) if m.get("role") not in SYSTEM_ROLES), 0
+    )
+    return [_as_sent(m, leading=i < lead) for i, m in enumerate(messages)]
+
+
+def _as_sent(message, leading):
+    if leading:
+        return {**message, "role": "system", "content": _text(message.get("content"))}
+    if message.get("role") not in SYSTEM_ROLES:
+        return message
+    text = _text(message.get("content"))
+    return {**message, "role": "user", "content": f"<system>\n{text}\n</system>"}
+
+
+def _text(content):
+    """A system message's text: its text parts, joined as pi joins them."""
+    if isinstance(content, list):
+        return "\n".join(p.get("text", "") for p in content if p.get("type") == "text")
+    return content or ""
+
+
 model_gate = ModelGate()
+chatgpt_roles = ChatGPTRoles()
 ledger = Ledger()
 
 

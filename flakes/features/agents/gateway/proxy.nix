@@ -10,12 +10,16 @@
 }: rec {
   python = pkgs.python3.withPackages (ps: [ps.litellm] ++ ps.litellm.optional-dependencies.proxy);
 
-  # The launcher, llm-gateway-serve, with PROVIDERS baked from `providers`
-  # (credential name -> variable) and any other `values` (the service's
-  # SOCKET).
+  # The providers that take a key: all but chatgpt, which signs in instead
+  # and keeps its token in CHATGPT_TOKEN_DIR (IMP-035).
+  keyed = lib.filterAttrs (_: p: (p.env or null) != null);
+
+  # The launcher, llm-gateway-serve, with PROVIDERS baked from the keyed
+  # `providers` (credential name -> variable) and any other `values` (the
+  # service's SOCKET).
   serve = providers: values:
     import ./bake.nix {inherit pkgs lib;} "llm-gateway-serve" python
-    ({PROVIDERS = lib.mapAttrs (_: p: p.env) providers;} // values);
+    ({PROVIDERS = lib.mapAttrs (_: p: p.env) (keyed providers);} // values);
 
   defaults = {
     # gateway model name -> LiteLLM model id, the provider whose key it uses
@@ -23,9 +27,10 @@
     # are for pi, not LiteLLM)
     models = lib.mapAttrs (_: m: removeAttrs m ["pi"]) (import ../../../agents/gateway.nix).models;
     # provider -> the variable LiteLLM reads its key from (the credential is
-    # named after the provider) and its 1Password reference (public, G1);
-    # reportsCost: the provider returns each request's billed cost and
-    # LiteLLM captures it, so its models need no price (DEC-064)
+    # named after the provider) and its 1Password reference (public, G1),
+    # neither for chatgpt; reportsCost: the provider returns each request's
+    # billed cost and LiteLLM captures it, so its models need no price
+    # (DEC-064)
     providers = {
       deepseek = {
         env = "DEEPSEEK_API_KEY";
@@ -45,15 +50,8 @@
         # by convention; confirm the item at rollout (SL-019 ASM-002)
         ref = "op://API_KEYS/TYPESAFE_API_KEY/credential";
       };
-      # two OpenAI accounts, one key each, the same models (DEC-069 names)
-      openai-dav = {
-        env = "OPENAI_DAV_API_KEY";
-        ref = "op://API_KEYS/OPENAI_API_KEY/credential";
-      };
-      openai-david = {
-        env = "OPENAI_DAVID_API_KEY";
-        ref = "op://API_KEYS/OPENAI_ALT_API_KEY/credential";
-      };
+      # the ChatGPT subscription: no key, `llm-gateway chatgpt-login`
+      chatgpt = {};
     };
   };
 
@@ -86,8 +84,8 @@
       model_name = name;
       litellm_params =
         (m.params or {})
-        // {
-          inherit (m) model;
+        // {inherit (m) model;}
+        // lib.optionalAttrs (keyed providers ? ${m.provider}) {
           api_key = "os.environ/${providers.${m.provider}.env}";
         }
         // extraParams;
@@ -103,7 +101,7 @@
         # (proxy/auth/master_key_boot_check.py).
         dangerously_permit_weak_or_unset_master_key = true;
       };
-      litellm_settings.callbacks = ["gateway_hooks.model_gate" "gateway_hooks.ledger"];
+      litellm_settings.callbacks = ["gateway_hooks.model_gate" "gateway_hooks.chatgpt_roles" "gateway_hooks.ledger"];
     };
     yaml = (pkgs.formats.yaml {}).generate "config.yaml" config;
   in

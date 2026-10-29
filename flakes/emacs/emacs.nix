@@ -252,6 +252,8 @@ in
           tldr
           dogears
           elpher # gopher / gemini
+          geiser
+          geiser-guile
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [

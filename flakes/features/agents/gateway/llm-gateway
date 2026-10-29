@@ -6,6 +6,7 @@ provider keys where the service can load them (design SL-011 sec-4).
   llm-gateway list | revoke <alias> | budget <alias> <USD> | reset <alias>
   llm-gateway models <alias> a,b
   llm-gateway credentials [provider ...]
+  llm-gateway chatgpt-login
 
 Admin subcommands act on the key store as the service user, re-executing
 themselves under `sudo -u llm-gateway` when run by anyone else (DEC-050).
@@ -16,6 +17,11 @@ always the invoking user's (DEC-091).
 in clear, or this process's memory (DEC-048). The credential is staged beside
 its target and moved into place only when both succeed, so a failed or
 cancelled read leaves the stored one as it was.
+`chatgpt-login` runs LiteLLM's device-code login as the service user, on
+your terminal, into the token directory the service reads and refreshes
+(IMP-035), then restarts the gateway: LiteLLM drops a chatgpt model whose
+token it cannot get at startup, for the life of the process. LiteLLM keeps a
+valid token, so a repeat only restarts.
 
 sudo drops the environment, so nothing here reads it: configuration is baked
 in below, and everything else travels as argv. No key ever does.
@@ -46,12 +52,21 @@ PROVIDERS = {"deepseek": "op://API_KEYS/DEEPSEEK_API_KEY/credential"}
 DB = "/var/lib/llm-gateway/keys.db"
 CREDSTORE = "/etc/credstore.encrypted"
 SOCKET = "/run/llm-gateway/api.sock"
+CHATGPT_PYTHON = sys.executable  # the gateway's Python, which has LiteLLM
+CHATGPT_TOKEN_DIR = "/var/lib/llm-gateway/chatgpt"
 
 SERVICE_USER = "llm-gateway"
 # How long `credentials` waits for the restarted gateway's socket; LiteLLM
 # takes ~25 s to start.
 READY_TIMEOUT = 90
 READY_INTERVAL = 0.5
+# Run by CHATGPT_PYTHON as the service user. sudo keeps the caller's umask,
+# and LiteLLM writes auth.json with a bare open().
+LOGIN_SCRIPT = (
+    "import os; os.umask(0o077); "
+    "from litellm.llms.chatgpt.authenticator import Authenticator; "
+    "Authenticator().get_access_token()"
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -61,6 +76,8 @@ class Config:
     db: str
     credstore: str  # where the service's encrypted credentials live
     socket: str  # the gateway's, root-readable only
+    chatgpt_python: str  # a Python with LiteLLM
+    chatgpt_token_dir: str  # the service's CHATGPT_TOKEN_DIR
 
 
 @dataclasses.dataclass(frozen=True)
@@ -93,7 +110,9 @@ def production_host():
         return done.returncode, done.stdout
 
     return Host(
-        config=Config(MODELS, PROVIDERS, DB, CREDSTORE, SOCKET),
+        config=Config(
+            MODELS, PROVIDERS, DB, CREDSTORE, SOCKET, CHATGPT_PYTHON, CHATGPT_TOKEN_DIR
+        ),
         is_root=lambda: os.geteuid() == 0,
         is_service_user=lambda: pwd.getpwuid(os.geteuid()).pw_name == SERVICE_USER,
         privileged=privileged,
@@ -161,6 +180,9 @@ def parser():
         "credentials", help="encrypt provider keys from 1Password for the service"
     )
     credentials.add_argument("providers", nargs="*")
+    commands.add_parser(
+        "chatgpt-login", help="sign the service in to the ChatGPT subscription"
+    )
     return top
 
 
@@ -173,6 +195,8 @@ def main(argv, *, host):
         return fail(host, error)
     if args.command == "credentials":
         return credentials(host, args.providers)
+    if args.command == "chatgpt-login":
+        return chatgpt_login(host)
     if args.command in ("issue", "models"):
         refused = refuse_unserved(host, args.models)
         if refused:
@@ -363,16 +387,36 @@ def credentials(host, names):
     return restart(host)
 
 
-def restart(host):
+def chatgpt_login(host):
+    """LiteLLM's login, as the service user (it prints the device code),
+    then the restart that lets the gateway serve the chatgpt models."""
+    config = host.config
+    argv = [
+        "sudo",
+        "-u",
+        SERVICE_USER,
+        "--",
+        "env",
+        f"CHATGPT_TOKEN_DIR={config.chatgpt_token_dir}",
+        "LITELLM_LOCAL_MODEL_COST_MAP=True",  # no price-map fetch on import
+        config.chatgpt_python,
+        "-c",
+        LOGIN_SCRIPT,
+    ]
+    if host.spawn(argv).wait() != 0:
+        return fail(host, "chatgpt-login failed", code=1)
+    print(f"chatgpt: signed in; {config.chatgpt_token_dir}/auth.json", file=host.out)
+    return restart(host, "signed in")
+
+
+def restart(host, done="credentials written"):
     """Restart the gateway, clearing a start limit hit while it had no
     credential, then wait for its socket: the unit counts as started before
-    LiteLLM listens."""
+    LiteLLM listens. `done` names what succeeded, for the failure messages."""
     unit = SERVICE_USER
     host.spawn(["sudo", "systemctl", "reset-failed", unit]).wait()  # best effort
     if host.spawn(["sudo", "systemctl", "restart", unit]).wait() != 0:
-        return fail(
-            host, f"credentials written; systemctl restart {unit} failed", code=1
-        )
+        return fail(host, f"{done}; systemctl restart {unit} failed", code=1)
     for attempt in range(int(READY_TIMEOUT / READY_INTERVAL)):
         if attempt:
             host.sleep(READY_INTERVAL)
@@ -380,7 +424,7 @@ def restart(host):
             return 0
     return fail(
         host,
-        f"credentials written, but {host.config.socket} did not appear within {READY_TIMEOUT} s; see systemctl status {unit}",
+        f"{done}, but {host.config.socket} did not appear within {READY_TIMEOUT} s; see systemctl status {unit}",
         code=1,
     )
 

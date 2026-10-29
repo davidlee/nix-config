@@ -103,7 +103,7 @@ in {
             builtins.toJSON (lib.mapAttrsToList (_: p: p.env)
               (lib.filterAttrs (_: p: p.reportsCost or false) proxy.defaults.providers));
           LLM_GATEWAY_MODELS =
-            builtins.toJSON (lib.mapAttrs (_: m: proxy.defaults.providers.${m.provider}.env) proxy.defaults.models);
+            builtins.toJSON (lib.mapAttrs (_: m: proxy.defaults.providers.${m.provider}.env or null) proxy.defaults.models);
           LLM_GATEWAY_TEST_CONFIG = proxy.configDir {
             extraModels.unpriced = {
               model = "deepseek/no-such-model-gateway-test";
@@ -142,8 +142,8 @@ in {
               inherit reported;
               # LiteLLM strips the api_base's /v1 and appends /v1/systemone
               "typesafe/jev-1.14.0" = proxy.defaults.models."typesafe/jev-1.14.0";
-              # priced in its params, not by the price map
-              "openai-david/gpt-6.1-terra" = proxy.defaults.models."openai-david/gpt-6.1-terra";
+              # the subscription, priced in params: one mapped, one not
+              inherit (proxy.defaults.models) "chatgpt/gpt-6.1-sol" "chatgpt/gpt-6.1-terra";
               # its twin without allowed_openai_params
               unallowed = removeAttrs reported ["params"];
               # never requested: its params try to replace its model and key

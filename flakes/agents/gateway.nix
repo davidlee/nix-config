@@ -34,12 +34,12 @@ rec {
       model = "typesafe/${id}";
       provider = "typesafe";
     };
-    # OpenAI, on one account's key. The id stays bare, as the packaged price
-    # map keys it, so the provider is named. `pi` entries are pi-ai 1.4.0's
-    # built-in openai-responses entries, cut to the completions route the
-    # gateway serves: their cost tiers start at 272k input tokens, which the
-    # context window never reaches, so they are left out. gpt-6.1-terra has
-    # neither a built-in entry nor a price-map entry: its prices are OpenAI's
+    # OpenAI on the ChatGPT subscription (IMP-035): LiteLLM's chatgpt
+    # provider, signed in with `llm-gateway chatgpt-login`, no key. `pi`
+    # entries are pi-ai 1.4.0's built-in openai-responses entries, cut to the
+    # completions route the gateway serves: their cost tiers start at 272k
+    # input tokens, which the context window never reaches, so they are left
+    # out. gpt-6.1-terra has no built-in entry: its prices are OpenAI's
     # standard tier (no batch, flex or fast use), the rest is gpt-6.1-sol's.
     openaiModels = let
       # off maps to "none" where the model can switch reasoning off
@@ -61,19 +61,10 @@ rec {
       gpt-6-luna.pi = model "GPT-6 Luna" 272000 (cost 0.1 0.5 0.01 0.125) (levels "none" "max");
       "gpt-6.1-sol".pi = model "GPT-6.1 Sol" 272000 (cost 2 10 0.1 2.5) (levels null "max");
       gpt-6-astra.pi = model "GPT-6 Astra" 272000 (cost 10 50 1 12.5) (levels null "max");
-      "gpt-5.4-mini".pi = model "GPT-5.4 mini" 400000 (cost 0.75 4.5 0.075 0) (levels "none" null);
       "gpt-6.1-terra" = {
         pi = model "GPT-6.1 Terra" 272000 (cost 1 5 0.05 1.25) (levels null "max");
-        params = {
-          # unmapped: LiteLLM refuses reasoning_effort unless allowed (DEC-074)
-          allowed_openai_params = ["reasoning_effort"];
-          input_cost_per_token = 1.0e-6;
-          output_cost_per_token = 5.0e-6;
-          cache_read_input_token_cost = 5.0e-8;
-          input_cost_per_token_above_272k_tokens = 2.0e-6;
-          output_cost_per_token_above_272k_tokens = 7.5e-6;
-          cache_read_input_token_cost_above_272k_tokens = 1.0e-7;
-        };
+        # unmapped: LiteLLM refuses reasoning_effort unless allowed (DEC-074)
+        params.allowed_openai_params = ["reasoning_effort"];
       };
     };
     # pi's completions compat for OpenAI behind the gateway: no `store` and no
@@ -87,22 +78,33 @@ rec {
       maxTokensField = "max_completion_tokens";
       thinkingFormat = "openai";
     };
-    openai = provider: id: let
+    # The backend serves only the Responses API. LiteLLM bridges a chat
+    # completion to it for a model its map lists in responses mode, or one
+    # named responses/<id>: the prefix, so an unlisted model goes there too.
+    # The subscription bills nothing per request, and the map lists these
+    # models at no price: each is charged at its API rates, pi's cost (USD
+    # per million tokens), so a key's budget still bounds it.
+    chatgpt = id: let
       m = openaiModels.${id};
+      perToken = usd: usd / 1000000.0;
     in {
-      model = id;
-      inherit provider;
-      params = {custom_llm_provider = "openai";} // (m.params or {});
+      model = "chatgpt/responses/${id}";
+      provider = "chatgpt";
+      params =
+        (m.params or {})
+        // {
+          input_cost_per_token = perToken m.pi.cost.input;
+          output_cost_per_token = perToken m.pi.cost.output;
+          cache_read_input_token_cost = perToken m.pi.cost.cacheRead;
+        };
       pi =
         m.pi
         // {
-          name = "${m.pi.name} (${provider})";
           reasoning = true;
           input = ["text" "image"];
           compat = openaiCompat;
         };
     };
-    account = provider: named provider (openai provider) (builtins.attrNames openaiModels);
     # named <provider>/<id> (DEC-069)
     named = provider: helper: ids:
       builtins.listToAttrs (map (id: {
@@ -180,8 +182,7 @@ rec {
       "jev-1.14.0"
       "jev-1.13.0"
     ]
-    // account "openai-dav"
-    // account "openai-david";
+    // named "chatgpt" chatgpt (builtins.attrNames openaiModels);
 
   # A jail's `gateway` argument for one client. The client name is the key
   # file's name. The key in it is first issued under the same ledger alias;

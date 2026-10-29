@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 94
+slug = "gateway-serves-openai-on-chatgpt-subscription"
+title = "The gateway serves OpenAI on the ChatGPT subscription, one account"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-29"
+updated = "2026-10-29"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-093 served OpenAI on two API-billed accounts. The user wants OpenAI behind the gateway on the ChatGPT subscription instead (IMP-035). LiteLLM 1.106.2 ships a native chatgpt provider: it reads an OAuth token from CHATGPT_TOKEN_DIR/auth.json (one directory per process, so one account), refreshes and rewrites it itself, calls only the Responses API, and needs a human for the first device-code login, which it refuses inside the proxy."
+choice = "One provider, chatgpt, with no key, credential or 1Password reference, on the user's subscription account (david@davlee.com). The service sets CHATGPT_TOKEN_DIR=/var/lib/llm-gateway/chatgpt, in its StateDirectory; `llm-gateway chatgpt-login` runs LiteLLM's device-code login there as the service user, umask 077. Models gpt-6-luna, gpt-6.1-sol, gpt-6.1-terra and gpt-6-astra, named chatgpt/<id> (DEC-069), LiteLLM model chatgpt/responses/<id> so every one, mapped or not, is bridged to the Responses API. Each is charged at OpenAI's API rates, derived from its pi cost (input, output, cache read), because the subscription bills nothing per request and the price map lists these models at no price. openai-dav and openai-david are removed; gpt-5.4-mini is dropped (no chatgpt entry). The user judged serving the subscription to local jails acceptable under its terms."
+alternatives = ["Keep the API-key providers beside the subscription", "Both accounts on the subscription: a second LiteLLM process, as the token directory is per process", "Charge subscription models 0 and exempt them from the zero-cost warning (DEC-068): budgets would no longer bound them", "Keep gpt-5.4-mini with a hand-set price"]
+rationale = "The subscription is already paid for. LiteLLM's native provider needs no custom code, only a writable token directory and a one-off login. API-rate prices keep key budgets binding, so a runaway jail spends its budget before it exhausts the subscription's quota. The responses/ prefix removes the dependence on LiteLLM's map knowing each model's mode."
+consequences = ["DEC-093 is superseded; IMP-035 is resolved by its rollout", "The token is service state, not a systemd credential: DEC-048's read-only model does not cover it, and it is backed up and lost with /var/lib/llm-gateway", "A gateway started without a token still starts, but LiteLLM drops the chatgpt deployments until a restart (400 no healthy deployments); `llm-gateway chatgpt-login` restarts it after signing in", "A price change needs a hand edit of the pi cost in agents/gateway.nix", "Rollout: switch, chatgpt-login, swap openai-* for chatgpt/* on the satan, satan-runner, malebolge and pi-2 keys (DEC-071), delete the openai-* credentials", "Model names change for every client that used openai-dav/* or openai-david/*"]
+decided_by = "user (2026-10-29)"
+decided_on = "2026-10-29"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-093"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
