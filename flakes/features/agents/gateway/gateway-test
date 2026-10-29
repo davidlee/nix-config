@@ -59,6 +59,7 @@ PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
 REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
 UNALLOWED = "unallowed"  # the same without allowed_openai_params (CHR-025)
+HAND_PRICED = "openai-david/gpt-6.1-terra"  # production, priced in params, on the fake
 
 
 def model_list(config_dir):
@@ -1266,6 +1267,29 @@ class OpenRouterCostTest(unittest.TestCase):
                     self.assertTrue(response.text.rstrip().endswith("data: [DONE]"))
                 self.assertEqual(len(gateway.upstream.bodies), 1)
                 assert_spend_rose_by("reporter", before, FAKE_COST)
+
+
+class HandPricedTest(unittest.TestCase):
+    """An OpenAI model the price map lacks (gpt-6.1-terra): the bare id
+    reaches the upstream, and spend rises by the usage at its params'
+    prices, not by any cost the upstream reports."""
+
+    def test_spend_rises_by_the_usage_at_the_params_prices(self):
+        gateway = fake()
+        key = issue("hand-priced", models=[HAND_PRICED])
+        params = deployment(PRODUCTION_CONFIG, HAND_PRICED)
+        before = spent("hand-priced")
+        response = chat(key, model=HAND_PRICED, via=gateway.client)
+        self.assertEqual(response.status_code, 200, response.text)
+        [body] = gateway.upstream.bodies
+        self.assertEqual(body["model"], "gpt-6.1-terra")
+        usage = response.json()["usage"]
+        assert_spend_rose_by(
+            "hand-priced",
+            before,
+            usage["prompt_tokens"] * params["input_cost_per_token"]
+            + usage["completion_tokens"] * params["output_cost_per_token"],
+        )
 
 
 class PassThroughTest(unittest.TestCase):

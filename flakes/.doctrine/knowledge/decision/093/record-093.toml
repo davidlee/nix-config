@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 93
+slug = "gateway-serves-openai-on-two-accounts"
+title = "The gateway serves OpenAI API-billed models on two accounts"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-29"
+updated = "2026-10-29"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-072 kept OpenAI API-billed models off the gateway. The user now wants OpenAI models on API keys from two accounts, each addressable separately, for the satan, satan-runner and malebolge keys; the subscription login (IMP-035) is set aside."
+choice = "Two providers, openai-dav (op://API_KEYS/OPENAI_API_KEY/credential) and openai-david (op://API_KEYS/OPENAI_ALT_API_KEY/credential), each serving gpt-6-luna, gpt-6.1-terra, gpt-6.1-sol, gpt-6-astra and gpt-5.4-mini as openai-<account>/<id> (DEC-069). The LiteLLM model id is bare with custom_llm_provider openai, as the packaged price map keys it; gpt-6.1-terra, absent from LiteLLM 1.106.2's map, is priced in params at OpenAI's standard rates (no batch, flex or fast) and allows reasoning_effort (DEC-074). Each carries a pi entry (DEC-063) from pi-ai 1.4.0's built-in openai-responses entry, cut to the completions route (no store, no 24h cache retention, max_completion_tokens, openai thinking format; cost tiers dropped, as the 272k context window never reaches them); terra's is gpt-6.1-sol's with its own prices. The pi entries put the models in the catalog malebolge and satan-runner read."
+alternatives = ["One provider holding both keys (LiteLLM load-balances: the caller cannot choose the account)", "OAuth subscription first (IMP-035)"]
+rationale = "A provider is one key; two providers make the account part of the model name, so a client chooses it. The existing per-provider credential and cost machinery needs no new mechanism."
+consequences = ["DEC-072's no-API-billed-OpenAI stance is superseded", "IMP-035 stays open for the subscription login", "Rollout adds two credentials before the switch (DEC-067) and appends the models to the satan / satan-runner / malebolge / pi-2 keys with llm-gateway models (DEC-071)", "A terra price change needs a hand edit in agents/gateway.nix until LiteLLM's map lists it", "Every pi-gateway jail is offered the models; a key without them gets a 403"]
+decided_by = "user (2026-10-29)"
+decided_on = "2026-10-29"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-072"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)

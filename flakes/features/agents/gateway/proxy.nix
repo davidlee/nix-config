@@ -45,6 +45,15 @@
         # by convention; confirm the item at rollout (SL-019 ASM-002)
         ref = "op://API_KEYS/TYPESAFE_API_KEY/credential";
       };
+      # two OpenAI accounts, one key each, the same models (DEC-069 names)
+      openai-dav = {
+        env = "OPENAI_DAV_API_KEY";
+        ref = "op://API_KEYS/OPENAI_API_KEY/credential";
+      };
+      openai-david = {
+        env = "OPENAI_DAVID_API_KEY";
+        ref = "op://API_KEYS/OPENAI_ALT_API_KEY/credential";
+      };
     };
   };
 

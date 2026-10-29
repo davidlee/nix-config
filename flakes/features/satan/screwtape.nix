@@ -21,6 +21,11 @@
       enable = true;
       # A reference, not the token: the read-only Fastmail API token.
       opRef = "op://SLEIPNIR_CREDENTIALS/udcn7s4ervqa3mrvadczu6lqoy/credential";
+      # The LLM gateway relay (DEC-075), serving TypeSafe's Jev.
+      jev = {
+        baseUrl = "http://127.0.0.1:4000";
+        model = "typesafe/jev-1.14.0";
+      };
     };
   };
 }

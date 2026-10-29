@@ -142,6 +142,8 @@ in {
               inherit reported;
               # LiteLLM strips the api_base's /v1 and appends /v1/systemone
               "typesafe/jev-1.14.0" = proxy.defaults.models."typesafe/jev-1.14.0";
+              # priced in its params, not by the price map
+              "openai-david/gpt-6.1-terra" = proxy.defaults.models."openai-david/gpt-6.1-terra";
               # its twin without allowed_openai_params
               unallowed = removeAttrs reported ["params"];
               # never requested: its params try to replace its model and key

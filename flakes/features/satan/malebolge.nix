@@ -22,10 +22,13 @@
     config,
     ...
   }: let
+    home = config.home.homeDirectory;
     jailed = inputs.satan.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkJailedMalebolge {
       screwtape = {inherit (config.services.screwtape) package configFile storeDir;};
+      # The bookmark tools' source (malebolge SL-008, CHR-006): the default
+      # profile's bookmarkbackups directory, bound read-only by the launcher.
+      bookmarkBackups = "${home}/.config/mozilla/firefox/ez06zp0k.default/bookmarkbackups";
     };
-    home = config.home.homeDirectory;
   in {
     assertions = [
       {

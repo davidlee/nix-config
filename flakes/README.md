@@ -881,7 +881,8 @@ key: useful on this host alone, within its budget and its model list. Clients
 are the jailed `eca` (key `eca`) and the jails that take
 `gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
 and projects made from the agents template. The unjailed `eca` is unchanged.
-It serves DeepSeek, OpenRouter, Fireworks and TypeSafe (Jev) models.
+It serves DeepSeek, OpenRouter, Fireworks, TypeSafe (Jev) and OpenAI models,
+the last on two accounts.
 
 **What it is, and what clients may rely on:**
 [SPEC-001](.doctrine/spec/tech/001/spec-001.md) (`doctrine show SPEC-001`
@@ -934,8 +935,8 @@ On the first switch systemd itself refuses the unit at credential setup
 up credentials: No such file or directory"), before the launcher runs.
 The switch reports a failed `llm-gateway` unit; the new generation is active.
 That is expected. `just gateway-credentials` (with no argument, every provider's
-1Password item: deepseek, openrouter, fireworks, typesafe; name the ones a
-host has otherwise) clears the start limit those
+1Password item: deepseek, openrouter, fireworks, typesafe, openai-dav,
+openai-david; name the ones a host has otherwise) clears the start limit those
 failures hit, restarts the service, and returns once the gateway's socket
 exists (it gives up after 90 s, naming `systemctl status llm-gateway`).
 
@@ -977,6 +978,7 @@ the file):
 | openrouter | `OPENROUTER_API_KEY` | `reportsCost`: OpenRouter's per-request `usage.cost` |
 | fireworks | `FIREWORKS_API_KEY` | packaged price map |
 | typesafe | `TYPESAFE_API_KEY` | packaged price map |
+| openai-dav, openai-david | `OPENAI_DAV_API_KEY`, `OPENAI_DAVID_API_KEY` | packaged price map; `gpt-6.1-terra` priced in its `params` |
 
 Cost sources: SPEC-001 § Served models and cost.
 
@@ -1077,8 +1079,7 @@ host that defines it replaces the whole set, so edit `proxy.nix` instead.
 
 **What it does not cover.**
 
-- OAuth/subscription logins (claude, codex and the like sign in their own way; OpenAI through a subscription is IMP-035). OpenAI
-  API-billed models are not configured (DEC-072).
+- OAuth/subscription logins (claude, codex and the like sign in their own way; OpenAI through a subscription is IMP-035).
 - Provider keys outside a jail: the unjailed `eca` keeps its own. No jail
   carries one (IMP-051).
 - Anything off this host: the relay listens on loopback and on a unix socket only.
