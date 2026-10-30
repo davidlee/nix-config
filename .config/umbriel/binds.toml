@@ -61,11 +61,11 @@
 # --- focus ------------------------------------------------------------
 "Mod+Left" = "window-focus-left"
 "Mod+Right" = "window-focus-right"
-# Trial: steps through tabs first (Umbriel skips them); see NOTES.md.
+# window-focus-up/down, but stepping through tabs first: Umbriel skips them.
+# Back to the native actions if upstream gains this (NOTES.md). Mod+Page_Up/Down
+# change workspace.
 "Mod+Up" = "spawn ~/.config/umbriel/scripts/focus-vertical up"
 "Mod+Down" = "spawn ~/.config/umbriel/scripts/focus-vertical down"
-# "Mod+Up" = "window-focus-or-workspace-up"
-# "Mod+Down" = "window-focus-or-workspace-down"
 
 "Mod+Alt+Down" = "column-focus-tab-next"
 "Mod+Alt+Up" = "column-focus-tab-previous"

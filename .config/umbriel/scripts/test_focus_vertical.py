@@ -37,25 +37,25 @@ class FocusVertical(unittest.TestCase):
 
     def test_down_from_the_last_tab_leaves_the_group(self):
         windows = [tile(1, 0, tab_index=0), tile(1, 1, active=True, tab_index=1), tile(1, 2)]
-        self.assertEqual(press(windows, "down"), [["window-focus-or-workspace-down"]])
+        self.assertEqual(press(windows, "down"), [["window-focus-down"]])
 
     def test_up_from_the_first_tab_leaves_the_group(self):
         windows = [tile(1, 0), tile(1, 1, active=True, tab_index=0), tile(1, 2, tab_index=1)]
-        self.assertEqual(press(windows, "up"), [["window-focus-or-workspace-up"]])
+        self.assertEqual(press(windows, "up"), [["window-focus-up"]])
 
     def test_the_first_tab_of_the_next_group_is_not_this_groups_next_tab(self):
         windows = [tile(1, 0, active=True, tab_index=0), tile(1, 1, tab_index=0)]
-        self.assertEqual(press(windows, "down"), [["window-focus-or-workspace-down"]])
+        self.assertEqual(press(windows, "down"), [["window-focus-down"]])
 
     def test_a_tab_in_another_column_is_not_a_neighbour(self):
         windows = [tile(1, 0, active=True, tab_index=0), tile(2, 1, tab_index=1)]
-        self.assertEqual(press(windows, "down"), [["window-focus-or-workspace-down"]])
+        self.assertEqual(press(windows, "down"), [["window-focus-down"]])
 
     def test_outside_a_group_moves_focus(self):
-        self.assertEqual(press([tile(1, 0, active=True), tile(1, 1)], "down"), [["window-focus-or-workspace-down"]])
+        self.assertEqual(press([tile(1, 0, active=True), tile(1, 1)], "down"), [["window-focus-down"]])
 
     def test_with_nothing_focused_moves_focus(self):
-        self.assertEqual(press([tile(1, 0)], "up"), [["window-focus-or-workspace-up"]])
+        self.assertEqual(press([tile(1, 0)], "up"), [["window-focus-up"]])
 
 
 if __name__ == "__main__":

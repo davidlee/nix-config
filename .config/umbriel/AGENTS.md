@@ -5,7 +5,8 @@ compositor on Sleipnir. Plain dotfiles, tracked in the `~` repo (the git
 worktree is `$HOME`; see `~/flakes/CLAUDE.md`). Nix installs the compositor
 only; it does not generate this config.
 
-`NOTES.md` has current work, the open upstream PR and loose threads.
+`NOTES.md` has current work and loose threads; `UPSTREAM.md` has the bugs
+and features this config works around, to fix in Umbriel itself.
 
 ## Which file owns what
 
@@ -67,4 +68,5 @@ the docs.
   script against a fake `umbriel` on PATH and assert the argv it sends.
 - **Upstream bugs:** reproduce in the source checkout with a harness check
   (`just check <name>`) on a branch, red before green. The user raises the PR.
-  Don't run a patched umbriel day to day; record the workaround in `NOTES.md`.
+  Don't run a patched umbriel day to day; record the bug, the fix and the
+  workaround in `UPSTREAM.md`.

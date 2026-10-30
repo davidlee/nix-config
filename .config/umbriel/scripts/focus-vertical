@@ -5,8 +5,9 @@ Usage: focus-vertical up|down
 
 Umbriel treats a tab group as one row, so window-focus-up/down skip over its
 tabs. Inside a group this steps to the neighbouring tab; at the group's first
-or last tab, and outside a group, it moves focus as window-focus-or-workspace
-does. A group's tabs share a column and have consecutive rows and tab indexes.
+or last tab, and outside a group, it moves focus as window-focus-up/down does,
+staying on the workspace. A group's tabs share a column and have consecutive
+rows and tab indexes.
 """
 
 import json
@@ -30,7 +31,7 @@ def action(windows, direction):
         }
         if any(w["tabbed"] and all(w[k] == v for k, v in neighbour.items()) for w in windows):
             return TAB[direction]
-    return f"window-focus-or-workspace-{direction}"
+    return f"window-focus-{direction}"
 
 
 def main():

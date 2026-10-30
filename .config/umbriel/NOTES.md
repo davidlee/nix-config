@@ -1,5 +1,8 @@
 # umbriel config notes
 
+Upstream bugs and proposals (scratchpad relaunch, tab focus, 1Password tray
+crash) are in UPSTREAM.md.
+
 ## 2026-10-31: scratchpads and `umbriel msg` after the upgrade
 
 ### Done
@@ -19,48 +22,8 @@ is rejected as `unknown action`.
 
 These changes are uncommitted in `~`.
 
-### Known bug: relaunch takes two presses (fix proposed upstream)
-
-Closing a pad's last window keeps the pad shown (by design: `empty_launch.sh`).
-`ScratchpadManager::toggle` hides a shown pad before it reaches the
-`spawn_when_empty` branch, so:
-
-```
-close the app (or it hides to tray)  ->  pad empty, still shown
-press 1  ->  hides the empty pad, launches nothing
-press 2  ->  shows the pad and launches  ->  window arrives visible
-```
-
-Workaround until merged: press twice. Not running a patched umbriel day to day.
-
-### Proposed PR
-
-- Branch `fix/scratchpad-toggle-empty-spawn` in `~/.local/src/umbriel`,
-  commit `b803b12c`, on top of `a37ae93f`. Not pushed.
-- Title: `fix(scratchpad): relaunch spawn_when_empty when toggling a pad left shown and empty`
-- Change: new `ScratchpadManager::spawnDue(name, pad)` returns the
-  `spawn_when_empty` command when the pad is empty and no launch is pending.
-  `toggle` hides a shown pad only when nothing is due; otherwise it summons and
-  launches. Unchanged: a second toggle during a pending launch still hides; an
-  empty pad without `spawn_when_empty` still toggles its backdrop; `showStep`
-  inherits the fix (it delegates empty pads to `toggle`).
-- Test: `tests/harness/checks/scratchpad/default_rule.sh` closes the last
-  window, toggles, expects a shown replacement. Red before, green after.
-- Results: `just check scratchpad/` 19/19; `just test` 149/149; `just lint`,
-  clang-format, shellcheck clean. Full `just check`: 425/426, the failure is
-  `layout/tab_group_min_height`, which also fails on unmodified `main`
-  (`a37ae93f`); worth mentioning in the PR.
-
 ### Loose threads
 
-- **1Password in the tray crashes on launch hand-off.** With its pad empty
-  (app in tray, no window), the toggle runs `1password`; the new process hands
-  off to the running instance and exits, then umbriel logs `error in client
-  communication` for the running instance and it dies ("Fatal Wayland
-  communication error"). Seen once, 09:23:20. Cause unknown; possibly umbriel
-  mishandling the launch token on a window another process opens. Likely affects
-  any single-instance tray app (Signal, Spotify). Needs a reproduction, then an
-  upstream issue.
 - **Spotify desktop GPU crash.** 09:08:08: `FATAL ... GPU process isn't usable.
   Goodbye.` (SIGTRAP in libcef). Once so far. If it recurs, try
   `spotify --disable-gpu`.
@@ -114,27 +77,15 @@ If Noctalia's theme export is ever pointed at the palette file, the
 colour-only window rules must move out of it first (to `appearance.toml`), or
 the export overwrites them.
 
-### Upstream idea: up/down focus steps through tabs
+## 2026-10-31: native features adopted (review item 2)
 
-A tab group is one row of its column, so `window-focus-up/down` (and the
-`-or-workspace-` / `-or-output-` variants) skip over a group: entering it lands
-on the active tab, and tabs switch only with `column-focus-tab-*`, clicks or
-the wheel (docs `layout.md` § Tab groups; source `actions.cpp:946`,
-`cursor.cpp:2071`, `TabPresenter::step`). With the bar on the left, up/down is
-the natural tab axis. Proposal: a `[layout.tabs]` option making directional
-focus step tabs first and leave the group only at its first or last tab.
-Method as for the scratchpad fix: harness check on a branch, red then green;
-the user raises the PR. Needs a read of how directional focus picks its target.
-Meanwhile `Mod+Alt+Up/Down` step tabs, and `scripts/focus-vertical` is on trial.
+| feature | where |
+|---|---|
+| shared-window frame: 3px, gruvbox red (`match.is_cast_target`) | width `appearance.toml`, colour `gruvbox.toml` |
+| `[animation.windows_resize]` 220 ms easeinout, matching moves (A/B tested against default and spring) | `animation.toml` |
+| pull-in `window-consume-from-left/right` on `Mod+BracketLeft/Right`; consume-or-expel moved to `Mod+Shift+Brackets` (`Mod+Comma/Period` duplicate it, kept) | `binds.toml` |
+| `dpms-off` on `Mod+Ctrl+P` (input wakes the monitors) | `binds.toml` |
+| tab bar `style = "indicator"` replaces `title_format = ""` | `appearance.toml` |
 
-**Trial (2026-10-31):** `Mod+Up/Down` spawn `scripts/focus-vertical up|down`;
-the native binds are commented out beside them in `binds.toml`. Measured cost
-per press, excluding the bind's spawn: windows query and decision 22 ms
-median, plus `umbriel msg` about 6 ms (native bind: about 1 ms). Tests in
-`test_focus_vertical.py`; the fake-`umbriel` fixture is shared in
-`scripts/fake_umbriel.py`. If the lag is noticeable, revert to the native
-binds and keep the upstream proposal.
-
-Still open from the review: item 2 (native features: cast-target border,
-`windows_resize`, consume-from, dpms, `default_workspace` for emacs, tab bar
-`style = "indicator"`).
+Declined: `default_workspace = "emacs"` (new frames should open where you are).
+Every review item is now closed.
