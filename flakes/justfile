@@ -300,8 +300,8 @@ assistant-push:
   grep -v '^#' room-repos | while read -r repo branch; do
     [ -n "$repo" ] || continue
     capsule assistant push "$repo" "$branch"
-    n=$((n + 1))
-    [ $((n % 5)) -ne 0 ] || sleep 3
+    #n=$((n + 1))
+    #[ $((n % 5)) -ne 0 ] || sleep 3
   done
 
 # how far the room's /work checkouts trail the host's (TSV: repo behind ahead branch room host)
