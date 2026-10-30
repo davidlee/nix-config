@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Behaviour tests for room-behind. Each case builds throwaway host checkouts
+# and capsule profiles naming them, then feeds room heads on stdin. No room,
+# no network.
+#
+#   ./room-behind-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/room-behind
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+export CAPSULE_PROFILE_DIR=$work/profiles
+export ROOM_REPOS=$work/room-repos
+printf '# a comment\nsatan main\ngoad main\n\npi main\n' >"$ROOM_REPOS"
+mkdir -p "$CAPSULE_PROFILE_DIR"
+
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [ "$2" = "$3" ]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n       expected: %s\n       actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# repo <name> — a host checkout on main with one commit, and its profile
+repo() {
+  git init -q -b main "$work/$1"
+  git -C "$work/$1" commit -q --allow-empty -m "$1 base"
+  printf '{"name": "%s", "path": "%s"}\n' "$1" "$work/$1" >"$CAPSULE_PROFILE_DIR/$1.json"
+}
+
+rev() { git -C "$work/$1" rev-parse HEAD; }
+
+repo satan
+satan_room=$(rev satan)
+git -C "$work/satan" commit -q --allow-empty -m one
+git -C "$work/satan" commit -q --allow-empty -m two
+satan_host=$(rev satan)
+
+repo goad
+goad_host=$(rev goad)
+
+repo pi
+pi_host=$(rev pi)
+unknown=0123456789012345678901234567890123456789
+
+out=$(printf 'satan %s\ngoad %s\npi %s\nghost %s\n' "$satan_room" "$goad_host" "$unknown" "$unknown" | "$script")
+expected=$(printf '%s\t' repo behind ahead branch room host | sed 's/\t$//'
+  printf '\nsatan\t2\t0\tmain\t%s\t%s' "$satan_room" "$satan_host"
+  printf '\ngoad\t0\t0\tmain\t%s\t%s' "$goad_host" "$goad_host"
+  printf '\npi\t?\t?\tmain\t%s\t%s' "$unknown" "$pi_host"
+  printf '\nghost\t?\t?\t?\t%s\t?' "$unknown")
+check 'behind: per room repo; ? where the host lacks the room head or the repo' "$expected" "$out"
+
+# the listed branch, not whatever the host has checked out
+git -C "$work/satan" switch -q -c feature
+git -C "$work/satan" commit -q --allow-empty -m feature
+out=$(printf 'satan %s\n' "$satan_room" | "$script" | tail -1)
+check 'branch: counts against the listed branch' \
+  "$(printf 'satan\t2\t0\tmain\t%s\t%s' "$satan_room" "$satan_host")" "$out"
+
+# a room commit the host has not collected is ahead
+git -C "$work/goad" switch -q -c side
+git -C "$work/goad" commit -q --allow-empty -m room-only
+goad_side=$(rev goad)
+git -C "$work/goad" switch -q main
+out=$(printf 'goad %s\n' "$goad_side" | "$script" | tail -1)
+check 'ahead: room commits the host branch lacks' \
+  "$(printf 'goad\t0\t1\tmain\t%s\t%s' "$goad_side" "$goad_host")" "$out"
+
+exit "$failed"

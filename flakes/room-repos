@@ -1,0 +1,22 @@
+# The assistant room's repos and the branch each tracks: `<repo> <branch>`.
+# Read by just assistant-push, sync-room and room-behind (bin/room-behind).
+# Each must also be in capsule's roomRepos (/srv/fleet), or push refuses it.
+pi main
+deck_of_dwarf main
+quotient main
+doctrine edge
+goad-walk main
+goad main
+satan-attrd main
+panopticon main
+malebolge main
+retrograde main
+oubliette main
+www main
+resume main
+notes main
+emacs-config main
+nix-config main
+satan main
+satan-corpus main
+screwtape main

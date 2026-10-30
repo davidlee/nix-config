@@ -75,6 +75,7 @@ test:
   bin/dev-checkouts-test
   envrc/agents-test
   bin/room-bump-test
+  bin/room-behind-test
   workarounds/check-test
   workarounds/last-good-test
   bin/will-build-test
@@ -291,32 +292,32 @@ update-room:
   capsule assistant stop
   capsule assistant start
 
+# push every room-repos entry to the room; a pause every 5 pushes
+[script]
 assistant-push:
-  capsule assistant push pi main
-  capsule assistant push deck_of_dwarf main
-  capsule assistant push quotient main
-  capsule assistant push doctrine edge
-  sleep 3
-  capsule assistant push goad-walk main
-  capsule assistant push goad main
-  capsule assistant push satan-attrd main
-  capsule assistant push panopticon main
-  capsule assistant push malebolge main
-  capsule assistant push retrograde main
-  sleep 3
-  capsule assistant push oubliette main
-  capsule assistant push www main
-  capsule assistant push resume main
-  capsule assistant push notes main
-  capsule assistant push emacs-config main
-  capsule assistant push nix-config main
-  capsule assistant push satan main
-  capsule assistant push satan-corpus main
+  set -eu
+  n=0
+  grep -v '^#' room-repos | while read -r repo branch; do
+    [ -n "$repo" ] || continue
+    capsule assistant push "$repo" "$branch"
+    n=$((n + 1))
+    [ $((n % 5)) -ne 0 ] || sleep 3
+  done
+
+# how far the room's /work checkouts trail the host's (TSV: repo behind ahead branch room host)
+room-behind:
+  @capsule assistant ssh agent -- 'for d in /work/*/; do h=$(git -C "$d" rev-parse HEAD 2>/dev/null) && echo "$(basename "$d") $h"; done' | bin/room-behind
 
 [script]
 sync-room: assistant-push
-  capsule assistant ssh agent -- sh -s <<'REMOTE'
+  {
+  cat <<'REMOTE'
   set -eu
+  : > /work/.sync-skips
+
+  skip() {
+    echo "SKIP $*" | tee -a /work/.sync-skips
+  }
 
   sync_repo() {
     repo=$1
@@ -325,23 +326,23 @@ sync-room: assistant-push
     ref="refs/host/$branch"
 
     if ! git -C "$dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-      echo "SKIP $repo: checkout missing"
+      skip "$repo: checkout missing"
       return 0
     fi
 
     if ! git -C "$dir" show-ref --verify --quiet "$ref"; then
-      echo "SKIP $repo: $ref is missing"
+      skip "$repo: $ref is missing"
       return 0
     fi
 
     if [ -n "$(git -C "$dir" status --porcelain --untracked-files=all)" ]; then
-      echo "SKIP $repo: worktree has local changes"
+      skip "$repo: worktree has local changes"
       return 0
     fi
 
     if git -C "$dir" show-ref --verify --quiet "refs/heads/$branch"; then
       if ! git -C "$dir" merge-base --is-ancestor "refs/heads/$branch" "$ref"; then
-        echo "SKIP $repo: local $branch has commits absent from $ref"
+        skip "$repo: local $branch has commits absent from $ref"
         return 0
       fi
       git -C "$dir" switch "$branch"
@@ -352,23 +353,8 @@ sync-room: assistant-push
     git -C "$dir" merge --ff-only "$ref"
   }
 
-  sync_repo satan main
-  sync_repo doctrine edge
-  sync_repo goad-walk main
-  sync_repo goad main
-  sync_repo satan-attrd main
-  sync_repo panopticon main
-  sync_repo malebolge main
-  sync_repo retrograde main
-  sync_repo oubliette main
-  sync_repo www main
-  sync_repo resume main
-  sync_repo notes main
-  sync_repo deck_of_dwarf main
-  sync_repo quotient main
-  sync_repo pi main
-  sync_repo emacs-config main
-  sync_repo nix-config main
-  sync_repo satan-corpus main
   REMOTE
+  grep -v '^#' room-repos | sed -n 's/^\([^ ][^ ]*\) \(.*\)$/sync_repo \1 \2/p'
+  echo '[ -s /work/.sync-skips ] || date -Is > /work/.last-sync'
+  } | capsule assistant ssh agent -- sh -s
 

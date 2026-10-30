@@ -37,6 +37,53 @@
       }
     ];
 
+    # A dedicated socket-activated helper runs the fixed host recipe. The
+    # client sends no command or arguments; socket access is the capability.
+    systemd.user.sockets.room-behind = {
+      Unit.Description = "Room checkout divergence socket";
+      Socket = {
+        ListenStream = "%t/room-behind/room-behind.sock";
+        SocketMode = "0600";
+        DirectoryMode = "0700";
+        Accept = true;
+      };
+      Install.WantedBy = ["sockets.target"];
+    };
+    systemd.user.services."room-behind@" = {
+      Unit.Description = "Room checkout divergence query";
+      Service = {
+        ExecStart = "${pkgs.nodejs_latest}/bin/node ${home}/dev/malebolge/src/room-behind-host.ts";
+        StandardInput = "socket";
+        StandardOutput = "socket";
+        StandardError = "journal";
+        Environment = ["PATH=${lib.makeBinPath [pkgs.just pkgs.bash pkgs.git pkgs.jq pkgs.coreutils]}:/run/current-system/sw/bin"];
+        TimeoutStartSec = 40;
+      };
+    };
+
+    # A separate fixed-command endpoint keeps the mutating capability explicit.
+    systemd.user.sockets.sync-room = {
+      Unit.Description = "Room synchronization socket";
+      Socket = {
+        ListenStream = "%t/room-behind/sync-room.sock";
+        SocketMode = "0600";
+        DirectoryMode = "0700";
+        Accept = true;
+      };
+      Install.WantedBy = ["sockets.target"];
+    };
+    systemd.user.services."sync-room@" = {
+      Unit.Description = "Synchronize room checkouts";
+      Service = {
+        ExecStart = "${pkgs.nodejs_latest}/bin/node ${home}/dev/malebolge/src/room-behind-host.ts sync-room";
+        StandardInput = "socket";
+        StandardOutput = "socket";
+        StandardError = "journal";
+        Environment = ["PATH=${lib.makeBinPath [pkgs.just pkgs.bash pkgs.git pkgs.jq pkgs.coreutils pkgs.util-linux]}:/run/current-system/sw/bin"];
+        RuntimeMaxSec = 305;
+      };
+    };
+
     systemd.user.services.malebolge-room = {
       Unit = {
         Description = "SATAN interactive daemon, room profile (malebolge)";
