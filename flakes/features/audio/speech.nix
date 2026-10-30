@@ -110,7 +110,7 @@
       kokoro
 
       ## speech to text — ROCm/gfx1201 build (overlays/whisper-rocm.nix)
-      whisper-cpp-rocm
+      # whisper-cpp-rocm
     ];
   };
 }
