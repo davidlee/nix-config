@@ -18,7 +18,7 @@
 "Mod+Alt+L" = "spawn noctalia msg session lock"
 "Mod+Shift+E" = "session-quit"
 "Ctrl+Alt+Delete" = "spawn noctalia msg panel-open session"
-# "Mod+Shift+P" = "dpms-off"
+"Mod+Ctrl+P" = { action = "dpms-off", repeat = false } # any input wakes them
 "Mod+Ctrl+M" = "spawn noctalia msg mic-volume-set 100"
 # streaming dictation (flakes: dictate.nix). F13/F14 are push-to-talk: ZMK's
 # `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
@@ -61,8 +61,11 @@
 # --- focus ------------------------------------------------------------
 "Mod+Left" = "window-focus-left"
 "Mod+Right" = "window-focus-right"
-"Mod+Up" = "window-focus-or-workspace-up"
-"Mod+Down" = "window-focus-or-workspace-down"
+# Trial: steps through tabs first (Umbriel skips them); see NOTES.md.
+"Mod+Up" = "spawn ~/.config/umbriel/scripts/focus-vertical up"
+"Mod+Down" = "spawn ~/.config/umbriel/scripts/focus-vertical down"
+# "Mod+Up" = "window-focus-or-workspace-up"
+# "Mod+Down" = "window-focus-or-workspace-down"
 
 "Mod+Alt+Down" = "column-focus-tab-next"
 "Mod+Alt+Up" = "column-focus-tab-previous"
@@ -164,8 +167,10 @@
 "Mod+Grave" = "window-focus-last"
 
 # --- columns and stacks -----------------------------------------------
-"Mod+BracketLeft" = "window-consume-or-expel-left"
-"Mod+BracketRight" = "window-consume-or-expel-right"
+"Mod+BracketLeft" = "window-consume-from-left" # pull the neighbour in
+"Mod+BracketRight" = "window-consume-from-right"
+"Mod+Shift+BracketLeft" = "window-consume-or-expel-left"
+"Mod+Shift+BracketRight" = "window-consume-or-expel-right"
 "Mod+Comma" = "window-consume-or-expel-left"
 "Mod+Period" = "window-consume-or-expel-right"
 "Mod+Shift+Comma" = "window-consume-left"

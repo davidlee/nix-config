@@ -22,7 +22,11 @@ style = "fade"
 [animation.windows_move]
 enabled = true
 duration_ms = 220
-# curve = "spring:0.85,423"
+curve = "easeinout"
+
+[animation.windows_resize]
+enabled = true
+duration_ms = 220
 curve = "easeinout"
 
 [animation.workspaces]

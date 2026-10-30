@@ -114,6 +114,27 @@ If Noctalia's theme export is ever pointed at the palette file, the
 colour-only window rules must move out of it first (to `appearance.toml`), or
 the export overwrites them.
 
+### Upstream idea: up/down focus steps through tabs
+
+A tab group is one row of its column, so `window-focus-up/down` (and the
+`-or-workspace-` / `-or-output-` variants) skip over a group: entering it lands
+on the active tab, and tabs switch only with `column-focus-tab-*`, clicks or
+the wheel (docs `layout.md` § Tab groups; source `actions.cpp:946`,
+`cursor.cpp:2071`, `TabPresenter::step`). With the bar on the left, up/down is
+the natural tab axis. Proposal: a `[layout.tabs]` option making directional
+focus step tabs first and leave the group only at its first or last tab.
+Method as for the scratchpad fix: harness check on a branch, red then green;
+the user raises the PR. Needs a read of how directional focus picks its target.
+Meanwhile `Mod+Alt+Up/Down` step tabs, and `scripts/focus-vertical` is on trial.
+
+**Trial (2026-10-31):** `Mod+Up/Down` spawn `scripts/focus-vertical up|down`;
+the native binds are commented out beside them in `binds.toml`. Measured cost
+per press, excluding the bind's spawn: windows query and decision 22 ms
+median, plus `umbriel msg` about 6 ms (native bind: about 1 ms). Tests in
+`test_focus_vertical.py`; the fake-`umbriel` fixture is shared in
+`scripts/fake_umbriel.py`. If the lag is noticeable, revert to the native
+binds and keep the upstream proposal.
+
 Still open from the review: item 2 (native features: cast-target border,
 `windows_resize`, consume-from, dpms, `default_workspace` for emacs, tab bar
 `style = "indicator"`).

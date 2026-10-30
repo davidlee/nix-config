@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Move focus up or down, stepping through tabs first.
+
+Usage: focus-vertical up|down
+
+Umbriel treats a tab group as one row, so window-focus-up/down skip over its
+tabs. Inside a group this steps to the neighbouring tab; at the group's first
+or last tab, and outside a group, it moves focus as window-focus-or-workspace
+does. A group's tabs share a column and have consecutive rows and tab indexes.
+"""
+
+import json
+import subprocess
+import sys
+
+STEP = {"up": -1, "down": 1}
+TAB = {"up": "column-focus-tab-previous", "down": "column-focus-tab-next"}
+
+
+def action(windows, direction):
+    """The `umbriel msg` action for one press."""
+    focused = next((w for w in windows if w["active"]), None)
+    step = STEP[direction]
+    if focused and focused["tabbed"]:
+        neighbour = {
+            "workspace": focused["workspace"],
+            "column": focused["column"],
+            "row": focused["row"] + step,
+            "tab_index": focused["tab_index"] + step,
+        }
+        if any(w["tabbed"] and all(w[k] == v for k, v in neighbour.items()) for w in windows):
+            return TAB[direction]
+    return f"window-focus-or-workspace-{direction}"
+
+
+def main():
+    if len(sys.argv) != 2 or sys.argv[1] not in STEP:
+        print("usage: focus-vertical up|down", file=sys.stderr)
+        return 2
+    windows = json.loads(subprocess.check_output(["umbriel", "windows", "--json"]))
+    subprocess.run(["umbriel", "msg", action(windows, sys.argv[1])], check=True)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

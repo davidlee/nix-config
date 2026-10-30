@@ -18,7 +18,7 @@ button_corner_radius = 6
 position = "left"
 tab_gap = 2
 hide_when_single = false
-title_format = ""
+style = "indicator"
 overflow = "scroll"
 height = 8
 corner_radius = 1
@@ -44,3 +44,9 @@ offset_y = 3
 [[window_rule]]
 match.is_focused = true
 outer_border_width = 2
+
+# A window being shared gets a thicker frame; colour in the palette. Viewers
+# don't see it.
+[[window_rule]]
+match.is_cast_target = true
+border_width = 3

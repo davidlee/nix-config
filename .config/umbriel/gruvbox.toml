@@ -47,3 +47,9 @@ border_color_outer = "#FF00FF"
 match.is_scratchpad = true
 border_color_focused = "#E5C07BFF"
 border_color_unfocused = "#5C4A2AFF"
+
+# Shared window (width: appearance.toml). Last, so it beats the colours above.
+[[window_rule]]
+match.is_cast_target = true
+border_color_focused = "#FB4934FF"   # bright red
+border_color_unfocused = "#FB4934FF"
