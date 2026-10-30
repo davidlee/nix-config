@@ -51,6 +51,10 @@
         Restart = "on-failure";
         RestartSec = 10;
         Environment = ["HOME=%h" "XDG_RUNTIME_DIR=%t"];
+        # Jev's credential for the mail tools' classify (malebolge DEC-059,
+        # IMP-055): decrypted host-side into $CREDENTIALS_DIRECTORY, which
+        # the launcher binds read-only into the jail (satan IMP-060).
+        LoadCredentialEncrypted = "jev:%h/.config/credstore.encrypted/screwtape.jev";
       };
     };
   };
