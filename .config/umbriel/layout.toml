@@ -1,37 +1,32 @@
-# ======================================================================
-# layout.toml — port of ~/.config/niri/layout.kdl
-# https://docs.noctalia.dev/umbriel/layout/
-# https://docs.noctalia.dev/umbriel/appearance/
-#
-# Colors here are the structural ones niri did not take from Noctalia.
-# The palette lives in noctalia.toml, an optional include, which Umbriel
-# merges after this file and so wins — the same ordering niri gets by
-# including noctalia.kdl last.
-# ======================================================================
+# Tiling, workspaces and the overview.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/layout.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/workspaces.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/workspaces-overview.md
 
-# --- layout -----------------------------------------------------------
 [layout]
 mode = "scrolling"
-gap = 0 # niri's default `gaps`, which the niri config left unset
-# niri: preset-column-widths. Umbriel uses one preset list for both the
-# primary (column width) and secondary (window height) extent.
+gap = 0
+# One preset list for both the primary (column width) and secondary (window
+# height) extent.
 extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8, 1]
 
-[layout.struts]
-top = 0
-left = 0
-right = 0
-bottom = 0
-
 [layout.scrolling]
-default_extent_fraction = 0.2 # niri: default-column-width { proportion 0.2 }
-center_underfull_strip = true
+default_extent_fraction = 0.2
 center_focused = "on_overflow"
 
-# --- structural colors ------------------------------------------------
-[colors]
-backdrop = "#00000000"  # niri: layout { background-color "transparent" }
-shadow = "#000000FF"
+# --- workspaces -------------------------------------------------------
+# A named entry materializes a persistent workspace on every dynamic output.
+# More are generated into workspaces.toml by scripts/named-workspace.
+[workspaces]
+back_and_forth = true
+empty_above = false
 
-[colors.overview]
-background_tint = "#00000000" # niri: overview { backdrop-color "transparent" }
+[[workspace]]
+name = "emacs"
+
+# --- overview ---------------------------------------------------------
+[overview]
+zoom = 0.4
+background_blur = true
+workspace_wallpaper = true
+shortcuts = true

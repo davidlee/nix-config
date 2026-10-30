@@ -1,0 +1,5 @@
+# Monitors.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/outputs.md
+
+[output.DP-3]
+scale = 1.2

@@ -1,46 +1,24 @@
-# ======================================================================
-# binds.toml — port of ~/.config/niri/binds.kdl
-# https://docs.noctalia.dev/umbriel/keybinds/
-# https://docs.noctalia.dev/umbriel/actions/
-#
-# Model translation: both compositors are scrollable tiling, so the three
-# axes carry over unchanged.
-#
-#   niri                                  umbriel
-#   ────────────────────────────────────  ────────────────────────────────
-#   column   (Mod+Left/Right)             window-focus-left/right
-#   window in column (Mod+Up/Down)        window-focus-up/down
-#   workspace (Mod+Page_Up/Down)          workspace-previous/next
-#
-#     ┌────┬────┬────┐
-#     │ A  │ B  │ D  │  columns   — Mod+Left / Mod+Right
-#     │    ├────┤    │
-#     │    │ C  │    │  C stacked — Mod+Up / Mod+Down
-#     └────┴────┴────┘   under B
-#
-# Umbriel has no per-bind cheatsheet label, so niri's hotkey-overlay-title
-# text survives as comments. Actions niri has and Umbriel does not are left
-# as commented notes so the two files stay line-comparable; MAPPING.md has
-# the summary.
-# ======================================================================
+# Keybinds: the session, windows, layout and workspaces. App launchers,
+# raise-or-run and scratchpad binds are in apps.toml.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/actions.md
 
 [keybinds]
 
 # --- cheatsheet, launcher, panels -------------------------------------
-"Mod+Shift+Slash" = "cheatsheet-toggle" # niri: show-hotkey-overlay
+"Mod+Shift+Slash" = "cheatsheet-toggle"
 # "Ctrl+Alt+Space" = "spawn walker"
 "Alt+Mod+Space" = "spawn noctalia msg panel-toggle launcher"
 "Mod+Space" = "spawn vicinae toggle"
 "Mod+Z" = "spawn noctalia msg panel-toggle clipboard"
 "Alt+Tab" = "spawn noctalia msg window-switcher"
-"Alt+Shift+Tab" = "spawn noctalia msg window-switcher"
+"Alt+Shift+Tab" = "spawn noctalia msg window-switcher" # the switcher reverses itself
 
 # --- system -----------------------------------------------------------
 "Mod+Alt+L" = "spawn noctalia msg session lock"
 "Mod+Shift+E" = "session-quit"
 "Ctrl+Alt+Delete" = "spawn noctalia msg panel-open session"
-# "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
-# ? dpms-on
+# "Mod+Shift+P" = "dpms-off"
 "Mod+Ctrl+M" = "spawn noctalia msg mic-volume-set 100"
 # streaming dictation (flakes: dictate.nix). F13/F14 are push-to-talk: ZMK's
 # `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
@@ -61,13 +39,6 @@
 # leave this one way out.
 "Mod+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
 
-# --- scratchpad -------------------------------------------------------
-# niri drove these through nirius; Umbriel has them natively. `main` is the
-# catch-all scratchpad defined in rules.toml.
-"Mod+N" = "scratchpad-toggle main"      # niri: nirius scratchpad-show-all
-"Mod+Shift+N" = "window-toggle-scratchpad main" # niri: nirius scratchpad-toggle
-"Mod+Ctrl+N" = "window-restore-from-scratchpad main"
-
 # --- audio ------------------------------------------------------------
 "XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
 "XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
@@ -87,32 +58,24 @@
 "Mod+O" = { action = "overview-toggle", repeat = false }
 "Mod+Q" = { action = "window-close", repeat = false }
 
-# niri: Mod+X nirius toggle-follow-mode — nirius is niri-only, and Umbriel
-# has no runtime toggle for input.cursor.follows_focus.
-
 # --- focus ------------------------------------------------------------
-
-# LEFT DOWN UP RIGHT
 "Mod+Left" = "window-focus-left"
-#"Mod+Down" = "window-focus-down"
-#"Mod+Up" = "window-focus-up"
 "Mod+Right" = "window-focus-right"
 "Mod+Up" = "window-focus-or-workspace-up"
 "Mod+Down" = "window-focus-or-workspace-down"
 
-# -- tabs --
 "Mod+Alt+Down" = "column-focus-tab-next"
 "Mod+Alt+Up" = "column-focus-tab-previous"
 
-# -- move --
+"Mod+Home" = "column-focus-first"
+"Mod+End" = "column-focus-last"
+
+# --- move -------------------------------------------------------------
 "Mod+Shift+Left" = "column-move-left"
 "Mod+Shift+Down" = "window-move-down"
 "Mod+Shift+Up" = "window-move-up"
 "Mod+Shift+Right" = "column-move-right"
 
-
-"Mod+Home" = "column-focus-first"
-"Mod+End" = "column-focus-last"
 "Mod+Shift+Home" = "column-move-to-first"
 "Mod+Shift+End" = "column-move-to-last"
 
@@ -140,8 +103,7 @@
 "Mod+Ctrl+Page_Down" = "workspace-move-down"
 "Mod+Ctrl+Page_Up" = "workspace-move-up"
 
-# Switches focus between the current and the previous workspace.
-"Mod+Alt+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
+"Mod+Alt+Tab" = "workspace-focus-last"
 
 "Mod+1" = "workspace-switch 1"
 "Mod+2" = "workspace-switch 2"
@@ -173,10 +135,8 @@
 "Mod+Alt+8" = "window-move-to-workspace 8"
 "Mod+Alt+9" = "window-move-to-workspace 9"
 
-# niri: Mod+Ctrl+X unset-workspace-name, Mod+Alt+R rename-niri-workspace.
-# Umbriel cannot rename the workspace you are on — a name is a config
-# declaration. scripts/named-workspace creates and removes them instead, by
-# writing workspaces.toml and letting the config watcher apply it.
+# A workspace name is a config declaration, not a runtime label: these add
+# and drop entries in workspaces.toml, which the config watcher applies.
 "Mod+Alt+R" = "spawn ~/.config/umbriel/scripts/named-workspace add"
 "Mod+Ctrl+X" = "spawn ~/.config/umbriel/scripts/named-workspace drop"
 
@@ -198,70 +158,54 @@
 "Mod+Ctrl+Shift+WheelUp" = "column-move-left"
 
 # --- window switching -------------------------------------------------
-# niri's recent-windows overlay (layout.kdl) had MRU order, previews and an
-# app-id filter. Umbriel cycles in layout order and remembers one previous
-# window, so Mod+Shift+Grave has no counterpart.
+# Layout order; Mod+Grave returns to the previously focused window.
 "Mod+Tab" = "window-focus-next"
 "Mod+Shift+Tab" = "window-focus-previous"
-
 "Mod+Grave" = "window-focus-last"
 
 # --- columns and stacks -----------------------------------------------
 "Mod+BracketLeft" = "window-consume-or-expel-left"
 "Mod+BracketRight" = "window-consume-or-expel-right"
-
-# niri pulled a neighbour in (Mod+Comma) and pushed one out (Mod+Period).
-# Umbriel only stacks the focused window into the column beside it.
-"Mod+Comma" = "window-consume-left"
-"Mod+Period" = "window-consume-right"
-"Mod+Shift+Comma" = "window-consume-or-expel-left"
-"Mod+Shift+Period" = "window-consume-or-expel-right"
+"Mod+Comma" = "window-consume-or-expel-left"
+"Mod+Period" = "window-consume-or-expel-right"
+"Mod+Shift+Comma" = "window-consume-left"
+"Mod+Shift+Period" = "window-consume-right"
 
 # --- sizing -----------------------------------------------------------
-"Mod+R" = "window-cycle-primary-extent"       # niri: switch-preset-column-width
+"Mod+R" = "window-cycle-primary-extent"
 "Mod+Shift+R" = "window-cycle-primary-extent-back"
-"Mod+Ctrl+Shift+R" = "window-cycle-secondary-extent" # niri: switch-preset-window-height
-"Mod+Ctrl+R" = "window-cycle-secondary-extent-back"  # niri: reset-window-height (no reset action)
+"Mod+Ctrl+Shift+R" = "window-cycle-secondary-extent"
+"Mod+Ctrl+R" = "window-cycle-secondary-extent-back"
 
-"Mod+Minus" = "window-modify-primary-extent -0.1"   # niri  set-column-width "-10%"
+"Mod+Minus" = "window-modify-primary-extent -0.1"
 "Mod+Equal" = "window-modify-primary-extent 0.1"
-"Mod+Shift+Minus" = "window-modify-secondary-extent -0.1" # niri  set-window-height
+"Mod+Shift+Minus" = "window-modify-secondary-extent -0.1"
 "Mod+Shift+Equal" = "window-modify-secondary-extent 0.1"
 
-"Mod+F" = "window-toggle-maximize"           # niri: maximize-column
+"Mod+F" = "window-toggle-maximize"
 "Mod+Shift+F" = "window-toggle-fullscreen"
 "Mod+M" = "window-toggle-maximize-to-edges"
-# niri: Mod+Ctrl+F expand-column-to-available-width — Umbriel has no
-# fill-the-remaining-space action; Mod+F takes the whole viewport instead.
 
 "Mod+C" = "column-center"
 "Mod+Shift+C" = "window-center" # floating windows only
-# niri: Mod+Shift+C and Mod+I center-visible-columns. In Umbriel centring the
-# strip is a setting (layout.scrolling.center_underfull_strip), not an action.
 
-# --- floating and layout mode -----------------------------------------
+# --- floating, tabs and layout mode -----------------------------------
 "Mod+V" = "window-toggle-floating"
 "Mod+Shift+V" = "window-focus-switch-floating"
-"Mod+P" = "window-toggle-pinned" # no niri counterpart
-"Mod+Ctrl+P" = "window-toggle-pinned" # no niri counterpart
+"Mod+P" = "window-toggle-pinned"
 
-# niri: Mod+W toggle-column-tabbed-display. Umbriel has no tabbed columns;
-# the nearest "restack this workspace" is a layout-mode change.
 "Mod+W" = "workspace-set-layout toggle"
 "Mod+Shift+W" = "workspace-set-layout scrolling"
-
 "Mod+S" = "column-toggle-tabbed"
 
 "Mod+X" = "layout-master-count-increase"
 "Mod+Shift+X" = "layout-master-count-decrease"
 
 # --- keyboard layout --------------------------------------------------
-"Mod+MouseForward" = "keyboard-layout-next" # niri: switch-layout "next"
-# niri: Mod+MouseBack switch-layout "prev" — Umbriel only cycles forward.
+"Mod+MouseForward" = "keyboard-layout-next"
 
 # --- screenshots ------------------------------------------------------
-# Umbriel has no built-in screenshot; scripts/screenshot rebuilds niri's three
-# actions on grim/slurp/satty and saves to niri's screenshot-path.
+# Umbriel has no built-in screenshot; scripts/screenshot uses grim, slurp and satty.
 "Print" = "spawn ~/.config/umbriel/scripts/screenshot area"
 "Ctrl+Print" = "spawn ~/.config/umbriel/scripts/screenshot screen"
 "Alt+Print" = "spawn ~/.config/umbriel/scripts/screenshot window"

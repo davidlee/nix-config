@@ -1,24 +1,18 @@
-# ======================================================================
-# apps.toml — port of ~/.config/niri/apps.kdl
-#
-# Startup commands moved to general.autostart in config.toml, since Umbriel
-# has no per-file autostart.
-#
-# Two scripts stand in for what niri did over its own IPC:
-#   scripts/raise-cycle-or-spawn — ~/.local/bin/raise-cycle-spawn
-#   scripts/scratchpad-spawn     — ~/.local/bin/niri-scratch-spawn + nirius
-# Both are thin: scratchpad show/hide is native, and only the
-# launch-it-if-it-is-not-running half needs a script.
-# ======================================================================
+# Applications reached by a key: launchers, raise-or-run, and scratchpads.
+# One block per scratchpad holds its definition and window rules; TOML allows
+# one [keybinds] table per file, so all binds are at the top.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/scratchpad.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
 
 [keybinds]
-
-# --- terminals and browser --------------------------------------------
 "Mod+Return" = "spawn ghostty"
 "Mod+Shift+Return" = "spawn firefox"
+"Ctrl+Alt+Shift+C" = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
 
-# --- meh-key raise-or-run ---------------------------------------------
-# emacsclient expects systemd to have started the server
+# --- raise or run -----------------------------------------------------
+# scripts/raise-cycle-or-spawn <app-id> <command>: focus a window with that
+# app id, cycle on repeated presses, or launch the command.
+# emacsclient expects systemd to have started the server.
 "Ctrl+Alt+Shift+Grave" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
 "Mod+Apostrophe"   = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
 "Ctrl+Alt+Shift+K" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
@@ -28,15 +22,86 @@
 "Ctrl+Alt+Shift+F" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
 "Ctrl+Alt+Shift+B" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn firefox firefox"
 
-# --- meh-key scratchpads ----------------------------------------------
-# Scratchpad membership comes from the default_scratchpad window rules in
-# rules.toml, so these only have to toggle or launch.
-"Ctrl+Alt+Shift+G" = "spawn ~/.config/umbriel/scripts/scratchpad-spawn signal signal signal-desktop"
-# "Ctrl+Alt+Shift+S" = "spawn ~/.config/umbriel/scripts/scratchpad-spawn slack slack slack"
-"Ctrl+Alt+Shift+Y" = "spawn ~/.config/umbriel/scripts/scratchpad-spawn spotify spotify spotify"
-"Ctrl+Alt+Shift+1" = "spawn ~/.config/umbriel/scripts/scratchpad-spawn com.onepassword.OnePassword onepassword 1password"
-"Ctrl+Alt+Shift+E" = "spawn ~/.config/umbriel/scripts/scratchpad-spawn com.system76.CosmicEdit edit cosmic-edit"
+# --- scratchpads (definitions and rules below) ----------------------
+"Mod+N" = "scratchpad-toggle main"
+"Mod+Shift+N" = "window-toggle-scratchpad main"
+"Mod+Ctrl+N" = "window-restore-from-scratchpad main"
+"Ctrl+Alt+Shift+G" = "scratchpad-toggle signal"
+# "Ctrl+Alt+Shift+S" = "scratchpad-toggle slack"
+"Ctrl+Alt+Shift+Y" = "scratchpad-toggle spotify"
+"Ctrl+Alt+Shift+1" = "scratchpad-toggle onepassword"
+"Ctrl+Alt+Shift+E" = "scratchpad-toggle edit"
 
-# --- misc ----------------------------------------------
-"Ctrl+Alt+Shift+C" = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
+# --- scratchpads ------------------------------------------------------
+# Toggling an empty pad runs its spawn_when_empty; the window rule catches
+# windows opened any other way (autostart, tray). Naming any scratchpad
+# removes the implicit `default`, so `main` is the general-purpose one.
+
+[[scratchpad]]
+name = "main"
+
+# signal
+[[scratchpad]]
+name = "signal"
+spawn_when_empty = "signal-desktop"
+
+[[window_rule]]
+match.app_id = "^signal$"
+default_scratchpad = "signal"
+default_floating = true
+block_capture = true # omit from screenshots and screen shares
+
+# slack
+# [[scratchpad]]
+# name = "slack"
+# spawn_when_empty = "slack"
+#
+# [[window_rule]]
+# match.app_id = "^slack$"
+# default_scratchpad = "slack"
+# default_floating = true
+
+# spotify
+[[scratchpad]]
+name = "spotify"
+spawn_when_empty = "spotify"
+
+[[window_rule]]
+match.app_id = "^spotify$"
+default_scratchpad = "spotify"
+default_floating = true
+
+# 1password
+[[scratchpad]]
+name = "onepassword"
+spawn_when_empty = "1password"
+
+# Every 1Password window, popups included.
+[[window_rule]]
+match.app_id = "^com[.]onepassword[.]OnePassword$"
+block_capture = true # omit from screenshots and screen shares
+
+[[window_rule]]
+match.app_id = "^com[.]onepassword[.]OnePassword$"
+match.title = "^.* .*$" # not a popup if it's got a space
+default_scratchpad = "onepassword"
+default_floating = true
+
+# The credential popup stays out of the pad, on top.
+[[window_rule]]
+match.app_id = "^com[.]onepassword[.]OnePassword$"
+match.title = "^1Password"
+default_floating = true
+default_focused = true
+default_pinned = true
+
+# cosmic-edit
+[[scratchpad]]
+name = "edit"
+spawn_when_empty = "cosmic-edit"
+
+[[window_rule]]
+match.app_id = "^com[.]system76[.]CosmicEdit$"
+default_scratchpad = "edit"
+default_floating = true
 

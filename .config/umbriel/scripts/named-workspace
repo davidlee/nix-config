@@ -9,9 +9,9 @@
 # an entry to workspaces.toml (listed under [include.optional], generated,
 # absent until first use) creates one in about 300ms.
 #
-# This is not niri's set-workspace-name. A new workspace is always empty and
-# appears at the front of its output's list; the workspace you are standing on
-# cannot be named. Names declared in config.toml are left alone.
+# A new workspace is always empty and appears at the front of its output's
+# list; the workspace you are standing on cannot be named. Names declared in
+# layout.toml are left alone.
 set -euo pipefail
 
 file="${XDG_CONFIG_HOME:-$HOME/.config}/umbriel/workspaces.toml"

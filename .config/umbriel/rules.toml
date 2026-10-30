@@ -1,73 +1,22 @@
-# ======================================================================
-# rules.toml — port of ~/.config/niri/rules.kdl
-# https://docs.noctalia.dev/umbriel/window-rules/
-# https://docs.noctalia.dev/umbriel/layer-rules/
-# https://docs.noctalia.dev/umbriel/scratchpads/
-#
-# One niri window-rule could carry several `match` lines, ORed together.
-# An Umbriel rule has a single `match`, so those become alternation regexes.
-# ======================================================================
-
-# --- scratchpads ------------------------------------------------------
-# Replaces nirius + ~/.local/bin/niri-scratch-spawn. Naming any scratchpad
-# disables the implicit `default` one, so `main` stands in for the generic
-# Mod+N / Mod+Shift+N binds that niri gave to `nirius scratchpad-show-all`.
-[[scratchpad]]
-name = "main"
-
-[[scratchpad]]
-name = "signal"
-
-#[[scratchpad]]
-#name = "slack"
-
-[[scratchpad]]
-name = "spotify"
-
-[[scratchpad]]
-name = "onepassword"
-
-[[scratchpad]]
-name = "edit"
+# How windows and layer surfaces open and render. Colour-only rules are in
+# the palette; scratchpad apps' rules are in apps.toml.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/window-rules.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/layer-rules.md
 
 # --- window rules -----------------------------------------------------
-# https://github.com/noctalia-dev/umbriel/blob/main/docs/user/layer-rules.md
-#
-# Focused
-[[window_rule]]
-match.is_focused = true
-outer_border_width = 2
-border_color_outer  = "#df5d0eFF"
+# Every matching rule applies; when two set the same field, the later wins.
 
-# Floating
 [[window_rule]]
-match.is_focused = true
-match.is_floating = true
-match.is_scratchpad = false
-border_color_outer  = "#FF3030"
-
-
-# Pinned
-[[window_rule]]
-match.is_focused = true
-match.is_pinned = true
-border_color_outer  = "#FF00FF"
+match.is_focused = false
+blur = true
+blur_optimized = true
+blur_ignore_alpha = 0.1
 
 [[window_rule]]
 match.app_id = "^emacs$"
-corner_radius = 0
 match.is_alone = true
+corner_radius = 0
 default_fullscreen = true
-
-[[window_rule]]
-match.is_scratchpad = true
-border_color_focused = "#E5C07BFF"
-border_color_unfocused = "#5C4A2AFF"
-
-[[window_rule]]
-match.app_id = "^com[.]mitchellh[.]ghostty$"
-opacity = 1.0
-# opacity = 0.95 # handle this in config.ghostty
 
 [[window_rule]]
 match.app_id = "^emergency-htop$"
@@ -116,47 +65,6 @@ match.app_id = "^Zoom$"
 default_floating = true
 default_focused = true
 
-# The apps niri kept floating and reached through nirius scratchpads. Here
-# they are real scratchpad members; see the Ctrl+Alt+Shift binds in apps.toml.
-[[window_rule]]
-match.app_id = "^signal$"
-default_scratchpad = "signal"
-default_floating = true
-
-# [[window_rule]]
-# match.app_id = "^slack$"
-# default_scratchpad = "slack"
-# default_floating = true
-
-[[window_rule]]
-match.app_id = "^spotify$"
-default_scratchpad = "spotify"
-default_floating = true
-
-[[window_rule]]
-match.app_id = "^com.onepassword.OnePassword$"
-match.title = "^.* .*$" # not a popup if it's got a space
-default_scratchpad = "onepassword"
-default_floating = true
-
-[[window_rule]]
-# popup credential prompt
-match.title = "^1Password"
-default_floating = true
-default_focused = true
-default_pinned = true
-
-[[window_rule]]
-match.app_id = "^com[.]system76[.]CosmicEdit$"
-default_scratchpad = "edit"
-default_floating = true
-
-# Not portable, and left out deliberately:
-#   niri: match is-window-cast-target=true { border/tab-indicator red }
-#   niri: match is-urgent=true            { border red }
-# Umbriel window rules cannot set border colours, and have no cast-target or
-# urgent selector. See MAPPING.md.
-
 # --- layer rules ------------------------------------------------------
 # Noctalia's bar, panels, OSD and notifications.
 [[layer_rule]]
@@ -166,20 +74,7 @@ blur_ignore_alpha = 0.5
 blur_popups = true
 blur_optimized = false
 
-# niri: blur behind the fuzzel/vicinae launcher.
+# The vicinae launcher.
 [[layer_rule]]
 match.namespace = "^launcher$"
 blur = true
-
-[[window_rule]]
-blur = true
-blur_optimized = true # niri: background-effect { xray true }
-match.is_focused = false
-blur_ignore_alpha = 0.1
-opacity = 1.0
-
-# Not portable, and left out deliberately:
-#   niri: namespace "^notifications$"  block-out-from "screencast"
-#   niri: namespace "^quickshell$"     place-within-backdrop true
-#   niri: namespace "^wallpaper$"      place-within-backdrop true
-# Umbriel layer rules only control blur. See MAPPING.md.

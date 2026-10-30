@@ -1,13 +1,6 @@
-#https://github.com/noctalia-dev/umbriel/blob/main/docs/user/appearance.md
-[appearance.tab_bar]
-position = "left"
-tab_gap = 2
-hide_when_single = false
-title_format = ""
-overflow = "scroll"
-height = 8
-corner_radius = 1
-visible = true
+# Window decoration: borders, title and tab bars, blur, shadow. Colours are
+# in the palette (gruvbox.toml).
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/appearance.md
 
 [appearance]
 prefer_no_csd = true
@@ -21,8 +14,16 @@ height = 24
 font = "hack 12"
 button_corner_radius = 6
 
-# niri: blur { passes 3; offset 3.0; noise 0.02; saturation 1.2 }
-# `optimized` is niri's window-rule background-effect xray.
+[appearance.tab_bar]
+position = "left"
+tab_gap = 2
+hide_when_single = false
+title_format = ""
+overflow = "scroll"
+height = 8
+corner_radius = 1
+visible = true
+
 [appearance.blur]
 enabled = true
 optimized = true
@@ -33,12 +34,13 @@ brightness = 1.0
 contrast = 1.0
 saturation = 1.2
 
-# niri: shadow { softness 20; spread 2; offset x=0 y=3; draw-behind-window false }
-# Umbriel has no spread and no draw-behind toggle.
 [appearance.shadow]
 enabled = true
 softness = 30
 offset_x = 0
 offset_y = 3
 
-
+# The focused window gets an outer ring; its colours are in the palette.
+[[window_rule]]
+match.is_focused = true
+outer_border_width = 2

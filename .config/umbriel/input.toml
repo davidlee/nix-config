@@ -1,0 +1,24 @@
+# Keyboard, mouse, cursor and focus behaviour.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/input.md
+
+[input]
+middle_click_paste = true
+window_drag_toggle = "floating"
+
+[input.keyboard]
+options = "compose:menu"
+numlock_toggle = true
+
+[input.mouse]
+sensitivity = 0.4
+
+[input.cursor]
+theme = "breeze_cursors"
+size = 48
+hardware_cursor = true
+hide_when_typing = true
+hide_timeout_ms = 440
+
+[input.focus]
+# follows_mouse = true
+follows_mouse_max_scroll = 0.3

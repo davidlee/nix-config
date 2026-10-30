@@ -1,30 +1,49 @@
-# ======================================================================
-# noctalia-gruvbox.toml — Gruvbox dark variant of noctalia.toml
-#
-# Same keys, Tokyo Night swapped for Gruvbox dark (medium contrast).
-# To use: point [include.optional] in config.toml at this file instead
-# of noctalia.toml.
-# ======================================================================
+# The palette: every colour, Gruvbox dark (medium contrast). Includes the
+# window rules that only set colours, so swapping this file swaps them all.
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/appearance.md
 
 [colors]
-background = "#282828FF"      # bg0
-text_primary = "#EBDBB2FF"    # fg1
-text_muted = "#928374FF"      # gray
-accent_primary = "#83A598FF"  # bright blue
+background = "#282828FF"       # bg0; Umbriel's own panels and banners
+text_primary = "#EBDBB2FF"     # fg1
+text_muted = "#928374FF"       # gray
+accent_primary = "#83A598FF"   # bright blue
 accent_secondary = "#FABD2FFF" # bright yellow
-warning = "#FE8019FF"         # bright orange
-error = "#FB4934FF"           # bright red
+warning = "#FE8019FF"          # bright orange
+error = "#FB4934FF"            # bright red
 insert_hint = "#83A59880"
+backdrop = "#00000000"
+shadow = "#000000FF"
 
 [colors.border]
 # focused = "#83A598FF"
 focused = "#d79921FF"
 unfocused = "#282828FF"
-#scratchpad_focused = "#FABD2FFF"
-#scratchpad_unfocused = "#4A3B12FF"
 outer = "#282828FF"
-#outer = "#1D2021FF"          # bg0_h
+#outer = "#1D2021FF"           # bg0_h
 
 [colors.overview]
 badge = "#83A598FF"
 workspace_background = "#00000044"
+background_tint = "#00000000"
+
+# --- window state, shown on the outer ring (width: appearance.toml) ---
+# Later rules win, so floating and pinned override plain focused.
+[[window_rule]]
+match.is_focused = true
+border_color_outer = "#df5d0eFF"
+
+[[window_rule]]
+match.is_focused = true
+match.is_floating = true
+match.is_scratchpad = false
+border_color_outer = "#FF3030"
+
+[[window_rule]]
+match.is_focused = true
+match.is_pinned = true
+border_color_outer = "#FF00FF"
+
+[[window_rule]]
+match.is_scratchpad = true
+border_color_focused = "#E5C07BFF"
+border_color_unfocused = "#5C4A2AFF"
