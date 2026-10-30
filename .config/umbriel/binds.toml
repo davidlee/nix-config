@@ -91,18 +91,25 @@
 # has no runtime toggle for input.cursor.follows_focus.
 
 # --- focus ------------------------------------------------------------
-"Mod+Left" = "window-focus-left"
-"Mod+Down" = "window-focus-down"
-"Mod+Up" = "window-focus-up"
-"Mod+Right" = "window-focus-right"
 
+# LEFT DOWN UP RIGHT
+"Mod+Left" = "window-focus-left"
+#"Mod+Down" = "window-focus-down"
+#"Mod+Up" = "window-focus-up"
+"Mod+Right" = "window-focus-right"
+"Mod+Up" = "window-focus-or-workspace-up"
+"Mod+Down" = "window-focus-or-workspace-down"
+
+# -- tabs --
+"Mod+Alt+Down" = "column-focus-tab-next"
+"Mod+Alt+Up" = "column-focus-tab-previous"
+
+# -- move --
 "Mod+Shift+Left" = "column-move-left"
 "Mod+Shift+Down" = "window-move-down"
 "Mod+Shift+Up" = "window-move-up"
 "Mod+Shift+Right" = "column-move-right"
 
-"Mod+Alt+Up" = "window-focus-or-workspace-up"
-"Mod+Alt+Down" = "window-focus-or-workspace-down"
 
 "Mod+Home" = "column-focus-first"
 "Mod+End" = "column-focus-last"
@@ -134,7 +141,7 @@
 "Mod+Ctrl+Page_Up" = "workspace-move-up"
 
 # Switches focus between the current and the previous workspace.
-"Control+Mod+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
+"Mod+Alt+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
 
 "Mod+1" = "workspace-switch:1"
 "Mod+2" = "workspace-switch:2"
@@ -236,6 +243,7 @@
 "Mod+V" = "window-toggle-floating"
 "Mod+Shift+V" = "window-focus-switch-floating"
 "Mod+P" = "window-toggle-pinned" # no niri counterpart
+"Mod+Ctrl+P" = "window-toggle-pinned" # no niri counterpart
 
 # niri: Mod+W toggle-column-tabbed-display. Umbriel has no tabbed columns;
 # the nearest "restack this workspace" is a layout-mode change.

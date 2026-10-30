@@ -62,8 +62,17 @@ separate billing. Use (judiciously) for design reviews, etc. Delegate via the `c
 Model tiers (the only place model names live; update when models change):
 - default: omit `--model` (Codex config default) - general delegation
 - strong: gpt-6.1-sol - best day to day architect / reviewer; complex delegation
-- strongest: gpt-6-astra - very complex reviews only
+- diligent: gpt-6.1-terra - capable, much cheaper and faster where less complex reasoning is required
+- strongest: gpt-6-astra - very complex reviews only; confirm with user first.
 
 Before the first Codex delegation in a session, list the current models:
 `codex debug models | jq -r '.models[] | select(.visibility=="list") | "\(.slug)\t\(.description)"'`
 If a listed model supersedes one of the tiers above (a newer version of the same family, or the tier's model is now described as previous/older), tell me before proceeding. Don't edit the tiers yourself.
+
+# Quotient
+
+Use pi via quotient for research in the absence of project-specific guidance. Reserve your own context for critical verification & optionally synthesis.
+
+Deepseek is fast, cheap, pretty strong overall as a researcher, but is slightly less adherent / more prone to hallucinating details.
+
+

@@ -31,25 +31,31 @@ name = "onepassword"
 name = "edit"
 
 # --- window rules -----------------------------------------------------
-# Blur everything, as niri's selectorless rule did. Keep it first so later
-# rules can turn blur off per window.
-# niri also set draw-border-with-background false, geometry-corner-radius 12
-# and clip-to-geometry true here; in Umbriel the radius is global
-# (appearance.corner_radius) and clipping is implicit.
+# https://github.com/noctalia-dev/umbriel/blob/main/docs/user/layer-rules.md
+#
+# Focused
+[[window_rule]]
+match.is_focused = true
+outer_border_width = 2
+border_color_outer  = "#df5d0eFF"
 
- [[window_rule]]
- match.is_focused = true
- outer_border_width = 2
- border_color_outer  = "#d65d0eFF"
+# Floating
+[[window_rule]]
+match.is_focused = true
+match.is_floating = true
+match.is_scratchpad = false
+border_color_outer  = "#FF3030"
+
+
+# Pinned
+[[window_rule]]
+match.is_focused = true
+match.is_pinned = true
+border_color_outer  = "#FF00FF"
 
 [[window_rule]]
 match.app_id = "^emacs$"
 corner_radius = 0
-# emacsclient (as $EDITOR) asks for focus via xdg-activation; grant it
-focus_on_activate = true
-
-[[window_rule]]
-match.app_id = "^emacs$"
 match.is_alone = true
 default_fullscreen = true
 

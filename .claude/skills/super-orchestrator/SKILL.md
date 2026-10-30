@@ -35,24 +35,55 @@ Check each, print one line per item, and start anyway unless marked
    - probe for the tools the phases' workers must run: the gate commands
      (e.g. the `justfile`'s `check` recipe), test runner, formatters,
      linters, any binary a phase's tests call;
-   - probe both `read` and `write` forms, and run the cheapest gate (e.g.
-     typecheck) to show the toolchain works, not just that it exists.
+   - probe both `read` and `write` forms, and run **every** gate sub-recipe
+     (each of `check`'s dependencies, not just typecheck) in the write form;
+     a tool can exist and its recipe still fail (a bare name the form lacks);
+   - run the full test suite in the write form **and** on the host, and diff
+     the failures. Sandbox-only failures (e.g. a git guard refusing what a
+     test does) are not form gaps to widen past a safety rule. If the test's
+     world would not have the guard (a stand-in for another machine), turn
+     it off in that fixture's env (e.g. `GIT_GUARD=off`), and propose that as
+     a fix; otherwise record them as known, so workers run targeted tests and
+     the host gate stays authoritative.
+   - find the **host** gate command as the sub-orchestrators will run it:
+     their shell inherits this session's PATH, which predates any flake
+     change made now (e.g. `nix develop -c just check`).
 
    Override: the guide says to batch form changes and prefer doing a step
    yourself. Here the step would recur every phase all night, so propose
    one flake/form change covering every gap, and wait for the human to
-   approve it and restart quotient and Claude. Re-probe after the restart.
-3. **Background tasks**: if `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` is not `1`,
-   warn that spawns may background and wake parents at full context, and tell
-   the sub-orchestrators to request foreground explicitly. Do not block.
-4. **Permission posture**: in `default` mode every child's prompt surfaces
+   approve it (`quotient allow`; a refusal `form-unapproved` names the exact
+   command). Re-probe at once: an approval has taken effect without a
+   restart; ask for a quotient/Claude restart only if the re-probe fails.
+3. **Operator-supplied inputs** (fixtures from real data, credentials,
+   sample output): get them now, not at the phase. If they may hold private
+   data, capture raw outside the repo root (pi runs see the root and send it
+   to an external model), scrub with a Claude worker, show the human what
+   was captured (senders/subjects, not bodies) and what was scrubbed, and
+   get an explicit "commit as is" before any of it may enter the repo.
+   Record the ruling in notes (below).
+4. **Background tasks**: if `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` is not `1`,
+   spawns run in the background whatever the brief says, and the parent is
+   woken by a notification. Warn; tell the sub-orchestrators the same. Do
+   not block.
+5. **Permission posture**: in `default` mode every child's prompt surfaces
    here and the run stalls while the human sleeps. Warn; do not block.
-5. **Spawn depth**: `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` unset or ≥ 2.
+6. **Spawn depth**: `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` unset or ≥ 2.
    Below 2, warn: sub-orchestrators cannot spawn Sonnet/Opus and will fall
    back to pi or do the work themselves.
-6. **Worktree**: none. Run in the main worktree unless the human said
+7. **Worktree**: none. Run in the main worktree unless the human said
    otherwise. Note `git status --porcelain` so later commits can be checked
-   against what was already dirty.
+   against what was already dirty. Ask about uncommitted planning files for
+   the slice; one commit of them before the first phase keeps phase commits
+   clean.
+
+Write what preflight learned into the slice's `notes.md` under an
+`## Implementation run` section, before the first charter: operator rulings,
+known sandbox-only failures, the host gate command, other writers' paths.
+Each charter points at that section instead of restating it. Move the slice
+to `started` (`doctrine slice status <id> started`) before the first charter. Commit your
+own notes edits before each charter: a sub-orchestrator will not commit a
+file that holds someone else's uncommitted lines.
 
 ## Other writers are normal
 
@@ -80,9 +111,14 @@ the run. That is not a conflict:
 2. **Read the hand-back.** Check: commits exist (`git log --oneline`),
    every Sonnet/Opus spawn carries a reason, envelope decisions are logged.
    Don't re-verify diffs; spot-check one gate only if the hand-back is
-   vague.
+   vague. A "flagged" assumption about another repo's contract (the charter
+   may not reach it) is yours to settle: one read-only look there, then a
+   ruling in notes, and the fix as the next charter's first commit.
 3. **Reap** it (`TaskStop`) once read. Always charter a fresh one; never
-   resume a tired one.
+   resume a tired one. Exception: a charter cut off by a restart (the
+   notification says it did not finish) is resumed with `SendMessage`: its
+   transcript is intact, and it re-learns less than a fresh one would. Tell
+   it the tree you see and that its in-flight pi runs may be gone.
 4. **Escalations**: see below. Otherwise charter the next run.
 5. **Halt when the planned phases are done. Do not begin audit.** Write the
    morning report.
