@@ -50,6 +50,8 @@
   offline = inner "offline" {};
   # specDev without the launch-dir bind: starts in $HOME (DEC-078)
   launchDirOff = inner "specDev" {mountLaunchDir = false;};
+  # specDev with the launch dir read-only (malebolge:DEC-074 (4))
+  launchDirRo = inner "specDev" {readOnlyLaunchDir = true;};
   # A named persisted home replaces the profile's, whatever its network (satan:SL-027 RV-035 F-6)
   homeSpec = inner "specDev" {persistedHome = "probe-home";};
   homeResearch = inner "research" {persistedHome = "probe-home";};
@@ -733,7 +735,40 @@ in
       done
       refute grep -Fq -- 'models.json' "$TMPDIR/eca/bwrap-argv"
 
-      # node on PATH wherever pi is (malebolge-bridge, satan SL-009 DEC-075),
+      # The malebolge bridge (malebolge:DEC-074), wherever pi is and nowhere
+      # else: the bridge directory read-only, never its parent (which holds
+      # durable.sock), and pi-bridge/ read-only as pi's extension, both after
+      # the persisted-home bind. The sandbox has no /run/user, so the host-side
+      # mkdir fails there and the launch still goes ahead (-try skips it).
+      bridge_dir=/run/user/1000/satan/durable/room/bridge
+      for label in gateway research claude-pi; do
+        argv="$TMPDIR/$label/bwrap-argv"
+        home_at="$(grep -nFx -- "$TMPDIR/$label-home" "$argv" | head -1 | cut -d: -f1)"
+        dir_at="$(grep -nFx -- "$bridge_dir" "$argv" | head -1 | cut -d: -f1)"
+        ext_at="$(grep -nFx -- "$TMPDIR/$label-home/.pi/agent/extensions/malebolge-bridge" "$argv" | cut -d: -f1)"
+        test -n "$home_at"
+        test -n "$dir_at"
+        test -n "$ext_at"
+        test "$(sed -n "$((dir_at - 1))p" "$argv")" = --ro-bind-try
+        test "$(sed -n "$((dir_at + 1))p" "$argv")" = "$bridge_dir"
+        test "$(sed -n "$((ext_at - 2))p" "$argv")" = --ro-bind-try
+        test "$(sed -n "$((ext_at - 1))p" "$argv")" = "$TMPDIR/$label-home/dev/malebolge/pi-bridge"
+        test "$dir_at" -gt "$home_at"
+        test "$ext_at" -gt "$home_at"
+        refute grep -Eq -- '^/run/user/1000/satan/durable(/room)?/?$' "$argv"
+      done
+      for i in "$probe_gw" "$research_inner" "$claude_pi_inner"; do
+        grep -Fq -- "(umask 077 && mkdir -p $bridge_dir)" "$i"
+        grep -Fq -- 'RUNTIME_ARGS+=(--setenv MALEBOLGE_BRIDGE_SOCKET "$MALEBOLGE_BRIDGE_SOCKET")' "$i"
+        grep -Fq -- 'RUNTIME_ARGS+=(--setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR")' "$i"
+      done
+      for i in "$TMPDIR/eca/bwrap-argv" "$eca_inner" "$spec"; do
+        test -f "$i" # a missing file would make the refute vacuous
+        refute grep -Fq -- 'malebolge' "$i"
+        refute grep -Fq -- 'satan/durable' "$i"
+      done
+
+      # node on PATH wherever pi is (malebolge-bridge, malebolge:DEC-075),
       # and only there.
       node_path='--setenv PATH [^ ]*-nodejs-24[^ /]*/bin'
       for i in "$probe_gw" "$research_inner" "$claude_pi_inner"; do
@@ -793,6 +828,12 @@ in
       refute grep -Fq -- '/workspace/$(basename' "$launch_off"
       grep -Fq -- '--chdir "$HOME"' "$launch_off"
       grep -Fq -- '--chdir' "$launch_off"
+      # readOnlyLaunchDir: the same mount and start, bound read-only.
+      launch_ro=${launchDirRo}/bin/jailed-zsh
+      grep -Fq -- '--ro-bind "$PWD" "/workspace/$(basename' "$launch_ro"
+      grep -Fq -- '--chdir "/workspace/$(basename' "$launch_ro"
+      refute grep -Fq -- '--bind "$PWD"' "$launch_ro"
+      refute grep -Fq -- '--ro-bind "$PWD"' "$spec"
 
       # gatewayForwarder: real socat, passthrough bwrap (see passBwrap). Every
       # launch and wait is bounded, and no launch is captured by $(…): the

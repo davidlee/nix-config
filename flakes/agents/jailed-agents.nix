@@ -174,6 +174,25 @@
     (try-fwd-env "SATAN_MCP_SOCKET")
   ];
 
+  # A malebolge bridge client, wherever pi runs (malebolge:DEC-074). The
+  # bridge socket's directory, read-only and never its parent, which holds
+  # durable.sock (malebolge:DEC-064); made 0700 on the host before launch, as
+  # the daemon requires, if absent. And this checkout's pi-bridge/ as pi's
+  # extension, read-only (malebolge:DEC-073). Runtime args, so after the
+  # persisted-home bind and off the bwrap line (IMP-052). -try: a missing
+  # directory or checkout mounts nothing; without the directory, the
+  # extension reports that it cannot connect (malebolge:DEC-073).
+  piBridgeDir = "/run/user/1000/satan/durable/room/bridge";
+  piBridgeOptions = c: [
+    (c.add-runtime ''
+      (umask 077 && mkdir -p ${piBridgeDir}) 2>/dev/null || true
+      RUNTIME_ARGS+=(--ro-bind-try ${piBridgeDir} ${piBridgeDir})
+      RUNTIME_ARGS+=(--ro-bind-try "$HOME/dev/malebolge/pi-bridge" "$HOME/.pi/agent/extensions/malebolge-bridge")
+    '')
+    (tryFwdEnv c "XDG_RUNTIME_DIR")
+    (tryFwdEnv c "MALEBOLGE_BRIDGE_SOCKET")
+  ];
+
   # pi's provider for an LLM gateway; shared with the satan-runner unit.
   piGatewayConfig = import ./pi-gateway.nix {inherit lib;};
 
@@ -226,14 +245,20 @@
     ];
 
   # Where the jail starts (DEC-078). On: mount the host cwd at
-  # /workspace/<project> and start there. Off: bind nothing and start in
-  # $HOME. --chdir is passed either way: without it bwrap reads HOME from its
-  # own environment (mem.fact.bwrap.pid1-environ-leak).
-  launchDirOptions = mountLaunchDir:
+  # /workspace/<project>, read-only if `readOnly` (malebolge:DEC-074), and
+  # start there. Off: bind nothing and start in $HOME. --chdir is passed
+  # either way: without it bwrap reads HOME from its own environment
+  # (mem.fact.bwrap.pid1-environ-leak).
+  launchDirOptions = mountLaunchDir: readOnly: let
+    bind =
+      if readOnly
+      then "--ro-bind"
+      else "--bind";
+  in
     with jail.combinators;
       if mountLaunchDir
       then [
-        (unsafe-add-raw-args "--bind \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
+        (unsafe-add-raw-args "${bind} \"$PWD\" \"/workspace/$(basename \"$PWD\")\"")
         (unsafe-add-raw-args "--chdir \"/workspace/$(basename \"$PWD\")\"")
       ]
       else [(unsafe-add-raw-args "--chdir \"$HOME\"")];
@@ -441,6 +466,7 @@
     extraPkgs ? [],
     extraOptions ? [],
     mountLaunchDir ? true, # bind the host cwd at /workspace/<project> and start there (DEC-078)
+    readOnlyLaunchDir ? false, # that bind read-only (malebolge:DEC-074)
     workspaceDeps ? [], # sibling repo paths bound read-only at /workspace/<basename> (DEC-081);
     # merged with newline/colon-separated paths from the JAIL_WORKSPACE_DEPS
     # env var (impure eval only) unless workspaceDepsFromEnv is false.
@@ -541,8 +567,9 @@
       ++ workspaceBinds
       # After the deps: bwrap mounts in argv order, so the project wins
       # /workspace/<project> over a dep that shares its basename (DEC-082).
-      ++ launchDirOptions mountLaunchDir
+      ++ launchDirOptions mountLaunchDir readOnlyLaunchDir
       ++ profileOptions profile homeName
+      ++ lib.optionals piInJail (piBridgeOptions jail.combinators)
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options
@@ -552,7 +579,7 @@
           ++ [agent] # allow sub-agent invocation
           ++ subagentAgents # bare binaries the subagent wrappers exec
           ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
-          # malebolge-bridge (satan SL-009, DEC-075) is a node script run with
+          # malebolge-bridge (malebolge:DEC-075) is a node script run with
           # type stripping (node >= 23.6), wherever pi runs.
           ++ lib.optional piInJail pkgs.nodejs_24
         ))
