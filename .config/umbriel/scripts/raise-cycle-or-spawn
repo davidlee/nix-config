@@ -59,7 +59,7 @@ def main():
     target, cycles[app_id] = choose(matches, active, cycles.get(app_id), time.monotonic())
     STATE_PATH.write_text(json.dumps(cycles))
 
-    subprocess.run(["umbriel", "msg", f"window-focus:{target}"], check=True)
+    subprocess.run(["umbriel", "msg", "window-focus", target], check=True)
     return 0
 
 

@@ -110,8 +110,8 @@ feeds both, where niri had `preset-column-widths` and
 
 | niri needed | umbriel |
 |---|---|
-| `nirius` + `niri-scratch-spawn` for per-app scratchpads | `[[scratchpad]]` names + `default_scratchpad` window rules + `scratchpad-toggle:<name>` |
-| `nirius scratchpad-show-all` / `-toggle` | `scratchpad-toggle:main` / `window-toggle-scratchpad:main` |
+| `nirius` + `niri-scratch-spawn` for per-app scratchpads | `[[scratchpad]]` names + `default_scratchpad` window rules + `scratchpad-toggle <name>` |
+| `nirius scratchpad-show-all` / `-toggle` | `scratchpad-toggle main` / `window-toggle-scratchpad main` |
 
 Naming any scratchpad disables Umbriel's implicit `default` one and makes the
 name suffix mandatory on every scratchpad action, so `main` exists purely to
