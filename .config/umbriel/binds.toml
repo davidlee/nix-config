@@ -28,34 +28,34 @@
 
 # --- cheatsheet, launcher, panels -------------------------------------
 "Mod+Shift+Slash" = "cheatsheet-toggle" # niri: show-hotkey-overlay
-# "Ctrl+Alt+Space" = "spawn:walker"
-"Alt+Mod+Space" = "spawn:noctalia msg panel-toggle launcher"
-"Mod+Space" = "spawn:vicinae toggle"
-"Mod+Z" = "spawn:noctalia msg panel-toggle clipboard"
-"Alt+Tab" = "spawn:noctalia msg window-switcher"
-"Alt+Shift+Tab" = "spawn:noctalia msg window-switcher"
+# "Ctrl+Alt+Space" = "spawn walker"
+"Alt+Mod+Space" = "spawn noctalia msg panel-toggle launcher"
+"Mod+Space" = "spawn vicinae toggle"
+"Mod+Z" = "spawn noctalia msg panel-toggle clipboard"
+"Alt+Tab" = "spawn noctalia msg window-switcher"
+"Alt+Shift+Tab" = "spawn noctalia msg window-switcher"
 
 # --- system -----------------------------------------------------------
-"Mod+Alt+L" = "spawn:noctalia msg session lock"
+"Mod+Alt+L" = "spawn noctalia msg session lock"
 "Mod+Shift+E" = "session-quit"
-"Ctrl+Alt+Delete" = "spawn:noctalia msg panel-open session"
+"Ctrl+Alt+Delete" = "spawn noctalia msg panel-open session"
 # "Mod+Shift+P" = "dpms-off" # niri: power-off-monitors
 # ? dpms-on
-"Mod+Ctrl+M" = "spawn:noctalia msg mic-volume-set 100"
+"Mod+Ctrl+M" = "spawn noctalia msg mic-volume-set 100"
 # streaming dictation (flakes: dictate.nix). F13/F14 are push-to-talk: ZMK's
 # `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
 # xkb names F13/F14 XF86Tools/XF86Launch5; binds match the keysym.
-"F9" = { action = "spawn:~/.local/bin/dictate toggle", repeat = false }
-"XF86Tools" = { action = "spawn:~/.local/bin/dictate start", repeat = false }
-"XF86Launch5" = { action = "spawn:~/.local/bin/dictate stop", repeat = false }
-"Mod+B" = "spawn:noctalia msg bar-toggle"
-"Mod+Ctrl+Comma" = "spawn:noctalia msg settings-toggle"
-"Mod+Y" = "spawn:noctalia msg panel-toggle wallpaper"
-"Mod+U" = "spawn:noctalia msg panel-toggle control-center notifications"
-"Mod+L" = "spawn:noctalia msg panel-toggle control-center"
-"Mod+Shift+U" = "spawn:noctalia msg notification-dnd-toggle"
+"F9" = { action = "spawn ~/.local/bin/dictate toggle", repeat = false }
+"XF86Tools" = { action = "spawn ~/.local/bin/dictate start", repeat = false }
+"XF86Launch5" = { action = "spawn ~/.local/bin/dictate stop", repeat = false }
+"Mod+B" = "spawn noctalia msg bar-toggle"
+"Mod+Ctrl+Comma" = "spawn noctalia msg settings-toggle"
+"Mod+Y" = "spawn noctalia msg panel-toggle wallpaper"
+"Mod+U" = "spawn noctalia msg panel-toggle control-center notifications"
+"Mod+L" = "spawn noctalia msg panel-toggle control-center"
+"Mod+Shift+U" = "spawn noctalia msg notification-dnd-toggle"
 # Rescue term runs in session.slice, which oom.nix protects from app.slice hogs.
-"Mod+Ctrl+Delete" = "spawn:systemd-run --user --scope --slice=session.slice --quiet kitty --class emergency-htop -o initial_window_width=120c -o initial_window_height=40c -e htop"
+"Mod+Ctrl+Delete" = "spawn systemd-run --user --scope --slice=session.slice --quiet kitty --class emergency-htop -o initial_window_width=120c -o initial_window_height=40c -e htop"
 
 # Applications that inhibit shortcuts (remote desktop, software KVM) still
 # leave this one way out.
@@ -64,24 +64,24 @@
 # --- scratchpad -------------------------------------------------------
 # niri drove these through nirius; Umbriel has them natively. `main` is the
 # catch-all scratchpad defined in rules.toml.
-"Mod+N" = "scratchpad-toggle:main"      # niri: nirius scratchpad-show-all
-"Mod+Shift+N" = "window-toggle-scratchpad:main" # niri: nirius scratchpad-toggle
-"Mod+Ctrl+N" = "window-restore-from-scratchpad:main"
+"Mod+N" = "scratchpad-toggle main"      # niri: nirius scratchpad-show-all
+"Mod+Shift+N" = "window-toggle-scratchpad main" # niri: nirius scratchpad-toggle
+"Mod+Ctrl+N" = "window-restore-from-scratchpad main"
 
 # --- audio ------------------------------------------------------------
-"XF86AudioRaiseVolume" = { action = "spawn:noctalia msg volume-up", allow_when_locked = true }
-"XF86AudioLowerVolume" = { action = "spawn:noctalia msg volume-down", allow_when_locked = true }
-"XF86AudioMute" = { action = "spawn:noctalia msg volume-mute", allow_when_locked = true }
-"XF86AudioMicMute" = { action = "spawn:noctalia msg mic-mute", allow_when_locked = true }
-"XF86AudioPause" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true }
-"XF86AudioPlay" = { action = "spawn:noctalia msg media toggle", allow_when_locked = true }
-"XF86AudioPrev" = { action = "spawn:noctalia msg media previous", allow_when_locked = true }
-"XF86AudioNext" = { action = "spawn:noctalia msg media next", allow_when_locked = true }
-"Mod+Backslash" = { action = "spawn:~/.local/bin/toggle-audio-sink", allow_when_locked = true }
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up", allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down", allow_when_locked = true }
+"XF86AudioMute" = { action = "spawn noctalia msg volume-mute", allow_when_locked = true }
+"XF86AudioMicMute" = { action = "spawn noctalia msg mic-mute", allow_when_locked = true }
+"XF86AudioPause" = { action = "spawn noctalia msg media toggle", allow_when_locked = true }
+"XF86AudioPlay" = { action = "spawn noctalia msg media toggle", allow_when_locked = true }
+"XF86AudioPrev" = { action = "spawn noctalia msg media previous", allow_when_locked = true }
+"XF86AudioNext" = { action = "spawn noctalia msg media next", allow_when_locked = true }
+"Mod+Backslash" = { action = "spawn ~/.local/bin/toggle-audio-sink", allow_when_locked = true }
 
 # --- brightness -------------------------------------------------------
-"XF86MonBrightnessUp" = { action = "spawn:noctalia msg brightness-up 5", allow_when_locked = true }
-"XF86MonBrightnessDown" = { action = "spawn:noctalia msg brightness-down 5", allow_when_locked = true }
+"XF86MonBrightnessUp" = { action = "spawn noctalia msg brightness-up 5", allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down 5", allow_when_locked = true }
 
 # --- overview and window lifecycle ------------------------------------
 "Mod+O" = { action = "overview-toggle", repeat = false }
@@ -143,42 +143,42 @@
 # Switches focus between the current and the previous workspace.
 "Mod+Alt+Tab" = "workspace-focus-last" # niri: focus-workspace-previous
 
-"Mod+1" = "workspace-switch:1"
-"Mod+2" = "workspace-switch:2"
-"Mod+3" = "workspace-switch:3"
-"Mod+4" = "workspace-switch:4"
-"Mod+5" = "workspace-switch:5"
-"Mod+6" = "workspace-switch:6"
-"Mod+7" = "workspace-switch:7"
-"Mod+8" = "workspace-switch:8"
-"Mod+9" = "workspace-switch:9"
+"Mod+1" = "workspace-switch 1"
+"Mod+2" = "workspace-switch 2"
+"Mod+3" = "workspace-switch 3"
+"Mod+4" = "workspace-switch 4"
+"Mod+5" = "workspace-switch 5"
+"Mod+6" = "workspace-switch 6"
+"Mod+7" = "workspace-switch 7"
+"Mod+8" = "workspace-switch 8"
+"Mod+9" = "workspace-switch 9"
 
-"Mod+Shift+1" = "column-move-to-workspace:1"
-"Mod+Shift+2" = "column-move-to-workspace:2"
-"Mod+Shift+3" = "column-move-to-workspace:3"
-"Mod+Shift+4" = "column-move-to-workspace:4"
-"Mod+Shift+5" = "column-move-to-workspace:5"
-"Mod+Shift+6" = "column-move-to-workspace:6"
-"Mod+Shift+7" = "column-move-to-workspace:7"
-"Mod+Shift+8" = "column-move-to-workspace:8"
-"Mod+Shift+9" = "column-move-to-workspace:9"
+"Mod+Shift+1" = "column-move-to-workspace 1"
+"Mod+Shift+2" = "column-move-to-workspace 2"
+"Mod+Shift+3" = "column-move-to-workspace 3"
+"Mod+Shift+4" = "column-move-to-workspace 4"
+"Mod+Shift+5" = "column-move-to-workspace 5"
+"Mod+Shift+6" = "column-move-to-workspace 6"
+"Mod+Shift+7" = "column-move-to-workspace 7"
+"Mod+Shift+8" = "column-move-to-workspace 8"
+"Mod+Shift+9" = "column-move-to-workspace 9"
 
-"Mod+Alt+1" = "window-move-to-workspace:1"
-"Mod+Alt+2" = "window-move-to-workspace:2"
-"Mod+Alt+3" = "window-move-to-workspace:3"
-"Mod+Alt+4" = "window-move-to-workspace:4"
-"Mod+Alt+5" = "window-move-to-workspace:5"
-"Mod+Alt+6" = "window-move-to-workspace:6"
-"Mod+Alt+7" = "window-move-to-workspace:7"
-"Mod+Alt+8" = "window-move-to-workspace:8"
-"Mod+Alt+9" = "window-move-to-workspace:9"
+"Mod+Alt+1" = "window-move-to-workspace 1"
+"Mod+Alt+2" = "window-move-to-workspace 2"
+"Mod+Alt+3" = "window-move-to-workspace 3"
+"Mod+Alt+4" = "window-move-to-workspace 4"
+"Mod+Alt+5" = "window-move-to-workspace 5"
+"Mod+Alt+6" = "window-move-to-workspace 6"
+"Mod+Alt+7" = "window-move-to-workspace 7"
+"Mod+Alt+8" = "window-move-to-workspace 8"
+"Mod+Alt+9" = "window-move-to-workspace 9"
 
 # niri: Mod+Ctrl+X unset-workspace-name, Mod+Alt+R rename-niri-workspace.
 # Umbriel cannot rename the workspace you are on — a name is a config
 # declaration. scripts/named-workspace creates and removes them instead, by
 # writing workspaces.toml and letting the config watcher apply it.
-"Mod+Alt+R" = "spawn:~/.config/umbriel/scripts/named-workspace add"
-"Mod+Ctrl+X" = "spawn:~/.config/umbriel/scripts/named-workspace drop"
+"Mod+Alt+R" = "spawn ~/.config/umbriel/scripts/named-workspace add"
+"Mod+Ctrl+X" = "spawn ~/.config/umbriel/scripts/named-workspace drop"
 
 # --- mouse wheel ------------------------------------------------------
 "Mod+WheelDown" = { action = "workspace-next", cooldown_ms = 150 }
@@ -223,10 +223,10 @@
 "Mod+Ctrl+Shift+R" = "window-cycle-secondary-extent" # niri: switch-preset-window-height
 "Mod+Ctrl+R" = "window-cycle-secondary-extent-back"  # niri: reset-window-height (no reset action)
 
-"Mod+Minus" = "window-modify-primary-extent:-0.1"   # niri: set-column-width "-10%"
-"Mod+Equal" = "window-modify-primary-extent:0.1"
-"Mod+Shift+Minus" = "window-modify-secondary-extent:-0.1" # niri: set-window-height
-"Mod+Shift+Equal" = "window-modify-secondary-extent:0.1"
+"Mod+Minus" = "window-modify-primary-extent -0.1"   # niri  set-column-width "-10%"
+"Mod+Equal" = "window-modify-primary-extent 0.1"
+"Mod+Shift+Minus" = "window-modify-secondary-extent -0.1" # niri  set-window-height
+"Mod+Shift+Equal" = "window-modify-secondary-extent 0.1"
 
 "Mod+F" = "window-toggle-maximize"           # niri: maximize-column
 "Mod+Shift+F" = "window-toggle-fullscreen"
@@ -247,8 +247,8 @@
 
 # niri: Mod+W toggle-column-tabbed-display. Umbriel has no tabbed columns;
 # the nearest "restack this workspace" is a layout-mode change.
-"Mod+W" = "workspace-set-layout:toggle"
-"Mod+Shift+W" = "workspace-set-layout:scrolling"
+"Mod+W" = "workspace-set-layout toggle"
+"Mod+Shift+W" = "workspace-set-layout scrolling"
 
 "Mod+S" = "column-toggle-tabbed"
 
@@ -262,9 +262,9 @@
 # --- screenshots ------------------------------------------------------
 # Umbriel has no built-in screenshot; scripts/screenshot rebuilds niri's three
 # actions on grim/slurp/satty and saves to niri's screenshot-path.
-"Print" = "spawn:~/.config/umbriel/scripts/screenshot area"
-"Ctrl+Print" = "spawn:~/.config/umbriel/scripts/screenshot screen"
-"Alt+Print" = "spawn:~/.config/umbriel/scripts/screenshot window"
-"F10" = "spawn:~/.config/umbriel/scripts/screenshot area"
-"Ctrl+F10" = "spawn:~/.config/umbriel/scripts/screenshot screen"
-"Alt+F10" = "spawn:~/.config/umbriel/scripts/screenshot window"
+"Print" = "spawn ~/.config/umbriel/scripts/screenshot area"
+"Ctrl+Print" = "spawn ~/.config/umbriel/scripts/screenshot screen"
+"Alt+Print" = "spawn ~/.config/umbriel/scripts/screenshot window"
+"F10" = "spawn ~/.config/umbriel/scripts/screenshot area"
+"Ctrl+F10" = "spawn ~/.config/umbriel/scripts/screenshot screen"
+"Alt+F10" = "spawn ~/.config/umbriel/scripts/screenshot window"
