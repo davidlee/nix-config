@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1793361005,
-        "narHash": "sha256-pQlNwPvvbNXoSYwkiwpG7MhnKnJ1fCGTbYUJqoeCeJw=",
+        "lastModified": 1793404112,
+        "narHash": "sha256-EaCpmiv+WmJ2rPPSQ6EOoAzmJ1Ne+4k3FWFIrMLzMNs=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "19b9740ef8f95388a8d173f4b2e9d1da47eda829",
+        "rev": "ff4ece17857b33f7df2fe4a29d1ed9b52f4a445f",
         "type": "github"
       },
       "original": {
@@ -3034,11 +3034,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1793361005,
-        "narHash": "sha256-pQlNwPvvbNXoSYwkiwpG7MhnKnJ1fCGTbYUJqoeCeJw=",
+        "lastModified": 1793404112,
+        "narHash": "sha256-EaCpmiv+WmJ2rPPSQ6EOoAzmJ1Ne+4k3FWFIrMLzMNs=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "19b9740ef8f95388a8d173f4b2e9d1da47eda829",
+        "rev": "ff4ece17857b33f7df2fe4a29d1ed9b52f4a445f",
         "type": "github"
       },
       "original": {
@@ -6429,11 +6429,11 @@
         "quotient": "quotient_11"
       },
       "locked": {
-        "lastModified": 1793360896,
-        "narHash": "sha256-Qqvv90lQH3Mf84P420YAMvfCPexO7NZULb/10XYNeD8=",
+        "lastModified": 1793529384,
+        "narHash": "sha256-83gAL/L3AUfBpTB4ZyhJ1+y6fHGfkvdvjqDA4OOqYBY=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "f98555cf65d0bea51af5facbf633a091a3ff71e1",
+        "rev": "4ebf0b8eca977c9b073c3a610e269fd0b66d4b76",
         "type": "github"
       },
       "original": {
