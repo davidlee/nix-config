@@ -51,6 +51,9 @@
         jailed-agents = import ./jailed-agents-test.nix {
           inherit pkgs jail-nix;
         };
+        quotient-relay = import ./quotient-relay-test.nix {
+          inherit pkgs jail-nix;
+        };
       };
 
       # Not under `checks`: `nix flake check` evaluates purely, where this

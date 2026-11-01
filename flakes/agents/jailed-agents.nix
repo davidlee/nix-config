@@ -452,6 +452,12 @@
         ]))
     ];
 
+  # The host's quotient over a socket (quotient-relay.nix).
+  quotientRelay = import ./quotient-relay.nix {
+    inherit pkgs;
+    inherit (jail) combinators;
+  };
+
   gatewayJailFor = import ./gateway-jail.nix {
     inherit lib pkgs setenvsByArgsFd piGatewayModelsFor;
     inherit (jail) combinators;
@@ -489,6 +495,11 @@
     exposePostgres ? false,
     # The host's doctrine install root, read-only (hostDoctrineOptions).
     hostDoctrine ? true,
+    # The host's quotient as `quotient`, an MCP server narrowed to the launch
+    # dir (quotient-relay.nix). Off by default without network: its
+    # delegates have network, which an offline jail must not reach. Needs
+    # the launch dir, the one root it may grant.
+    quotient ? profiles.${profile}.network && mountLaunchDir,
     # Opt-in: reach models through an LLM gateway instead of provider keys.
     # `{ keyFile; url; runDirectory; }`, all strings, exactly those:
     #   keyFile       the gateway key's path, a shell word expanded inside
@@ -570,6 +581,7 @@
       ++ launchDirOptions mountLaunchDir readOnlyLaunchDir
       ++ profileOptions profile homeName
       ++ lib.optionals piInJail (piBridgeOptions jail.combinators)
+      ++ lib.optionals quotient (quotientRelay.options {readOnly = readOnlyLaunchDir;})
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options
@@ -592,6 +604,7 @@
     assert (builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName != null)
     || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
     assert (subagentNames == []) || (maxSubagentDepth > 0) || throw "maxSubagentDepth must be > 0 when subagents are exposed";
+    assert !quotient || mountLaunchDir || throw "jailed-${name}: quotient needs mountLaunchDir, the one root it may grant";
       if gateway != null
       then gatewayJail.wrap inner
       else inner;

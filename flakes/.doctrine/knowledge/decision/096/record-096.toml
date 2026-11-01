@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 96
+slug = "knot-is-published-by-a-node-funnel-oneshot-unit"
+title = "Knot is published by a node Funnel oneshot unit"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-31"
+updated = "2026-10-31"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "nixpkgs services.tailscale.serve configures Tailscale Services (svc:), not node Funnel; no Funnel option exists."
+choice = "systemd oneshot knot-funnel (RemainAfterExit), after tailscaled and knot-rs: tailscale funnel --bg --https=443 http://127.0.0.1:5555; ExecStop: tailscale funnel --https=443 off."
+alternatives = ["services.tailscale.serve (wrong feature)", "manual tailscale funnel"]
+rationale = "Declarative, survives reboots, reverts when the feature is off."
+consequences = ["Funnel serves sleipnir.<tailnet>.ts.net:443 only; port 443 on that name belongs to the knot.", "Needs the tailnet policy funnel node attribute (granted 2026-10-31)."]
+decided_by = "user (agreed 2026-10-31)"
+decided_on = "2026-10-31"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-021"

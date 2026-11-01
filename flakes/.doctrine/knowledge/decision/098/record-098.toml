@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 98
+slug = "only-github-public-repos-go-on-the-knot"
+title = "Only GitHub-public repos go on the knot"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-31"
+updated = "2026-10-31"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "User wants knot visibility to follow GitHub. Tangled has no private repos (no visibility in sh.tangled.repo; none in knot2), and Funnel publishes the knot."
+choice = "Documented rule in README: a repo goes on the knot only if it is public on GitHub. No automation."
+alternatives = ["automated mirror filtered by GitHub visibility", "tailnet-only private remote"]
+rationale    = ""
+consequences = []
+decided_by = "user (agreed 2026-10-31)"
+decided_on = "2026-10-31"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-021"

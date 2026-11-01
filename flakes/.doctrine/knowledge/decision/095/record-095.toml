@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 95
+slug = "knot-master-key-systemd-credential-exported-by-an-execstart-wrapper"
+title = "Knot master key: systemd credential exported by an ExecStart wrapper"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-31"
+updated = "2026-10-31"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Upstream services.tangled.knot-rs reads KNOT_MASTER_KEY only via an asserted EnvironmentFile; POL-001 keeps it off the store; user chose 1Password + systemd creds (2026-10-31)."
+choice = "LoadCredentialEncrypted=master-key:/etc/credstore.encrypted/knot.master-key; ExecStart wrapper exports KNOT_MASTER_KEY from $CREDENTIALS_DIRECTORY then execs knot-server; environmentFile = /dev/null to satisfy the assertion. Writer: just knot-credentials (op read | systemd-creds encrypt --with-key=host+tpm2)."
+alternatives = ["root oneshot decrypting to /run/knot/knot.env before knot-rs", "hand-placed /etc/knot/knot.env"]
+rationale = "Plaintext never lands on disk; same credstore as the LLM gateway."
+consequences = ["Couples to upstream ExecStart shape (--config /etc/knot/config.toml); a module bump may need the wrapper updated."]
+decided_by = "user (agreed 2026-10-31)"
+decided_on = "2026-10-31"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-021"

@@ -499,6 +499,51 @@ formFamily = jailLib.quotientFormFamily {
   `jailLib.tryFwdEnv c "NAME"`, not jail.nix's `try-fwd-env`, whose
   `${NAME+…}` the check refuses.
 
+### quotient relay (`quotient`)
+
+A jail can use the host's quotient as an MCP server: `quotient` in the jail is
+a relay to a quotient running on the host (`quotient-relay.nix`). quotient is
+never nested. Its policy, approvals and run evidence stay out of the jail, and
+its delegates run in the host's forms as usual. Those forms carry no relay,
+so delegates cannot call quotient themselves.
+
+```
+host                                         jail
+launcher ($PWD: the root)
+ ├─ quotient-jail-listener DIR  (pdeathsig) ◄── DIR/socket, read-only ── /run/quotient/mcp.sock
+ │    per connection: narrowed policy,                                        ▲
+ │    cd root, exec quotient ─► forms ─► pi delegates     `quotient`: socat STDIO ─┘
+ └─ exec bwrap
+```
+
+- **On by default** where the profile has network and `mountLaunchDir` is on.
+  It is off for `offline`, because quotient's delegates have network.
+  `quotient = true` opts an offline jail in anyway. With `mountLaunchDir =
+  false` it is refused, because there is no root to grant.
+- **The host's quotient**, found on the launching `PATH`, as with host
+  doctrine, so there is no pin. If it is not installed, or the launch dir is
+  outside every root of the host policy (which the launcher reports), the jail
+  starts without the relay. `quotient` in the jail then says so.
+- **Narrowed policy.** Each connection runs under the host policy, rebuilt at
+  connect time so that host edits (such as `enabled: false`) take effect on
+  the next connection:
+  - `roots` is the launch dir alone, so the jail gains no reach into other
+    projects.
+  - `exposure` is kept only inside the launch dir.
+  - With `readOnlyLaunchDir`, write profiles, the write form and all
+    exposure are removed.
+- **Lifetime.** The listener dies with the launcher, through `setpriv
+  --pdeathsig`, and removes its directory. Each connection is a fresh
+  `quotient`, which ends at end-of-input together with its runs.
+- **Registration** is per agent and per persisted home, done once, with the
+  same command as on the host: `pi mcp add quotient -- quotient`, or `claude
+  mcp add quotient quotient`.
+- **Paths.** Delegates run at the host path of the launch dir, while the jail
+  sees it at `/workspace/<project>`. Leave out `pi_agent`'s `cwd`, since it
+  defaults to the root. A `/workspace/…` path is refused unless it resolves
+  to the root on the host. `artifacts.dir` names a host path that the jail
+  cannot read.
+
 ### Jail scan
 
 A flake check over built launchers as text (`jail-scan.nix`, IMP-051). From
@@ -549,6 +594,7 @@ as the paths they produce.
 | `sandboxGitIdentity` | per profile (true for `specDev` only) | Override git author/committer |
 | `guardGit` | `true` | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
+| `quotient` | profile's network, and `mountLaunchDir` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
 ## helium

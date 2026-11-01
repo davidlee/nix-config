@@ -5,9 +5,7 @@ _: [
   # The nag is the home half. It suspends the machine, eventually: an active
   # session may `systemctl suspend` unprivileged, and the decision follows an
   # answer to a prompt rather than a clock, so it belongs next to the person
-  # being asked. The escalation, and why dismissing the toast is not an
-  # escape, are in ./session/snooze-nag; `snooze-nag-test` beside it holds
-  # that behaviour without a display.
+  # being asked. The prompt and spoken warning are in ./session/snooze-nag.
   #
   # The wake alarm is the system half, and nothing else: only a system timer
   # may set `WakeSystem`.
@@ -15,7 +13,7 @@ _: [
   # Smoke:
   #   systemctl --user list-timers snooze-nag.timer
   #   journalctl --user -u snooze-nag -f
-  #   SNOOZE_GRANTS='2 1' SNOOZE_UNIT=1 SNOOZE_ABSENT=1 snooze-nag
+  #   SNOOZE_UNIT=1 snooze-nag
   {
     name = "snooze";
 

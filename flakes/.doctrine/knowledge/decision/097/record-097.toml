@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 97
+slug = "tangled-input-keeps-its-own-nixpkgs"
+title = "tangled input keeps its own nixpkgs"
+record_kind = "decision"
+status = "accepted"
+created = "2026-10-31"
+updated = "2026-10-31"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context      = ""
+choice = "inputs.tangled does not follow nixpkgs."
+alternatives = ["inputs.tangled.inputs.nixpkgs.follows = nixpkgs"]
+rationale = "Upstream pins nixos-26.05 for its tested Rust/Go toolchain; knot-rs builds locally either way, so following buys nothing and risks breakage."
+consequences = []
+decided_by = "user (agreed 2026-10-31)"
+decided_on = "2026-10-31"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-021"
