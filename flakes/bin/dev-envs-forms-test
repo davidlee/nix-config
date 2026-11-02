@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# Behaviour tests for dev-envs-forms. A fake `nix` is first on PATH: it records
+# the argv it was given and stands in for `build -o`, producing the shape a real
+# form output has — `bin/quotient-<c>` (the form, execing the launcher) beside
+# `bin/jailed-quotient-<c>` (the launcher). Nothing here builds a form, a jail or
+# pi, and the real nix is never run.
+#
+#   ./dev-envs-forms-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/dev-envs-forms
+repo=$(cd "$here/.." && pwd)
+flake=path:$repo/dev-envs
+
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+export GIT_CEILING_DIRECTORIES=$work
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [[ $2 == "$3" ]]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n  expected: %s\n  actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# The fake nix: `build -o <out> <ref> --override-input … --no-write-lock-file`.
+mkdir -p "$work/bin" "$work/store"
+cat >"$work/bin/nix" <<'FAKE'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "$*" >>"$FAKE_NIX_LOG"
+if [[ ${1:-} != build ]]; then
+  echo "fake nix: only 'build' is expected, got: $*" >&2
+  exit 99
+fi
+shift
+out='' ref=''
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -o) out=$2; shift 2 ;;
+    -*) shift ;;
+    # the installable comes first; a later non-flag is an override's value
+    *) if [[ -z $ref ]]; then ref=$1; fi; shift ;;
+  esac
+done
+cap=${ref##*#quotient-}
+store=$FAKE_NIX_STORE/$cap
+mkdir -p "$store/bin"
+printf '#!/bin/sh\nexec %s/bin/jailed-quotient-%s "$@"\n' "$store" "$cap" >"$store/bin/quotient-$cap"
+printf '#!/bin/sh\nexit 0\n' >"$store/bin/jailed-quotient-$cap"
+chmod +x "$store/bin/quotient-$cap" "$store/bin/jailed-quotient-$cap"
+if [[ -n $out ]]; then ln -sfn "$store" "$out"; fi
+FAKE
+chmod +x "$work/bin/nix"
+export PATH=$work/bin:$PATH
+export FAKE_NIX_LOG=$work/argv FAKE_NIX_STORE=$work/store
+
+# forms <cwd> <args>… — run the linker there; leaves $out, $err, $rc.
+# Refuses to run unless the fake nix is the one PATH resolves.
+forms() {
+  local dir=$1
+  shift
+  if [[ $(command -v nix) != "$work/bin/nix" ]]; then
+    echo 'the fake nix is not first on PATH; refusing to run the real one' >&2
+    exit 1
+  fi
+  : >"$FAKE_NIX_LOG"
+  rc=0
+  out=$(cd "$dir" && "$script" "$@" 2>"$work/err") || rc=$?
+  err=$(<"$work/err")
+}
+
+checkout() { # <name> — a fresh git repo; prints its path
+  local dir=$work/$1
+  mkdir -p "$dir"
+  git init -q "$dir"
+  printf '%s' "$dir"
+}
+
+project=$(checkout project)
+plain=$work/plain
+bare=$work/bare
+mkdir -p "$plain" "$bare"
+
+# ------------------------------------------------------------------ cases
+
+forms "$project"
+check 'default: read and write, in that order' \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --no-write-lock-file
+build -o .quotient/result-write $flake#quotient-write --override-input project git+file:$project --no-write-lock-file" \
+  "$(<"$FAKE_NIX_LOG")"
+check 'default: exit 0' 0 "$rc"
+check 'default: says what it linked' \
+  'dev-envs-forms: linked .quotient/forms/read
+dev-envs-forms: linked .quotient/forms/write' "$out"
+check 'default: both capabilities linked' 'read write' "$(find "$project/.quotient/forms" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort | paste -sd' ')"
+check 'read: resolves to the form executable' \
+  "$work/store/read/bin/quotient-read" "$(readlink -f "$project/.quotient/forms/read")"
+check 'write: resolves to the form executable' \
+  "$work/store/write/bin/quotient-write" "$(readlink -f "$project/.quotient/forms/write")"
+check 'read: is executable' 0 "$(test -x "$project/.quotient/forms/read" && echo 0 || echo 1)"
+check 'read: not the launcher, which quotient would run without a session' \
+  0 "$(case $(readlink -f "$project/.quotient/forms/read") in */jailed-quotient-*) echo 1 ;; *) echo 0 ;; esac)"
+check 'the GC root exists beside the links' 'result-read result-write' \
+  "$(find "$project/.quotient" -maxdepth 1 -name 'result-*' -printf '%f\n' | sort | paste -sd' ')"
+
+# capabilities narrow the build; nothing else is linked
+forms "$project" read
+check 'named capability: only that one is built' \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --no-write-lock-file" \
+  "$(<"$FAKE_NIX_LOG")"
+
+# --project names the flake to build; then a checkout is not needed
+forms "$plain" --project git+file:/elsewhere read
+check '--project: overrides the toplevel, outside a checkout' 0 "$rc"
+check '--project: the given ref reaches nix' \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:/elsewhere --no-write-lock-file" \
+  "$(<"$FAKE_NIX_LOG")"
+
+# outside a checkout with no --project, the toplevel is unavailable: refused,
+# naming both the situation and the flag that answers it
+forms "$bare" read
+check 'no checkout, no --project: refused' 1 "$rc"
+check 'no checkout, no --project: says what to do' 1 "$(grep -c -- '--project' <<<"$err")"
+check 'no checkout, no --project: builds nothing' '' "$(<"$FAKE_NIX_LOG")"
+check 'no checkout, no --project: links nothing' '' "$(find "$bare/.quotient/forms" -mindepth 1 -maxdepth 1 -printf '%f\n' 2>/dev/null | sort | paste -sd' ')"
+
+# a second run replaces the same links with the same targets
+before=$(readlink -f "$project/.quotient/forms/read")
+forms "$project" read
+check 'second run: exit 0' 0 "$rc"
+check 'second run: the same target' "$before" "$(readlink -f "$project/.quotient/forms/read")"
+check 'second run: one link, not two' 1 "$(find "$project/.quotient/forms" -name read | wc -l)"
+
+forms "$project" --nope
+check 'unknown flag: refused' 2 "$rc"
+check 'unknown flag: prints usage' 1 "$(grep -c '^usage:' <<<"$err")"
+check 'unknown flag: builds nothing' '' "$(<"$FAKE_NIX_LOG")"
+
+forms "$project" --help
+check '--help: exit 0' 0 "$rc"
+check '--help: prints usage' 1 "$(grep -c '^usage:' <<<"$err")"
+
+exit "$failed"

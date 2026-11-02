@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+# Behaviour tests for dev-envs.sh, with direnv's stdlib stubbed: `use` prints the
+# words it was given, `watch_file` records its own to a file, `log_status` says
+# nothing. `uname` is shadowed by a function so the non-Linux case needs no fake
+# binary on PATH; the checkout is a real throwaway git repo, because the helper
+# asks git for the toplevel.
+#
+#   ./dev-envs-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+# No git identity or system config, and nothing above the fixtures to walk into:
+# $tmp sits outside every repository, so an un-checkout really is one.
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+export GIT_CEILING_DIRECTORIES=$tmp
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [[ $2 == "$3" ]]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n  expected: %s\n  actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# checkout <name> — a fresh git repo; prints its path
+checkout() {
+  local dir=$tmp/$1
+  mkdir -p "$dir"
+  git init -q "$dir"
+  printf '%s' "$dir"
+}
+
+# envrc <cwd> <cmd>… — source dev-envs.sh from <cwd> with HOME faked and direnv
+# stubbed, then run cmd. Leaves what `use` was given on stdout and what
+# `watch_file` was given in $tmp/watch.
+# shellcheck disable=SC2329 # the stubs are called by dev-envs.sh
+envrc() {
+  local dir=$1
+  shift
+  (
+    cd "$dir" || exit 1
+    export HOME=$tmp/home
+    : >"$tmp/watch"
+    uname() { printf '%s\n' "${UNAME_STUB:-Linux}"; }
+    use() { echo "use $*"; }
+    watch_file() { echo "watch $*" >>"$tmp/watch"; }
+    log_status() { :; }
+    # shellcheck source=/dev/null
+    source "$here/dev-envs.sh"
+    "$@"
+  )
+}
+
+mkdir -p "$tmp/home" "$tmp/scratch"
+consumer=$tmp/home/flakes/dev-envs
+project=$(checkout project)
+mkdir -p "$project/src"
+live="path:$consumer#jail"
+override="--override-input project git+file:$project"
+
+unset JAIL_WORKSPACE_DEPS JAIL_WORKSPACE_DEPS_RW
+
+# ------------------------------------------------------------------ cases
+
+# the jail is Linux-only; the caller's `||` is the fallback, not this function
+rc=0
+out=$(UNAME_STUB=Darwin envrc "$project" use_dev_envs) || rc=$?
+check 'non-Linux: returns 1' 1 "$rc"
+check 'non-Linux: uses nothing' '' "$out"
+check 'non-Linux: watches nothing' '' "$(<"$tmp/watch")"
+
+# a project is only reachable as git+file, so no checkout means no jail
+rc=0
+out=$(envrc "$tmp/scratch" use_dev_envs) || rc=$?
+check 'no checkout: returns 1' 1 "$rc"
+check 'no checkout: uses nothing' '' "$out"
+
+# the plain case: the consumer's jail, this checkout as the project, no re-lock
+rc=0
+out=$(envrc "$project" use_dev_envs) || rc=$?
+check 'checkout: exit 0' 0 "$rc"
+check 'checkout: the consumer jail, git+file project, no lock write' \
+  "use flake $live $override --no-write-lock-file" "$out"
+
+# the toplevel, not $PWD: a shell opened in src/ must still name the checkout
+check 'subdirectory: the same toplevel' \
+  "use flake $live $override --no-write-lock-file" \
+  "$(envrc "$project/src" use_dev_envs)"
+
+# an edit to either side reloads the shell
+check 'watch: the project and the consumer, flakes and locks' \
+  "watch $project/flake.nix $project/flake.lock $consumer/flake.nix $consumer/flake.lock" \
+  "$(<"$tmp/watch")"
+
+# the agents lib reads both with getEnv, which pure evaluation answers with ""
+check 'ro deps: impure, so the jail sees them' \
+  "use flake $live $override --no-write-lock-file --impure" \
+  "$(JAIL_WORKSPACE_DEPS=/x envrc "$project" use_dev_envs)"
+check 'rw deps: impure' \
+  "use flake $live $override --no-write-lock-file --impure" \
+  "$(JAIL_WORKSPACE_DEPS_RW=/x envrc "$project" use_dev_envs)"
+check 'empty deps: pure' \
+  "use flake $live $override --no-write-lock-file" \
+  "$(JAIL_WORKSPACE_DEPS='' JAIL_WORKSPACE_DEPS_RW='' envrc "$project" use_dev_envs)"
+
+# extra arguments reach `use flake`, beside the impure flag
+check 'flags pass through' \
+  "use flake $live $override --no-write-lock-file --show-trace" \
+  "$(envrc "$project" use_dev_envs --show-trace)"
+check 'flags pass through, after --impure' \
+  "use flake $live $override --no-write-lock-file --impure --show-trace" \
+  "$(JAIL_WORKSPACE_DEPS=/x envrc "$project" use_dev_envs --show-trace)"
+
+exit $failed

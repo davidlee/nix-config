@@ -1,0 +1,43 @@
+memory_uid = "mem_01a19c6c38637b92b1c43a1e032df98e"
+memory_key = "mem.fact.flakes.drv-gate-aborts-at-home"
+schema_version = 1
+lifespan = "semantic"
+memory_type = "fact"
+status = "active"
+title = "`just drvs` aborts at homeConfigurations on aarch64-darwin elfutils"
+summary = "`just drvs` stops after nixosConfigurations: homeConfigurations fails on elfutils-0.195 for aarch64-darwin; take the other groups through the same `_drvs` sub-recipe instead."
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = ["justfile", "flake.lock"]
+globs = ["justfile"]
+commands = ["just drvs"]
+tags = ["nix", "drvs", "gate"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "medium"
+weight = 0
+

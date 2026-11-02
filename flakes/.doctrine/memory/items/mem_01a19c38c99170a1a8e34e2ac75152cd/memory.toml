@@ -1,0 +1,42 @@
+memory_uid = "mem_01a19c38c99170a1a8e34e2ac75152cd"
+memory_key = "mem.fact.quotient.form-family-api"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "mkFormFamily takes the caller's packages, and quotientFormFamily forwards extra arguments through"
+summary = "A form's PATH comes from mkFormFamily's packages argument; checkFormFamily exists at v0.6.0; the jail lib's wrapper forwards unrecognised args."
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = []
+globs = []
+commands = ["nix build"]
+tags = ["quotient", "nix"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

@@ -18,3 +18,16 @@ Observed 2026-11-02 from a jailed agent session working in `~/flakes`.
 See also [[mem.fact.flakes.git-add-n]] (the fix a writable session can apply),
 [[mem.fact.flakes.override-records-in-lock]] (why `--no-write-lock-file` is
 mandatory here), and [[mem.fact.jail-nix.launcher-one-line]].
+
+Extended 2026-11-02 (SL-022 PHASE-03): in that session the wall was wider —
+every path under `$HOME` except `~/flakes` was read-only, and
+`GIT_CEILING_DIRECTORIES=/home/david` made `git rev-parse` inside `~/flakes`
+answer "not a git repository" (run git from `~`). Two consequences:
+- a project's `cargo`/gate cannot run *in* a read-only checkout (EROFS on
+  `target/debug/.cargo-build-lock`). Prove it in a writable export of the same
+  commit (`git archive HEAD | tar -x -C /tmp/…`) with `CARGO_HOME` and
+  `CARGO_TARGET_DIR` under `/tmp`, the flake input still naming the real checkout;
+- a nested jail needs a `HOME` shim: `~/.config/llm-gateway/keys/<client>` can be
+  absent even though the gateway runs, and the persisted home
+  (`~/.local/share/jail.nix/home/<name>`) must be writable. `HOME=/tmp/shim`
+  with a key file copied in makes `jailed-pi` launch.

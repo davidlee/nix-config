@@ -8,8 +8,7 @@ schema  = "doctrine.plan.overview"
 version = 1
 slice   = "SL-022"
 
-# Canonical spec/requirement links — cite ids, never restate what they say. The
-# plan reader does not model these yet, so nothing downstream consumes them.
+# Canonical spec/requirement links — cite ids, never restate what they say.
 [specs]
 primary       = []
 collaborators = []
@@ -18,25 +17,99 @@ collaborators = []
 targets      = []
 dependencies = []
 
-# One [[phase]] per ordered phase, in execution order — the authored array order
-# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
-# never reused once authored — edits append, they never renumber, so the id
-# sequence goes non-monotonic after a split and that is expected. Criterion ids
-# are local to their phase, bare, and equally immutable
-# (`lib:reference/glossary.md` § reference forms). The prefix is
-# the only mode marker; there is no mode field. Reference a criterion from
-# another phase phase-qualified (PHASE-03/EX-8) — bare EX-8 is ambiguous.
+# Three phases, in the order design's § Handover to planning set: prove the
+# factory alone, add the two entry points, then wire it in and prove it against
+# an unmodified project. Each phase is green on its own before the next starts.
+
 [[phase]]
 id        = "PHASE-01"
-name      = ""
-objective = ""
-entrance_criteria = []           # [{ id = "EN-1", text = "…" }]
-exit_criteria     = []           # [{ id = "EX-1", text = "…" }]
-verification      = []           # VT/VA/VH by mode. Every VT row MUST carry a structured mandate:
-                                 #   { id = "VT-1", expects = "…",
-                                 #     test_file = "src/foo.rs", keywords = ["fn_name", "struct_name"],
-                                 #     patterns = ["^\\s*pub fn"], waived = false }
-                                 # test_file = path that must exist, keywords = raw substrings that must
-                                 # appear in it. Without a mandate verify-vt reports UNCHECKABLE (inert).
-specs             = []           # per-phase narrowing of the plan's specs
-requirements      = []
+name      = "The flake and its contract"
+objective = "Author `dev-envs/flake.nix`, its lock and `dev-envs/stub-project/flake.nix` so the consumer evaluates and `checks.stub` is green against the stub — with nothing consuming it yet. Implements design § The flake, in full and § The stub project and the repo gates (DEC-106, DEC-100, DEC-101, DEC-103)."
+
+entrance_criteria = [
+  { id = "EN-1", text = "Design is locked (dr-01a19c02, rev 36) and `design.md` § The flake, in full is the sketch this phase implements; where the sketch is concrete it is followed, and any departure is recorded in the notes with its reason." },
+  { id = "EN-2", text = "`agents` and `quotient` resolve from their declared remotes and expose what the sketch calls: `agents.lib.<system>.mkJailedAgents`, `.makeJailedPi`, `.quotientFormFamily`, `.unjailed`, and `quotient.lib.checkFormFamily` — the last verified at planning against the pinned `v0.6.0`." },
+  { id = "EN-3", text = "The session can evaluate Nix flakes: in a confined session that means `path:~/flakes/dev-envs#…` refs with `XDG_CACHE_HOME` redirected, so no criterion here depends on `git add -N` or a commit." },
+]
+
+exit_criteria = [
+  { id = "EX-1", text = "`dev-envs/flake.nix`, `dev-envs/flake.lock` and `dev-envs/stub-project/flake.nix` exist, and the flake evaluates on `x86_64-linux` with no override: all seven outputs of design § The flake, in full are present." },
+  { id = "EX-2", text = "`checks.<system>.stub` builds green against the stub, and goes RED when the consumer stops composing the project's bundle (drop `extraPkgs = [devTools]` from the jail, expect failure, revert) — that, not an emptied bundle, is the failure the check exists for." },
+  { id = "EX-3", text = "`dev-envs/flake.lock`'s only local node is the relative `./stub-project`; no node carries a `file:` URL or an absolute path. `dev-envs/stub-project/flake.lock` is not committed." },
+  { id = "EX-4", text = "Nothing consumes the flake yet: no `envrc/dev-envs.sh`, no `bin/dev-envs-forms`, no `justfile` line, no README change. The factory is provable before anything depends on it." },
+]
+
+verification = [
+  { id = "VT-1", expects = "the flake carries the whole contract: the jail built from the project's bundle, the pass-through output, the form family and both checks", test_file = "dev-envs/flake.nix", keywords = ["mkJailedAgents", "makeJailedPi", "quotientFormFamily", "checkFormFamily", "dev-tools", "quotient-forms"], waived = false },
+  { id = "VT-2", expects = "the stub is a complete producer: a dev-tools buildEnv, the probe member the check greps for, and an ordinary devshell", test_file = "dev-envs/stub-project/flake.nix", keywords = ["dev-tools", "buildEnv", "probe", "devShells"], waived = false },
+  { id = "VA-1", expects = "`nix build path:~/flakes/dev-envs#checks.<system>.stub --no-link --no-write-lock-file` exits 0; the command and its result are recorded in the slice notes.", waived = false },
+  { id = "VA-2", expects = "the stub check goes RED when `extraPkgs = [devTools]` is dropped from the jail (composition lost), proving it is not vacuous; the mutation is reverted and the revert recorded in the notes.", waived = false },
+  { id = "VA-3", expects = "the launcher is built and READ to settle which needle it actually carries (the bundle path, or flattened member paths); the check's `needles` list is reduced to what the library really renders, with a comment naming the observation. This closes the design's flagged uncertainty 2 empirically rather than by argument.", waived = false },
+]
+
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "The two entry points"
+objective = "Author `envrc/dev-envs.sh` and `bin/dev-envs-forms` with their bash tests: the direnv helper that lands a checkout in `dev-envs#jail`, and the host linker that builds and roots a project's forms. Implements design § Reaching a project (DEC-100) and § Quotient forms (DEC-102)."
+
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01's exit criteria hold: the flake evaluates with no override and `checks.stub` is green." },
+  { id = "EN-2", text = "`envrc/agents.sh` and `envrc/agents-test` have been read as the pattern: the `use`/`watch_file`/`log_status` stubs, the `check` helper, and the `||` fallback contract a project's `.envrc` relies on." },
+  { id = "EN-3", text = "`bin/dev-checkouts` and one of its `-test` companions have been read for the script shape (`set -euo pipefail`, header naming each verb, usage on stderr, `repo=$(cd \"$(dirname \"$0\")/..\" && pwd)`)." },
+]
+
+exit_criteria = [
+  { id = "EX-1", text = "`envrc/dev-envs.sh` defines `use_dev_envs`, which returns 1 on a non-Linux host and outside a git checkout, adds `--impure` only when `JAIL_WORKSPACE_DEPS` or `JAIL_WORKSPACE_DEPS_RW` is set, watches the project's and the consumer's flake files, and invokes `use flake path:$HOME/flakes/dev-envs#jail --override-input project git+file:<toplevel> --no-write-lock-file`." },
+  { id = "EX-2", text = "`envrc/dev-envs-test` covers those five behaviours (non-Linux, no checkout, with/without the workspace-dep variables, the exact argv) and passes." },
+  { id = "EX-3", text = "`bin/dev-envs-forms` links `read` and `write` into `.quotient/forms/` through `-o .quotient/result-<c>`, accepts `--project <flake-ref>`, defaults to `git+file:<toplevel>`, and exits non-zero with a named message outside a checkout when no `--project` is given." },
+  { id = "EX-4", text = "`bin/dev-envs-forms-test` drives the script through a fake `nix` on PATH: it asserts the argv carries `#quotient-<c>`, `--override-input project …` and `--no-write-lock-file`, that the resulting link resolves to the fake form's binary, that `.quotient/result-<c>` exists, and that a second run is idempotent." },
+  { id = "EX-5", text = "Neither test builds a form, a jail or `pi`, and neither invokes the real `nix`." },
+]
+
+verification = [
+  { id = "VT-1", expects = "the helper carries the override form, the read-only flag, the impurity rule and the Linux/checkout guards", test_file = "envrc/dev-envs.sh", keywords = ["use_dev_envs", "--override-input project", "--no-write-lock-file", "JAIL_WORKSPACE_DEPS", "uname -s"], waived = false },
+  { id = "VT-2", expects = "the linker carries the flake ref, the capability names, the GC-root out-link and the read-only override", test_file = "bin/dev-envs-forms", keywords = ["quotient-", "--override-input", "--no-write-lock-file", ".quotient/result-", "--project"], waived = false },
+  { id = "VT-3", expects = "the helper's test exercises the function through direnv stubs", test_file = "envrc/dev-envs-test", keywords = ["use_dev_envs", "watch_file", "check"], waived = false },
+  { id = "VT-4", expects = "the linker's test asserts against an injected fake nix", test_file = "bin/dev-envs-forms-test", keywords = ["quotient-read", "quotient-write", "jailed-quotient-", "override-input"], waived = false },
+  { id = "VA-1", expects = "`envrc/dev-envs-test` and `bin/dev-envs-forms-test` both exit 0; their output is recorded in the slice notes.", waived = false },
+]
+
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Wiring, documentation, and the proof against Smut"
+objective = "Join the consumer to `just test` and to a sharpened lock guard, document the split, then prove it against an unmodified Smut: pin fidelity, gate parity in the jail, and the form workflow. Implements design § Gates and locks (DEC-104), § Failure modes (DEC-105) and § Verification."
+
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02's exit criteria hold: both entry points exist and their tests pass." },
+  { id = "EN-2", text = "`~/dev/smut`'s HEAD and `git status --porcelain` are recorded in the notes before the proof begins, so \"untouched\" is a comparison rather than a claim." },
+  { id = "EN-3", text = "`just drvs` has been run once and stored as the before-snapshot (35–60 s; run it in the background while reading)." },
+  { id = "EN-4", text = "The LLM gateway is running on this host. If it is not, VA-3's model check is recorded as blocked rather than silently skipped." },
+]
+
+exit_criteria = [
+  { id = "EX-1", text = "`just test` runs both new checks and both new bash tests, Linux-gated, with `--override-input agents path:<flakes>/agents --no-link --no-write-lock-file`, and is green end to end." },
+  { id = "EX-2", text = "`dev-envs/flake.lock` is guarded by the sharpened jq expression (reject `file:` URLs and absolute path nodes, permit the relative stub), and the guard fails when an absolute path node is introduced — mutation verified and reverted." },
+  { id = "EX-3", text = "README § Jailed Agents documents the producer/consumer split, how an existing project joins, the form workflow (`bin/dev-envs-forms` then `quotient allow`) and the degrade-to-less rule." },
+  { id = "EX-4", text = "Pin fidelity holds: `nix eval ~/dev/smut#packages.<system>.dev-tools.drvPath` equals `nix eval path:~/flakes/dev-envs#packages.<system>.devTools.drvPath --override-input project 'git+file:~/dev/smut' --no-write-lock-file`, both with `--no-write-lock-file`." },
+  { id = "EX-5", text = "Gate parity holds: `nix develop path:~/flakes/dev-envs#jail --override-input project 'git+file:~/dev/smut' --no-write-lock-file --command just gate` is green, and the run reports the store paths of `rustc`, `just` and `mold` from the project's pins." },
+  { id = "EX-6", text = "No host drift and no project drift: `just drvs` after equals the before-snapshot, and `git -C ~/dev/smut status --porcelain` shows nothing new on tracked paths. A diff confined to home/darwin configurations that names emacs-overlay is recorded as the known re-resolution drift (`mem.pattern.flakes.drv-gate`), not as this slice's; anything else is a failure." },
+]
+
+verification = [
+  { id = "VT-1", expects = "the gate wiring and the sharpened guard are both in the test recipe, cite dev-envs and its lock by path, and carry the read-only flags", test_file = "justfile", keywords = ["dev-envs#checks", "dev-envs/flake.lock", "dev-envs-test", "dev-envs-forms-test"], waived = false },
+  { id = "VT-2", expects = "the README section names the contract, the consumer flake and the form workflow", test_file = "README.md", keywords = ["dev-tools", "dev-envs", "quotient"], waived = false },
+  { id = "VA-1", expects = "the two drvPath evaluations print the same path; both commands and their output are recorded in the notes.", waived = false },
+  { id = "VA-2", expects = "`just gate` is green inside the jail and the `rustc`/`just`/`mold` paths it reports match the project's devshell; recorded in the notes.", waived = false },
+  { id = "VA-3", expects = "`jailed-pi` launches from the shell, binds the checkout at `/workspace/<project>`, and answers one prompt through the gateway with no provider key present.", waived = false },
+  { id = "VA-4", expects = "the sharpened guard rejects an absolute path node (mutation, reverted) and `just drvs` is unchanged; both recorded.", waived = false },
+  { id = "VH-1", expects = "the operator runs `bin/dev-envs-forms` in a Smut checkout, approves with `quotient allow`, and a `read` delegate runs in the linked form; optionally the untracked `.envrc` is pointed at `use_dev_envs` and the same gate runs from a fresh shell.", waived = false },
+]
+
+specs        = []
+requirements = []

@@ -1,0 +1,42 @@
+memory_uid = "mem_01a19c457b487951963fceafd9d34daa"
+memory_key = "mem.fact.flakes.jail-launcher-indirection"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "A gateway jail is a wrapper that execs the real launcher"
+summary = "jail composition (extraPkgs → PATH) is rendered in the INNER launcher, one `exec` below packages.jail; a store reference is not a build input, builtins.readFile is."
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = ["flakes/agents", "flakes/dev-envs"]
+globs = []
+commands = ["nix build"]
+tags = ["nix", "jail"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

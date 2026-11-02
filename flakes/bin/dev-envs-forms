@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Link this checkout's Quotient forms: build the consumer's form packages for the
+# project in this checkout, and point .quotient/forms/<c> at each one.
+#
+#   dev-envs-forms [--project <flake-ref>] [read|write…]      default: read write
+#
+# `-o .quotient/result-<c>` is what keeps a form alive: that store symlink is a GC
+# root, and the outward link in .quotient/forms is not. Selection and approval
+# stay outside this script — `quotient allow` is the operator's act.
+set -euo pipefail
+
+repo=$(cd "$(dirname "$0")/.." && pwd)
+flake="path:$repo/dev-envs"
+project=""
+capabilities=()
+
+usage() { echo "usage: dev-envs-forms [--project <flake-ref>] [read|write…]" >&2; }
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --project) project=${2:?--project needs a flake ref}; shift 2 ;;
+    -h | --help) usage; exit 0 ;;
+    -*) usage; exit 2 ;;
+    *) capabilities+=("$1"); shift ;;
+  esac
+done
+
+if [[ -z $project ]]; then
+  root=$(git rev-parse --show-toplevel 2>/dev/null) \
+    || { echo "dev-envs-forms: not in a git checkout; pass --project <flake-ref>" >&2; exit 1; }
+  project="git+file:$root"
+fi
+
+[[ ${#capabilities[@]} -gt 0 ]] || capabilities=(read write)
+
+mkdir -p .quotient/forms
+for c in "${capabilities[@]}"; do
+  nix build -o ".quotient/result-$c" \
+    "$flake#quotient-$c" \
+    --override-input project "$project" \
+    --no-write-lock-file
+  # The form is `bin/quotient-<c>` — the wrapper that takes the session directory
+  # and execs `bin/jailed-quotient-<c>` from another derivation. Quotient refuses
+  # a link that does not resolve to an executable file, so the target is the
+  # wrapper (`quotient/docs/nix-forms.md`), not the launcher it names.
+  ln -sfn "$(readlink -f ".quotient/result-$c")/bin/quotient-$c" ".quotient/forms/$c"
+  echo "dev-envs-forms: linked .quotient/forms/$c"
+done

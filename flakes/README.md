@@ -1125,7 +1125,53 @@ the jail tests.
 
 ## Jailed Agents 
 
-template setup for bubblewrap-jailed agents, assuming some conventions:
+Two flake roles, split by ownership (SL-022). A **producer** is a project flake
+that exports the tools its own gate needs, as one derivation:
+
+```nix
+packages.<system>.dev-tools = pkgs.buildEnv {name = "…-dev-tools"; paths = […];};
+```
+
+A **consumer** takes one and builds the environment around it
+([`dev-envs/flake.nix`](./dev-envs/flake.nix), with its own lock): the shell, the
+jail's sandbox and agent CLIs, and the quotient forms. The project keeps its pins
+and knows nothing about agents; the personal layer keeps its pins and knows
+nothing about the project. A project's `nix flake update` therefore no longer
+drags `jail-nix`, `llm-agents` and `bun2nix` into its diffs.
+
+A project joins with its own (untracked) `.envrc`:
+
+```zsh
+source_env_if_exists ~/flakes/envrc/dev-envs.sh
+use_dev_envs || use flake .
+```
+
+`use_dev_envs` lands in `dev-envs#jail` with the checkout as the `project` input,
+read-only — the same thing by hand:
+
+```zsh
+nix develop path:~/flakes/dev-envs#jail \
+  --override-input project "git+file:$(git rev-parse --show-toplevel)" \
+  --no-write-lock-file
+```
+
+Forms are what a quotient delegate runs in; the consumer builds them and a host
+script links them into the checkout. Approval stays the operator's:
+
+```zsh
+~/flakes/bin/dev-envs-forms   # builds read and write, links .quotient/forms/{read,write}
+quotient allow                # per form; re-run both when the toolchain changes
+```
+
+**Degrade to less, never to a different environment.** Without a `.envrc`, without
+the helper file, on a non-Linux host, or outside a git checkout, `use_dev_envs`
+returns 1 and the `.envrc`'s `||` takes the project's own `use flake .`. A
+*broken* personal layer is the opposite case — a nix error, a project with no
+`dev-tools`, a jail that will not build — and stays loud: a silently different
+shell is unresolvable.
+
+Without a consumer, the template is the self-contained option — bubblewrap-jailed
+agents, all pins in the project:
 
 ```zsh
 nix flake init -t /home/david/flakes#agents                    # local

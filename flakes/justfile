@@ -55,14 +55,17 @@ choose:
 fmt: check-flake-root
   nix fmt --no-write-lock-file
 
-# the lock holds no local source (ISS-006), resolver tests (features-test.nix),
-# factory checks (hosts.nix), the workaround probe registry (workarounds/),
-# the llm-gateway check (Linux only: the gateway is NixOS-only), the
-# machine-default quotient forms' contract (Linux only), the agents
-# sub-flake's jail tests, pure and impure (Linux only, against its own lock), then behaviour
+# the lock holds no local source (ISS-006), the dev-envs consumer's lock holds
+# no absolute path node (its stub is a *relative* one, DEC-104), resolver tests
+# (features-test.nix), factory checks (hosts.nix), the workaround probe registry
+# (workarounds/), the llm-gateway check (Linux only: the gateway is NixOS-only),
+# the machine-default quotient forms' contract (Linux only), the agents
+# sub-flake's jail tests, pure and impure (Linux only, against its own lock), the
+# dev-envs consumer's checks (Linux only, against its own lock), then behaviour
 # tests for the plain scripts
 test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
+  @jq -e '[.nodes[].locked // empty | select(((.url // "") | startswith("file:")) or (.type == "path" and ((.path // "") | startswith("/"))))] == []' dev-envs/flake.lock >/dev/null || { echo "dev-envs/flake.lock locks an absolute path or a file: URL: the stub is a relative path node, so re-lock it without --override-input"; exit 1; }
   nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
   nix build ".#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
@@ -73,8 +76,12 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).quotient-relay" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-forms" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   envrc/agents-test
+  envrc/dev-envs-test
+  bin/dev-envs-forms-test
   bin/room-bump-test
   bin/room-behind-test
   workarounds/check-test
