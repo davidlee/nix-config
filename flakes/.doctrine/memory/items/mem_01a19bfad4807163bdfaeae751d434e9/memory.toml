@@ -1,0 +1,42 @@
+memory_uid = "mem_01a19bfad4807163bdfaeae751d434e9"
+memory_key = "mem.fact.flakes.confined-session-ro"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "In a confined agent session, ~/.cfg and ~/.cache are read-only"
+summary = "Commits and git add -N fail; redirect XDG_CACHE_HOME. Nix builds still work."
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = ["flakes/"]
+globs = []
+commands = ["git add", "git commit", "nix eval"]
+tags = ["nix", "git"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
