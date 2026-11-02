@@ -1,7 +1,7 @@
 id = 22
 slug = "layered-dev-envs-consumer"
 title = "Layered dev-env consumer, proven against Smut"
-status = "proposed"
+status = "plan"
 created = "2026-11-02"
 updated = "2026-11-02"
 tags = ["agents", "dev-env", "nix"]
@@ -11,24 +11,40 @@ needs = []                      # slice→work hard prerequisite
 after = []                      # slice→work soft sequence: { to, rank }
 
 [[selector]]
-selector = "dev-envs/**"
-intent = "design-target"
-
-[[selector]]
-selector = "envrc/**"
-intent = "design-target"
-
-[[selector]]
-selector = "bin/**"
-intent = "design-target"
-
-[[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/flake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/flake.lock"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/stub-project/flake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "envrc/dev-envs.sh"
+intent = "design-target"
+
+[[selector]]
+selector = "envrc/dev-envs-test"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/dev-envs-forms"
+intent = "design-target"
+
+[[selector]]
+selector = "bin/dev-envs-forms-test"
+intent = "design-target"
 
 [[relation]]
 label = "governed_by"

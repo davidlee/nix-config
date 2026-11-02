@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 100
+slug = "project-input-relative-stub-read-only-override"
+title = "The project is a relative-path stub input; every real reach is a git+file override with --no-write-lock-file"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The project arrives as a flake input so it can be overridden per checkout. Whatever the committed default is, it lands in `dev-envs/flake.lock`, and whatever the override form is, it decides what reaches the store and whether the lock is rewritten."
+choice = 'Declare `project.url = "path:./stub-project"` — a relative path inside the flake; Nix records it in the lock as `path = "./stub-project"` (verified: a relative path input locks relatively, not absolutely), so a store copy still resolves it. Every real invocation overrides it with `--override-input project "git+file:$PWD"` (tracked content only) and carries `--no-write-lock-file`. The override appears in exactly three places: `envrc/dev-envs.sh`, `bin/dev-envs-forms`, and the read-only recipes in `justfile`.'
+alternatives = ["`path:$PWD` as the override: copies the whole directory on every evaluation, `target/` and untracked scratch included.", "An absolute stub path or a separate stub repository: the first is not portable and therefore not a default; the second invents a public repo for a four-line fixture.", "No `project` input, override always required: the flake could not be evaluated or checked alone, and every failure would be ambiguous between factory and project."]
+rationale = "Two failure modes pull in opposite directions — an unoverridable default (untestable factory) and a lock that records a machine's checkout (ISS-006's class). A relative stub inside the flake plus read-only overrides satisfies both, and the lock guard can then be sharp rather than blanket."
+consequences = ["`dev-envs/flake.lock` legitimately holds one relative `path` node, so the repo's existing guard (which forbids every path node) cannot be applied verbatim: the dev-envs guard flags `file:` URLs and *absolute* `path` nodes and permits the relative stub node.", "A fresh clone, and the Mac's copy, can evaluate `dev-envs` without the stub existing at an absolute location.", "`git+file:` means a project's dirty *tracked* edits participate and its untracked files do not."]
+decided_by = "agent, within the user-approved scope (R3, R6)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

@@ -1,0 +1,1 @@
+The flake must be evaluable with no arguments (so it can be checked and so a failure can be attributed to it rather than to a project), yet reach a real checkout only in ways that cannot mutate the consumer's lock or smuggle untracked files into the store.

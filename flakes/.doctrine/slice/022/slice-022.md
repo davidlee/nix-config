@@ -140,7 +140,7 @@ settled answer):
 | `envrc/dev-envs.sh` | new: `use_dev_envs`, reusing `use_flake_local`'s override shape |
 | `envrc/agents.sh` | maybe: factor `use_flake_local`'s ref so both helpers share it |
 | `bin/dev-envs-forms` (+ `-test`) | new: host-side linker |
-| `justfile` | maybe: one read-only recipe for the in-tree `agents` override |
+| `justfile` | two `path:`-invoked checks and two bash tests in `just test`, plus the dev-envs lock guard (design DEC-104) |
 | `README.md` | § Jailed Agents gains the producer/consumer split and how a project joins |
 
 The root `flake.nix`/`flake.lock` are **not** touched: `dev-envs` is a
@@ -181,7 +181,11 @@ it, with Smut's pins intact and its tracked tree untouched.
   lock: `nix eval`/`nix build --override-input project …` without
   `--no-write-lock-file` records a `path`/`git file:` node in
   `dev-envs/flake.lock`, which then silently pins the machine's checkout. Every
-  override here is read-only and must say so.
+  override here is read-only and must say so. **Sharpened in design:** the stub
+  input's own node is `path = "./stub-project"` — *relative*, verified by
+  experiment — so the dev-envs guard rejects `file:` URLs and absolute paths
+  rather than every path node, and the root lock's blanket rule cannot be reused
+  verbatim (DEC-104).
 - **R7** `slice conformance` and `verify-vt` compare git-root-relative paths
   against `~/flakes`-relative selectors, so they report everything as both
   undeclared and undelivered in this repo (ISS-005). Evidence at audit time is

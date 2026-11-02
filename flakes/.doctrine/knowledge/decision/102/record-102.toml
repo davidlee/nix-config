@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 102
+slug = "forms-built-here-linked-on-host"
+title = "Forms are built by the consumer carrying the project's tools, and linked on the host with an --out-link GC root"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Quotient forms are the entry points the host's Quotient server launches for delegates. They must run the same tools as the jail (or a delegate would behave differently from the agent that spawned it), be selectable through the checkout's `.quotient/forms`, and survive garbage collection."
+choice = """Built in dev-envs from the same jail library: `family = jailLib.quotientFormFamily { quotient = inputs.quotient; packages = [ projectDevTools ]; }` — `quotientFormFamily` forwards `packages` to `mkFormFamily`, so a form's package set is the jail's. Exposed as `packages.<system>.quotient-read` and `.quotient-write`. Linked on the host by `bin/dev-envs-forms [<project-ref>]`, which for each capability runs `nix build -o .quotient/result-<c> "<dev-envs>#quotient-<c>" --override-input project <ref> --no-write-lock-file` and then `ln -sfn "$(readlink -f .quotient/result-<c>)/bin/jailed-quotient-<c>" .quotient/forms/<c>`. The linked file name is the capability word (`read`, `write`), which is what quotient reads; the flake-level name carries the `quotient-` prefix. Neither the jail nor the shell carries a form derivation; the shell carries the linker, because that is where the need arises."""
+alternatives = ["Forms in the jail's `extraPkgs` (the earlier sketch): enlarges every jail's closure and still does not select them on the host — installing inside the jail cannot reach the host's policy.", "The project's devshell building them (today's arrangement): that is the dependency the slice exists to remove.", "`nix build` without `-o`: the outward symlink in `.quotient/forms` is not a GC root; the `--out-link` symlink registers the indirection that is.", "Per-project prefixes (`quotient-<key>-read`): unnecessary while one project is in view per evaluation; the family's default `quotient` prefix already names the launchers `jailed-quotient-<capability>`.", "A `just` recipe instead of `bin/`: the linker needs the same override form the direnv helper needs, and `bin/` scripts here are tested."]
+rationale = "Selection is a host act and approval is an operator act, so the tool splits along that seam: the consumer builds, the operator links, `quotient allow` approves. `--out-link` gives retention for free, which is what the earlier sketch's open question about GC retention was really about."
+consequences = ["Changing a project's toolchain means re-running the linker; the README says so.", "`quotient.lib.checkFormFamily` becomes a check in the consumer, so a form that is not plain words fails at `nix flake check` time rather than at delegate launch.", "The linker never approves: `quotient allow` stays the operator's explicit act."]
+decided_by = "agent, within the user-approved scope (D5)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

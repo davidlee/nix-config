@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 105
+slug = "degrade-to-less-never-to-a-different-environment"
+title = "Failures degrade to a smaller environment or fail loudly, never to a different environment silently"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The consumer becomes a single point of failure for every participating project's shell, so each failure has to have a decided behaviour rather than an emergent one."
+choice = "Absent: a project with no `.envrc`, or with no `envrc/dev-envs.sh` on PATH, or on a non-Linux host, gets `use flake .` and the project's own devshell — degrade to less. Present but broken: a flake that fails to evaluate, a jail that fails to build, or a project without `packages.<system>.dev-tools` all fail loudly with a message that names the site — the project's own devshell is *not* silently substituted. `use_dev_envs` returns non-zero on non-Linux before touching nix, so the `.envrc`'s `||` selects the fallback."
+alternatives = ["""Silent fallback on any personal-layer error: makes "my shell is subtly different today" unresolvable, and hides the migration's own regressions.""", "A preflight probe that validates the personal flake before use: extra machinery on the interactive path, for a failure mode direnv already reports well.", "Refusing to evaluate without `dev-tools` at the flake level rather than at the input site: loses the named throw that says which attribute is missing."]
+rationale = 'Two different questions — "is the personal layer available?" and "is the personal layer correct?" — deserve opposite answers: absence is normal (a contributor, the Mac), incorrectness is never normal.'
+consequences = ["The throw's text names `packages.<system>.dev-tools` and points at the producer contract.", "`envrc/dev-envs-test` covers the three absent cases and the impurity rule; the loud cases are covered by the stub check and the gate.", "Documented in the README as the reason a fresh clone works before the personal layer exists."]
+decided_by = "agent, within the user-approved scope (R2)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

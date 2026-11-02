@@ -1,0 +1,1 @@
+A form is a delegate's world, so it must carry the same tools as the jail it belongs to. It is selected by the host's Quotient through files in the checkout, so the build belongs to the consumer and the installation belongs to the operator.

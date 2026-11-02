@@ -1,0 +1,1 @@
+One evaluation serves four callers, so the outputs are named for the caller rather than for the project: direnv takes the devShell, the operator takes the launcher, the host Quotient takes the form binaries, and the pin oracle takes the project's bundle unchanged. No `default` alias: a bare `dev-envs#` must not silently mean a jail.

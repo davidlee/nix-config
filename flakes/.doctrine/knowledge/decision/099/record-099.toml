@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 99
+slug = "dev-envs-export-contract"
+title = "dev-envs exports four packages, one shell and two checks, on Linux systems only"
+record_kind = "decision"
+status = "superseded"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The consumer is a flake with a replaceable `project` input. It must serve four callers from one evaluation: `use flake` in a project's .envrc (a dev shell), the operator (a runnable jailed agent), the host's Quotient server (form binaries to link), and the slice's own pin-fidelity oracle (the project's dev-tools, unmodified)."
+choice = """Systems: `["x86_64-linux" "aarch64-linux"]` and nothing else. Outputs per system: `packages.<system>.jail` (the launcher, bin name `jailed-pi`), `packages.<system>.devTools` (the project's `dev-tools` passed through unchanged), `packages.<system>.quotient-read` and `.quotient-write`; `devShells.<system>.jail` = `[project.dev-tools] ++ [jail] ++ [dev-envs-forms] ++ [unjailed.codex]`; `checks.<system>.stub` and `checks.<system>.quotient-forms`."""
+alternatives = ["Darwin outputs that `throw`: an attribute that cannot evaluate poisons `nix flake check` and any `path:` eval on the Mac; the helper already refuses non-Linux before touching nix.", "No `packages.jail`, shell only: the launcher is one derivation either way, and a shell carries it anyway (Smut's arrangement), so exporting it costs nothing and gives `nix run` and the linker a stable name.", "A `default` alias to the jail: a bare `dev-envs#` would then silently mean one project's agent.", "Per-project output names (`jail-<key>`, `quotient-<key>-read`): only one project is in view per evaluation, because `project` is an input rather than a directory convention, so a key in the name would encode a distinction the evaluation does not have."]
+rationale = "The name should say who the output is for. `devTools` differs from the producer's `dev-tools` on purpose: it is a pass-through, not a contract a producer signs, and the two names must not be confusable in a `nix eval` comparison."
+consequences = ["`nix develop dev-envs#jail` lands in a shell whose `jailed-pi` binds the current checkout at /workspace/<project>.", "The shell carries the agent CLI the project's devshell used to borrow from its jail block (`unjailed.codex`, from the same evaluation as the jail's agents).", "Forms carry the project's tools, so a delegate's world matches the jail's.", "`jail` stays keyless until a second real project needs extras (step 4)."]
+decided_by = "agent, within the user-approved scope (D3, D4, D5)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = ["DEC-106"]   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

@@ -1,0 +1,1 @@
+`makeJailedPi` with the project's bundle in `extraPkgs` and the package set supplied through `mkJailedAgents { pkgs }`. Everything configurable in Smut's per-project jail map is fixed for this slice, because a configuration surface designed against one project is a guess.

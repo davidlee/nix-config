@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 101
+slug = "consumer-jail-record"
+title = "One jailed pi: the project's tools in the launcher, the consumer's pins in the sandbox"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The jail must run a jailed pi with the project's tools, reach models only through the LLM gateway, and keep the sandbox itself on the consumer's pins — without growing a configuration surface nobody has needed yet."
+choice = """`jailLib = (agents.lib.${system}.mkJailedAgents { inherit pkgs; })` where `pkgs` is dev-envs' own nixpkgs; then `jailLib.makeJailedPi { profile = "specDev"; allowSelfAsSubagent = true; maxSubagentDepth = 2; gateway = jailLib.gatewayClient "pi"; extraPkgs = [ projectDevTools ]; }`, with `projectDevTools = project.packages.${system}.dev-tools` guarded by a `throw` that names the missing attribute and the producer contract. Not configurable in this slice: launcher name and agent (fixed `pi`), profile, gateway, the subagent set, any package beyond the project bundle, and the forms list. `mountLaunchDir` stays the library default (bind `$PWD` at `/workspace/<project>` and start there), and workspace dependencies stay environment-driven by the library's own `JAIL_WORKSPACE_DEPS{,_RW}` mechanism."""
+alternatives = ["A per-project record map with named jails (Smut's `jails.<name>`): deferred to step 4, when a second project needs a second jail.", "`agents.inputs.nixpkgs.follows` to collapse the two pins: rejected — `llm-agents` deliberately keeps its own pin for the numtide binary cache, and the jail infrastructure's pin belongs to the consumer and is stated in its lock.", "`extraPkgs = [ projectDevTools ] ++ extras` with an extras list wired now: no project has needed an extra, so the list would be an empty seam with a merge rule invented ahead of evidence.", "A launcher per profile (research, offline) as in Smut: one jail proves the split; profiles return with the extras API."]
+rationale = "Smut's own `jailed-pi` record is exactly this shape, so gate parity is inherited rather than invented. Supplying `pkgs` through `mkJailedAgents` is what keeps the tools at the project's pins while the sandbox stays at the consumer's — the whole point of D1."
+consequences = ["Two nixpkgs in one closure by design (R1): the project's rust/just/mold/sccache beside dev-envs' bwrap, zsh and pi. Collisions are reported at the outer env.", "The launcher is `jailed-pi`, binds the launch directory read-write, and reaches models only through the gateway with the `pi` client key — no provider key can reach it (SPEC-001 REQ-009).", "A project without `dev-tools` fails at the input site with a named message, not inside jail.nix.", "`use_dev_envs` must add `--impure` only when `JAIL_WORKSPACE_DEPS{,_RW}` is set, mirroring `use_agents_dev`."]
+decided_by = "agent, within the user-approved scope (D1, D3, D4)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

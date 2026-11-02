@@ -1,0 +1,1 @@
+The rule the whole pattern rests on: forgetting the personal layer costs the jail, never the build. But a broken personal layer must not quietly become "no personal layer", or the failure is unobservable.

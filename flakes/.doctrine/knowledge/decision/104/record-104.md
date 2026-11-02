@@ -1,0 +1,1 @@
+The repo already has the shape: sub-flake checks are invoked by `path:` with `--no-write-lock-file`, and the root lock is guarded against local-source nodes. The consumer needs both, with one rule sharpened.

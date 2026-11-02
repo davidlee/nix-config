@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 103
+slug = "stub-project-is-the-contract"
+title = "The stub project is the contract's executable form, checked by grepping the launcher, never by building pi"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "`nix flake check` must be able to exercise the factory without building an agent, and a broken factory must be distinguishable from a broken project."
+choice = """`dev-envs/stub-project/flake.nix`: inputs `nixpkgs`; `packages.<system>.dev-tools = buildEnv { name = "stub-dev-tools"; paths = [ pkgs.hello ]; }` plus an ordinary `devShells.<system>.default`, so the stub is a complete producer rather than a partial one. `checks.<system>.stub` asserts (a) the jail evaluates against the stub and (b) the launcher's script text names the stub bundle's store path — a `grep -boF` substring assertion over the launcher derivation, built by a `runCommand`, never forcing pi's or a real project's closure."""
+alternatives = ["`nix flake check` over the real jail: builds pi and the whole sandbox closure, minutes per check, and says nothing about the contract that the stub check does not.", "Asserting on `mkShell` internals (`drv.nativeBuildInputs`): the earlier sketch's warning holds — that is not an interface.", "No stub, override always: rejected with the input (DEC-100); the factory could not be checked alone."]
+rationale = """The one assertion worth having is "the project's tools really reached the jail", and jail.nix renders exactly that into the launcher's single bwrap line. A substring check on that text is the cheapest test that fails when composition breaks."""
+consequences = ["The stub doubles as the documented example of the producer contract.", "The launcher renders as one line (`mem.fact.jail-nix.launcher-one-line`), so the check compares bytes, never line numbers.", "The stub check builds the stub bundle and the launcher only: `heap`-cheap, so it can be a `nix flake check` member."]
+decided_by = "agent, within the user-approved scope"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

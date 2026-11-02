@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 106
+slug = "dev-envs-export-contract-revised"
+title = "dev-envs exports four packages, one shell and two checks, Linux only; the form linker stays a repo script"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "DEC-099 put the form linker in the dev shell's package list for discoverability. Writing the design exposed a purity constraint that makes that impossible without a second source of truth."
+choice = 'Systems `["x86_64-linux" "aarch64-linux"]`. `packages.<system>`: `jail`, `devTools`, `quotient-read`, `quotient-write`. `devShells.<system>.jail` = `[ project.dev-tools ] ++ [ jail ] ++ [ jailLib.unjailed.codex ]`. `checks.<system>`: `stub`, `quotient-forms`. The form linker is `bin/dev-envs-forms` — a repo script, run by path (`~/flakes/bin/dev-envs-forms`) or from the README, never a shell package. No `default` alias.'
+alternatives = ["Reading `../bin/dev-envs-forms` from the flake: the parent of a flake's source copy is the store directory, so the path does not exist — it would fail only in a store copy, which is to say only when it matters.", "A wrapped store script that locates the flakes tree from `$0`: `$0` is the store path of the wrapper, not of the repo, so the tree is unreachable.", "Moving the script inside `dev-envs/`: it could then be wrapped, but the script must find the flakes tree from its own location (as `bin/dev-checkouts` does) and belongs with the repo's other tested scripts.", "Defining the script inline in `dev-envs/flake.nix`: a second home for shell logic, outside the repo's `bin/*-test` harness."]
+rationale = "A flake may not read outside its source tree, so anything it ships must live inside it. The linker's job is host-side and repo-rooted — it must know where the whole flakes tree is — which is exactly what a `bin/` script can do and a store wrapper cannot. Discoverability is then the README's job, which is how `bin/dev-checkouts` is already handled."
+consequences = ["The dev shell is a smaller closure: project tools, the launcher, the agent CLI.", "`bin/dev-envs-forms-test` joins the plain-script tests in `just test`.", "README names the path; there is no PATH-visible linker.", "DEC-099 is superseded, not amended: the record of why the first answer was wrong survives with it."]
+decided_by = "agent, during drafting (purity constraint on flake sources)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-099"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

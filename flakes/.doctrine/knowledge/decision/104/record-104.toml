@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 104
+slug = "dev-envs-gates-and-lock-guard"
+title = "The consumer joins just test through path: invocations, and dev-envs/flake.lock gets its own relative-path-aware guard"
+record_kind = "decision"
+status = "proposed"
+created = "2026-11-02"
+updated = "2026-11-02"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "A new subflake that nothing else consumes can still rot: its checks must run somewhere, its lock must not acquire a machine's checkout, and its plain scripts must be tested."
+choice = '`just test` gains, Linux only: `nix build "path:{{justfile_directory()}}/dev-envs#checks.<system>.stub" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file`, the same line for `.quotient-forms`, and the plain-script tests `envrc/dev-envs-test` and `bin/dev-envs-forms-test` beside the existing ones. A new guard line rejects `file:` URLs and *absolute* `path` nodes in `dev-envs/flake.lock`, permitting the relative `./stub-project` node that DEC-100 establishes. No new `just` verb: `just test` is the gate, and a second entry point drifts.'
+alternatives = ["Applying the root guard verbatim: it forbids every `path` node, and the stub is legitimately one — the guard would fail by construction and be removed by the first person it blocked.", "A `just dev-envs` recipe of its own: a second gate nobody remembers to run.", "`--override-input agents` in the lock-writing flow: precisely ISS-006.", "Leaving the consumer out of `just test` until step 2: then nothing exercises it between now and the migration."]
+rationale = "Gate parity with how the repo already treats its subflakes, plus the one rule the stub forces to be more precise. `--override-input agents` only in a read-only recipe keeps the committed lock on the published agents flake while local edits to `agents/` still land."
+consequences = ["`just drvs` is unchanged, because the root flake does not consume dev-envs — the verification asserts that rather than assuming it.", "The dev-envs guard is a second, sharper jq expression; the two guards differ deliberately and must say why.", "The full gate therefore touches no host or home evaluation: worst case it builds the stub, the forms, and two bash tests."]
+decided_by = "agent, within the user-approved scope (R5, R6, R7)"
+decided_on = "2026-11-02"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-022"

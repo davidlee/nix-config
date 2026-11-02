@@ -1,0 +1,1 @@
+A factory that refuses without an override cannot be checked and cannot tell "my input is wrong" from "your project is wrong". The stub is four lines of real content and a check that costs one trivial build.

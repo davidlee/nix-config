@@ -1,0 +1,24 @@
+id    = 44
+slug  = "design-review-of-sl-022"
+title = "design review of SL-022"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Design review of SL-022, human lane, 2026-11-02: all ten sections attested at revision 32, no findings raised, scope re-read against DEC-099..DEC-106 and updated in two places, design-target selectors confirmed. The two claims the design flags as cheapest to falsify are deferred to phase 1 by agreement: they are empirical (build the launcher and read it), not argumentative."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-022"
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
