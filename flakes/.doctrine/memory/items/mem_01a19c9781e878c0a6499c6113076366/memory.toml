@@ -1,0 +1,42 @@
+memory_uid = "mem_01a19c9781e878c0a6499c6113076366"
+memory_key = "mem.pattern.flakes.head-sweeps-local-work"
+schema_version = 1
+memory_type = "pattern"
+status = "active"
+title = "HEAD in flakes can contain swept-in working-tree experiments"
+summary = "A flakes commit whose message names unrelated work may carry a whole file replaced by an in-progress local experiment; check a file's own history before treating HEAD behaviour as intended."
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = ["flakes/features/session/snooze-nag", "flakes/features/session/snooze-nag-test"]
+globs = []
+commands = []
+tags = ["git", "flakes", "debugging"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+

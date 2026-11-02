@@ -170,6 +170,16 @@ inside was `PI_PROVIDER`, no provider key.
 **The plan's `git+file:~/dev/smut` is shorthand.** A flakeref does not expand
 `~`; the working form is `git+file:/home/david/dev/smut`.
 
+**A doc block I wrote was broken, twice over (F-5).** README's *by hand* join
+example used `path:~/flakes/dev-envs#jail`. Two independent traps: no shell expands
+`~` mid-word, and this interactive zsh sets `extendedglob`, so an unquoted `#` is
+that glob's repetition operator and the word dies with `no matches found` — not a
+comment, but the same effect. The operator hit both and used an absolute path plus
+`\#`. Corrected to `"path:$HOME/flakes/dev-envs#jail"` — the form
+`envrc/dev-envs.sh` always used — and verified under `zsh -i`, not `zsh -c`
+(`mem.fact.nix.flakeref-no-tilde`). The helper was never affected; only the prose
+was.
+
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
 fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, README § Jailed Agents, the Smut proof) · nothing committed — the session's `$HOME` is read-only except `~/flakes`
@@ -189,6 +199,7 @@ fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, REA
 - `mem.fact.quotient.form-family-api` — `mkFormFamily` takes `packages`, `quotientFormFamily` forwards unrecognised arguments, `checkFormFamily` exists at the pinned `v0.6.0`; confirmed on a built form — and **the project link must name the form wrapper `bin/quotient-<c>`, not the launcher** (extended in PHASE-02).
 - `mem.fact.flakes.confined-session-ro` — this session's read-only git dir and cache; **extended in PHASE-03**: every `$HOME` path except `~/flakes` is read-only, `GIT_CEILING_DIRECTORIES=/home/david` blinds git inside `~/flakes`, a project's gate needs a writable export of the same commit, and a nested jail needs a `HOME` shim for the gateway key file and the persisted home.
 - `mem.fact.flakes.drv-gate-aborts-at-home` — `just drvs` stops at `homeConfigurations` (`elfutils-0.195` on `aarch64-darwin`); the other five groups taken through the same `_drvs` sub-recipe with the same `local_override` are stable and comparable.
+- `mem.fact.nix.flakeref-no-tilde` — `path:~/…` reaches nix with a literal `~` and fails; write the ref quoted, `"path:$HOME/…"`, and the `#` needs no escaping either (F-5).
 
 ### Open
 - DEC-099 — the first export contract; superseded by DEC-106, kept as the record of why it was wrong.
@@ -202,4 +213,5 @@ fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, REA
 - No QUE / ASM / CON outstanding: the three empirical uncertainties are carried in § Review passes and settled in PHASE-01 by VA-3.
 - **ISS-022** — `features/session/snooze-nag-test` fails on HEAD (the script draws the whole ladder), so `just test` cannot be green end to end. Found by PHASE-03; not this slice's to fix. Related: SL-022.
 - **ISS-023** — `just drvs` aborts at `homeConfigurations` (`elfutils-0.195` unavailable on `aarch64-darwin`), hiding five groups. Found by PHASE-03; evidenced around, not fixed. Related: SL-022.
-- **VH-1 remains the operator's act** — `bin/dev-envs-forms` in a Smut checkout, `quotient allow`, a `read` delegate; optionally the untracked `.envrc` pointed at `use_dev_envs`.
+- **VH-1a ✓ (operator, 2026-11-03)** — Smut's `.envrc` cut over to `use_dev_envs`; operator: "cutover worked". The join is proven in anger in a real checkout.
+- **VH-1b ✓ (operator, 2026-11-03)** — `bin/dev-envs-forms` + `quotient allow` + a `read` delegate in a Smut checkout; operator: done. Not itemised (capability, identity, delegate output) — that detail is the operator's to give, and the agent does not invent it. **All PHASE-03 criteria are now evidenced.**

@@ -27,3 +27,37 @@ session's `git status` shows no local modification under
 `flakes/features/session/`, so this is HEAD behaviour, not work in progress.
 
 Related: SL-022 (notes § PHASE-03) — the phase's `just test` evidence stops here.
+
+## Resolution (fixed, 2026-11-03)
+
+**Root cause — a commit, not the test.** `17991b29` ("abortive start on tangled;
+add smut", 2026-11-01) swept an unrelated in-progress experiment into its diff:
+`flakes/features/session/snooze-nag` was replaced by an alternate implementation
+— a static four-button ladder (`5/20/40/60` every prompt), `sleep`-based timers
+instead of `timeout` for the absence window, and `systemctl suspend` gated on a
+successful spoken warning. Neither the test nor `README § Snooze (bedtime
+ratchet)` changed, so the script and its spec disagreed.
+
+Two claims in the body above are wrong:
+
+- **Log freshness is fine.** `run()` truncates as documented. The eight labels
+  were two prompt cycles × four buttons; the growth was the bug, not stale logs.
+- **No stub was missing for the *old* script.** The pulse noise came from the
+  swept-in script calling `pactl`/`say`. The stub set *was* short for the new
+  one, which is why `pactl` and `say` stubs were added with the fix.
+
+**Fix.** Restored the ladder loop from `17991b29^` and folded the spoken warning
+into it as a non-gating nicety: `warn()` returns quietly when `say`/`pactl` are
+absent, when the configured sink is missing or muted, or when the voice errors;
+it is spoken in the background across the prompt's window and reaped before the
+decision, so it never delays or decides anything. The ladder, the absence window
+and the night window are unchanged.
+
+**Evidence.** `./features/session/snooze-nag-test` → 16 ok, 0 failed, ~2.4s;
+`shellcheck` clean on both files. No `.nix` file changed, so the rest of
+`just test`'s builds are untouched by this fix.
+
+**Reconciled.** `README § Snooze` gained the fourth property ("The warning is
+never a gate") and the diagram and sink wording that go with it. `features/
+session.nix`'s comment already described the spoken warning, correctly; no
+change needed.

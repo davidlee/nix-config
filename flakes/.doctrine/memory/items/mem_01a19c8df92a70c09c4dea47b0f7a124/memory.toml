@@ -1,0 +1,43 @@
+memory_uid = "mem_01a19c8df92a70c09c4dea47b0f7a124"
+memory_key = "mem.fact.nix.flakeref-no-tilde"
+schema_version = 1
+lifespan = "semantic"
+memory_type = "fact"
+status = "active"
+title = "A flakeref does not expand `~`; quote `path:$HOME/…`"
+summary = '`path:~/flakes/dev-envs#jail` reaches nix with a literal `~` and fails; write `"path:$HOME/flakes/dev-envs#jail"` — quoted, so the `#` needs no escaping either.'
+created = "2026-11-02"
+updated = "2026-11-02"
+
+[scope]
+paths = ["README.md", "envrc/dev-envs.sh"]
+globs = ["**/*.md"]
+commands = ["nix develop"]
+tags = ["nix", "shell", "docs"]
+workspace = "default"
+repo = ""
+repo_id_kind = "local_root"
+repo_id_confidence = "low"
+
+[git]
+anchor_kind = "none"
+commit = ""
+tree = ""
+ref_name = ""
+checkout_state_id = ""
+base_commit = ""
+verified_sha = ""
+normalizer = ""
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+

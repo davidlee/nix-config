@@ -644,6 +644,7 @@ up. So nothing suspends on a clock any more. At 23:20 `snooze-nag.timer` starts
 23:20  ┌─ morning yet? (05:00–21:59) ──> stop; the timer starts it again tonight
        │
        ├─ toast: "Go to bed"   [Bed now]  [Snooze 20m]
+       │  and, if a sink will take it, says so aloud
        │    │
        │    ├─ Bed now                    ──> suspend
        │    ├─ no answer for 5 min        ──> nobody's here ──> suspend
@@ -652,7 +653,7 @@ up. So nothing suspends on a clock any more. At 23:20 `snooze-nag.timer` starts
             grants: 20, 15, 10, 5, 5, 5, … the last rung repeats
 ```
 
-Three properties it is built around:
+Four properties it is built around:
 
 - **Dismissing is not an escape.** Swiping the toast away costs a rung like any
   other answer. Only *Bed now*, or your absence, ends it.
@@ -662,13 +663,18 @@ Three properties it is built around:
   daemon): unanswerable is unanswered, and it says so in the journal. A nag
   that loops silently without ever suspending would be the failure this
   replaces, wearing a different hat.
+- **The warning is never a gate.** The prompt is spoken as well as drawn, but
+  only as a nicety: no sink, a muted sink, no `say`, or a voice that errors is
+  just silence, and the prompt decides as it would have. Audio failing must
+  not be what keeps the machine awake all night.
 - **The ladder survives the suspend.** `systemctl suspend` returns as soon as
   the suspend begins, so the loop lives on and is pinned to its floor. Wake the
   machine at 3am and it asks again within five minutes. The old 00:00 and 00:30
   retries existed to patch exactly that hole, and are gone.
 
-The nag is a `notify-send --wait --action=…` toast; noctalia renders the
-buttons and prints the pressed action on stdout. `timeout` is the only thing
+The nag is a `notify-send --wait --action=…` toast, spoken through `say` when
+the configured sink (`SNOOZE_SPEAKERS`) is present and unmuted; noctalia renders
+the buttons and prints the pressed action on stdout. `timeout` is the only thing
 that can end a prompt without a human, and that is how absence is told apart
 from a dismissal.
 
@@ -1150,10 +1156,15 @@ use_dev_envs || use flake .
 read-only — the same thing by hand:
 
 ```zsh
-nix develop path:~/flakes/dev-envs#jail \
+nix develop "path:$HOME/flakes/dev-envs#jail" \
   --override-input project "git+file:$(git rev-parse --show-toplevel)" \
   --no-write-lock-file
 ```
+
+Quote the ref, as `envrc/dev-envs.sh` itself does. Two traps in an interactive
+zsh: no shell expands `~` mid-word, so `path:~/flakes/…` reaches nix as a literal
+`~`; and with `extendedglob` set (this shell's config) an unquoted `#` is a glob
+operator, so `path:…-dev-envs#jail` dies with `no matches found`. Quotes fix both.
 
 Forms are what a quotient delegate runs in; the consumer builds them and a host
 script links them into the checkout. Approval stays the operator's:
