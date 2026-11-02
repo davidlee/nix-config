@@ -4,7 +4,7 @@
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": false
   },

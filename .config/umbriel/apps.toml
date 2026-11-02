@@ -7,7 +7,7 @@
 [keybinds]
 "Mod+Return" = "spawn ghostty"
 "Mod+Shift+Return" = "spawn firefox"
-"Ctrl+Alt+Shift+C" = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c blue'
+"Ctrl+Alt+Shift+L" = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c "#ff7700"'
 
 # --- raise or run -----------------------------------------------------
 # scripts/raise-cycle-or-spawn <app-id> <command>: focus a window with that
@@ -16,7 +16,7 @@
 "Ctrl+Alt+Shift+Grave" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
 "Mod+Apostrophe"   = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
 "Ctrl+Alt+Shift+K" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
-"Ctrl+Alt+Shift+D" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn org.kde.dolphin dolphin"
+"Ctrl+Alt+Shift+E" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn org.kde.dolphin dolphin"
 "Ctrl+Alt+Shift+O" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn obsidian ~/.local/bin/obsidian"
 "Ctrl+Alt+Shift+T" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn thunderbird thunderbird"
 "Ctrl+Alt+Shift+F" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com-fastmail-fastmail ~/.local/bin/fastmail"
@@ -30,8 +30,8 @@
 # "Ctrl+Alt+Shift+S" = "scratchpad-toggle slack"
 "Ctrl+Alt+Shift+Y" = "scratchpad-toggle spotify"
 "Ctrl+Alt+Shift+1" = "scratchpad-toggle onepassword"
-"Ctrl+Alt+Shift+E" = "scratchpad-toggle edit"
-
+"Ctrl+Alt+Shift+C" = "scratchpad-toggle edit"
+"Ctrl+Alt+Shift+D" = "scratchpad-toggle discord"
 # --- scratchpads ------------------------------------------------------
 # Toggling an empty pad runs its spawn_when_empty; the window rule catches
 # windows opened any other way (autostart, tray). Naming any scratchpad
@@ -105,3 +105,11 @@ match.app_id = "^com[.]system76[.]CosmicEdit$"
 default_scratchpad = "edit"
 default_floating = true
 
+# discord
+[[scratchpad]]
+name = "discord"
+spawn_when_empty = "discord"
+
+[[window_rule]]
+match.app_id = "^discord$"
+default_scratchpad = "discord"
