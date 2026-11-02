@@ -1,7 +1,7 @@
 id = 22
 slug = "layered-dev-envs-consumer"
 title = "Layered dev-env consumer, proven against Smut"
-status = "ready"
+status = "reconcile"
 created = "2026-11-02"
 updated = "2026-11-02"
 tags = ["agents", "dev-env", "nix"]

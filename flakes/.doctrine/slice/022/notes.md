@@ -146,15 +146,17 @@ answer "not a git repository". Three measured consequences:
   toplevel, and it would write `.quotient/` into the repo); it was proven against
   the stub in PHASE-02 and remains an operator act (VH-1).
 
-**Two pre-existing failures, neither this slice's.** `just drvs` aborts at
-`homeConfigurations`: `elfutils-0.195` is unavailable on `aarch64-darwin` in the
-pinned nixpkgs, so one group (`nixosConfigurations`) prints before the recipe
-stops; the other groups, taken one at a time through the same `_drvs` sub-recipe
-with the same overrides, are byte-identical before and after this phase. And
-`just test` is red at `features/session/snooze-nag-test` (justfile:90): the script
-draws the whole `Snooze 5m,20m,40m,60m` ladder where the test expects one label,
-reproduced standalone with no slice file involved. Both for `/audit`, and both now
-backlog items.
+**Two pre-existing failures, neither this slice's — one now fixed.** `just drvs`
+aborts at `homeConfigurations`: `elfutils-0.195` is unavailable on
+`aarch64-darwin` in the pinned nixpkgs, so one group (`nixosConfigurations`)
+prints before the recipe stops; the other groups, taken one at a time through the
+same `_drvs` sub-recipe with the same overrides, are byte-identical before and
+after this phase (**ISS-023**, open). And `just test` was red at
+`features/session/snooze-nag-test` (justfile:90) — **ISS-022, resolved at
+`e20765ce`**: the script was rewritten around the real bedtime ladder (20, 15, 10,
+then 5) and its suite with it. `doctrine check gate` is now **green end to end**
+(exit 0; 234 `ok` lines, both dev-envs checks and both bash suites included), so
+PHASE-03's EX-1 holds completely, retrospectively.
 
 **The proof itself.** Pin fidelity: the project's
 `packages.x86_64-linux.dev-tools.drvPath` and the consumer's
@@ -190,7 +192,8 @@ fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, REA
 - research artefact `research/research.md` (gitignored, disposable) with its baseline restamped after planning.
 - ✓ **PHASE-01** (uncommitted): `dev-envs/flake.nix`, `dev-envs/flake.lock`, `dev-envs/stub-project/flake.nix`. Seven outputs on `x86_64-linux` (both systems evaluate), `checks.stub` green and red under the right mutation, `checks.quotient-forms` green. Nothing consumes it yet; no `stub-project/flake.lock`.
 - ✓ **PHASE-02** (uncommitted): `envrc/dev-envs.sh` + `envrc/dev-envs-test` (14 checks), `bin/dev-envs-forms` + `bin/dev-envs-forms-test` (23 checks). Shellcheck clean; neither suite builds a form, jail or `pi`, and the linker's suite refuses if the real `nix` would be used.
-- ✓ **PHASE-03** (uncommitted): `justfile` — two `dev-envs#checks` builds and the two bash suites in `test`, plus the sharpened `dev-envs/flake.lock` guard (red on an absolute path node and on a `file:` URL, green on the real lock, mutation reverted byte-identically); `README.md` § Jailed Agents — producer/consumer split, joining steps, form workflow, degrade-to-less.
+- ✓ **RV-045** (audit, `done · await=none`): 7 findings, all terminal — three `design-wrong` (the two known design drifts plus the design's `git+file:~/…` commands), one `aligned` for the gate ISS-022 fixed, one `follow-up` (ISS-023), one `fix-now` (the empty delta registry), one `aligned` for the README defect found in anger. Synthesis + reconciliation brief in `review-045.md`.
+- ✓ **PHASE-03** (committed at `c8aa633b`): `justfile` — two `dev-envs#checks` builds and the two bash suites in `test`, plus the sharpened `dev-envs/flake.lock` guard (red on an absolute path node and on a `file:` URL, green on the real lock, mutation reverted byte-identically); `README.md` § Jailed Agents — producer/consumer split, joining steps, form workflow, degrade-to-less.
 
 ### Learned
 - `mem.fact.flakes.relative-path-input-lock` — a relative `path:` input locks relatively … and its `narHash` is a load-bearing **sentinel**, not the fixture's hash (extended in PHASE-01).
@@ -199,7 +202,7 @@ fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, REA
 - `mem.fact.quotient.form-family-api` — `mkFormFamily` takes `packages`, `quotientFormFamily` forwards unrecognised arguments, `checkFormFamily` exists at the pinned `v0.6.0`; confirmed on a built form — and **the project link must name the form wrapper `bin/quotient-<c>`, not the launcher** (extended in PHASE-02).
 - `mem.fact.flakes.confined-session-ro` — this session's read-only git dir and cache; **extended in PHASE-03**: every `$HOME` path except `~/flakes` is read-only, `GIT_CEILING_DIRECTORIES=/home/david` blinds git inside `~/flakes`, a project's gate needs a writable export of the same commit, and a nested jail needs a `HOME` shim for the gateway key file and the persisted home.
 - `mem.fact.flakes.drv-gate-aborts-at-home` — `just drvs` stops at `homeConfigurations` (`elfutils-0.195` on `aarch64-darwin`); the other five groups taken through the same `_drvs` sub-recipe with the same `local_override` are stable and comparable.
-- `mem.fact.nix.flakeref-no-tilde` — `path:~/…` reaches nix with a literal `~` and fails; write the ref quoted, `"path:$HOME/…"`, and the `#` needs no escaping either (F-5).
+- `mem.fact.nix.flakeref-no-tilde` — `path:~/…` reaches nix with a literal `~` and fails; write the ref quoted, `"path:$HOME/…"`, so neither the `~` nor an unquoted `#` (a glob operator in an `extendedglob` zsh) bites (F-5).
 
 ### Open
 - DEC-099 — the first export contract; superseded by DEC-106, kept as the record of why it was wrong.
@@ -211,7 +214,9 @@ fresh-as-of: 2026-11-02 · PHASE-03 completed (justfile wiring + lock guard, REA
 - DEC-105 — degrade to less environment, never to a different one.
 - DEC-106 — the revised export contract.
 - No QUE / ASM / CON outstanding: the three empirical uncertainties are carried in § Review passes and settled in PHASE-01 by VA-3.
-- **ISS-022** — `features/session/snooze-nag-test` fails on HEAD (the script draws the whole ladder), so `just test` cannot be green end to end. Found by PHASE-03; not this slice's to fix. Related: SL-022.
+- **ISS-022** — `features/session/snooze-nag-test` failed on HEAD (the script drew the whole ladder), so `just test` could not be green end to end. Found by PHASE-03; **resolved at `e20765ce`** (operator's fix: the script rewritten around the real 20/15/10/5 ladder). `doctrine check gate` now exits 0.
 - **ISS-023** — `just drvs` aborts at `homeConfigurations` (`elfutils-0.195` unavailable on `aarch64-darwin`), hiding five groups. Found by PHASE-03; evidenced around, not fixed. Related: SL-022.
+- **Record the source deltas before closure (RV-045 F-6)** — `doctrine slice record-delta 22 PHASE-0{1,2,3} --start ca2257cc --end c8aa633b`, from a writable tree. All three phases landed in that one commit, so the rows are coarse by construction; without them `slice conformance` reads clean-by-absence.
+- **Standing risks carried in `review-045.md`** rather than here, since the ledger outlives the slice: the host-drift gate is blind (ISS-023), form approval is hand-only and identity-pinned, VA-3 was proven under a `HOME` shim, and the four new `test` lines are Linux-gated (no Darwin outputs by design, so the Mac path is the `.envrc` fallback, asserted but never run there).
 - **VH-1a ✓ (operator, 2026-11-03)** — Smut's `.envrc` cut over to `use_dev_envs`; operator: "cutover worked". The join is proven in anger in a real checkout.
 - **VH-1b ✓ (operator, 2026-11-03)** — `bin/dev-envs-forms` + `quotient allow` + a `read` delegate in a Smut checkout; operator: done. Not itemised (capability, identity, delegate output) — that detail is the operator's to give, and the agent does not invent it. **All PHASE-03 criteria are now evidenced.**

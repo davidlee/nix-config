@@ -1,0 +1,432 @@
+id    = 45
+slug  = "sl-022-reconciliation-audit-layered-dev-env-consumer-proven-against-smut"
+title = "SL-022 reconciliation audit: layered dev-env consumer proven against Smut"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Post-implementation reconciliation audit of SL-022, run in the primary tree against the
+slice's committed state (c8aa633b) plus ISS-022's fix (e20765ce). Examined: (1) the
+nine design-target selectors against the single commit that landed the slice —
+9/9 conformant, 0 undeclared, 0 undelivered, substituted by hand because
+`slice conformance` is unavailable (the delta registry lives in a read-only git dir
+and no per-phase boundaries exist in history); (2) design.md against the shipped
+code — two known drifts (the stub check's gateway-wrapper indirection, the quotient
+form's link target) plus a third class the audit found (design commands that cannot
+run because a flakeref does not expand `~`); (3) `doctrine check gate` — red before
+ISS-022, green at e20765ce (exit 0, 234 ok lines, both dev-envs checks and both bash
+suites included), which makes PHASE-03's EX-1 hold completely; (4) two inherited
+failures, one resolved (ISS-022) and one owned (ISS-023, `just drvs`); (5) the
+operator's in-anger acts (VH-1a `.envrc` cutover, VH-1b forms + approval + delegate),
+recorded as their report, not as the agent's observation. Seven findings raised; all
+terminal (three design-wrong for the brief, one aligned for the resolved gate, one
+follow-up for ISS-023, one fix-now for the delta registry, one aligned for the README
+defect found in anger). No blockers."""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-022"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Design § The flake, in full: the stub check greps the launcher the jail does not carry"
+detail = """
+Expected (design): checks.stub greps `${lib.getBin jail}/bin/jailed-pi` for the
+project bundle, and takes `probe` as an alternative needle because the bundle might
+be rendered flattened into its members.
+
+Observed (code, dev-envs/flake.nix): `packages.jail` is not the launcher. With
+`gateway` set, `mkJailedPi` returns `gatewayJail.wrap inner`
+(agents/gateway-jail.nix) — a wrapper that checks the key file and run directory
+and `exec`s the real launcher. The bundle is rendered in the *inner* launcher's
+`--setenv PATH`, so a grep of the wrapper matches nothing and the check fails for
+the wrong reason. The check therefore follows exactly one `exec`, resolving the
+target through `builtins.readFile` (a store *reference* of the wrapper is not a
+build input; reading it carries the reference in the string's context), and
+`needles = [devTools]` alone — the bundle is rendered as its own `/bin`, never
+flattened members, so the stub's `probe` survives as a fixture, not as a needle.
+
+Evidence: notes § PHASE-01 (settled empirically on a built stub jail);
+dev-envs/flake.nix's comment above `checks.stub`; memory
+mem.fact.flakes.jail-launcher-indirection. The operator decided the departure
+because it departs from a locked design.
+
+Disposition intended: design-wrong — the design text is stale, the code is right."""
+disposition = "design-wrong"
+response = """
+Confirmed, and the code is the right side of it. § The flake, in full must be
+rewritten to the mechanism the phase actually shipped: `packages.jail` is the
+gateway wrapper, the bundle is rendered in the inner launcher, so the check follows
+exactly one `exec` and resolves it with `builtins.readFile` (a store reference is
+not a build input), with `needles = [devTools]` alone. The stub's `probe` stays in
+the stub as the contract's fixture and must be described as such, not as a needle.
+§ The stub project's rationale survives; its mechanism does not.
+
+Obligation: per-slice direct edit to design.md, carried in the reconciliation brief."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Confirmed, and the code is the right side of it. § The flake, in full must be
+rewritten to the mechanism the phase actually shipped: `packages.jail` is the
+gateway wrapper, the bundle is rendered in the inner launcher, so the check follows
+exactly one `exec` and resolves it with `builtins.readFile` (a store reference is
+not a build input), with `needles = [devTools]` alone. The stub's `probe` stays in
+the stub as the contract's fixture and must be described as such, not as a needle.
+§ The stub project's rationale survives; its mechanism does not.
+
+Obligation: per-slice direct edit to design.md, carried in the reconciliation brief."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Design text confirmed stale; briefed for direct edit."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "Design § Quotient forms: the link target names a file the form output does not contain"
+detail = """
+Expected (design): bin/dev-envs-forms links `.quotient/forms/<c>` to
+`$(readlink -f ".quotient/result-'$c'")/bin/jailed-quotient-'$c'`.
+
+Observed: that file does not exist in the form package's output. A family member is
+two derivations: `family.<c>` is `writeShellScriptBin "quotient-<c>"`, which takes
+the session directory and execs `<launcher>/bin/jailed-quotient-<c>` from another
+store path. Quotient's `probeProjectForm` (src/server/forms.ts) resolves the link
+and requires an executable regular file, so the design's target is dangling and is
+refused as `form-invalid`. `bin/dev-envs-forms` links `bin/quotient-<c>`, which
+is what quotient's own docs/nix-forms.md:95-131 builds and links.
+
+Evidence: notes § PHASE-02; the script's own comment; an end-to-end run of the real
+linker against the stub project (both links resolve, executable, lock unwritten);
+the operator has since run it for real in a Smut checkout (VH-1b).
+
+Disposition intended: design-wrong — the design's target sentence is wrong, only
+the target; the "linked file name is the bare capability word" claim still holds."""
+disposition = "design-wrong"
+response = """
+Confirmed against the artefact, not against preference: the design's target does not
+exist in a form's output, and quotient refuses a dangling link. § Quotient forms must
+name `bin/quotient-<c>` — the wrapper a delegate runs — and keep the note that a
+rebuild which changes the output is a new form, so the linker is re-run and
+`quotient allow` records the new identity.
+
+Obligation: per-slice direct edit to design.md, carried in the reconciliation brief."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Confirmed against the artefact, not against preference: the design's target does not
+exist in a form's output, and quotient refuses a dangling link. § Quotient forms must
+name `bin/quotient-<c>` — the wrapper a delegate runs — and keep the note that a
+rebuild which changes the output is a new form, so the linker is re-run and
+`quotient allow` records the new identity.
+
+Obligation: per-slice direct edit to design.md, carried in the reconciliation brief."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Confirmed against quotient's docs and forms.ts; briefed."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Design § Verification: the override commands cannot run as written"
+detail = """
+Expected (design § Verification): `nix develop … --override-input project
+git+file:~/dev/smut`, and the same ref in the pin-fidelity comparison.
+
+Observed: a flakeref does not expand `~`. No shell expands a tilde mid-word
+(`zsh -c 'echo path:~/x'` prints `path:~/x`), so nix resolves it literally:
+
+    error: getting status of '/tmp/~/flakes/dev-envs': No such file or directory
+
+The commands were run with `git+file:/home/david/dev/smut`. The same defect bit the
+README's by-hand join example (raised separately), so it is not a one-off typo in
+one place.
+
+Disposition intended: design-wrong — design prose should name an absolute path or
+`$(git rev-parse --show-toplevel)`."""
+disposition = "design-wrong"
+response = """
+Confirmed by running it. Design commands must be runnable: replace every
+`git+file:~/…` with `git+file:/home/david/dev/smut` (or
+`$(git rev-parse --show-toplevel)`), and say once that a flakeref does not expand
+`~`. The same trap reached the README and is fixed there; the design should not
+retain the broken form.
+
+Obligation: per-slice direct edit to design.md § Verification, carried in the
+reconciliation brief."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """
+Confirmed by running it. Design commands must be runnable: replace every
+`git+file:~/…` with `git+file:/home/david/dev/smut` (or
+`$(git rev-parse --show-toplevel)`), and say once that a flakeref does not expand
+`~`. The same trap reached the README and is fixed there; the design should not
+retain the broken form.
+
+Obligation: per-slice direct edit to design.md § Verification, carried in the
+reconciliation brief."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Command verified unrunnable; briefed."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "major"
+title = "The repo gate was red on an inherited failure at features/session/snooze-nag-test"
+detail = """
+Expected: `doctrine check gate` (→ `just gate` → `just test` + treefmt) exits 0,
+so the repo's own gate certifies the merged state including the four new `test`
+lines.
+
+Observed before ISS-022: exit 1 at `features/session/snooze-nag-test`
+(justfile:90) — the script drew the whole `Snooze 5m,20m,40m,60m` ladder where the
+case expected one label. Reproduced standalone (no `just`, no nix); no local
+modification under `flakes/features/session/`; the failure pre-dates the slice.
+Consequence at the time: PHASE-03's EX-1 held only up to that line, although every
+line the phase adds and every check the recipe reached before it was green.
+
+Observed after `e20765ce` (operator's fix, raised as ISS-022 and resolved): the
+gate exits 0 with 234 `ok` lines, both `dev-envs#checks`, `envrc/dev-envs-test`,
+`bin/dev-envs-forms-test` and the rewritten snooze-nag suite included; treefmt
+reports 0 changed. EX-1 therefore holds completely, retrospectively.
+
+Disposition intended: aligned — the finding is confirmed, and its remediation
+already landed under its own backlog item."""
+disposition = "aligned"
+response = """
+Confirmed and already remediated outside this slice: ISS-022 fixed the script and its
+suite at `e20765ce`, and `doctrine check gate` now exits 0 with both dev-envs checks,
+both bash suites and treefmt green. Nothing is owed by SL-022; EX-1 holds completely,
+retrospectively. No follow-up."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Confirmed and already remediated outside this slice: ISS-022 fixed the script and its
+suite at `e20765ce`, and `doctrine check gate` now exits 0 with both dev-envs checks,
+both bash suites and treefmt green. Nothing is owed by SL-022; EX-1 holds completely,
+retrospectively. No follow-up."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Gate green at e20765ce; EX-1 holds completely."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "just drvs cannot complete: homeConfigurations fails on aarch64-darwin elfutils"
+detail = """
+Expected (plan EX-6): `just drvs` after equals the before-snapshot, proving no host
+drift.
+
+Observed: `just drvs` aborts after one group. `_drvs homeConfigurations` cannot
+evaluate `homeConfigurations."david@Draupnir".activationPackage` because
+`elfutils-0.195` is "not available on the requested hostPlatform:
+aarch64-darwin" in the pinned nixpkgs; `set -euo pipefail` then hides
+`darwinConfigurations`, `packages`, `legacyPackages` and `templates`.
+
+Substituted evidence: each group run through the same `_drvs` sub-recipe with the
+same `local_override` string, before and after the phase — `diff` identical, and
+the single result line `nixosConfigurations.Sleipnir` unchanged across both full
+`just drvs` attempts (line numbers shifted only by the seven lines this phase adds
+above the recipe). Smut's HEAD and `status --porcelain` unchanged.
+
+Pre-existing and owned: ISS-023; memory mem.fact.flakes.drv-gate-aborts-at-home.
+Disposition intended: follow-up (a code/infrastructure finding with a durable
+backlog owner, not a spec item)."""
+disposition = "follow-up"
+response = """
+Confirmed and owned: ISS-023 carries it, with the per-group substitution recorded as
+the audit's evidence for EX-6 (byte-identical before/after) and the caveat written to
+the phase sheet. It is a repository-wide host-drift-gate defect, not a consumer defect:
+the slice adds nothing to any host or home evaluation. No spec or design text is
+implicated, so the backlog item is the right owner."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """
+Confirmed and owned: ISS-023 carries it, with the per-group substitution recorded as
+the audit's evidence for EX-6 (byte-identical before/after) and the caveat written to
+the phase sheet. It is a repository-wide host-drift-gate defect, not a consumer defect:
+the slice adds nothing to any host or home evaluation. No spec or design text is
+implicated, so the backlog item is the right owner."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "ISS-023 owns it; per-group evidence stands."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "No recorded source deltas: slice conformance is unavailable for SL-022"
+detail = """
+Expected: `doctrine slice conformance 22` reports the mechanical
+selectors-vs-git delta for every completed phase.
+
+Observed: `unavailable — no recorded source deltas`, and
+`doctrine slice record-delta 22 PHASE-0N --start … --end …` fails with
+`Read-only file system (os error 30)`: the registry resolves into the home repo's
+git common dir (/home/david/.cfg), which the auditing session cannot write. The
+per-phase bindings were never captured either, because all three phases were
+implemented uncommitted and landed in one commit (`c8aa633b`, parent
+`ca2257cc`) — so per-phase boundaries do not exist in history to record.
+
+Substituted check, run by hand against the nine design-target selectors and that
+commit: **9/9 conformant, 0 undeclared, 0 undelivered**. The other 26 paths in the
+commit are `.doctrine/**` — the slice's own scope/design/plan/notes, its memory
+records and the two backlog items; they are expected for a slice and are not
+design-target material.
+
+Remedy (one command each, from a writable tree):
+
+    doctrine slice record-delta 22 PHASE-01 --start ca2257cc --end c8aa633b
+    doctrine slice record-delta 22 PHASE-02 --start ca2257cc --end c8aa633b
+    doctrine slice record-delta 22 PHASE-03 --start ca2257cc --end c8aa633b
+
+coarse by construction (one commit, three phases) — disclosed rather than papered
+over. Disposition intended: fix-now, before closure, so `conformance` is not left
+reading clean-by-absence."""
+disposition = "fix-now"
+response = """
+Confirmed. The absence is environmental (the registry lives in a read-only git common
+dir in the auditing session) plus historical (all three phases landed in one commit,
+so no per-phase boundary exists to record). The substituted check — nine selectors,
+one commit, 9/9 conformant, 0 undeclared, 0 undelivered — is recorded in the finding so
+that the empty registry can never be read as clean.
+
+Obligation before closure: run the three `doctrine slice record-delta` calls from a
+writable tree, accepting that each records the same coarse window. Not a brief item —
+it is a CLI action, not a document edit."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Confirmed. The absence is environmental (the registry lives in a read-only git common
+dir in the auditing session) plus historical (all three phases landed in one commit,
+so no per-phase boundary exists to record). The substituted check — nine selectors,
+one commit, 9/9 conformant, 0 undeclared, 0 undelivered — is recorded in the finding so
+that the empty registry can never be read as clean.
+
+Obligation before closure: run the three `doctrine slice record-delta` calls from a
+writable tree, accepting that each records the same coarse window. Not a brief item —
+it is a CLI action, not a document edit."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Substituted check recorded; record-delta owed before closure."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "README's by-hand join command was unrunnable: path:~/…-dev-envs#jail"
+detail = '''
+Expected: the § Jailed Agents block a reader copies actually runs.
+
+Observed as shipped in c8aa633b: `nix develop path:~/flakes/dev-envs#jail` carried two
+independent traps — no shell expands `~` mid-word (nix: `getting status of
+'/tmp/~/flakes/dev-envs'`), and in an interactive zsh with `extendedglob` an
+unquoted `#` is the repetition operator, so the word dies `no matches found`.
+The operator hit both in anger and worked around them with an absolute path and
+`\#`; the helper (`envrc/dev-envs.sh`) was never affected because it already
+writes `"path:$HOME/flakes/dev-envs#jail"`.
+
+Corrected to that quoted form in the README and verified by running it under the
+failing shell (`zsh -i -c`), exit 0, `…-smut-dev-tools/bin/rustc`. Committed at
+`e20765ce`. Memory mem.fact.nix.flakeref-no-tilde carries the rule and the testing
+rule (verify quoting claims with `zsh -i`, never `sh -c`).
+
+Disposition intended: aligned — the artefact now behaves correctly and no further
+work is owed.'''
+disposition = "aligned"
+response = """
+Confirmed, corrected and committed (`e20765ce`). The artefact now carries the quoted
+form the helper always used, verified under the shell that failed, and
+mem.fact.nix.flakeref-no-tilde records both the rule and the testing rule. Nothing
+further is owed."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+Confirmed, corrected and committed (`e20765ce`). The artefact now carries the quoted
+form the helper always used, verified under the shell that failed, and
+mem.fact.nix.flakeref-no-tilde records both the rule and the testing rule. Nothing
+further is owed."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Corrected and committed; memory records the rule."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

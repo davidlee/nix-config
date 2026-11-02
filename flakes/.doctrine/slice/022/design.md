@@ -135,26 +135,32 @@ call site.
       };
 
       checks = {
-        # The contract, executable. jail.nix may render a bundle into PATH as
-        # the bundle's own /bin or flatten its members, so either needle proves
-        # composition; neither appears unless the project's tools reached the
-        # launcher. Builds the stub bundle and the launcher — never `pi`.
+        # The contract, executable. `packages.jail` is NOT the launcher: with a
+        # gateway it is `gatewayJail.wrap inner` (agents/gateway-jail.nix), which
+        # checks the key file and run directory and then `exec`s the real one, so
+        # the bundle sits one indirection down and grepping the wrapper finds
+        # nothing. Follow exactly one `exec` — a deeper chain fails at the check
+        # rather than being chased — and resolve the target through
+        # `builtins.readFile`: a store *reference* of the wrapper is not a build
+        # input, while reading it carries the reference in the string's context.
+        #
+        # Observed on the built stub jail: the inner launcher carries
+        # `--setenv PATH …:<dev-tools>/bin:…`, i.e. the bundle's own path, and
+        # nothing flattens it into member paths. So the bundle is the one needle
+        # and the stub's `probe` stays the contract's fixture, not a needle.
         stub = let
-          p = project.packages.${system};
-          needles = [devTools] ++ lib.optional (p ? probe) p.probe;
-          grep = "${pkgs.gnugrep}/bin/grep";
+          launcher = "${lib.getBin jail}/bin/jailed-pi";
+          execTargets =
+            lib.filter (l: lib.hasPrefix "exec ${builtins.storeDir}/" l)
+            (lib.splitString "\n" (builtins.readFile launcher));
+          inner =
+            if execTargets == []
+            then ""
+            else lib.elemAt (lib.splitString " " (lib.head execTargets)) 1;
+          needles = [devTools];
         in
           pkgs.runCommand "dev-envs-stub-check" {} ''
-            launcher=${lib.getBin jail}/bin/jailed-pi
-            for needle in ${lib.concatMapStringsSep " " (n: "'${n}'") needles}; do
-              if ${grep} -qF -- "$needle" "$launcher"; then
-                touch $out
-                exit 0
-              fi
-            done
-            echo "dev-envs: the project's dev-tools never reached the jail's launcher" >&2
-            echo "  looked for: ${lib.concatMapStringsSep " " toString needles}" >&2
-            exit 1
+            … # grep each needle in $launcher and in $inner, then touch $out
           '';
 
         # The only static guard on the forms' bwrap line, which must stay plain
@@ -312,10 +318,16 @@ to — otherwise a delegate behaves differently from the agent that spawned it, 
 (`agents/jailed-agents.nix:213-236`; `quotient/nix/form-family.nix:9`), and
 `packages` is what a form's PATH is built from (see § The flake, in full).
 
-The family's default prefix names the launchers `jailed-quotient-read` /
-`jailed-quotient-write`. The flake names the outputs `quotient-<capability>`; the
-*linked file* name is the bare capability word, which is what the host's Quotient
-reads.
+A family member is two derivations, and the link must name the outer one. The
+family's default prefix names the *launchers* `jailed-quotient-read` /
+`jailed-quotient-write`; the member itself is
+`writeShellScriptBin "quotient-<c>"`, which takes the session directory and
+`exec`s that launcher from another store path. The flake names the outputs
+`quotient-<capability>`, so the link target is
+`<result>/bin/quotient-<capability>` — an executable regular file, which is what
+quotient's `probeProjectForm` requires. Linking the launcher instead is dangling,
+and quotient refuses it (`form-invalid`). The *linked file* name is the bare
+capability word, which is what the host's Quotient reads.
 
 Neither the jail nor the shell carries a form derivation. Building forms into every
 jail would enlarge each jail's closure and still not select them — selection needs
@@ -364,7 +376,11 @@ for c in "${capabilities[@]}"; do
     "$flake#quotient-$c" \
     --override-input project "$project" \
     --no-write-lock-file
-  ln -sfn "$(readlink -f ".quotient/result-$c")/bin/jailed-quotient-$c" ".quotient/forms/$c"
+  # The target is `bin/quotient-<c>` — the wrapper that takes the session
+  # directory and execs `bin/jailed-quotient-<c>` from another derivation. Quotient
+  # refuses a link that does not resolve to an executable file, so the design's
+  # first draft, which linked the launcher, was dangling.
+  ln -sfn "$(readlink -f ".quotient/result-$c")/bin/quotient-$c" ".quotient/forms/$c"
   echo "dev-envs-forms: linked .quotient/forms/$c"
 done
 ```
@@ -500,18 +516,25 @@ which is also why `just drvs` cannot move.
 **VA** — by agent, because they need a real build and a real checkout.
 
 - **Pin fidelity.** `nix eval ~/dev/smut#packages.<system>.dev-tools.drvPath` equals
-  `nix eval path:~/flakes/dev-envs#packages.<system>.devTools.drvPath
-  --override-input project git+file:~/dev/smut --no-write-lock-file`. Inequality is
-  a design failure, not a test flake.
-- **Gate parity.** `nix develop path:~/flakes/dev-envs#jail --override-input project
-  git+file:~/dev/smut --no-write-lock-file --command just gate` is green, and the run
-  reports the same `rustc`/`just`/`mold` store paths as Smut's own devshell.
+  `nix eval "path:$HOME/flakes/dev-envs#packages.<system>.devTools.drvPath"
+  --override-input project "git+file:$HOME/dev/smut" --no-write-lock-file`.
+  Inequality is a design failure, not a test flake.
+- **Gate parity.** `nix develop "path:$HOME/flakes/dev-envs#jail" --override-input
+  project "git+file:$HOME/dev/smut" --no-write-lock-file --command just gate` is
+  green, and the run reports the same `rustc`/`just`/`mold` store paths as Smut's own
+  devshell.
 - **The jail works.** `jailed-pi` launches from the shell, binds the checkout at
   `/workspace/<project>`, answers through the LLM gateway, and carries no provider
   key.
 - **No host drift.** `just drvs` before and after is identical.
 - **Smut untouched.** `git -C ~/dev/smut status --porcelain` shows nothing new on
   tracked paths.
+
+A flakeref does not expand `~`. `path:~/…` and `git+file:~/…` reach nix with a
+literal tilde and fail, and an unquoted `#` in an interactive zsh with
+`extendedglob` is a glob operator — so every ref above is written with `$HOME`
+inside double quotes, which is what `envrc/dev-envs.sh` does too. A bare argument
+may keep `~`, because there the shell expands it at the start of the word.
 
 **VH** — by the operator.
 
