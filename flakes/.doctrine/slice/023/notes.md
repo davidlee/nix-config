@@ -188,7 +188,7 @@ where a row says otherwise.
 
 | row | command | result |
 |---|---|---|
-| Doctrine's gate in a jail | `just gate` in jailed-shell (D-1: launcher equals jailed-pi bar agent) | rc 0; e2e confinement ran live, no skip. Pre-symlink-removal, pre-DEC-121 |
+| Doctrine's gate in a jail | `just gate` in jailed-shell (D-1: launcher equals jailed-pi bar agent) | rc 0 (re-run after DEC-121 and symlink removal); e2e confinement ran live, no skip |
 | sccache, jail | clean + rebuild, one target dir | 160/160 hits; host server 0 requests; socket /tmp/sccache.sock |
 | sccache, form | `pi_agent` implement profile: `cargo build --locked`, clean, rebuild, `--show-stats` (run …210659733Z-18) | 163 requests, 160 hits, 0 misses; stats confirmed in events.jsonl |
 | sccache, host | fresh login: `echo $SCCACHE_SERVER_UDS`; `cargo check`; `ss` | /run/user/1000/sccache.sock; UDS listening; nothing on 4226 |
@@ -207,8 +207,6 @@ where a row says otherwise.
 
 Limits of this evidence:
 
-- The gate row predates DEC-121 and the symlink removal. `just test`, coverage
-  and the sccache rows postdate both; the gate was not re-run in a jail.
 - A form's ~/.cargo and ~/.cache/sccache did not survive between runs (the
   08:06 run found no ~/.cargo; the 08:07 run's was created that minute).
   Inference: a form's cache is per-run, so hits come only within a run, and each
