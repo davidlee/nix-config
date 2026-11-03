@@ -366,20 +366,34 @@
   #   deleted one (IMP-249). A directory bind shows the new file at once.
   # - not over ~/.cargo/bin, which would expose every host cargo install
   #   and hide the jail's own (persist-home gives it a writable ~/.cargo).
-  # The store paths it links against are bound too, as found at launch: a
-  # reinstall built by a different toolchain needs a relaunch. All tries, so
-  # a host without it launches anyway. Runtime args, off the bwrap line
-  # (IMP-052); store paths only, so argv is no exposure.
-  hostDoctrineDir = "~/.local/share/doctrine/bin";
+  # The bind is a runtime arg (DEC-110): a static bind under ~ would be
+  # hidden by the persisted home, which profileOptions binds over ~ later,
+  # and runtime args follow every static one. The jail's $HOME is the host's,
+  # so the directory, the PATH entry and every path baked into an install
+  # agree across the wall. The store paths it links against are bound too,
+  # as found at launch: a reinstall built by a different toolchain needs a
+  # relaunch. All tries, so a host without it launches anyway. Runtime args
+  # stay off the bwrap line (IMP-052); store paths only, so argv is no
+  # exposure.
+  doctrineFacts = import ./doctrine.nix;
+  # A shell word, expanded by the launcher at run time.
+  hostDoctrineDir = ''"$HOME/${doctrineFacts.installBinDir}"'';
   hostDoctrineOptions = c:
     with c; [
-      (try-ro-bind (noescape hostDoctrineDir) "/run/doctrine-bin")
       (add-runtime ''
+        RUNTIME_ARGS+=(--ro-bind-try ${hostDoctrineDir} ${hostDoctrineDir})
         mapfile -d "" -t doctrine_binds < <(${elfClosureBinds} ${hostDoctrineDir}/doctrine)
         RUNTIME_ARGS+=("''${doctrine_binds[@]}")
       '')
-      (add-path "/run/doctrine-bin")
+      (add-path hostDoctrineDir)
     ];
+
+  # A Nix-built doctrine (DEC-109): its bin/ read-only at a fixed path, with
+  # its closure, and never on PATH, so only a caller naming
+  # /run/doctrine-nix-bin/doctrine runs it. A store path, so the bind is
+  # static and a quotient form accepts it.
+  nixDoctrineOption = c: nixDoctrine:
+    c.bind-pkg doctrineFacts.nixBinDir "${lib.getBin nixDoctrine}/bin";
 
   workspaceBindsFor = import ./workspace-binds.nix {
     inherit lib;
@@ -425,18 +439,21 @@
   # function of a jail.nix combinator set, so makeJailedAgent applies it to
   # jail.combinators and quotientFormFamily to mkFormFamily's `c`. It runs
   # before the launcher's options, and nothing in it depends on their order:
-  # its one static mount outside the base (/run/doctrine-bin) overlaps none of
-  # theirs, the excludes bind is a runtime arg (after every static one), and
-  # a later add-pkg-deps prepends to PATH, so the launcher's packages still
-  # come first. No default for sandboxGitIdentity: each caller chooses.
+  # its only static mount outside the base is nixDoctrine's, a store path at
+  # /run/doctrine-nix-bin that overlaps none of theirs; the doctrine and
+  # excludes binds are runtime args (after every static one); and a later
+  # add-pkg-deps prepends to PATH, so the launcher's packages still come
+  # first. No default for sandboxGitIdentity: each caller chooses.
   posture = {
     sandboxGitIdentity,
     hostDoctrine ? true,
+    nixDoctrine ? null,
     blockSshGitPush ? true,
     guardGit ? true,
   }: c:
     baseJailOptions c
     ++ lib.optionals hostDoctrine (hostDoctrineOptions c)
+    ++ lib.optional (nixDoctrine != null) (nixDoctrineOption c nixDoctrine)
     ++ hostGitExcludesOptions c
     ++ envOptions c
     ++ lib.optionals blockSshGitPush (sshGitPushBlockOptions c)
@@ -495,6 +512,8 @@
     exposePostgres ? false,
     # The host's doctrine install root, read-only (hostDoctrineOptions).
     hostDoctrine ? true,
+    # A Nix-built doctrine at /run/doctrine-nix-bin, off PATH (nixDoctrineOption).
+    nixDoctrine ? null,
     # The host's quotient as `quotient`, an MCP server narrowed to the launch
     # dir (quotient-relay.nix). Off by default without network: its
     # delegates have network, which an offline jail must not reach. Needs
@@ -574,7 +593,7 @@
     };
 
     inner = jail "jailed-${name}" agent (
-      posture {inherit sandboxGitIdentity hostDoctrine blockSshGitPush guardGit;} jail.combinators
+      posture {inherit sandboxGitIdentity hostDoctrine nixDoctrine blockSshGitPush guardGit;} jail.combinators
       ++ workspaceBinds
       # After the deps: bwrap mounts in argv order, so the project wins
       # /workspace/<project> over a dep that shares its basename (DEC-082).
@@ -642,6 +661,9 @@ in
     # The base tools every jail carries; a form adds them itself.
     inherit commonPkgs;
     gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
+    # The env every project gets on this host, and the packages it needs,
+    # for this pkgs: { env; packages; } (dev-env.nix). Applied by consumers.
+    hostDevEnv = (import ./dev-env.nix).for pkgs;
     # Socket mode for a jail without `gateway` (e.g. a key-file client), via
     # `extraOptions`; refused at evaluation in a jail sharing the host netns.
     inherit gatewaySocketOptions;

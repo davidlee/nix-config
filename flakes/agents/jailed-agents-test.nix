@@ -59,6 +59,10 @@
   sshPushAllowed = inner "specDev" {blockSshGitPush = false;};
   gitUnguarded = inner "specDev" {guardGit = false;};
   noHostDoctrine = inner "specDev" {hostDoctrine = false;};
+  # A Nix-built doctrine whose closure holds a path no jail otherwise has.
+  nixDoctrineMarker = pkgs.writeText "nix-doctrine-closure-marker" "";
+  fakeNixDoctrine = pkgs.writeShellScriptBin "doctrine" ": ${nixDoctrineMarker}";
+  withNixDoctrine = inner "specDev" {nixDoctrine = fakeNixDoctrine;};
   customIdentity = customIdentityAgents.makeJailedZsh {
     profile = "specDev";
   };
@@ -316,6 +320,10 @@
     quotient = stubQuotient;
     postureFlags.hostDoctrine = false;
   });
+  formNixDoctrine = formProbe (agents.quotientFormFamily {
+    quotient = stubQuotient;
+    postureFlags.nixDoctrine = fakeNixDoctrine;
+  });
   # A form-safe env forward, over plain combinators as a form passes them.
   fwdProbe = plainJail "fwd-probe" pkgs.hello [(agents.tryFwdEnv plainJail.combinators "PROJECT_VAR")];
   fwdBadNameFails = !(builtins.tryEval (agents.tryFwdEnv plainJail.combinators "1-bad")).success;
@@ -397,6 +405,8 @@ in
   # The gateway facts out-of-tree consumers read instead of gateway.nix (IMP-043).
   assert lib.attrNames agents.gatewayFacts == ["clientSocket" "models" "relayPort" "url"];
   assert agents.gatewayFacts.clientSocket == gatewayData.clientSocket;
+  # The host's env list, resolved for this pkgs; the library applies none of it.
+  assert agents.hostDevEnv == (import ./dev-env.nix).for pkgs;
   assert mixedPiConfig
   == {
     providers.llm-gateway = {
@@ -503,20 +513,40 @@ in
         test "$runtime_at" -gt "$home_at"
       done
 
-      # Host doctrine: the directory of its own install root, read-only and
-      # on PATH. A directory, never the file: a file bind pins one inode, and
-      # `cargo install` renames a new file over it (IMP-249). Absent on the
-      # host, the jail still launches: the bind is a try.
+      # Host doctrine: the directory of its own install root, read-only, at
+      # its own host path and on PATH (DEC-110). A directory, never the file:
+      # a file bind pins one inode, and `cargo install` renames a new file
+      # over it (IMP-249). A runtime arg, so after the persisted home bind
+      # over ~. Absent on the host, the jail still launches: the bind is a try.
+      host_doctrine='"$HOME/.local/share/doctrine/bin"'
+      # The jail's PATH value alone: the bwrap call is one line.
+      jail_path() { grep -o -- '--setenv PATH [^ ]*' "$1"; }
       for launcher in "$spec" "$research" "$offline"; do
-        grep -Fq -- '--ro-bind-try ~/.local/share/doctrine/bin /run/doctrine-bin' "$launcher"
-        grep -q -- '--setenv PATH [^ ]*/run/doctrine-bin' "$launcher"
+        grep -Fq -- "RUNTIME_ARGS+=(--ro-bind-try $host_doctrine $host_doctrine)" "$launcher"
+        jail_path "$launcher" | grep -Fq -- "$host_doctrine"
         refute grep -Fq -- '/bin/doctrine ' "$launcher"
+        # No doctrine mount under /run: not the old one, nor a Nix build's.
+        refute grep -Fq -- '/run/doctrine' "$launcher"
         # Closure binds as runtime args, not a descriptor on the bwrap line.
-        grep -q -- 'mapfile -d .. -t doctrine_binds < <([^ ]*-elf-closure-binds ~/.local/share/doctrine/bin/doctrine)' "$launcher"
+        grep -Fq -- "-elf-closure-binds $host_doctrine/doctrine)" "$launcher"
         grep -Fq -- 'RUNTIME_ARGS+=("''${doctrine_binds[@]}")' "$launcher"
         refute grep -Fq -- '--args 23' "$launcher"
       done
       refute grep -Fq -- 'doctrine' ${noHostDoctrine}/bin/jailed-zsh
+
+      # The library holds the host env list but applies none of it.
+      refute grep -Fq -- 'RUSTC_WRAPPER' "$spec"
+
+      # A Nix-built doctrine: its bin/ at /run/doctrine-nix-bin, read-only,
+      # never on PATH (DEC-109); its closure is bound, so it runs there.
+      nix_doctrine=${withNixDoctrine}/bin/jailed-zsh
+      grep -Fq -- '--ro-bind ${fakeNixDoctrine}/bin /run/doctrine-nix-bin' "$nix_doctrine"
+      jail_path "$nix_doctrine" > "$TMPDIR/nix-doctrine-path"
+      refute grep -Fq -- 'doctrine-nix-bin' "$TMPDIR/nix-doctrine-path"
+      refute grep -Fq -- '${fakeNixDoctrine}' "$TMPDIR/nix-doctrine-path"
+      closure_args="$(grep -o '/nix/store/[^ ]*-runtime-closure-bind-args' "$nix_doctrine" | head -1)"
+      test -n "$closure_args"
+      tr '\0' '\n' < "$closure_args" | grep -Fxq -- '${nixDoctrineMarker}'
 
       # Behaviour: the closure binds name what a dynamic ELF links against,
       # and nothing for a missing file or a script.
@@ -542,7 +572,7 @@ in
       # flag removes its own.
       full=${postureFull}/bin/posture-probe
       bare=${postureBare}/bin/posture-probe
-      for marker in -git-guarded/bin /run/doctrine-bin -host-git-excludes-file \
+      for marker in -git-guarded/bin "$host_doctrine" -host-git-excludes-file \
         GIT_SSH_COMMAND GIT_AUTHOR_NAME CLAUDE_CODE_SHELL /usr/bin/env; do
         grep -Fq -- "$marker" "$full"
       done
@@ -559,10 +589,11 @@ in
       # A form: the posture with sandboxed git identity on, then the
       # caller's options; a posture flag reaches it.
       form=${formFull}/bin/form-probe
-      for marker in -git-guarded/bin /run/doctrine-bin GIT_AUTHOR_NAME PROJECT_OPTION; do
+      for marker in -git-guarded/bin "$host_doctrine" GIT_AUTHOR_NAME PROJECT_OPTION; do
         grep -Fq -- "$marker" "$form"
       done
       refute grep -Fq -- 'doctrine' ${formNoDoctrine}/bin/form-probe
+      grep -Fq -- '--ro-bind ${fakeNixDoctrine}/bin /run/doctrine-nix-bin' ${formNixDoctrine}/bin/form-probe
 
       # tryFwdEnv forwards at launch through RUNTIME_ARGS, so the bwrap line
       # stays plain words for quotient's check; unset, nothing is added.

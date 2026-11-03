@@ -67,7 +67,10 @@ Every jail gets these **base** options regardless of profile. Those marked
   overridden if the jail's own `~/.gitconfig` sets `core.excludesFile`.
 - **Host doctrine** (`hostDoctrine`, default on; *posture*), read-only. doctrine's own
   cargo install root, `~/.local/share/doctrine/bin`, holds only doctrine; that
-  directory is bound at `/run/doctrine-bin`, which goes on `PATH`. A directory,
+  directory is bound at its own host path, which goes on `PATH`. The jail's
+  `$HOME` is the host's, so the paths `doctrine install` bakes into agent
+  configs hold on both sides. The bind is a runtime argument: a static one
+  under `~` would be hidden by the persisted home. A directory,
   not the file: `cargo install` renames a new file over the old one, and a file
   bind would stay on the deleted one (IMP-249), whereas a directory bind shows
   a reinstall at once. The jail sees only its own closure, so the launcher also
@@ -478,7 +481,7 @@ two cannot drift. `postureFlags` sets its flags; a form defaults
 ```nix
 formFamily = jailLib.quotientFormFamily {
   inherit quotient;
-  postureFlags.hostDoctrine = false;           # sandboxGitIdentity, blockSshGitPush, guardGit too
+  postureFlags.hostDoctrine = false;           # nixDoctrine, sandboxGitIdentity, blockSshGitPush, guardGit too
   options = c: projectOptions c;               # the project half, after the posture
 };
 ```
@@ -593,7 +596,8 @@ as the paths they produce.
 | `blockSshGitPush` | `true` | Disable Git pushes over SSH. HTTPS is unaffected. |
 | `sandboxGitIdentity` | per profile (true for `specDev` only) | Override git author/committer |
 | `guardGit` | `true` | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
-| `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`), and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
+| `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`) at its own path and on `PATH`, and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
+| `nixDoctrine` | `null` | A doctrine package whose `bin/` is bound read-only, with its closure, at `/run/doctrine-nix-bin` and never put on `PATH`: a reference build only a caller naming `/run/doctrine-nix-bin/doctrine` runs. Forms take it as `postureFlags.nixDoctrine` |
 | `quotient` | profile's network, and `mountLaunchDir` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
