@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-04 · started; PHASE-06 in_progress (operator acts pending) · doctrine e37ecf2a3
+fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · doctrine e37ecf2a3
 
 ### Produced
 - SL-023 scoped (S1–S5, C1, T1–T5) — uncommitted, staged
@@ -112,14 +112,12 @@ fresh-as-of: 2026-11-04 · started; PHASE-06 in_progress (operator acts pending)
 - DEC-101, DEC-106, DEC-103 amended (noted on DEC-113/DEC-114), not superseded
 - execution checks carried in DEC-114/DEC-117: sccache cache dir writable in forms;
   SCCACHE_DIR default; nix warning on stale follows (CHR-028)
-- PHASE-06 (in_progress, 2026-11-04): doctrine e37ecf2a3 (flake producer-only, lock drops
-  agents+quotient nodes only, justfile EX-2); .envrc rewritten (old copy in session
-  scratchpad); forms linked in doctrine + smut; doctrine.policy forms → machine forms,
-  policy-install run; CHR-028 evidence (EX-5: warnings, no refusal). dev-tools out path
-  unchanged (0gma5yx5…); `just gate` green inside the consumer shell (nix develop, same
-  args as use_dev_envs). Pending the operator: `direnv allow` (~/dev/doctrine),
-  `quotient allow` ×4 (doctrine, smut), then VA-1; old
-  ~/.local/state/quotient/forms/doctrine-{read,write} links not removed yet
+- PHASE-06 ✓ (2026-11-04): doctrine e37ecf2a3 (flake producer-only, lock drops
+  agents+quotient nodes only, justfile EX-2); .envrc on use_dev_envs (allowed);
+  forms linked + approved (doctrine, smut); doctrine.policy forms → machine forms;
+  old doctrine-{read,write} form links removed; CHR-028 evidence (EX-5: warnings
+  only). dev-tools out path unchanged; gate green in the consumer shell; VA-1 two
+  project-form pi runs completed. next: /phase-plan PHASE-07
 - doctrine e37ecf2a3 unpushed (with 23c4d5eb3)
 
 ## Execution passes (PHASE-03/04)
