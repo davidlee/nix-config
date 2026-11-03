@@ -28,13 +28,31 @@ fresh-as-of: 2026-11-03 · ready (design locked rev 42; plan 8 phases) · 299a66
 - DEC-120 — use_dev_envs and dev-envs-forms override agents to the in-tree library (post-lock)
 - plan.toml / plan.md: PHASE-01..08; phase sheets materialised; research restamped
 - `.doctrine` changes not committed (user commits)
+- ISS-024 — ccache skipped on aarch64-darwin (platform-skips + manual probe);
+  pre-existing Draupnir eval failure, fixed before PHASE-01's baseline (user)
+- PHASE-01 implemented (uncommitted): agents/doctrine.nix, agents/dev-env.nix,
+  modules/user-bin-path.nix; env.nix + darwin home.sessionPath read the list;
+  dev.env feature (personal); agents.pi on every platform (personal);
+  checks.factories VT-1/VT-2 in hosts.nix (nixosConfigurations and the
+  home-base coverage home lifted into its let as `homeBase`)
+- PHASE-01 EX-5 (DEC-119, outside the repo): init.zsh's `path=(~/bin …)`
+  prepend was already removed by the user in 906b5acb; nothing to do
+- PHASE-01 VA-1 ✓ (nix-diff): Sleipnir system and all Sleipnir+* coverage and
+  base@aarch64-linux move only in environment files (pam, systemd path,
+  profile, zshenv); homes add sccache, mold (Linux) and session vars;
+  Draupnir home adds sccache, pi, sessionPath; home@aarch64-linux and
+  darwinConfigurations.Draupnir unchanged; dev checkouts unchanged
+- PHASE-01 VH-1 ✓ (operator, 2026-11-04, after switch + relog): PATH leads with
+  ~/.local/share/doctrine/bin; type -a doctrine lists it, then the ~/.local/bin
+  symlink (expected until PHASE-07); RUSTC_WRAPPER=sccache. A pre-switch session
+  keeps its old env: the user manager lingers, so a relog/reboot is needed
 
 ### Learned
 - mem_01a14f22cfed79d1a41b494ce0a96355 — corrected: host PATH does not lead with the Doctrine dir
 - quotient research forms bind only their cwd root: cross-repo reads need one run per root
 
 ### Open
-- next: /phase-plan PHASE-01
+- next: /phase-plan PHASE-02 (EN-1 needs only PHASE-01's files)
 - DEC-120 post-lock amendment → reconcile into design.md (§ Post-lock amendments)
 - uncommitted; new untracked files need explicit git add: plan.toml, plan.md,
   knowledge/decision/120* incl. its slug symlink (user commits)
