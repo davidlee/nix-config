@@ -179,3 +179,39 @@ must be reconciled into design.md at /reconcile:
   `env`. § Host facts (`for` returns `{env; hostOnlyEnv; packages}`), § The
   jail library (envOptions) and DEC-114's wording to reconcile. Class risk
   (any host loopback service reachable from a networked jail): RSK-001.
+
+## PHASE-07 VA-1: design § After: behaviour (2026-11-04)
+
+Home generation 867; flakes ee2a5f86; doctrine 7eddc8ea1; fleet a9b384f. Symlink
+~/.local/bin/doctrine removed by the operator before every row below except
+where a row says otherwise.
+
+| row | command | result |
+|---|---|---|
+| Doctrine's gate in a jail | `just gate` in jailed-shell (D-1: launcher equals jailed-pi bar agent) | rc 0; e2e confinement ran live, no skip. Pre-symlink-removal, pre-DEC-121 |
+| sccache, jail | clean + rebuild, one target dir | 160/160 hits; host server 0 requests; socket /tmp/sccache.sock |
+| sccache, form | `pi_agent` implement profile: `cargo build --locked`, clean, rebuild, `--show-stats` (run …210659733Z-18) | 163 requests, 160 hits, 0 misses; stats confirmed in events.jsonl |
+| sccache, host | fresh login: `echo $SCCACHE_SERVER_UDS`; `cargo check`; `ss` | /run/user/1000/sccache.sock; UDS listening; nothing on 4226 |
+| forms | one `pi_agent` run each (read, write) | both completed, no form-unapproved; UDS=/tmp/sccache.sock |
+| one Doctrine, both sides | `type -a doctrine` in fresh `zsh -li` and jailed-shell | one entry each: ~/.local/share/doctrine/bin/doctrine |
+| same BIN_PATH + codex command | PHASE-07 EX-3 finding | identical host and jail; not repeated |
+| fresh codex starts MCP | `codex exec` / `jailed-codex exec` calling memory_list, after symlink removal | mcp__doctrine__memory_list answered on both sides |
+| no persisted /run/doctrine-bin | grep host + jail codex config, mcp.ts | none (transcripts only, A2) |
+| Nix Doctrine | `/run/doctrine-nix-bin/doctrine --version`; `command -v doctrine` in a jail | 0.48.1; command -v names the install dir |
+| Smut | `direnv exec ~/dev/smut` (use_dev_envs) | loads; jailed-pi and doctrine on PATH |
+| `just test` | ~/flakes | rc 0 |
+| fleet | PHASE-06 VA-1 evidence | cited; fleet HEAD still a9b384f, lock unchanged |
+| Doctrine's flake | `nix flake check`; flake.nix grep; darwin devshell drvPath | rc 0; no agents/quotient input; fwpm69vb…-devshell.drv |
+| darwin home | Draupnir activationPackage drvPath | h519s5ib…-home-manager-generation.drv |
+| `dev.env` optional | `just coverage` (isolation); hosts.nix checks.factories in `just test` | rc 0 |
+
+Limits of this evidence:
+
+- The gate row predates DEC-121 and the symlink removal. `just test`, coverage
+  and the sccache rows postdate both; the gate was not re-run in a jail.
+- A form's ~/.cargo and ~/.cache/sccache did not survive between runs (the
+  08:06 run found no ~/.cargo; the 08:07 run's was created that minute).
+  Inference: a form's cache is per-run, so hits come only within a run, and each
+  run re-fetches crates. `cargo --offline` fails in a form. The row's criterion
+  is met; a warm cache across delegate runs is not provided.
+- pi reaching MCP (malebolge bridge, F-2) is not evidenced here: VH-1.
