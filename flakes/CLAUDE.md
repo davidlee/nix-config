@@ -26,3 +26,4 @@ git add ~/flakes/ is typically correct, with conventional commits.
   verify-vt attribution misfires (ISS-005). Judge by agent.
 - Detail: `doctrine memory show mem.system.flakes.home-worktree`.
 
+sizing: don't automatically slice new work. Tasks which don't require multi-phase execution are better handled with an agreed design sketch straight from a backlog item, or not even. When in doubt, ask the user.
