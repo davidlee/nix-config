@@ -38,6 +38,7 @@ for c in "${capabilities[@]}"; do
   nix build -o ".quotient/result-$c" \
     "$flake#quotient-$c" \
     --override-input project "$project" \
+    --override-input agents "path:$repo/agents" \
     --no-write-lock-file
   # The form is `bin/quotient-<c>` — the wrapper that takes the session directory
   # and execs `bin/jailed-quotient-<c>` from another derivation. Quotient refuses

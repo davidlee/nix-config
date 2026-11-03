@@ -1139,11 +1139,22 @@ packages.<system>.dev-tools = pkgs.buildEnv {name = "…-dev-tools"; paths = [�
 ```
 
 A **consumer** takes one and builds the environment around it
-([`dev-envs/flake.nix`](./dev-envs/flake.nix), with its own lock): the shell, the
-jail's sandbox and agent CLIs, and the quotient forms. The project keeps its pins
+([`dev-envs/flake.nix`](./dev-envs/flake.nix), with its own lock): the shell,
+the jails' sandbox and agent CLIs, and the quotient forms. The project keeps its pins
 and knows nothing about agents; the personal layer keeps its pins and knows
 nothing about the project. A project's `nix flake update` therefore no longer
 drags `jail-nix`, `llm-agents` and `bun2nix` into its diffs.
+
+`dev-envs#default` is one shell holding five jails — `jailed-pi`,
+`jailed-pi-research`, `jailed-claude`, `jailed-codex`, `jailed-shell` — the
+unjailed `pi`, `claude` and `codex` CLIs, and the shorthands `jpi`, `jcl`, `jcx`
+and `jsh` (`jcl` adds `--dangerously-skip-permissions`).
+
+A project may state `passthru.devEnv = {env = {…}; hostEnv = […];};` on its
+`dev-tools`: `env` is set in every jail, form and the shell, and each `hostEnv`
+name is forwarded from the launch environment when set. The host's own
+[`agents/dev-env.nix`](./agents/dev-env.nix) list applies too, and a project may
+not restate one of its names.
 
 A project joins with its own (untracked) `.envrc`:
 
@@ -1152,19 +1163,24 @@ source_env_if_exists ~/flakes/envrc/dev-envs.sh
 use_dev_envs || use flake .
 ```
 
-`use_dev_envs` lands in `dev-envs#jail` with the checkout as the `project` input,
-read-only — the same thing by hand:
+`use_dev_envs` lands in `dev-envs#default` with the checkout as the `project`
+input, read-only — the same thing by hand:
 
 ```zsh
-nix develop "path:$HOME/flakes/dev-envs#jail" \
+nix develop "path:$HOME/flakes/dev-envs#default" \
   --override-input project "git+file:$(git rev-parse --show-toplevel)" \
+  --override-input agents "path:$HOME/flakes/agents" \
   --no-write-lock-file
 ```
+
+The `agents` override (also in `bin/dev-envs-forms`) takes the in-tree library,
+read-only: an edit there lands without a push or a re-lock, while `dev-envs`'
+lock keeps the published pin.
 
 Quote the ref, as `envrc/dev-envs.sh` itself does. Two traps in an interactive
 zsh: no shell expands `~` mid-word, so `path:~/flakes/…` reaches nix as a literal
 `~`; and with `extendedglob` set (this shell's config) an unquoted `#` is a glob
-operator, so `path:…-dev-envs#jail` dies with `no matches found`. Quotes fix both.
+operator, so `path:…-dev-envs#default` dies with `no matches found`. Quotes fix both.
 
 Forms are what a quotient delegate runs in; the consumer builds them and a host
 script links them into the checkout. Approval stays the operator's:

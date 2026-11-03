@@ -97,8 +97,8 @@ mkdir -p "$plain" "$bare"
 
 forms "$project"
 check 'default: read and write, in that order' \
-  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --no-write-lock-file
-build -o .quotient/result-write $flake#quotient-write --override-input project git+file:$project --no-write-lock-file" \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --override-input agents path:$repo/agents --no-write-lock-file
+build -o .quotient/result-write $flake#quotient-write --override-input project git+file:$project --override-input agents path:$repo/agents --no-write-lock-file" \
   "$(<"$FAKE_NIX_LOG")"
 check 'default: exit 0' 0 "$rc"
 check 'default: says what it linked' \
@@ -118,14 +118,14 @@ check 'the GC root exists beside the links' 'result-read result-write' \
 # capabilities narrow the build; nothing else is linked
 forms "$project" read
 check 'named capability: only that one is built' \
-  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --no-write-lock-file" \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:$project --override-input agents path:$repo/agents --no-write-lock-file" \
   "$(<"$FAKE_NIX_LOG")"
 
 # --project names the flake to build; then a checkout is not needed
 forms "$plain" --project git+file:/elsewhere read
 check '--project: overrides the toplevel, outside a checkout' 0 "$rc"
 check '--project: the given ref reaches nix' \
-  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:/elsewhere --no-write-lock-file" \
+  "build -o .quotient/result-read $flake#quotient-read --override-input project git+file:/elsewhere --override-input agents path:$repo/agents --no-write-lock-file" \
   "$(<"$FAKE_NIX_LOG")"
 
 # outside a checkout with no --project, the toplevel is unavailable: refused,

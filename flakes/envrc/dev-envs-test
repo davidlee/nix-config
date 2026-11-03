@@ -64,10 +64,18 @@ envrc() {
 
 mkdir -p "$tmp/home" "$tmp/scratch"
 consumer=$tmp/home/flakes/dev-envs
+mkdir -p "$consumer"
+printf '{}\n' >"$consumer/flake.nix"
+printf '{}\n' >"$consumer/dev-env.nix"
+# the in-tree agents library: a couple of .nix files for the watch glob
+mkdir -p "$tmp/home/flakes/agents"
+printf '{}\n' >"$tmp/home/flakes/agents/alpha.nix"
+printf '{}\n' >"$tmp/home/flakes/agents/zeta.nix"
 project=$(checkout project)
 mkdir -p "$project/src"
-live="path:$consumer#jail"
+live="path:$consumer#default"
 override="--override-input project git+file:$project"
+agents="--override-input agents path:$tmp/home/flakes/agents"
 
 unset JAIL_WORKSPACE_DEPS JAIL_WORKSPACE_DEPS_RW
 
@@ -86,40 +94,47 @@ out=$(envrc "$tmp/scratch" use_dev_envs) || rc=$?
 check 'no checkout: returns 1' 1 "$rc"
 check 'no checkout: uses nothing' '' "$out"
 
-# the plain case: the consumer's jail, this checkout as the project, no re-lock
+# the plain case: the consumer's default shell, this checkout as the project
+# and as the agents lib, no re-lock
 rc=0
 out=$(envrc "$project" use_dev_envs) || rc=$?
 check 'checkout: exit 0' 0 "$rc"
-check 'checkout: the consumer jail, git+file project, no lock write' \
-  "use flake $live $override --no-write-lock-file" "$out"
+check 'a checkout lands in dev-envs#default' \
+  "use flake $live $override $agents --no-write-lock-file" "$out"
+# the in-tree library lands without a push and re-lock; doctrine is not ours
+check 'a checkout overrides agents to flakes/agents' 1 \
+  "$(grep -cF -- "agents path:$tmp/home/flakes/agents" <<<"$out")"
+check 'a checkout does not override doctrine' 0 \
+  "$(grep -c -- '--override-input doctrine' <<<"$out")"
 
 # the toplevel, not $PWD: a shell opened in src/ must still name the checkout
 check 'subdirectory: the same toplevel' \
-  "use flake $live $override --no-write-lock-file" \
+  "use flake $live $override $agents --no-write-lock-file" \
   "$(envrc "$project/src" use_dev_envs)"
 
-# an edit to either side reloads the shell
-check 'watch: the project and the consumer, flakes and locks' \
-  "watch $project/flake.nix $project/flake.lock $consumer/flake.nix $consumer/flake.lock" \
+# an edit to either side reloads the shell, and so does an edit to the
+# in-tree agents library
+check 'watch: the project, the consumer, and the agents library' \
+  "watch $project/flake.nix $project/flake.lock $consumer/flake.lock $consumer/dev-env.nix $consumer/flake.nix $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
   "$(<"$tmp/watch")"
 
 # the agents lib reads both with getEnv, which pure evaluation answers with ""
 check 'ro deps: impure, so the jail sees them' \
-  "use flake $live $override --no-write-lock-file --impure" \
+  "use flake $live $override $agents --no-write-lock-file --impure" \
   "$(JAIL_WORKSPACE_DEPS=/x envrc "$project" use_dev_envs)"
 check 'rw deps: impure' \
-  "use flake $live $override --no-write-lock-file --impure" \
+  "use flake $live $override $agents --no-write-lock-file --impure" \
   "$(JAIL_WORKSPACE_DEPS_RW=/x envrc "$project" use_dev_envs)"
 check 'empty deps: pure' \
-  "use flake $live $override --no-write-lock-file" \
+  "use flake $live $override $agents --no-write-lock-file" \
   "$(JAIL_WORKSPACE_DEPS='' JAIL_WORKSPACE_DEPS_RW='' envrc "$project" use_dev_envs)"
 
 # extra arguments reach `use flake`, beside the impure flag
 check 'flags pass through' \
-  "use flake $live $override --no-write-lock-file --show-trace" \
+  "use flake $live $override $agents --no-write-lock-file --show-trace" \
   "$(envrc "$project" use_dev_envs --show-trace)"
 check 'flags pass through, after --impure' \
-  "use flake $live $override --no-write-lock-file --impure --show-trace" \
+  "use flake $live $override $agents --no-write-lock-file --impure --show-trace" \
   "$(JAIL_WORKSPACE_DEPS=/x envrc "$project" use_dev_envs --show-trace)"
 
 exit $failed
