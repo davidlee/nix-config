@@ -5,14 +5,12 @@ autoload zmv
 typeset -U PATH path
 typeset -U fpath
 
-path=(~/bin
-      ~/.local/bin
-      ~/.local/bin/scripts
-      ~/.cargo/bin $path)
 
-path+=$HOME/.npm-global/bin
-path+=$PNPM_HOME
-path+=$HOME/go/bin
+# WARNING: by decree, do not prepend paths
+# to system here, only append - doctrine, npm, cargo, etc
+# are set up in env.nix (pam) via flakes, so that they reach
+# graphical sessions and we don't all go insane drowning in
+# our own piss.
 
 fpath+=$HOME/.config/zsh/completions
 

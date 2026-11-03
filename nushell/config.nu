@@ -1,11 +1,23 @@
-
 #!/usr/bin/env nu
+
+# --------------------------------------------------------------------------------
+# Includes
+# --------------------------------------------------------------------------------
+
 use std/dirs
 use mod/pi-dev *
-
 use std/util "path add"
 
-path add "~/nushell"
+# WARNING: by decree, do not prepend paths
+# to system here, only append - doctrine, npm, cargo, etc
+# are set up in env.nix (pam) via flakes, so that they reach
+# graphical sessions and we don't all go insane drowning in
+# our own piss.
+#
+# path entries MUST append
+
+path add "~/nushell" --append
+
 source ./util/keys.nu
 use ./aliases.nu *
 
@@ -19,15 +31,12 @@ source ./util/keys.nu
 source ./fzf.nu
 source ./ghostel.nu
 
-# the rest of these live in flakes/modules/nixos/env.nix, so pam_env puts them
-# on PATH for GUI apps and systemd --user units too, not just shells.
-path add "~/nushell"
+# --------------------------------------------------------------------------------
+# Functions
+# --------------------------------------------------------------------------------
 
 $env.config.buffer_editor = ["emacsclient", "-t"]
 
-#
-# Functions
-#
 
 # attach to a zmx session, creating it in its own systemd scope if new
 def za [name: string@"nu-complete zmx sessions", ...cmd] {
