@@ -186,6 +186,22 @@
         "type": "github"
       }
     },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
@@ -488,22 +504,6 @@
     },
     "nixpkgs_8": {
       "locked": {
-        "lastModified": 1793540411,
-        "narHash": "sha256-fiPJ88izTVucjeo2EQ3jk4aWmLg03I1D4vxnX2QjEgE=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "0bb2eedc20e4739f29e8045034f2828ad7054f8f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_9": {
-      "locked": {
         "lastModified": 1792502884,
         "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
         "owner": "NixOS",
@@ -519,12 +519,10 @@
       }
     },
     "project": {
-      "inputs": {
-        "nixpkgs": "nixpkgs_8"
-      },
+      "flake": false,
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-Aw3wGHS9dIB2AM4ulTjzUdRz32AdAjpTVJF/efozhLk=",
+        "narHash": "sha256-m8os6qbHK/aDV39qpyPAE5Xmovd5UnmNZ6CC4Ct5DJQ=",
         "path": "./stub-project",
         "type": "path"
       },
@@ -556,7 +554,7 @@
     },
     "quotient_2": {
       "inputs": {
-        "nixpkgs": "nixpkgs_9"
+        "nixpkgs": "nixpkgs_8"
       },
       "locked": {
         "lastModified": 1793064480,
@@ -577,6 +575,7 @@
       "inputs": {
         "agents": "agents",
         "doctrine": "doctrine",
+        "flake-compat": "flake-compat",
         "nixpkgs": "nixpkgs_7",
         "project": "project",
         "quotient": "quotient_2"

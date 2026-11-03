@@ -132,6 +132,9 @@
     subagents = ["pi"];
   };
   claudeGateway = fakeBwrapAgents.makeJailedClaude {gateway = gw;};
+  # A caller's own node (a project's toolchain) against the library's.
+  callerNode = pkgs.writeShellScriptBin "node" "exit 0";
+  piCallerNode = agents.makeJailedPi {extraPkgs = [callerNode];};
   ecaGateway = fakeBwrapAgents.makeJailedEca {gateway = gw;};
 
   # gatewayForwarder's behaviour, without namespaces: this bwrap drops its
@@ -809,6 +812,15 @@ in
         test -f "$i" # a missing file would make the refute vacuous
         refute grep -q -- "$node_path" "$i"
       done
+      # The caller's packages precede the library's node: a project's own
+      # node wins in the jail (SL-023 PHASE-05 F-2).
+      path_of() { grep -o -- '--setenv PATH [^ ]*' "$1" | cut -d' ' -f3 | tr : '\n'; }
+      caller_at="$(path_of ${piCallerNode}/bin/jailed-pi | grep -nF -- '${callerNode}/bin' | cut -d: -f1)"
+      lib_at="$(path_of ${piCallerNode}/bin/jailed-pi | grep -n -- '-nodejs-24[^/]*/bin$' | cut -d: -f1)"
+      [ -n "$caller_at" ] && [ -n "$lib_at" ] && [ "$caller_at" -lt "$lib_at" ] || {
+        echo "FAIL caller node (PATH entry ''${caller_at:-none}) must precede the library's (''${lib_at:-none})" >&2
+        exit 1
+      }
 
       for i in \
         "$eca_inner" \

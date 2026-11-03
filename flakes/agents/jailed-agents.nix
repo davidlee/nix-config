@@ -605,14 +605,16 @@
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options
       ++ [
+        # Each entry is prepended to PATH, so the last listed resolves first.
         (jail.combinators.add-pkg-deps (
-          extraPkgs
+          # malebolge-bridge (malebolge:DEC-075) is a node script run with
+          # type stripping (node >= 23.6), wherever pi runs. First, so a
+          # caller's own node (a project's toolchain) wins.
+          lib.optional piInJail pkgs.nodejs_24
+          ++ extraPkgs
           ++ [agent] # allow sub-agent invocation
           ++ subagentAgents # bare binaries the subagent wrappers exec
           ++ subagentPkgs # depth-guarded jailed-<name> entrypoints
-          # malebolge-bridge (malebolge:DEC-075) is a node script run with
-          # type stripping (node >= 23.6), wherever pi runs.
-          ++ lib.optional piInJail pkgs.nodejs_24
         ))
       ]
       ++ extraOptions

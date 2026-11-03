@@ -11,9 +11,14 @@
       dev-tools = pkgs.buildEnv {
         name = "stub-dev-tools";
         paths = [pkgs.hello];
-        passthru.devEnv = {
-          env.STUB_DEV_ENV = "stub";
-          hostEnv = ["STUB_HOST_ENV"];
+        passthru = {
+          devEnv = {
+            env.STUB_DEV_ENV = "stub";
+            hostEnv = ["STUB_HOST_ENV"];
+          };
+          # Which nixpkgs built these tools: checks.project-pins compares it
+          # with this flake's own lock.
+          nixpkgsRev = nixpkgs.rev;
         };
       };
       probe = pkgs.hello; # the same derivation, named for the check

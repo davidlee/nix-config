@@ -22,7 +22,20 @@
     #   --no-write-lock-file
     # Without the second flag the override is written into this lock and pins
     # one machine's checkout (ISS-006's class of bug).
-    project.url = "path:./stub-project";
+    #
+    # Source only (`flake = false`), evaluated by flake-compat against the
+    # project's OWN flake.lock: as a flake input, an overridden project's
+    # inputs are relocked under this flake (Lix 2.95.4: reusing this lock's
+    # entries for the stub, or locking fresh), so its tools would be built at
+    # pins it never chose (SL-023 PHASE-05 F-1; checks.project-pins).
+    project = {
+      url = "path:./stub-project";
+      flake = false;
+    };
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
 
     # A pinned reference Doctrine, mounted at /run/doctrine-nix-bin in every
     # jail and form, never on PATH (DEC-109). Built locally on each lock bump.
@@ -36,6 +49,7 @@
     agents,
     quotient,
     project,
+    flake-compat,
     doctrine,
     ...
   }: let
@@ -55,8 +69,9 @@
 
       # The producer contract, named once, so its absence says what to do
       # instead of naming an attribute path at the bottom of a stack trace.
+      projectFlake = (import flake-compat {src = project;}).outputs;
       devTools =
-        project.packages.${
+        projectFlake.packages.${
           system
         }.dev-tools or (throw ''
           dev-envs: the project flake exposes no packages.${system}.dev-tools.
@@ -201,6 +216,24 @@
           '';
 
         dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib;};
+
+        # The project keeps its pins: its tools are built at its own lock, not
+        # at this flake's. The stub's lock pins a nixpkgs this flake does not,
+        # so a consumer that relocks the project fails here. Meaningful under
+        # --override-input project, as `use_dev_envs` runs it (`just test`).
+        project-pins = let
+          lock = builtins.fromJSON (builtins.readFile "${project}/flake.lock");
+          want = lock.nodes.${lock.nodes.${lock.root}.inputs.nixpkgs}.locked.rev;
+          got = devTools.nixpkgsRev;
+        in
+          pkgs.runCommand "dev-envs-project-pins-check" {} (
+            if got == want
+            then "touch $out"
+            else ''
+              echo "dev-envs: the project's dev-tools were built at nixpkgs ${got}, its lock pins ${want}" >&2
+              exit 1
+            ''
+          );
 
         # The only static guard on the forms' bwrap line, which must stay plain
         # words: anything quotient cannot resolve without running it fails here.
