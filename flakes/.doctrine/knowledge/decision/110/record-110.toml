@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 110
+slug = "doctrine-bind-host-path"
+title = "Jails see the Doctrine install dir at its own host path, as a runtime bind; /run/doctrine-bin goes"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "agents/jailed-agents.nix:373-381 binds ~/.local/share/doctrine/bin at /run/doctrine-bin (its comment says at its own path). posture is mounted before persist-home (:576-582), which binds a host dir over ~, so a static bind under ~ from posture is hidden; runtime args come after every static bind (jailed-agents-test.nix:495-503) and posture reaches forms (:230). Six project flakes work around it with their own host-path bind in extraOptions."
+choice = """hostDoctrineOptions binds the install dir (from agents/doctrine.nix) at its own host path as a runtime arg (--ro-bind-try "$HOME/<dir>" "$HOME/<dir>", the git-excludes precedent at :148), puts that path first on the jail PATH, and keeps the ELF-closure bind. The /run/doctrine-bin mount and PATH entry are removed. The tests' four /run/doctrine-bin sites and agents/README.md change with it."""
+alternatives = ["Reorder posture after profileOptions: moves every posture mount and its precedence rules, for one bind", "Keep /run/doctrine-bin beside the host-path bind: two paths again, and DEC-404 keeps baking the jail-only one"]
+rationale = "One path valid on both sides of the wall is what makes every bake site correct; the runtime-arg form is already proven in this library and passes quotient's form check."
+consequences = ["verify at implementation: checkFormFamily accepts the $HOME-relative PATH entry on the bwrap line; if not, the PATH entry is set at runtime too", "the six repos' own binds duplicate it harmlessly until the rollout removes them"]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

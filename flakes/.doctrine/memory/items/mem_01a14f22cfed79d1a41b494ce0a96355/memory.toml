@@ -5,7 +5,7 @@ status = "active"
 title = "Sharing a host binary into a jail: bind its directory and its store closure"
 summary = "Bind a dedicated install dir, never the file (rename-on-install leaves a file bind on a deleted inode, IMP-249); and bind the binary's store closure, since jail-nix exposes only the jail's own (agents' elf-closure-binds)."
 created = "2026-10-18"
-updated = "2026-10-18"
+updated = "2026-11-03"
 
 [scope]
 paths = ["flakes/agents/jailed-agents.nix"]

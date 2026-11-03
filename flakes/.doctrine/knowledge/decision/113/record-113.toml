@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 113
+slug = "dev-envs-five-jails-default-shell"
+title = "dev-envs exports five jails by artefact name and one default shell carrying them and their shorthands"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-023 S1 fixes the jail set (pi, pi-research, claude, codex, shell). DEC-101/DEC-106 built one jail exported as packages.jail and devShells.jail, used only in this repo (checks.stub; envrc/dev-envs.sh). Doctrine's subagent graphs: doctrine:flake.nix:194-225."
+choice = """packages: jailed-pi, jailed-pi-research (makeJailedPi {name="pi-research"; profile="research";}), jailed-claude, jailed-codex, jailed-shell (makeJailedAgent {name="shell"; agent=pkgs.zsh;}), devTools, quotient-read, quotient-write; packages.jail goes. Subagent graphs as Doctrine's: pi self depth 2; claude self + [pi] depth 2; codex [claude pi codex]; shell [pi claude]; all gatewayClient "pi", extraPkgs [devTools], hostDoctrine on. devShells.jail is renamed devShells.default and carries devTools, the five jails, unjailed pi/claude/codex, and jpi/jcl/jcx/jsh as writeShellScriptBin wrappers (each execs its jail). envrc/dev-envs.sh, its test and README follow the rename. checks.stub loops over all five launchers, following one exec each."""
+alternatives = ["Keep `jail` as aliases of jailed-pi and the shell: nothing changes outside the repo, but the names stop describing a shell of five jails", "Keep the shorthands in Doctrine: they are a preference for working on any project (DEC-108's consumer test), so every consumer repo gets them (user)"]
+rationale = "Artefact names follow the jailed-<name> precedent; both renamed callers live in this repo; a default shell makes plain `nix develop` on the consumer work."
+consequences = ["Supersedes DEC-101 and DEC-106; DEC-106's Linux-only clause is revisited under inq-8.", "jail-zsh is renamed jsh; d and drn are dropped (DEC-111); jd stays in Doctrine.", "Smut gains the four extra jails."]
+decided_by = 'user ("otherwise looks good", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

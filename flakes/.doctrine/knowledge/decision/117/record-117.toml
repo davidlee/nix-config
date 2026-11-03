@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 117
+slug = "sl-023-verification-strategy"
+title = "SL-023 verifies by a launcher diff before subtraction, then behaviour checks after"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Doctrine's five jails exist only until DEC-111's subtraction; after it nothing can be compared against them. Part of what they provide is implicit (env, binds, PATH order), which behaviour tests alone would not notice missing."
+choice = "(1) Before subtracting: build Doctrine's five jails at its HEAD and the consumer's five with --override-input project git+file:~/dev/doctrine; follow each gateway wrapper's one exec to the inner launcher; normalise store hashes; diff. Expected deltas: the jail/agents nixpkgs pin (R5); the Doctrine bind path (DEC-110) and /run/doctrine-nix-bin (DEC-109); PATH order; bwrap on the jail PATH (DEC-111); the host-facts env list (DEC-114). Anything else is a finding. (2) After: doctrine `just gate` green in jailed-pi (Doctrine's e2e_worker_confinement probes and skips by name if nested bwrap fails); sccache works in jails and forms; both forms linked, approved and one pi_agent run each under doctrine.policy.json (DEC-115); bake probe — `doctrine install` in a jail and on the host give identical BIN_PATH in .doctrine/state/pi/extensions/mcp.ts, and `type -a doctrine` shows one entry each side; Smut loads via use_dev_envs; `just test` green with checks.stub covering five launchers and devEnv; fleet's doctrine target evaluates against capsule-tools (DEC-112); aarch64-darwin: Doctrine's devshell and Draupnir's home with agents.pi (DEC-116) evaluate."
+alternatives = ["Behaviour checks only: cheaper, but they test what Doctrine uses today, not what its jails silently provided"]
+rationale = "The diff is the only moment the old and new environments coexist; enumerating expected deltas turns every other difference into a finding rather than noise."
+consequences = ["The diff phase precedes the Doctrine subtraction in the plan."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

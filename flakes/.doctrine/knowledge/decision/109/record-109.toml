@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 109
+slug = "doctrine-paths-host-facts"
+title = "Doctrine paths are host facts in agents/doctrine.nix; no new variable; DOCTRINE_BIN stays an override"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "ADR-004 s4 allows fixed facts as plain constants imported by every consumer. Doctrine's install path is spelled in env.nix, zsh init, the jail library and six project flakes. doctrine install bakes current_exe() (pi) and the PATH entry (codex, doctrine:DEC-404). doctrine:justfile:50,106 fall back to ./target/debug/doctrine only when DOCTRINE_BIN is unset."
+choice = """agents/doctrine.nix holds two facts: the canonical install bin dir, home-relative ".local/share/doctrine/bin" (just install's root), and nixBinDir = "/run/doctrine-nix-bin". The host PATH (DEC-107), the jail bind and the jail PATH all derive from the first. No new environment variable is exported: with one path leading PATH on both sides, both bake sites record it unaided. DOCTRINE_BIN keeps its meaning, an unset-by-default per-checkout override, forwarded into jails as project data (T2). The library binds a supplied Nix-built Doctrine's bin/ at nixBinDir, read-only and never on PATH, so nothing reaches it by accident; dev-envs supplies it from a pinned doctrine input, for every jail and form."""
+alternatives = ["Export DOCTRINE_BIN globally: doctrine's justfile and bun tests would silently test the installed binary instead of the dev build", "Export DOCTRINE_HOST_BINARY_PATH: nothing reads it today; add it when a reader exists", "No Nix Doctrine in jails: loses a pinned reference build at a known, clearly-labelled place"]
+rationale = "One fact, many derived uses; a variable without a reader is speculative; the Nix build is useful as a reference only if it cannot be mistaken for the primary."
+consequences = ["dev-envs gains a doctrine input; each lock bump builds it locally (not in a public cache)", "no cycle once Doctrine drops its agents input (S2)", "the constant's consumers: modules/nixos/env.nix, a home-manager module (darwin), agents/jailed-agents.nix"]
+decided_by = """user ("agreed", 2026-11-03; the nix-bin mount at the user's request)"""
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 111
+slug = "doctrine-flake-subtraction"
+title = "Doctrine's flake keeps its tools and product only; agent wiring and personal shorthands leave it"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-023 S2 (subtract now). doctrine:flake.nix carries jails, forms, the agents and quotient inputs, packages.dirge and devshell agent commands beside its tool list. bubblewrap sits inside jailPkgs (doctrine:flake.nix:227) although capsule-verify (doctrine:justfile:144) and the live-bwrap conformance rows need it. The consumer builds its host shell from dev-tools."
+choice = "Remove inputs agents and quotient, jailLib, projectPkgs, projectOptions, mkJail, jailPkgs, quotientFamily/quotientForms, checks.quotient-forms, packages.dirge, the devshell's unjailed agents and attrValues jailPkgs, and the commands jpi, jcx, jcl, jail-zsh, d and drn (d is a system alias). Keep jd, LD_LIBRARY_PATH, UV_PYTHON_PREFERENCE and the darwin iconv hook. Move pkgs.bubblewrap into conformancePkgs, so dev-tools, every consumer jail and the capsule guest carry bwrap. .envrc: only its last two lines change, to `source_env_if_exists ~/flakes/envrc/dev-envs.sh; use_dev_envs || use flake .`; its exports stay. Root ~/flakes/flake.nix drops doctrine.inputs.{agents,pub}.follows (:85, :94, :115) only after satan, screwtape and panopticon re-lock Doctrine."
+alternatives = ["Keep bubblewrap in Doctrine's own devshell only: lost when the .envrc lands in dev-envs#jail, whose shell is built from dev-tools", "Drop the root follows lines at once: they would name an input the locked Doctrine still has, or warn against the new one, depending on order"]
+rationale = "Doctrine becomes a producer and nothing else. jpi/jcl/jcx/jsh move to the consumer so every consumer repo gets them (user). bwrap in jails is wanted (user)."
+consequences = ["tests/e2e_worker_confinement.rs:118 skips today when bwrap is absent; with bwrap present in a jail it attempts nested bwrap. If that fails, Doctrine fixes the test to probe its permissions and skip by name before invoking (user): a Doctrine change, recorded under inq-10's cross-repo chore and checked under inq-9.", "JAIL_WORKSPACE_DEPS stays honoured (use_dev_envs adds --impure when set); expected to become a deprecated mechanism after the rollout (user), not this slice's concern.", "Out of scope: homeManagerModules importing untracked ./nix/module.nix (doctrine:flake.nix:40-41)."]
+decided_by = 'user ("agreed", with d and drn dropped and the shorthands moved to the consumer, 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

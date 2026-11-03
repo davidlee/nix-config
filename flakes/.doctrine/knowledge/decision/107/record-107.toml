@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 107
+slug = "user-bin-path-one-list"
+title = "One ordered user-bin PATH list from host facts; pam owns it on Linux, home-manager on darwin; shells only append"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "The host PATH order is set in three places: modules/nixos/env.nix (pam sessionVariables, chosen so GUI apps and systemd units inherit it), zsh init.zsh (re-prepends ~/bin, ~/.local/bin, ~/.local/bin/scripts, ~/.cargo/bin, and lost the doctrine entry its own comment requires, likely in the switch back from nushell), and nothing on darwin. Result on Sleipnir: ~/.local/bin and ~/.cargo/bin precede ~/.local/share/doctrine/bin, so ~/.local/bin/doctrine (a symlink) is what PATH finds and what DEC-404 bakes."
+choice = "One ordered list of user bin dirs where order matters (doctrine first, then ~/.local/bin, ~/.local/bin/scripts, ~/.cargo/bin, go, pnpm, npm), derived from the host-facts constants (ADR-004 s4). On Linux, env.nix sessionVariables.PATH (pam) consumes it; on darwin, home-manager home.sessionPath consumes the same list. Shell inits never prepend: init.zsh's path=(...) re-prepend and its stale comment are removed. The ~/.local/bin/doctrine symlink is removed by hand. Verified by `type -a doctrine` showing exactly one entry in a fresh login shell, on the host and in a jail."
+alternatives = ["home-manager home.sessionPath on both platforms: reaches shells only (hm-session-vars.sh), so GUI apps and systemd units launched by the compositor lose the order env.nix chose pam for", "Keep per-shell lists and fix zsh: three owners again, and nushell or the next shell drifts the same way", "Defer the wider untangle to a follow-up: S5 depends on doctrine leading PATH, and the rest of the list is the same few lines"]
+rationale = "Order is a host fact with one owner per platform; shells are consumers. The existing env.nix pam choice stays because it is the only layer that reaches non-shell processes on Linux."
+consequences = ["init.zsh loses its path=(...) prepend; npm, pnpm and go appends may stay or move into the list", "darwin gains a home.sessionPath list it has never had", "a doctrine binary anywhere ahead of the canonical dir is a defect visible to `type -a`"]
+decided_by = 'user ("inq-12: yep, looks good", 2026-11-03), on the agent proposal'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

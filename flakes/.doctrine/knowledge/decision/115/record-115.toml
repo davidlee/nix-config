@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 115
+slug = "doctrine-forms-project-links"
+title = "Doctrine's forms are approved project links, as every consumer repo's; its policy keeps only a fallback"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "quotient 0.6.1 (`quotient help policy` § Project forms; src/server/forms.ts chooseForm): a policy's forms.<cap> is the machine form; <base>/.quotient/forms/<cap> substitutes for it once `quotient allow` records its identity (real path + sha256); unapproved refuses form-unapproved, a governed root with no link refuses, never falling back. The approvals store (~/.config/quotient/approvals.json) is shared by policy.json and doctrine.policy.json, both of which list ~/dev/doctrine; Claude's Doctrine MCP entry selects the latter via QUOTIENT_POLICY. Today Doctrine uses the machine-form convention: doctrine.policy.json names ~/.local/state/quotient/forms/doctrine-{read,write}/…, re-pointed by `just quotient-forms`, so rebuilds need no approval."
+choice = "bin/dev-envs-forms links ~/dev/doctrine/.quotient/forms/{read,write} (DEC-102) and the operator approves them with `quotient allow`. doctrine.policy.src.json's forms re-point to the generic machine forms (~/.local/state/quotient/forms/{read,write}/…) as the ungoverned fallback, and the installed policy is regenerated (`just policy-install` in ~/.config/quotient). Doctrine's `just quotient-forms` recipe is deleted; the ~/.local/state/quotient/forms/doctrine-* links may be removed."
+alternatives = ["Keep the machine-form convention for Doctrine (consumer forms built to the fixed doctrine-* links, no re-approval on rebuild): two conventions, identity unpinned"]
+rationale = "One convention across consumer repos; an approval pins the exact form, which the machine-form link does not."
+consequences = ["Every form rebuild (a Doctrine flake.nix/flake.lock or consumer change; not source edits, after DEC-112) needs `quotient allow` again before delegation resumes.", "Retiring doctrine.policy.json (its remaining distinctions: Doctrine-only roots, exposure of ~/.local/share/jail.nix/home/agent) is out of scope.", "Doctrine memory mem.pattern.delegation.pi-writable-in-worktree mentions doctrine.policy.json; check it at execution."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

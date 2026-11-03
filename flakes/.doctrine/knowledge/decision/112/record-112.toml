@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 112
+slug = "doctrine-capsule-tools-split"
+title = "Doctrine's dev-tools is its tool set only; the capsule guest takes capsule-tools, which adds the product"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = """doctrine:flake.nix:411-418 builds dev-tools = devToolPkgs ++ [doctrine] (crane) for the fleet guest, which cannot reach the host's cargo install (comment :413-415). /srv/fleet/targets/doctrine.nix:28 names it with toolsPackage = "dev-tools"; eight other targets use dev-tools and carry no product. Taken by the consumer, the crane build would rebuild per checkout snapshot."""
+choice = 'dev-tools = buildEnv devToolPkgs. New sibling capsule-tools = buildEnv (devToolPkgs ++ [doctrine]). No-gap order: (1) Doctrine adds capsule-tools while dev-tools still carries doctrine; (2) /srv/fleet/targets/doctrine.nix sets toolsPackage = "capsule-tools" and fleet re-locks; (3) Doctrine drops doctrine from dev-tools and rewords doctrine:scripts/oubliette.sh:181-182 (dev-tools is devToolPkgs; the guest takes capsule-tools, whose tool set still moves only with flake.nix and flake.lock).'
+alternatives = ["guest-tools: matches fleet's 'guest' wording; capsule-tools matches oubliette.sh's 'the capsule's toolchain'", "Keep dev-tools as the guest bundle and give the consumer another name: breaks SL-022's producer contract that every producer exports dev-tools"]
+rationale = "One output per consumer, as Doctrine already does for web-modules/web-dist; the producer contract stays uniform; the fleet change is one field."
+consequences = ["Three-step rollout spans Doctrine and /srv/fleet; recorded under inq-10's cross-repo chore."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

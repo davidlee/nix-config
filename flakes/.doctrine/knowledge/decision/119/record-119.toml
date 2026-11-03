@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 119
+slug = "sl-023-cross-repo-records"
+title = "SL-023's changes outside this repo are recorded where they land"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-023 changes ~/dev/doctrine (flake subtraction, capsule-tools, .envrc, justfile, oubliette.sh comment, possibly the e2e bwrap probe, a memory naming doctrine.policy.json), /srv/fleet (toolsPackage, re-lock) and, later, the root flake's follows lines, which wait on other repos' re-locks."
+choice = "One Doctrine backlog chore citing flakes:SL-023, created when execution starts, covering every Doctrine change. /srv/fleet: a commit message citing flakes:SL-023 (no doctrine there). The root flake's follows removal: CHR-028 in this repo, created now."
+alternatives = ["Commit messages only: Doctrine's own audit trail would not explain why its flake shrank"]
+rationale = "Each repo's record explains its own changes; the gated follow-up outlives the slice, so it is backlog, not a phase."
+consequences = ["CHR-028 created 2026-11-03, referencing SL-023."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

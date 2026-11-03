@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 118
+slug = "sl-023-dev-env-tech-spec"
+title = "SL-023 ends by authoring the dev-environment contract as a tech spec"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-022 and SL-023 together settle DEC-099..116: the four layers, the producer contract, host facts, and what each surface gets. README § Jailed Agents is the only prose home today; CHR-020 tracks a spec of the jail library's internals. The rollout to SATAN, Emacs and others will read from whatever is authoritative."
+choice = "The slice's last phase authors a tech spec in this repo (via /spec-tech): DEC-108's four layers, the producer contract (dev-tools + passthru.devEnv), the host-facts list, and what a jail, a form and the shell each get. README § Jailed Agents points to it. CHR-020 stays separate."
+alternatives = ["A follow-up slice, README as the interim home: the rollout would read from scattered decisions"]
+rationale = "Written while the decisions are fresh, and before the rollout that needs it."
+consequences = ["The plan carries a spec phase after verification."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

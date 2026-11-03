@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 116
+slug = "darwin-agent-cli-escape-hatch"
+title = "The Mac's escape hatch: agents.pi becomes multiplatform; claude and codex come from their own installers"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-023 S3: the consumer stays Linux-only; the Mac needs a named way back to agent CLIs without re-adding them to Doctrine. jailLib.unjailed evaluates on darwin (doctrine:flake.nix:76-79, ISS-526). features/agents.nix's pi record uses only unjailed.pi but is marked platforms = linux. On this host claude is the native self-updating installer (~/.local/bin) and codex an npm global; neither comes from Nix. The darwin `claude` Homebrew cask is the desktop app. After DEC-114 Doctrine's own devshell gives the Mac its tools and env."
+choice = "agents.pi drops `platforms = lib.platforms.linux` (and its wrong comment) and is selected in features/profiles/personal.nix instead of personal-linux.nix. Linux's pi is unchanged. claude and codex reach the Mac as they reach Linux, by their own installers, documented in README, not built. use_dev_envs keeps returning 1 on darwin; DEC-106's Linux-only consumer stands."
+alternatives = ["A darwin devShells.default in dev-envs without jails: darwin outputs to evaluate and check, duplicating Doctrine's own shell", "Nix claude and codex in the home on every platform: a pinned second copy beside the self-updating ones on Linux"]
+rationale = "Smallest change that names the way back; matches how the CLIs already arrive on Linux."
+consequences = ["Inside the consumer's shell the unjailed Nix claude/codex precede the self-installed ones on PATH, as Doctrine's devshell does today.", "inq-9's darwin check adds: Draupnir's home evaluates with agents.pi."]
+decided_by = 'user ("agreed", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 108
+slug = "dev-env-four-layers"
+title = "Four layers own dev-env facts: host facts, jail library, personal consumer, project"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-022 split project from personal agent wiring but left the boundary between agents/jailed-agents.nix and dev-envs implicit; SL-023 adds host facts (the Doctrine paths) and project data, and the rollout to other repos needs a rule that places future items."
+choice = "Host facts: a constants file in agents/ (as gateway.nix), holding what is true of this host whatever the project (Doctrine install dir, Nix Doctrine mount point, gateway address); consumed by the root flake (system and home) and the library. Jail library (agents/jailed-agents.nix): HOW to confine any agent (posture, makers, combinators), applying host facts; names no project and no preference. Personal consumer (dev-envs): WHICH jails, CLIs, commands, profiles, and which pinned builds to supply; applies project data through the library; keyless, names no project. Project flake: what its tools need, as dev-tools plus plain data with no agent concepts. Test per item: true of this host regardless of project -> host facts; true of every jail anyone builds here -> library; my preference for working on any project -> consumer; true of the project whoever works on it -> project."
+alternatives = ["Library owns jail selection too (one flake): the library stops being reusable by fleet, the root flake and third parties", "Consumer owns host facts: the root flake (PATH, home-manager) would then import the consumer, inverting the dependency", "Per-project extras files in the consumer: a second owner of project facts"]
+rationale = "Each layer has one reason to change, and the dependency arrow runs one way: project <- consumer -> library -> host facts <- root flake."
+consequences = ["agents/ gains a doctrine host-facts file beside gateway.nix", "dev-envs stays keyless (SL-022 D3 holds)", "the six repos' local Doctrine binds become redundant and are removed in the rollout, not here"]
+decided_by = 'user ("agreed", 2026-11-03), on the agent proposal'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"

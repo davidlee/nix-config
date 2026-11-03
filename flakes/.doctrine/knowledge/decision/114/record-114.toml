@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 114
+slug = "dev-env-project-data-and-host-env-list"
+title = "Project env is passthru.devEnv { env; hostEnv; }; env preferences for every project are one host-facts list"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "Doctrine's environment beyond packages, from doctrine:.envrc and doctrine:flake.nix: LD_LIBRARY_PATH, UV_PYTHON_PREFERENCE, CARGO_BUILD_RUSTFLAGS (mold, Linux), RUSTC_WRAPPER=sccache, SCCACHE_DIR, CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, DOCTRINE_BIN (override), DIRENV_LAYOUT_DIR, JAIL_WORKSPACE_DEPS. Several never reached the jails (an oversight, user). A buildEnv result already has an `env` attribute (evaluated at dev-envs' pin: an empty set), so passthru.env would shadow it. DEC-108 sorts facts into host facts, library, consumer and project."
+choice = """Project data: dev-tools carries passthru.devEnv = { env = { NAME = "value"; }; hostEnv = [ "NAME" ]; } — env is set as given; hostEnv names variables the tools read from the caller's environment, forwarded when set. Doctrine: env = { LD_LIBRARY_PATH = makeLibraryPath [stdenv.cc.cc.lib]; }, hostEnv = [ "DOCTRINE_BIN" ]; its own fallback devshell reads the same passthru. Preferences for every project: one list in a host-facts file in agents/ (beside doctrine.nix and gateway.nix): CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1, RUSTC_WRAPPER=sccache, CARGO_BUILD_RUSTFLAGS="-C link-arg=-fuse-ld=mold" (Linux only; mold cannot emit Mach-O), UV_PYTHON_PREFERENCE=only-system. home-manager exports it as session variables (every host shell, unjailed agents included); the consumer applies the same list in every jail, form and its shell, and ships sccache and mold (Linux) with them; the home profile ships them too. SCCACHE_DIR is dropped (sccache's Linux default, to verify). DIRENV_LAYOUT_DIR and JAIL_WORKSPACE_DEPS stay in Doctrine's .envrc, which loses its other exports. Release builds: crane never sees the env; Doctrine's `just install` clears the mold flag (`CARGO_BUILD_RUSTFLAGS= cargo install …`) so the host binary links as a release. The consumer validates devEnv (attrset of strings, lib.isValidPosixName names) and fails loudly naming the site (DEC-105). The stub project states one env and one hostEnv entry; checks.stub asserts both reach the launcher."""
+alternatives = ["Flat passthru.env + forwardEnv: shadows the derivation's own env attribute; forwardEnv is jail vocabulary in project data", "All-project values set by the consumer only: plain host shells and projects without the consumer miss them", "Mold as Doctrine project data: every Rust project re-declares it", "Mold kept for `just install`: harmless (production-grade linker), but the user prefers release links without it"]
+rationale = "One owner per fact (DEC-108): a project states what its tools need; a preference true of every project on this host is spelled once and reaches host shells and jails alike, as S4 did for Doctrine's paths."
+consequences = ["Amends DEC-103 (stub states devEnv).", "Jails newly get AGENT_TEAMS, the sccache wrapper (with their own cache in the persisted home), mold and UV_PYTHON_PREFERENCE: expected deltas under inq-9.", "Verify at execution: sccache's cache dir in forms is unwritable per doctrine:flake.nix:245-247; if so the consumer points SCCACHE_DIR at a writable dir inside forms, or omits the wrapper there.", "Darwin home exports the list without mold; RUSTC_WRAPPER there needs sccache in the darwin home.", "Doctrine-side edits (.envrc, justfile install) belong to inq-10's cross-repo record."]
+decided_by = 'user (Q1 "one list in host facts"; Q2 option 2; "UV joins host list", 2026-11-03)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-023"
