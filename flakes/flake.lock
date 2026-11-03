@@ -5100,11 +5100,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1793608003,
-        "narHash": "sha256-6FVAIdCWkbiapRY2bAOb2FUsXumJG6/jlG/gf7evH68=",
+        "lastModified": 1793712040,
+        "narHash": "sha256-Eg9+RUyV8koAW+glB8kM+1+yI1YDuLwPNmM8tGjhG24=",
         "ref": "refs/heads/main",
-        "rev": "2b7eee1e1422c7a17a6d1923204e99f4f28217eb",
-        "revCount": 36,
+        "rev": "7e040dd09b56e3bc88497122a2684200c7adb0de",
+        "revCount": 37,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -9184,11 +9184,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1793574682,
-        "narHash": "sha256-pUtwKtsLo5UGSBirBJa8j960nyn+ynWn7PHB0jErnSw=",
+        "lastModified": 1793711841,
+        "narHash": "sha256-Hcfg0S0gKVoXYVKPFkOHGhapiOshO0fKPPPfjWMrSVg=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "c9f4c7b9fcd0f3e6b5bbc35c7c9b6cda35580eb8",
+        "rev": "797e122cb1181931e6ec1fe2369c7c17dbf1fc9e",
         "type": "github"
       },
       "original": {
