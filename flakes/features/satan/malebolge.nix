@@ -28,6 +28,9 @@
       # The bookmark tools' source (malebolge SL-008, CHR-006): the default
       # profile's bookmarkbackups directory, bound read-only by the launcher.
       bookmarkBackups = "${home}/.config/mozilla/firefox/ez06zp0k.default/bookmarkbackups";
+      # The mail plans directory (malebolge SL-012): mail_propose writes plans
+      # there; Emacs reads them. Emacs's act log stays outside every jail.
+      mailPlans = "${home}/.local/state/malebolge/mail-plans";
     };
   in {
     assertions = [
