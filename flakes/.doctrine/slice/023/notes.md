@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-04 · PHASE-07 · d54e3237 (doctrine 7eddc8ea1)
+fresh-as-of: 2026-11-04 · PHASE-08 · fb4de405 (doctrine 7eddc8ea1)
 
 ### Produced
 - SL-023 scoped (S1–S5, C1, T1–T5) — uncommitted, staged
@@ -85,6 +85,8 @@ fresh-as-of: 2026-11-04 · PHASE-07 · d54e3237 (doctrine 7eddc8ea1)
   (ee2a5f86, 6ff267df, 8b909753; doctrine 7eddc8ea1); gate green in a jail after the last code change
 - minted: DEC-121 — sccache servers on per-side unix sockets; RSK-001 — networked jails
   reach host loopback; IMP-059 — form caches do not persist across runs
+- PHASE-08 done — SPEC-003 (REQ-024..030), README § Jailed Agents linked (fb4de405); just test green
+  after the last change; pi accuracy review: 6 of 7 findings fixed, 1 rejected
 
 ### Learned
 - mem.fact.sccache.jail-server-isolation — server runs the compiler; hit tests need one target dir
@@ -108,6 +110,7 @@ fresh-as-of: 2026-11-04 · PHASE-07 · d54e3237 (doctrine 7eddc8ea1)
   7eddc8ea1; fleet a9b384f
 - smut, satan-attrd: re-bake diffs left uncommitted for the operator
 - F-2 settled by VH-1: operator ran pi and codex, host and jail, after the symlink went
+- SPEC-003 § Open questions — checkDevEnv does not refuse SCCACHE_SERVER_UDS; RSK-001; IMP-059
 
 ## Execution passes (PHASE-03/04)
 
