@@ -1,7 +1,7 @@
 id = 23
 slug = "layered-dev-env-doctrine"
 title = "Layered dev-env consumer, carried to Doctrine"
-status = "started"
+status = "audit"
 created = "2026-11-03"
 updated = "2026-11-03"
 tags = ["agents", "dev-env", "nix"]
