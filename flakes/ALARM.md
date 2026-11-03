@@ -4,7 +4,7 @@
 
 **Stack:** `spotifyd` (headless Spotify Connect device) + `spotify_player` (CLI control) + systemd user timers.
 
-**Scripts:** the alarm and watchdog logic live as plain shell scripts in `features/audio/alarm/` and are installed via `home.file` to `~/.local/bin/{spotify-alarm,spotifyd-watchdog}`. Edit there, `home-manager switch`, or invoke directly (`spotify-alarm`, `spotifyd-watchdog`) for ad-hoc testing.
+**Scripts:** the alarm and watchdog logic live as plain shell scripts in `features/audio/alarm/` and are installed via `home.file` to `~/.local/bin/{spotify-alarm,spotifyd-watchdog,speakers-sink}`. Edit there, `home-manager switch`, or invoke directly (`spotify-alarm`, `spotifyd-watchdog`) for ad-hoc testing.
 
 **Timers:** `spotify-alarm` (weekdays 07:30) and `spotify-alarm-weekend` (Sat/Sun 08:30). Change times in `features/audio/alarm.nix` (`audio.alarm`), then `home-manager switch` — no manual systemctl needed.
 
@@ -16,7 +16,9 @@ systemctl --user enable --now spotify-alarm.timer
 systemctl --user enable --now spotify-alarm-weekend.timer
 ```
 
-**Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/sway/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default.
+**Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/sway/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default. Both scripts find the speakers with `speakers-sink`, which matches the USB device's serial, not its sink name (PipeWire appends `.2` when the device re-enumerates). If the speakers are absent the alarm plays on the current default sink.
+
+**Connect name:** spotifyd registers as `Sleipnir-alarm` (`spotifyd.conf`, which `spotify-alarm` reads back). It is not the hostname: the Spotify desktop app registers under the hostname, and the alarm used to pick it up by mistake.
 
 ## Reliability
 
@@ -28,8 +30,8 @@ The alarm script has three phases, each handling a class of silent failure.
 
 ### Phase 2 — Activate the correct device
 
-1. **Refresh `spotify-player`.** Unconditionally `systemctl --user restart spotify-player.service` and wait up to 15s for the new daemon to respond to `get key devices`. The long-lived daemon's cached Web API view can miss devices that re-registered while it was idle across S3 cycles — a stale view here was the cause of the 2026-05-18 alarm failure.
-2. **Poll the Spotify Web API for Sleipnir device IDs** and try each with `connect --id`, verifying `is_active` via the API after each attempt. Handles ghost device registrations (old + new both named Sleipnir) where `connect --name` silently picks the wrong one.
+1. **Refresh `spotify-player`.** Unconditionally `systemctl --user restart spotify-player.service` and wait up to 30s for the new daemon to respond to `get key devices`. The long-lived daemon's cached Web API view can miss devices that re-registered while it was idle across S3 cycles — a stale view here was the cause of the 2026-05-18 alarm failure.
+2. **Poll the Spotify Web API for the device named `Sleipnir-alarm`**, `connect --id` it, and verify `is_active` via the API.
 3. **Budget:** 12 attempts × 5s = 60s. The API can lag spotifyd's `active device is` log line by several seconds, especially right after S3 resume.
 4. **Diagnostics:** raw `sp get key devices` stdout+stderr is captured and emitted to the journal on every empty / failed attempt, so an auth failure or HTTP error is distinguishable from a genuinely-empty device list.
 
@@ -58,6 +60,6 @@ spotify-alarm                                       # same, but stdout goes to y
 spotifyd-watchdog                                   # one-shot health check
 ```
 
-If Phase 2 logs `no Sleipnir devices in API yet (raw: …)` repeatedly, the `raw:` payload tells you whether the API is genuinely returning an empty list or `spotify_player` is hitting an error.
+If Phase 2 logs `no Sleipnir-alarm device in API yet (raw: …)` repeatedly, the `raw:` payload tells you whether the API is genuinely returning an empty list or `spotify_player` is hitting an error.
 
 If Phase 1 fails (no `active device is` after 3 rounds), the problem is upstream of this script — check `spotifyd.service` logs for auth or network errors.

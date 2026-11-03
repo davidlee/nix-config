@@ -91,6 +91,7 @@ test:
   features/notes/autocommit-test
   features/audio/dictate-test
   features/audio/say-test
+  features/audio/alarm/speakers-sink-test
   hosts/Sleipnir/doctor/doctor-test
   features/agents/gateway/keystore-test
   nu features/attention/nudge/nudge-test.nu

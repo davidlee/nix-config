@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Toggle default audio sink between speakers and headphones,
 # and move all active streams to the new sink.
+export PATH="$HOME/.local/bin:$PATH"
 
 HEADPHONES="alsa_output.usb-SMSL_SMSL_USB_AUDIO-00.analog-stereo"
-SPEAKERS="alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo"
+SPEAKERS=$(speakers-sink) || { notify-send -u low "Speakers not found"; exit 1; }
 
 current=$(pactl get-default-sink)
 

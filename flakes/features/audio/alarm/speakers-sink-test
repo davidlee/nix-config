@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Behaviour tests for speakers-sink. pactl is a stub that prints a fixture
+# `pactl list sinks`, so each case asserts which sink name comes back.
+#
+#   ./speakers-sink-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+script=$here/speakers-sink
+
+stubs=$(mktemp -d)
+trap 'rm -rf "$stubs"' EXIT
+
+cat >"$stubs/pactl" <<'EOS'
+#!/usr/bin/env bash
+[ "$*" = "list sinks" ] || exit 2
+cat "$SINKS_FIXTURE"
+EOS
+chmod +x "$stubs/pactl"
+
+# A sink block as `pactl list sinks` prints it: Name first, serial among the properties.
+sink() {
+  printf 'Sink #1\n\tState: SUSPENDED\n\tName: %s\n\tDescription: x\n\tProperties:\n\t\talsa.card_name = "x"\n\t\tdevice.serial = "%s"\n\n' "$1" "$2"
+}
+
+failures=0
+status=0
+out=
+
+run() {
+  status=0
+  out=$(PATH="$stubs:$PATH" SINKS_FIXTURE="$stubs/sinks" "$script" 2>&1) || status=$?
+}
+
+check() {
+  if [ "$2" = "$3" ]; then echo "ok    $1"; else
+    echo "FAIL  $1: expected [$2], got [$3]"
+    failures=$((failures + 1))
+  fi
+}
+
+serial=ZhuHai-JieLi-Technology_USB_AUDIO_20180105
+other=$(sink alsa_output.usb-SMSL_SMSL_USB_AUDIO-00.analog-stereo SMSL_SMSL_USB_AUDIO)
+
+{ printf '%s' "$other"; sink alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo "$serial"; } >"$stubs/sinks"
+run
+check "plain name: found" "alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo" "$out"
+
+{ printf '%s' "$other"; sink alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo.2 "$serial"; } >"$stubs/sinks"
+run
+check "suffixed name (re-enumerated): found" "alsa_output.usb-ZhuHai-JieLi-Technology_USB_AUDIO_20180105-01.analog-stereo.2" "$out"
+check "suffixed name: succeeds" 0 "$status"
+
+printf '%s' "$other" >"$stubs/sinks"
+run
+check "absent: fails" 1 "$status"
+check "absent: prints nothing" "" "$out"
+
+if [ "$failures" -gt 0 ]; then echo "$failures failed"; exit 1; fi
+echo "all passed"

@@ -8,8 +8,9 @@
   platforms = lib.platforms.linux;
   requires = ["media.spotify"];
   homeManager = {pkgs, ...}: let
-    # Name must match device_name in spotifyd.conf
-    spotifydDevice = "Sleipnir";
+    # spotify-alarm reads this back from spotifyd.conf. Not the hostname:
+    # the Spotify desktop app registers under that, and the two collide.
+    spotifydDevice = "Sleipnir-alarm";
     sp = "${pkgs.spotify-player}/bin/spotify_player";
   in {
     # spotifyd config
@@ -27,6 +28,10 @@
     home.file = {
       ".local/bin/spotifyd-watchdog" = {
         source = ./alarm/spotifyd-watchdog;
+        executable = true;
+      };
+      ".local/bin/speakers-sink" = {
+        source = ./alarm/speakers-sink;
         executable = true;
       };
       ".local/bin/spotify-alarm" = {

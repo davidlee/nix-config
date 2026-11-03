@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Print the PipeWire name of the desk speakers' sink; exit 1 if absent.
+# Matched by the USB device's serial, not its sink name: PipeWire appends
+# `.2` to the name when the device re-enumerates under a live node.
+# Used by spotify-alarm and the sway toggle-audio-sink script.
+
+SPEAKERS_SERIAL="ZhuHai-JieLi-Technology_USB_AUDIO_20180105"
+
+pactl list sinks | awk -v serial="$SPEAKERS_SERIAL" '
+  /^[[:space:]]*Name: /       { name = $2 }
+  $0 ~ "device.serial = \"" serial "\"" { print name; found = 1; exit }
+  END                         { exit !found }
+'
