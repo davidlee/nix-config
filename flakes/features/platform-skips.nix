@@ -18,8 +18,11 @@
 # - binutils (binutils-wrapper): its cctools tools (ar, nm, strip, strings, …)
 #   collide with gcc-wrapper's at equal priority, and gcc-wrapper already
 #   ships them on darwin.
+# - ccache: 4.14.2 takes Linux-only elfutils as a build input, so it fails to
+#   evaluate (ISS-024). Transient: probe `ccache` (manual) in
+#   workarounds/default.nix.
 # gtt, udiskie, micro and fsearch fail to evaluate; availableOn sees only a package's own
 # meta.platforms, not its dependencies (SL-008 PHASE-07, EX-1 extension).
 {
-  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd" "binutils-wrapper"];
+  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd" "binutils-wrapper" "ccache"];
 }

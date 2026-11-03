@@ -56,4 +56,14 @@
     # cached either way: the package builds; the conflict is downstream
     signal = "manual";
   }
+  {
+    attr = ["ccache"];
+    pin = "nixpkgs-home";
+    system = "aarch64-darwin";
+    issue = "ISS-024";
+    reason = "4.14.2 takes Linux-only elfutils as a build input; fails to evaluate";
+    sites = ["features/platform-skips.nix"];
+    # no store path to ask about: check that ccache.drvPath evaluates
+    signal = "manual";
+  }
 ]
