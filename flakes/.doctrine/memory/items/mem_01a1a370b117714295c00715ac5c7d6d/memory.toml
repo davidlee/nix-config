@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1a370b117714295c00715ac5c7d6d"
+memory_key = "mem.fact.sccache.jail-server-isolation"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "sccache server sharing and hit checks across jails"
+summary = "sccache's server runs the compiler; jails and host must not share a server address, and hit tests need one target dir"
+created = "2026-11-03"
+updated = "2026-11-03"
+
+[scope]
+paths = ["agents/dev-env.nix", "agents/jailed-agents.nix"]
+globs = []
+commands = []
+tags = ["sccache", "jail"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "5a8a92a2f3e09f24fa9a3c00b296c86afefff12b"
+ref_name = "refs/heads/main"
+checkout_state_id = "891d25238582b76225a237100791c5264e79dc9d3fd6c8eb21db00ac3440daf9"
+base_commit = "8b909753ca9b5ba92ffb89e9b32beb41b2f48d75"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "decision"
+ref = "DEC-121"
+

@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · 59c7999e (doctrine e37ecf2a3)
+fresh-as-of: 2026-11-04 · PHASE-07 · 8b909753 (doctrine 7eddc8ea1)
 
 ### Produced
 - SL-023 scoped (S1–S5, C1, T1–T5) — uncommitted, staged
@@ -81,8 +81,13 @@ fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · 59c7999
   every consumer jail now carries Doctrine's own dev-tools out path. F-2 library
   nodejs_24 now resolves after the caller's packages (jailed-agents-test
   `piCallerNode`). F-3 R5 wording. F-1/F-3 → § Post-lock amendments.
+- PHASE-07 done — behaviour verified, smut + satan-attrd re-baked, user-bin symlink removed
+  (ee2a5f86, 6ff267df, 8b909753; doctrine 7eddc8ea1); gate green in a jail after the last code change
+- minted: DEC-121 — sccache servers on per-side unix sockets; RSK-001 — networked jails
+  reach host loopback; IMP-059 — form caches do not persist across runs
 
 ### Learned
+- mem.fact.sccache.jail-server-isolation — server runs the compiler; hit tests need one target dir
 - mem_01a14f22cfed79d1a41b494ce0a96355 — current wiring updated after PHASE-02 (jail bind at host path;
   nixDoctrine at /run/doctrine-nix-bin); stale `--args 23` claim corrected
 - jail.nix launchers are one line: assert a PATH value with `grep -o '--setenv PATH [^ ]*'`
@@ -92,33 +97,17 @@ fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · 59c7999
   content (not a sentinel); edit the stub → `nix flake update project` in dev-envs
 
 ### Open
-- PHASE-02 EX-6 ✓ (2026-11-04, after the operator's switch): active machine form binds
-  "$HOME/.local/share/doctrine/bin", no /run/doctrine-bin; live pi read run in ~/dev/doctrine
-  (run-20261103T135438988Z-1-a9b824e4112d): `type -a doctrine` → host path, 0.47.0
 - DRIFT for /reconcile: plan PHASE-02 EX-6 asks for `quotient allow`
   per machine form; quotient never approves machine forms (help policy § Project forms: no
   approval + no link → machine form runs). DEC-115 is right: `quotient allow` is for project-form links (PHASE-06)
-- after the switch, ~/dev/{smut,satan-attrd}/.doctrine/state/pi/extensions/mcp.ts still
-  bake /run/doctrine-bin: in-jail pi doctrine MCP breaks there until re-bake
-  (`doctrine install` in that checkout, or PHASE-07)
-- fleet a9b384f and doctrine 23c4d5eb3 unpushed (operator's call)
-- PHASE-05 ✓ 2ea8e854. next: /phase-plan PHASE-06
-- F-2: malebolge bridge under a project's node (26 in Doctrine) not exercised
-  live; needs node >= 23.6. If it fails: backlog item in malebolge (user)
-- new untracked: dev-envs/stub-project/flake.lock (git add -N done)
 - DEC-120 post-lock amendment → reconcile into design.md (§ Post-lock amendments)
-- uncommitted; new untracked files need explicit git add: plan.toml, plan.md,
-  knowledge/decision/120* incl. its slug symlink (user commits)
 - DEC-101, DEC-106, DEC-103 amended (noted on DEC-113/DEC-114), not superseded
-- execution checks carried in DEC-114/DEC-117: sccache cache dir writable in forms;
-  SCCACHE_DIR default; nix warning on stale follows (CHR-028)
-- PHASE-06 ✓ (2026-11-04): doctrine e37ecf2a3 (flake producer-only, lock drops
-  agents+quotient nodes only, justfile EX-2); .envrc on use_dev_envs (allowed);
-  forms linked + approved (doctrine, smut); doctrine.policy forms → machine forms;
-  old doctrine-{read,write} form links removed; CHR-028 evidence (EX-5: warnings
-  only). dev-tools out path unchanged; gate green in the consumer shell; VA-1 two
-  project-form pi runs completed. next: /phase-plan PHASE-07
-- doctrine e37ecf2a3 unpushed (with 23c4d5eb3)
+- DEC-121 post-lock amendment → reconcile: design § Host facts (`for` returns hostOnlyEnv),
+  § The jail library envOptions, DEC-114 wording
+- unpushed (operator's call): flakes ee2a5f86 onward; doctrine 23c4d5eb3, e37ecf2a3,
+  7eddc8ea1; fleet a9b384f
+- smut, satan-attrd: re-bake diffs left uncommitted for the operator
+- F-2 settled by VH-1: operator ran pi and codex, host and jail, after the symlink went
 
 ## Execution passes (PHASE-03/04)
 
