@@ -1,0 +1,21 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 27
+slug = "every-jail-form-and-the-shell-carry-the-same-tools-and-env"
+title = "Every jail form and the shell carry the same tools and env"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+
+description = "The project's dev-tools, the host's env list with its packages and devEnv.env reach all five jails, both forms and the shell. hostEnv names are forwarded to jails and forms when set at launch."
+tags = ["dev-env"]
+acceptance_criteria = [
+  "Every jail launcher sets the project's env and carries the hostEnv forwarding test (dev-envs checks.stub)",
+  "A form's line resolves statically (checks.quotient-forms)",
+  "A dev.env home gets RUSTC_WRAPPER and sccache; a home without it gets neither (hosts.nix checks.factories)",
+]

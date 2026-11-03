@@ -1131,6 +1131,10 @@ the jail tests.
 
 ## Jailed Agents 
 
+The contract, what a project may rely on and what each surface gets, is
+[SPEC-003](.doctrine/spec/tech/003/spec-003.md) (`doctrine show SPEC-003` adds
+its requirements). This section is operations.
+
 Two flake roles, split by ownership (SL-022). A **producer** is a project flake
 that exports the tools its own gate needs, as one derivation:
 
@@ -1155,6 +1159,10 @@ A project may state `passthru.devEnv = {env = {…}; hostEnv = […];};` on its
 name is forwarded from the launch environment when set. The host's own
 [`agents/dev-env.nix`](./agents/dev-env.nix) list applies too, and a project may
 not restate one of its names.
+
+Every jail and form runs its own sccache server on a socket in its private
+`/tmp`, and a Linux host shell uses one under `$XDG_RUNTIME_DIR` (DEC-121). The
+default TCP address is shared loopback: a jailed build would run on the host.
 
 A project joins with its own (untracked) `.envrc`:
 
@@ -1190,9 +1198,9 @@ script links them into the checkout. Approval stays the operator's:
 quotient allow                # per form; re-run both when the toolchain changes
 ```
 
-**Degrade to less, never to a different environment.** Without a `.envrc`, without
-the helper file, on a non-Linux host, or outside a git checkout, `use_dev_envs`
-returns 1 and the `.envrc`'s `||` takes the project's own `use flake .`. A
+**Degrade to less, never to a different environment.** On a non-Linux host or
+outside a git checkout, `use_dev_envs` returns 1; without the helper file it is
+undefined. Either way the `.envrc`'s `||` takes the project's own `use flake .`. A
 *broken* personal layer is the opposite case — a nix error, a project with no
 `dev-tools`, a jail that will not build — and stays loud: a silently different
 shell is unresolvable.

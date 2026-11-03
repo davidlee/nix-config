@@ -670,7 +670,7 @@ in
     inherit commonPkgs;
     gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
     # The env every project gets on this host, and the packages it needs,
-    # for this pkgs: { env; packages; } (dev-env.nix). Applied by consumers.
+    # for this pkgs: { env; hostOnlyEnv; packages; } (dev-env.nix). Applied by consumers.
     hostDevEnv = (import ./dev-env.nix).for pkgs;
     # Socket mode for a jail without `gateway` (e.g. a key-file client), via
     # `extraOptions`; refused at evaluation in a jail sharing the host netns.

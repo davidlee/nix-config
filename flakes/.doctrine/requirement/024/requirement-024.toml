@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 24
+slug = "a-project-joins-by-exporting-one-dev-tools-derivation"
+title = "A project joins by exporting one dev-tools derivation"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+
+description = "A project exports packages.<system>.dev-tools as one derivation holding every tool its gate needs; it names no jail, agent, form or gateway. Without it the consumer fails at evaluation, naming the producer contract."
+tags = ["dev-env"]
+acceptance_criteria = [
+  "Every jail launcher carries the bundle's own path (dev-envs checks.stub)",
+  "Doctrine and Smut each load through use_dev_envs (SL-023 PHASE-07, live)",
+]

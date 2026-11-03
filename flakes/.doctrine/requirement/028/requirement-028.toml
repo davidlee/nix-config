@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 28
+slug = "one-doctrine-path-is-valid-on-host-and-in-a-jail"
+title = "One Doctrine path is valid on host and in a jail"
+status = "pending"
+kind = "functional"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+
+description = "The host's Doctrine install dir is bound read-only at its host path and on PATH in every jail and form, so a path baked by doctrine install is valid on both sides. A Nix-built Doctrine is mounted at /run/doctrine-nix-bin and is never on PATH."
+tags = ["dev-env"]
+acceptance_criteria = [
+  "Launchers bind the host dir at run time and nixDoctrine off PATH (jailed-agents-test)",
+  "type -a doctrine shows one entry on host and in a jail; codex reaches Doctrine MCP on both (SL-023 PHASE-07 VA-1); operator confirmed pi and codex (VH-1)",
+]

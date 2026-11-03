@@ -1,0 +1,19 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 30
+slug = "an-absent-personal-layer-degrades-to-the-projects-own-shell"
+title = "An absent personal layer degrades to the project's own shell"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+
+description = "On a non-Linux host or outside a git checkout use_dev_envs returns 1, and without the helper file it is undefined; either way the .envrc's || takes the project's own shell. A broken layer fails loudly instead of giving a different environment."
+tags = ["dev-env"]
+acceptance_criteria = [
+  "Non-Linux and no-checkout return 1; a checkout lands in dev-envs#default (envrc/dev-envs-test). The missing-helper case is untested",
+]

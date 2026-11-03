@@ -1,0 +1,21 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 29
+slug = "a-jails-sccache-server-is-its-own"
+title = "A jail's sccache server is its own"
+status = "pending"
+kind = "quality"
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+
+description = "A jail or form never compiles through the host's sccache server: each jail and form sets SCCACHE_SERVER_UDS to a socket in its private /tmp, and Linux host shells use a socket under XDG_RUNTIME_DIR, which no jail binds."
+tags = ["dev-env"]
+acceptance_criteria = [
+  "Full and bare launchers set the socket; hostDevEnv.env has no SCCACHE_SERVER_UDS (jailed-agents-test)",
+  "Only Sleipnir's dev.env home sets the host socket (hosts.nix checks.factories)",
+  "With a host TCP server up, a jail build gave the host server 0 requests (SL-023 PHASE-07, live)",
+]

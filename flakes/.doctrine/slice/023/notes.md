@@ -178,7 +178,7 @@ where a row says otherwise.
 | row | command | result |
 |---|---|---|
 | Doctrine's gate in a jail | `just gate` in jailed-shell (D-1: launcher equals jailed-pi bar agent) | rc 0 (re-run after DEC-121 and symlink removal); e2e confinement ran live, no skip |
-| sccache, jail | clean + rebuild, one target dir | 160/160 hits; host server 0 requests; socket /tmp/sccache.sock |
+| sccache, jail | clean + rebuild, one target dir | 160/160 hits; a host TCP server deliberately running took 0 requests; socket /tmp/sccache.sock |
 | sccache, form | `pi_agent` implement profile: `cargo build --locked`, clean, rebuild, `--show-stats` (run …210659733Z-18) | 163 requests, 160 hits, 0 misses; stats confirmed in events.jsonl |
 | sccache, host | fresh login: `echo $SCCACHE_SERVER_UDS`; `cargo check`; `ss` | /run/user/1000/sccache.sock; UDS listening; nothing on 4226 |
 | forms | one `pi_agent` run each (read, write) | both completed, no form-unapproved; UDS=/tmp/sccache.sock |

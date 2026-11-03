@@ -1,0 +1,63 @@
+schema = "doctrine.spec.tech"
+version = 1
+
+id = 3
+slug = "dev-environment-contract"
+title = "Dev-environment contract"
+status = "active"
+kind = "tech"
+tags = ["agents", "dev-env", "nix"]
+responsibilities = [
+  "Own each environment fact in one layer",
+  "Define what a project exports to join",
+  "Validate a project's stated env before anything is built",
+  "Give every jail, form and shell the same tools and env",
+  "Keep one Doctrine path valid on host and in a jail",
+  "Keep the host's sccache server out of reach of jails",
+]
+category = "environment"
+c4_level = "container"
+
+# category — OPEN domain vocabulary (a taxonomy that drifts by design). Add as:
+#   category = "cli"
+# c4_level — closed C4 set: context | container | component | code. Add as:
+#   c4_level = "container"
+# descends_from — the product capability (PRD-NNN) this spec realises; tech-only,
+#   single-valued, validated against the product specs. Add as:
+#   descends_from = "PRD-001"
+# parent — single decomposition parent (SPEC-NNN or PRD-NNN); subtype-aware, single-valued, the
+#   tree must stay acyclic. Add as:
+#   parent = "SPEC-002"
+# [[source]] — code anchors this spec governs (tech-only, repeatable). Add as:
+#   [[source]]
+#   language = "rust"
+#   identifier = "doctrine/cli"
+#   module = "doctrine::cli"   # optional
+
+[[source]]
+language = "nix"
+identifier = "dev-envs/flake.nix"
+
+[[source]]
+language = "nix"
+identifier = "dev-envs/dev-env.nix"
+
+[[source]]
+language = "nix"
+identifier = "agents/dev-env.nix"
+
+[[source]]
+language = "nix"
+identifier = "agents/doctrine.nix"
+
+[[source]]
+language = "shell"
+identifier = "envrc/dev-envs.sh"
+
+[[source]]
+language = "shell"
+identifier = "bin/dev-envs-forms"
+
+[[source]]
+language = "nix"
+identifier = "modules/user-bin-path.nix"
