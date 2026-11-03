@@ -6,18 +6,9 @@ _: {
 
     # pam_env sets these at login, before the compositor starts, so GUI apps
     # and systemd --user units inherit them - not just login shells.
-    # Prepended ahead of the nix profiles; see /etc/pam/environment.
-    sessionVariables.PATH = [
-      "$HOME/.local/bin"
-      "$HOME/.local/bin/scripts"
-      # doctrine's own cargo install root, which jails bind (agents'
-      # hostDoctrine); ahead of ~/.cargo/bin, which must not hold a second one.
-      "$HOME/.local/share/doctrine/bin"
-      "$HOME/.cargo/bin"
-      "$HOME/go/bin"
-      "$HOME/.pnpm-global/bin"
-      "$HOME/.npm-global/bin"
-    ];
+    # Prepended ahead of the nix profiles; see /etc/pam/environment. The
+    # list and its order are ../user-bin-path.nix's (DEC-107).
+    sessionVariables.PATH = map (dir: "$HOME/${dir}") (import ../user-bin-path.nix);
 
     # Terminfo for every terminal NixOS knows, so a shell on this host
     # (root's bash included) works from any emulator, local or over ssh.

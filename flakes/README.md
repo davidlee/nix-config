@@ -214,7 +214,7 @@ features/
   non-nix-packages.nix [ appimage flatpak ]           app formats managed outside Nix
   games.nix           [ steam gamescope mangohud ]    gamescope requires steam
   ai.nix              [ llama-cpp rocm claude-desktop chatgpt ]  model infrastructure and general AI clients; llama-cpp, rocm: coverage targets
-  agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi ]  agent tools and shared infrastructure; registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, linux only (personal-linux)
+  agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi ]  agent tools and shared infrastructure; registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, every platform (personal)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
                       quotient.nix  quotient/         the quotient server on PATH; the machine-default forms (family.nix)
   audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
@@ -230,7 +230,7 @@ features/
   editor/             emacs.nix  neovim/              the emacs record; modules the neovim record imports
   notes.nix           [ terminal autocommit joplin ]  autocommit: linux only (personal-linux)
   notes/              autocommit  autocommit-test     assets, beside their feature
-  dev.nix             [ scm build runtimes runners tools ]
+  dev.nix             [ scm build runtimes runners tools env ]  env: agents/dev-env.nix on the host (personal)
   docs.nix            [ diagrams typeset markdown help ]
   data.nix            [ structured hex ]
   files.nix           [ manage disk archive search sync locate ]

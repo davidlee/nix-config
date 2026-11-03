@@ -155,4 +155,18 @@ in [
       services.sysprof.enable = true;
     };
   }
+
+  {
+    # The env every project gets on this host (agents/dev-env.nix): the
+    # variables and the packages they need, together. A feature, not the home
+    # base: a home works without a compiler cache or a linker preference.
+    # On Linux, systemd.user.sessionVariables carries it to GUI apps.
+    name = "env";
+    homeManager = {pkgs, ...}: let
+      devEnv = (import ../agents/dev-env.nix).for pkgs;
+    in {
+      home.sessionVariables = devEnv.env;
+      home.packages = devEnv.packages;
+    };
+  }
 ]

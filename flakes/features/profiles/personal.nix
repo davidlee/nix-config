@@ -13,6 +13,8 @@
   feature.dev.runtimes.enable = lib.mkDefault true;
   feature.dev.runners.enable = lib.mkDefault true;
   feature.dev.tools.enable = lib.mkDefault true;
+  feature.dev.env.enable = lib.mkDefault true;
+  feature.agents.pi.enable = lib.mkDefault true;
   feature.docs.diagrams.enable = lib.mkDefault true;
   feature.docs.typeset.enable = lib.mkDefault true;
   feature.docs.markdown.enable = lib.mkDefault true;

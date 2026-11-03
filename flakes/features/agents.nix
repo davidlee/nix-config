@@ -75,8 +75,8 @@
     # Bare pi on PATH, outside any project devshell. Unjailed: a system-wide
     # jail would bake in a toolset, so ad-hoc confinement is a launcher
     # concern (IDE-009). From the agents pin, not home's llm-agents, so it
-    # is the drv the jails bundle. Linux only: the jail library is.
-    platforms = lib.platforms.linux;
+    # is the drv the jails bundle. Every platform: unjailed.pi evaluates on
+    # darwin, though the jails do not (DEC-116).
     homeManager = {
       inputs,
       pkgs,

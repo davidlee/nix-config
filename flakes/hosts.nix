@@ -141,7 +141,27 @@
     lib.mapAttrs' (hostname: lib.nameValuePair "${username}@${hostname}")
     (configure mkHome (lib.filterAttrs (_: meta: meta.home) hosts));
 
+  nixosConfigurations = configure mkNixos (hostsOf "nixos");
   darwinConfigurations = configure mkDarwin (hostsOf "darwin");
+
+  # The home base and Linux layer alone on aarch64-linux (DEC-034): proves
+  # they evaluate headless and off x86, with no host, feature or identity.
+  # Evaluated by `just coverage` and `just isolation`; builds nothing.
+  homeBase = inputs.home-manager.lib.homeManagerConfiguration {
+    pkgs = import inputs.nixpkgs-home {system = "aarch64-linux";};
+    modules = [
+      (homeModule "aarch64-linux")
+      ./modules/home/linux
+      {
+        home = {
+          inherit username;
+          homeDirectory = "/home/${username}";
+          stateVersion = "24.11";
+        };
+      }
+    ];
+    extraSpecialArgs = args "home-base";
+  };
 
   # Bare `david`: transitional alias for the pre-factory key. Drop once
   # nothing calls `.#david`.
@@ -166,6 +186,19 @@
         ];
       }).system.drvPath;
     expect = what: ok: ok || throw "checks.factories: ${what}";
+    # The user-bin PATH (modules/user-bin-path.nix): Doctrine's install
+    # directory leads, ahead of ~/.local/bin (DEC-107).
+    doctrineBin = "$HOME/${(import ./agents/doctrine.nix).installBinDir}";
+    sleipnirPath = nixosConfigurations.Sleipnir.config.environment.sessionVariables.PATH;
+    # What dev.env (agents/dev-env.nix) sets in a home: the variable and its package together.
+    devEnvOf = c: {
+      wrapper = c.config.home.sessionVariables.RUSTC_WRAPPER or null;
+      sccache = lib.any (p: lib.getName p == "sccache") c.config.home.packages;
+    };
+    withDevEnv = {
+      wrapper = "sccache";
+      sccache = true;
+    };
     classes = map (meta: classesOf (validate "checks.factories" ({system = "x86_64-linux";} // meta))) [
       {kind = "nixos";}
       {
@@ -185,6 +218,20 @@
       (expect "classesOf over kind x home: ${builtins.toJSON classes}"
         (classes == [["nixos"] ["nixos" "homeManager"] ["darwin"] ["darwin" "homeManager"]]))
       (expect "no homeConfigurations.\"${username}@Draupnir\"" (homeConfigurations ? "${username}@Draupnir"))
+      (expect "Sleipnir's sessionVariables.PATH does not start with ${doctrineBin} ahead of $HOME/.local/bin (modules/user-bin-path.nix): ${sleipnirPath}"
+        (lib.hasPrefix "${doctrineBin}:" sleipnirPath && lib.hasInfix ":$HOME/.local/bin:" sleipnirPath))
+    ]
+    ++ map (host: let
+      got = devEnvOf homeConfigurations."${username}@${host}";
+    in
+      expect "${host}'s home lacks dev.env (RUSTC_WRAPPER and sccache): ${builtins.toJSON got}" (got == withDevEnv)) ["Sleipnir" "Draupnir"]
+    ++ [
+      (expect "the home base (home@aarch64-linux) carries dev.env: ${builtins.toJSON (devEnvOf homeBase)}"
+        (devEnvOf homeBase
+          == {
+            wrapper = null;
+            sccache = false;
+          }))
     ];
 in {
   perSystem = {pkgs, ...}: {
@@ -216,8 +263,7 @@ in {
     in
       lib.genAttrs linuxSystems (system: lib.filterAttrs keep inputs.llm-agents.packages.${system});
 
-    nixosConfigurations = configure mkNixos (hostsOf "nixos");
-    inherit darwinConfigurations homeConfigurations;
+    inherit nixosConfigurations darwinConfigurations homeConfigurations;
 
     coverage."Sleipnir+openrgb" =
       mkNixos "Sleipnir" hosts.Sleipnir
@@ -267,23 +313,6 @@ in {
       ];
     };
 
-    # The home base and Linux layer alone on aarch64-linux (DEC-034): proves
-    # they evaluate headless and off x86, with no host, feature or identity.
-    # Evaluated by `just coverage` and `just isolation`; builds nothing.
-    coverage."home@aarch64-linux" = inputs.home-manager.lib.homeManagerConfiguration {
-      pkgs = import inputs.nixpkgs-home {system = "aarch64-linux";};
-      modules = [
-        (homeModule "aarch64-linux")
-        ./modules/home/linux
-        {
-          home = {
-            inherit username;
-            homeDirectory = "/home/${username}";
-            stateVersion = "24.11";
-          };
-        }
-      ];
-      extraSpecialArgs = args "home-base";
-    };
+    coverage."home@aarch64-linux" = homeBase;
   };
 }
