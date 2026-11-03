@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · doctrine e37ecf2a3
+fresh-as-of: 2026-11-04 · started; PHASE-06 completed, PHASE-07 next · 59c7999e (doctrine e37ecf2a3)
 
 ### Produced
 - SL-023 scoped (S1–S5, C1, T1–T5) — uncommitted, staged
