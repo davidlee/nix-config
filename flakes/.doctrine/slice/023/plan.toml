@@ -1,0 +1,232 @@
+# Implementation plan for SL-023 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-023"
+
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# Ids are PHASE-NN, immutable, never reused; array order is execution order.
+
+[[phase]]
+id        = "PHASE-01"
+name      = "Host facts, the user-bin PATH and dev.env"
+objective = """
+Spell the host facts once and apply them on the host: agents/doctrine.nix and
+agents/dev-env.nix (DEC-109, DEC-114), modules/user-bin-path.nix (DEC-107)
+read by env.nix (pam, Linux) and home.sessionPath (darwin), the dev.env feature
+selected by the personal profile (RV-046 F-3), agents.pi on every platform
+(DEC-116), and init.zsh's PATH prepend removed. The ~/.local/bin/doctrine
+symlink stays until PHASE-07."""
+entrance_criteria = [
+  { id = "EN-1", text = "SL-023 design locked (run rev 42)." },
+  { id = "EN-2", text = "just test and just coverage green at the start; a coverage drvPath snapshot taken for the diff in VA-1." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "agents/doctrine.nix, agents/dev-env.nix and modules/user-bin-path.nix exist in the design's shape (design § Host facts, § The user-bin PATH); modules/ spells no literal .local/share/doctrine/bin." },
+  { id = "EX-2", text = "Sleipnir's environment.sessionVariables.PATH comes from the list, Doctrine's directory ahead of ~/.local/bin; Draupnir's home.sessionPath carries the same list." },
+  { id = "EX-3", text = "features/dev.nix has a dev.env record whose home half sets home.sessionVariables and home.packages from (import ../agents/dev-env.nix).for pkgs; features/profiles/personal.nix selects it; the home base does not import it." },
+  { id = "EX-4", text = "agents.pi drops platforms = linux and is selected by personal.nix, not personal-linux.nix; Draupnir's home evaluates with it." },
+  { id = "EX-5", text = "~/.config/zsh/init.zsh no longer prepends to path (outside the repo; recorded per DEC-119)." },
+  { id = "EX-6", text = "README feature tree names dev.env and agents.pi's new platforms; just test, just coverage (incl. isolation) green; treefmt clean." },
+]
+verification = [
+  { id = "VT-1", expects = "checks.factories asserts dev.env: Sleipnir's and Draupnir's homes set RUSTC_WRAPPER and ship sccache; the home-base coverage home (home@aarch64-linux) sets neither", test_file = "hosts.nix", keywords = ["RUSTC_WRAPPER", "sccache", "home@aarch64-linux"], waived = false },
+  { id = "VT-2", expects = "checks.factories asserts Sleipnir's sessionVariables.PATH starts with the Doctrine install directory, before .local/bin", test_file = "hosts.nix", keywords = ["user-bin-path", "sessionVariables.PATH"], waived = false },
+  { id = "VA-1", text = "coverage drvPath diff against EN-2's snapshot: only the expected configurations move (Sleipnir system: PATH; homes: dev.env; Draupnir: agents.pi, sessionPath); anything else is explained or fixed." },
+  { id = "VH-1", text = "Operator switches system and home on Sleipnir; in a fresh login PATH begins with ~/.local/share/doctrine/bin and type -a doctrine lists that entry first (the symlink's second entry is expected until PHASE-07); sccache --version and echo $RUSTC_WRAPPER work in a GUI-launched terminal." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Jail library: Doctrine at its host path"
+objective = """
+agents/jailed-agents.nix binds the host install directory at its own host path
+as a runtime argument and puts it on PATH; /run/doctrine-bin goes (DEC-110).
+posture, makeJailedAgent and quotientFormFamily's postureFlags take
+nixDoctrine, bound read-only at /run/doctrine-nix-bin and never on PATH
+(DEC-109). mkJailedAgents exports hostDevEnv. Tests and agents/README.md
+follow (design § The jail library)."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 complete (agents/doctrine.nix and agents/dev-env.nix exist)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "hostDoctrineOptions reads doctrineFacts.installBinDir and emits a runtime --ro-bind-try at \"$HOME/<installBinDir>\" on both sides plus its ELF-closure binds and PATH entry; no /run/doctrine-bin in agents/." },
+  { id = "EX-2", text = "nixDoctrine ? null on posture and makeJailedAgent (and through postureFlags for forms): a static ro-bind of its bin/ at doctrineFacts.nixBinDir, nothing added to PATH." },
+  { id = "EX-3", text = "mkJailedAgents' result has hostDevEnv = (import ./dev-env.nix).for pkgs; the library applies none of it." },
+  { id = "EX-4", text = "posture's comment about its one static mount is rewritten; agents/README.md's hostDoctrine bullet and option table name the host path; nixDoctrine has a row." },
+  { id = "EX-5", text = "just test green, including checks.jailed-agents, quotient-relay, impureChecks.jailed-agents-env and checks.quotient-forms; treefmt clean." },
+  { id = "EX-6", text = "The root flake's own jails and machine forms (eca, features/agents/quotient/family.nix) evaluate with the new bind; after the switch that carries them, the operator re-runs quotient allow for each machine form (DEC-115)." },
+]
+verification = [
+  { id = "VT-1", expects = "host Doctrine bound at its host path at run time and on PATH; nixDoctrine bound at /run/doctrine-nix-bin and not on PATH; hostDoctrine = false binds neither", test_file = "agents/jailed-agents-test.nix", keywords = [".local/share/doctrine/bin", "nixDoctrine", "/run/doctrine-nix-bin"], waived = false },
+  { id = "VA-1", text = "grep -rn /run/doctrine-bin agents/ dev-envs/ returns nothing." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Consumer: five jails, one shell, the project's env"
+objective = """
+dev-envs builds jailed-{pi,pi-research,claude,codex,shell}, the two forms and
+devShells.default (jails, unjailed pi/claude/codex, jpi/jcl/jcx/jsh) from the
+project's dev-tools, its validated passthru.devEnv and the host list
+(DEC-113, DEC-114), with a pinned doctrine input as nixDoctrine (DEC-109).
+packages.jail and devShells.jail go; use_dev_envs lands in #default. Smut still
+loads (design § The consumer)."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 complete; built against the in-tree library with --override-input agents path:$PWD/agents (DEC-120 makes the helper do the same)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "checkDevEnv is a pure validator (errors as data) wrapped by one throw naming packages.<system>.dev-tools.passthru.devEnv and the key; every refusal row of design § The project's env has a case; absent devEnv degrades to { env = {}; hostEnv = []; }." },
+  { id = "EX-2", text = "Five jails with Doctrine's subagent graphs, one shared `jail` helper; forms take the same packages, envOptions and postureFlags.nixDoctrine; devShells.default as designed; packages.jail and devShells.jail removed." },
+  { id = "EX-3", text = "dev-envs has a doctrine input; its lock is relative-path clean (just test's lock guard)." },
+  { id = "EX-4", text = "The stub's dev-tools states passthru.devEnv (STUB_DEV_ENV, STUB_HOST_ENV); checks.stub loops over all five launchers and asserts bundle, env and forwarding needles, naming launcher and needle on failure." },
+  { id = "EX-5", text = "envrc/dev-envs.sh targets #default; envrc/dev-envs-test follows; README's § Jailed Agents use of #jail is updated." },
+  { id = "EX-6", text = "just test green; treefmt clean." },
+  { id = "EX-7", text = "DEC-120: use_dev_envs and bin/dev-envs-forms pass --override-input agents path:$HOME/flakes/agents (read-only, --no-write-lock-file); use_dev_envs watches ~/flakes/agents/*.nix; dev-envs' lock keeps the published agents pin; the doctrine input is not overridden." },
+]
+verification = [
+  { id = "VT-4", expects = "DEC-120: the helper's nix invocation overrides agents to the in-tree library and watches its .nix files; the forms linker overrides it too", test_file = "envrc/dev-envs-test", keywords = ["--override-input agents", "flakes/agents"], waived = false },
+  { id = "VT-1", expects = "checks.stub: every launcher carries the bundle, sets devEnv.env and forwards devEnv.hostEnv", test_file = "dev-envs/flake.nix", keywords = ["STUB_DEV_ENV", "STUB_HOST_ENV", "jailed-pi-research", "jailed-shell"], waived = false },
+  { id = "VT-2", expects = "checkDevEnv refusal cases: unknown key, non-string env, invalid POSIX name, a name the host list owns; and the degrade case", test_file = "dev-envs/dev-env-test.nix", keywords = ["checkDevEnv", "hostEnv", "isValidPosixName"], waived = false },
+  { id = "VT-3", expects = "envrc test: a checkout lands in dev-envs#default", test_file = "envrc/dev-envs-test", keywords = ["#default"], waived = false },
+  { id = "VA-1", text = "Smut loads through use_dev_envs with the in-tree library override, and its jail still carries its dev-tools." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Doctrine producer, additive; fleet onto capsule-tools"
+objective = """
+All of DEC-112 in its no-gap order, plus the additive half of the producer:
+Doctrine gains passthru.devEnv (DEC-114), bubblewrap in conformancePkgs
+(DEC-111) and capsule-tools; /srv/fleet's doctrine target takes capsule-tools
+and re-locks; then Doctrine's dev-tools drops the crane doctrine and
+oubliette.sh's comment is reworded. Doctrine's own jails, forms and devshell are
+untouched (they take projectPkgs, not dev-tools)."""
+entrance_criteria = [
+  { id = "EN-1", text = "The Doctrine backlog chore citing flakes:SL-023 exists (DEC-119), created with the first Doctrine change; Doctrine's pre-existing uncommitted justfile change is the user's and is not swept into this phase's commits." },
+  { id = "EN-2", text = "/srv/fleet's pre-existing uncommitted flake.lock change is settled by the operator before step 2 re-locks, so the step-2 commit carries only the doctrine input." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "Step 1 committed in ~/dev/doctrine: devEnv (LD_LIBRARY_PATH, hostEnv DOCTRINE_BIN) as dev-tools passthru, bwrap in conformancePkgs, capsule-tools = devToolPkgs ++ [doctrine]; dev-tools still carries doctrine. The operator pushes it to origin/edge: the fleet locks github:davidlee/doctrine/edge." },
+  { id = "EX-2", text = "Step 2 committed in /srv/fleet: targets/doctrine.nix toolsPackage = \"capsule-tools\", nix flake update doctrine only; the target evaluates; commit message cites the Doctrine chore." },
+  { id = "EX-3", text = "Step 3 committed in ~/dev/doctrine: dev-tools = devToolPkgs; scripts/oubliette.sh's freshness comment names capsule-tools." },
+  { id = "EX-4", text = "Doctrine's nix flake check green on x86_64-linux after each Doctrine step." },
+]
+verification = [
+  { id = "VA-1", text = "At each of the three steps the fleet guest's evaluated tool set contains the crane doctrine (no gap); after step 3 it also contains bwrap." },
+  { id = "VA-2", text = "Doctrine's own five jails still build at step 3 and are unchanged from step 1 apart from bwrap (projectPkgs does not read dev-tools)." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Launcher fidelity diff"
+objective = """
+DEC-117 part 1, at one named Doctrine revision after PHASE-04 step 3 and before
+any subtraction (RV-046 F-2): build Doctrine's five jails and the consumer's
+five over Doctrine, follow each gateway wrapper's one exec, normalise store
+hashes, diff, and account for every delta against the design's enumerated list
+(design § Verification)."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 and PHASE-04 complete; the compared Doctrine revision is recorded." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "The diff script and its normalised output for all five jail pairs are kept under the slice (notes or a gitignored evidence file referenced from notes)." },
+  { id = "EX-2", text = "Every delta is either in the design's expected list or resolved: a consumer/library fix (back in PHASE-02/03's files, tests green) or a recorded design amendment agreed with the user." },
+]
+verification = [
+  { id = "VA-1", text = "Reviewer reads the five normalised diffs against design § Verification's delta table; no unexplained line remains." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-06"
+name      = "Doctrine subtraction, forms and .envrc"
+objective = """
+Doctrine's flake shrinks to a producer (DEC-111): agents and quotient inputs,
+jails, forms, dirge, the devshell's agent CLIs and commands other than jd go;
+its justfile loses quotient-forms (DEC-115) and install clears the mold flag;
+its .envrc moves to use_dev_envs. The consumer's forms are linked and
+approved, the quotient policy re-pointed (design § Doctrine as a producer,
+§ Forms)."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-05 complete: no unexplained launcher delta." },
+  { id = "EN-2", text = "Superseded by DEC-120 (use_dev_envs builds against the in-tree library; no push or re-lock is needed). Kept for id stability; met trivially." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "~/dev/doctrine/flake.nix has no agents or quotient input and no jail, form, dirge or agent CLI; devshells.default carries devToolPkgs, devEnv.env, the darwin hook and jd only; nix flake check green on x86_64-linux; aarch64-darwin's devshell evaluates." },
+  { id = "EX-2", text = "justfile: quotient-forms deleted; install runs CARGO_BUILD_RUSTFLAGS= cargo install … with its comment and FIXME replaced." },
+  { id = "EX-3", text = ".envrc (untracked) loses the host-fact exports and ends with source_env_if_exists ~/flakes/envrc/dev-envs.sh; use_dev_envs || use flake .; direnv lands in dev-envs#default." },
+  { id = "EX-4", text = "bin/dev-envs-forms links ~/dev/doctrine/.quotient/forms/{read,write}; the operator runs quotient allow for each, and for Smut's forms, rebuilt by the re-lock; ~/.config/quotient/doctrine.policy.src.json points at the generic machine forms and just policy-install has run." },
+  { id = "EX-5", text = "The root flake's doctrine follows are checked against Doctrine's dropped agents input: a warning is recorded on CHR-028, a refusal is fixed now." },
+]
+verification = [
+  { id = "VA-1", text = "One pi_agent run on each form under doctrine.policy.json completes." },
+  { id = "VA-2", text = "rg -n 'agents|quotient|jailLib' ~/dev/doctrine/flake.nix shows no agent wiring (DEC-111's removal list)." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-07"
+name      = "Behaviour checks, the re-bake and the symlink"
+objective = """
+DEC-117 part 2 on the live arrangement, then the ordered migration of
+design § The user-bin PATH (RV-046 F-1): re-bake pi and codex on host and in a
+jail, verify, and only then remove ~/.local/bin/doctrine."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-06 complete; Doctrine's direnv shell is the consumer's." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "just gate green inside jailed-pi; if nested bwrap fails, doctrine:tests/e2e_worker_confinement.rs probes and skips by name (DEC-111), committed in Doctrine." },
+  { id = "EX-2", text = "sccache --show-stats counts hits after a rebuild in a jail and in a form; if a form cannot write the cache, the consumer sets SCCACHE_DIR or drops the wrapper in forms (DEC-114); SCCACHE_DIR's default checked against Doctrine's old .envrc value." },
+  { id = "EX-3", text = "doctrine install run on the host and in a jail; both write the same BIN_PATH to .doctrine/state/pi/extensions/mcp.ts and the same command under [mcp_servers.doctrine] in each side's ~/.codex/config.toml; a fresh codex starts the Doctrine MCP server on each side; no persisted jail home names /run/doctrine-bin." },
+  { id = "EX-4", text = "Then the operator removes ~/.local/bin/doctrine; type -a doctrine shows one entry, the install directory, in a fresh host login and in a jail." },
+  { id = "EX-5", text = "/run/doctrine-nix-bin/doctrine --version runs in a jail and command -v doctrine does not name it; Smut still loads; just test green; Draupnir's home and Doctrine's darwin devshell evaluate." },
+]
+verification = [
+  { id = "VA-1", text = "Each row of design § Verification / After: behaviour checked and its evidence (command and output) recorded in notes." },
+  { id = "VH-1", text = "Operator confirms codex and pi reach Doctrine's MCP server on the host and in a jail after the symlink is gone." },
+]
+specs        = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-08"
+name      = "Tech spec and README"
+objective = """
+Record the four-layer contract durably (DEC-118): a new tech spec under
+.doctrine/spec/tech/ for the producer/consumer contract (dev-tools,
+passthru.devEnv, host facts, the jail set) as built, and README § Jailed Agents
+rewritten around it with a pointer to the spec."""
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-07 complete: the spec describes what was verified, not what was planned." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "The spec exists via /spec-tech, covering the producer contract, devEnv's schema and refusals, host facts and their owners, the jail set and forms; doctrine spec validate passes." },
+  { id = "EX-2", text = "README § Jailed Agents describes five jails, the default shell, devEnv and links the spec; no stale #jail, /run/doctrine-bin or per-project jail instructions remain." },
+]
+verification = [
+  { id = "VA-1", text = "Spec and README read against the built code: every contract claim names its file, and nothing they state contradicts PHASE-07's evidence." },
+]
+specs        = []
+requirements = []

@@ -1,7 +1,7 @@
 id = 23
 slug = "layered-dev-env-doctrine"
 title = "Layered dev-env consumer, carried to Doctrine"
-status = "design"
+status = "ready"
 created = "2026-11-03"
 updated = "2026-11-03"
 tags = ["agents", "dev-env", "nix"]
@@ -16,19 +16,19 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "envrc/dev-envs.sh"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "bin/dev-envs-forms"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "bin/dev-envs-forms-test"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "README.md"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "justfile"
@@ -36,15 +36,71 @@ intent = "scope-relevant"
 
 [[selector]]
 selector = "agents/jailed-agents.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents-test.nix"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/README.md"
-intent = "scope-relevant"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/doctrine.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "agents/dev-env.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/user-bin-path.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/nixos/env.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "modules/home/darwin/default.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/flake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/flake.lock"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/stub-project/flake.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "envrc/dev-envs-test"
+intent = "design-target"
+
+[[selector]]
+selector = "features/agents.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/personal.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "features/profiles/personal-linux.nix"
+intent = "design-target"
+
+[[selector]]
+selector = ".doctrine/spec/tech/**"
+intent = "design-target"
+
+[[selector]]
+selector = "features/dev.nix"
+intent = "design-target"
 
 [[relation]]
 label = "fulfils"

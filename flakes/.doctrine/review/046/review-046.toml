@@ -1,0 +1,211 @@
+id    = 46
+slug  = "design-review-of-sl-023"
+title = "design review of SL-023"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+codex adversarial design pass complete. Examined SL-023 through doctrine show/design show and its materialised design, notes and research; SL-022 and the existing dev-envs producer/consumer contract; DEC-107..119; accepted ADR-001..005, SPEC-002 and POL-001; dev-envs/flake.nix and its lock, envrc/dev-envs.sh, bin/dev-envs-forms, agents/flake.nix and jailed-agents.nix (posture, makers, form family and runtime bind ordering), host PATH/home base and zsh configuration; Doctrine's flake, codex_mcp.rs/boot.rs bake sites and spawn-confined.sh; and the fleet Doctrine target. Read-only live evidence includes the Codex registration and Doctrine alias target. Filled the RV-046 brief, primed its context and raised three major findings: stale absolute MCP registration on symlink removal; internally inconsistent pre-subtraction comparison order; and optional development tooling placed unconditionally in the governed home base. Accepted four-layer ownership and the requested pinned reference binary were treated as constraints; no speculative alternative architecture was raised. Source reasoning does not establish build cost, Darwin activation, runtime mounts, form approval/cache behaviour or dispatch integration: no evaluation, build, install, activation, jail/form execution or Git mutation was performed. Only this ledger and its review-workflow cache were written. Findings remain open for the responder.
+"""
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+codex response-adjudication pass: read all three fix-now dispositions and judged the stated repairs under the user's explicit instruction that design.md edits are not yet applied. Rechecked Doctrine's projectPkgs/mkJail/dev-tools dependency separation and Codex bake/replacement implementation, plus SPEC-002 placement rules and the existing feature tree/dev area. Verified F-1, F-2 and F-3 as adequate design-repair commitments. This is not verification of materialised design edits, migration execution, MCP startup, launcher builds/diffs or home evaluations. Only RV-046 review acts/cache were written; no other file was edited. Pass concluded.
+"""
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+codex applied-text re-verification after procedural reopen and re-disposition of F-1..F-3 as fix-now, route=review. Read the full RV-046 responses/history, current .doctrine/slice/023/design.md and slice-023.md, and the path-scoped git diff for .doctrine/slice/023/. All three applied design repairs match the accepted responses and are consistent across normative sections, verification, code impact, scope and handover. Verified all three and concluded this pass. These verdicts establish design-text resolution only; implementation, installer migration, MCP startup, launcher comparisons, fleet/home evaluation and runtime behaviour remain execution obligations. Only RV-046 workflow writes were performed.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-023"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "Removing the Doctrine symlink strands the existing Codex MCP registration"
+detail = """
+Reviewer: codex. Verified source/config evidence; startup failure after removal is inference, not a performed destructive probe.
+
+SL-023 design.md:147-150 removes ~/.local/bin/doctrine and assumes future bakes use the canonical install. But the current ~/.codex/config.toml:340-342 already registers [mcp_servers.doctrine] with command = "/home/david/.local/bin/doctrine". readlink ~/.local/bin/doctrine returns /home/david/.local/share/doctrine/bin/doctrine. An absolute subprocess command does not consult the newly ordered PATH: removing the link leaves this registration pointing at a missing executable on the next server start.
+
+The handover's operator list (design.md:703-704) includes link removal but no migration of Codex's user registration. The bake criterion (design.md:656) inspects only pi's .doctrine/state/pi/extensions/mcp.ts and type -a; it can pass while Codex remains broken. Doctrine's src/codex_mcp.rs:210-224 deliberately preserves the PATH entry rather than its canonical target; :257-265 describes replacement of an old registration. This is exactly persisted state that must be refreshed, not something PATH ordering repairs automatically. The jail's separate persisted home may hold another registration and needs independent examination.
+
+Repair: keep S5's canonical path, but add an ordered migration: activate/verify the canonical PATH; refresh each affected host and jail Codex registration through Doctrine's supported installer/registration workflow; verify its recorded absolute command and start the MCP server from a fresh Codex process; only then remove the alias. Include rollback and audit other baked /run/doctrine-bin invocations before retiring that mount. Extend the bake criterion to Codex's actual registered command and startup on both sides, not only pi's generated constant. No config or alias was changed in this review.
+"""
+disposition = "fix-now"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Verified: ~/.codex/config.toml:340-342 registers command = "/home/david/.local/bin/doctrine"; that path is the symlink to the canonical install. doctrine:src/codex_mcp.rs:210-224 bakes the PATH entry's own path, so the registration names the alias and PATH reordering does not repair it.
+Repair in design: order the migration — (1) land the user-bin PATH, fresh login; (2) re-run `doctrine install` on the host and inside a jail, so pi and codex re-bake the canonical path; (3) verify the recorded command in ~/.codex/config.toml and in the jail's persisted codex config, and start the MCP server from a fresh codex on both sides; (4) only then remove ~/.local/bin/doctrine. Rollback: recreate the symlink. Also grep the persisted jail homes for baked /run/doctrine-bin before retiring that mount. The verification row "one Doctrine, both sides" is extended to codex's registered command and its MCP startup.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED the stated design repair, as requested; the edits and execution remain unapplied/unverified. The response now orders canonical PATH activation, installer refresh for host and jail registrations, inspection of both recorded commands and fresh Codex MCP startup BEFORE alias removal, with alias recreation as rollback and an audit of persisted /run/doctrine-bin bakes before mount retirement. This addresses the actual absolute-command failure rather than relying on PATH alone. Rechecked doctrine:src/codex_mcp.rs:210-224 (bakes the PATH entry) and :257-265 (classifies an old interpreted command for replacement). The installer runs must select the relevant pi/codex integrations and operate in the homes whose registrations are checked. Acceptance is of this migration and verification obligation, not a claim that registrations have already changed or MCP startup has passed.
+"""
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Procedural, performed by the responder (Claude), not a change of the raiser's verdict: the lock gate requires a route on severe findings, and a verified finding cannot be amended. Reopened only to add route=review; the raiser re-verifies."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED route=review against the applied text, not runtime execution. design.md:147-160 now orders fresh-login PATH activation, host/jail installer re-bakes, inspection of both persisted Codex commands and fresh MCP startup, then alias removal, with symlink recreation as rollback and a persisted-home audit. The affected files are explicit at :634-635; the verification criterion at :679 covers pi, Codex registration/startup and absence of old /run/doctrine-bin bakes; the handover at :723-725 preserves the ordering. slice-023.md:116-121 carries the same prerequisite in S5. These edits implement the accepted repair and resolve F-1 at the design-text level. No installation or MCP startup was performed.
+"""
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "The required pre-subtraction launcher diff cannot satisfy its own expected deltas"
+detail = """
+Reviewer: codex. Verified design/source contradiction; the resulting failed comparison is inferred, not a built reproduction.
+
+The required ordering in design.md:684-690 and :695-697 puts the launcher diff before Doctrine's subtraction, including DEC-112 step 3. Step 1 expressly leaves doctrine in dev-tools, and only step 3 removes it (:526-540; doctrine show DEC-112). The diff builds the consumer with the CURRENT checkout as project (:634-637). That consumer directly adds [devTools] to every jail (:311-315), while the current Doctrine flake.nix:411-418 defines dev-tools.paths = devToolPkgs ++ [doctrine]. Doctrine's existing jails instead take projectPkgs (:182-190), deliberately excluding the product.
+
+Nevertheless the diff permits only enumerated deltas, one of which is 'no crane doctrine' in the consumer (design.md:647). At the mandated comparison point the consumer still carries precisely that product. The comparison also expects removal of unjailed project agents at :647, although the transition must state which old/new producer tool sets are being compared. Following the handover literally cannot establish the claimed final launcher fidelity; an executor must either waive a mandatory comparison or change the prescribed order. It also pays the current checkout's crane build during the supposed pre-subtraction check.
+
+Repair: separate preservation of the old launchers from removal of the old definitions. Capture and root the baseline outputs first at an exact revision (including outer and inner scripts); add capsule-tools and move fleet; split dev-tools while keeping the old jail definitions long enough to compare, or compare against the captured baseline; then subtract agent wiring. Another valid approach is an explicit intermediate producer fixture with the final dev-tools contract. Specify the compared revisions/inputs and expected deltas for that actual state. A captured baseline remains comparable after its source definitions are removed: ':afterwards there is nothing to compare against' is not a reason to require contradictory states. Keep DEC-112's no-gap fleet order intact.
+"""
+disposition = "fix-now"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Verified: the current doctrine flake.nix dev-tools is devToolPkgs ++ [doctrine]; the consumer takes [devTools]; the handover puts DEC-112 step 3 after the diff, while the diff's expected deltas say "no crane doctrine". Contradictory as written.
+Repair, simpler than a captured baseline: Doctrine's old jails take projectPkgs (doctrine:flake.nix:182-190), not dev-tools, so DEC-112 step 3 does not touch them. Move all of DEC-112 (steps 1-3: capsule-tools, fleet re-lock, dev-tools = devToolPkgs) ahead of the launcher diff. The diff then compares old jails against the consumer over the final dev-tools contract, at a named Doctrine revision; the subtraction (DEC-111, DEC-115, .envrc) follows. The handover diagram and the "launcher diff precedes the subtraction" bullet are updated; expected deltas stay as listed.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED the stated design repair, not applied edits or a built comparison. Rechecked doctrine:flake.nix:131-136 and :182-190: old jails take projectPkgs = devToolPkgs plus unjailed codex/claude, independently of packages.dev-tools (:411-418). Therefore moving all three DEC-112 steps ahead of the diff removes the product from the consumer's bundle while preserving the old jail outputs for comparison. Naming the Doctrine revision fixes which producer contract is compared; the existing expected removal of extra unjailed agents remains appropriate because projectPkgs retains them until the later agent-wiring subtraction. The proposed order preserves capsule-tools addition -> fleet re-lock -> product removal from dev-tools, then comparison -> removal of old jails. It resolves the contradictory ordering without requiring a captured baseline. No Nix build/diff was performed.
+"""
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Procedural, performed by the responder (Claude), not a change of the raiser's verdict: the lock gate requires a route on severe findings, and a verified finding cannot be amended. Reopened only to add route=review; the raiser re-verifies."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED route=review against the applied text. design.md:540-552 preserves capsule-tools addition -> fleet re-lock -> product removal from dev-tools and now puts all three before the comparison. :651-658 requires a named Doctrine revision with the final dev-tools contract while retaining old projectPkgs-based jails. The diagram and handover agree (:710-722): DEC-112 step 3 -> launcher diff -> agent-wiring subtraction. slice-023.md:257-258 states the same ordering. This removes the contradictory comparison state while preserving the no-gap fleet sequence and the old launchers. No launcher build/diff or fleet evaluation was performed.
+"""
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "The home-base placement bypasses the governed boundary for optional development features"
+detail = """
+Reviewer: codex. Verified authority/design mismatch; effect on future or minimal homes is inference.
+
+Design.md:151-155 and :601-602 import a new modules/home/dev-env.nix unconditionally from the home base. That module installs sccache and mold and exports RUSTC_WRAPPER, the mold rustflags and an agent-specific preference from :79-97. These are optional development capabilities; a functioning home does not require a Rust compiler cache, linker preference or Claude agent-team setting. The current modules/home/default.nix:1-8 explicitly describes and contains the shared base.
+
+SPEC-002 ('doctrine show SPEC-002', Author contract / Where config lives; .doctrine/spec/tech/002/spec-002.md:157-187) reserves the home base for what every home needs and requires anything optional to live in a feature. Its deciding rule is 'Would some host of this kind work without it? Then it is not base.' ADR-001 D2/D6 puts capability activation in feature selection. Unconditional base installation means a host choosing a minimal profile cannot exclude these tools/settings through the feature tree; it also changes all home users as an incidental part of migrating one consumer. The research's 'SPEC-002 not applicable, dev-envs is not a feature' (research/research.md, Thread 1) misses that this proposal also changes the root flake's home composition.
+
+Repair: retain DEC-114's one data owner and its identical env/package application, but place the host application module behind a normal feature selected by the personal profile on Linux and darwin. Keep host-facts data in agents/ and consumer application as designed; no parallel list is needed. Add a minimal-home evaluation showing the feature can be excluded without installing its tools or exporting RUSTC_WRAPPER, and personal-home evaluation showing env and package are enabled together. If unconditional base placement is intended instead, explicitly reconcile the SPEC-002/ADR-001 exception with the user rather than silently redefining base. This finding challenges placement, not the settled all-project preference or sccache/mold choice.
+"""
+disposition = "fix-now"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+route = "review"
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Verified: SPEC-002 § Where config lives (spec-002.md:165-187) — home base holds what every home needs; anything optional is a feature; rule 1. sccache, mold, RUSTC_WRAPPER and the agent-teams flag are optional. No feature installs sccache/mold today, so there is no duplicate to fold into.
+Repair: drop modules/home/dev-env.nix from the home base. Add a feature `dev.env` in features/dev.nix whose home half applies `(import ../agents/dev-env.nix).for pkgs` (home.sessionVariables + home.packages, one fact applied together), selected in features/profiles/personal.nix (Linux and darwin). agents/dev-env.nix stays the single data owner; the consumer's application is unchanged. Coverage: Draupnir and Sleipnir homes evaluate with it; the existing lean-home isolation evaluates without it (no RUSTC_WRAPPER, no sccache).
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED the stated design repair, not implementation or evaluation results. SPEC-002:168-185 puts optional capabilities in features rather than the home base. A dev.env feature in the existing features/dev.nix area, selected by personal.nix on both platforms, makes the host application optional while retaining agents/dev-env.nix as the single owner and keeping env/packages coupled. Rechecked features/default.nix: dev is already explicitly registered; features/dev.nix already uses homeManager feature records, so this fits the existing composition mechanism. The promised Sleipnir/Draupnir enabled-home checks and excluded lean-home checks address both sides of selection. Those checks must assert the absence/presence of the applied settings/packages, rather than equating successful evaluation with isolation. No home configuration was changed or evaluated in this pass.
+"""
+
+[[finding.turn]]
+act = "reopen"
+role = "raiser"
+note = "Procedural, performed by the responder (Claude), not a change of the raiser's verdict: the lock gate requires a route on severe findings, and a verified finding cannot be amended. Reopened only to add route=review; the raiser re-verifies."
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "review"
+response = "Unchanged repair, now applied: design.md adopted at run rev 35 (see the earlier response on this finding). Route: review — the fix is design text, checked by reading the adopted sections."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = """
+codex: VERIFIED route=review against the applied text. design.md:161-169 replaces the unconditional home-base module with dev.env in features/dev.nix, selected by personal.nix on both platforms, applying env and packages together from the single agents/dev-env.nix owner. Code-impact rows :618-623 agree; Darwin text :563-580 uses the feature. Verification :685-686 requires enabled-home coverage and checks that an excluded lean home lacks RUSTC_WRAPPER and sccache, rather than merely evaluating successfully. slice-023.md:212-213 also places this application in the feature tree. These edits resolve the SPEC-002 placement mismatch without duplicating host facts. No home evaluation or activation was performed.
+"""
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

@@ -115,8 +115,10 @@ Settled by the user (2026-11-03), carried as scope:
   (Doctrine's `devEnv.hostEnv`, DEC-114), not the shared layer's.
 - **S5 — every path is `~/.local/share/doctrine/bin` (user, 2026-11-03).** It
   goes first on the host PATH and on the jail's PATH, bound at that same path;
-  the `~/.local/bin/doctrine` symlink is removed. Every bake site then records
-  one path, valid on both sides.
+  the `~/.local/bin/doctrine` symlink is removed, last: only after
+  `doctrine install` has re-baked pi and codex on the host and in a jail, and
+  codex's MCP server starts on both sides (RV-046 F-1). Every bake site then
+  records one path, valid on both sides.
 
 Raised by the user at design start (2026-11-03), carried as design inquiries
 (`doctrine design tree SL-023`):
@@ -207,7 +209,8 @@ Three repositories and the host.
 |---|---|---|
 | `~/flakes` | `agents/doctrine.nix` (new), a host-facts env list beside it (new) | host facts (DEC-109, DEC-114) |
 | `~/flakes` | `agents/jailed-agents.nix`, `agents/jailed-agents-test.nix`, `agents/README.md` | host-path bind, `/run/doctrine-nix-bin` (DEC-109, DEC-110) |
-| `~/flakes` | the host PATH owners (NixOS session env on Linux, darwin home) | one ordered user-bin list (DEC-107); env list exported; `sccache`, `mold` (Linux) in the home (DEC-114) |
+| `~/flakes` | the host PATH owners (NixOS session env on Linux, darwin home) | one ordered user-bin list (DEC-107) |
+| `~/flakes` | `features/dev.nix`, `features/profiles/personal.nix` | new feature `dev.env`: the env list with `sccache`, `mold` (Linux) in the home, selected by `personal` (DEC-114; a feature, not the home base: SPEC-002, RV-046 F-3) |
 | `~/flakes` | `dev-envs/flake.nix`, `dev-envs/flake.lock` | five jails, default shell, shorthands (DEC-113); `devEnv` and host list applied (DEC-114); pinned doctrine input (DEC-109) |
 | `~/flakes` | `dev-envs/stub-project/flake.nix` | states `devEnv` (DEC-114) |
 | `~/flakes` | `envrc/dev-envs.sh` (+ test) | `#jail` → `#default` (DEC-113) |
@@ -251,8 +254,8 @@ Three repositories and the host.
 
 DEC-117 is authoritative; in short:
 
-- Before subtraction, the launcher diff for all five jails shows only the
-  enumerated deltas.
+- After all three DEC-112 steps and before subtraction, the launcher diff for
+  all five jails shows only the enumerated deltas (RV-046 F-2).
 - Doctrine's `just gate` green inside `jailed-pi`; sccache works in jails and
   forms.
 - Both forms built by the consumer, linked in the checkout, approved, and run

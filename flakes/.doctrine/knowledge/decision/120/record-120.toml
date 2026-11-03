@@ -1,0 +1,41 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 120
+slug = "dev-envs-local-agents"
+title = "use_dev_envs and dev-envs-forms build against the in-tree agents library"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-022 placed --override-input agents only in ~/flakes' justfile recipes (slice/022/design.md:206-207 and :434-437). envrc/dev-envs.sh (use_dev_envs) overrides only project; so the live shell and the forms take dev-envs' locked GitHub agents. A library edit reaches them only after a push and a re-lock. The repo's rule (DEC-037/DEC-038; README § Dev checkouts) is that read-only recipes build from local sources and lock-writing ones never override. The helper is read-only (--no-write-lock-file)."
+choice = "use_dev_envs and bin/dev-envs-forms add --override-input agents path:$HOME/flakes/agents (as tree_override spells it). use_dev_envs watches ~/flakes/agents/*.nix. dev-envs' lock keeps the published agents pin and its lock guard. The doctrine input stays pinned (DEC-109). Amends SL-022's override placement for the helper and the forms linker."
+alternatives = ["Keep the GitHub pin in the shell: library edits need push and re-lock to land; and the live shell diverges from just test's build", "Override only in the shell: forms and shell would be built from different libraries"]
+rationale = "One rule for every read-only path: the live shell then matches what just test builds. Removes the push/re-lock ordering step from SL-023's rollout."
+consequences = ["A broken in-progress edit under agents/ breaks every project's shell on reload (loud and named; DEC-105)", "Each library edit rebuilds project jails and forms; forms need a fresh quotient allow (DEC-115)", "SL-023 PHASE-03 carries it; PHASE-06/EN-2 drops the push and re-lock"]
+decided_by = 'user ("agreed", 2026-11-03; raised by the user during planning)'
+decided_on = "2026-11-03"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "amends SL-022's agents-override placement: the direnv helper and forms linker now override too"
+target = "SL-022"
+
+[[relation]]
+label = "references"
+role = "concerns"
+descriptor = "post-lock amendment carried in SL-023 notes; applied in PHASE-03"
+target = "SL-023"
