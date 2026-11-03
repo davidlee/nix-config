@@ -1,0 +1,32 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 1
+slug = "networked-jails-share-host-loopback-any-host-127001-service-is-reachable"
+title = "Networked jails share host loopback: any host 127.0.0.1 service is reachable"
+kind = "risk"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-11-03"
+updated = "2026-11-03"
+tags = ["agents", "jail", "security"]
+
+[facet]                         # risk only — every field typed; seeded empty
+likelihood = "medium"               # low | medium | high | critical
+impact     = "high"                 # low | medium | high | critical
+origin     = "SL-023 PHASE-07 F-1"
+controls   = []
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link RSK-NNN <label> <target>`; `doctrine inspect RSK-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "related"
+target = "SL-023"

@@ -336,6 +336,12 @@
       (set-env "CLAUDE_CODE_SHELL" "${pkgs.bashInteractive}/bin/bash")
       # Package-manager caches in the project, not the persisted home.
       (set-env "UV_CACHE_DIR" ".uv-cache")
+      # sccache's server runs the compiler. Its default address, TCP
+      # 127.0.0.1:4226, is the host's loopback too: a jailed cargo would use a
+      # host server and compile, build scripts included, unconfined. A
+      # socket in the jail's private /tmp keeps the server in the jail
+      # (SL-023 PHASE-07 F-1; the host's side is dev-env.nix's hostOnlyEnv).
+      (set-env "SCCACHE_SERVER_UDS" "/tmp/sccache.sock")
     ];
 
   # `elf-closure-binds BINARY`: bwrap args, NUL-separated,

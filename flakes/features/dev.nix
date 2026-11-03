@@ -165,7 +165,7 @@ in [
     homeManager = {pkgs, ...}: let
       devEnv = (import ../agents/dev-env.nix).for pkgs;
     in {
-      home.sessionVariables = devEnv.env;
+      home.sessionVariables = devEnv.env // devEnv.hostOnlyEnv;
       home.packages = devEnv.packages;
     };
   }

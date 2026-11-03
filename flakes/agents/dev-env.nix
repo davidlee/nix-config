@@ -9,17 +9,24 @@ rec {
     UV_PYTHON_PREFERENCE = "only-system";
   };
   linuxEnv.CARGO_BUILD_RUSTFLAGS = "-C link-arg=-fuse-ld=mold"; # mold cannot emit Mach-O
+  # Host shells only, never a jail; Linux, where jails run (darwin has neither
+  # jails nor XDG_RUNTIME_DIR). sccache's server runs the compiler, and its
+  # default address, TCP 127.0.0.1:4226, is shared with every networked jail:
+  # a jailed cargo would compile, build scripts included, on the host (SL-023
+  # PHASE-07 F-1, RSK-001). The host's server listens on a socket under
+  # $XDG_RUNTIME_DIR, which no jail binds; each jail keeps its own
+  # (jailed-agents.nix, envOptions).
+  linuxHostOnlyEnv.SCCACHE_SERVER_UDS = "\${XDG_RUNTIME_DIR}/sccache.sock";
   # The env and its packages for one platform.
   for = pkgs: let
     linux = pkgs.stdenv.isLinux;
+    onLinux = attrs:
+      if linux
+      then attrs
+      else {};
   in {
-    env =
-      env
-      // (
-        if linux
-        then linuxEnv
-        else {}
-      );
+    env = env // onLinux linuxEnv;
+    hostOnlyEnv = onLinux linuxHostOnlyEnv;
     packages =
       [pkgs.sccache]
       ++ (

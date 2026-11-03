@@ -193,11 +193,19 @@
     # What dev.env (agents/dev-env.nix) sets in a home: the variable and its package together.
     devEnvOf = c: {
       wrapper = c.config.home.sessionVariables.RUSTC_WRAPPER or null;
+      server = c.config.home.sessionVariables.SCCACHE_SERVER_UDS or null;
       sccache = lib.any (p: lib.getName p == "sccache") c.config.home.packages;
     };
     withDevEnv = {
       wrapper = "sccache";
       sccache = true;
+    };
+    # Linux, where jails run: a unix socket no jail binds, not TCP loopback,
+    # which every networked jail shares. darwin has no jails and no
+    # XDG_RUNTIME_DIR, so sccache keeps its default.
+    devEnvFor = {
+      Sleipnir = withDevEnv // {server = "\${XDG_RUNTIME_DIR}/sccache.sock";};
+      Draupnir = withDevEnv // {server = null;};
     };
     classes = map (meta: classesOf (validate "checks.factories" ({system = "x86_64-linux";} // meta))) [
       {kind = "nixos";}
@@ -224,12 +232,13 @@
     ++ map (host: let
       got = devEnvOf homeConfigurations."${username}@${host}";
     in
-      expect "${host}'s home lacks dev.env (RUSTC_WRAPPER and sccache): ${builtins.toJSON got}" (got == withDevEnv)) ["Sleipnir" "Draupnir"]
+      expect "${host}'s home does not carry dev.env as expected: ${builtins.toJSON got}" (got == devEnvFor.${host})) (lib.attrNames devEnvFor)
     ++ [
       (expect "the home base (home@aarch64-linux) carries dev.env: ${builtins.toJSON (devEnvOf homeBase)}"
         (devEnvOf homeBase
           == {
             wrapper = null;
+            server = null;
             sccache = false;
           }))
     ];

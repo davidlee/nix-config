@@ -169,3 +169,13 @@ must be reconciled into design.md at /reconcile:
   `agents/dev-env.nix` does not set it. Dropped anyway: the old value
   (`~/.cache/sccache`) is sccache's Linux default, so behaviour is unchanged.
   PHASE-07 EX-2 still checks it live. Wording to reconcile.
+- **DEC-121** (user, 2026-11-04: "A", after /consult on PHASE-07 F-1). A jailed
+  cargo used a host sccache server over TCP 127.0.0.1:4226 (networked jails
+  share host loopback), so rustc ran unconfined on the host. Each side now uses
+  its own unix socket: the library's `envOptions` set
+  `SCCACHE_SERVER_UDS=/tmp/sccache.sock` in every jail and form;
+  `agents/dev-env.nix` gains `hostOnlyEnv` (Linux only,
+  `${XDG_RUNTIME_DIR}/sccache.sock`), applied by `dev.env` alone, never in
+  `env`. § Host facts (`for` returns `{env; hostOnlyEnv; packages}`), § The
+  jail library (envOptions) and DEC-114's wording to reconcile. Class risk
+  (any host loopback service reachable from a networked jail): RSK-001.

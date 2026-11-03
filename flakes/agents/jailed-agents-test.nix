@@ -410,6 +410,9 @@ in
   assert agents.gatewayFacts.clientSocket == gatewayData.clientSocket;
   # The host's env list, resolved for this pkgs; the library applies none of it.
   assert agents.hostDevEnv == (import ./dev-env.nix).for pkgs;
+  # The host's sccache socket never reaches a jail through the env list a
+  # consumer applies there (SL-023 PHASE-07 F-1).
+  assert !(agents.hostDevEnv.env ? SCCACHE_SERVER_UDS);
   assert mixedPiConfig
   == {
     providers.llm-gateway = {
@@ -578,6 +581,11 @@ in
       for marker in -git-guarded/bin "$host_doctrine" -host-git-excludes-file \
         GIT_SSH_COMMAND GIT_AUTHOR_NAME CLAUDE_CODE_SHELL /usr/bin/env; do
         grep -Fq -- "$marker" "$full"
+      done
+      # sccache's server runs the compiler: every jail keeps its own on a
+      # socket in its private /tmp, never the host's (SL-023 PHASE-07 F-1).
+      for probe in "$full" "$bare"; do
+        grep -Fq -- '--setenv SCCACHE_SERVER_UDS /tmp/sccache.sock' "$probe"
       done
       for marker in -git-guarded doctrine GIT_SSH_COMMAND GIT_AUTHOR_NAME; do
         refute grep -Fq -- "$marker" "$bare"
