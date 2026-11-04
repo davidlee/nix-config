@@ -22,3 +22,13 @@ the store path with that hash rather than the directory beside the flake.
 
 Options: `just test` passes `--override-input project path:…/dev-envs/stub-project`
 (always current, no lock reliance); or move the stub out of the inputs.
+
+## Resolution (2026-11-04)
+
+`just test` now passes `--override-input project path:…/dev-envs/stub-project`
+to all four dev-envs checks, through one variable (`dev_envs_check_override`,
+`justfile`), so they read the stub as it is, not the store path its lock hashes.
+Checked: all four pass; a renamed `STUB_HOST_ENV` in the stub fails the `stub`
+check with no re-lock; `just test` is green. Not run: a machine with the stub's
+store path absent (the override does not look it up). A plain `nix eval` of
+`dev-envs` without an override still needs that path; no recipe does that.

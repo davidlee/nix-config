@@ -13,6 +13,10 @@
 # In-tree inputs (agents/, emacs/), present wherever this justfile is.
 tree_override := "--override-input agents path:" + justfile_directory() + "/agents" + " --override-input emacs path:" + justfile_directory() + "/emacs"
 
+# dev-envs' checks run against the stub fixture as it is now, not the store path its
+# lock hashes: absent on a fresh machine or after GC, stale until re-locked (ISS-025).
+dev_envs_check_override := "--override-input project path:" + justfile_directory() + "/dev-envs/stub-project --override-input agents path:" + justfile_directory() + "/agents"
+
 # Backticks run only when a recipe uses them, so dev-checkouts' untracked-file
 # warning reaches the recipes that build with local_override, not every `just`.
 set lazy
@@ -76,10 +80,10 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).quotient-relay" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).project-pins" --override-input project "path:{{justfile_directory()}}/dev-envs/stub-project" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-forms" --override-input agents "path:{{justfile_directory()}}/agents" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).project-pins" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-forms" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
   envrc/agents-test
   envrc/dev-envs-test
