@@ -45,5 +45,5 @@ them. Satan's forms wait for IMP-062's mounts only if its family has any.
 Related: IMP-060, IMP-062, SL-022.
 
 Carried over from IMP-060: panopticon, deck_of_dwarf and zmux also still need
-their `.envrc` moved to `use_dev_envs` (each already exports `dev-tools`
-except where noted in its flake).
+their `.envrc` moved to `use_dev_envs` (panopticon and zmux already export
+`dev-tools`; deck_of_dwarf does not and needs one).
