@@ -13,3 +13,14 @@ Likely fix: the linker adds `.quotient/` to the checkout's `.git/info/exclude`
 agents"), with a case in `bin/dev-envs-forms-test`. Smut's tracked links need
 `git rm --cached`, which is the operator's call. Check first that quotient does
 not need them tracked.
+
+## Resolution (2026-11-04)
+
+No code change. The jail library already mounts the host's global git excludes
+read-only into every jail and form (`hostGitExcludesFile`,
+`agents/jailed-agents.nix`), so `.quotient` in the operator's
+`~/.gitignore_global` hides the links there. The Mac shares that file, and
+quotient's docs now say to ignore `.quotient`. Only already-tracked links
+remain (doctrine, smut): `git rm --cached -r .quotient` in each, the
+operator's call. The proposed `.git/info/exclude` write in
+`bin/dev-envs-forms` is dropped.
