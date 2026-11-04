@@ -8,6 +8,9 @@ let
     hostEnv = [];
   };
 in rec {
+  # Every name the host layers own, in jails or in host shells alone.
+  hostNames = hostDevEnv: builtins.attrNames (hostDevEnv.env // hostDevEnv.hostOnlyEnv);
+
   errors = {
     lib,
     hostNames,

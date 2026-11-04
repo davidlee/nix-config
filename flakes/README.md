@@ -1205,6 +1205,11 @@ undefined. Either way the `.envrc`'s `||` takes the project's own `use flake .`.
 `dev-tools`, a jail that will not build — and stays loud: a silently different
 shell is unresolvable.
 
+**On the Mac** there is no consumer, so a project's own shell carries no agent
+CLIs. pi comes from the `agents.pi` feature; claude and codex come from their
+own installers (claude's native installer into `~/.local/bin`, codex as an npm
+global). Nothing here builds them (DEC-116).
+
 Without a consumer, the template is the self-contained option — bubblewrap-jailed
 agents, all pins in the project:
 

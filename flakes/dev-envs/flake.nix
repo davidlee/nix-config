@@ -83,7 +83,7 @@
       inherit (jailLib) hostDevEnv;
       devEnv = devEnvLib.checkDevEnv {
         inherit lib;
-        hostNames = lib.attrNames hostDevEnv.env;
+        hostNames = devEnvLib.hostNames hostDevEnv;
       } (devTools.devEnv or {}); # passthru attributes sit on the derivation itself
       env = hostDevEnv.env // devEnv.env;
       envOptions = c:
@@ -215,7 +215,7 @@
             touch $out
           '';
 
-        dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib;};
+        dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib hostDevEnv;};
 
         # The project keeps its pins: its tools are built at its own lock, not
         # at this flake's. The stub's lock pins a nixpkgs this flake does not,

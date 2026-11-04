@@ -4,9 +4,10 @@
 {
   pkgs,
   devEnvLib,
+  hostDevEnv,
 }: let
   inherit (pkgs) lib;
-  hostNames = ["RUSTC_WRAPPER"];
+  hostNames = devEnvLib.hostNames hostDevEnv;
   errors = devEnvLib.errors {inherit lib hostNames;};
   checkDevEnv = devEnvLib.checkDevEnv {inherit lib hostNames;};
 
@@ -51,6 +52,16 @@
       name = "hostEnv name owned by host";
       devEnv = {hostEnv = ["RUSTC_WRAPPER"];};
       needle = "RUSTC_WRAPPER";
+    }
+    {
+      name = "env name owned by host shells alone";
+      devEnv = {env.SCCACHE_SERVER_UDS = "x";};
+      needle = "SCCACHE_SERVER_UDS";
+    }
+    {
+      name = "hostEnv name owned by host shells alone";
+      devEnv = {hostEnv = ["SCCACHE_SERVER_UDS"];};
+      needle = "SCCACHE_SERVER_UDS";
     }
     {
       name = "devEnv not an attrset";
