@@ -17,3 +17,16 @@ Not run: confirm the failure in one of them first. Then move each to
 `use_dev_envs`, or re-lock `agents` to a revision with the host-path bind.
 Needs a published pin with PHASE-02 (RV-047 F-4). The redundant own binds in
 the other project flakes go in the same pass.
+
+## Finding (2026-11-04)
+
+The failure this item predicted did not occur. The operator launched a jail in
+each repo and `~/.local/share/doctrine/bin/doctrine` was reachable in all of
+them except screwtape, which lacks `jailed-shell`. Also, satan and www have
+`makeJailedCodex` commented out, so the repo list above overstated.
+
+So there is no regression to fix. What remains is the original aim: bring each
+repo in line with the dev-envs approach (`use_dev_envs`, dropping its own
+Doctrine binds), one repo at a time, as each is next worked on. Screwtape's
+missing `jailed-shell` is the first misalignment found; its `.envrc` is
+`use flake` and its `agents` pin is a plain GitHub URL.
