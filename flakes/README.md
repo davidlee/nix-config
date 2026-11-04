@@ -912,6 +912,12 @@ client socket. The client socket belongs to the relay's socket unit, so a
 gateway restart does not recreate it. Both paths authenticate the same way, by
 the jail's bearer key (DEC-047, DEC-077); the unix socket adds no trust.
 
+**Gateway restart.** A switch restarts `llm-gateway` whenever its unit changes
+(a new LiteLLM, a model-list edit): about 25 s down, in-flight requests cut off.
+To choose when, set `services.llm-gateway.restartOnSwitch = false;` in the host
+config (default `true`). The switch then leaves a changed gateway running its old
+code and config until `sudo systemctl restart llm-gateway`.
+
 **Relay restart.** The relay is socket-activated, and switch-to-configuration
 does nothing for a changed `.socket` unit (NixOS issue 74899). So the relay
 service carries the socket unit in its `restartTriggers`: a change to the

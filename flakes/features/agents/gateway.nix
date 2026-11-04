@@ -64,6 +64,11 @@
     };
   in {
     options.services.llm-gateway = {
+      restartOnSwitch = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Restart the gateway when a switch changes its unit (~25 s outage). When false, a changed gateway keeps running its old code and config until `systemctl restart llm-gateway`.";
+      };
       providers = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
           options = {
@@ -108,6 +113,7 @@
       systemd.services.llm-gateway = {
         description = "LLM gateway (LiteLLM) on ${constants.socket}";
         wantedBy = ["multi-user.target"];
+        restartIfChanged = cfg.restartOnSwitch;
         environment = {
           CONFIG_FILE_PATH = "${proxy.configDir {
             inherit models;

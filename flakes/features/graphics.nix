@@ -14,7 +14,8 @@
         inkscape
         gimp
         drawpile
-        penpot-desktop
+        # BROKEN electron
+        # penpot-desktop
       ];
     };
   }
