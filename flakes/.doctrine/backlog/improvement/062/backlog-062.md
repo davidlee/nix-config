@@ -30,5 +30,6 @@ read-only, plus `XDG_RUNTIME_DIR` and `SATAN_MCP_SOCKET`), a read-write bind of
 `~/satan-corpus` at `/workspace/satan-corpus`, and a supabase TCP env
 (`PGHOST` 127.0.0.1, port 54322; dropped by the no-DB decision). The mounts
 belong with the Postgres ones: host-defined once, a project opts in to an extra
-jail. Until then satan keeps its own jails and its `.envrc` stays on
-`agents_dev`; it is the one repo left unmigrated under IMP-060.
+jail. Not a blocker (decided 2026-11-04): satan entered dev-envs without the DB env.
+Its own jails still take the satan-mcp mount, so the dev-envs shell lacks it
+until this lands.
