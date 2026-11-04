@@ -9,11 +9,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1793707885,
-        "narHash": "sha256-9Je2OmD7GQPOExmAFdAVPT1C0DkSrYUb0UIKVk4TScY=",
+        "lastModified": 1793761628,
+        "narHash": "sha256-3ausDD7XRD2wAwSBOSQbaTrBoZNKtVlgRCND5pUF7eI=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "27f6ca32d0dd672eb64d553756fe37410be8f98e",
+        "rev": "8ba85a46452ab4f3dc46cb5e798a458fa21a8533",
         "type": "github"
       },
       "original": {
@@ -2160,11 +2160,11 @@
     },
     "crane_10": {
       "locked": {
-        "lastModified": 1791754810,
-        "narHash": "sha256-cN0Mgk+sQtCJcGWs9H4M0CnLRAuC4I8aCwiBTcBJs6E=",
+        "lastModified": 1792350552,
+        "narHash": "sha256-292lvpvxTGKryKxh3/3tcIVi85CwYGdl4oOi113Sob8=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "bd63bf1d0a0f6dcacd7549c714a671ee63b0db6a",
+        "rev": "e675a36b7377bebe41d548388a2501cbb16d380d",
         "type": "github"
       },
       "original": {
@@ -2204,6 +2204,21 @@
       }
     },
     "crane_13": {
+      "locked": {
+        "lastModified": 1791754810,
+        "narHash": "sha256-cN0Mgk+sQtCJcGWs9H4M0CnLRAuC4I8aCwiBTcBJs6E=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "bd63bf1d0a0f6dcacd7549c714a671ee63b0db6a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
+    "crane_14": {
       "locked": {
         "lastModified": 1791754810,
         "narHash": "sha256-cN0Mgk+sQtCJcGWs9H4M0CnLRAuC4I8aCwiBTcBJs6E=",
@@ -2325,11 +2340,11 @@
     },
     "crane_9": {
       "locked": {
-        "lastModified": 1792350552,
-        "narHash": "sha256-292lvpvxTGKryKxh3/3tcIVi85CwYGdl4oOi113Sob8=",
+        "lastModified": 1793585954,
+        "narHash": "sha256-tXvzytP+yKObBT9UpMoqA8AINfq62ZzeOcGFiCJ8ouo=",
         "owner": "ipetkov",
         "repo": "crane",
-        "rev": "e675a36b7377bebe41d548388a2501cbb16d380d",
+        "rev": "8782adaf7e415975d2737b41ccca93b08a8f7d9f",
         "type": "github"
       },
       "original": {
@@ -2808,11 +2823,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1793518790,
-        "narHash": "sha256-jvwXTfqjwCtgkAmDfv5iyDIbkr805M+dsE0D0FOoYZw=",
+        "lastModified": 1793719201,
+        "narHash": "sha256-Dz5o+sqsXPvXWkA7fPlSCGFSdAd4yxsqGlpTQlTEPnI=",
         "owner": "davidlee",
         "repo": "doctrine",
-        "rev": "9da9de21841c300a587872870f9512a9ca9c4aee",
+        "rev": "e48660f3fe2d70e04fbf7eb84407d5298116da43",
         "type": "github"
       },
       "original": {
@@ -2919,7 +2934,7 @@
     "doctrine_6": {
       "inputs": {
         "agents": "agents_24",
-        "crane": "crane_10",
+        "crane": "crane_11",
         "devshell": "devshell_16",
         "flake-parts": "flake-parts_45",
         "nixpkgs": "nixpkgs_91",
@@ -2942,7 +2957,7 @@
     "doctrine_7": {
       "inputs": {
         "agents": "agents_25",
-        "crane": "crane_11",
+        "crane": "crane_12",
         "devshell": "devshell_18",
         "flake-parts": "flake-parts_49",
         "nixpkgs": "nixpkgs_98",
@@ -2967,7 +2982,7 @@
         "agents": [
           "agents"
         ],
-        "crane": "crane_12",
+        "crane": "crane_13",
         "devshell": "devshell_20",
         "flake-parts": "flake-parts_50",
         "nixpkgs": "nixpkgs_102",
@@ -2992,7 +3007,7 @@
         "agents": [
           "agents"
         ],
-        "crane": "crane_13",
+        "crane": "crane_14",
         "devshell": "devshell_23",
         "flake-parts": "flake-parts_55",
         "nixpkgs": "nixpkgs_113",
@@ -3038,11 +3053,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1793707885,
-        "narHash": "sha256-9Je2OmD7GQPOExmAFdAVPT1C0DkSrYUb0UIKVk4TScY=",
+        "lastModified": 1793761628,
+        "narHash": "sha256-3ausDD7XRD2wAwSBOSQbaTrBoZNKtVlgRCND5pUF7eI=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "27f6ca32d0dd672eb64d553756fe37410be8f98e",
+        "rev": "8ba85a46452ab4f3dc46cb5e798a458fa21a8533",
         "type": "github"
       },
       "original": {
@@ -3086,11 +3101,11 @@
         "nixpkgs-stable": "nixpkgs-stable"
       },
       "locked": {
-        "lastModified": 1793686847,
-        "narHash": "sha256-l69ifwZsu2G2UZFYaM7+Ic6fnvwYmmI2OZebxCEQNNI=",
+        "lastModified": 1793752891,
+        "narHash": "sha256-r+PZnPEkCyvGHTpT5NIegpandrS9Cx6UlVftp39svpc=",
         "owner": "nix-community",
         "repo": "emacs-overlay",
-        "rev": "8c8bd893cc6d99b7c008783ee68ece4fec55c321",
+        "rev": "c4de4136bfcefd54ba4e94943fba76c16adbfbc8",
         "type": "github"
       },
       "original": {
@@ -5100,11 +5115,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1793712040,
-        "narHash": "sha256-Eg9+RUyV8koAW+glB8kM+1+yI1YDuLwPNmM8tGjhG24=",
+        "lastModified": 1793719248,
+        "narHash": "sha256-X2+s7/7vq9CQiS5QoqPlxo5jgi0SxXI9s4kGqaCz1hk=",
         "ref": "refs/heads/main",
-        "rev": "7e040dd09b56e3bc88497122a2684200c7adb0de",
-        "revCount": 37,
+        "rev": "a9b384f3eb18d5dfd51dbc80717c826d04eab46d",
+        "revCount": 39,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -5200,7 +5215,7 @@
     "goad_4": {
       "inputs": {
         "agents": "agents_22",
-        "crane": "crane_9",
+        "crane": "crane_10",
         "nixpkgs": "nixpkgs_85",
         "rust-overlay": "rust-overlay_12"
       },
@@ -6410,11 +6425,11 @@
         "quotient": "quotient_3"
       },
       "locked": {
-        "lastModified": 1793529384,
-        "narHash": "sha256-83gAL/L3AUfBpTB4ZyhJ1+y6fHGfkvdvjqDA4OOqYBY=",
+        "lastModified": 1793674908,
+        "narHash": "sha256-ALzs3a8akLeoZxlhyORXNH3KBLeGlCbp1gL05oh4qmc=",
         "owner": "davidlee",
         "repo": "Malebolge",
-        "rev": "4ebf0b8eca977c9b073c3a610e269fd0b66d4b76",
+        "rev": "8e49fd48eddeeececc656de6ac2821fd52a65a5d",
         "type": "github"
       },
       "original": {
@@ -6596,11 +6611,11 @@
       },
       "locked": {
         "dir": "flakes/dev-tools",
-        "lastModified": 1793404112,
-        "narHash": "sha256-EaCpmiv+WmJ2rPPSQ6EOoAzmJ1Ne+4k3FWFIrMLzMNs=",
+        "lastModified": 1793707885,
+        "narHash": "sha256-9Je2OmD7GQPOExmAFdAVPT1C0DkSrYUb0UIKVk4TScY=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "ff4ece17857b33f7df2fe4a29d1ed9b52f4a445f",
+        "rev": "27f6ca32d0dd672eb64d553756fe37410be8f98e",
         "type": "github"
       },
       "original": {
@@ -9184,11 +9199,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1793711841,
-        "narHash": "sha256-Hcfg0S0gKVoXYVKPFkOHGhapiOshO0fKPPPfjWMrSVg=",
+        "lastModified": 1793714214,
+        "narHash": "sha256-3/SoftWaSM1n4aJoajCXEsVs6kz3KKyn4QlAtw+FhXw=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "797e122cb1181931e6ec1fe2369c7c17dbf1fc9e",
+        "rev": "a57438e918350a2387d7518e46c74f367cc7feaf",
         "type": "github"
       },
       "original": {
@@ -10025,11 +10040,11 @@
         "zig-overlay": "zig-overlay_4"
       },
       "locked": {
-        "lastModified": 1793359578,
-        "narHash": "sha256-uUrlIBMnjCcsuIc6Utf6Br0YKc88TEhmtjUgMr4l6u4=",
+        "lastModified": 1793675769,
+        "narHash": "sha256-Rdr/yUQ9RVt3Y2Krdr2cd1nVciLrZLgp8gVQT1bB194=",
         "owner": "davidlee",
         "repo": "satan",
-        "rev": "0a44253ed99f912704f653b9c963834b53b788f8",
+        "rev": "edc871b97107876c39fa6a85fbdbd248c36003f7",
         "type": "github"
       },
       "original": {
@@ -10104,11 +10119,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793358001,
-        "narHash": "sha256-f33YQNxxoUXR2khQ1+smCQ5mZQIwbyzG6rhCuKKQwrM=",
+        "lastModified": 1793533249,
+        "narHash": "sha256-KcemmwQrnj76tS7N+F6TTCOGkOmZytm9p3jyOWuMH4U=",
         "ref": "refs/heads/main",
-        "rev": "3f2c8baded05b81de2eb1f8147ea73447ad7cdbd",
-        "revCount": 149,
+        "rev": "b4d6d690166c83c8de245674aa8b41a9603f4ce2",
+        "revCount": 155,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/satan-corpus"
       },
@@ -10227,6 +10242,7 @@
     "smut": {
       "inputs": {
         "agents": "agents_20",
+        "crane": "crane_9",
         "devshell": "devshell_14",
         "flake-parts": "flake-parts_39",
         "nixpkgs": [
@@ -10237,11 +10253,11 @@
         "rust-overlay": "rust-overlay_11"
       },
       "locked": {
-        "lastModified": 1793529921,
-        "narHash": "sha256-6aacEKkDRVxD3Nacj8QNY9k+I8L9ZqipICpOHwB4QvI=",
+        "lastModified": 1793695089,
+        "narHash": "sha256-DYpSxiJupQ7yO2Bg0miPeDJyvJ3MUH1ziJAQFBBCjYs=",
         "ref": "refs/heads/main",
-        "rev": "33fc45e4ce583afe60467413e8b34a33fe348aaa",
-        "revCount": 107,
+        "rev": "a894e5ce214eb1b5377f06c05f6f85e19c54fd3e",
+        "revCount": 405,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/smut"
       },
