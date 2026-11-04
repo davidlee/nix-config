@@ -21,3 +21,14 @@ socket (the user's decision, 2026-11-04).
 Context: IMP-060 (migration to dev-envs). Satan-attrd and satan stay off
 dev-envs' DB access until this lands; they migrate with no DB access first.
 Blocks nothing else. Related: IMP-063.
+
+## Satan's dev jails (2026-11-04)
+
+Postgres is not the only per-project mount the consumer lacks. Satan's dev
+jails also take `jailLib.satanMcpOptions` (the satan-mcp socket directory,
+read-only, plus `XDG_RUNTIME_DIR` and `SATAN_MCP_SOCKET`), a read-write bind of
+`~/satan-corpus` at `/workspace/satan-corpus`, and a supabase TCP env
+(`PGHOST` 127.0.0.1, port 54322; dropped by the no-DB decision). The mounts
+belong with the Postgres ones: host-defined once, a project opts in to an extra
+jail. Until then satan keeps its own jails and its `.envrc` stays on
+`agents_dev`; it is the one repo left unmigrated under IMP-060.
