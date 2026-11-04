@@ -24,6 +24,8 @@ git add ~/flakes/ is typically correct, with conventional commits.
   files (and doctrine slug symlinks) explicitly; flakes see only tracked files.
 - git paths carry a `flakes/` prefix, so doctrine selector / conformance /
   verify-vt attribution misfires (ISS-005). Judge by agent.
+- In a jail or form, git is read-only: read history and `git status -- .`, but
+  commit on the host. Paths outside `flakes/` show as ` D`; that is expected.
 - Detail: `doctrine memory show mem.system.flakes.home-worktree`.
 
 sizing: don't automatically slice new work. Tasks which don't require multi-phase execution are better handled with an agreed design sketch straight from a backlog item, or not even. When in doubt, ask the user.

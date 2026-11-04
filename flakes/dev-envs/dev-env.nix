@@ -2,7 +2,7 @@
 # (design § The project's env). `errors` is the pure validator: one string per
 # refusal. `checkDevEnv` throws once on any, and degrades an absent devEnv to nothing.
 let
-  allowedKeys = ["env" "hostEnv"];
+  allowedKeys = ["env" "hostEnv" "outerGitDir"];
   noEnv = {
     env = {};
     hostEnv = [];
@@ -28,13 +28,18 @@ in rec {
     envOk = lib.isAttrs env;
     badValues = lib.optionals envOk (lib.filter (n: !lib.isString env.${n}) (lib.attrNames env));
     hostEnvOk = lib.isList hostEnv && lib.all lib.isString hostEnv;
+    outerGitDirOk =
+      !(isSet && devEnv ? outerGitDir)
+      || (lib.isString devEnv.outerGitDir
+        && builtins.match "[.]?[A-Za-z0-9][A-Za-z0-9._-]*" devEnv.outerGitDir != null);
     names = lib.optionals envOk (lib.attrNames env) ++ lib.optionals hostEnvOk hostEnv;
   in
-    lib.optional (!isSet) "must be an attrset { env; hostEnv; }"
+    lib.optional (!isSet) "must be an attrset { env; hostEnv; outerGitDir; }"
     ++ map (k: "unknown key `${k}` (allowed: ${toString allowedKeys})") unknown
     ++ lib.optional (!envOk) "`env` must be an attrset of strings"
     ++ map (n: "`env.${n}` must be a string") badValues
     ++ lib.optional (!hostEnvOk) "`hostEnv` must be a list of strings"
+    ++ lib.optional (!outerGitDirOk) "`outerGitDir` must be a bare directory name"
     ++ map (n: "`${n}` is not a valid POSIX name") (lib.filter (n: !lib.isValidPosixName n) names)
     ++ map (n: "`${n}` is owned by the host's env list: do not restate it")
     (lib.filter (n: lib.elem n hostNames) names);

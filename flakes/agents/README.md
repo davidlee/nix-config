@@ -23,6 +23,8 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
   [quotient forms](#quotient-forms))
 - `posture` — the confinement every jail and every form gets, as a function of
   a combinator set (see [quotient forms](#quotient-forms))
+- `outerGit` — `outerGit c {gitDir; parent;}`: a repository above the project,
+  read-only, in a jail or form (`outer-git.nix`; SPEC-003's `outerGitDir`).
 - `tryFwdEnv` — `tryFwdEnv c "NAME"`: forward a host variable if set, in a jail
   or a form (see [quotient forms](#quotient-forms))
 - `mkJailScanCheck`, `opUnjailed` — flake checks that no jail reaches a path

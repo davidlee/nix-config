@@ -1,0 +1,47 @@
+memory_uid = "mem_01a1a5f39eaa7ef2937dfe5123d9df9e"
+memory_key = "mem.fact.bwrap.gitfile-ownership"
+schema_version = 1
+lifespan = "semantic"
+memory_type = "fact"
+status = "active"
+title = "git refuses a root-owned gitfile in a bwrap jail"
+summary = "A Nix store file bound at <worktree>/.git fails with 'dubious ownership'; use bwrap --ro-bind-data"
+created = "2026-11-04"
+updated = "2026-11-04"
+
+[scope]
+paths = ["flakes/agents/outer-git.nix"]
+globs = ["flakes/agents/*.nix"]
+commands = []
+tags = ["bwrap", "git", "jail"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "5ecf581e013cd056b821c54bcda2cd75cae0c5b3"
+ref_name = "refs/heads/main"
+checkout_state_id = "ad08635c117c2b980e0f53db4cab01222d7dfc23edad661d7642130303fc1a68"
+base_commit = "f954cd15aa6d466bbe1a222fa5433c08adab1a63"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "high"
+
+[ranking]
+severity = "medium"
+weight = 0
+
+[[source]]
+kind = "backlog"
+ref = "IMP-057"
+

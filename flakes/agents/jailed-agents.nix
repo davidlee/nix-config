@@ -653,6 +653,8 @@ in
     inherit posture;
     # Env forwarding that a quotient form accepts: tryFwdEnv combinators NAME.
     inherit tryFwdEnv;
+    # Read-only git for a repository above the project: outerGit combinators { … }.
+    outerGit = import ./outer-git.nix {inherit pkgs;};
     # Checks that no jail reaches a path: mkJailScanCheck { … }, and its op
     # preset, opUnjailed launchers (jail-scan.nix).
     inherit (import ./jail-scan.nix {inherit lib pkgs;}) mkJailScanCheck opUnjailed;

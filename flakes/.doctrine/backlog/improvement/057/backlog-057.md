@@ -208,8 +208,38 @@ with a read-only `.cfg`; kept in case jail commits are revisited.
 
 ## Design and handover (2026-11-04)
 
-Status: sketch approved by the operator; not implemented. No slice (single
-phase, repo sizing rule). This section is the current scope.
+Status: implemented 2026-11-04; see § Outcome. No slice (single phase, repo sizing rule). This section is the
+current scope.
+
+### Outcome (2026-11-04)
+
+All steps done. The operator linked the forms and ran `quotient allow`; a
+`pi_agent` call at `~/flakes` under the `read` profile then ran on the approved
+form: `git log` worked, `git add` failed on `index.lock`, `treefmt` was on PATH.
+Deviation from § Shape, and why:
+
+- **The gitfile is not a store file.** Probed: a root-owned store file at `T/.git`
+  fails with "detected dubious ownership" (git checks the gitfile's owner; in a
+  jail the store's owner is nobody). The recipe below missed it: its gitfile was
+  user-owned. `agents/outer-git.nix` uses `--ro-bind-data FD`, which bwrap writes
+  itself, user-owned and read-only. No `safe.directory` env needed.
+- `agents/outer-git.nix` tests the parent with `${PWD%/*}`, not `dirname`: the
+  launcher's PATH is not to be relied on.
+- The behaviour test is `agents/outer-git-test`, a real jail over a fabricated
+  home, built from `testJails` in `agents/flake.nix`; `just test` runs it.
+
+Unverified items, settled (observed):
+
+- A form mounts at `$HOME/.cfg` and `$HOME/.git`: real `quotient-read` and
+  `quotient-write` launched by hand with a one-shot pi run. `git log` works,
+  `git add` fails on `index.lock`. `dev-envs` passes no `persistHome`, so a form's
+  home is a tmpfs: nothing appears on the host.
+- All script tests using `git init`/`git -C` pass in a real `jailed-shell`, except
+  `agents/outer-git-test`, which needs `nix`.
+- **Formatters disagree on one file.** The jail's treefmt (alejandra 4.0.0)
+  rewrites `_templates/rust/shell.nix`; all other 169 tracked `.nix` files agree.
+  Bumping `dev-tools`' nixpkgs would likely close it; not done (it moves the
+  room's tools).
 
 ### Decisions
 

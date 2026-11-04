@@ -64,6 +64,26 @@
         };
       };
 
+      # Real jails for script tests to launch: bwrap needs user namespaces, which
+      # a check's sandbox lacks. `just test` runs agents/outer-git-test.
+      testJails = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux (let
+        jailLib = mkJailedAgents {};
+      in {
+        outer-git = jailLib.makeJailedAgent {
+          name = "outer-git-probe";
+          agent = pkgs.bashInteractive;
+          profile = "offline";
+          sandboxGitIdentity = true; # as the specDev jails
+          hostDoctrine = false;
+          extraOptions = [
+            (jailLib.outerGit jailLib.combinators {
+              gitDir = ".cfg";
+              parent = "/workspace";
+            })
+          ];
+        };
+      });
+
       # packages.helium = pkgs.callPackage ./helium.nix {};
       packages.zerostack = pkgs.callPackage ./zerostack.nix {};
       packages.dirge = pkgs.callPackage ./dirge.nix {};

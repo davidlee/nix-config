@@ -1164,6 +1164,21 @@ Every jail and form runs its own sccache server on a socket in its private
 `/tmp`, and a Linux host shell uses one under `$XDG_RUNTIME_DIR` (DEC-121). The
 default TCP address is shared loopback: a jailed build would run on the host.
 
+`outerGitDir` is for a project whose repository sits above it. This repo states
+`passthru.devEnv.outerGitDir = ".cfg"` in `dev-tools/`, so a jail or form launched
+from `~/flakes` sees the home repository read-only (`agents/outer-git.nix`):
+
+```
+~/.cfg ──ro──────────> T/.cfg
+store: config ──ro───> T/.cfg/config   core.worktree = ..
+gitfile ──ro─────────> T/.git          gitdir: .cfg  (--ro-bind-data: git refuses a store-owned one)
+~/flakes ────────────> T/flakes        T = /workspace (jail), $HOME (form)
+```
+
+`status`, `log` and `diff` work there; `git add` and `commit` fail, so commits and
+`just gate` stay on the host. The paths outside `flakes/` read as ` D`. A launch
+from a subdirectory finds no repository.
+
 A project joins with its own (untracked) `.envrc`:
 
 ```zsh
@@ -1184,6 +1199,13 @@ nix develop "path:$HOME/flakes/dev-envs#default" \
 The `agents` override (also in `bin/dev-envs-forms`) takes the in-tree library,
 read-only: an edit there lands without a push or a re-lock, while `dev-envs`'
 lock keeps the published pin.
+
+Where the git toplevel is not the project, name it: `~/flakes/.envrc` runs
+`use_dev_envs --project "path:$HOME/flakes/dev-tools" || :`, and its forms come
+from `bin/dev-envs-forms --project "path:$HOME/flakes/dev-tools"`. A `path:` ref
+copies the whole directory to the store, not only tracked files. The `|| :` is
+because this repo has no devshell to fall back on. Editing `agents/*.nix` here
+therefore rebuilds the jails at the next prompt.
 
 Quote the ref, as `envrc/dev-envs.sh` itself does. Two traps in an interactive
 zsh: no shell expands `~` mid-word, so `path:~/flakes/…` reaches nix as a literal

@@ -137,4 +137,28 @@ check 'flags pass through, after --impure' \
   "use flake $live $override $agents --no-write-lock-file --impure --show-trace" \
   "$(JAIL_WORKSPACE_DEPS=/x envrc "$project" use_dev_envs --show-trace)"
 
+# --project names the project outright: the home repo's toplevel is $HOME, not
+# the flake, so no toplevel lookup, and it works outside any checkout
+named=$tmp/home/flakes/dev-tools
+mkdir -p "$named"
+printf '{}\n' >"$named/flake.nix"
+printf '{}\n' >"$named/treefmt.nix"
+rc=0
+out=$(envrc "$tmp/scratch" use_dev_envs --project "path:$named") || rc=$?
+check '--project: exit 0 outside a checkout' 0 "$rc"
+check '--project: the ref is the project input' \
+  "use flake $live --override-input project path:$named $agents --no-write-lock-file" "$out"
+check '--project: watches its .nix files and lock, not the toplevel' \
+  "watch $named/flake.lock $consumer/flake.lock $named/flake.nix $named/treefmt.nix $consumer/dev-env.nix $consumer/flake.nix $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
+  "$(<"$tmp/watch")"
+check '--project: wins over the checkout it runs in' \
+  "use flake $live --override-input project path:$named $agents --no-write-lock-file" \
+  "$(envrc "$project" use_dev_envs --project "path:$named")"
+check '--project: later flags still pass through' \
+  "use flake $live --override-input project path:$named $agents --no-write-lock-file --show-trace" \
+  "$(envrc "$project" use_dev_envs --project "path:$named" --show-trace)"
+rc=0
+out=$(UNAME_STUB=Darwin envrc "$project" use_dev_envs --project "path:$named") || rc=$?
+check '--project: non-Linux still returns 1' 1 "$rc"
+
 exit $failed

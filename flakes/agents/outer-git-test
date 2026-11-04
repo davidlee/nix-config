@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Behaviour test for outer-git.nix: a real jail, launched against a fabricated
+# home laid out like this one, where the git worktree is $HOME and the project a
+# directory in it. Not a flake check: bwrap needs user namespaces, which the
+# build sandbox lacks.
+#
+#   ./outer-git-test
+
+set -euo pipefail
+
+here=$(cd "$(dirname "$0")" && pwd)
+
+tmp=$(mktemp -d)
+trap 'chmod -R u+w "$tmp" && rm -rf "$tmp"' EXIT
+
+jail=$(nix build "path:$here#testJails.$(nix config show system).outer-git" \
+  --no-link --print-out-paths --no-write-lock-file)/bin/jailed-outer-git-probe
+
+export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+
+# ---------------------------------------------------------------- harness
+
+failed=0
+
+check() { # <what> <expected> <actual>
+  if [[ $2 == "$3" ]]; then
+    printf 'ok   %s\n' "$1"
+  else
+    printf 'FAIL %s\n  expected: %s\n  actual:   %s\n' "$1" "$2" "$3"
+    failed=1
+  fi
+}
+
+# jailed <cwd> <script> — run script in the jail, launched from cwd; prints its
+# output and then its exit code, on a line of its own.
+jailed() {
+  local rc=0
+  (cd "$1" && HOME=$home "$jail" -c "$2" 2>&1) || rc=$?
+  echo "rc=$rc"
+}
+
+# refused <what> <script> — the script must exit non-zero in the jail
+refused() {
+  check "$1" 0 "$(jailed "$project" "$2" | tail -n1 | grep -c '^rc=0$')"
+}
+
+# ---------------------------------------------------------------- fixture
+
+home=$tmp/home
+project=$home/flakes
+mkdir -p "$project/sub" "$home/.config"
+echo tracked >"$project/sub/file"
+echo outside >"$home/.config/outside"
+git init -q --separate-git-dir="$home/.cfg" "$home"
+git -C "$home" config core.worktree "$home"
+git -C "$home" add flakes .config
+git -C "$home" commit -qm init
+head=$(git -C "$home" rev-parse --short HEAD)
+before=$(cd "$home/.cfg" && cat config index HEAD | sha256sum)
+
+# ------------------------------------------------------------------ cases
+
+check 'log reads the outer history' \
+  "$head rc=0" "$(jailed "$project" 'git log -1 --format=%h' | xargs)"
+check 'status, path-scoped, is clean' \
+  'rc=0' "$(jailed "$project" 'git status --short -- .')"
+check 'paths outside the project read as deleted' \
+  ' D ../.config/outside' "$(jailed "$project" 'git status --short' | sed -n 1p)"
+check 'the project is at flakes/ in the index' \
+  'flakes/sub/file' "$(jailed "$project" 'git ls-files --full-name sub/file' | sed -n 1p)"
+check 'no remote reaches the jail' \
+  'rc=0' "$(jailed "$project" 'git remote')"
+
+refused 'git add fails' 'git add sub/file'
+refused 'git commit fails' 'git commit --allow-empty -m x'
+refused 'commondir cannot be planted' 'echo . >/workspace/.cfg/commondir'
+refused 'the config cannot be written' 'echo x >>/workspace/.cfg/config'
+refused 'a hook cannot be planted' 'echo x >/workspace/.cfg/hooks/pre-commit'
+refused 'the gitfile cannot be written' 'echo x >/workspace/.git'
+check 'the host git dir is untouched' \
+  "$before" "$(cd "$home/.cfg" && cat config index HEAD | sha256sum)"
+
+# a fixture repo under /tmp is another repo: nothing above reaches it
+check 'a fresh repo in /tmp works' \
+  'rc=0' "$(jailed "$project" 'cd /tmp && git init -q fixture && cd fixture && touch f && git add f && git commit -qm f')"
+
+# from a subdirectory the launch dir lands at /workspace/sub, so the outer paths
+# would not line up: no repo at all, rather than a wrong one
+check 'a subdirectory launch finds no repo' \
+  1 "$(jailed "$project/sub" 'git rev-parse --git-dir' | grep -c 'not a git repository')"
+
+exit $failed

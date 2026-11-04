@@ -47,6 +47,7 @@ packages.<system>.dev-tools = pkgs.buildEnv {
   passthru.devEnv = {                # optional
     env.NAME = "value";              # set as given
     hostEnv = ["OTHER"];             # forwarded from the launch environment when set
+    outerGitDir = ".cfg";            # a repository above the project, read-only
   };
 };
 ```
@@ -61,7 +62,15 @@ The project may rely on:
 - `env` reaches every jail, every form and the shell. `hostEnv` names reach
   every jail and form, and only when set at launch; the shell inherits them from
   the caller's environment anyway.
-- Only tracked files reach the consumer: the project input is `git+file`.
+- Only tracked files reach the consumer: the project input is `git+file`. The
+  exception is a project named with `--project path:…`, where the git toplevel
+  is not the project: all of its directory reaches the store.
+- `outerGitDir` names a git dir beside the launch directory, whose worktree is
+  the launch directory's parent (the home repo: `~/.cfg`, worktree `$HOME`). A
+  jail or form launched from the project root sees that repository read-only:
+  `status`, `log` and `diff` work, nothing can be staged or committed, and every
+  tracked path outside the project reads as deleted. Remotes and branch tracking
+  are absent. A launch from a subdirectory finds no repository.
 
 The project owes nothing else. It names no jail, agent, form or gateway.
 
@@ -74,9 +83,10 @@ The project owes nothing else. It names no jail, agent, form or gateway.
 |---|---|
 | no `devEnv` | `{env = {}; hostEnv = [];}` |
 | not an attrset | refused |
-| a key other than `env`, `hostEnv` | refused |
+| a key other than `env`, `hostEnv`, `outerGitDir` | refused |
 | `env` not an attrset, or a value not a string | refused |
 | `hostEnv` not a list of strings | refused |
+| `outerGitDir` not a bare directory name | refused |
 | a name that is not a valid POSIX name | refused |
 | a name in `env` or `hostEnv` also in the host's env list | refused: one owner per fact |
 
@@ -115,6 +125,7 @@ Linux only and holds no keys of its own.
 | host list and its packages | yes | yes | yes |
 | `devEnv.env` | yes | yes | yes |
 | `devEnv.hostEnv` | forwarded | forwarded | inherited |
+| `devEnv.outerGitDir` | read-only, at `/workspace` | read-only, at `$HOME` | no: the host's own git |
 | posture (`posture` in the library) | yes | yes | none |
 | host Doctrine on PATH | yes | yes | from the host PATH |
 | Nix Doctrine at `/run/doctrine-nix-bin`, off PATH | yes | yes | no |

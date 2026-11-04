@@ -14,11 +14,7 @@
     then pkgs.runCommand name {} "touch $out"
     else throw "${name}.nix failed:\n${lib.generators.toPretty {} failures}";
 in {
-  treefmt.programs = {
-    alejandra.enable = true;
-    statix.enable = true;
-    deadnix.enable = true;
-  };
+  treefmt.programs = import ./dev-tools/treefmt.nix;
   devShells.default = pkgs.mkShell {
     packages = [config.treefmt.build.wrapper pkgs.gum pkgs.just pkgs.nix-output-monitor];
   };

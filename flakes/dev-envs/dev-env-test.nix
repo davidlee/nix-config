@@ -66,7 +66,27 @@
     {
       name = "devEnv not an attrset";
       devEnv = ["A"];
-      needle = "must be an attrset { env; hostEnv; }";
+      needle = "must be an attrset { env; hostEnv; outerGitDir; }";
+    }
+    {
+      name = "outerGitDir not a string";
+      devEnv = {outerGitDir = 1;};
+      needle = "`outerGitDir` must be a bare directory name";
+    }
+    {
+      name = "outerGitDir a path";
+      devEnv = {outerGitDir = "a/.cfg";};
+      needle = "`outerGitDir` must be a bare directory name";
+    }
+    {
+      name = "outerGitDir climbing out";
+      devEnv = {outerGitDir = "..";};
+      needle = "`outerGitDir` must be a bare directory name";
+    }
+    {
+      name = "outerGitDir with a shell word";
+      devEnv = {outerGitDir = "$HOME";};
+      needle = "`outerGitDir` must be a bare directory name";
     }
   ];
 
@@ -82,6 +102,7 @@
     env.A = "1";
     hostEnv = ["B"];
   };
+  withOuterGit = {outerGitDir = ".cfg";};
   cases =
     map refusalCase refusals
     ++ [
@@ -123,6 +144,16 @@
             env = {};
             hostEnv = ["B"];
           };
+        detail = "";
+      }
+      {
+        name = "outerGitDir is admitted, a dotted name included";
+        ok = errors withOuterGit == [];
+        detail = "";
+      }
+      {
+        name = "outerGitDir passes through";
+        ok = (checkDevEnv withOuterGit).outerGitDir == ".cfg";
         detail = "";
       }
       {

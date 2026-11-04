@@ -89,6 +89,13 @@
       envOptions = c:
         lib.mapAttrsToList c.set-env env
         ++ map (jailLib.tryFwdEnv c) devEnv.hostEnv;
+      # A repository above the project, read-only. `parent` is where the launch
+      # directory's parent lands: jails mount it under /workspace, forms at its own path.
+      outerGitOptions = parent: c:
+        lib.optional (devEnv ? outerGitDir) (jailLib.outerGit c {
+          gitDir = devEnv.outerGitDir;
+          inherit parent;
+        });
       nixDoctrine = doctrine.packages.${system}.default;
       tools = [devTools] ++ hostDevEnv.packages; # a buildEnv is ONE derivation, not a list
 
@@ -101,7 +108,7 @@
             profile = "specDev";
             gateway = jailLib.gatewayClient "pi";
             extraPkgs = tools;
-            extraOptions = envOptions jailLib.combinators;
+            extraOptions = envOptions jailLib.combinators ++ outerGitOptions "/workspace" jailLib.combinators;
             inherit nixDoctrine;
           }
           // args);
@@ -134,7 +141,7 @@
       forms = jailLib.quotientFormFamily {
         inherit quotient;
         packages = tools;
-        options = envOptions;
+        options = c: envOptions c ++ outerGitOptions "$HOME" c;
         postureFlags.nixDoctrine = nixDoctrine;
       };
 

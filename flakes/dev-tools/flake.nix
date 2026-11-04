@@ -4,9 +4,19 @@
   # A subflake, not an output of ../flake.nix: the fleet that builds the room is
   # an input of that flake, so taking it back as the fleet's input would be a
   # cycle. What `just fmt`/`just gate` run, minus `nix` (the guest has its own).
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
-  outputs = {nixpkgs, ...}: let
+  outputs = {
+    nixpkgs,
+    treefmt-nix,
+    ...
+  }: let
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
     forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
   in {
@@ -20,7 +30,13 @@
           alejandra
           statix
           deadnix
+          (treefmt-nix.lib.mkWrapper pkgs {
+            projectRootFile = "flake.nix";
+            programs = import ./treefmt.nix;
+          })
         ];
+        # The dev-envs consumer's contract (SPEC-003): `~/.cfg` holds this repo.
+        passthru.devEnv.outerGitDir = ".cfg";
       };
     });
   };

@@ -88,6 +88,7 @@ test:
   envrc/agents-test
   envrc/dev-envs-test
   bin/dev-envs-forms-test
+  if [ "$(uname -s)" = Linux ]; then agents/outer-git-test; fi
   bin/room-bump-test
   bin/room-behind-test
   workarounds/check-test

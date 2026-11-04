@@ -11,8 +11,9 @@
 #
 # source_env watches this file, so an edit here reloads every project sourcing it.
 
-# `use_dev_envs [args]`: land in ~/flakes/dev-envs#default with this checkout as the
-# project input. Extra args pass through to `use flake`.
+# `use_dev_envs [--project <path:ref>] [args]`: land in ~/flakes/dev-envs#default
+# with this checkout as the project input, or the named ref where the toplevel is
+# not the project (the home repo's is $HOME). Extra args pass through to `use flake`.
 use_dev_envs() {
   # bubblewrap is Linux-only. Not a fallback: the caller's `||` is.
   [[ $(uname -s) == Linux ]] || return 1
@@ -20,8 +21,19 @@ use_dev_envs() {
   # git+file, not path: tracked content only, so a target/ directory never
   # enters the store. The toplevel, not $PWD: running from a subdirectory must
   # still name the project, and the jail binds the launch directory.
-  local root
-  root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+  # A named project's flake may import its siblings, so watch them all.
+  local root project watch sources=()
+  if [[ ${1:-} == --project ]]; then
+    project=${2:?--project needs a flake ref}
+    shift 2
+    root=${project#path:}
+    watch=("$root/flake.lock")
+    sources=("$root"/*.nix)
+  else
+    root=$(git rev-parse --show-toplevel 2>/dev/null) || return 1
+    project=git+file:$root
+    watch=("$root/flake.nix" "$root/flake.lock")
+  fi
 
   # The agents lib reads JAIL_WORKSPACE_DEPS{,_RW} with getEnv, which pure
   # evaluation answers with "", so either set means --impure.
@@ -31,9 +43,9 @@ use_dev_envs() {
   # A project edit changes the tools, so reload on its flake; a consumer edit
   # (any of its .nix files, or its lock) changes the jails, and so does an edit
   # to the in-tree agents library. A glob with no match is dropped, not named.
-  local watch=("$root/flake.nix" "$root/flake.lock" "$HOME/flakes/dev-envs/flake.lock")
+  watch+=("$HOME/flakes/dev-envs/flake.lock")
   local f
-  for f in "$HOME/flakes/dev-envs"/*.nix "$HOME/flakes/agents"/*.nix; do
+  for f in "${sources[@]}" "$HOME/flakes/dev-envs"/*.nix "$HOME/flakes/agents"/*.nix; do
     if [[ -f $f ]]; then watch+=("$f"); fi
   done
   watch_file "${watch[@]}"
@@ -42,7 +54,7 @@ use_dev_envs() {
   # agents: the in-tree library lands without a push and re-lock; dev-envs'
   # lock keeps the published pin. doctrine is deliberately not overridden.
   use flake "path:$HOME/flakes/dev-envs#default" \
-    --override-input project "git+file:$root" \
+    --override-input project "$project" \
     --override-input agents "path:$HOME/flakes/agents" \
     --no-write-lock-file "${impure[@]}" "$@"
 }
