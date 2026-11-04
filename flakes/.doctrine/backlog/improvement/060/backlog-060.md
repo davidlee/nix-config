@@ -30,3 +30,22 @@ repo in line with the dev-envs approach (`use_dev_envs`, dropping its own
 Doctrine binds), one repo at a time, as each is next worked on. Screwtape's
 missing `jailed-shell` is the first misalignment found; its `.envrc` is
 `use flake` and its `agents` pin is a plain GitHub URL.
+
+## Duplicate Doctrine bind (2026-11-04)
+
+Entering panopticon's dev environment against the in-tree `agents` failed to
+build `jailed-claude`: shellcheck SC2140 on PATH. Cause: panopticon carried its
+own copy of the library's host-path Doctrine bind (`doctrineDir`,
+`doctrineOptions`: `try-ro-bind` plus `add-path`), so Doctrine's bin was added
+to PATH twice. malebolge, smut, deck_of_dwarf, sediment and zmux carried the
+same copy.
+
+Removed the copy from all six `flake.nix` files (uncommitted, in each repo).
+Each builds `jailed-pi` and `jailed-claude` against `path:~/flakes/agents` with
+`--no-write-lock-file`; panopticon's PATH holds Doctrine's bin once. Not run:
+the jails in use, or a launch.
+
+Still open: each repo must re-lock `agents` to 8ba85a46 or later, because
+against its old pin the removal drops Doctrine from the jail. Until then a
+repo that enters through `use_agents_dev` works and one that does not does not.
+Any other flake that copied the bind will fail the same way.
