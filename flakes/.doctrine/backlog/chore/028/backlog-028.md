@@ -28,3 +28,13 @@ evaluate (rc 0) with only warnings:
 
 So the expectation above holds: a warning, not a refusal. The lines go once
 each project re-locks a Doctrine at or after e37ecf2a3 (and Doctrine is pushed).
+
+## Resolution (2026-11-04)
+
+satan, screwtape and panopticon now lock Doctrine ed541ec58 (past e37ecf2a3, no
+`agents` input). Dropped the three `doctrine.inputs.{agents,pub}.follows` lines
+from the root `flake.nix`. `Sleipnir` (system and home) and `Draupnir` (system
+and home) evaluate with `--no-write-lock-file`, and no `satan/doctrine` or
+`screwtape/doctrine` override warning remains. The root lock needed no change
+beyond emacs-overlay (ISS-010 churn, not committed). The one warning left is
+`fleet/satan` overriding a non-existent `goad`, unrelated to this item.

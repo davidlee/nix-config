@@ -82,7 +82,6 @@
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
         agents.follows = "agents";
-        doctrine.inputs.pub.follows = "agents";
       };
     };
 
@@ -91,7 +90,6 @@
       inputs = {
         nixpkgs.follows = "nixpkgs-home";
         agents.follows = "agents";
-        doctrine.inputs.agents.follows = "agents";
       };
     };
 
@@ -112,7 +110,6 @@
         nixpkgs.follows = "nixpkgs-home";
         home-manager.follows = "home-manager";
         agents.follows = "agents";
-        doctrine.inputs.agents.follows = "agents";
       };
     };
 
