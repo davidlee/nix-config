@@ -49,3 +49,19 @@ Still open: each repo must re-lock `agents` to 8ba85a46 or later, because
 against its old pin the removal drops Doctrine from the jail. Until then a
 repo that enters through `use_agents_dev` works and one that does not does not.
 Any other flake that copied the bind will fail the same way.
+
+## Outcome (2026-11-04)
+
+Migrated to the dev-envs approach (`dev-tools` exported, `.envrc` enters through
+`use_dev_envs`, duplicate Doctrine bind removed, `agents` re-locked): malebolge,
+screwtape, www, org-incremental-writing, satan-attrd, satan, sediment (plus smut
+earlier). Builds of the dev-envs shell, jails and forms passed in each; no jail
+was launched.
+
+Screwtape gained `jailed-shell`. Satan and satan-attrd lost their Postgres and
+Docker access in the dev jails; the production services are systemd units and
+are unaffected. Satan's dev-envs shell lacks the satan-mcp mount until IMP-062.
+
+Left, and tracked in IMP-064 (its table has the `use_dev_envs` column):
+panopticon, deck_of_dwarf and zmux still enter through `agents_dev`.
+Test/dev databases: IMP-063.

@@ -5,10 +5,10 @@ id = 60
 slug = "relock-jails-host-path-doctrine"
 title = "Re-lock or migrate repos whose jails predate the host-path Doctrine bind"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-11-03"
-updated = "2026-11-03"
+updated = "2026-11-04"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
