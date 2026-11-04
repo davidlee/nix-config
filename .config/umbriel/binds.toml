@@ -11,8 +11,8 @@
 "Alt+Mod+Space" = "spawn noctalia msg panel-toggle launcher"
 "Mod+Space" = "spawn vicinae toggle"
 "Mod+Z" = "spawn noctalia msg panel-toggle clipboard"
-"Alt+Tab" = "spawn noctalia msg window-switcher"
-"Alt+Shift+Tab" = "spawn noctalia msg window-switcher" # the switcher reverses itself
+"Mod+Tab" = "spawn noctalia msg window-switcher"
+"Mod+Shift+Tab" = "spawn noctalia msg window-switcher" # the switcher reverses itself
 
 # --- system -----------------------------------------------------------
 "Mod+Alt+L" = "spawn noctalia msg session lock"
@@ -106,7 +106,7 @@
 "Mod+Ctrl+Page_Down" = "workspace-move-down"
 "Mod+Ctrl+Page_Up" = "workspace-move-up"
 
-"Mod+Alt+Tab" = "workspace-focus-last"
+"Mod+Ctrl+Tab" = "workspace-focus-last"
 
 "Mod+1" = "workspace-switch 1"
 "Mod+2" = "workspace-switch 2"
@@ -162,8 +162,8 @@
 
 # --- window switching -------------------------------------------------
 # Layout order; Mod+Grave returns to the previously focused window.
-"Mod+Tab" = "window-focus-next"
-"Mod+Shift+Tab" = "window-focus-previous"
+"Mod+Alt+Tab" = "window-focus-next"
+"Mod+Alt+Shift+Tab" = "window-focus-previous"
 "Mod+Grave" = "window-focus-last"
 
 # --- columns and stacks -----------------------------------------------

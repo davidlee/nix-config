@@ -113,7 +113,7 @@ nonag() { systemctl --user stop snooze-nag.timer snooze-nag }
 # emacsclient; options replace the default mode: reuse the GUI frame without
 # waiting (dl-umbriel focuses it), or the tty when there is no display
 e() {
-  if [[ $1 == -* ]]; then emacsclient "$@"
+  if [[ $1 == -* ]];              then emacsclient "$@"
   elif [[ -n $WAYLAND_DISPLAY ]]; then emacsclient -r -n "$@"
   else emacsclient -t "$@"; fi
 }
