@@ -6,6 +6,7 @@ result
 .env.staging
 .env.development
 claude/settings.local.json
+.quotient
 
 *.local.*
 *.temp.*
