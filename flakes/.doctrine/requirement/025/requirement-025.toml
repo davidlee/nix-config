@@ -4,7 +4,7 @@ version = 1
 id = 25
 slug = "a-projects-tools-are-built-at-the-projects-own-lock"
 title = "A project's tools are built at the project's own lock"
-status = "pending"
+status = "active"
 kind = "functional"
 
 # description — the requirement statement (structured, queryable; `show` renders

@@ -4,7 +4,7 @@ version = 1
 id = 30
 slug = "an-absent-personal-layer-degrades-to-the-projects-own-shell"
 title = "An absent personal layer degrades to the project's own shell"
-status = "pending"
+status = "active"
 kind = "quality"
 
 # description — the requirement statement (structured, queryable; `show` renders

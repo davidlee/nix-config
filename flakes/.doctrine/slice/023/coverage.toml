@@ -1,0 +1,62 @@
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-024"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-025"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-026"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-027"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-028"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-029"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"
+
+[[entry]]
+slice = "SL-023"
+requirement = "REQ-030"
+contributing_change = "SL-023"
+mode = "VA"
+status = "verified"
+git_anchor = "9520d258183e166a5c28386e25ff9cd1e681d158"
+attested_date = "2026-11-04"

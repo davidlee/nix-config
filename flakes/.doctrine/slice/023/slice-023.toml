@@ -1,9 +1,9 @@
 id = 23
 slug = "layered-dev-env-doctrine"
 title = "Layered dev-env consumer, carried to Doctrine"
-status = "audit"
+status = "done"
 created = "2026-11-03"
-updated = "2026-11-03"
+updated = "2026-11-04"
 tags = ["agents", "dev-env", "nix"]
 
 [relationships]
@@ -32,7 +32,7 @@ intent = "design-target"
 
 [[selector]]
 selector = "justfile"
-intent = "scope-relevant"
+intent = "design-target"
 
 [[selector]]
 selector = "agents/jailed-agents.nix"
@@ -102,6 +102,22 @@ intent = "design-target"
 selector = "features/dev.nix"
 intent = "design-target"
 
+[[selector]]
+selector = "hosts.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/dev-env.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/dev-env-test.nix"
+intent = "design-target"
+
+[[selector]]
+selector = "dev-envs/stub-project/flake.lock"
+intent = "design-target"
+
 [[relation]]
 label = "fulfils"
 target = "IMP-056"
@@ -111,6 +127,11 @@ label = "references"
 role = "concerns"
 descriptor = "extends SL-022's consumer to its second project"
 target = "SL-022"
+
+[[relation]]
+label = "references"
+role = "implements"
+target = "SPEC-003"
 
 # STRUCTURAL relations are uniform `[[relation]]` rows, never a typed
 # `[relationships]` axis. Slices carry no typed STRUCTURAL

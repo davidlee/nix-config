@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1a236a9f87812b61001187b42afe9"
+memory_key = "mem.fact.flakes.override-input-ignores-input-lock"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "An overridden flake input is relocked under the parent, not from its own flake.lock"
+summary = "Under Lix 2.95.4, --override-input X relocks X's inputs from the parent's lock or fresh; X's own flake.lock is ignored. Evaluate X with flake-compat (flake = false) to honour its pins."
+created = "2026-11-03"
+updated = "2026-11-03"
+
+[scope]
+paths = ["dev-envs", "envrc"]
+globs = []
+commands = ["nix build"]
+tags = ["nix", "flakes", "lock"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "d856cd42f374501b1d6268e177c5cf6cc419a66c"
+ref_name = "refs/heads/main"
+checkout_state_id = "f10c9f1494493783f7d7009e91ed9270cb0d166407bd4df674d9051ea28be582"
+base_commit = "90e3bdafa026e7bf9c8504538fdd8f4ed15ac921"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "slice"
+ref = "SL-023"
+

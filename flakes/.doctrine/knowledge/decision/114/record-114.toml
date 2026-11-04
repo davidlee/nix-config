@@ -7,7 +7,7 @@ title = "Project env is passthru.devEnv { env; hostEnv; }; env preferences for e
 record_kind = "decision"
 status = "accepted"
 created = "2026-11-03"
-updated = "2026-11-03"
+updated = "2026-11-04"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

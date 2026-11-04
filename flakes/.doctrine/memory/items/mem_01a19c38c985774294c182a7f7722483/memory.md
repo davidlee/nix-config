@@ -4,32 +4,33 @@ Measured 2026-11-02 (SL-022 design) with a synthetic flake in `/tmp`:
     {"type": "path", "path": "./sub", "narHash": …}
 
 — **relative**, not an absolute path. So a flake can carry a fixture as a default
-input (`dev-envs/stub-project`) and still be evaluated from a store copy
-(`?dir=…`, the Mac), which an absolute path could not.
+input (`dev-envs/stub-project`) and still be evaluated from a store copy.
 
-Consequence for lock guards: `~/flakes/justfile:65` forbids *every* path node.
-That rule cannot be reused verbatim where a relative fixture is legitimate; the
+Consequence for lock guards: `~/flakes/justfile` forbids *every* path node in the
+root lock. That rule cannot be reused where a relative fixture is legitimate; the
 sharper form rejects `file:` URLs and absolute path nodes only:
 
     jq -e '[.nodes[].locked // empty
             | select(((.url // "") | startswith("file:"))
                      or (.type == "path" and ((.path // "") | startswith("/"))))] == []'
 
-Both were exercised against synthetic locks: the sharp one passes `./sub` and
-fails `/home/...`.
+## The `narHash` beside it pins the fixture's content (corrected 2026-11-04)
 
-## The `narHash` beside it is a sentinel, not the fixture's hash
+Measured 2026-11-04 (SL-023 PHASE-03, Lix 2.95.4) in a scratch copy of
+`dev-envs`. This replaces an earlier claim that the hash was an inert sentinel
+and the fixture "always current" — that was wrong.
 
-Measured 2026-11-02 (SL-022 PHASE-01) on the real lock:
-
-    "project": {"lastModified": 1, "narHash": "sha256-gmt/SQp9gEx+EPhXa7fcwVdu048pzbxk/CaPRTqCebA=", "path": "./stub-project", "type": "path"}
-
-- That `narHash` is **not** the directory's NAR hash: the stub's own is
-  `sha256-C3PFa6…`. Adding a file to `stub-project/` and re-running
-  `nix flake lock` leaves the recorded value unchanged.
-- It is load-bearing as a sentinel. Substituting a real hash breaks evaluation:
-  `error: cannot fetch input 'path:./stub-project?narHash=…' because it uses a
-  relative path`. With the sentinel, the input resolves inside the parent flake's
-  store copy, so the fixture is always current.
-- Therefore: never "correct" that hash, and no lock guard should re-hash path
-  nodes — judge the node's shape only (the `jq` expression above).
+- The recorded `narHash` is the fixture directory's NAR hash
+  (`nix hash path stub-project`), and evaluation uses **the store path with that
+  hash**, not the directory beside the flake. An edited stub is invisible until
+  `nix flake update project` (in `dev-envs`) re-hashes it. `nix flake lock` does
+  not re-hash while the old store path exists.
+- If that store path is absent (a fresh machine, or after GC — it is not a GC
+  root), evaluation fails: `cannot fetch input 'path:./stub-project?…narHash=…'
+  because it uses a relative path`. A wrong hash fails the same way.
+- Real use is unaffected: with `--override-input project …` the stub node is
+  never fetched (verified with Smut). What breaks is `dev-envs`' own checks
+  (`just test`'s stub check) on a machine that lacks the path.
+- Therefore: after any stub edit (including a formatter's), run
+  `nix flake update project --flake path:$HOME/flakes/dev-envs` and commit the
+  lock. Lock guards judge the node's shape only.

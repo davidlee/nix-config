@@ -5,9 +5,9 @@ id = 104
 slug = "dev-envs-gates-and-lock-guard"
 title = "The consumer joins just test through path: invocations, and dev-envs/flake.lock gets its own relative-path-aware guard"
 record_kind = "decision"
-status = "proposed"
+status = "accepted"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-04"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

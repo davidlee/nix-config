@@ -4,7 +4,7 @@ version = 1
 id = 24
 slug = "a-project-joins-by-exporting-one-dev-tools-derivation"
 title = "A project joins by exporting one dev-tools derivation"
-status = "pending"
+status = "active"
 kind = "functional"
 
 # description — the requirement statement (structured, queryable; `show` renders

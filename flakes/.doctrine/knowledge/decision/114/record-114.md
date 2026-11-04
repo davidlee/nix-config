@@ -5,3 +5,7 @@
      never structurally parsed (the storage rule). -->
 
 Relation to earlier records: amends DEC-103 (the stub project states one devEnv.env and one devEnv.hostEnv entry, and checks.stub asserts both reach the launcher).
+
+
+
+Amended at SL-023 reconcile: `for` also returns `hostOnlyEnv`, applied to host shells only and never to a jail or form (DEC-121). `checkDevEnv` refuses its names as it does the host list's (`hostNames`, RV-047 F-2). The dispatch jail sets its own socket (RV-047 F-1).

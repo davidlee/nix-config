@@ -4,7 +4,7 @@ version = 1
 id = 29
 slug = "a-jails-sccache-server-is-its-own"
 title = "A jail's sccache server is its own"
-status = "pending"
+status = "active"
 kind = "quality"
 
 # description — the requirement statement (structured, queryable; `show` renders
@@ -12,10 +12,12 @@ kind = "quality"
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
 
-description = "A jail or form never compiles through the host's sccache server: each jail and form sets SCCACHE_SERVER_UDS to a socket in its private /tmp, and Linux host shells use a socket under XDG_RUNTIME_DIR, which no jail binds."
+description = "A jail or form never compiles through the host's sccache server. Every jail and form the library builds, and Doctrine's dispatch jail, sets SCCACHE_SERVER_UDS to a socket in its private /tmp; Linux host shells use a socket under XDG_RUNTIME_DIR. The dispatch jail can see that directory, so its own setting is what keeps it off the host's server."
 tags = ["dev-env"]
 acceptance_criteria = [
   "Full and bare launchers set the socket; hostDevEnv.env has no SCCACHE_SERVER_UDS (jailed-agents-test)",
   "Only Sleipnir's dev.env home sets the host socket (hosts.nix checks.factories)",
   "With a host TCP server up, a jail build gave the host server 0 requests (SL-023 PHASE-07, live)",
+  "The shipped dispatch prefix gives a worker its own socket with the host address exported (doctrine:tests/e2e_worker_confinement.rs)",
+  "In the dispatch prefix's shape, a compile succeeds with no host server, and with one up its Compile requests stays 0 (RV-047 F-1, by hand; not a real dispatch run)",
 ]

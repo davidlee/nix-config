@@ -4,7 +4,7 @@ version = 1
 id = 28
 slug = "one-doctrine-path-is-valid-on-host-and-in-a-jail"
 title = "One Doctrine path is valid on host and in a jail"
-status = "pending"
+status = "active"
 kind = "functional"
 
 # description — the requirement statement (structured, queryable; `show` renders

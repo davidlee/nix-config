@@ -4,7 +4,7 @@ version = 1
 id = 27
 slug = "every-jail-form-and-the-shell-carry-the-same-tools-and-env"
 title = "Every jail form and the shell carry the same tools and env"
-status = "pending"
+status = "active"
 kind = "functional"
 
 # description — the requirement statement (structured, queryable; `show` renders

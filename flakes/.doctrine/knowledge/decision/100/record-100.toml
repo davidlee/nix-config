@@ -5,9 +5,9 @@ id = 100
 slug = "project-input-relative-stub-read-only-override"
 title = "The project is a relative-path stub input; every real reach is a git+file override with --no-write-lock-file"
 record_kind = "decision"
-status = "proposed"
+status = "accepted"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-04"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

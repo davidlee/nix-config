@@ -4,7 +4,7 @@ version = 1
 id = 26
 slug = "devenv-is-validated-before-anything-is-built-and-each-fact-has-one-owner"
 title = "devEnv is validated before anything is built and each fact has one owner"
-status = "pending"
+status = "active"
 kind = "functional"
 
 # description — the requirement statement (structured, queryable; `show` renders
@@ -12,7 +12,7 @@ kind = "functional"
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
 
-description = "passthru.devEnv is optional; absent gives nothing. Any other key, a non-string env value, an invalid POSIX name, or a name in the host's env list refuses at evaluation, listing each error."
+description = "passthru.devEnv is optional; absent gives nothing. Any other key, a non-string env value, an invalid POSIX name, or a name in the host's env list or hostOnlyEnv refuses at evaluation, listing each error."
 tags = ["dev-env"]
 acceptance_criteria = [
   "Each refusal row and the absent case hold (dev-envs checks.dev-env)",

@@ -1,0 +1,342 @@
+id    = 47
+slug  = "sl-023-reconciliation-audit-layered-dev-env-consumer-carried-to-doctrine"
+title = "SL-023 reconciliation audit: layered dev-env consumer carried to Doctrine"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Examined SL-023 against design.md, plan.toml, SPEC-003 and DEC-107..121 on the primary tree. Ran just test, just coverage, doctrine check gate, spec validate, slice conformance (normalised by hand for ISS-005) and verify-vt. Read the host facts, consumer, helper, features and Doctrine's flake. Probed PATH writers, older agents pins, the standalone lock, form identity, launcher env order, and sccache in the dispatch prefix's shape. After repairs: just test and Doctrine's just gate rc 0. Not run: a real dispatch worker; jailed codex in an older-pin repo."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-023"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "blocker"
+title = "Expected dispatch-confined cargo unaffected and the host sccache server out of reach; observed the inherited host UDS breaks builds, or routes them to the host server"
+detail = """
+Expected: SPEC-003 responsibility "Keep the host's sccache server out of reach of jails"; REQ-029 and agents/dev-env.nix state the host socket is under XDG_RUNTIME_DIR, "which no jail binds". The slice's Non-Goals leave dispatch confinement unchanged, so its builds should behave as before.
+
+Observed: Doctrine's dispatch jail (~/dev/doctrine/scripts/spawn-confined.sh, Linux PREFIX) is `bwrap --ro-bind / / ... --tmpfs /tmp`, no --clearenv. /run/user/1000 is therefore visible, and a worker inherits RUSTC_WRAPPER=sccache (host-wide since dev.env; previously from Doctrine's .envrc) and SCCACHE_SERVER_UDS=/run/user/1000/sccache.sock (new: DEC-121).
+
+Evidence, run in that PREFIX's shape by hand (not a real dispatch run), sccache 0.19.0, the doctrine dev-tools rustc:
+- UDS unset, no host server, writable worktree (pre-slice shape): compile succeeds, artefact written; the client starts a server inside the jail.
+- UDS inherited, no host server (post-slice shape): `sccache: error: Server startup failed: Read-only file system (os error 30)`, no artefact. With a stale socket file: `Connection refused`, rc=2. The client cannot bind in the read-only directory. This is a regression: cargo fails in a worker whenever no host server is running.
+- UDS inherited, host server up: the jail client reached it; the host server's `Compile requests` went to 1. rustc errored in my probe, so no artefact shows whether output escapes the read-only jail. Inference, not shown: a successful compile would run rustc and proc macros outside the jail. Same-class exposure existed before over TCP 127.0.0.1:4226 (pre-existing), so this half is not new, but DEC-121 and REQ-029 claim it closed.
+
+Cause: DEC-121 assumed jails are the library's. PHASE-07 verified jailed-* and forms only; no dispatch-shaped run. The library's jails and forms are unaffected: they set /tmp/sccache.sock (launcher position 10)."""
+disposition = "fix-now"
+response = """User chose option A (reply: "A"). Doctrine's scripts/spawn-confined.sh Linux prefix, and its twin scripts/pi-respawn-nofork.sh, set --setenv SCCACHE_SERVER_UDS /tmp/sccache.sock. This sets an env var; the jail's mounts are unchanged, so the Non-Goal holds. tests/e2e_worker_confinement.rs now runs the shipped prefix with the host address exported and asserts the worker sees its own socket (red, then green). Live, in the prefix's shape: compile succeeds with no host server; with a host server up, it succeeds and that server's Compile requests stays 0. REQ-029's wording goes through the reconcile brief. Uncommitted in ~/dev/doctrine, under CHR-184."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """User chose option A (reply: "A"). Doctrine's scripts/spawn-confined.sh Linux prefix, and its twin scripts/pi-respawn-nofork.sh, set --setenv SCCACHE_SERVER_UDS /tmp/sccache.sock. This sets an env var; the jail's mounts are unchanged, so the Non-Goal holds. tests/e2e_worker_confinement.rs now runs the shipped prefix with the host address exported and asserts the worker sees its own socket (red, then green). Live, in the prefix's shape: compile succeeds with no host server; with a host server up, it succeeds and that server's Compile requests stays 0. REQ-029's wording goes through the reconcile brief. Uncommitted in ~/dev/doctrine, under CHR-184."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Doctrine just gate rc 0; e2e_worker_confinement 4 passed; bwrap_core_argv_matches_spawn_core_flags passed. Live probes in the prefix's shape pass both cases. Not run: a real dispatch worker."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Expected one owner per fact (DEC-108); observed a project's devEnv can override the library's SCCACHE_SERVER_UDS unrefused"
+detail = """
+Expected: checkDevEnv refuses a name the host layers own, and REQ-029 holds for every jail.
+
+Observed: dev-envs/flake.nix passes hostNames = attrNames hostDevEnv.env, which excludes hostOnlyEnv, so SCCACHE_SERVER_UDS is accepted. SPEC-003 § Concerns says "Whether a project's env wins over the library's value is unverified". It is now settled from a built launcher (Doctrine's jailed-shell): SCCACHE_SERVER_UDS is --setenv number 10, the project's LD_LIBRARY_PATH number 14. Project env comes later, and for a repeated bwrap --setenv the last one applies (inference from order; the override itself was not run). A project stating env.SCCACHE_SERVER_UDS would replace the jail's value.
+
+No project does this today."""
+disposition = "fix-now"
+response = "One owner per fact is DEC-108's rule, and the fix is small: hostNames also takes hostOnlyEnv's names, with a test that the real list refuses SCCACHE_SERVER_UDS. Lands with the F-1 repair; verify after."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "One owner per fact is DEC-108's rule, and the fix is small: hostNames also takes hostOnlyEnv's names, with a test that the real list refuses SCCACHE_SERVER_UDS. Lands with the F-1 repair; verify after."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "devEnvLib.hostNames covers env and hostOnlyEnv; checks.dev-env runs against the real hostDevEnv with env and hostEnv refusal cases (red, then green). just test rc 0. Form identity unchanged."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "major"
+title = "Expected baked Doctrine paths valid in jails; observed jails on older agents pins do not bind the path now baked in the shared home and in re-baked repos"
+detail = """
+Expected: design § Arrangement treats the other project flakes as carrying their own host-path bind ("six ... bind Doctrine themselves"), so a host-path bake stays valid until the rollout.
+
+Observed: ~/.local/share/jail.nix/home/agent/.codex/config.toml now has command = /home/david/.local/share/doctrine/bin/doctrine. Repos with a codex jail, no own bind, no use_dev_envs: satan, satan-attrd, www, org-incremental-writing. Their locks pin older agents revisions; the two checked (19b9740e for satan-attrd, 84efebe6 for satan) bind only /run/doctrine-bin. satan-attrd's re-baked .doctrine/state/pi/extensions/mcp.ts also names the host path.
+
+Inference, not run: if those jails use the shared `agent` home, jailed codex there cannot start Doctrine's MCP server, and jailed pi in satan-attrd cannot either. PHASE-07 verified Doctrine and Smut only.
+
+The design's "six" counted only repos with a bind; it did not consider those without one."""
+disposition = "follow-up"
+response = """Owned by IMP-060. The change sits in other repos, which the slice's Non-Goals exclude (step 4), so this is scope, not fix size. The design's "six" wording is corrected by the reconcile brief. The effect is inferred; IMP-060 starts by confirming it."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = """Owned by IMP-060. The change sits in other repos, which the slice's Non-Goals exclude (step 4), so this is scope, not fix size. The design's "six" wording is corrected by the reconcile brief. The effect is inferred; IMP-060 starts by confirming it."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "IMP-060 exists and carries the repos, pins and the unrun confirmation step."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Expected dev-envs to evaluate at its own lock; observed it fails without the agents override"
+detail = """
+Expected: DEC-120 keeps the published agents pin in dev-envs' lock, the override being a convenience for unpushed edits.
+
+Observed: `nix eval path:~/flakes/dev-envs#packages.x86_64-linux.jailed-pi.name` fails: "function 'makeJailedAgent' called with unexpected argument 'nixDoctrine'". dev-envs/flake.lock pins agents at 27f6ca32, which predates PHASE-02 (it still holds /run/doctrine-bin). The override has become mandatory: use_dev_envs, bin/dev-envs-forms and just test all pass it, so nothing green exposes this.
+
+The root flake.lock has the same pin, but its recipes always override agents (tree_override), so it evaluates. flakes has no unpushed commits, so a current pin is available."""
+disposition = "follow-up"
+response = """Owned by CHR-029. Correction: the finding's "flakes has no unpushed commits" is false. That check used a pathspec that matched nothing from inside ~/flakes. 11 commits are unpushed, including PHASE-07's library (DEC-121); origin has PHASE-02's. The bump therefore waits on the operator's push."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Bump dev-envs' agents pin to a published revision carrying PHASE-02 and PHASE-07's library. Do it after F-1 and F-2 land and are pushed, so one bump covers them. Pushing is the operator's act. DEC-120's override stays for unpushed edits."
+
+[[finding.turn]]
+act = "amend"
+role = "responder"
+note = "fix-now cannot complete inside this audit: the pin needs a published revision, and pushing is the operator's act. Scope of work is unchanged; only its timing moves."
+disposition = "follow-up"
+response = """Owned by CHR-029. Correction: the finding's "flakes has no unpushed commits" is false. That check used a pathspec that matched nothing from inside ~/flakes. 11 commits are unpushed, including PHASE-07's library (DEC-121); origin has PHASE-02's. The bump therefore waits on the operator's push."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "CHR-029 exists with its gate and done-when; the corrected fact is on the amend turn."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "Expected README to name the Mac's way back to claude and codex (S3, DEC-116); observed it does not"
+detail = """
+Expected: S3 requires "a named way to get them back". Design § The Mac: "claude, codex — from their own installers ... README names this", and § Code impact lists "the Mac's CLIs" under README.md.
+
+Observed: no README, agents/README or SPEC-003 text says so. rg for installer wording finds nothing; README mentions claude and codex only for logins and the unjailed CLIs in dev-envs#default. SPEC-003 cites DEC-116 in its decision table only. agents.pi on every platform did land.
+
+PHASE-01 EX-6 and PHASE-08 EX-2 did not ask for this sentence, so no plan criterion caught it."""
+disposition = "fix-now"
+response = "Add the sentence to README: on the Mac, pi comes from agents.pi; claude and codex from their own installers. Lands with the F-1 repair; verify after."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Add the sentence to README: on the Mac, pi comes from agents.pi; claude and codex from their own installers. Lands with the F-1 repair; verify after."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "README § Jailed Agents now names agents.pi and the claude and codex installers."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "minor"
+title = "Expected form links kept out of git; observed Doctrine's .quotient/ neither tracked nor ignored, and Smut's store links tracked"
+detail = """
+Expected: .quotient/forms and result-* are machine-local store symlinks and GC roots (DEC-102, DEC-115), so they should not enter a repo.
+
+Observed: ~/dev/doctrine shows `?? .quotient/`; check-ignore finds no rule. ~/dev/smut has tracked .quotient/forms/{read,write} and .quotient/result-{read,write}, shown modified, so every form rebuild dirties that repo. bin/dev-envs-forms creates the directory without excluding it, and the design is silent. This repo is public-facing for some projects, though store paths carry no secret."""
+disposition = "follow-up"
+response = "Owned by IMP-061: a linker change plus an operator act in Smut, outside the slice's criteria, with one fact to check first (whether quotient needs the links tracked). Correction to the finding's detail: its sentence about the repo being public-facing was not checked and carries no weight."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "follow-up"
+response = "Owned by IMP-061: a linker change plus an operator act in Smut, outside the slice's criteria, with one fact to check first (whether quotient needs the links tracked). Correction to the finding's detail: its sentence about the repo being public-facing was not checked and carries no weight."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "IMP-061 exists."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "minor"
+title = "Expected design.md to describe what was built; observed post-lock amendments are recorded only in notes"
+detail = """
+Expected: canon tells the truth at close. notes.md § Post-lock amendments defers these to /reconcile.
+
+Observed, each confirmed against code: project is `flake = false` plus flake-compat, not a flake input (PHASE-05 F-1); DEC-120's agents override and watches; `for` returns hostOnlyEnv and the library sets SCCACHE_SERVER_UDS (DEC-121); nixDoctrine uses bind-pkg, not ro-bind (PHASE-02 D-1); checkDevEnv lives in dev-envs/dev-env.nix beside `errors`; bin/dev-envs-forms changed, though § Code impact says "used as is"; SCCACHE_DIR was never a host fact (PHASE-06 D-1); R5's wording (PHASE-05 F-3)."""
+disposition = "design-wrong"
+response = "The code is right and the design lags. Reconcile brief, per-slice direct edit of design.md, one entry per listed amendment."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "The code is right and the design lags. Reconcile brief, per-slice direct edit of design.md, one entry per listed amendment."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Brief entries exist under Per-slice."
+
+[[finding]]
+id = "F-8"
+status = "verified"
+severity = "minor"
+title = "Expected decisions SL-023 amends to read current; observed DEC-101, DEC-103 and DEC-106 stay proposed with no supersession, while the slice calls DEC-106 superseded"
+detail = """
+Expected: one current statement of the consumer's export contract.
+
+Observed: DEC-106 still states "four packages, one shell and two checks"; DEC-113 replaced that. DEC-101 states one jailed pi. DEC-103's stub check was extended. slice-023.md says "DEC-106's export contract ... is superseded"; notes § Open says "amended ..., not superseded". All three read `proposed`. DEC-102's choice text links bin/jailed-quotient-<c>, whereas bin/dev-envs-forms links bin/quotient-<c>."""
+disposition = "design-wrong"
+response = "Governance item for the reconcile brief: settle DEC-101, DEC-103 and DEC-106 against DEC-113 and DEC-114, correct DEC-102's link target, and make slice-023.md's wording match the outcome."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Governance item for the reconcile brief: settle DEC-101, DEC-103 and DEC-106 against DEC-113 and DEC-114, correct DEC-102's link target, and make slice-023.md's wording match the outcome."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Brief entries exist under Governance/spec and slice-023.md."
+
+[[finding]]
+id = "F-9"
+status = "verified"
+severity = "minor"
+title = "Expected selectors to cover what the slice edited; observed five delivered paths are not design-targets"
+detail = """
+`doctrine slice conformance SL-023` reports 60 undeclared, 21 undelivered, 0 conformant. That is ISS-005: git paths carry `flakes/`, selectors do not. Normalised by hand: all 21 undelivered selectors match an edit (0 truly undelivered); the .doctrine paths are bookkeeping.
+
+Real gaps: hosts.nix (the plan's VT-1/VT-2 name it) and justfile, dev-envs/dev-env.nix, dev-envs/dev-env-test.nix, dev-envs/stub-project/flake.lock. The last four are covered only as scope-relevant (justfile, dev-envs/**). None is scope creep: each serves a plan criterion or a recorded amendment. `slice verify-vt` is UNATTRIBUTABLE for all seven VTs for the same prefix reason; keywords are present, and just test passes them."""
+disposition = "design-wrong"
+response = "Reconcile brief: `doctrine slice selector add` for hosts.nix, justfile, dev-envs/dev-env.nix, dev-envs/dev-env-test.nix and dev-envs/stub-project/flake.lock as design-target, with design.md § Code impact as the mirror. The prefix misfire stays ISS-005's."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Reconcile brief: `doctrine slice selector add` for hosts.nix, justfile, dev-envs/dev-env.nix, dev-envs/dev-env-test.nix and dev-envs/stub-project/flake.lock as design-target, with design.md § Code impact as the mirror. The prefix misfire stays ISS-005's."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Brief names the selector verb as the load-bearing change."
+
+[[finding]]
+id = "F-10"
+status = "verified"
+severity = "nit"
+title = "Expected plan criteria met as written; observed PHASE-02 EX-6's quotient allow clause is vacuous and PHASE-07 EX-1 ran in jailed-shell, not jailed-pi"
+detail = """
+PHASE-02 EX-6 asks the operator to re-run `quotient allow` for machine forms. Per notes § Open (quotient help policy § Project forms), quotient never approves machine forms, so the clause cannot be performed.
+
+PHASE-07 EX-1 asks for just gate inside jailed-pi; it ran in jailed-shell (sheet D-1). I diffed the two launchers, store hashes normalised: three delta lines only (closure-args name, PATH, the agent binary). The substitution does not affect the gate's environment beyond PATH entries for the agents."""
+disposition = "tolerated"
+response = "Plan criteria are immutable and both phases are complete, so neither can usefully change. EX-6's clause cannot be performed, and the launcher diff shows EX-1's substitution differs only in agent and PATH. Recorded here as the explanation."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "Plan criteria are immutable and both phases are complete, so neither can usefully change. EX-6's clause cannot be performed, and the launcher diff shows EX-1's substitution differs only in agent and PATH. Recorded here as the explanation."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Launcher diff re-run in this audit: three delta lines."
+
+[[finding]]
+id = "F-11"
+status = "verified"
+severity = "minor"
+title = "Expected SPEC-003 to reflect verification and its slice link; observed REQ-024..030 all pending, no slice-spec relation, one stale claim"
+detail = """Observed: all seven requirements read `pending`, though PHASE-07 and just test give evidence for most. slice-023.toml has no relation to SPEC-003 and plan.toml's [specs] is empty, so the slice that created the spec does not reach it through the graph. SPEC-003 § Concerns' "unverified" clause is now settled by F-2's launcher order. REQ-029's "which no jail binds" is false for the dispatch jail (F-1), so REQ-029 cannot be moved on as written."""
+disposition = "design-wrong"
+response = "Governance item for the reconcile brief, by REV on SPEC-003: requirement statuses from evidence, § Concerns' unverified clause, REQ-029's text once F-1 is settled, and the slice-to-spec link."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Governance item for the reconcile brief, by REV on SPEC-003: requirement statuses from evidence, § Concerns' unverified clause, REQ-029's text once F-1 is settled, and the slice-to-spec link."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Brief entries exist under Governance/spec."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

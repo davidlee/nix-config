@@ -80,8 +80,8 @@ The project owes nothing else. It names no jail, agent, form or gateway.
 | a name that is not a valid POSIX name | refused |
 | a name in `env` or `hostEnv` also in the host's env list | refused: one owner per fact |
 
-The host's env list here means `hostDevEnv.env`. `hostOnlyEnv` is not in it (see
-§ Concerns).
+The host's env list here means `hostDevEnv.env` and `hostOnlyEnv`: `hostNames`
+(`dev-envs/dev-env.nix`) takes both.
 
 ## Host facts
 
@@ -92,7 +92,7 @@ Plain data under `agents/`, read by relative path. Nothing copies them.
 | Doctrine's install dir, `.local/share/doctrine/bin` (home-relative) | `agents/doctrine.nix` `installBinDir` | `modules/user-bin-path.nix`, jail library |
 | Where a jail sees a Nix-built Doctrine, `/run/doctrine-nix-bin` | `agents/doctrine.nix` `nixBinDir` | jail library |
 | The env list and its packages | `agents/dev-env.nix` `for pkgs` → `env`, `packages` | `dev.env` feature, consumer through `hostDevEnv` |
-| The host shell's sccache socket | `agents/dev-env.nix` `for pkgs` → `hostOnlyEnv` (Linux) | `dev.env` feature only |
+| The host shell's sccache socket | `agents/dev-env.nix` `for pkgs` → `hostOnlyEnv` (Linux) | `dev.env` feature applies it; `checkDevEnv` reads its names |
 | The gateway's address and client keys | `agents/gateway.nix` | jail library; SPEC-001 owns the contract |
 | Order of user bin directories | `modules/user-bin-path.nix` | pam (Linux), `home.sessionPath` (darwin) |
 
@@ -218,6 +218,8 @@ stand-in for `project`; its lock pins a nixpkgs that dev-envs does not.
 
 What the checks can detect:
 
+- `checks.dev-env` runs each refusal against the real `hostDevEnv`, so a name the
+  host layers own is refused from the list that sets it.
 - `checks.stub` finds, in each jail's launcher or the one launcher it execs, the
   bundle's path, a project `env` name and a `hostEnv` forwarding test. It does not
   run a launcher, and it does not cover forms.
@@ -242,10 +244,11 @@ codex on both sides (PHASE-07 VH-1). No test repeats any of this.
   compiler, so a shared server would run a jail's build scripts on the host.
   DEC-121 gives each side a unix socket; RSK-001 covers the class, which that does
   not close.
-- **`SCCACHE_SERVER_UDS` is not refused in `devEnv`.** It is set by the library
-  and `hostOnlyEnv`, not `hostDevEnv.env`, so `checkDevEnv` accepts it. Naming it
-  in `hostEnv` would forward the host's socket path, though no jail binds that
-  directory. Whether a project's `env` wins over the library's value is unverified.
+- **Doctrine's dispatch jail is not the library's.** `doctrine:scripts/spawn-confined.sh`
+  and `pi-respawn-nofork.sh` confine with `--ro-bind / /` and inherit the env, so
+  the host's socket is visible and its address arrives with the env. They set
+  `SCCACHE_SERVER_UDS=/tmp/sccache.sock` themselves (RV-047 F-1). The host's address
+  is safe only where a jail sets its own, so a new whole-root jail must do the same.
 - **A form rebuild needs approval.** Any toolchain change gives a new form
   identity, and quotient refuses delegates until `quotient allow` runs.
 - **Doctrine's version skew.** The host install and the Nix Doctrine are separate
@@ -273,6 +276,8 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 
 ## Open questions
 
-- Should `checkDevEnv` also refuse `hostOnlyEnv` names and library-set names?
+- Should `checkDevEnv` also refuse names the library sets, such as
+  `CLAUDE_CODE_SHELL`? A project's `env` comes later on the bwrap line, so it
+  would win (inferred from the order, not run).
 - What replaces shared loopback for networked jails (RSK-001)?
 - Should write forms keep a cargo home and sccache cache across runs (IMP-059)?

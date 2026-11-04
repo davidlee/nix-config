@@ -1,0 +1,90 @@
+id      = 15
+slug    = "reconcile-sl-023"
+title   = "reconcile SL-023"
+status = "done"
+approval = "approved"
+updated = "2026-11-04"
+tags    = []
+
+# A Revision (REV) is a first-class change-axis entity: a pending
+# revise-intent against authored governance/spec truth plus a staged delta payload.
+# Lifecycle (proposed→started→done; abandoned from any non-terminal) is moved by
+# `revision status REV-N <state>`. `approval` is orthogonal — lifecycle transitions
+# are approval-blind; the apply checkpoint consults it. The prose
+# rationale + before/after excerpts live in the sister `revision-NNN.md`.
+
+# change rows — the typed `revises` payload (the touched-entity set; the rows ARE
+# the edges, members.toml precedent). Authored by `revision change add`,
+# NOT by hand and NEVER by `doctrine link`. A fresh `revision new` writes none:
+#   [[change]]
+#   target  = "ADR-006"   # durable peer id (the FK / anchor)
+#   action  = "modify"    # modify | retire | move | status | introduce | create
+#   primary = true        # display/headline hint; at most one, optional
+
+[relationships]
+needs = []
+after = []
+
+[[change]]
+target = "SPEC-003"
+action = "modify"
+primary = true
+
+[[change]]
+target = "REQ-026"
+action = "modify"
+primary = false
+
+[[change]]
+target = "REQ-029"
+action = "modify"
+primary = false
+
+[[change]]
+target = "REQ-024"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-025"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-026"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-027"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-028"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-029"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"
+
+[[change]]
+target = "REQ-030"
+action = "status"
+primary = false
+from = "pending"
+to_status = "active"

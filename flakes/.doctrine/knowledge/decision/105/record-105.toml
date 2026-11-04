@@ -5,9 +5,9 @@ id = 105
 slug = "degrade-to-less-never-to-a-different-environment"
 title = "Failures degrade to a smaller environment or fail loudly, never to a different environment silently"
 record_kind = "decision"
-status = "proposed"
+status = "accepted"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-04"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

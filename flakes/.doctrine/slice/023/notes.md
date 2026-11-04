@@ -6,7 +6,7 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-04 · PHASE-08 · fb4de405 (doctrine 7eddc8ea1)
+fresh-as-of: 2026-11-04 · close · repairs committed (doctrine ed541ec58)
 
 ### Produced
 - SL-023 scoped (S1–S5, C1, T1–T5) — uncommitted, staged
@@ -87,6 +87,13 @@ fresh-as-of: 2026-11-04 · PHASE-08 · fb4de405 (doctrine 7eddc8ea1)
   reach host loopback; IMP-059 — form caches do not persist across runs
 - PHASE-08 done — SPEC-003 (REQ-024..030), README § Jailed Agents linked (fb4de405); just test green
   after the last change; pi accuracy review: 6 of 7 findings fixed, 1 rejected
+- RV-047 audit: F-1 blocker (dispatch jail inherited the host sccache socket) fixed by
+  user's option A; F-2, F-5 fixed; uncommitted in ~/flakes and ~/dev/doctrine (CHR-184)
+- minted: IMP-060 — older-pin jails and the baked host path; IMP-061 — .quotient out of
+  git; CHR-029 — bump dev-envs' agents pin after push
+- PHASE-07 sheet, kept: D-2 host Doctrine was stale (0.47.0) and its managed .gitignore
+  dropped lines until rebuilt from HEAD; D-3 in-jail `doctrine install` skips codex MCP
+  registration when codex is not on PATH, so jailed-codex ran `codex mcp add` by hand
 
 ### Learned
 - mem.fact.sccache.jail-server-isolation — server runs the compiler; hit tests need one target dir
@@ -103,11 +110,18 @@ fresh-as-of: 2026-11-04 · PHASE-08 · fb4de405 (doctrine 7eddc8ea1)
   per machine form; quotient never approves machine forms (help policy § Project forms: no
   approval + no link → machine form runs). DEC-115 is right: `quotient allow` is for project-form links (PHASE-06)
 - DEC-120 post-lock amendment → reconcile into design.md (§ Post-lock amendments)
-- DEC-101, DEC-106, DEC-103 amended (noted on DEC-113/DEC-114), not superseded
+- DEC-101, DEC-106, DEC-103 amended (noted on DEC-113/DEC-114), not superseded.
+  Reconcile outcome: DEC-113 supersedes DEC-101 and DEC-106, carrying what survived; DEC-103 amended and accepted
 - DEC-121 post-lock amendment → reconcile: design § Host facts (`for` returns hostOnlyEnv),
   § The jail library envOptions, DEC-114 wording
-- unpushed (operator's call): flakes ee2a5f86 onward; doctrine 23c4d5eb3, e37ecf2a3,
-  7eddc8ea1; fleet a9b384f
+- unpushed (operator's call, as of the audit): flakes, 11 commits incl. PHASE-07's library;
+  doctrine 7eddc8ea1. Fleet is pushed
+- RV-047 brief drives /reconcile; IMP-060, IMP-061, CHR-029 outlive the slice
+- Reconciled: REV-015 done; REC-001..007 (status), REC-008..014 (accept, VA cells). VA cells carry no
+  touched_paths, so they read stale and need the accept REC at close
+- Harvest at close: no new memory. Dispatch-socket and form-link facts are in SPEC-003, DEC-121 and the
+  edited memories; the accept-REC path is mem.pattern.doctrine.close-drift-discharge-rec. Rejected as
+  one-offs: `link specs` refused despite the slice toml's comment (used references/implements)
 - smut, satan-attrd: re-bake diffs left uncommitted for the operator
 - F-2 settled by VH-1: operator ran pi and codex, host and jail, after the symlink went
 - SPEC-003 § Open questions — checkDevEnv does not refuse SCCACHE_SERVER_UDS; RSK-001; IMP-059
@@ -132,6 +146,8 @@ These are execution checks already carried in the handover; a review would
 only restate them.
 
 ## Post-lock amendments (for /reconcile)
+
+Reconciled into design.md at /reconcile, 2026-11-04 (RV-047 § Reconciliation Outcome).
 
 The design is locked (run rev 42) and was not reopened. These amend it and
 must be reconciled into design.md at /reconcile:

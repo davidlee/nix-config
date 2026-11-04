@@ -5,9 +5,9 @@ id = 101
 slug = "consumer-jail-record"
 title = "One jailed pi: the project's tools in the launcher, the consumer's pins in the sandbox"
 record_kind = "decision"
-status = "proposed"
+status = "superseded"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-04"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
@@ -26,7 +26,7 @@ notes       = []
 
 [relationships]                 # verb-written edges (set by doctrine supersede)
 supersedes    = []   # record ids this one replaces (set by doctrine supersede)
-superseded_by = []   # set on superseded predecessor (verb-written)
+superseded_by = ["DEC-113"]   # set on superseded predecessor (verb-written)
 
 [[relation]]
 label = "shapes"

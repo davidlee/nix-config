@@ -12,7 +12,7 @@ tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)
 context = "SL-023 S1 fixes the jail set (pi, pi-research, claude, codex, shell). DEC-101/DEC-106 built one jail exported as packages.jail and devShells.jail, used only in this repo (checks.stub; envrc/dev-envs.sh). Doctrine's subagent graphs: doctrine:flake.nix:194-225."
-choice = """packages: jailed-pi, jailed-pi-research (makeJailedPi {name="pi-research"; profile="research";}), jailed-claude, jailed-codex, jailed-shell (makeJailedAgent {name="shell"; agent=pkgs.zsh;}), devTools, quotient-read, quotient-write; packages.jail goes. Subagent graphs as Doctrine's: pi self depth 2; claude self + [pi] depth 2; codex [claude pi codex]; shell [pi claude]; all gatewayClient "pi", extraPkgs [devTools], hostDoctrine on. devShells.jail is renamed devShells.default and carries devTools, the five jails, unjailed pi/claude/codex, and jpi/jcl/jcx/jsh as writeShellScriptBin wrappers (each execs its jail). envrc/dev-envs.sh, its test and README follow the rename. checks.stub loops over all five launchers, following one exec each."""
+choice = """packages: jailed-pi, jailed-pi-research (makeJailedPi {name="pi-research"; profile="research";}), jailed-claude, jailed-codex, jailed-shell (makeJailedAgent {name="shell"; agent=pkgs.zsh;}), devTools, quotient-read, quotient-write; packages.jail goes. Subagent graphs as Doctrine's: pi self depth 2; claude self + [pi] depth 2; codex [claude pi codex]; shell [pi claude]; all gatewayClient "pi", extraPkgs [devTools], hostDoctrine on. devShells.jail is renamed devShells.default and carries devTools, the five jails, unjailed pi/claude/codex, and jpi/jcl/jcx/jsh as writeShellScriptBin wrappers (each execs its jail). envrc/dev-envs.sh, its test and README follow the rename. checks.stub loops over all five launchers, following one exec each. Surviving from DEC-101: dev-envs supplies its own nixpkgs through mkJailedAgents, so the sandbox is on the consumer's pins and the tools on the project's, and the library default mountLaunchDir and JAIL_WORKSPACE_DEPS mechanism stay. Surviving from DEC-106: systems are x86_64-linux and aarch64-linux only (confirmed by DEC-116), and the form linker stays the repo script bin/dev-envs-forms, never a shell package."""
 alternatives = ["Keep `jail` as aliases of jailed-pi and the shell: nothing changes outside the repo, but the names stop describing a shell of five jails", "Keep the shorthands in Doctrine: they are a preference for working on any project (DEC-108's consumer test), so every consumer repo gets them (user)"]
 rationale = "Artefact names follow the jailed-<name> precedent; both renamed callers live in this repo; a default shell makes plain `nix develop` on the consumer work."
 consequences = ["Supersedes DEC-101 and DEC-106; DEC-106's Linux-only clause is revisited under inq-8.", "jail-zsh is renamed jsh; d and drn are dropped (DEC-111); jd stays in Doctrine.", "Smut gains the four extra jails."]
@@ -25,7 +25,7 @@ contradicts = []
 notes       = []
 
 [relationships]                 # verb-written edges (set by doctrine supersede)
-supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+supersedes    = ["DEC-101", "DEC-106"]   # record ids this one replaces (set by doctrine supersede)
 superseded_by = []   # set on superseded predecessor (verb-written)
 
 [[relation]]

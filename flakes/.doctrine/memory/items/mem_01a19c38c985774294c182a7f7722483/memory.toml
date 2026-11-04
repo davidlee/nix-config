@@ -4,9 +4,9 @@ schema_version = 1
 memory_type = "fact"
 status = "active"
 title = "A relative path: flake input locks relatively, which is what makes an in-flake stub project viable"
-summary = 'path:./sub locks as path = "./sub"; the local-source guard must reject file: URLs and ABSOLUTE paths, not every path node.'
+summary = "path:./sub locks relative; its narHash pins the fixture's content: re-run nix flake update project after a stub edit; an absent store path (fresh machine, GC) fails eval"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-03"
 
 [scope]
 paths = ["flakes/"]

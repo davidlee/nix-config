@@ -18,9 +18,11 @@ wrong on the other side of the jail wall.
 
 **Boundary.** Three repositories and the host: `~/flakes` (host facts, jail
 library, consumer, root flake), `~/dev/doctrine` (its flake shrinks to a
-producer) and `/srv/fleet` (the capsule target names a new output). The six other
-project flakes that bind Doctrine themselves are not changed here; their binds
-become redundant and go in the rollout.
+producer) and `/srv/fleet` (the capsule target names a new output). Other repos
+are not changed here. Six project flakes bind Doctrine themselves; their binds
+become redundant and go in the rollout. Others have a jail with no bind of its
+own, on an `agents` pin older than this slice, so a path re-baked by `doctrine
+install` may not exist there (inferred, not run). IMP-060 owns them (RV-047 F-3).
 
 ### The four layers (DEC-108)
 
@@ -87,18 +89,27 @@ rec {
     UV_PYTHON_PREFERENCE = "only-system";
   };
   linuxEnv.CARGO_BUILD_RUSTFLAGS = "-C link-arg=-fuse-ld=mold"; # mold cannot emit Mach-O
+  # Host shells only, never a jail (DEC-121).
+  linuxHostOnlyEnv.SCCACHE_SERVER_UDS = "\${XDG_RUNTIME_DIR}/sccache.sock";
   # The env and its packages for one platform.
   for = pkgs: let
     linux = pkgs.stdenv.isLinux;
+    onLinux = attrs: if linux then attrs else {};
   in {
-    env = env // (if linux then linuxEnv else {});
+    env = env // onLinux linuxEnv;
+    hostOnlyEnv = onLinux linuxHostOnlyEnv;
     packages = [pkgs.sccache] ++ (if linux then [pkgs.mold] else []);
   };
 }
 ```
 
-`SCCACHE_DIR` is left out: sccache's Linux default (`~/.cache/sccache`) is taken
-to equal the value Doctrine's `.envrc` sets today. Checked at execution.
+`env` goes everywhere. `hostOnlyEnv` goes to host shells, through `dev.env`, and
+never to a jail or form: sccache's server runs the compiler, and its default
+address, TCP `127.0.0.1:4226`, is shared with every networked jail (DEC-121).
+
+`SCCACHE_DIR` is not a host fact. sccache's Linux default (`~/.cache/sccache`)
+equals the value Doctrine's `.envrc` set, so the variable was dropped (PHASE-06
+D-1).
 
 ### The user-bin PATH (DEC-107)
 
@@ -234,13 +245,15 @@ posture = {sandboxGitIdentity, hostDoctrine ? true, nixDoctrine ? null, …}: c:
   baseJailOptions c
   ++ lib.optionals hostDoctrine (hostDoctrineOptions c)
   ++ lib.optional (nixDoctrine != null)
-       (c.ro-bind "${lib.getBin nixDoctrine}/bin" doctrineFacts.nixBinDir)
+       (c.bind-pkg doctrineFacts.nixBinDir "${lib.getBin nixDoctrine}/bin")
   ++ …
 ```
 
 A reference build at a known path that cannot be reached by accident: only a
 caller that names `/run/doctrine-nix-bin/doctrine` runs it. Its closure must be
-visible in the jail; the library test runs it there (Verification).
+visible in the jail, so the bind is `bind-pkg` (`ro-bind` plus the path's
+closure), not `ro-bind` (PHASE-02 D-1); the library test runs it there
+(Verification).
 
 ### Host facts the library exports
 
@@ -250,12 +263,16 @@ own `pkgs`, so the consumer reads neither file by path:
 
 ```nix
 # mkJailedAgents' result
-hostDevEnv = (import ./dev-env.nix).for pkgs;   # { env; packages; }
+hostDevEnv = (import ./dev-env.nix).for pkgs;   # { env; hostOnlyEnv; packages; }
 ```
 
 The library does not *apply* `hostDevEnv`. Which env a jail gets is the
 consumer's choice (DEC-108); the library only holds the facts and the
 combinators (`set-env`, `tryFwdEnv`) that apply them.
+
+The library does set one sccache value itself: `envOptions` gives every jail and
+form `SCCACHE_SERVER_UDS=/tmp/sccache.sock`, a socket in the jail's private
+`/tmp`, so a jail's server stays in the jail (DEC-121).
 
 ### What changes with it
 
@@ -288,7 +305,7 @@ flowchart TB
     DT["dev-tools<br/>passthru.devEnv { env; hostEnv; }"]
   end
   subgraph agents["agents (library + host facts)"]
-    HD["hostDevEnv { env; packages; }"]
+    HD["hostDevEnv { env; hostOnlyEnv; packages; }"]
     MK["makers · posture · tryFwdEnv"]
   end
   DI["doctrine input (pinned)"]
@@ -308,7 +325,12 @@ flowchart TB
 
 ```nix
 inputs = {
-  # … nixpkgs, agents, quotient, project as today …
+  # … nixpkgs, agents, quotient as today …
+  # Source only, evaluated by flake-compat against the project's own flake.lock:
+  # as a flake input, an overridden project is relocked under this flake (Lix
+  # 2.95.4), and its tools are built at pins it never chose (PHASE-05 F-1).
+  project = { url = "path:./stub-project"; flake = false; };
+  flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
   # A pinned reference Doctrine, mounted at /run/doctrine-nix-bin in every
   # jail and form, never on PATH (DEC-109). Built locally on each lock bump.
   doctrine.url = "github:davidlee/doctrine";
@@ -318,11 +340,15 @@ perSystem = system: let
   pkgs = nixpkgs.legacyPackages.${system};
   inherit (pkgs) lib;
   jailLib = agents.lib.${system}.mkJailedAgents {inherit pkgs;};
-  devTools = …; # unchanged: the producer contract's throw
+  projectFlake = (import flake-compat {src = project;}).outputs;
+  devTools = …; # from projectFlake; the producer contract's throw is unchanged
 
   # What the project's tools need (DEC-114). Absent: nothing (DEC-105).
-  devEnv = checkDevEnv (devTools.devEnv or {});
   inherit (jailLib) hostDevEnv;
+  devEnv = devEnvLib.checkDevEnv {
+    inherit lib;
+    hostNames = devEnvLib.hostNames hostDevEnv;
+  } (devTools.devEnv or {});
   env = hostDevEnv.env // devEnv.env;
   envOptions = c:
     lib.mapAttrsToList c.set-env env
@@ -389,7 +415,9 @@ and `devShells.jail` go.
 ### The project's env (DEC-114)
 
 `checkDevEnv` refuses at evaluation, naming
-`packages.<system>.dev-tools.passthru.devEnv` and the offending key (DEC-105):
+`packages.<system>.dev-tools.passthru.devEnv` and the offending key (DEC-105). It
+lives in `dev-envs/dev-env.nix`, beside `errors`, its pure validator, and
+`hostNames`, the names the host layers own:
 
 | input | result |
 |---|---|
@@ -397,7 +425,7 @@ and `devShells.jail` go.
 | a key other than `env`, `hostEnv` | refused |
 | `env` not an attrset of strings | refused |
 | a name in `env` or `hostEnv` not `lib.isValidPosixName` | refused |
-| a name in `env` also in the host list | refused: one owner per fact (DEC-108) |
+| a name in `env` or `hostEnv` also in `hostDevEnv.env` or `hostOnlyEnv` | refused: one owner per fact (DEC-108; RV-047 F-2) |
 
 `env` values are set as given; `hostEnv` names are forwarded only when set at
 launch (`tryFwdEnv`, runtime code, so form-safe). The host list itself needs no
@@ -406,7 +434,11 @@ forwarding: the consumer sets it.
 ### The shell
 
 `use_dev_envs` (`envrc/dev-envs.sh`) lands in `dev-envs#default` instead of
-`#jail`; its test and the README follow. The shell carries the five jails, the
+`#jail`; its test and the README follow. It and `bin/dev-envs-forms` also pass
+`--override-input agents path:$HOME/flakes/agents`, and `use_dev_envs` watches
+`~/flakes/agents/*.nix`, so a library edit lands without a push and re-lock;
+dev-envs' lock keeps the published pin, and `doctrine` stays pinned (DEC-120).
+The shell carries the five jails, the
 unjailed agent CLIs (which precede self-installed ones on PATH, as in Doctrine's
 devshell today, DEC-116) and the shorthands. Doctrine keeps only `jd` (DEC-111).
 
@@ -431,7 +463,7 @@ and the missing needle.
 
 The consumer's forms carry what the jails carry: the bundle, the host list's
 packages, `envOptions` and the Nix Doctrine. `bin/dev-envs-forms` links them in
-the checkout as for Smut:
+the checkout as for Smut, with DEC-120's `agents` override:
 
 ```
 ~/dev/doctrine/.quotient/forms/{read,write} ──> .quotient/result-{read,write} (GC roots)
@@ -521,8 +553,8 @@ launcher diff).
 
 `.envrc` keeps `JAIL_WORKSPACE_DEPS`, `DIRENV_LAYOUT_DIR`, the `DOCTRINE_BIN`
 comment and `watch_file`. It loses `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`,
-`SCCACHE_DIR`, `RUSTC_WRAPPER` and the mold block, which are now host facts. Its
-last two lines become:
+`RUSTC_WRAPPER` and the mold block, which are now host facts, and `SCCACHE_DIR`,
+whose value is sccache's Linux default. Its last two lines become:
 
 ```sh
 source_env_if_exists ~/flakes/envrc/dev-envs.sh
@@ -596,6 +628,7 @@ An absent layer degrades to less; a broken layer fails loudly, naming the site.
 | quotient's form check refuses the `$HOME` PATH entry or the mold flag's spaces | `checks.quotient-forms` fails at build, before any form is used | `just test`; fallback: set the value at run time |
 | sccache cannot write its cache inside a form | the first `rustc` call through the wrapper fails | the form run (Verification); fallback per DEC-114 |
 | the pinned `doctrine` input fails to build | every jail and form fails to build: the Nix Doctrine is a build input of each | at the lock bump that introduced it; roll the pin back |
+| a whole-root jail inherits the host's `SCCACHE_SERVER_UDS` (Doctrine's dispatch jail: `--ro-bind / /`, env inherited) | with no host server, cargo fails: the client cannot bind in a read-only directory; with one up, the compile goes to the host's server | the jail sets its own socket; `doctrine:tests/e2e_worker_confinement.rs` (RV-047 F-1) |
 | nested `bwrap` fails in a jail | `doctrine:tests/e2e_worker_confinement.rs` fails instead of skipping | `just gate` in `jailed-pi`; Doctrine fixes the test to probe and skip by name (DEC-111) |
 | `/srv/fleet` re-locks before Doctrine has `capsule-tools` | fleet evaluation fails naming the missing output | DEC-112's order prevents it |
 | root flake keeps `doctrine.inputs.{agents,pub}.follows` after Doctrine drops `agents` | nix warns, or refuses, on a follows naming a missing input | CHR-028 (checked at execution) |
@@ -608,7 +641,7 @@ An absent layer degrades to less; a broken layer fails loudly, naming the site.
 | path | change |
 |---|---|
 | `agents/doctrine.nix` | new: `installBinDir`, `nixBinDir` |
-| `agents/dev-env.nix` | new: `env`, `linuxEnv`, `for pkgs` |
+| `agents/dev-env.nix` | new: `env`, `linuxEnv`, `linuxHostOnlyEnv`, `for pkgs` |
 | `agents/jailed-agents.nix` | host-path runtime bind; `/run/doctrine-bin` goes; `nixDoctrine` in `posture`/`makeJailedAgent`; exports `hostDevEnv` |
 | `agents/jailed-agents-test.nix` | four `/run/doctrine-bin` sites; `nixDoctrine` case |
 | `agents/README.md` | `hostDoctrine` bullet and option row; `nixDoctrine` row |
@@ -616,15 +649,16 @@ An absent layer degrades to less; a broken layer fails loudly, naming the site.
 | `modules/nixos/env.nix` | `sessionVariables.PATH` from the list |
 | `modules/home/darwin/default.nix` | `home.sessionPath` from the list |
 | `features/dev.nix` | new record `dev.env`: home half applies `agents/dev-env.nix` (env + packages) |
-| `dev-envs/flake.nix`, `dev-envs/flake.lock` | five jails, default shell, shorthands, `devEnv`, host list, `doctrine` input |
-| `dev-envs/stub-project/flake.nix` | `passthru.devEnv` |
-| `envrc/dev-envs.sh`, `envrc/dev-envs-test` | `#jail` → `#default` |
+| `dev-envs/flake.nix`, `dev-envs/flake.lock` | five jails, default shell, shorthands, `devEnv`, host list, `doctrine` and `flake-compat` inputs; `project` is `flake = false` |
+| `dev-envs/dev-env.nix`, `dev-envs/dev-env-test.nix` | new: `errors`, `checkDevEnv`, `hostNames` and their test |
+| `dev-envs/stub-project/flake.nix`, `dev-envs/stub-project/flake.lock` | `passthru.devEnv`; the stub's own lock, for `checks.project-pins` |
+| `envrc/dev-envs.sh`, `envrc/dev-envs-test` | `#jail` → `#default`; `agents` override and watches (DEC-120) |
+| `bin/dev-envs-forms`, `bin/dev-envs-forms-test` | `agents` override (DEC-120); links `bin/quotient-<c>` |
+| `hosts.nix` | `checks.factories`: `dev.env` carried as expected |
+| `justfile` | `just test` runs the consumer's checks |
 | `features/agents.nix`, `features/profiles/personal.nix`, `features/profiles/personal-linux.nix` | `agents.pi` on every platform; `personal` selects `dev.env` |
 | `README.md` | § Jailed Agents (five jails, shell, `devEnv`, pointer to the spec); feature tree (`dev.env`, `agents.pi`); the Mac's CLIs |
 | a new tech spec under `.doctrine/spec/tech/` | DEC-118 |
-
-`bin/dev-envs-forms` is used as is (run for Doctrine); its test is unchanged
-unless running it there exposes a gap.
 
 Outside this repo (not selectors; recorded where they land, DEC-119):
 
@@ -637,7 +671,8 @@ Outside this repo (not selectors; recorded where they land, DEC-119):
 | `~/dev/doctrine/justfile` | `quotient-forms` goes; `install` clears the mold flag |
 | `~/dev/doctrine/.envrc` (untracked) | exports trimmed; `use_dev_envs` |
 | `~/dev/doctrine/scripts/oubliette.sh` | comment reworded (`:181-182`) |
-| `~/dev/doctrine/tests/e2e_worker_confinement.rs` | only if nested bwrap fails: probe and skip |
+| `~/dev/doctrine/tests/e2e_worker_confinement.rs` | only if nested bwrap fails: probe and skip; asserts a worker's own sccache socket (RV-047 F-1) |
+| `~/dev/doctrine/scripts/spawn-confined.sh`, `scripts/pi-respawn-nofork.sh` | set `SCCACHE_SERVER_UDS=/tmp/sccache.sock` (RV-047 F-1); env only, mounts unchanged |
 | `/srv/fleet/targets/doctrine.nix`, its lock | `toolsPackage = "capsule-tools"` |
 | `~/.config/quotient/doctrine.policy.src.json` (untracked) | forms fallback; `just policy-install` |
 
@@ -657,12 +692,13 @@ so DEC-112 step 3 leaves them unchanged.
 Build Doctrine's five jails at that revision and the consumer's five with
 `--override-input project git+file:$HOME/dev/doctrine --no-write-lock-file`.
 For each, follow the gateway wrapper's one `exec` to the inner launcher,
-normalise store hashes, and diff outer and inner. Expected deltas, enumerated in
-advance; anything else is a finding:
+normalise store hashes, and diff outer and inner. With `project` evaluated
+against its own lock, the diff may require identical `dev-tools` paths (PHASE-05
+F-1). Expected deltas, enumerated in advance; anything else is a finding:
 
 | delta | source |
 |---|---|
-| jail and agent CLI store paths (dev-envs' nixpkgs and agents pins, not Doctrine's) | R5 |
+| jail and agent CLI store paths (dev-envs' nixpkgs and agents pins, not Doctrine's); agents-library drift since the producer's pin (malebolge bridge, quotient relay) | R5 |
 | Doctrine bound at `$HOME/.local/share/doctrine/bin`, not `/run/doctrine-bin`; PATH entry likewise | DEC-110 |
 | `/run/doctrine-nix-bin` bind | DEC-109 |
 | PATH order; `bwrap` on the jail's PATH (from Doctrine's tool set) | DEC-111 |
@@ -720,6 +756,8 @@ flowchart LR
   afterwards Doctrine's jails are gone, and before step 3 the consumer would
   still carry the crane `doctrine` (DEC-117; RV-046 F-2).
 - Fleet moves between Doctrine's steps 1 and 3, never before step 1 (DEC-112).
+- No push and re-lock is needed before the subtraction: both entry points take
+  the in-tree `agents` (DEC-120).
 - `~/.local/bin/doctrine` goes only after `doctrine install` has re-baked pi
   and codex on the host and in a jail, and codex's MCP server starts on both
   sides (DEC-107; RV-046 F-1).
