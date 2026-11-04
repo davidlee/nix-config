@@ -17,3 +17,10 @@ the `jailed-<name>` names mean to callers once the counter goes (the makers'
 arguments, `dev-envs/flake.nix`, the six project flakes, satan).
 
 Not SL-023's scope: SL-023 keeps the subagent graphs as Doctrine has them.
+
+## Resolution (2026-11-04)
+
+Kept. The operator wants the shared counter for cross-harness chains
+(claude → pi → codex): each harness bounds its own depth, but none bounds a
+chain that spans harnesses. `maxSubagentDepth` and `allowSelfAsSubagent` stay
+as they are. Not verified: how each harness's own bound behaves.

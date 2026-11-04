@@ -12,3 +12,11 @@ therefore hits only within one run, each run re-fetches crates, and `cargo
 Possible fix: bind a persisted cargo home and sccache dir into write forms,
 weighed against the form's isolation (a shared cache is a shared write surface).
 Confirm the cause first.
+
+## Resolution (2026-11-04)
+
+By design. A quotient form's home is disposable; a pi jail's persisted home is
+not. They are different classes with different tradeoffs, and a delegate run
+paying a cold build is the consequence of the first. A shared cache would also
+be a shared write surface across runs. No change. If cold builds become a real
+cost, reopen with a per-project cache for write forms.
