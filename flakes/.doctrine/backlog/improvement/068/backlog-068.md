@@ -21,3 +21,8 @@ must be the wrapper for sessions to conform. Only zmux's own `dev-tools` carries
 - Root `flake.nix`: bump `zmux` to `v0.1.1`.
 
 Afterwards: relink forms, `quotient allow` (operator), switch (operator).
+
+## Outcome, 2026-11-06
+
+f86c78a4. `just gate` and `just coverage` pass. In the `dev-envs` stub project's jail,
+which has no `zmx` of its own, `zmx` is the wrapper; `jailed-pi` made a labelled session.
