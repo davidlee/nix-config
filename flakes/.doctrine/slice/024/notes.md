@@ -18,6 +18,21 @@ fresh-as-of: 2026-11-05 · plan drafted, design locked rev 30 · 6ef16e4a
 ### Open
 - plan approval owed, including plan.md § Notes' launch-home departure; then `doctrine slice status 24 ready` and `/phase-plan` PHASE-01
 
+## Implementation run
+
+Driven by /super-orchestrator; operator approved the plan and asked for sonnet/opus where necessary, pi for research, mechanical edits and code reviews (2026-11-05).
+
+Preflight:
+
+- Forms (`read`, `write`, probed at the seat): no `nix`, `nix-build`, `nix-instantiate`, `bwrap`, `python3`, no store database. `just`, `alejandra`, `statix`, `deadnix`, `jq`, `doctrine`, guarded `git` are present; network works; `write` root is writable. So pi workers edit, format and lint only. Nothing that needs nix runs in a form: that is a form's design, not a gap, and no form change is proposed.
+- Host gate: `just gate` from `~/flakes`, in the session's shell (direnv dev-tools on PATH). Baseline green at 495bf973. Host-only: every test, build and real-jail row.
+- Commits are host-only and scoped to the phase's paths; new files need `git add`. `path:` flake refs copy untracked files, so tests pass before staging: check `git status -uall -- .` at each commit.
+- Plan approval covers plan.md § Notes: launch home (the shipped jail's `agent` home), scratch-config check for empty profiles, the added jail scan. PHASE-04 EN-3 is met by it.
+- PHASE-04 VH-1, VH-2 are the operator's; PHASE-05 EN-1 allows them to be outstanding only if the operator defers explicitly.
+- Writes in `~/dev/quotient` (PHASE-05 EX-4) are authorised by the plan: doctrine records only, no code, uncommitted unless the seat says otherwise.
+
+## Autonomy log
+
 ## Review passes
 
 After RV-048 (Codex, design facet): no further prose pass is needed. What remains

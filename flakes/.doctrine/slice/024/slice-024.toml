@@ -1,7 +1,7 @@
 id = 24
 slug = "in-jail-quotient"
 title = "In-jail quotient for dev-envs: real server in the jail, delegates under the nested form family"
-status = "plan"
+status = "started"
 created = "2026-11-05"
 updated = "2026-11-05"
 tags = []
