@@ -1,0 +1,42 @@
+memory_uid = "mem_01a1ab878d7274828c3837ea497894cd"
+memory_key = "mem.fact.claude.mcp-list-ignores-mcp-config"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "claude mcp list ignores --mcp-config"
+summary = "claude mcp list shows stored config only; dynamic servers from --mcp-config appear only in a session's init message"
+created = "2026-11-05"
+updated = "2026-11-05"
+
+[scope]
+paths = ["agents/quotient-in-jail.nix"]
+globs = []
+commands = []
+tags = ["quotient", "jail"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "f887f4baedf01d07909f5f663570b94e5f2d1110"
+ref_name = "refs/heads/main"
+checkout_state_id = "d896200a5710826177aacad73e854b116b942648caa4c2f94aa8d97cb19aea26"
+base_commit = "1bce4f08158898a7913a69bafe9778709aece6eb"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
