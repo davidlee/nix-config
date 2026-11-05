@@ -512,6 +512,25 @@ never nested. Its policy, approvals and run evidence stay out of the jail, and
 its delegates run in the host's forms as usual. Those forms carry no relay,
 so delegates cannot call quotient themselves.
 
+**What it is for.** The relay adds control, not reach. A jailed agent gets
+`pi_agent` with ceilings, evidence it cannot touch, reduced transcripts and the
+host's forms, without its harness running unjailed. It gains no other repository
+(`roots` below). The server runs on the host so that those controls bind the agent:
+inside the jail it would be contained, but the agent could rewrite them.
+
+| route from a jail | runs | permissions | ceilings, evidence |
+|---|---|---|---|
+| pi subagent extension (jailed pi) | in the jail | the jail's | none of quotient's |
+| `subagents` (e.g. jailed claude runs pi) | in the jail, depth-guarded | the jail's | none of quotient's |
+| this relay, `pi_agent` | host, in a form | the form's; root is the launch dir | yes, out of the jail's reach |
+
+No record says why the relay is on by default. Its scope, opt-in and an in-jail
+alternative are open: IMP-066.
+
+**Known defect.** Only bare `quotient` is relayed. The shim ignores arguments, so
+`quotient reduce`, `help` and `--version` print nothing and exit 0, and hang if
+stdin stays open (ISS-026).
+
 ```
 host                                         jail
 launcher ($PWD: the root)
