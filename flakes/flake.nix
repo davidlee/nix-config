@@ -85,13 +85,11 @@
       };
     };
 
-    # The tag is the product: an edit there lands by a new tag and a re-lock.
-    # Not a dev checkout: every home takes its overlay, and `just isolation`
-    # stubs those inputs.
-    zmux = {
-      url = "github:davidlee/zmux/v0.1.1";
-      inputs.nixpkgs.follows = "nixpkgs-home";
-    };
+    # Follows agents' pin, like llm-agents, so the host and every jail share one
+    # zmux: bump it in agents (`nix flake update zmux`), then
+    # `nix flake update agents` here. Not a dev checkout: every home takes its
+    # overlay, and `just isolation` stubs those inputs.
+    zmux.follows = "agents/zmux";
 
     satan = {
       url = "github:davidlee/satan";
