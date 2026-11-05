@@ -38,6 +38,7 @@ import unittest
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from importlib.resources import files
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import yaml
@@ -1212,18 +1213,16 @@ class FakeUpstream:
         answers = {name: {"type": "noul", "noul": 0.9} for name in body["questions"]}
         return {"model": body["model"], "answers": answers, "usage": SYSTEMONE_USAGE}
 
+    @classmethod
+    def events(cls, body):
+        return (
+            cls.tool_call_events(body) if body.get("tools") else cls.text_events(body)
+        )
+
     @staticmethod
-    def events(body):
-        """A Responses API event stream answering "OK"."""
-        text = {"type": "output_text", "text": "OK", "annotations": []}
-        message = {
-            "type": "message",
-            "id": "msg_fake",
-            "status": "completed",
-            "role": "assistant",
-            "content": [text],
-        }
-        response = {
+    def opened(body):
+        """The Responses API response a stream opens with."""
+        return {
             "id": "resp_fake",
             "object": "response",
             "created_at": 1,
@@ -1234,6 +1233,63 @@ class FakeUpstream:
             "tool_choice": "auto",
             "tools": [],
         }
+
+    @classmethod
+    def tool_call_events(cls, body):
+        """A Responses API event stream calling a tool, as the ChatGPT backend
+        ends one: the call streamed, `output` empty at completion (ISS-027)."""
+        call = {
+            "type": "function_call",
+            "id": "fc_fake",
+            "call_id": "call_fake",
+            "name": "echo",
+            "arguments": '{"text":"hi"}',
+            "status": "completed",
+        }
+        response = cls.opened(body)
+        done = {**response, "status": "completed", "usage": RESPONSES_USAGE}
+        item = {"item_id": "fc_fake", "output_index": 0}
+        return [
+            {"type": "response.created", "sequence_number": 0, "response": response},
+            {
+                "type": "response.output_item.added",
+                "sequence_number": 1,
+                "output_index": 0,
+                "item": {**call, "status": "in_progress", "arguments": ""},
+            },
+            {
+                "type": "response.function_call_arguments.delta",
+                "sequence_number": 2,
+                **item,
+                "delta": call["arguments"],
+            },
+            {
+                "type": "response.function_call_arguments.done",
+                "sequence_number": 3,
+                **item,
+                "arguments": call["arguments"],
+            },
+            {
+                "type": "response.output_item.done",
+                "sequence_number": 4,
+                "output_index": 0,
+                "item": call,
+            },
+            {"type": "response.completed", "sequence_number": 5, "response": done},
+        ]
+
+    @classmethod
+    def text_events(cls, body):
+        """A Responses API event stream answering "OK"."""
+        text = {"type": "output_text", "text": "OK", "annotations": []}
+        message = {
+            "type": "message",
+            "id": "msg_fake",
+            "status": "completed",
+            "role": "assistant",
+            "content": [text],
+        }
+        response = cls.opened(body)
         done = {
             **response,
             "status": "completed",
@@ -1481,6 +1537,76 @@ class ChatGPTTest(unittest.TestCase):
                 ("user", ["<system>\nBe brief.\n</system>"]),
             ],
         )
+
+
+class ChatGPTToolCallTest(unittest.TestCase):
+    """ISS-027: a stream that carried a tool call finishes as `tool_calls`,
+    though the backend's `response.completed` lists no output."""
+
+    def stream(self, alias, **body):
+        gateway = fake()
+        gateway.upstream.reset()
+        key = issue(alias, models=[CHATGPT[1]])
+        response = chat(key, model=CHATGPT[1], via=gateway.client, stream=True, **body)
+        self.assertEqual(response.status_code, 200, response.text)
+        return [
+            choice
+            for line in response.text.splitlines()
+            if line.startswith("data: {")
+            for choice in json.loads(line.removeprefix("data: "))["choices"]
+        ]
+
+    def test_a_streamed_tool_call_finishes_as_tool_calls_and_is_charged(self):
+        choices = self.stream("subscriber-tools", tools=[ECHO_TOOL])
+        self.assertTrue(any(c["delta"].get("tool_calls") for c in choices))
+        self.assertEqual(finish_reasons(choices), ["tool_calls"])
+        assert_spend_raised("subscriber-tools")
+
+    def test_a_streamed_answer_still_finishes_as_stop(self):
+        self.assertEqual(finish_reasons(self.stream("subscriber-text")), ["stop"])
+
+    def test_only_a_stop_after_a_tool_call_on_chatgpt_is_rewritten(self):
+        for model, reason, expected in (
+            (CHATGPT[1], "length", "length"),
+            (CHATGPT[1], "content_filter", "content_filter"),
+            (PRICED, "stop", "stop"),
+        ):
+            with self.subTest(model=model, reason=reason):
+                self.assertEqual(hooked_finish(model, reason), expected)
+
+
+ECHO_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "echo",
+        "parameters": {"type": "object", "properties": {"text": {"type": "string"}}},
+    },
+}
+
+
+def finish_reasons(choices):
+    return [c["finish_reason"] for c in choices if c.get("finish_reason")]
+
+
+def hooked_finish(model, reason):
+    """The finish reason the streaming hook passes on for a stream of `model`:
+    a tool call, then a final chunk finishing as `reason`."""
+
+    def chunk(finish_reason, tool_calls):
+        delta = SimpleNamespace(tool_calls=tool_calls)
+        choice = SimpleNamespace(delta=delta, finish_reason=finish_reason)
+        return SimpleNamespace(choices=[choice])
+
+    async def upstream():
+        yield chunk(None, [{"id": "call_fake"}])
+        yield chunk(reason, None)
+
+    async def last():
+        hook = gateway_hooks.chatgpt_tool_calls.async_post_call_streaming_iterator_hook
+        chunks = [c async for c in hook(None, upstream(), {"model": model})]
+        return chunks[-1].choices[0].finish_reason
+
+    return asyncio.run(last())
 
 
 def texts(item):

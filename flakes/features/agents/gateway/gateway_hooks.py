@@ -11,6 +11,8 @@ calls into `keystore` calls.
                      be on the key's list
   chatgpt_roles      callback, per deployment: a ChatGPT deployment's system
                      messages, as its backend accepts them (ISS-021)
+  chatgpt_tool_calls callback, per stream: a ChatGPT stream that carried a tool
+                     call finishes as `tool_calls` (ISS-027)
   ledger            callback, success: spent += response_cost
 
 LiteLLM loads each hook reference from this file afresh, without sys.modules
@@ -356,6 +358,33 @@ class ChatGPTRoles(CustomLogger):
         return {**kwargs, "messages": chatgpt_messages(messages)}
 
 
+class ChatGPTToolCalls(CustomLogger):
+    """Finishes a ChatGPT stream that carried a tool call as `tool_calls`
+    (ISS-027): LiteLLM reads that from `response.completed`'s `output`, which
+    arrives empty, and a client runs tools only on `tool_calls`. Per request,
+    by the model named. Remove once LiteLLM counts the streamed calls."""
+
+    async def async_post_call_streaming_iterator_hook(
+        self, user_api_key_dict, response, request_data
+    ):
+        chatgpt = (request_data.get("model") or "").startswith("chatgpt/")
+        tool_called = False
+        async for chunk in response:
+            if chatgpt:
+                for choice in chunk.choices:
+                    tool_called = tool_called or bool(choice.delta.tool_calls)
+                    choice.finish_reason = chatgpt_finish_reason(
+                        choice.finish_reason, tool_called
+                    )
+            yield chunk
+
+
+def chatgpt_finish_reason(finish_reason, tool_called):
+    """`stop` after a tool call is `tool_calls`. Any other reason stands: a
+    call cut short by `length` is not one to run."""
+    return "tool_calls" if tool_called and finish_reason == "stop" else finish_reason
+
+
 SYSTEM_ROLES = frozenset({"system", "developer"})
 
 
@@ -390,6 +419,7 @@ def _text(content):
 
 model_gate = ModelGate()
 chatgpt_roles = ChatGPTRoles()
+chatgpt_tool_calls = ChatGPTToolCalls()
 ledger = Ledger()
 
 

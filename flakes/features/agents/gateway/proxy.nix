@@ -101,7 +101,7 @@
         # (proxy/auth/master_key_boot_check.py).
         dangerously_permit_weak_or_unset_master_key = true;
       };
-      litellm_settings.callbacks = ["gateway_hooks.model_gate" "gateway_hooks.chatgpt_roles" "gateway_hooks.ledger"];
+      litellm_settings.callbacks = ["gateway_hooks.model_gate" "gateway_hooks.chatgpt_roles" "gateway_hooks.chatgpt_tool_calls" "gateway_hooks.ledger"];
     };
     yaml = (pkgs.formats.yaml {}).generate "config.yaml" config;
   in
