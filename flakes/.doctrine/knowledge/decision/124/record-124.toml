@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 124
+slug = "form-key-env-first"
+title = "One form family reads the gateway key from the environment first, then the key file"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "quotientFormFamily reads the key from $HOME/.config/llm-gateway/keys/pi, absent in a jail, which holds only LLM_GATEWAY_KEY. That is fatal in a nested form."
+choice = "secretEnv is `${LLM_GATEWAY_KEY:-$(< keyFile)}`, env first, in the one family used on the host and in a jail."
+alternatives = ["A separate jail family: two builds of the same form, and a second set of store paths to approve"]
+rationale = "One expression covers both places and a probe confirmed delegates reached the gateway. quotient's childEnv passes the server environment to the form, so the key arrives without a file."
+consequences = ["The key stays in env and on an fd, as POL-001 requires", "The change gives every dev-envs form a new store path, so each project with approved forms needs `quotient allow` again"]
+decided_by = "user, 2026-11-05 (SL-024 design triage; resume message)"
+decided_on = "2026-11-05"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-024"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 123
+slug = "in-jail-quotient-declaration"
+title = "In-jail quotient is declared by quotientServer on makeJailedAgent, in its own file"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "SL-024 puts a real quotient server in a jail (quotient:DEC-071). `quotient` on makeJailedAgent already means the relay (DEC-122), so the declaration needs another name and a home."
+choice = "`quotientServer ? null` on makeJailedAgent takes {package; forms;}. Its mechanics live in new agents/quotient-in-jail.nix. It is refused together with the relay. Registration is chosen by agent name: claude and codex register the server, shell carries the closure unregistered. dev-envs sets it on jailed-claude, jailed-codex and jailed-shell; jailed-pi and jailed-pi-research do not take it. The library default stays off."
+alternatives = ["Reuse `quotient` with a mode: one argument with two meanings, the relay and the real server", "A passthru.devEnv key: REQ-026 and checkDevEnv refuse it, and it tells a project about agents", "Registration as a caller argument: every caller restates what the agent name already determines"]
+rationale = "A separate name keeps the dormant relay intact for IDE-010. A separate file follows quotient-relay.nix and gateway-jail.nix. The two are refused together because both would own quotient in the same jail."
+consequences = ["Registration differs per agent: claude takes --mcp-config=<path>, codex takes -c with mcp_servers.<n>.env_vars naming the key", "A full delegate call from a logged-in claude or codex stays unproven until a logged-in run"]
+decided_by = "user, 2026-11-05 (SL-024 design triage; resume message)"
+decided_on = "2026-11-05"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-024"

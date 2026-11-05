@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 125
+slug = "form-etc-store-binds"
+title = "With no store database, a form binds only the store targets of the /etc links it needs"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = """Inside a jail no store database exists, so jail.nix's runtime-deep-ro-bind query fails with "path ... is not valid" for /etc/{hosts,nsswitch.conf,resolv.conf,ssl}. Those store paths are missing from the form and direct TLS fails with curl (60)."""
+choice = "When /nix/var/nix/db is absent, quotientFormFamily adds read-only binds for the store targets of the links under /etc/{hosts,nsswitch.conf,resolv.conf,ssl}. On the host the guard is false and nothing changes."
+alternatives = ["Bind all of /nix/store into the form: worked (1148 entries visible), declined by the operator", "Leave TLS broken in nested forms: delegates could not reach HTTPS directly"]
+rationale = "It replaces only what the failed query would have bound: 687 entries visible, http=200, HTTPS git ls-remote works, and checkFormFamily passes."
+consequences = ["""The launcher's "not valid" lines remain and are harmless with these binds""", """This mechanism goes beyond quotient:DEC-071's list, within "a jail adds more through options""""]
+decided_by = "user, 2026-11-05 (SL-024 design triage; resume message)"
+decided_on = "2026-11-05"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-024"

@@ -1,0 +1,33 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 126
+slug = "in-jail-quotient-profiles"
+title = "In-jail quotient profiles are the host directory, bound read-only over a store config dir"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "quotient:DEC-071 point 3 says policy and profiles are generated into the store and bound read-only at ~/.config/quotient. ~/.config/quotient/profiles/*.md are tracked in the home repo outside flakes/, so no flake can read them."
+choice = "A read-only store directory at ~/.config/quotient holds policy.json and an empty profiles/. The host's ~/.config/quotient/profiles is bound read-only onto it. This departs from quotient:DEC-071 point 3 for profiles only."
+alternatives = ["Store-generated profiles, as DEC-071 says: a copy that drifts, or a move out of the home repo", "Bind policy.json alone: leaves ~/.config/quotient writable, so an agent could plant approvals.json"]
+rationale = "Operator's direction. The whole directory stays read-only: the probe saw approvals.json and profile writes refused and the delegate ran."
+consequences = ["Profiles follow host edits at the next launch", "The host path must exist", "quotient:DEC-071 point 3 needs a note recording the departure"]
+decided_by = "user, 2026-11-05 (SL-024 design triage; resume message)"
+decided_on = "2026-11-05"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "SL-024"

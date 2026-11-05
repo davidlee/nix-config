@@ -1,0 +1,42 @@
+memory_uid = "mem_01a1aad44eb374f39361119b16324bfc"
+memory_key = "mem.fact.quotient.nested-form-in-jail"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "A quotient form nested in a jail: store-DB gaps and MCP client quirks"
+summary = "jail.nix runtime binds fail without a store DB; codex filters MCP env; claude --mcp-config is variadic"
+created = "2026-11-05"
+updated = "2026-11-05"
+
+[scope]
+paths = ["agents/jailed-agents.nix"]
+globs = []
+commands = []
+tags = ["quotient", "jail"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "a73cd9d5d10b78134f6f3a85ab322eb1c8b4eb47"
+ref_name = "refs/heads/main"
+checkout_state_id = "6fc625fbd678af0e125e7f0fd098335b92ace724da26de0d669df88598d24f11"
+base_commit = "929e4ef4228e8c9259a675ede421d8ad2b016e46"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

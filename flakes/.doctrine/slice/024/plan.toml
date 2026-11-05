@@ -1,0 +1,145 @@
+# Implementation plan for SL-024 — the authored, durable phase plan.
+#
+# This is the single source of each phase's objective, criteria, verification,
+# and links. Runtime status lives separately under .doctrine/state/ (phase
+# tracking) — never record progress here. Hand-edit freely: the tool reads this
+# file but does not rewrite it.
+schema  = "doctrine.plan.overview"
+version = 1
+slice   = "SL-024"
+
+# Canonical spec/requirement links — cite ids, never restate what they say. The
+# plan reader does not model these yet, so nothing downstream consumes them.
+[specs]
+primary       = []
+collaborators = []
+
+[requirements]
+targets      = []
+dependencies = []
+
+# One [[phase]] per ordered phase, in execution order — the authored array order
+# IS the order; never sort by id. Ids are PHASE-NN (zero-padded), immutable and
+# never reused once authored — edits append, they never renumber, so the id
+# sequence goes non-monotonic after a split and that is expected. Criterion ids
+# are local to their phase, bare, and equally immutable
+# (`lib:reference/glossary.md` § reference forms). The prefix is
+# the only mode marker; there is no mode field. Reference a criterion from
+# another phase phase-qualified (PHASE-03/EX-8) — bare EX-8 is ambiguous.
+[[phase]]
+id        = "PHASE-01"
+name      = "Forms: key source and store binds"
+objective = "Every form takes the gateway key from the environment or the key file (DEC-124) and binds the store targets of the /etc links when no store database exists (DEC-125). Inert on the host."
+entrance_criteria = [
+  { id = "EN-1", text = "SL-024's design is locked and the plan is approved." },
+  { id = "EN-2", text = "`just test` is green on the current tree, or any failure is named in the phase sheet before work starts." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "`agents/quotient-in-jail.nix` exists and holds `etcStoreBinds` and `formStoreBinds`; `quotientFormFamily` appends `formStoreBinds c` after the caller's options." },
+  { id = "EX-2", text = "`quotientFormFamily`'s key expression prefers `LLM_GATEWAY_KEY` and falls back to the key file." },
+  { id = "EX-3", text = "`checks.quotient-forms`, machine and dev-envs, stay green: the forms' line is still plain words." },
+  { id = "EX-4", text = "`just test` and `just gate` are green." },
+]
+verification = [
+  { id = "VT-1", expects = "form key: run through bash, the expression gives the env value when set and the file's content when unset", test_file = "agents/jailed-agents-test.nix", keywords = ["LLM_GATEWAY_KEY:-"], waived = false },
+  { id = "VT-2", expects = "etc-store-binds: over a fixture tree of links, emits only store targets, deduplicated", test_file = "agents/jailed-agents-test.nix", keywords = ["etcStoreBinds"], waived = false },
+  { id = "VT-3", expects = "a form's options include the store binds after the caller's", test_file = "agents/jailed-agents.nix", keywords = ["formStoreBinds"], waived = false },
+]
+specs = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-02"
+name      = "Declaration: quotientServer on makeJailedAgent"
+objective = "A jail can declare the real quotient: policy, read-only config, closure and per-client registration, refused with the relay, without a gateway and offline (DEC-123, DEC-126). Off by default; no consumer yet."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-01 is complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "`agents/quotient-in-jail.nix` returns `options`, `formStoreBinds` and `policy`, with `config` and `registration` behind them; `makeJailedAgent` takes `quotientServer ? null` and adds the options after `profileOptions`." },
+  { id = "EX-2", text = "The three assertions refuse the relay, a missing gateway and an offline profile, each naming the jail." },
+  { id = "EX-3", text = "A jail with no `quotientServer` builds an unchanged launcher." },
+  { id = "EX-4", text = "Jails declaring `quotientServer` are in the test's `scannedJails`, and `opUnjailed` stays clean over them." },
+  { id = "EX-5", text = "`just test` and `just gate` are green." },
+]
+verification = [
+  { id = "VT-1", expects = "quotientServer refused with the relay, without a gateway, offline", test_file = "agents/jailed-agents-test.nix", keywords = ["quotientServer", "exclusive"], waived = false },
+  { id = "VT-2", expects = "policy names /workspace and the family's two forms, against a literal oracle", test_file = "agents/jailed-agents-test.nix", keywords = ["quotient-policy/2", "/workspace"], waived = false },
+  { id = "VT-3", expects = "config binds after the persisted home, profiles after config, in the fake bwrap's argv", test_file = "agents/jailed-agents-test.nix", keywords = ["--ro-bind-try"], waived = false },
+  { id = "VT-4", expects = "the server and both forms are in the jail's closure", test_file = "agents/jailed-agents-test.nix", keywords = ["quotientServer"], waived = false },
+  { id = "VT-5", expects = "claude registers with --mcp-config= and codex with env_vars naming the key and URL, caller's args last", test_file = "agents/jailed-agents-test.nix", keywords = ["--mcp-config=", "env_vars"], waived = false },
+  { id = "VT-6", expects = "shell and pi register nothing; no quotientServer leaves the launcher unchanged", test_file = "agents/jailed-agents-test.nix", keywords = ["quotientServer"], waived = false },
+]
+specs = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-03"
+name      = "Consumer: dev-envs"
+objective = "dev-envs moves to quotient v0.6.1 and declares the real quotient on jailed-claude, jailed-codex and jailed-shell; jailed-pi and jailed-pi-research do not change."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-02 is complete." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "`dev-envs/flake.nix` pins v0.6.1 and passes `quotientServer` per jail, not through the `jail` helper's defaults." },
+  { id = "EX-2", text = "The `dev-envs/flake.lock` diff touches only quotient's nodes, and `just test`'s lock guards pass." },
+  { id = "EX-3", text = "`just test` and `just gate` are green, including dev-envs' `quotient-forms`." },
+]
+verification = [
+  { id = "VT-1", expects = "the declaration names the server and the forms, once", test_file = "dev-envs/flake.nix", keywords = ["quotientServer", "quotient/v0.6.1"], waived = false },
+  { id = "VA-1", expects = "Closure queries over the five built jails: quotient and both forms are in claude, codex and shell, and absent from pi and pi-research. Output in slice notes." },
+]
+specs = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-04"
+name      = "Proof in a real jail"
+objective = "Every proof row in the design's Verification section passes on the shipped code, in a real jailed-shell on the per-project dev-envs family, with output recorded in slice notes. A failure outside the plan's reach stops here: registration and client quirks return to design, and a `mkFormFamily` or check problem is raised in quotient."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-03 is complete." },
+  { id = "EN-2", text = "The stand-in at `.doctrine/slice/024/research/raw/nix` is present." },
+  { id = "EN-3", text = "Launch home confirmed: the shipped jail's own persisted home, with no `.config/quotient` in it, is used in place of a fresh one (see plan.md § Notes)." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "`scripts/hostile-audit` passes on `read` and `write`, and the delegate attempted the write." },
+  { id = "EX-2", text = "`scripts/form-probe` with its stand-in exits 0 with 26 PASS in the test jail (DEC-127); the test jail's closure bind stays out of the shipped flake." },
+  { id = "EX-3", text = "Nested `read` gives root `EROFS`; nested `write` gives a writable root." },
+  { id = "EX-4", text = "A delegate gets `http=200` over direct TLS and HTTPS `git ls-remote` works." },
+  { id = "EX-5", text = "Writes to `approvals.json` and to the profiles are refused." },
+  { id = "EX-6", text = "satan's `pi-report-test.sh` section 1 passes, with the full run captured." },
+  { id = "EX-7", text = "`jailed-pi` launches unchanged." },
+  { id = "EX-8", text = "`jailed-claude mcp list` reports `quotient` connected; `jailed-codex exec --skip-git-repo-check \"say ok\"` output is recorded for `quotient`." },
+  { id = "EX-9", text = "Quotient's behaviour on an empty `profiles/` is observed and recorded, using a scratch config directory in the jail, not by moving the host's profiles." },
+]
+verification = [
+  { id = "VA-1", expects = "The agent runs each row and records command and output in slice notes, covering EX-1 to EX-9." },
+  { id = "VH-1", expects = "The operator makes one delegate call from a logged-in `jailed-claude`." },
+  { id = "VH-2", expects = "The operator makes one delegate call from a logged-in `jailed-codex`." },
+]
+specs = []
+requirements = []
+
+[[phase]]
+id        = "PHASE-05"
+name      = "Records and handover"
+objective = "Docs and records state what shipped and what PHASE-04 proved, and the owed items outside this repo are raised."
+entrance_criteria = [
+  { id = "EN-1", text = "PHASE-04's agent rows pass and its human rows are recorded, or the operator has deferred them explicitly." },
+]
+exit_criteria = [
+  { id = "EX-1", text = "`agents/README.md` has an in-jail quotient section and the delegation-routes table matches; `README.md` § Jailed Agents says which jails carry quotient." },
+  { id = "EX-2", text = "A revision against SPEC-003 § The jail set is authored, for `/reconcile` to apply." },
+  { id = "EX-3", text = "DEC-122 carries the note: in-jail roots are limited by the jail's mounts, point 6 is delivered, and point 7's \"no reduce\" and the `.mcp.json` consequence hold only for jails without `quotientServer`." },
+  { id = "EX-4", text = "In `~/dev/quotient`: a backlog item for form-probe's prebuilt-family mode (DEC-127), and a note on quotient:DEC-071 point 3 (DEC-126)." },
+  { id = "EX-5", text = "The operator's post-landing steps are written in slice notes: push, re-lock dev-envs' `agents`, `home-switch`, `bin/dev-envs-forms` and `quotient allow` per project." },
+  { id = "EX-6", text = "`~/.local/share/jail.nix/home/sl024-probe` is deleted; `just test` and `just gate` are green." },
+]
+verification = [
+  { id = "VT-1", expects = "the agents README documents the declaration", test_file = "agents/README.md", keywords = ["quotientServer"], waived = false },
+  { id = "VT-2", expects = "the root README says which jails carry it", test_file = "README.md", keywords = ["quotientServer"], waived = false },
+  { id = "VA-1", expects = "Records read back through `doctrine show` (DEC-122, the revision) and the quotient items through doctrine in `~/dev/quotient`." },
+]
+specs = []
+requirements = []
+

@@ -1,0 +1,142 @@
+id    = 48
+slug  = "design-review-of-sl-024"
+title = "design review of SL-024"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "codex"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Full adversarial design pass over SL-024 design.md, scope/proof/non-goals, DEC-122 through DEC-127, SPEC-003, POL-001 and quotient:DEC-071; quotient help policy/form and relevant configuration, profile loading, child environment, form builder and probe sources. Compared the design with jailed-agents.nix, quotient-relay.nix, jailed-agents-test.nix, gateway-jail.nix, workspace-binds.nix, dev-envs/flake.nix and the specified jail.nix source/combinators. Read slice notes, research and preserved spike diffs/scripts/logs. Evaluated the policy/config/options/registration/store-helper samples with mock Nix packages/combinators (exit 0), and traced static/runtime mount ordering and gateway-wrapper argv forwarding by source. Raised F-1 major for the missing repeatable probe-closure setup, F-2 minor for the subagent MCP consequence, and F-3 minor for unsupported real-client startup evidence. Accepted operator choices, including host-bound profiles and the stand-in probe, remain constraints. No builds, activations, provider/model calls, real jail launches or logged-in client calls performed. Findings remain open for the responder; concluding this pass does not certify implementation or runtime behavior. Authored changes confined to RV-048, including its requested codex raiser label and review brief.
+"""
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = """
+Follow-up raiser pass after the responder's prose repairs to F-1, F-2 and F-3. Independently re-read the revised declaration, verification and handover sections, slice-024.md risks/proof and research.md, against the immutable raises and the underlying raw spike diff, stand-in script, client environment probes, Node MCP driver, workspace-bind and subagent implementations, dev-envs family wiring, quotient's form-probe, launchCommand and form-family builder, and DEC-127. F-1's refresh now specifies the missing test-only probe-closure setup; F-2 correctly distinguishes no injected registration from project/persisted MCP discovery and names the depth counter's scope; F-3 narrows established evidence and keeps actual client startup/model calls unproved. All three are verified as prose repairs in this review. No new defect found in the revisions. No builds, generated probe fixtures, activations, real jail/client launches or model calls were performed; design verification is not implementation or runtime proof. Authored changes confined to RV-048.
+"""
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-024"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "The required stand-in form-probe run has no specified probe-closure mount"
+detail = """
+Expected: the mandatory real-jailed-shell form-probe proof must be repeatable with an explicitly identified test setup, preserving DEC-127's accepted stand-in rather than changing quotient.
+
+Evidence: .doctrine/slice/024/design.md:319-326 promises a repeat on the shipped consumer, specifically contrasting it with the spike's stand-in closure bind, and names rebuilding research/raw/nix plus JAIL_WORKSPACE_DEPS. The proposed jail closure at design.md:145-148 contains only the real server and the consumer's forms. But research/raw/nix:3-12 merely replays host build/eval answers; it neither supplies their store contents nor binds their closures. The spike separately bound every path from its fp/closure at research/raw/spike-dev-envs.diff:31-34. That is a distinct operation from its workspace dependencies on line 30.
+
+quotient/scripts/form-probe:125-150 reads the form scripts at the absolute store paths returned by nix build and follows them to their launcher and bwrap; quotient/nix/checks/flake.nix:1-2,21-31 establishes that these are a separate probe family with a fake pi, not the consumer family. agents/workspace-binds.nix:35-42,79-85 maps each workspace dependency to /workspace/<basename>; it does not mount the dependency at its original /nix/store path or compute its requisites.
+
+Verified by source inspection: the spike has an additional probe-closure mount, the replay script does not create it, and workspace binds have different destinations. Inference: repeating the described proof on an otherwise ordinary shipped jailed-shell cannot read/execute probe-family paths not already present in that jail's closure. An accidental closure overlap would not establish a repeatable test prerequisite. This review did not build or launch the probe.
+
+Repair: specify the complete test-only fixture generation and closure injection into a real jailed-shell, including every family used by form-probe and its absolute store paths (for example, a bounded test jail with explicit extraPkgs or the spike's explicit read-only closure binds). Keep the shipped consumer family and the probe family distinct, retain the accepted stand-in, and require a fresh-jail run without residual spike mounts before claiming the proof."""
+disposition = "fix-now"
+route = "refresh"
+response = """
+Correct. The spike bound fp/closure as a separate step and the design named only workspace deps, which land under /workspace, not at store paths. Which side is right: the spike. Edited sec-verification: a named test jail section gives the fixture steps (host captures, requisites to fp/closure, launch dir root, a scratch dev-envs copy adding only the closure bind), fresh persisted home with no residual spike mounts, probe family kept apart from the consumer family, stand-in retained per DEC-127. Swept: slice proof list and DEC-127 name the stand-in and stay true; research.md already records the closure bound in. No shipped code carries the bind.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+route = "refresh"
+response = """
+Correct. The spike bound fp/closure as a separate step and the design named only workspace deps, which land under /workspace, not at store paths. Which side is right: the spike. Edited sec-verification: a named test jail section gives the fixture steps (host captures, requisites to fp/closure, launch dir root, a scratch dev-envs copy adding only the closure bind), fresh persisted home with no residual spike mounts, probe family kept apart from the consumer family, stand-in retained per DEC-127. Swept: slice proof list and DEC-127 name the stand-in and stay true; research.md already records the closure bound in. No shipped code carries the bind.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "VERIFIED as a prose refresh, not runtime proof. Re-read design.md:325-360 against research/raw/nix:3-12, research/raw/spike-dev-envs.diff:30-34, agents/workspace-binds.nix:35-42 and quotient/scripts/form-probe:125-150,326-345. The revised design separates workspace mounts from the probe-family closure; specifies host capture of every requested build/eval result, requisites of the built outputs into fp/closure, the /workspace/root/fp layout expected by the stand-in, and a scratch real jailed-shell with read-only mounts at each original store path. Fresh persisted homes exclude residual spike mounts; this fixture stays out of the shipped consumer and other verification rows use the unmodified jail. The original missing setup is now specified. Rechecked slice-024.md:50-58, research.md:71,81-82 and DEC-127: they remain consistent with the accepted stand-in and limited probe-family claim. No fixture was generated or launched during this review."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "minor"
+title = "Bare subagent entrypoints do not establish that quotient remains unregistered"
+detail = """
+Expected: the account of the subagent graph must distinguish omission of injected MCP arguments from absence of an MCP server.
+
+Evidence: .doctrine/slice/024/design.md:188-191 says jailed-claude inside jailed-codex execs the bare binary, "so it is not registered", and uses this to describe it as a depth-guarded subagent rather than another orchestrator. The bare-binary premise is correct: agents/jailed-agents.nix:568-583 increments JAILED_AGENT_DEPTH and execs the resolved binary with the caller's arguments. It supplies no MCP exclusion. The same design explicitly says a project's bare quotient .mcp.json entry now finds a server (design.md:87-90). satan/.mcp.json:10-12 actually contains that entry. The parent's mounted config and quotient PATH are shared by its sibling process.
+
+Verified: these source/config facts and the contradiction between the two design explanations. Inference, conditional on the project's MCP entry being enabled/approved: the bare claude subagent can discover and start quotient through project configuration even though its wrapper injected no registration flags. The wrapper's depth counter governs jailed-* entrypoints, not that server's direct form launches (quotient/src/server/spawn.ts:180-186). No logged-in client or bypass was exercised here; this is not a claim that the accepted trusted-orchestrator boundary is broken.
+
+Repair: state precisely that subagents receive no injected registration and may still discover quotient through project or persisted client configuration. Describe what remains depth-guarded. If actual exclusion is a requirement, name and verify a client-level exclusion rather than relying on bare exec. Otherwise retain the accepted registration choice and correct the claimed consequence."""
+disposition = "fix-now"
+response = """
+Correct: the design contradicted itself. sec-declaration now says a subagent gets no injected registration and can still find quotient through PATH, a project .mcp.json entry or persisted client configuration; exclusion is not a requirement because protection binds delegates only; the depth guard counts jailed entrypoints, not form launches; recursion ends at the delegate because a form's packages do not include quotient. Registration choice unchanged.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Correct: the design contradicted itself. sec-declaration now says a subagent gets no injected registration and can still find quotient through PATH, a project .mcp.json entry or persisted client configuration; exclusion is not a requirement because protection binds delegates only; the depth guard counts jailed entrypoints, not form launches; recursion ends at the delegate because a form's packages do not include quotient. Registration choice unchanged.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "VERIFIED. Re-read design.md:188-195 against agents/jailed-agents.nix:568-583, satan/.mcp.json:10-12 and quotient/src/server/spawn.ts:180-186. The repair says bare subagents receive no injected registration, may still start quotient through project or persisted client configuration, and the depth counter governs jailed-* entrypoints rather than form launches. It explicitly does not require client-level exclusion and retains the trusted-orchestrator boundary. This repairs the original incorrect consequence of bare exec; no client runtime or recursion-resistance claim was tested here."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "The preserved MCP probes do not substantiate startup of the real quotient server from both clients"
+detail = """
+Expected: the design's established evidence must separate MCP child environment checks from successful startup/handshake of the real registered quotient server.
+
+Evidence: .doctrine/slice/024/design.md:333-335 says the probes "spawned the server from both" clients; research/research.md:77-78 makes a similar assertion. The preserved Codex probe explicitly registers /workspace/root/envdump.sh, not quotient (research/raw/p4.sh:3-7). The Claude probe reads the environment dump through ./mcp.json (research/raw/p3.sh:11-13), whose config and envdump implementation are not among the preserved raw artifacts. The actual quotient calls in research/raw/mcp-call.mjs:1-8 spawn quotient directly from Node, without going through either client's registration.
+
+Verified: the preserved command paths and direct Node launch. The supplied evidence establishes useful child-environment behavior and direct nested delegation, but does not show either client completing initialize/tools/list with the real quotient binary under the proposed registration. This is an evidence gap, not proof that the clients failed or that an unpreserved experiment never happened. The already-required logged-in human calls remain valid closure obligations.
+
+Repair: narrow the established claim to what the preserved artifacts show, or preserve evidence of real client-to-quotient startup/handshake. A repeatable registration smoke check can establish that connection without claiming a logged-in model call; keep that distinction explicit in verification and handover."""
+disposition = "fix-now"
+response = """
+Correct. p3.sh and p4.sh use an environment-dumping stand-in and mcp-call.mjs drives quotient from Node, so the claim was overstated. Narrowed in sec-verification, slice-024.md risks and research.md. Added a no-login registration smoke to the agent rows: jailed-claude mcp list for a handshake, jailed-codex exec for startup, explicitly not a model call. sec-handover lists real client startup as not yet observed. Logged-in human calls stay as they were.
+"""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = """
+Correct. p3.sh and p4.sh use an environment-dumping stand-in and mcp-call.mjs drives quotient from Node, so the claim was overstated. Narrowed in sec-verification, slice-024.md risks and research.md. Added a no-login registration smoke to the agent rows: jailed-claude mcp list for a handshake, jailed-codex exec for startup, explicitly not a model call. sec-handover lists real client startup as not yet observed. Logged-in human calls stay as they were.
+"""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "VERIFIED. Re-read design.md:289-298,338-341,362-366, slice-024.md:98-101 and research.md:77-79 against raw/p3.sh:11-13, raw/p4.sh:3-7 and raw/mcp-call.mjs:1-8. The repaired artifacts no longer present client environment probes/direct Node delegation as observed startup of real quotient through either client. Handover lists that startup as unobserved; verification adds a client registration smoke and retains the separate logged-in human delegate calls. These are future proof obligations, not newly claimed results. No MCP startup, login or model call was performed in this recheck."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.
