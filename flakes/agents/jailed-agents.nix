@@ -201,7 +201,10 @@
     pkgs.writeText "pi-gateway-models.json"
     (builtins.toJSON (piGatewayConfig url gatewayData.models));
 
-  quotientInJail = import ./quotient-in-jail.nix {inherit lib pkgs;};
+  quotientInJail = import ./quotient-in-jail.nix {
+    inherit lib pkgs;
+    inherit (jail) combinators;
+  };
 
   # quotient's per-call forms (`quotient help form`) for a gateway client:
   # quotient.lib.mkFormFamily with this lib's pkgs, jail-nix and pi, and the
@@ -530,6 +533,11 @@
     # delegates have network, even from an offline jail. Needs the launch
     # dir, the one root it may grant.
     quotient ? false,
+    # The real quotient in this jail (quotient-in-jail.nix): { package; forms; },
+    # the server and its form family. Off unless a jail declares it. Refused
+    # with the relay, without a gateway, and without network: a delegate
+    # reaches the gateway over TCP with the jail's key.
+    quotientServer ? null,
     # Opt-in: reach models through an LLM gateway instead of provider keys.
     # `{ keyFile; url; runDirectory; }`, all strings, exactly those:
     #   keyFile       the gateway key's path, a shell word expanded inside
@@ -612,6 +620,7 @@
       ++ profileOptions profile homeName
       ++ lib.optionals piInJail (piBridgeOptions jail.combinators)
       ++ lib.optionals quotient (quotientRelay.options {readOnly = readOnlyLaunchDir;})
+      ++ lib.optionals (quotientServer != null) (quotientInJail.options ({inherit name;} // quotientServer))
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options
@@ -637,6 +646,9 @@
     || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
     assert (subagentNames == []) || (maxSubagentDepth > 0) || throw "maxSubagentDepth must be > 0 when subagents are exposed";
     assert !quotient || mountLaunchDir || throw "jailed-${name}: quotient needs mountLaunchDir, the one root it may grant";
+    assert quotientServer == null || !quotient || throw "jailed-${name}: quotientServer and the quotient relay are exclusive";
+    assert quotientServer == null || gateway != null || throw "jailed-${name}: quotientServer needs gateway: its delegates use the jail's key";
+    assert quotientServer == null || profiles.${profile}.network || throw "jailed-${name}: quotientServer needs network: delegates reach the gateway over TCP";
       if gateway != null
       then gatewayJail.wrap inner
       else inner;

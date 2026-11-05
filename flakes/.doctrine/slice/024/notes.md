@@ -37,6 +37,11 @@ Preflight:
 - PHASE-01: `quotient-in-jail.nix` also returns `etcStoreBinds`, which the design's return list omits but plan.md § Test access needs. Keeps behaviour; flag for audit. Tier: decide.
 - PHASE-01: the file takes `{lib, pkgs}` until PHASE-02 needs `combinators`: deadnix would flag it unused. Tier: decide.
 - PHASE-01: `agents/README.md` secretEnv row corrected now, not in PHASE-05: the change made it false. Tier: decide.
+- PHASE-02: Sonnet capsule-worker wrote tests and code: fake-bwrap contract tests, byte-exact quoting, host build loop (operator's routing). Tier: decide.
+- PHASE-02: removed a worker assertion, `refute grep mcp` over bwrap-argv: m, c and p are all nix32 characters, so a store hash could trip it. The entry-word comparison is stronger. Tier: decide.
+- PHASE-02: restored the literal key assert (`formArgs.secretEnv`), which also gives PHASE-01 VT-1 its keyword; "exclusive" added to the refusal comment for PHASE-02 VT-1's. Tier: decide.
+- PHASE-02: `closure_has` no longer uses `grep -q`: the gate failed once with `tr: write error: Broken pipe`, grep's early exit under pipefail. The existing nixDoctrine check had the same race and now uses the helper. Tier: decide.
+- PHASE-02: no `mountLaunchDir` assertion for `quotientServer`, unlike the relay: the design has three, and a jail with workspace deps still has roots under /workspace. Flag for audit. Tier: decide.
 
 ## Review passes
 
@@ -55,6 +60,23 @@ PHASE-01, pi `review` (deepseek-flash, 22 requests, $0.075). Six findings:
 - F6 index holds the stub (medium): refuted. `git commit <paths>` commits the worktree.
 
 Negative controls on PHASE-01 (scratch copies, one mutation each), all fail the check: `:-` to `-`; file-only key; no `sort -u`; every path not just the store; store binds before the caller's; no database guard.
+
+PHASE-02, pi `review` (deepseek-flash, 28 requests over two runs, $0.077; the first hit its 25-request ceiling unanswered, so the session was continued). Eight findings:
+
+- F1 `--mcp-config` file not in the jail (high): refuted. jail.nix's runtime closure includes `state.argv` (`bind-nix-store-runtime-closure.nix:51-55`). Now pinned by a closure check on the file.
+- F2 `closure_has` reads the wrong closure file (high): refuted. One file per jail (`include-once`).
+- F3 profiles source shadowed by the config mount (medium): refuted. The spike's config row saw host profiles through this bind, and bwrap resolves sources on the old root; PHASE-04 repeats it.
+- F4 codex entry taken from itself (medium): fixed, `plainCodex` twin.
+- F5 refusals do not pin their message (low/medium): accepted. `tryEval` cannot see it; all three read by `nix eval`, each naming `jailed-claude` (EX-2).
+- F6 no `mountLaunchDir` assertion (low): accepted, see Autonomy log.
+- F7 agent can start quotient under its own policy (low): accepted. design.md § Boundary: protection binds delegates, not the orchestrator.
+- F8 broad `quotient` refute on the plain launcher (low): accepted. Not hash-prone, and it is the point of the check.
+
+Both high findings came from reading without jail.nix's source; pi can reach it only through the store path, so a future brief should name it.
+
+Negative controls on PHASE-02 (scratch copies), all fail the check: each of the three assertions removed; policy root changed; `--mcp-config` split in two words; `env_vars` without the URL; every jail registered as claude; a form dropped from the closure; profiles bind writable; config and profiles binds swapped. Moving the options before `profileOptions` passes, as expected: they are runtime args, which follow every static bind wherever they are listed. So "after `profileOptions`" is not what orders them; the argv test is.
+
+EX-3: drvPaths of zsh, claude, codex, pi and a relay jail, all without `quotientServer`, are identical at 22bad1b4 and in the tree.
 
 ## Design triage (2026-11-05)
 

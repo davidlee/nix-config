@@ -336,7 +336,11 @@
   piClient = agents.gatewayClient "pi";
   # The expression a form's launcher assigns, for the test to run.
   formKeyExpr = pkgs.writeText "form-key-expr" formArgs.secretEnv.LLM_GATEWAY_KEY;
-  inherit (import ./quotient-in-jail.nix {inherit lib pkgs;}) etcStoreBinds;
+  quotientInJail = import ./quotient-in-jail.nix {
+    inherit lib pkgs;
+    inherit (plainJail) combinators;
+  };
+  inherit (quotientInJail) etcStoreBinds;
   formNetworkOffFails =
     !(builtins.tryEval (agents.quotientFormFamily {
       quotient = stubQuotient;
@@ -347,6 +351,113 @@
   noProviderKeyArgs =
     lib.all (a: !(builtins.functionArgs agents.makeJailedAgent ? ${a})) ["apiKeys" "useOpEnv" "passApiKeysFromEnv"]
     && !(builtins.functionArgs (import ./jailed-agents.nix) ? apiKeyOpRefs);
+
+  # quotientServer: a fake server and form family, each with a marker in its
+  # closure, so the jail's closure binds can be read for them.
+  fakeQuotientPart = name: bin: let
+    marker = pkgs.writeText "${name}-closure-marker" "";
+  in {
+    inherit marker;
+    pkg = pkgs.writeShellScriptBin bin ": ${marker}";
+  };
+  qServer = fakeQuotientPart "quotient-server" "quotient";
+  qRead = fakeQuotientPart "quotient-read" "quotient-read";
+  qWrite = fakeQuotientPart "quotient-write" "quotient-write";
+  qs = {
+    package = qServer.pkg;
+    forms = {
+      read = qRead.pkg;
+      write = qWrite.pkg;
+    };
+  };
+  # Every field of the policy the jail carries, written out (DEC-123).
+  expectedPolicy = {
+    schema = "quotient-policy/2";
+    mode = "per-call";
+    enabled = true;
+    roots = ["/workspace"];
+    maxima = {
+      requests = 60;
+      context_tokens = 280000;
+      cost_usd = 1.0;
+      wall_clock_s = 900;
+    };
+    profiles = {
+      read = "read";
+      research = "read";
+      review = "read";
+      judgement = "read";
+      write = "write";
+      implement = "write";
+    };
+    forms = {
+      read = "${qRead.pkg}/bin/quotient-read";
+      write = "${qWrite.pkg}/bin/quotient-write";
+    };
+    exposure = [];
+    transcript_budget_bytes = 4096;
+  };
+  policyMatches = quotientInJail.policy qs.forms == expectedPolicy;
+  qsClaude = fakeBwrapAgents.makeJailedClaude {
+    gateway = gw;
+    quotientServer = qs;
+  };
+  qsCodex = fakeBwrapAgents.makeJailedCodex {
+    gateway = gw;
+    quotientServer = qs;
+  };
+  # Jails that declare it and register nothing, each with its twin without it.
+  qsShell = fakeBwrapAgents.makeJailedAgent {
+    name = "shell";
+    agent = fakeAgent "shell";
+    gateway = gw;
+    quotientServer = qs;
+  };
+  plainShell = fakeBwrapAgents.makeJailedAgent {
+    name = "shell";
+    agent = fakeAgent "shell";
+    gateway = gw;
+  };
+  qsZsh = fakeBwrapAgents.makeJailedZsh {
+    gateway = gw;
+    quotientServer = qs;
+  };
+  plainZsh = fakeBwrapAgents.makeJailedZsh {gateway = gw;};
+  qsPi = fakeBwrapAgents.makeJailedPi {
+    gateway = gw;
+    quotientServer = qs;
+  };
+  plainClaude = fakeBwrapAgents.makeJailedClaude {gateway = gw;};
+  plainCodex = fakeBwrapAgents.makeJailedCodex {gateway = gw;};
+  # Refused with the relay, which is exclusive, without a gateway, and offline.
+  # Each twin differs in that one property alone, and evaluates: qsClaude, a
+  # relay jail, and an offline gateway jail.
+  qsWithRelayFails = failsToEvaluate (agents.makeJailedClaude {
+    gateway = gw;
+    quotient = true;
+    quotientServer = qs;
+  });
+  relayAlone = agents.makeJailedClaude {
+    gateway = gw;
+    quotient = true;
+  };
+  qsNoGatewayFails = failsToEvaluate (agents.makeJailedClaude {quotientServer = qs;});
+  qsOfflineFails = failsToEvaluate (agents.makeJailedClaude {
+    profile = "offline";
+    gateway = gw;
+    quotientServer = qs;
+  });
+  offlineGatewayClaude = agents.makeJailedClaude {
+    profile = "offline";
+    gateway = gw;
+  };
+  # null is off: the same jail as one that never heard of it.
+  qsNullSame =
+    (fakeBwrapAgents.makeJailedClaude {
+      gateway = gw;
+      quotientServer = null;
+    }).drvPath
+    == plainClaude.drvPath;
 
   # The jail scan (IMP-051). Every test jail, outer and nested launchers.
   scannedJails = [
@@ -359,6 +470,11 @@
     ecaGateway
     claudePiGateway
     piResearchGateway
+    qsClaude
+    qsCodex
+    qsShell
+    qsZsh
+    qsPi
   ];
   opUnjailedClean = agents.opUnjailed scannedJails;
   # Twin: specDev, differing only in the ancestor bind.
@@ -391,6 +507,12 @@ in
   assert socketModeNetworkFails;
   assert gatewaySocketOptionsNetworkedFails;
   assert satanMcp.drvPath != "";
+  assert qsClaude.drvPath != "" && relayAlone.drvPath != "" && offlineGatewayClaude.drvPath != "";
+  assert qsWithRelayFails;
+  assert qsNoGatewayFails;
+  assert qsOfflineFails;
+  assert policyMatches;
+  assert qsNullSame;
   assert agents.gatewayClient "pi"
   == {
     keyFile = "$HOME/.config/llm-gateway/keys/pi";
@@ -406,7 +528,7 @@ in
     EXTRA = "x";
     LLM_GATEWAY_URL = piClient.url;
   };
-  assert lib.attrNames formArgs.secretEnv == ["LLM_GATEWAY_KEY"];
+  assert formArgs.secretEnv == {LLM_GATEWAY_KEY = ''''${LLM_GATEWAY_KEY:-$(< "${piClient.keyFile}")}'';};
   assert lib.attrNames formArgs.piFiles == ["models.json" "settings.json"];
   assert formArgs.piFiles."models.json" == agents.piGatewayModels;
   assert formNetworkOffFails;
@@ -533,6 +655,13 @@ in
       host_doctrine='"$HOME/.local/share/doctrine/bin"'
       # The jail's PATH value alone: the bwrap call is one line.
       jail_path() { grep -o -- '--setenv PATH [^ ]*' "$1"; }
+      # A path is in the jail's closure: closure_has <launcher> <path>. Not
+      # grep -q: under pipefail, its early exit fails tr with SIGPIPE at random.
+      closure_has() {
+        f="$(grep -o '/nix/store/[^ ]*-runtime-closure-bind-args' "$1" | head -1)"
+        test -n "$f"
+        tr '\0' '\n' < "$f" | grep -Fx -- "$2" > /dev/null
+      }
       for launcher in "$spec" "$research" "$offline"; do
         grep -Fq -- "RUNTIME_ARGS+=(--ro-bind-try $host_doctrine $host_doctrine)" "$launcher"
         jail_path "$launcher" | grep -Fq -- "$host_doctrine"
@@ -556,9 +685,7 @@ in
       jail_path "$nix_doctrine" > "$TMPDIR/nix-doctrine-path"
       refute grep -Fq -- 'doctrine-nix-bin' "$TMPDIR/nix-doctrine-path"
       refute grep -Fq -- '${fakeNixDoctrine}' "$TMPDIR/nix-doctrine-path"
-      closure_args="$(grep -o '/nix/store/[^ ]*-runtime-closure-bind-args' "$nix_doctrine" | head -1)"
-      test -n "$closure_args"
-      tr '\0' '\n' < "$closure_args" | grep -Fxq -- '${nixDoctrineMarker}'
+      closure_has "$nix_doctrine" '${nixDoctrineMarker}'
 
       # Behaviour: the closure binds name what a dynamic ELF links against,
       # and nothing for a missing file or a script.
@@ -760,7 +887,7 @@ in
         mkdir -p "$TMPDIR/$1" "$TMPDIR/$1-home"
         (cd "$TMPDIR/$1" && env -i HOME="$TMPDIR/$1-home" LANG=C.UTF-8 \
           OPENROUTER_API_KEY=sk-fake-SENTINEL SESSION_FAKE_API_KEY=sk-fake-SESSION \
-          "$2")
+          "$2" "''${@:3}")
         test -e "$TMPDIR/$1/bwrap-environ"
         refute test -s "$TMPDIR/$1/bwrap-environ"
         refute grep -rFq -- 'sk-fake-SESSION' "$TMPDIR/$1"
@@ -770,12 +897,12 @@ in
 
       # Gateway: the inner launcher, past the outer's runDirectory check,
       # with gw's key staged (keys/pi, whichever the jail). fd 22 carries
-      # that key and no provider key: gateway_launch <label> <inner>.
+      # that key and no provider key: gateway_launch <label> <inner> [ARG...].
       gateway_launch() {
         mkdir -p "$TMPDIR/$1-home/.config/llm-gateway/keys"
         printf 'sk-fake-GATEWAY' > "$TMPDIR/$1-home/.config/llm-gateway/keys/pi"
         test -n "$2"
-        probe_launch "$1" "$2"
+        probe_launch "$@"
         grep -Fxq -- 'sk-fake-GATEWAY' "$TMPDIR/$1/bwrap-args-22"
       }
       probe_gw="$(gateway_inner_of ${probeGateway}/bin/jailed-pi pi)"
@@ -989,6 +1116,87 @@ in
       fwd_wait "[ -S ${forwarderSocket} ]"
       timeout 30 ${forwarderProbe 4000}/bin/forwarder-probe-4000 relay 4000 "$FORWARDER_LOG" \
         < /dev/null > "$TMPDIR/fwd-a.out" 2> "$TMPDIR/fwd-a.err" || fwd_fail "(a) relay failed"
+
+      # quotientServer: the real quotient in the jail (quotient-in-jail.nix).
+      # What a launch hands bwrap, one word per line of bwrap-argv.
+      # argv_bind_line <label> <flag> <source regex> <destination>: the line
+      # of the first FLAG whose two words match, or nothing.
+      argv_bind_line() {
+        awk -v f="$2" -v s="$3" -v d="$4" \
+          '$0 == f { n = NR; getline a; getline b; if (a ~ s && b == d) { print n; exit } }' \
+          "$TMPDIR/$1/bwrap-argv"
+      }
+      # The entry and its words: everything after bwrap's own options.
+      entry_words() { sed -n '/^--$/,$p' "$TMPDIR/$1/bwrap-argv" | tail -n +2; }
+
+      qs_claude="$(gateway_inner_of ${qsClaude}/bin/jailed-claude claude)"
+      qs_codex="$(gateway_inner_of ${qsCodex}/bin/jailed-codex codex)"
+      plain_claude="$(gateway_inner_of ${plainClaude}/bin/jailed-claude claude)"
+      gateway_launch qs-claude "$qs_claude" "two words" plain
+      gateway_launch qs-codex "$qs_codex" "two words" plain
+      gateway_launch plain-claude "$plain_claude" "two words" plain
+      gateway_launch plain-codex "$(gateway_inner_of ${plainCodex}/bin/jailed-codex codex)" "two words" plain
+
+      # The config lands on top of the persisted home, the host's profiles on
+      # top of the config; each bind is a flag and both of its words.
+      qdir="$TMPDIR/qs-claude-home/.config/quotient"
+      home_line="$(argv_bind_line qs-claude --bind "^$TMPDIR/qs-claude-home/.local/share/jail.nix/home/" "$TMPDIR/qs-claude-home")"
+      config_line="$(argv_bind_line qs-claude --ro-bind '^/nix/store/[^ ]*-quotient-jail-config$' "$qdir")"
+      profiles_line="$(argv_bind_line qs-claude --ro-bind-try "^$qdir/profiles$" "$qdir/profiles")"
+      test -n "$home_line"
+      test -n "$config_line"
+      test -n "$profiles_line"
+      test "$config_line" -gt "$home_line"
+      test "$profiles_line" -gt "$config_line"
+      # The config: the policy, and an empty mount point for the profiles.
+      config_dir="$(sed -n "$((config_line + 1))p" "$TMPDIR/qs-claude/bwrap-argv")"
+      test "$(ls -A "$config_dir" | tr '\n' ' ')" = "policy.json profiles "
+      test -d "$config_dir/profiles"
+      test -z "$(ls -A "$config_dir/profiles")"
+      cmp "$config_dir/policy.json" ${pkgs.writeText "expected-policy.json" (builtins.toJSON expectedPolicy)}
+
+      # The server and both forms are in the closure, and on PATH.
+      for pair in ${qServer.marker}:${qServer.pkg} ${qRead.marker}:${qRead.pkg} ${qWrite.marker}:${qWrite.pkg}; do
+        closure_has "$qs_claude" "''${pair%%:*}"
+        closure_has "$qs_codex" "''${pair%%:*}"
+        jail_path "$qs_claude" | grep -Fq -- "''${pair##*:}/bin"
+      done
+
+      # Registration: the agent's own entry, then the server's words, then
+      # the caller's, each one word.
+      mcp_file="$(sed -n 's|^--mcp-config=||p' "$TMPDIR/qs-claude/bwrap-argv")"
+      test -n "$mcp_file"
+      closure_has "$qs_claude" "$mcp_file" # the jail sees only its closure
+      printf '%s' '{"mcpServers":{"quotient":{"command":"${qServer.pkg}/bin/quotient"}}}' | cmp -s - "$mcp_file"
+      entry_words plain-claude > "$TMPDIR/plain-claude.words"
+      entry="$(head -1 "$TMPDIR/plain-claude.words")"
+      test -n "$entry"
+      printf '%s\n' "$entry" "--mcp-config=$mcp_file" "two words" plain > "$TMPDIR/qs-claude.want"
+      entry_words qs-claude | cmp - "$TMPDIR/qs-claude.want"
+      printf '%s\n' "$entry" "two words" plain | cmp - "$TMPDIR/plain-claude.words"
+      codex_entry="$(entry_words plain-codex | head -1)"
+      test -n "$codex_entry"
+      printf '%s\n' "$codex_entry" -c 'mcp_servers.quotient.command="${qServer.pkg}/bin/quotient"' \
+        -c 'mcp_servers.quotient.env_vars=["LLM_GATEWAY_KEY","LLM_GATEWAY_URL"]' "two words" plain \
+        > "$TMPDIR/qs-codex.want"
+      entry_words qs-codex | cmp - "$TMPDIR/qs-codex.want"
+
+      # A jail that declares it but is not claude or codex: the config is
+      # there, the entry's words are the caller's alone.
+      for pair in shell:${qsShell}/bin/jailed-shell:${plainShell}/bin/jailed-shell \
+        zsh:${qsZsh}/bin/jailed-zsh:${plainZsh}/bin/jailed-zsh \
+        pi:${qsPi}/bin/jailed-pi:${probeGateway}/bin/jailed-pi; do
+        IFS=: read -r who with_outer without_outer <<<"$pair"
+        gateway_launch "qs-$who" "$(gateway_inner_of "$with_outer" "$who")" "two words" plain
+        gateway_launch "plain-$who" "$(gateway_inner_of "$without_outer" "$who")" "two words" plain
+        test -n "$(argv_bind_line "qs-$who" --ro-bind '^/nix/store/[^ ]*-quotient-jail-config$' "$TMPDIR/qs-$who-home/.config/quotient")"
+        entry_words "qs-$who" | cmp - <(entry_words "plain-$who")
+        refute grep -Fq -- '.config/quotient' "$TMPDIR/plain-$who/bwrap-argv"
+      done
+      # Declared nothing: no config, no quotient in the closure.
+      refute grep -Fq -- '.config/quotient' "$TMPDIR/plain-claude/bwrap-argv"
+      if closure_has "$plain_claude" ${qServer.marker}; then exit 1; fi
+      refute grep -Fq -- 'quotient' "$plain_claude"
 
       # The jail scan: clean over every test jail; an ancestor bind fails it.
       grep -Fq -- 'op-unjailed: ' ${opUnjailedClean}
