@@ -141,6 +141,36 @@ colors () {
 }
 
 #
+# active-projects: project directories, one per line, in zoxide's frecency order.
+# A project holds .git, .jj or .project, as in zp and project.el. A .git file is
+# a linked worktree, or $HOME's. Silent, and exit 0, with no zoxide or database.
+#
+active-projects() {
+  local dir
+  zoxide query -l 2>/dev/null | while IFS= read -r dir; do
+    [[ $dir == $HOME || $dir == $HOME/.config/emacs/elpa(|/*) || $dir == /workspace(|/*) ]] && continue
+    [[ -f $dir/.git ]] && continue
+    [[ -d $dir/.git || -d $dir/.jj || -e $dir/.project ]] && print -r -- $dir
+  done
+  return 0
+}
+
+#
+# zx: pick an active project and attach a new session there, named as zp names
+# one: <project>.<n>, n one above the highest in use, dots in the project folded
+# to _. Labels and the scope are the zmx wrapper's.
+#
+zx() {
+  local dir=$(active-projects | fzf)
+  [[ -n $dir ]] || return 0
+  local project=${${dir:t}//./_} name highest=0
+  for name in ${(f)"$(zmx list --short 2>/dev/null)"}; do
+    [[ $name == $project.<-> ]] && (( ${name##*.} > highest )) && highest=${name##*.}
+  done
+  (builtin cd -- $dir && zmx attach $project.$(( highest + 1 )))
+}
+
+#
 # FZF
 #
 
