@@ -94,6 +94,13 @@ ch() {
 }
 
 #
+# zmux
+#
+role() {
+  zmx set . role="$@"
+}
+
+#
 # snooze-nag
 #
 nag() { systemctl --user start snooze-nag snooze-nag.timer }
