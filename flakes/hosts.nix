@@ -79,6 +79,7 @@
   # Injected into system evaluations.
   platformModule = meta: {
     nixpkgs.hostPlatform = meta.system;
+    nixpkgs.overlays = [inputs.zmux.overlays.default];
     imports = [(stableModule meta.system)];
   };
 
@@ -102,6 +103,7 @@
       inputs.lem.overlays.default
       inputs.claude-desktop.overlays.default
       inputs.llm-agents.overlays.shared-nixpkgs
+      inputs.zmux.overlays.default
     ];
     imports = [(stableModule system)];
   };
@@ -241,7 +243,9 @@
             server = null;
             sccache = false;
           }))
-    ];
+    ]
+    ++ lib.mapAttrsToList (name: c: expect "${name}: pkgs.zmx is not the zmux wrapper" (c.pkgs ? zmx-unwrapped))
+    (nixosConfigurations // darwinConfigurations // homeConfigurations // {"home base" = homeBase;});
 in {
   perSystem = {pkgs, ...}: {
     checks.factories = builtins.deepSeq factoryChecks (pkgs.runCommand "factories" {} "touch $out");

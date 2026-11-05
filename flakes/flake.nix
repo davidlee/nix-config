@@ -85,6 +85,14 @@
       };
     };
 
+    # The tag is the product: an edit there lands by a new tag and a re-lock.
+    # Not a dev checkout: every home takes its overlay, and `just isolation`
+    # stubs those inputs.
+    zmux = {
+      url = "github:davidlee/zmux/v0.1.0";
+      inputs.nixpkgs.follows = "nixpkgs-home";
+    };
+
     satan = {
       url = "github:davidlee/satan";
       inputs = {

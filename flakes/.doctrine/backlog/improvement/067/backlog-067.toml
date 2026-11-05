@@ -1,0 +1,22 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 67
+slug = "zmux-wire"
+title = "Wire zmux into the flake: overlay in every evaluation, zp in the terminal feature"
+kind = "improvement"
+status = "started"
+resolution = ""
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = []                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }

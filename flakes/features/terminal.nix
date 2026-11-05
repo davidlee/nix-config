@@ -38,6 +38,7 @@ in [
 
           tmux
           zmx # or this
+          zp # picker over zmx sessions
 
           # abduco # shell persist
           # dvtm # + abduco (suckless)
