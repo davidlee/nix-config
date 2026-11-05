@@ -1,0 +1,38 @@
+fetching path input 'path:/home/david/flakes/agents'
+warning: stdenv.isLinux is deprecated, use stdenv.hostPlatform.isLinux instead
+this derivation will be built:
+  /nix/store/f1c7vd9b830vfyrh621s9x0qqdwfbl6y-jailed-agents-policy-tests.drv
+building '/nix/store/f1c7vd9b830vfyrh621s9x0qqdwfbl6y-jailed-agents-policy-tests.drv'...
+jailed-agents-policy-tests> ok   block  git stash
+jailed-agents-policy-tests> ok   block  git stash push -m wip
+jailed-agents-policy-tests> ok   block  git stash pop
+jailed-agents-policy-tests> ok   block  git stash drop
+jailed-agents-policy-tests> ok   allow  git stash list
+jailed-agents-policy-tests> ok   allow  git stash show
+jailed-agents-policy-tests> ok   block  git checkout -- f.txt
+jailed-agents-policy-tests> ok   block  git checkout -f main
+jailed-agents-policy-tests> ok   block  git checkout --force main
+jailed-agents-policy-tests> ok   block  git checkout -m main
+jailed-agents-policy-tests> ok   allow  git checkout -b feature
+jailed-agents-policy-tests> ok   allow  git checkout main
+jailed-agents-policy-tests> ok   block  git reset --hard
+jailed-agents-policy-tests> ok   block  git reset --keep HEAD
+jailed-agents-policy-tests> ok   allow  git reset --soft HEAD
+jailed-agents-policy-tests> ok   allow  git reset --mixed HEAD
+jailed-agents-policy-tests> ok   block  git clean
+jailed-agents-policy-tests> ok   block  git clean -fd
+jailed-agents-policy-tests> ok   allow  git clean -n
+jailed-agents-policy-tests> ok   allow  git clean --dry-run
+jailed-agents-policy-tests> ok   block  git restore f.txt
+jailed-agents-policy-tests> ok   allow  git restore --source=HEAD -- f.txt
+jailed-agents-policy-tests> ok   allow  git status --short
+jailed-agents-policy-tests> ok   allow  git log --oneline -1
+jailed-agents-policy-tests> ok   allow  git diff --name-only
+jailed-agents-policy-tests> ok   allow  git add f.txt
+jailed-agents-policy-tests> ok   allow  git --version
+jailed-agents-policy-tests> ok   block  git -C . stash
+jailed-agents-policy-tests> ok   block  git -c core.pager=cat stash
+jailed-agents-policy-tests> ok   block  git --no-pager stash
+jailed-agents-policy-tests> ok   block  git -C /build/tmp.IG7x20kBaw checkout -- f.txt
+jailed-agents-policy-tests> ok   allow  GIT_GUARD=off git stash
+jailed-agents-policy-tests> 32/32 passed
