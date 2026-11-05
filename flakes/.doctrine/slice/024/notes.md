@@ -6,17 +6,20 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-05 · plan drafted, design locked rev 30 · 6ef16e4a
+fresh-as-of: 2026-11-05 · PHASE-05 done, audit next · 3cec3724
 
 ### Produced
-- SL-024 design locked (rev 30, DEC-123..127, RV-048 done); plan.toml, plan.md and PHASE-01..05 sheets authored. No repo code changed. Uncommitted: slice files, notes, slug symlink, memory, DEC-123..127 and their slug symlinks, RV-048, design snapshot (operator has not asked for a commit)
-- owed: a quotient backlog item for form-probe's prebuilt-family mode (DEC-127); a note on quotient:DEC-071 point 3 (DEC-126)
+- SL-024 PHASE-01..05 implemented and proved: `agents/quotient-in-jail.nix`, `quotientServer`, dev-envs on quotient v0.6.1 (DEC-123..127, RV-048); § PHASE-04 proof
+- REV-016 authored against SPEC-003, for /reconcile to apply; DEC-122 note; `agents/README.md` § In-jail quotient; `README.md` § Jailed Agents
+- quotient:IMP-014 and a note on quotient:DEC-071, uncommitted in `~/dev/quotient`
 
 ### Learned
 - mem.fact.quotient.nested-form-in-jail — store-DB gaps, MCP client quirks
 
 ### Open
-- plan approval owed, including plan.md § Notes' launch-home departure; then `doctrine slice status 24 ready` and `/phase-plan` PHASE-01
+- /audit: PHASE-04 EX-8's claude wording (no operator ruling); the items the Autonomy log flags for audit
+- § Post-landing steps, the operator's
+- quotient:IDE-008's docs (slice Follow-Ups): not chartered in PHASE-05
 
 ## Implementation run
 
@@ -52,6 +55,10 @@ Preflight:
 - PHASE-04: EX-2's "26 PASS" read as top-level rows (DEC-127 says identical to host); both logs hold 26 at column 0, 73 in all. design.md wording could say so. Flag for audit. Tier: decide.
 - PHASE-04: Sonnet capsule-worker assembled the form-probe fixture (operator's routing); no pi run: every row is host-only. Tier: decide.
 - PHASE-04: completed with EX-8's claude half unmet as worded, on VH-1's stronger evidence; no operator ruling on the wording. Tier: deferred to audit.
+- PHASE-05: docs written by the sub-orchestrator, no worker: the brief would have cost more than the text. Tier: decide.
+- PHASE-05: `agents/README.md` keeps a few statements resting on the design or on accepted decisions, not on a PHASE-04 row: the boundary sentence (quotient:DEC-071 says the docs must say it), `outerGit` in a delegate (slice scoping), and the profile refusal, proved against a scratch config (plan.md § Notes). Flag for audit. Tier: decide.
+- PHASE-05: REV-016 also qualifies § Forms' and § Concerns' approval lines, beyond the charter's § The jail set: they went stale for the same reason. Tier: decide.
+- PHASE-05: quotient:IMP-014 and the note on quotient:DEC-071 left uncommitted in `~/dev/quotient`. quotient:IDE-008's docs not touched: outside the named records. Tier: defer.
 
 ## Review passes
 
@@ -105,6 +112,18 @@ PHASE-03 VA-1, closure queries. Built with `nix build --no-link --print-out-path
 Lock: `nix flake update quotient --flake "path:$PWD/dev-envs"`. The diff is the four lines of node `quotient_2` (rev cd197409 to 1f18594f, the v0.6.1 tag's commit and the root flake's pin); `nixpkgs_8` did not move, and `project` keeps `path = "./stub-project"`. `packages.x86_64-linux.default` at that rev is `quotient-0.6.1`.
 
 `doctrine slice verify-vt` reports PHASE-03 VT-1 UNATTRIBUTABLE before the commit and through ISS-005's prefix: the keywords are present.
+
+PHASE-05, pi `review` of the docs against § PHASE-04 proof (deepseek-flash, 27 requests over two runs, $0.053; the first hit its 25-request ceiling unanswered, so the session was continued). Five findings:
+
+- F1 "quotient is never nested" in the relay section (medium): fixed, scoped to the relay.
+- F2 `reduce` and `help` "are for the host" (low/medium): fixed, scoped to a relay jail.
+- F3 "gets no git" (low): fixed; `git` is there, the outer repository is not.
+- F4 boundary sentence rests on the design only (low): accepted, kept and widened to what quotient:DEC-071 says the docs must say. See Autonomy log.
+- F5 SPEC-003's approval lines left stale by REV-016 (low): fixed in REV-016.
+
+Its closing remark that EN-1's deferral is unrecorded is refuted: VH-1 and VH-2 passed, so EN-1 needs no deferral. It could not see `~/dev/quotient` from a form, so it judged those two records from copies.
+
+Second reviewer in a row to spend its ceiling reading: a future brief should cap reads, or set the ceiling above the answer point.
 
 ## PHASE-04 proof
 
@@ -182,6 +201,15 @@ VH-1, VH-2: outstanding, the operator's. PHASE-04 stays `in_progress`.
 - VH-1 pass: operator reports a logged-in `jailed-claude` delegate call: "The pwd check in the pi_agent run returned /workspace/flakes and completed."
 - VH-2 pass: operator's pasted `jailed-codex exec` output: `mcp: quotient/pi_agent (completed)`, `pwd` returned `/workspace/flakes`.
 - EX-8's claude half stays unmet as worded (`mcp list` ignores `--mcp-config`). The operator gave no ruling on the wording; VH-1 shows a logged-in claude reaching the real server. Criterion wording is for /audit.
+
+## Post-landing steps (operator)
+
+After SL-024 lands, in order. None is done by this slice.
+
+1. **Push** the home repo. `dev-envs/flake.lock` pins `agents` to a published revision, which has no `quotientServer`.
+2. **Re-lock `agents`** in `dev-envs/flake.lock`: `nix flake update agents --flake "path:$PWD/dev-envs"`, from `~/flakes`, with no `--override-input`, so the stub stays a relative path (`just test` refuses otherwise). Until then a bare `nix build path:dev-envs#…` fails; `just test`, `envrc/dev-envs.sh` and `bin/dev-envs-forms` override `agents` to the tree and are not affected. Commit the lock.
+3. **`just home-switch`.**
+4. **Per project with approved forms:** `bin/dev-envs-forms` (from `~/flakes` here: with `--project "path:$HOME/flakes/dev-tools"`), then `quotient allow` for each form. The key source and the pin gave every dev-envs form a new store path, so old approvals no longer match and the host refuses delegates until then. A jail's quotient needs no approval.
 
 ## Design triage (2026-11-05)
 

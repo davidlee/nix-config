@@ -1160,6 +1160,12 @@ drags `jail-nix`, `llm-agents` and `bun2nix` into its diffs.
 unjailed `pi`, `claude` and `codex` CLIs, and the shorthands `jpi`, `jcl`, `jcx`
 and `jsh` (`jcl` adds `--dangerously-skip-permissions`).
 
+`jailed-claude`, `jailed-codex` and `jailed-shell` carry the real quotient
+(`quotientServer`, DEC-123), with its delegates in nested forms. Claude and codex
+have it registered as an MCP server; in `jailed-shell` it is only on PATH.
+`jailed-pi` and `jailed-pi-research` have no quotient. `claude mcp list` does not
+show the registration: see `agents/README.md` § In-jail quotient.
+
 A project may state `passthru.devEnv = {env = {…}; hostEnv = […];};` on its
 `dev-tools`: `env` is set in every jail, form and the shell, and each `hostEnv`
 name is forwarded from the launch environment when set. The host's own
@@ -1223,7 +1229,8 @@ zsh: no shell expands `~` mid-word, so `path:~/flakes/…` reaches nix as a lite
 operator, so `path:…-dev-envs#default` dies with `no matches found`. Quotes fix both.
 
 Forms are what a quotient delegate runs in; the consumer builds them and a host
-script links them into the checkout. Approval stays the operator's:
+script links them into the checkout. Approval stays the operator's on the host; a
+jail's quotient names its forms in its own policy and needs none:
 
 ```zsh
 ~/flakes/bin/dev-envs-forms   # builds read and write, links .quotient/forms/{read,write}

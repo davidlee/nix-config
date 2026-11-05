@@ -507,19 +507,20 @@ formFamily = jailLib.quotientFormFamily {
 ### quotient relay (`quotient`)
 
 A jail can use the host's quotient as an MCP server: `quotient` in the jail is
-a relay to a quotient running on the host (`quotient-relay.nix`). quotient is
-never nested. Its policy, approvals and run evidence stay out of the jail, and
+a relay to a quotient running on the host (`quotient-relay.nix`). The relay's
+quotient is never nested. Its policy, approvals and run evidence stay out of the jail, and
 its delegates run in the host's forms as usual. Those forms carry no relay,
 so delegates cannot call quotient themselves.
 
 **Off in every jail (DEC-122).** quotient exists so an unjailed orchestrator can
 drive pi with confinement. A jail already confines, so a jail delegates through
-`subagents` or the pi subagent extension.
+`subagents`, the pi subagent extension, or [in-jail quotient](#in-jail-quotient-quotientserver).
 
 | route from a jail | runs | permissions | ceilings, evidence |
 |---|---|---|---|
 | pi subagent extension (jailed pi) | in the jail | the jail's | none of quotient's |
 | `subagents` (e.g. jailed claude runs pi) | in the jail, depth-guarded | the jail's | none of quotient's |
+| in-jail quotient, `pi_agent` | in the jail, in a nested form | the form's, within the jail's mounts | yes; they bind delegates, not the agent |
 | this relay, `pi_agent` | host, in a form | the form's; root is the launch dir | yes, out of the jail's reach |
 
 **What it is for.** Dispatching to other repos, from a jail declared for that
@@ -527,12 +528,12 @@ purpose (IDE-010). That jail does not exist yet: its roots are a declared subset
 of its workspace deps, each `ro` or `rw`, which needs per-root capability in
 quotient (quotient:IDE-009). The agent writes the delegates' prompts, so its real
 write reach is the union of its `rw` roots. Until then the relay gains no other
-repository (`roots` below). Single-repo quotient for jailed claude waits for
-in-jail quotient (quotient:IDE-008).
+repository (`roots` below). Single-repo delegation is
+[in-jail quotient](#in-jail-quotient-quotientserver).
 
 **Only bare `quotient` is relayed.** With arguments the shim refuses and exits 69,
-so `quotient reduce` and `help` are for the host. A jail without the relay has no
-`quotient` at all.
+so in a relay jail `quotient reduce` and `help` are for the host. A jail with neither the relay
+nor `quotientServer` has no `quotient` at all.
 
 ```
 host                                         jail
@@ -569,6 +570,73 @@ launcher ($PWD: the root)
   defaults to the root. A `/workspace/…` path is refused unless it resolves
   to the root on the host. `artifacts.dir` names a host path that the jail
   cannot read.
+
+### In-jail quotient (`quotientServer`)
+
+`quotientServer = { package; forms; }` puts the real quotient in a jail
+(`quotient-in-jail.nix`, DEC-123): the server runs in the jail, and its delegates
+run in the family's forms, nested. Off unless a jail declares it. dev-envs sets it
+on `jailed-claude`, `jailed-codex` and `jailed-shell`, with its pinned quotient and
+its own form family; `jailed-pi` and `jailed-pi-research` do not take it.
+
+```
+host                               jail
+~/.config/quotient/profiles ─ro─►  ~/.config/quotient/profiles
+store: policy.json ──────────ro─►  ~/.config/quotient/policy.json
+                                   claude / codex ─MCP, stdio─► quotient
+                                     └─ per call: form (nested bwrap) ─► pi delegate
+LLM gateway, 127.0.0.1:4000  ◄─────────── LLM_GATEWAY_KEY over TCP ───────┘
+```
+
+It is refused with the relay, without `gateway` (delegates use the jail's key) and
+in a profile without network (they reach the gateway over TCP).
+
+| jail | registered by | check |
+|---|---|---|
+| `claude` | `--mcp-config=<store file>` at launch | the session's init line (below) |
+| `codex` | `-c mcp_servers.quotient.…` at launch; `env_vars` names the gateway key and URL | `jailed-codex mcp list` |
+| any other name | not registered; `quotient` is on PATH | |
+
+**`claude mcp list` does not show it,** and `mcp get quotient` says there is no
+such server: both read stored config only, never `--mcp-config`. The init message
+does: `jailed-claude -p "say ok" --output-format=stream-json --verbose --max-turns 1`
+shows `quotient` as `connected`, source `dynamic`, and its `mcp__quotient__*` tools,
+even with no login. `--mcp-config` wins over a project `.mcp.json` entry of the same
+name. `codex exec` prints no startup line for a server.
+
+**Policy.** The jail's own, in a read-only store directory at `~/.config/quotient`.
+Its root is `/workspace`, so the jail's mounts are the limit of what it can name; a
+form sees only the call's root under `/workspace`. It names the forms itself, so
+nothing needs approving in a jail. The maxima and the profile map copy the host
+policy's values by hand, since that dotfile is outside the flake: a new profile
+needs a line in `quotient-in-jail.nix`.
+
+**Profiles** are the host's directory, bound read-only onto the store one
+(DEC-126). With it empty or missing the server still starts, and a call is refused
+`profile-unknown`, naming the directory.
+
+**Boundary.** Protection binds delegates, not the agent. quotient's `hostile-audit`
+script passes for both forms nested in a jail, and the agent can write none of
+`approvals.json`, `policy.json` or the profiles. But by design it can reach run
+evidence, start its own server and kill this one (quotient:DEC-071), so this is not
+an adversarial boundary; where a control must bind an untrusted agent, that is the
+relay.
+
+**Delegates.**
+
+- `read` cannot write its root; `write` can, and the jail's other mounts are out of
+  its view.
+- They reach the gateway, and HTTPS directly (`curl`, `git ls-remote`). A jail has
+  no store database, so jail.nix cannot find the store targets of `/etc/ssl` and the
+  like; `quotientFormFamily` binds them itself when `/nix/var/nix/db` is absent, and
+  adds nothing on the host (DEC-125). `path … is not valid` lines in a form's
+  `stderr.log` are that failed query and are harmless.
+- A project whose repository sits above it (`outerGitDir`, so this repo) gets no
+  repository in a delegate, though `git` is on its PATH: `outerGit`'s guard needs
+  the launch dir's parent to be `$HOME`.
+
+`quotient reduce` works in these jails, so satan's `pi-report-test.sh` runs its
+reducer section there.
 
 ### Jail scan
 
@@ -622,6 +690,7 @@ as the paths they produce.
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`) at its own path and on `PATH`, and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
 | `nixDoctrine` | `null` | A doctrine package whose `bin/` is bound read-only, with its closure, at `/run/doctrine-nix-bin` and never put on `PATH`: a reference build only a caller naming `/run/doctrine-nix-bin/doctrine` runs. Forms take it as `postureFlags.nixDoctrine` |
 | `quotient` | `false` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
+| `quotientServer` | `null` | `{ package; forms; }`: the real quotient in the jail, its delegates nested. Excludes `quotient`; needs `gateway` and network (see [In-jail quotient](#in-jail-quotient-quotientserver)) |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
 ## helium
