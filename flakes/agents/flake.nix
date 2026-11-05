@@ -11,7 +11,7 @@
     # The zmx wrapper every jail carries. A package, not an overlay: dev-envs
     # hands mkJailedAgents its own pkgs, which an overlay here would not reach.
     zmux = {
-      url = "github:davidlee/zmux/v0.1.1";
+      url = "github:davidlee/zmux/v0.1.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
