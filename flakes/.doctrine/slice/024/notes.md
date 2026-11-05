@@ -51,6 +51,7 @@ Preflight:
 - PHASE-04: EX-2's fixture restates the `jail` helper's two `extraOptions` terms in the scratch copy, because `//` would replace them: same net options plus the bind. Tier: decide.
 - PHASE-04: EX-2's "26 PASS" read as top-level rows (DEC-127 says identical to host); both logs hold 26 at column 0, 73 in all. design.md wording could say so. Flag for audit. Tier: decide.
 - PHASE-04: Sonnet capsule-worker assembled the form-probe fixture (operator's routing); no pi run: every row is host-only. Tier: decide.
+- PHASE-04: completed with EX-8's claude half unmet as worded, on VH-1's stronger evidence; no operator ruling on the wording. Tier: deferred to audit.
 
 ## Review passes
 
@@ -175,6 +176,12 @@ The same message's `tools` list holds: `mcp__quotient__pi_agent mcp__quotient__p
 - `path … is not valid` in a form's `stderr.log`: harmless. The same five lines in every run, naming four paths (`hosts`, `etc-nsswitch.conf`, `nss-cacert`, its `-p11kit`). A delegate finds all four present, and `/etc/hosts`, `/etc/nsswitch.conf` and the CA bundle resolve into them: `etc-store-binds` delivers what the deep bind's query cannot.
 
 VH-1, VH-2: outstanding, the operator's. PHASE-04 stays `in_progress`.
+
+### Human rows (operator, 2026-11-05)
+
+- VH-1 pass: operator reports a logged-in `jailed-claude` delegate call: "The pwd check in the pi_agent run returned /workspace/flakes and completed."
+- VH-2 pass: operator's pasted `jailed-codex exec` output: `mcp: quotient/pi_agent (completed)`, `pwd` returned `/workspace/flakes`.
+- EX-8's claude half stays unmet as worded (`mcp list` ignores `--mcp-config`). The operator gave no ruling on the wording; VH-1 shows a logged-in claude reaching the real server. Criterion wording is for /audit.
 
 ## Design triage (2026-11-05)
 
