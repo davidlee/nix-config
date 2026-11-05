@@ -10,8 +10,9 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     # The zmx wrapper every jail carries. A package, not an overlay: dev-envs
     # hands mkJailedAgents its own pkgs, which an overlay here would not reach.
+    # Tracks main: the lock is the pin, and the host follows it.
     zmux = {
-      url = "github:davidlee/zmux/v0.1.3";
+      url = "github:davidlee/zmux";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
