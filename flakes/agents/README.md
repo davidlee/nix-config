@@ -458,7 +458,7 @@ and merges the gateway wiring into the caller's own `env`, `secretEnv` and
 | arg | gets |
 |---|---|
 | `env` | `LLM_GATEWAY_URL` |
-| `secretEnv` | `LLM_GATEWAY_KEY`, read from the client's key file at launch |
+| `secretEnv` | `LLM_GATEWAY_KEY`, from the environment if set, else the client's key file, at launch |
 | `piFiles` | `models.json` (`piGatewayModels`) |
 
 ```nix

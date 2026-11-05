@@ -33,12 +33,28 @@ Preflight:
 
 ## Autonomy log
 
+- PHASE-01: implemented by the sub-orchestrator, no worker: ~40 lines fixed by the design, and the build loop is host-only. Tier: decide.
+- PHASE-01: `quotient-in-jail.nix` also returns `etcStoreBinds`, which the design's return list omits but plan.md § Test access needs. Keeps behaviour; flag for audit. Tier: decide.
+- PHASE-01: the file takes `{lib, pkgs}` until PHASE-02 needs `combinators`: deadnix would flag it unused. Tier: decide.
+- PHASE-01: `agents/README.md` secretEnv row corrected now, not in PHASE-05: the change made it false. Tier: decide.
+
 ## Review passes
 
 After RV-048 (Codex, design facet): no further prose pass is needed. What remains
 doubtful is runtime, which another reading cannot settle: `set-argv` registration,
 real client startup, the config bind's position beside the relay's options, and a
 clean refusal on missing profiles. Execution's tests and real-jail rows probe those.
+
+PHASE-01, pi `review` (deepseek-flash, 22 requests, $0.075). Six findings:
+
+- F1 key on argv (medium): refuted. `nix/form-family.nix:156-180` delivers the secret on a descriptor; the form could not read that source and inferred.
+- F2 key test skips the real builder (medium): accepted. The stub is the plan's choice; `quotient-forms` and PHASE-04's delegate rows cover the launcher.
+- F3 store binds only grep-checked (medium-low): accepted. The sandbox's /etc holds no store links, so a launch would show nothing; PHASE-04's TLS row proves it.
+- F4 `find` stops at a symlinked /etc/ssl (low): accepted. The store directory is still bound, and /etc/ssl is a directory on NixOS.
+- F5 stale README row (low): fixed. Its claim about the module header followed from F1, so it falls with it.
+- F6 index holds the stub (medium): refuted. `git commit <paths>` commits the worktree.
+
+Negative controls on PHASE-01 (scratch copies, one mutation each), all fail the check: `:-` to `-`; file-only key; no `sort -u`; every path not just the store; store binds before the caller's; no database guard.
 
 ## Design triage (2026-11-05)
 

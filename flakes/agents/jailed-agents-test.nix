@@ -310,7 +310,10 @@
   stubQuotient.lib.mkFormFamily = args: args;
   formArgs = agents.quotientFormFamily {
     quotient = stubQuotient;
-    options = c: [(c.set-env "PROJECT_OPTION" "x")];
+    options = c: [
+      (c.set-env "PROJECT_OPTION" "x")
+      (c.add-runtime "RUNTIME_ARGS+=(--setenv CALLER_RUNTIME_OPTION x)")
+    ];
     prefix = "proj";
     packages = [pkgs.hello];
     env.EXTRA = "x";
@@ -331,6 +334,9 @@
   fwdProbe = plainJail "fwd-probe" pkgs.hello [(agents.tryFwdEnv plainJail.combinators "PROJECT_VAR")];
   fwdBadNameFails = !(builtins.tryEval (agents.tryFwdEnv plainJail.combinators "1-bad")).success;
   piClient = agents.gatewayClient "pi";
+  # The expression a form's launcher assigns, for the test to run.
+  formKeyExpr = pkgs.writeText "form-key-expr" formArgs.secretEnv.LLM_GATEWAY_KEY;
+  inherit (import ./quotient-in-jail.nix {inherit lib pkgs;}) etcStoreBinds;
   formNetworkOffFails =
     !(builtins.tryEval (agents.quotientFormFamily {
       quotient = stubQuotient;
@@ -400,7 +406,7 @@ in
     EXTRA = "x";
     LLM_GATEWAY_URL = piClient.url;
   };
-  assert formArgs.secretEnv == {LLM_GATEWAY_KEY = ''$(< "${piClient.keyFile}")'';};
+  assert lib.attrNames formArgs.secretEnv == ["LLM_GATEWAY_KEY"];
   assert lib.attrNames formArgs.piFiles == ["models.json" "settings.json"];
   assert formArgs.piFiles."models.json" == agents.piGatewayModels;
   assert formNetworkOffFails;
@@ -605,6 +611,57 @@ in
       done
       refute grep -Fq -- 'doctrine' ${formNoDoctrine}/bin/form-probe
       grep -Fq -- '--ro-bind ${fakeNixDoctrine}/bin /run/doctrine-nix-bin' ${formNixDoctrine}/bin/form-probe
+
+      # A form's store binds (DEC-125) come after the caller's options, as
+      # runtime args, and only where there is no store database: on the host
+      # the network combinator has already bound them.
+      caller_at="$(grep -bo -- 'CALLER_RUNTIME_OPTION x' "$form" | cut -d: -f1)"
+      guard_at="$(grep -bo -- 'if \[ ! -e /nix/var/nix/db \]; then' "$form" | cut -d: -f1)"
+      binds_at="$(grep -bo -- '-etc-store-binds /etc/hosts /etc/nsswitch.conf /etc/resolv.conf /etc/ssl)' "$form" | cut -d: -f1)"
+      test -n "$caller_at"
+      test -n "$guard_at"
+      test -n "$binds_at"
+      test "$caller_at" -lt "$guard_at"
+      test "$guard_at" -lt "$binds_at"
+      grep -Fq -- 'RUNTIME_ARGS+=("''${etc_binds[@]}")' "$form"
+      grep -- '/bin/bwrap ' "$form" > "$TMPDIR/form-bwrap-line"
+      refute grep -Fq -- 'etc-store-binds' "$TMPDIR/form-bwrap-line"
+
+      # Behaviour: a form's key (DEC-124). The environment wins, as in a jail,
+      # which has no key file; the file serves where the variable is unset or
+      # empty, as on the host; with neither, nothing is invented.
+      form_key() { # form_key <HOME> [VAR=value]
+        (export HOME="$1"; shift; [ "$#" = 0 ] || export "$@"; eval "printf %s $(cat ${formKeyExpr})" 2> /dev/null)
+      }
+      key_home="$TMPDIR/form-key-home"
+      mkdir -p "$key_home/.config/llm-gateway/keys"
+      test "$(form_key "$TMPDIR/no-such-home" LLM_GATEWAY_KEY=sk-from-env)" = sk-from-env
+      printf 'sk-from-file' > "$key_home/.config/llm-gateway/keys/pi"
+      test "$(form_key "$key_home" LLM_GATEWAY_KEY=sk-from-env)" = sk-from-env
+      test "$(form_key "$key_home")" = sk-from-file
+      test "$(form_key "$key_home" LLM_GATEWAY_KEY=)" = sk-from-file
+      test -z "$(form_key "$TMPDIR/no-such-home")"
+
+      # Behaviour: etc-store-binds names each store path the links resolve to,
+      # once, as NUL-separated bwrap words, and nothing else: no regular file,
+      # no link out of the store, no missing argument.
+      etc="$TMPDIR/etc-fixture"
+      mkdir -p "$etc/ssl/certs"
+      ln -s ${pkgs.hello}/bin/hello "$etc/hosts"
+      ln -s "$etc/hosts" "$etc/nsswitch.conf"
+      ln -s ${pkgs.hello}/share "$etc/ssl/certs/same-path"
+      ln -s ${pkgs.jq}/bin/jq "$etc/ssl/certs/other-path"
+      ln -s "$TMPDIR" "$etc/ssl/out-of-store"
+      ln -s "$TMPDIR/absent" "$etc/ssl/dangling"
+      echo plain > "$etc/resolv.conf"
+      ${etcStoreBinds} "$etc/hosts" "$etc/nsswitch.conf" "$etc/resolv.conf" "$etc/ssl" "$etc/absent" > "$TMPDIR/etc-binds"
+      {
+        for p in $(printf '%s\n' ${pkgs.hello} ${lib.getBin pkgs.jq} | sort); do
+          printf '%s\0' --ro-bind-try "$p" "$p"
+        done
+      } | cmp - "$TMPDIR/etc-binds"
+      ${etcStoreBinds} "$etc/resolv.conf" "$etc/absent" > "$TMPDIR/etc-binds-none"
+      refute test -s "$TMPDIR/etc-binds-none"
 
       # tryFwdEnv forwards at launch through RUNTIME_ARGS, so the bwrap line
       # stays plain words for quotient's check; unset, nothing is added.

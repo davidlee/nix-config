@@ -201,6 +201,8 @@
     pkgs.writeText "pi-gateway-models.json"
     (builtins.toJSON (piGatewayConfig url gatewayData.models));
 
+  quotientInJail = import ./quotient-in-jail.nix {inherit lib pkgs;};
+
   # quotient's per-call forms (`quotient help form`) for a gateway client:
   # quotient.lib.mkFormFamily with this lib's pkgs, jail-nix and pi, and the
   # gateway's URL, key and models.json merged into the caller's env, secretEnv
@@ -209,7 +211,10 @@
   # The gateway is reached over TCP, so the form keeps its network. The
   # form's options are the posture (sandboxed git identity on unless
   # `postureFlags` says otherwise), then the caller's `options` (IMP-052):
-  # both take the combinator set built from this lib's jail.nix pin.
+  # both take the combinator set built from this lib's jail.nix pin. Then the
+  # store binds a form nested in a jail needs (DEC-125). The key comes from the
+  # environment where there is one, as in a jail, which has no key file
+  # (DEC-124). Both are inert on the host.
   quotientFormFamily = {
     quotient,
     client ? "pi",
@@ -227,10 +232,10 @@
         builtins.removeAttrs args ["quotient" "client" "postureFlags"]
         // {
           inherit pkgs jail-nix;
-          options = c: posture ({sandboxGitIdentity = true;} // postureFlags) c ++ options c;
+          options = c: posture ({sandboxGitIdentity = true;} // postureFlags) c ++ options c ++ quotientInJail.formStoreBinds c;
           inherit (agentsByName) pi;
           env = env // {LLM_GATEWAY_URL = gateway.url;};
-          secretEnv = secretEnv // {LLM_GATEWAY_KEY = ''$(< "${gateway.keyFile}")'';};
+          secretEnv = secretEnv // {LLM_GATEWAY_KEY = ''''${LLM_GATEWAY_KEY:-$(< "${gateway.keyFile}")}'';};
           piFiles = piFiles // {"models.json" = piGatewayModelsFor gatewayData.url;};
         }
       );
