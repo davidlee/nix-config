@@ -94,13 +94,6 @@ ch() {
 }
 
 #
-# zmx: attach to a session, creating it in its own systemd scope if new
-#
-za() { systemd-run --user --scope --collect --quiet zmx attach "$@" }
-_za() { (( CURRENT == 2 )) && compadd -- ${(f)"$(zmx list --short 2>/dev/null)"} }
-compdef _za za
-
-#
 # snooze-nag
 #
 nag() { systemctl --user start snooze-nag snooze-nag.timer }
