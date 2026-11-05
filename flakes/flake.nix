@@ -89,7 +89,7 @@
     # Not a dev checkout: every home takes its overlay, and `just isolation`
     # stubs those inputs.
     zmux = {
-      url = "github:davidlee/zmux/v0.1.0";
+      url = "github:davidlee/zmux/v0.1.1";
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 

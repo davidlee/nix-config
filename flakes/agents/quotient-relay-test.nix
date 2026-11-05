@@ -21,6 +21,7 @@
     import ./jailed-agents.nix ({
         inherit pkgs jail-nix;
         llm-agents = fakeAgents;
+        zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
       }
       // extra);
   agents = mkAgents {};

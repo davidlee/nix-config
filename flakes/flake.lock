@@ -12982,16 +12982,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1793882862,
-        "narHash": "sha256-33VCuUtME9/h8vWbHP0snKZ7p+asvUxhVbsq3pOQSR4=",
+        "lastModified": 1793886936,
+        "narHash": "sha256-q941J0uc6roPamYxptMohImWLCT8tRtwI+ikg8SpFZ4=",
         "owner": "davidlee",
         "repo": "zmux",
-        "rev": "239e171d1d8f5c777d07a161e768c54e3bf8952c",
+        "rev": "384b9e3f5ff08896820646966bf4540f092396e8",
         "type": "github"
       },
       "original": {
         "owner": "davidlee",
-        "ref": "v0.1.0",
+        "ref": "v0.1.1",
         "repo": "zmux",
         "type": "github"
       }

@@ -28,6 +28,7 @@
   pkgs,
   jail-nix,
   llm-agents,
+  zmx,
   gitIdentity ? {
     authorName = "Jailed agent";
     authorEmail = "jailed-agent@localhost";
@@ -103,6 +104,7 @@
     tree
     ps
     libnotify
+    zmx # the wrapper, not pkgs.zmx: pi-zmx loads in every jail
   ];
 
   # git with bin/git replaced by git-guard.sh, which refuses the subcommands
