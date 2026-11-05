@@ -1,3 +1,8 @@
+*
 auth.json
 models.json*
 models-store.json
+!settings.json
+!AGENTS.md
+!settings-extensions.json
+!.gitignore

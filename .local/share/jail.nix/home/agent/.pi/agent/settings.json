@@ -4,7 +4,7 @@
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "compaction": {
     "enabled": false
   },
@@ -26,7 +26,9 @@
     "npm:pi-interactive-shell",
     "npm:@victor-software-house/pi-curated-themes",
     "npm:pi-terminal-theme",
-    "https://github.com/cathrynlavery/diagram-design"
+    "https://github.com/cathrynlavery/diagram-design",
+    "git:github.com/davidlee/pi-zmx@d6bae44153199131062f18069196a7596b30a677",
+    "git:github.com/davidlee/zmux@188fcfcc7c355554a7a54062eb1eff5736f21b07"
   ],
   "enabledModels": [
     "llm-gateway/deepseek-flash",
