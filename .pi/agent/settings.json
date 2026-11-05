@@ -1,0 +1,46 @@
+{
+  "lastChangelogVersion": "1.4.0",
+  "defaultProvider": "llm-gateway",
+  "defaultModel": "deepseek-flash",
+  "theme": "adwaita-dark",
+  "defaultThinkingLevel": "high",
+  "hideThinkingBlock": true,
+  "compaction": {
+    "enabled": false
+  },
+  "defaultTools": [
+    "+codemode"
+  ],
+  "doubleEscapeAction": "tree",
+  "enabledModels": [
+    "llm-gateway/deepseek-flash",
+    "openai-codex/gpt-6-luna",
+    "openai-codex/gpt-6-sol",
+    "openai-codex/gpt-6.1-sol",
+    "openai-codex/gpt-6-astra"
+  ],
+  "retry": {
+    "enabled": false
+  },
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "packages": [
+    "npm:@juanibiapina/pi-extension-settings",
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-simplify",
+    "npm:pi-add-dir",
+    "npm:pi-prompt-template-model",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:@tmustier/pi-usage-extension",
+    "npm:@tmustier/pi-raw-paste",
+    "npm:pi-btw",
+    "npm:pi-interactive-shell",
+    "npm:@victor-software-house/pi-curated-themes",
+    "npm:pi-terminal-theme",
+    "https://github.com/cathrynlavery/diagram-design",
+    "git:github.com/davidlee/pi-zmx@d6bae44153199131062f18069196a7596b30a677",
+    "git:github.com/davidlee/zmux@188fcfcc7c355554a7a54062eb1eff5736f21b07"
+  ]
+}
