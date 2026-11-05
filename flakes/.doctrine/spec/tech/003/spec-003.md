@@ -156,10 +156,22 @@ The set is the same for every project. Profiles are defined in
 the host's `$HOME` path, so `~` is the same string on both sides and different
 files. The project is bound read-write at `/workspace/<name>`.
 
-A jail delegates through its subagents. No jail in the set carries the quotient
-relay (DEC-122): `quotient` is not on a jail's PATH, so a project's `.mcp.json`
-entry for it has no server there. The relay is a capability for a jail declared
-for cross-repo delegation (IDE-010), and it is not a `passthru.devEnv` key.
+A jail delegates through its subagents. `jailed-claude`, `jailed-codex` and
+`jailed-shell` also carry the real quotient, declared by `quotientServer`
+(DEC-123): it is on their PATH, claude and codex have it registered as an MCP
+server, and its delegates run in the project's forms, nested in the jail.
+`jailed-pi` and `jailed-pi-research` do not: `quotient` is not on their PATH, so
+a project's `.mcp.json` entry for it has no server there.
+
+That server runs under the jail's own read-only policy, not the host's. Its root
+is `/workspace`, so the jail's mounts are its limit, and it names its forms, so
+nothing needs `quotient allow` in a jail. Profiles are the host's directory,
+bound read-only (DEC-126). Its protection binds delegates, not the agent.
+`agents/README.md` § In-jail quotient has the mechanics.
+
+No jail in the set carries the quotient relay (DEC-122). The relay is a
+capability for a jail declared for cross-repo delegation (IDE-010), and it is
+not a `passthru.devEnv` key.
 
 ### Doctrine on both sides
 
@@ -190,8 +202,8 @@ deliberately not overridden.
 
 `quotient-read` and `quotient-write` are what a delegate runs in. `bin/dev-envs-forms`
 builds them and links `.quotient/forms/{read,write}`; `.quotient/result-*` are
-the GC roots. Approval is the operator's act: `quotient allow`, again after every
-form rebuild. With no approval and no link, quotient runs the machine forms. A
+the GC roots. On the host, approval is the operator's act: `quotient allow`, again
+after every form rebuild. With no approval and no link, quotient runs the machine forms. A
 link nobody approved, or a rebuilt form under an old approval, is refused
 `form-unapproved`; an approved root whose link is gone is refused `form-invalid`,
 with no fallback (`quotient help policy` § Project forms).
@@ -275,7 +287,7 @@ codex on both sides (PHASE-07 VH-1). No test repeats any of this.
   `SCCACHE_SERVER_UDS=/tmp/sccache.sock` themselves (RV-047 F-1). The host's address
   is safe only where a jail sets its own, so a new whole-root jail must do the same.
 - **A form rebuild needs approval.** Any toolchain change gives a new form
-  identity, and quotient refuses delegates until `quotient allow` runs.
+  identity, and the host's quotient refuses delegates until `quotient allow` runs.
 - **Doctrine's version skew.** The host install and the Nix Doctrine are separate
   builds; only the host install is on PATH, so a stale install is what agents run.
 
@@ -299,7 +311,7 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 | Doctrine paths, PATH | DEC-107, DEC-109, DEC-110, DEC-111, DEC-112 |
 | the Mac | DEC-116 |
 | sccache | DEC-121 |
-| delegation from a jail | DEC-122 |
+| delegation from a jail | DEC-122, DEC-123, DEC-124, DEC-125, DEC-126, DEC-127 |
 
 ## Open questions
 

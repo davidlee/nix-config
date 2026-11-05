@@ -6,18 +6,20 @@ disposable phase sheet (`.doctrine/state/.../phase-NN.md`) that must survive
 
 ## Harvest
 <!-- single-copy: updated in place each harvest; ids only, never restated content -->
-fresh-as-of: 2026-11-05 · PHASE-05 done, audit next · 3cec3724
+fresh-as-of: 2026-11-05 · closed · 7ddea803 + close commit
 
 ### Produced
 - SL-024 PHASE-01..05 implemented and proved: `agents/quotient-in-jail.nix`, `quotientServer`, dev-envs on quotient v0.6.1 (DEC-123..127, RV-048); § PHASE-04 proof
-- REV-016 authored against SPEC-003, for /reconcile to apply; DEC-122 note; `agents/README.md` § In-jail quotient; `README.md` § Jailed Agents
+- RV-049 audit: synthesis and reconciliation brief; `agents/jailed-agents.nix` comment (F-4); PHASE-01, PHASE-02 source deltas re-recorded (F-3)
+- REV-016 applied to SPEC-003; DEC-122 note; `agents/README.md` § In-jail quotient; `README.md` § Jailed Agents
 - quotient:IMP-014 and a note on quotient:DEC-071, uncommitted in `~/dev/quotient`
 
 ### Learned
 - mem.fact.quotient.nested-form-in-jail — store-DB gaps, MCP client quirks
+- mem.fact.claude.mcp-list-ignores-mcp-config — EX-8's root cause
+- mem.fact.doctrine.phase-boundary-before-commit — a phase completed before its commit records an empty delta
 
 ### Open
-- /audit: PHASE-04 EX-8's claude wording (no operator ruling); the items the Autonomy log flags for audit
 - § Post-landing steps, the operator's
 - quotient:IDE-008's docs (slice Follow-Ups): not chartered in PHASE-05
 
@@ -201,6 +203,12 @@ VH-1, VH-2: outstanding, the operator's. PHASE-04 stays `in_progress`.
 - VH-1 pass: operator reports a logged-in `jailed-claude` delegate call: "The pwd check in the pi_agent run returned /workspace/flakes and completed."
 - VH-2 pass: operator's pasted `jailed-codex exec` output: `mcp: quotient/pi_agent (completed)`, `pwd` returned `/workspace/flakes`.
 - EX-8's claude half stays unmet as worded (`mcp list` ignores `--mcp-config`). The operator gave no ruling on the wording; VH-1 shows a logged-in claude reaching the real server. Criterion wording is for /audit.
+
+## Audit (RV-049)
+
+Operator's ruling on PHASE-04/EX-8, 2026-11-05 ("Accept the evidence"): the claude half is met by the stream-json init line and VH-1. plan.toml's text stays; RV-049 F-1 is the record.
+
+Rows run at audit in the proof `jailed-shell` (scripts `proof/row-audit*.sh`): planted `/workspace/.quotient/forms` link refused `form-unapproved`; `quotient allow /workspace read=…@sha` fails `EROFS`, rc 1, and a bare `quotient allow` only reports; a delegate at `/workspace/flakes` has no repository and no `quotient`. Host `approvals.json` hash unchanged.
 
 ## Post-landing steps (operator)
 

@@ -54,3 +54,7 @@ until `quotient allow` runs." After: "the host's quotient refuses delegates unti
 
 No requirement changes: none of SPEC-003's requirements names quotient in a jail,
 and `quotientServer` is not a `passthru.devEnv` key, so REQ-026 is untouched.
+
+## Reconcile narrative
+
+- [RV-049 finding F-2]: SPEC-003 was false for three jails after SL-024. Landed as authored: § The jail set, § Forms, § Concerns and § Decisions. Approved by the operator, 2026-11-05 ("yes", answering the audit's question on REV-016 as authored).

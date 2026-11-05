@@ -1,0 +1,225 @@
+id    = 49
+slug  = "sl-024-audit-in-jail-quotient-for-dev-envs"
+title = "SL-024 audit: in-jail quotient for dev-envs"
+# no status — a review's status is DERIVED from its findings, so
+# it is never stored (the storage rule forbids derived data in authored files).
+
+[review]
+facet     = "reconciliation"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
+raiser    = "raiser"
+responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Conformance audit of SL-024 at 7ddea803, on the primary tree. Examined: the code diff against design.md and DEC-123..127; the test diff against the design's test list and plan VT keywords; each plan criterion against notes § PHASE-04 proof; host policy against the module's; quotient's secret delivery and childEnv source; SPEC-003, DEC-122 and REV-016; the source-delta registry and slice conformance; POL-001 over the diff; `just gate` and `doctrine check gate`, both green. Run afresh in the proof jailed-shell: planted form link, `quotient allow`, a delegate at /workspace/flakes. Not rerun: the recorded PHASE-04 rows and negative controls."
+
+[target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
+ref   = "SL-024"
+
+[[finding]]
+id = "F-1"
+status = "verified"
+severity = "major"
+title = "PHASE-04/EX-8 expects `jailed-claude mcp list` to report quotient connected; the command never lists it"
+detail = """
+Expected (plan.toml PHASE-04 EX-8, design.md § Verification): `jailed-claude mcp list` reports `quotient` connected, as a client-to-server handshake.
+Observed (notes § PHASE-04 proof, EX-8 claude): `mcp list` omits it and `mcp get quotient` says no such server. Both read stored config only, never `--mcp-config` (mem.fact.claude.mcp-list-ignores-mcp-config).
+The handshake is proved another way: the stream-json init line shows quotient `connected`, source `dynamic`, with its five mcp__quotient__* tools, and VH-1 is a logged-in delegate call that completed. The phase was marked complete with this unmet as worded and no operator ruling."""
+disposition = "design-wrong"
+response = """The design assumed `mcp list` reads `--mcp-config`; the code is right. Operator's ruling, 2026-11-05, answering the audit's question ("Accept the evidence"): EX-8's purpose, a client-to-server handshake, is met by the stream-json init line plus VH-1. plan.toml's text stays, since criteria are immutable; this disposition is the record that its claude half was met by other evidence. design.md § Verification is corrected at /reconcile (brief). agents/README.md and README.md already state the right check."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = """The design assumed `mcp list` reads `--mcp-config`; the code is right. Operator's ruling, 2026-11-05, answering the audit's question ("Accept the evidence"): EX-8's purpose, a client-to-server handshake, is met by the stream-json init line plus VH-1. plan.toml's text stays, since criteria are immutable; this disposition is the record that its claude half was met by other evidence. design.md § Verification is corrected at /reconcile (brief). agents/README.md and README.md already state the right check."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Operator's ruling recorded; brief entry exists."
+
+[[finding]]
+id = "F-2"
+status = "verified"
+severity = "major"
+title = "SPEC-003 still says `quotient` is not on a jail's PATH; REV-016 is proposed, unapproved and unapplied"
+detail = """
+Expected: canon states what shipped. Design § Code impact names SPEC-003 § The jail set; slice conformance's only true undelivered selector is `.doctrine/spec/tech/003/**`.
+Observed: spec-003.md § The jail set, § Forms and § Concerns are unchanged and false for three jails. REV-016 is status=proposed, approval=none. Its scope is wider than the design's table and PHASE-05/EX-2 name: it also qualifies § Forms' and § Concerns' approval lines and the § Decisions row. I read those lines against the spec and each did go stale for the same reason. No requirement names quotient in a jail: REV-016's "no requirement changes" holds."""
+disposition = "design-wrong"
+response = "Governance item, so reconcile's write surface: approve and apply REV-016 as authored, then correct design.md § Code impact's scope. Its wider scope is right: the extra lines went stale for the same reason. Both entries are in the Reconciliation Brief."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Governance item, so reconcile's write surface: approve and apply REV-016 as authored, then correct design.md § Code impact's scope. Its wider scope is right: the extra lines went stale for the same reason. Both entries are in the Reconciliation Brief."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Brief entries exist, per-slice and REV."
+
+[[finding]]
+id = "F-3"
+status = "verified"
+severity = "minor"
+title = "Source-delta registry held empty ranges for PHASE-01 and PHASE-02, hiding the slice's main code from conformance"
+detail = """
+Expected: each completed phase has a row spanning its code.
+Observed: ~/.cfg/.doctrine/state/slice/024/boundaries.toml had code_start_oid == code_end_oid for PHASE-01 (72cb9833) and PHASE-02 (22bad1b4). Both phases were flipped `completed` before their commit, so end equals start. `slice conformance` therefore listed 12 undeclared paths with no agents/*.nix among them, and reported no `incomplete` warning: a partial registry that read as complete."""
+disposition = "fix-now"
+response = "Fixed in this audit: `doctrine slice record-delta 24 PHASE-01 --commit 22bad1b4` and `PHASE-02 --commit 6cc03ec2`. Conformance now lists agents/*.nix (15 undeclared, up from 12). Each commit is that phase's single code commit, per `git show --stat`. PHASE-04's range ends at a8f631e4 and omits 3cec3724, which is records only; left as is. Cause: phases flipped `completed` before committing, so the boundary captured HEAD unchanged."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "fix-now"
+response = "Fixed in this audit: `doctrine slice record-delta 24 PHASE-01 --commit 22bad1b4` and `PHASE-02 --commit 6cc03ec2`. Conformance now lists agents/*.nix (15 undeclared, up from 12). Each commit is that phase's single code commit, per `git show --stat`. PHASE-04's range ends at a8f631e4 and omits 3cec3724, which is records only; left as is. Cause: phases flipped `completed` before committing, so the boundary captured HEAD unchanged."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Re-ran conformance: agents/*.nix now appear."
+
+[[finding]]
+id = "F-4"
+status = "verified"
+severity = "minor"
+title = "Forms are described as inert on the host, but a host server with LLM_GATEWAY_KEY set overrides the key file"
+detail = """
+Expected (design § Forms, agents/jailed-agents.nix comment at line 220): both form changes are inert on the host.
+Observed: the key expression prefers the environment, and quotient's childEnv (src/server/spawn.ts) passes every variable not prefixed for the server through to the form. A host quotient started from an environment holding LLM_GATEWAY_KEY uses that key, with its budget and model list, in place of keys/pi.
+Reach today: none observed. LLM_GATEWAY_KEY is unset in this host session, and the only host-side mention is a comment in features/agents.nix about eca's config. DEC-124 and agents/README.md state the order correctly; only "inert" overclaims."""
+disposition = "design-wrong"
+response = "Behaviour is DEC-124's and stays: env first is what makes one family serve both places. The claim was too broad. The comment in agents/jailed-agents.nix is corrected in this audit (comment only); design.md § Forms is corrected at /reconcile (brief). Recorded in the Synthesis as a standing risk: nothing sets the variable on the host today."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "Behaviour is DEC-124's and stays: env first is what makes one family serve both places. The claim was too broad. The comment in agents/jailed-agents.nix is corrected in this audit (comment only); design.md § Forms is corrected at /reconcile (brief). Recorded in the Synthesis as a standing risk: nothing sets the variable on the host today."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Comment corrected, gate green after it; brief entry exists."
+
+[[finding]]
+id = "F-5"
+status = "verified"
+severity = "minor"
+title = "`slice conformance` reports 15 undeclared, 9 undelivered, 0 conformant, nearly all from ISS-005's path prefix"
+detail = """
+Expected: conformance separates real drift from conformant paths.
+Observed after the registry repair: conformant 0. Every delta path carries `flakes/`, every selector does not (ISS-005). Matching by hand with the prefix stripped:
+- Truly undeclared (7): the two memory paths' three files, REV-016's three paths, notes.md. All are records the plan requires (PHASE-05 EX-2, harvest); none is code.
+- Truly undelivered (1): `.doctrine/spec/tech/003/**`, owned by REV-016 (see the SPEC-003 finding).
+- Every other selector matched a delta path. No undeclared code path exists."""
+disposition = "tolerated"
+response = "The cause is ISS-005, open and owned; no selector edit can fix it, because selectors and delta paths use different bases. The hand match in the finding is this audit's conformance result: no undeclared code path, and the one undelivered selector is F-2's. The seven undeclared record paths are plan-required, so adding selectors for them would only add noise."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "tolerated"
+response = "The cause is ISS-005, open and owned; no selector edit can fix it, because selectors and delta paths use different bases. The hand match in the finding is this audit's conformance result: no undeclared code path, and the one undelivered selector is F-2's. The seven undeclared record paths are plan-required, so adding selectors for them would only add noise."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Real rationale: ISS-005 owns the cause, and the hand match stands in for the report."
+
+[[finding]]
+id = "F-6"
+status = "verified"
+severity = "nit"
+title = "design.md wording lags what shipped and what was proved, in five places"
+detail = """
+Expected: the locked design reads true after reconcile.
+Observed:
+1. § The declaration: returns `{options; formStoreBinds; policy;}`; the file also returns `etcStoreBinds`, as § Code impact and plan.md § Test access need.
+2. § Verification: "Each starts from a fresh persisted home"; plan.md § Notes departs from this, with approval.
+3. § Verification: "26 PASS" means top-level rows: 26 at column 0, 73 in all, in both jail and host.
+4. § Failure modes: "`quotient allow` in a jail: fails". Run at audit: bare `quotient allow` only reports and exits 0; the approving form `quotient allow /workspace read=…@sha` fails with `approvals.json.lock could not be created (EROFS)`, rc 1.
+5. § Code impact: SPEC-003 "§ The jail set" understates REV-016's scope."""
+disposition = "design-wrong"
+response = "All five are design prose; the code and evidence stand. `etcStoreBinds` in the return set is kept: the test needs it, and it is one name. Each has an entry in the Reconciliation Brief, per-slice direct edit."
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "design-wrong"
+response = "All five are design prose; the code and evidence stand. `etcStoreBinds` in the return set is kept: the test needs it, and it is one name. Each has an entry in the Reconciliation Brief, per-slice direct edit."
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Five brief entries exist."
+
+[[finding]]
+id = "F-7"
+status = "verified"
+severity = "nit"
+title = "Autonomy-log items flagged for audit: no `mountLaunchDir` assertion, empty mount point against EN-3, README statements without a PHASE-04 row"
+detail = """
+Flagged by the implementing seat; each needs a verdict.
+1. `quotientServer` has no `mountLaunchDir` assertion, unlike the relay.
+2. A launch leaves an empty `.config/quotient` in the persisted home, against PHASE-04 EN-3's "no `.config/quotient`".
+3. agents/README.md rests three statements on decisions, not PHASE-04 rows: the boundary sentence, `outerGit` in a delegate, the profile refusal.
+Also unrun in PHASE-04: design § Failure modes' planted `/workspace/.quotient/forms` row, and the design's claim that a form holds no quotient."""
+disposition = "aligned"
+response = """
+1. mountLaunchDir: the design states three assertions and this is not one. The relay needs the launch dir as its one root; in-jail quotient's root is /workspace, and workspace deps sit there without it. Inference, not run: with neither, a call has no root in view and fails per call, which is SPEC-003's "an absent layer gives less". No dev-envs jail is in that state.
+2. EN-3: an entrance criterion, and it held at entry; PHASE-03's residue was removed first. An empty directory is bwrap's mount point, and EX-5 saw it empty afterwards.
+3. README statements, run at audit in a real jailed-shell: a delegate at /workspace/flakes gets `not a git repository`, with `git` on PATH, and `command -v quotient` rc 1. The planted link is refused `form-unapproved`. The profile refusal is EX-9's. The boundary sentence is what quotient:DEC-071 requires the docs to say."""
+
+[[finding.turn]]
+act = "raise"
+role = "raiser"
+
+[[finding.turn]]
+act = "dispose"
+role = "responder"
+disposition = "aligned"
+response = """
+1. mountLaunchDir: the design states three assertions and this is not one. The relay needs the launch dir as its one root; in-jail quotient's root is /workspace, and workspace deps sit there without it. Inference, not run: with neither, a call has no root in view and fails per call, which is SPEC-003's "an absent layer gives less". No dev-envs jail is in that state.
+2. EN-3: an entrance criterion, and it held at entry; PHASE-03's residue was removed first. An empty directory is bwrap's mount point, and EX-5 saw it empty afterwards.
+3. README statements, run at audit in a real jailed-shell: a delegate at /workspace/flakes gets `not a git repository`, with `git` on PATH, and `command -v quotient` rc 1. The planted link is refused `form-unapproved`. The profile refusal is EX-9's. The boundary sentence is what quotient:DEC-071 requires the docs to say."""
+
+[[finding.turn]]
+act = "verify"
+role = "raiser"
+note = "Item 1 rests on inference and is labelled so; items 2 and 3 on evidence."
+
+# Findings are append-only `[[finding]]` tables, added by `review raise`.
+# Empty here at creation — a fresh review is Active, awaiting the raiser.

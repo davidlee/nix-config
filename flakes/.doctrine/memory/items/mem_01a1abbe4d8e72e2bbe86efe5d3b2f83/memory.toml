@@ -1,0 +1,42 @@
+memory_uid = "mem_01a1abbe4d8e72e2bbe86efe5d3b2f83"
+memory_key = "mem.fact.doctrine.phase-boundary-before-commit"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "A phase flipped completed before its commit records an empty source delta"
+summary = "`slice phase` captures HEAD as code_end_oid at completion; commit first, or repair with `slice record-delta --commit`. Conformance gives no warning."
+created = "2026-11-05"
+updated = "2026-11-05"
+
+[scope]
+paths = []
+globs = []
+commands = ["doctrine slice conformance", "doctrine slice phase", "doctrine slice record-delta"]
+tags = ["doctrine", "conformance", "audit"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "009eca002f20143dcb0199a3f23cd4d32c1476ec"
+ref_name = "refs/heads/main"
+checkout_state_id = "1fde5fea3ad34de8318bce7788315eb0cce620a4922b637a09a057a226cdedf0"
+base_commit = "7ddea803fac1258372e739d8efc9256aeaf29b46"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+

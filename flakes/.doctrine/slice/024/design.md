@@ -47,7 +47,7 @@ new jail declaration, and the consumer's wiring.
 | `agents/README.md` | a section for in-jail quotient; the delegation-routes table |
 | `README.md` | § Jailed Agents: which jails carry quotient |
 | `dev-envs/flake.nix`, `dev-envs/flake.lock` | pin v0.6.1; the declaration on three jails |
-| `.doctrine/spec/tech/003/` | § The jail set, through a revision: "`quotient` is not on a jail's PATH" stops being true |
+| `.doctrine/spec/tech/003/` | § The jail set, § Forms, § Concerns and § Decisions, through a revision: "`quotient` is not on a jail's PATH" stops being true |
 | `.doctrine/knowledge/decision/122/` | a note: in-jail roots are limited by the jail's mounts; point 6 delivered; point 7's "no reduce" and the `.mcp.json` consequence hold only for jails without `quotientServer` |
 
 Outside this repo, owed and not code: a quotient backlog item for form-probe's
@@ -114,7 +114,7 @@ mounts in argv order, and the config must land on top of the persisted home.
 ```
 
 **New file, `agents/quotient-in-jail.nix`.** It takes `{lib, pkgs, combinators}`
-and returns `{options; formStoreBinds; policy;}`, as `quotient-relay.nix` does for
+and returns `{options; formStoreBinds; etcStoreBinds; policy;}`, as `quotient-relay.nix` does for
 the relay. It owns everything about quotient inside a jail.
 
 ```nix
@@ -217,7 +217,7 @@ layer fails loudly and names the site.
 | `quotientServer` without gateway, or offline | refused | evaluation |
 | host profiles directory absent | jail launches; `profiles/` empty; quotient refuses the call | the delegate call |
 | agent writes under `~/.config/quotient` | `EROFS` | the agent's own error |
-| `quotient allow` in a jail | fails: the config is read-only, machine forms only | the command |
+| `quotient allow` in a jail | a bare call reports and exits 0; approving fails `EROFS`: the config is read-only, machine forms only | the command |
 | project's `.quotient/forms` link in the workspace | ignored: the lookup base is `/workspace` | nothing; the policy names the same family |
 | a link planted at `/workspace/.quotient/forms` | refused `form-unapproved` | the delegate call |
 | `/etc` link not under the store | not bound; the path behaves as the jail's | the form |
@@ -230,7 +230,8 @@ not the whole jail: the agent is still useful without it.
 ## Forms: the key and the store binds (DEC-124, DEC-125)
 
 `quotientFormFamily` changes in two ways. Both apply to every family, machine
-and per-project, and both are inert on the host.
+and per-project, and neither changes a host form's behaviour unless the server's
+environment holds `LLM_GATEWAY_KEY`, which then wins over the key file.
 
 **Key source (DEC-124).** A jail has no key file, only `LLM_GATEWAY_KEY`, which
 quotient's `childEnv` passes through to the form's launcher. One expression
@@ -324,19 +325,21 @@ forms' line stays plain words with the new runtime arg.
 
 **By agent, in a real `jailed-shell`, per-project dev-envs family**, output recorded
 in slice notes. These repeat the probes on the shipped code, since the spike's
-differed. Each starts from a fresh persisted home, with nothing left of the spike's
-mounts; quotient and satan arrive through `JAIL_WORKSPACE_DEPS`:
+differed. Each runs in the shipped jail's own home, `agent`, which never held the
+spike's mounts; quotient and satan arrive through `JAIL_WORKSPACE_DEPS`:
 
 - `scripts/hostile-audit`, `read` and `write`: PASS, delegate attempted the write
-- `scripts/form-probe` with its `nix` stand-in: exit 0, 26 PASS (DEC-127), in the
+- `scripts/form-probe` with its `nix` stand-in: exit 0, 26 top-level PASS rows, 73 in all (DEC-127), in the
   test jail described below
 - `read` nested: root `EROFS`; `write` nested: root writable
 - direct TLS from a delegate: `http=200`, HTTPS `git ls-remote` works
 - `approvals.json` and profile writes refused
 - satan `pi-report-test.sh`: section 1 passes, full run captured this time
 - `jailed-pi` launches unchanged
-- registration smoke, no login needed: `jailed-claude mcp list` reports `quotient`
-  connected, which is a client-to-server handshake. `jailed-codex exec
+- registration smoke, no login needed: `jailed-claude -p "say ok"
+  --output-format=stream-json --verbose --max-turns 1` shows `quotient` `connected`,
+  source `dynamic`, in its init line: a client-to-server handshake. `mcp list` reads
+  stored config only, so it never shows it. `jailed-codex exec
   --skip-git-repo-check "say ok"` starts its MCP children without a login; record
   what it reports for `quotient`. A startup line is the claim here, not a model call
 

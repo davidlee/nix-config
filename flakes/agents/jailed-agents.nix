@@ -217,7 +217,8 @@
   # both take the combinator set built from this lib's jail.nix pin. Then the
   # store binds a form nested in a jail needs (DEC-125). The key comes from the
   # environment where there is one, as in a jail, which has no key file
-  # (DEC-124). Both are inert on the host.
+  # (DEC-124). On the host the binds add nothing, and the file serves unless
+  # the server's environment holds that variable.
   quotientFormFamily = {
     quotient,
     client ? "pi",

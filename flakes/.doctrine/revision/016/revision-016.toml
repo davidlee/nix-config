@@ -1,8 +1,8 @@
 id      = 16
 slug    = "spec-003-in-jail-quotient"
 title   = "In-jail quotient in SPEC-003's jail set"
-status  = "proposed"   # work lifecycle: proposed | started | done | abandoned
-approval = "none"      # SEPARATE axis, orthogonal to status: none | requested | approved | rejected
+status = "done"
+approval = "approved"
 updated = "2026-11-05"
 tags    = []
 
