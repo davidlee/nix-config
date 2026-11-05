@@ -1166,6 +1166,10 @@ name is forwarded from the launch environment when set. The host's own
 [`agents/dev-env.nix`](./agents/dev-env.nix) list applies too, and a project may
 not restate one of its names.
 
+`dev-db` gives a project a throwaway Postgres on a unix socket under `/tmp`, from
+the `postgresql` in its own `dev-tools`. Its justfile sets `DEV_DB_NAME`; `dev-db
+help` lists the commands. Tests need no host database: each jail has its own.
+
 Every jail and form runs its own sccache server on a socket in its private
 `/tmp`, and a Linux host shell uses one under `$XDG_RUNTIME_DIR` (DEC-121). The
 default TCP address is shared loopback: a jailed build would run on the host.

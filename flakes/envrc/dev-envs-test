@@ -67,6 +67,7 @@ consumer=$tmp/home/flakes/dev-envs
 mkdir -p "$consumer"
 printf '{}\n' >"$consumer/flake.nix"
 printf '{}\n' >"$consumer/dev-env.nix"
+printf '\n' >"$consumer/dev-db.sh"
 # the in-tree agents library: a couple of .nix files for the watch glob
 mkdir -p "$tmp/home/flakes/agents"
 printf '{}\n' >"$tmp/home/flakes/agents/alpha.nix"
@@ -115,7 +116,7 @@ check 'subdirectory: the same toplevel' \
 # an edit to either side reloads the shell, and so does an edit to the
 # in-tree agents library
 check 'watch: the project, the consumer, and the agents library' \
-  "watch $project/flake.nix $project/flake.lock $consumer/flake.lock $consumer/dev-env.nix $consumer/flake.nix $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
+  "watch $project/flake.nix $project/flake.lock $consumer/flake.lock $consumer/dev-env.nix $consumer/flake.nix $consumer/dev-db.sh $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
   "$(<"$tmp/watch")"
 
 # the agents lib reads both with getEnv, which pure evaluation answers with ""
@@ -149,7 +150,7 @@ check '--project: exit 0 outside a checkout' 0 "$rc"
 check '--project: the ref is the project input' \
   "use flake $live --override-input project path:$named $agents --no-write-lock-file" "$out"
 check '--project: watches its .nix files and lock, not the toplevel' \
-  "watch $named/flake.lock $consumer/flake.lock $named/flake.nix $named/treefmt.nix $consumer/dev-env.nix $consumer/flake.nix $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
+  "watch $named/flake.lock $consumer/flake.lock $named/flake.nix $named/treefmt.nix $consumer/dev-env.nix $consumer/flake.nix $consumer/dev-db.sh $tmp/home/flakes/agents/alpha.nix $tmp/home/flakes/agents/zeta.nix" \
   "$(<"$tmp/watch")"
 check '--project: wins over the checkout it runs in' \
   "use flake $live --override-input project path:$named $agents --no-write-lock-file" \

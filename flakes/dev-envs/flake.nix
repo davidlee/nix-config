@@ -97,7 +97,14 @@
           inherit parent;
         });
       nixDoctrine = doctrine.packages.${system}.default;
-      tools = [devTools] ++ hostDevEnv.packages; # a buildEnv is ONE derivation, not a list
+      # A project's throwaway Postgres. The server comes from the project's own
+      # tools, so a project that wants one states it in dev-tools.
+      devDb = pkgs.writeShellApplication {
+        name = "dev-db";
+        runtimeInputs = with pkgs; [coreutils gawk];
+        text = builtins.readFile ./dev-db.sh;
+      };
+      tools = [devTools devDb] ++ hostDevEnv.packages; # a buildEnv is ONE derivation, not a list
 
       # What every jail shares; only the agent and its subagent graph differ.
       # $PWD is bound read-write at /workspace/<project> and the jail starts
@@ -223,6 +230,11 @@
           '';
 
         dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib hostDevEnv;};
+
+        dev-db = pkgs.runCommand "dev-db-check" {nativeBuildInputs = [devDb pkgs.postgresql_18];} ''
+          bash ${./dev-db-test.sh}
+          touch $out
+        '';
 
         # The project keeps its pins: its tools are built at its own lock, not
         # at this flake's. The stub's lock pins a nixpkgs this flake does not,

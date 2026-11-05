@@ -41,11 +41,11 @@ use_dev_envs() {
   [[ -n ${JAIL_WORKSPACE_DEPS:-}${JAIL_WORKSPACE_DEPS_RW:-} ]] && impure=(--impure)
 
   # A project edit changes the tools, so reload on its flake; a consumer edit
-  # (any of its .nix files, or its lock) changes the jails, and so does an edit
+  # (any of its .nix or .sh files, or its lock) changes the jails, and so does an edit
   # to the in-tree agents library. A glob with no match is dropped, not named.
   watch+=("$HOME/flakes/dev-envs/flake.lock")
   local f
-  for f in "${sources[@]}" "$HOME/flakes/dev-envs"/*.nix "$HOME/flakes/agents"/*.nix; do
+  for f in "${sources[@]}" "$HOME/flakes/dev-envs"/*.{nix,sh} "$HOME/flakes/agents"/*.nix; do
     if [[ -f $f ]]; then watch+=("$f"); fi
   done
   watch_file "${watch[@]}"

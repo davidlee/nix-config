@@ -82,6 +82,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-db" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).project-pins" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-forms" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test

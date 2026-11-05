@@ -115,14 +115,15 @@ to a jail or form.
 
 ## What each surface gets
 
-`dev-envs#default` and the forms are built from the same three values: the
-project's `dev-tools`, `hostDevEnv` and the validated `devEnv`. The consumer is
-Linux only and holds no keys of its own.
+`dev-envs#default` and the forms are built from the same four values: the
+project's `dev-tools`, `hostDevEnv`, the validated `devEnv` and `dev-db`. The
+consumer is Linux only and holds no keys of its own.
 
 | | jail | form | shell |
 |---|---|---|---|
 | project's `dev-tools` | yes | yes | yes |
 | host list and its packages | yes | yes | yes |
+| `dev-db`, a project's throwaway Postgres | yes | yes | yes |
 | `devEnv.env` | yes | yes | yes |
 | `devEnv.hostEnv` | forwarded | forwarded | inherited |
 | `devEnv.outerGitDir` | read-only, at `/workspace` | read-only, at `$HOME` | no: the host's own git |
@@ -131,6 +132,14 @@ Linux only and holds no keys of its own.
 | Nix Doctrine at `/run/doctrine-nix-bin`, off PATH | yes | yes | no |
 | own sccache socket `/tmp/sccache.sock` | yes | yes | no: the host's, from `dev.env` |
 | gateway key | yes, key `pi` | yes, key `pi` | no |
+
+`dev-db` (`dev-envs/dev-db.sh`) runs the Postgres in the project's `dev-tools`
+on a unix socket under `/tmp/$DEV_DB_NAME/db`. The consumer carries the command
+and the project carries the server, so `dev-db` works for a project whose tools
+include `postgresql`. Nothing listens on TCP: jails share host loopback, where a
+port would collide and trust auth would be open to every jail (RSK-001). In a
+jail or form `/tmp` is private, so each has its own cluster. In the shell `/tmp`
+is the host's, and the cluster outlives the session.
 
 ### The jail set
 
