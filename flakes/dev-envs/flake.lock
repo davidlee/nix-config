@@ -557,16 +557,16 @@
         "nixpkgs": "nixpkgs_8"
       },
       "locked": {
-        "lastModified": 1793064480,
-        "narHash": "sha256-UIe5/NQePnWVih0lL33L9psP+4YAw91Zw2Nw/iu3/YU=",
+        "lastModified": 1793074058,
+        "narHash": "sha256-e4NsCP192YG/JtJcFUj31eCIy2dHjcbQZmVDgON5xXk=",
         "owner": "davidlee",
         "repo": "quotient",
-        "rev": "cd1974099261bc86b203ffc5432ddb20eefcada8",
+        "rev": "1f18594f3a390504d9f4cc83288f7c168ec75eb3",
         "type": "github"
       },
       "original": {
         "owner": "davidlee",
-        "ref": "v0.6.0",
+        "ref": "v0.6.1",
         "repo": "quotient",
         "type": "github"
       }

@@ -42,6 +42,9 @@ Preflight:
 - PHASE-02: restored the literal key assert (`formArgs.secretEnv`), which also gives PHASE-01 VT-1 its keyword; "exclusive" added to the refusal comment for PHASE-02 VT-1's. Tier: decide.
 - PHASE-02: `closure_has` no longer uses `grep -q`: the gate failed once with `tr: write error: Broken pipe`, grep's early exit under pipefail. The existing nixDoctrine check had the same race and now uses the helper. Tier: decide.
 - PHASE-02: no `mountLaunchDir` assertion for `quotientServer`, unlike the relay: the design has three, and a jail with workspace deps still has roots under /workspace. Flag for audit. Tier: decide.
+- PHASE-03: implemented by the sub-orchestrator, no worker and no pi review: 15 lines fixed by the design, and the lock and build steps are host-only. Tier: decide.
+- PHASE-03: VA-1 built the jails against this repo's `dev-tools`, the project `~/flakes/.envrc` names, not the stub: PHASE-04 launches those. Tier: decide.
+- PHASE-03: a launch creates an empty `.config/quotient` in the persisted home, bwrap's mount point for the config bind. So PHASE-04 EN-3's "no `.config/quotient`" holds only before the first launch; it is an empty directory, not spike residue. The one from this phase's launch check was removed. Flag for audit. Tier: decide.
 
 ## Review passes
 
@@ -77,6 +80,24 @@ Both high findings came from reading without jail.nix's source; pi can reach it 
 Negative controls on PHASE-02 (scratch copies), all fail the check: each of the three assertions removed; policy root changed; `--mcp-config` split in two words; `env_vars` without the URL; every jail registered as claude; a form dropped from the closure; profiles bind writable; config and profiles binds swapped. Moving the options before `profileOptions` passes, as expected: they are runtime args, which follow every static bind wherever they are listed. So "after `profileOptions`" is not what orders them; the argv test is.
 
 EX-3: drvPaths of zsh, claude, codex, pi and a relay jail, all without `quotientServer`, are identical at 22bad1b4 and in the tree.
+
+PHASE-03 VA-1, closure queries. Built with `nix build --no-link --print-out-paths "path:$PWD/dev-envs#packages.x86_64-linux.<jail>" --override-input project "path:$PWD/dev-tools" --override-input agents "path:$PWD/agents" --no-write-lock-file`; each cell is an exact match of the output path in `nix-store --query --requisites <jail>`:
+
+| jail | `quotient-0.6.1` (f9dx6l44…) | `quotient-read` (yilif591…) | `quotient-write` (1akmryjx…) | requisites |
+|---|---|---|---|---|
+| `jailed-claude` | yes | yes | yes | 303 |
+| `jailed-codex` | yes | yes | yes | 304 |
+| `jailed-shell` | yes | yes | yes | 302 |
+| `jailed-pi` | no | no | no | 277 |
+| `jailed-pi-research` | no | no | no | 277 |
+
+`grep -i quotient` over the two pi closures finds nothing. Only `jailed-claude` holds `quotient-mcp.json`; `jailed-codex` registers by argv, and `jailed-shell` registers nothing.
+
+`jailed-pi` and `jailed-pi-research` drvPaths are identical with HEAD's `dev-envs/` (`git archive`) and the tree, so the v0.6.1 move does not reach them: 95jcc7jh…, z6p7s309….
+
+Lock: `nix flake update quotient --flake "path:$PWD/dev-envs"`. The diff is the four lines of node `quotient_2` (rev cd197409 to 1f18594f, the v0.6.1 tag's commit and the root flake's pin); `nixpkgs_8` did not move, and `project` keeps `path = "./stub-project"`. `packages.x86_64-linux.default` at that rev is `quotient-0.6.1`.
+
+`doctrine slice verify-vt` reports PHASE-03 VT-1 UNATTRIBUTABLE before the commit and through ISS-005's prefix: the keywords are present.
 
 ## Design triage (2026-11-05)
 

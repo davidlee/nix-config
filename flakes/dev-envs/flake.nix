@@ -13,7 +13,7 @@
 
     # quotient's form-family builder. Passed in here rather than carried by
     # every project — which is the whole point of the split.
-    quotient.url = "github:davidlee/quotient/v0.6.0";
+    quotient.url = "github:davidlee/quotient/v0.6.1";
 
     # The project whose tools this environment carries. A RELATIVE path, so the
     # lock records `path = "./stub-project"` and a store copy still resolves it.
@@ -106,6 +106,13 @@
       };
       tools = [devTools devDb] ++ hostDevEnv.packages; # a buildEnv is ONE derivation, not a list
 
+      # The real quotient in a jail (agents/quotient-in-jail.nix). Not in `jail`'s
+      # defaults: two of the five jails do not take it.
+      quotientServer = {
+        package = quotient.packages.${system}.default;
+        inherit forms;
+      };
+
       # What every jail shares; only the agent and its subagent graph differ.
       # $PWD is bound read-write at /workspace/<project> and the jail starts
       # there (the library's default, DEC-078). Workspace dependencies arrive
@@ -132,12 +139,17 @@
           allowSelfAsSubagent = true;
         };
         jailed-claude = jail jailLib.makeJailedClaude {
+          inherit quotientServer;
           allowSelfAsSubagent = true;
           subagents = ["pi"];
           maxSubagentDepth = 2;
         };
-        jailed-codex = jail jailLib.makeJailedCodex {subagents = ["claude" "pi" "codex"];};
+        jailed-codex = jail jailLib.makeJailedCodex {
+          inherit quotientServer;
+          subagents = ["claude" "pi" "codex"];
+        };
         jailed-shell = jail jailLib.makeJailedAgent {
+          inherit quotientServer;
           name = "shell";
           agent = pkgs.zsh;
           subagents = ["pi" "claude"];
