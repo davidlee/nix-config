@@ -60,6 +60,44 @@ decided (operator, 2026-11-05).
 - Safe access to other host repos would be the most compelling use. Today's
   relay forbids it, so this needs a decision, not a config change.
 
+## Survey for question 1 (2026-11-05)
+
+Measured from run records (`~/.local/state/quotient/runs`), transcripts and jail
+homes. `policy_digest` is the SHA-256 of the policy file, so a narrowed policy's
+digest can be recomputed; narrowing drops the host's root list, so the digest
+depends only on the root and the other fields.
+
+| route | measured use |
+|---|---|
+| host quotient, unjailed harness | 199 Claude transcripts with real `pi_agent` calls; about 930 runs since 2026-10-22 |
+| jailed pi subagents | 299 of 454 session files since 2026-11-01 call `subagent` (child runs probably inflate both) |
+| relay | 1 run and 1 refusal (this item's probe, 2026-11-05); 2 read runs on 2026-10-30, while it was being built |
+| jailed claude or codex calling quotient | 0 transcripts |
+
+- No jail home registers quotient, and none records a project MCP approval, so
+  satan's `.mcp.json` entry has no recorded approval there.
+- Unattributed: 74 runs on 2026-10-23..26 under single-directory digests. No jail
+  transcript shows a matching call; host use is likelier.
+- A pi subagent returns its final text (about 2 KB in samples) and usage. Its full
+  transcript is under `subagent-artifacts/`, inside the jail, in the agent's reach.
+
+Origin (host Claude session in deck_of_dwarf, 2026-10-30): the operator asked for
+quotient in the pi jail, chose the host-side option over in-jail quotient, and
+asked for "an option I can turn on / off ... By default on for all jails". In-jail
+was set aside for nested sandboxing, the `/workspace` path mismatch and the LLM
+key. The socket design copied `satanMcpOptions`; satan did not ask for the relay.
+Its `.mcp.json` entry predates it (2026-10-23, satan:SL-031) and is a host
+registration.
+
+Operator's stated priorities for quotient (2026-11-05): 1. secure confinement for
+unjailed orchestrators; 2. cross-harness calls with observability; 3. parallel and
+serial orchestration; 4. a root per call, to dispatch to other projects; 5. limits
+for tightly bounded work. quotient was built so Claude could drive pi subagents.
+Cross-root writes: IDE-010.
+
+**Settled by DEC-122 (2026-11-05).** The relay is off in every jail; the capability
+is a declared jail for cross-repo delegation (IDE-010, needs quotient:IDE-009).
+
 ## Questions to settle
 
 1. **Need.** What does the relay give that `subagents` and the pi subagent

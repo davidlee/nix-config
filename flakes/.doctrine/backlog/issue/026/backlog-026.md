@@ -18,8 +18,15 @@ with no error.
 
 Found during IMP-063.
 
-**Blocked on IMP-066.** The operator held code changes until the relay's purpose
-is settled (2026-11-05). The fix's shape depends on its question 6.
+**Outcome (DEC-122, 2026-11-05).** None of the table's options as written. The
+shim refuses arguments (exit 69), and the relay is off in every jail, so a jail
+has no `quotient` on PATH: `pi_report` falls back to its labelled tail and the
+test's unchanged guard skips section 1. Option C failed below only because the
+shim stayed on PATH. A jail that later enables the relay fails section 1 until it
+adds option B's `PI_REDUCE`.
+
+Verified in a real `jailed-shell` from satan: `quotient` absent, 16 of 16 pass with
+section 1 skipped, 21 of 21 on the host.
 
 ## What the test covers
 

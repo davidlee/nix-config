@@ -156,6 +156,11 @@ The set is the same for every project. Profiles are defined in
 the host's `$HOME` path, so `~` is the same string on both sides and different
 files. The project is bound read-write at `/workspace/<name>`.
 
+A jail delegates through its subagents. No jail in the set carries the quotient
+relay (DEC-122): `quotient` is not on a jail's PATH, so a project's `.mcp.json`
+entry for it has no server there. The relay is a capability for a jail declared
+for cross-repo delegation (IDE-010), and it is not a `passthru.devEnv` key.
+
 ### Doctrine on both sides
 
 The host's install dir is bound read-only at its own path, with its binary's
@@ -277,7 +282,8 @@ codex on both sides (PHASE-07 VH-1). No test repeats any of this.
 ## Hypotheses
 
 - The jail set is the same for every project. A project needing a different set
-  would need a new contract surface; none has so far.
+  would need a new contract surface; none has so far. A project-local capability
+  jail (IDE-010) would be the first.
 - A project's tools can be described by one `buildEnv` and a flat env. Smut and
   Doctrine are the two producers tested.
 
@@ -293,6 +299,7 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 | Doctrine paths, PATH | DEC-107, DEC-109, DEC-110, DEC-111, DEC-112 |
 | the Mac | DEC-116 |
 | sccache | DEC-121 |
+| delegation from a jail | DEC-122 |
 
 ## Open questions
 

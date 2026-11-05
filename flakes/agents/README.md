@@ -512,11 +512,9 @@ never nested. Its policy, approvals and run evidence stay out of the jail, and
 its delegates run in the host's forms as usual. Those forms carry no relay,
 so delegates cannot call quotient themselves.
 
-**What it is for.** The relay adds control, not reach. A jailed agent gets
-`pi_agent` with ceilings, evidence it cannot touch, reduced transcripts and the
-host's forms, without its harness running unjailed. It gains no other repository
-(`roots` below). The server runs on the host so that those controls bind the agent:
-inside the jail it would be contained, but the agent could rewrite them.
+**Off in every jail (DEC-122).** quotient exists so an unjailed orchestrator can
+drive pi with confinement. A jail already confines, so a jail delegates through
+`subagents` or the pi subagent extension.
 
 | route from a jail | runs | permissions | ceilings, evidence |
 |---|---|---|---|
@@ -524,12 +522,17 @@ inside the jail it would be contained, but the agent could rewrite them.
 | `subagents` (e.g. jailed claude runs pi) | in the jail, depth-guarded | the jail's | none of quotient's |
 | this relay, `pi_agent` | host, in a form | the form's; root is the launch dir | yes, out of the jail's reach |
 
-No record says why the relay is on by default. Its scope, opt-in and an in-jail
-alternative are open: IMP-066.
+**What it is for.** Dispatching to other repos, from a jail declared for that
+purpose (IDE-010). That jail does not exist yet: its roots are a declared subset
+of its workspace deps, each `ro` or `rw`, which needs per-root capability in
+quotient (quotient:IDE-009). The agent writes the delegates' prompts, so its real
+write reach is the union of its `rw` roots. Until then the relay gains no other
+repository (`roots` below). Single-repo quotient for jailed claude waits for
+in-jail quotient (quotient:IDE-008).
 
-**Known defect.** Only bare `quotient` is relayed. The shim ignores arguments, so
-`quotient reduce`, `help` and `--version` print nothing and exit 0, and hang if
-stdin stays open (ISS-026).
+**Only bare `quotient` is relayed.** With arguments the shim refuses and exits 69,
+so `quotient reduce` and `help` are for the host. A jail without the relay has no
+`quotient` at all.
 
 ```
 host                                         jail
@@ -540,10 +543,9 @@ launcher ($PWD: the root)
  └─ exec bwrap
 ```
 
-- **On by default** where the profile has network and `mountLaunchDir` is on.
-  It is off for `offline`, because quotient's delegates have network.
-  `quotient = true` opts an offline jail in anyway. With `mountLaunchDir =
-  false` it is refused, because there is no root to grant.
+- **Off by default.** `quotient = true` enables it. quotient's delegates have
+  network, even from an `offline` jail. With `mountLaunchDir = false` it is
+  refused, because there is no root to grant.
 - **The host's quotient**, found on the launching `PATH`, as with host
   doctrine, so there is no pin. If it is not installed, or the launch dir is
   outside every root of the host policy (which the launcher reports), the jail
@@ -619,7 +621,7 @@ as the paths they produce.
 | `guardGit` | `true` | Refuse work-discarding git subcommands (see [Git guard](#git-guard-guardgit)) |
 | `hostDoctrine` | `true` | Bind the host's doctrine install root (`~/.local/share/doctrine/bin`) at its own path and on `PATH`, and the store paths it links against, read-only (see [Sandbox defaults](#sandbox-defaults)) |
 | `nixDoctrine` | `null` | A doctrine package whose `bin/` is bound read-only, with its closure, at `/run/doctrine-nix-bin` and never put on `PATH`: a reference build only a caller naming `/run/doctrine-nix-bin/doctrine` runs. Forms take it as `postureFlags.nixDoctrine` |
-| `quotient` | profile's network, and `mountLaunchDir` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
+| `quotient` | `false` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
 | `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
 ## helium

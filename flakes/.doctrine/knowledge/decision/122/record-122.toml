@@ -1,0 +1,41 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 122
+slug = "jail-delegation-model"
+title = "Jails delegate through subagents; the quotient relay is a declared capability, off by default"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-05"
+updated = "2026-11-05"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "IMP-066. The quotient relay (agents/quotient-relay.nix) was on in every networked jail. The operator asked for that on 2026-10-30 while first putting quotient in a jail; it was never revisited or recorded. A survey found 3 relay runs and no jailed transcript calling quotient, against 199 host Claude transcripts and hundreds of jailed subagent sessions. quotient exists so an unjailed orchestrator can drive pi with confinement; a jail already confines. ISS-026 showed the cost of an undefined purpose: the shim answers every invocation as MCP, so quotient reduce printed nothing and exited 0."
+choice = "1. Jailed delegation uses subagents. 2. The relay is off in every jail (makeJailedAgent quotient defaults to false) and no jail in dev-envs enables it. 3. The capability is a new jail declaration, defined globally or in a project; there is no passthru.devEnv key, so REQ-026 is unchanged. 4. Its purpose is cross-repo delegation: its roots are a declared list that is a named subset of workspaceDeps and workspaceDepsRw, each entry stating ro or rw, independent of the jail's own mount. Building it is IDE-010, which needs per-root capability in quotient (quotient:IDE-009). 5. Until then the narrowing to the launch dir stands wherever the relay is enabled. 6. Single-repo quotient for jailed claude is the intended use of in-jail quotient, once quotient:IDE-008 lands. 7. The shim relays bare quotient only and refuses any arguments, exiting 69. No reduce or help in a jail: with no shim on PATH satan's pi_report falls back to its labelled tail and its test skips the reducer section through its unchanged guard."
+alternatives = ["Relay stays on by default: pays for a capability nothing uses and gave ISS-026 its silent failure", "A boolean opt-in with single-root narrowing: without cross-repo it adds only ceilings and protected evidence; the operator is not concerned with the latter and single-repo use is IDE-008's", "A passthru.devEnv key: needs a REQ-026 change and tells a project about agents", "Every workspaceDep is a delegation root: a read mount silently becomes delegated write and JAIL_WORKSPACE_DEPS could widen the grant at launch", "All host policy roots: a jail would silently gain each repo later added to the policy", "Local reduce in the shim (ISS-026 option A): a satan-only need and a 198 MB closure in every jail", "PI_REDUCE from satan (ISS-026 option B): an untested path for a jailed spawn nobody has run; can be added with the capability jail", "Relaying reduce to the host (ISS-026 option D): the host would parse jail data"]
+rationale = "The operator's priorities for quotient are confinement for unjailed orchestrators; cross-harness calls with observability; orchestration; a root per call for other projects; and limits for tightly bounded work. In a jail the first is already met and subagents cover the second and third (dev-envs gives claude codex and shell their sibling agents). What remains is the root per call, so cross-repo is the relay's reason to exist in a jail. That is a real grant, because the agent writes the delegates' prompts: its write reach is the union of its rw roots. A named jail with a declared list keeps that act visible. Transcript tampering was checked and is not a concern: no jailed agent has edited a transcript."
+consequences = ["Every jail loses the shim; satan's bare quotient entry in .mcp.json has no server in a jail (no jail records an approval for it)", "In a jail pi_report gives a raw tail and pi-report-test section 1 skips", "A capability jail would fail that section until it adds PI_REDUCE", "The relay code stays dormant until IDE-010 uses or removes it; offline and read-only handling stay with it", "SPEC-003 hypothesis that the jail set is the same for every project is open to a project-local capability jail"]
+decided_by = "user, 2026-11-05 (IMP-066 session: 'A.'; Q3 and declared list in conversation)"
+decided_on = "2026-11-05"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "IMP-066"
+
+[[relation]]
+label = "shapes"
+target = "ISS-026"
+
+[[relation]]
+label = "spawns"
+target = "IDE-010"

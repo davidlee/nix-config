@@ -521,10 +521,10 @@
     # A Nix-built doctrine at /run/doctrine-nix-bin, off PATH (nixDoctrineOption).
     nixDoctrine ? null,
     # The host's quotient as `quotient`, an MCP server narrowed to the launch
-    # dir (quotient-relay.nix). Off by default without network: its
-    # delegates have network, which an offline jail must not reach. Needs
-    # the launch dir, the one root it may grant.
-    quotient ? profiles.${profile}.network && mountLaunchDir,
+    # dir (quotient-relay.nix). Off unless a jail declares it (DEC-122). Its
+    # delegates have network, even from an offline jail. Needs the launch
+    # dir, the one root it may grant.
+    quotient ? false,
     # Opt-in: reach models through an LLM gateway instead of provider keys.
     # `{ keyFile; url; runDirectory; }`, all strings, exactly those:
     #   keyFile       the gateway key's path, a shell word expanded inside

@@ -101,13 +101,18 @@
   '';
 
   # The jail's `quotient`: the host's name, so one MCP registration
-  # (`command: quotient`) serves host and jail.
+  # (`command: quotient`) serves host and jail. Only that bare form is
+  # relayed; an MCP stream would be no answer to anything else (ISS-026).
   shim = pkgs.writeTextFile {
     name = "quotient-jail-shim";
     destination = "/bin/quotient";
     executable = true;
     text = ''
       #!${pkgs.runtimeShell}
+      if [ "$#" -gt 0 ]; then
+        echo "quotient $*: only the MCP server is relayed into a jail; run it on the host" >&2
+        exit 69
+      fi
       if [ ! -S ${jailDir}/${socket} ]; then
         echo "quotient: no host quotient in this jail (none on the launching PATH, or the launch dir is outside the host policy's roots)" >&2
         exit 69

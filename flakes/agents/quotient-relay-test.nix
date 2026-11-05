@@ -31,20 +31,21 @@
   zsh = profile: args: agents.makeJailedZsh ({inherit profile;} // args);
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;
 
-  # On by default where the profile has network and the launch dir is
-  # mounted; each twin differs from specDev in one argument.
+  # Off unless a jail declares it (DEC-122); each twin differs in one argument.
   specDev = zsh "specDev" {};
-  research = zsh "research" {};
   offline = zsh "offline" {};
-  offlineOptIn = zsh "offline" {quotient = true;};
-  optOut = zsh "specDev" {quotient = false;};
+  relayOn = zsh "specDev" {quotient = true;};
+  offlineOn = zsh "offline" {quotient = true;};
   launchDirOff = zsh "specDev" {mountLaunchDir = false;};
-  launchDirRo = zsh "specDev" {readOnlyLaunchDir = true;};
+  launchDirRo = zsh "specDev" {
+    readOnlyLaunchDir = true;
+    quotient = true;
+  };
   noLaunchDirFails = failsToEvaluate (zsh "specDev" {
     mountLaunchDir = false;
     quotient = true;
   });
-  probe = fakeBwrapAgents.makeJailedZsh {};
+  probe = fakeBwrapAgents.makeJailedZsh {quotient = true;};
 
   relay = import ./quotient-relay.nix {
     inherit pkgs;
@@ -82,20 +83,32 @@ in
       }
 
       # Which jails carry the relay: the listener and the in-jail command.
-      for launcher in ${specDev}/bin/jailed-zsh ${research}/bin/jailed-zsh \
-        ${offlineOptIn}/bin/jailed-zsh ${launchDirRo}/bin/jailed-zsh; do
+      for launcher in ${relayOn}/bin/jailed-zsh ${offlineOn}/bin/jailed-zsh \
+        ${launchDirRo}/bin/jailed-zsh; do
         grep -Fq -- '-quotient-jail-listener' "$launcher"
         grep -q -- '/nix/store/[^ :]*-quotient-jail-shim/bin' "$launcher"
       done
-      for launcher in ${offline}/bin/jailed-zsh ${optOut}/bin/jailed-zsh \
+      for launcher in ${specDev}/bin/jailed-zsh ${offline}/bin/jailed-zsh \
         ${launchDirOff}/bin/jailed-zsh; do
         refute grep -Fq -- 'quotient' "$launcher"
       done
-      grep -Fq -- 'JAIL_QUOTIENT_ACCESS=rw' ${specDev}/bin/jailed-zsh
+      grep -Fq -- 'JAIL_QUOTIENT_ACCESS=rw' ${relayOn}/bin/jailed-zsh
       grep -Fq -- 'JAIL_QUOTIENT_ACCESS=ro' ${launchDirRo}/bin/jailed-zsh
       # The in-jail command keeps the host's name, so one MCP registration
       # (`command: quotient`) serves host and jail.
       test -x ${relay.shim}/bin/quotient
+
+      # Only bare `quotient` is relayed. Anything else is refused by name,
+      # before the socket is looked at, and never waits on stdin (ISS-026).
+      for args in 'reduce -v --out d f' help --version; do
+        status=0
+        # shellcheck disable=SC2086 # the words are the arguments
+        timeout 5 ${relay.shim}/bin/quotient $args \
+          < <(sleep 30) > shim.out 2> shim.err || status=$?
+        test "$status" = 69
+        test ! -s shim.out
+        grep -Fq -- "quotient $args: only the MCP server is relayed" shim.err
+      done
 
       # Policy narrowing. Roots a, a symlink to b, and a sibling `ab` that
       # shares a's prefix but not its path.
