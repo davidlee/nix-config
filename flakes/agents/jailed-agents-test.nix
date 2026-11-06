@@ -266,6 +266,7 @@
   });
   # A satan-mcp client (DEC-088): the socket's directory, read-only.
   satanMcp = inner "specDev" {extraOptions = agents.satanMcpOptions;};
+  audio = inner "specDev" {extraOptions = agents.audioOptions agents.combinators;};
 
   # pi's gateway provider. A served model without a pi block is left out
   # (DEC-066). One fixture holds both, differing only in the pi block, so the
@@ -865,6 +866,14 @@ in
       grep -Fq -- 'XDG_RUNTIME_DIR' "$sm"
       refute grep -Fq -- 'mcp/mcp.sock' "$sm"
       refute grep -Eq -- '--bind(-try)? /run/user/1000/satan/mcp' "$sm"
+      # audioOptions: the host's pulse directory at a path of the jail's own, and
+      # never XDG_RUNTIME_DIR: a jail cannot write the host's, and tools take it
+      # for their own.
+      au=${audio}/bin/jailed-zsh
+      grep -Fq -- '--bind-try "''${XDG_RUNTIME_DIR:-}/pulse" /run/host-pulse' "$au"
+      grep -Fq -- '--setenv PULSE_SERVER unix:/run/host-pulse/native' "$au"
+      grep -Fq -- 'voice_hang_up.wav' "$au"
+      refute grep -Fq -- 'XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR"' "$au"
       # A gateway jail with network is unchanged: no client socket, no wrapper.
       for launcher in "$gw_inner" "$gw_outer"; do
         refute grep -Fq -- 'llm-gateway-client' "$launcher"

@@ -177,6 +177,20 @@
     (try-fwd-env "SATAN_MCP_SOCKET")
   ];
 
+  # Sound in a jail: the host's pulse socket and the sound Claude's Stop hook
+  # plays. Not jail.nix's `pulse`, which forwards XDG_RUNTIME_DIR: a jail cannot
+  # write the host's, and tools take it for their own. So the directory goes at a
+  # path of the jail's own, named by PULSE_SERVER. Runtime args, as the path is
+  # the launcher's; -try: no session, no sound.
+  stopSound = "/mnt/500G/home/david/.local/share/Steam/friends/voice_hang_up.wav";
+  audioOptions = c: [
+    (c.add-runtime ''
+      RUNTIME_ARGS+=(--bind-try "''${XDG_RUNTIME_DIR:-}/pulse" /run/host-pulse)
+      RUNTIME_ARGS+=(--setenv PULSE_SERVER unix:/run/host-pulse/native)
+      RUNTIME_ARGS+=(--ro-bind-try ${stopSound} ${stopSound})
+    '')
+  ];
+
   # A malebolge bridge client, wherever pi runs (malebolge:DEC-074). The
   # bridge socket's directory, read-only and never its parent, which holds
   # durable.sock (malebolge:DEC-064); made 0700 on the host before launch, as
@@ -702,6 +716,8 @@ in
     inherit gatewaySocketOptions;
     # A satan-mcp client's bind and env, via `extraOptions`.
     inherit satanMcpOptions;
+    # Sound, for a jail's `extraOptions`; a function of its combinators.
+    inherit audioOptions;
     # Bare (unjailed) agent packages, resolved from the same eval as the
     # jails (same nixpkgs/llm-agents pin). Lets the host devShell pull
     # `unjailed.pi` etc. without separately wiring llm-agents.

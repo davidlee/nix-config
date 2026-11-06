@@ -1180,6 +1180,10 @@ Every jail and form runs its own sccache server on a socket in its private
 `/tmp`, and a Linux host shell uses one under `$XDG_RUNTIME_DIR` (DEC-121). The
 default TCP address is shared loopback: a jailed build would run on the host.
 
+Every jail has sound: the host's pulse directory at `/run/host-pulse`, named by
+`PULSE_SERVER`, and the file Claude's `Stop` hook plays (`audioOptions`,
+`agents/jailed-agents.nix`). A form has none.
+
 `outerGitDir` is for a project whose repository sits above it. This repo states
 `passthru.devEnv.outerGitDir = ".cfg"` in `dev-tools/`, so a jail or form launched
 from `~/flakes` sees the home repository read-only (`agents/outer-git.nix`):
