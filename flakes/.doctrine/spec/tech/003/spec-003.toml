@@ -61,3 +61,7 @@ identifier = "bin/dev-envs-forms"
 [[source]]
 language = "nix"
 identifier = "modules/user-bin-path.nix"
+
+[[source]]
+language = "nix"
+identifier = "_templates/dev-env/flake.nix"

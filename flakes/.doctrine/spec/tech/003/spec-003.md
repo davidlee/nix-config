@@ -52,6 +52,14 @@ packages.<system>.dev-tools = pkgs.buildEnv {
 };
 ```
 
+`dev-tools` carries no Doctrine: dev-envs builds its shell, jails and forms from
+it, and a jail's `extraPkgs` precede the host install on PATH, so a Nix Doctrine
+there would shadow it. A room has no host binary, so a project whose room needs
+Doctrine also exports `capsule-tools`, its tool list plus Doctrine, and its fleet
+target sets `toolsPackage = "capsule-tools"`. The fleet target changes before
+Doctrine leaves `dev-tools` (DEC-112's order). `dev-envs` does not read
+`capsule-tools`.
+
 The project may rely on:
 
 - Its tools are built at its own `flake.lock`. The consumer takes the project as
@@ -73,6 +81,7 @@ The project may rely on:
   are absent. A launch from a subdirectory finds no repository.
 
 The project owes nothing else. It names no jail, agent, form or gateway.
+`_templates/dev-env` is the contract as a working flake.
 
 ### `devEnv` schema and refusals
 
@@ -180,7 +189,8 @@ The host's install dir is bound read-only at its own path, with its binary's
 store closure, and goes on PATH. So one path names Doctrine on both sides, and
 what `doctrine install` bakes (`BIN_PATH` in the pi extension, `command` in
 codex's config) is valid on both. If Doctrine is not installed, the bind is
-skipped and the jail has no `doctrine`.
+skipped and the jail has no `doctrine`. It is the only `doctrine` on PATH because
+`dev-tools` carries none.
 
 The Nix Doctrine is a pinned reference build, the consumer's `doctrine` input. It
 is mounted but not on PATH: a tool must name it.

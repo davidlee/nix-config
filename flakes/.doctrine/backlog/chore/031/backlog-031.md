@@ -20,6 +20,6 @@ Known, 2026-11-06:
 - malebolge, panopticon: Doctrine is in `dev-tools`.
 - screwtape, www: read the flake; a grep is not enough.
 
-Also: SPEC-003 does not name `capsule-tools` or this rule. Add both by revision.
+SPEC-003 takes the rule through REV-017.
 
 Related: CHR-030, DEC-112, DEC-128.
