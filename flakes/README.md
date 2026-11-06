@@ -1251,8 +1251,9 @@ global). Nothing here builds them (DEC-116).
 
 **Starting a project.** `dev-env` is the producer: `dev-tools`, `passthru.devEnv`
 and a fallback shell, with its setup in its header. `minimal` is a plain shell
-with no jails, as a flake and a `shell.nix`. A room that needs Doctrine takes
-`capsule-tools`, never `dev-tools` (DEC-128).
+with no jails, as a flake and a `shell.nix`. A fleet repo that uses Doctrine gives
+its room `capsule-tools`, never `dev-tools` (DEC-130); a dev-envs shell warns if
+`dev-tools` holds Doctrine.
 
 ```zsh
 nix flake init -t /home/david/flakes#dev-env                    # local

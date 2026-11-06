@@ -15,7 +15,7 @@ context = "DEC-128 asked for capsule-tools only where a room needs Doctrine. CHR
 choice = "A fleet repo that uses Doctrine hands fleet capsule-tools, not dev-tools: toolsPackage = capsule-tools in its target. Using Doctrine means tracking .doctrine/ at its root, or nix-config, whose .doctrine/ is under flakes/. The default is capsule-tools = dev-tools ++ [doctrine-pkg]. This replaces DEC-128's 'a project whose room needs Doctrine'; the rest of DEC-128 stands. goad, goad-walk, notes, pi, retrograde and satan-corpus use no Doctrine and keep their targets."
 alternatives = ["Judge each room's need for Doctrine: DEC-128 as written and CHR-032's first scope", "Every fleet repo: needs named exceptions anyway (pi is upstream's; satan-corpus and goad-walk have no dev-tools) and adds an input to repos that never call Doctrine"]
 rationale = "A mechanical test, with no per-room judgement. It adds a doctrine input only where Doctrine is used."
-consequences = ["CHR-032 covers the nine Doctrine repos not yet on capsule-tools", "SPEC-003 and the README still say a room that needs Doctrine and want a revision", "Each such flake gains a doctrine input and fleet follows it (DEC-112's order applies only where dev-tools already carries Doctrine)"]
+consequences = ["CHR-032 covers the nine Doctrine repos not yet on capsule-tools", "REV-018 takes it into SPEC-003 with the README and template", "Each such flake gains a doctrine input and fleet follows it (DEC-112's order applies only where dev-tools already carries Doctrine)"]
 decided_by = 'user ("nix-config should git it, satan-attrd should get it, the others can pass", 2026-11-06)'
 decided_on = "2026-11-06"
 

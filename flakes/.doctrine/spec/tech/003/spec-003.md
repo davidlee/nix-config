@@ -54,11 +54,11 @@ packages.<system>.dev-tools = pkgs.buildEnv {
 
 `dev-tools` carries no Doctrine: dev-envs builds its shell, jails and forms from
 it, and a jail's `extraPkgs` precede the host install on PATH, so a Nix Doctrine
-there would shadow it. A room has no host binary, so a project whose room needs
-Doctrine also exports `capsule-tools`, its tool list plus Doctrine, and its fleet
-target sets `toolsPackage = "capsule-tools"`. The fleet target changes before
-Doctrine leaves `dev-tools` (DEC-112's order). `dev-envs` does not read
-`capsule-tools`.
+there would shadow it. A room has no host binary, so a fleet repo that uses
+Doctrine also exports `capsule-tools`, by default `dev-tools` plus Doctrine, and its
+fleet target sets `toolsPackage = "capsule-tools"` (DEC-130). The fleet target
+changes before Doctrine leaves `dev-tools` (DEC-112's order). `dev-envs` does not
+read `capsule-tools`.
 
 The project may rely on:
 
@@ -233,6 +233,7 @@ An absent layer gives less. A broken layer fails loudly, naming the site (DEC-10
 | no `devEnv` | host list only | `checkDevEnv` |
 | no installed Doctrine | no `doctrine` in the jail | runtime `-try` bind |
 | no `dev-tools` | evaluation error naming the producer contract | `dev-envs/flake.nix` |
+| `dev-tools` holds `bin/doctrine` | the shell starts, with a warning naming DEC-128 | `checks.dev-env` |
 | malformed `devEnv` | evaluation error listing each problem | `checks.dev-env` |
 | a form's line cannot be resolved without running it | build failure | `checks.quotient-forms` |
 | the pinned `doctrine` input fails to build | every jail and form fails to build | at the lock bump; roll the pin back |
@@ -319,7 +320,7 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 | layers, spec | DEC-108, DEC-118 |
 | producer, env | DEC-114, DEC-105 |
 | consumer, forms | DEC-113, DEC-115, DEC-120 |
-| Doctrine paths, PATH | DEC-107, DEC-109, DEC-110, DEC-111, DEC-112 |
+| Doctrine paths, PATH | DEC-107, DEC-109, DEC-110, DEC-111, DEC-112, DEC-128, DEC-130 |
 | the Mac | DEC-116 |
 | sccache | DEC-121 |
 | delegation from a jail | DEC-122, DEC-123, DEC-124, DEC-125, DEC-126, DEC-127 |

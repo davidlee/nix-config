@@ -46,7 +46,7 @@
         };
       };
 
-      # A room has no host binary, so one that needs Doctrine takes this instead:
+      # A room has no host binary, so a fleet repo that uses Doctrine gives it this:
       # add the input `doctrine.url = "github:davidlee/doctrine";`, and set
       # `toolsPackage = "capsule-tools"` in the fleet target.
       #
