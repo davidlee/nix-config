@@ -1,6 +1,6 @@
 # CHR-030: Migrate the remaining project flakes to dev-envs
 
-Nine project flakes still build their own jails and devshell. Until they move, their
+Ten project flakes still build their own jails and devshell. Until they move, their
 `jcl` and friends don't start in a session (zmux IMP-007: `shorthand` in
 `dev-envs/flake.nix` goes through `zmx-new`, so only `use_dev_envs` projects get it).
 
@@ -24,9 +24,6 @@ Measured in a jail built by dev-envs with malebolge as the project:
 `extraPkgs` lands ahead of `hostDoctrineOptions`' `add-path` (`agents/jailed-agents.nix`).
 DEC-128 removes the cause: Doctrine moved to `capsule-tools`, in DEC-112's order (CHR-031,
 done). No jail-library change is needed.
-
-emacs-config is not in the table below: it has `dev-tools`, and `.envrc` still uses
-`agents_dev`.
 
 ## Steps per project
 
@@ -73,9 +70,10 @@ The five with `dev-tools` evaluate under dev-envs. That proves evaluation only.
 | forgettable | no | agents_dev | docker lines; workspace deps |
 | spec-driver | no | agents_dev | workspace deps; own `commands` to read |
 | deck_of_dwarf | no | use flake | nix-ld env, `shellHook`, own forms |
+| emacs-config | yes | agents_dev | path binds (emacs server, podman socket, sound); `gitIdentity`; own forms; workspace deps; `d`, `sdr` |
 
 dev-envs has nowhere to put a `shellHook`, so goad and deck_of_dwarf may stay on their
-own flakes. Read the hooks before deciding. Staying is an acceptable outcome.
+own flakes. emacs-config may too: `devEnv` can't bind a path, and its jails bind several. Read the hooks before deciding. Staying is an acceptable outcome.
 
 ### malebolge
 
@@ -97,4 +95,4 @@ use. If one needs it, dev-envs needs a way to bind a path.
 1. Doctrine to `capsule-tools` where a project has it in `dev-tools`: done (CHR-031).
 2. oubliette, panopticon, malebolge.
 3. bough, vk, forgettable, spec-driver.
-4. goad, deck_of_dwarf, or decide they stay.
+4. goad, deck_of_dwarf, emacs-config, or decide they stay.
