@@ -110,10 +110,20 @@ flakes keep what the old shell needed, now reached only by the `use flake .` fal
 | sediment | jails, forms, shell's agent commands, `agents`, `quotient` |
 | screwtape | forms only, with their own Doctrine; `agents`, `quotient` |
 
-Before deleting, check that each jail's env reached `devEnv` and its `workspaceDeps`
-reached `.envrc`. Not checked yet. org-incremental-writing sets `ORG_IW_DENOTE_DIR` and
-`DOCTRINE_RESERVATION_FALLBACK`; smut, org-incremental-writing and sediment have
-`workspaceDepsRw`. satan is not on this list: its remaining jails are product harnesses.
+Checked 2026-11-06, flakes and `.envrc`s read in full: every live jail env reached `devEnv`
+and every workspace dep reached `.envrc` in the same mode. Only satan-attrd and
+org-incremental-writing have any. None sets a path bind, `exposePostgres` or `gitIdentity`.
+dev-envs already gives the same subagent settings (`dev-envs/flake.nix:147-169`), and
+org-incremental-writing's `/usr/bin/env` bind comes from `posture`, which forms take
+(`agents/jailed-agents.nix:242`, `:472`).
+
+Goes with the forms: the `quotient-forms` recipes in satan-attrd's and screwtape's justfiles
+build `.#quotient-*`, and smut, org-incremental-writing and sediment have a devshell command.
+Each root then needs `bin/dev-envs-forms` and `quotient allow` (the operator's act). www's
+`.quotient/forms` links are stale: its flake exports none. www's `dn` is a Doctrine alias, so
+it goes as `d` and `sdr` do. Keep screwtape's devShell: its reviews call `nix develop -c just check`.
+
+satan is not on this list: its remaining jails are product harnesses.
 
 ## Order
 
