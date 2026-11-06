@@ -164,7 +164,7 @@ Findings:
 
 Review of the undecided five: emacs-config, notes and satan-corpus need path binds dev-envs
 lacks (emacs server, satan-mcp socket, satan-corpus's ten ro-binds). goad's jail needs its GUI
-tools, which `dev-tools` deliberately omits and its room takes. deck_of_dwarf's uv-installed
+tools, which `dev-tools` deliberately omits: its room takes `dev-tools`, so adding them grows the room. deck_of_dwarf's uv-installed
 ruff needs the `/lib64` loader bind.
 
 Left for the operator: `direnv allow` in each migrated repo, `quotient allow` in the eight
