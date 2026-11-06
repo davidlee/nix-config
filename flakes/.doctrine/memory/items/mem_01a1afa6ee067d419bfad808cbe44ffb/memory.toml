@@ -1,0 +1,42 @@
+memory_uid = "mem_01a1afa6ee067d419bfad808cbe44ffb"
+memory_key = "mem.fact.flakes.fleet-closure-check"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "Reading fleet's locked tool sets"
+summary = "Read fleet's locked tool sets with getFlake git+file:///srv/fleet; a path ref fails on a socket"
+created = "2026-11-06"
+updated = "2026-11-06"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["fleet", "capsule-tools"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "076d569905c892c5a1b759c68e844e5d621c930f"
+ref_name = "refs/heads/main"
+checkout_state_id = "5bc41b9d7c872c24b68ca7d04ded4291ae1fce0e8047b5c7e63bbfb359a89d28"
+base_commit = "223e527e5158012ebf0219c429c13c3a317e635d"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
