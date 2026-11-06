@@ -138,15 +138,18 @@ satan is not on this list: its remaining jails are product harnesses.
 | project | state |
 |---|---|
 | www, smut, satan-attrd, screwtape | cleaned, pushed; `dev-tools` drvPath unchanged |
-| org-incremental-writing | cleaned, 37df731 not pushed (10 earlier commits waiting) |
+| org-incremental-writing | cleaned, 37df731 |
 | sediment | cleaned, e294979; no remote |
 | oubliette | c1a926a; `.envrc` layers `use_dev_envs` over mkFleet's shell, which dev-envs cannot carry |
 | panopticon | ea89c19 |
 | malebolge | 948fc4e; `jailed-pi-bridge` and `agents` stay |
-| bough (vk is a symlink to it), forgettable | 9d64f201, c7904dc; not pushed (2 and 8 earlier commits waiting) |
+| bough (vk is a symlink to it), forgettable | 9d64f201, c7904dc |
+| goad | 110a7da; fleet moves its room to `capsule-tools`, the headless set, closure unchanged |
+| deck_of_dwarf | b470d611; ruff from nix, not a wheel |
 | resume | `.envrc` only, untracked |
-| spec-driver | not started: on DE-116 with delta work in progress |
-| goad, deck_of_dwarf, emacs-config, notes, satan-corpus | reviewed, decision pending |
+| spec-driver | skipped for now (operator, 2026-11-06): on DE-116 with delta work in progress |
+| emacs-config | to land (operator); needs a `devEnv` bind contract, design pending |
+| notes, satan-corpus | stay on their own flakes |
 
 Findings:
 
@@ -167,5 +170,19 @@ lacks (emacs server, satan-mcp socket, satan-corpus's ten ro-binds). goad's jail
 tools, which `dev-tools` deliberately omits: its room takes `dev-tools`, so adding them grows the room. deck_of_dwarf's uv-installed
 ruff needs the `/lib64` loader bind.
 
-Left for the operator: `direnv allow` in each migrated repo, `quotient allow` in the eight
-relinked roots. Fleet still locks these repos' earlier revs; `capsule-tools` did not change.
+Landing goad and deck_of_dwarf:
+
+- A `buildEnv` sets no `PKG_CONFIG_PATH`, so a project that links against a `.pc` library puts
+  the dev outputs in `dev-tools` and states the variable in `devEnv.env` (goad).
+- What `FONTCONFIG_FILE` and `TZDIR` name must be in the `dev-tools` closure: a jail sees nothing
+  else. goad's jail failed 5 jiff tests until `tzdata` joined it.
+- `devEnv.env` reaches a jail, so `LD_LIBRARY_PATH` there can shadow the agents' libraries.
+  deck_of_dwarf states `DECK_LIBRARY_PATH` and copies it in `.envrc`, which only the host reads.
+- Binary wheels need `/lib64`, which dev-envs jails lack. Measured: `.venv-agent/bin/ruff` exists
+  in the jail, and exec fails with ENOENT. deck_of_dwarf took ruff from nix (operator).
+- `ZIG_GLOBAL_CACHE_DIR` under the project crashes zig-sdl3's `build.zig` (`openDirAbsolute` on a
+  relative path), absolute or not. It is gone. A form now uses its throwaway home, untested.
+
+Left for the operator: `direnv allow` in each migrated repo, goad and deck_of_dwarf included;
+`quotient allow` in the nine relinked roots (deck_of_dwarf added). Fleet still locks the earlier
+repos' revs, whose `capsule-tools` did not change; goad and deck_of_dwarf are re-locked.
