@@ -69,7 +69,7 @@ The five with `dev-tools` evaluate under dev-envs. That proves evaluation only.
 | vk | no | agents_dev | docker lines; workspace deps |
 | forgettable | no | agents_dev | docker lines; workspace deps |
 | spec-driver | no | agents_dev | workspace deps; own `commands` to read |
-| deck_of_dwarf | no | use flake | nix-ld env, `shellHook`, own forms |
+| deck_of_dwarf | yes | use flake | nix-ld env, `shellHook`, own forms |
 | emacs-config | yes | agents_dev | path binds (emacs server, podman socket, sound); `gitIdentity`; own forms; workspace deps; `d`, `sdr` |
 | notes | yes | agents_dev | `jpi` passes `-e .pi/extensions/satan.ts --skill <goad-backend>`; workspace deps |
 | satan-corpus | no | agents_dev | emacs server bind; `jailed-pi-emacs`; `jpi` passes the same extension; workspace deps |

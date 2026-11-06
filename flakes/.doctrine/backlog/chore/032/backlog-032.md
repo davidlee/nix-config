@@ -32,3 +32,34 @@ SPEC-003, the README and `_templates/dev-env` carry DEC-130 and the dev-envs war
 (REV-018).
 
 Related: CHR-031, DEC-128, DEC-130.
+
+## Outcome (2026-11-06)
+
+All nine repos export `capsule-tools` and are pushed; fleet 37992dd sets
+`toolsPackage = "capsule-tools"`, follows its `doctrine` input, and re-locks them.
+
+| repo | commit | | repo | commit |
+|---|---|---|---|---|
+| oubliette | 2a2dda4 | | screwtape | 490c33b |
+| satan-attrd | d181aea | | quotient | f9bdb7a |
+| smut | 1bc023c | | deck_of_dwarf | 0ad20819 |
+| www | 514b3ed | | nix-config | 49987f42 |
+| resume | 4a639dc | | | |
+
+Verified through fleet's lock (mem.fact.flakes.fleet-closure-check): every `dev-tools` has no
+Doctrine; every `capsule-tools` and `image-<target>` has 0.48.1, one derivation across all
+`capsule-tools`; only the nine named root inputs moved. `just check` passed in fleet and
+oubliette, `just test` in nix-config. quotient and deck_of_dwarf gates passed on `dev-tools`
+as run by their delegates, except that quotient's `just build` needs `capsule-tools` (its
+`specs` step calls `doctrine`) and deck_of_dwarf's `lint-python` and `check-python` were not run.
+
+- oubliette: `mkFleet`'s devshell no longer carries Doctrine (operator, 2026-11-06), so
+  DEC-128 needs no exception. Its `doctrine` input now serves only `capsule-tools`.
+- oubliette and satan-attrd were pushed with `git push`, not `just push-local`, which would
+  also have pushed satan's 10 unrelated commits.
+- `capsule-tools` evaluates only where Doctrine has packages (x86_64-linux, aarch64-darwin),
+  so nix-config's and resume's other systems fail if forced. Same as panopticon and the template.
+- smut's `alejandra` failure predates this; quotient's flake is nixfmt-styled, not alejandra.
+- screwtape's forms keep their Doctrine until CHR-030 cleans the flake.
+
+Not proven in a booted room: CHR-033.
