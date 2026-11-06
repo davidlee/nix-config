@@ -165,8 +165,12 @@
       };
 
       # Each execs its jail; jcl skips claude's permission prompts, as Doctrine's did.
-      shorthand = name: bin: flags:
-        pkgs.writeShellScriptBin name ''exec ${jails.${bin}}/bin/${bin} ${flags} "$@"'';
+      # Each starts in a session of its own, through zmx-new. That reads the caller's
+      # argv for one-shot forms, so the flags baked in here sit behind a script.
+      shorthand = name: bin: flags: let
+        direct = pkgs.writeShellScript "${name}-direct" ''exec ${jails.${bin}}/bin/${bin} ${flags} "$@"'';
+      in
+        pkgs.writeShellScriptBin name ''exec ${lib.getExe jailLib.zmx-new} ${direct} "$@"'';
       shorthands = [
         (shorthand "jpi" "jailed-pi" "")
         (shorthand "jcl" "jailed-claude" "--dangerously-skip-permissions")

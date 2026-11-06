@@ -35,7 +35,7 @@
       mkJailedAgents = args:
         import ./jailed-agents.nix ({
             inherit pkgs jail-nix llm-agents;
-            inherit (zmux.packages.${system}) zmx;
+            inherit (zmux.packages.${system}) zmx zmx-new;
           }
           // args);
 

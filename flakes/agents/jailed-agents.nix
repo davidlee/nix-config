@@ -29,6 +29,7 @@
   jail-nix,
   llm-agents,
   zmx,
+  zmx-new,
   gitIdentity ? {
     authorName = "Jailed agent";
     authorEmail = "jailed-agent@localhost";
@@ -690,6 +691,8 @@ in
     inherit quotientFormFamily;
     # The base tools every jail carries; a form adds them itself.
     inherit commonPkgs;
+    # The launcher dev-envs starts its shorthands through; a jail has no use for it.
+    inherit zmx-new;
     gatewayFacts = {inherit (gatewayData) url clientSocket relayPort models;};
     # The env every project gets on this host, and the packages it needs,
     # for this pkgs: { env; hostOnlyEnv; packages; } (dev-env.nix). Applied by consumers.
