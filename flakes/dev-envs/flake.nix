@@ -136,7 +136,7 @@
             profile = "specDev";
             gateway = jailLib.gatewayClient "pi";
             extraPkgs = tools;
-            extraOptions = envOptions jailLib.combinators ++ outerGitOptions "/workspace" jailLib.combinators;
+            extraOptions = envOptions jailLib.combinators ++ outerGitOptions "/workspace" jailLib.combinators ++ jailLib.audioOptions jailLib.combinators;
             inherit nixDoctrine;
           }
           // args);
