@@ -30,7 +30,7 @@ in `flakes/`.
 
 SPEC-003 § Producer contract and README § Jailed Agents say "a room that needs Doctrine".
 They want a revision to DEC-130. The revision should also add the dev-envs warning to
-SPEC-003 § Refusals: a shell whose `dev-tools` holds `bin/doctrine` warns at entry and
+SPEC-003 § Degrade and refuse: a shell whose `dev-tools` holds `bin/doctrine` warns at entry and
 still starts (`doctrineWarning`, `dev-envs/dev-env.nix`). A warning, not REV-017's
 out-of-scope refusal, by the operator's choice.
 
