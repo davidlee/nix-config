@@ -124,6 +124,7 @@ consumer is Linux only and holds no keys of its own.
 | project's `dev-tools` | yes | yes | yes |
 | host list and its packages | yes | yes | yes |
 | `dev-db`, a project's throwaway Postgres | yes | yes | yes |
+| `quotient-hostile-audit`, the write-denial probe over the linked forms | no | no | yes |
 | `devEnv.env` | yes | yes | yes |
 | `devEnv.hostEnv` | forwarded | forwarded | inherited |
 | `devEnv.outerGitDir` | read-only, at `/workspace` | read-only, at `$HOME` | no: the host's own git |

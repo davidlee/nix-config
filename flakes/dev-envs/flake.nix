@@ -106,6 +106,20 @@
       };
       tools = [devTools devDb] ++ hostDevEnv.packages; # a buildEnv is ONE derivation, not a list
 
+      # Quotient's write-denial probe, from the quotient that built the forms. The
+      # shell's alone: it starts its own server and reaches the host's gateway.
+      hostileAudit = pkgs.writeShellApplication {
+        name = "quotient-hostile-audit";
+        # bashInteractive: the probe's ambient check needs `compgen`, and a shell's
+        # own bash has none, so that check would pass silently.
+        runtimeInputs = with pkgs; [bashInteractive coreutils gnugrep nodejs_22];
+        text =
+          ''
+            probe=''${HOSTILE_AUDIT_BIN:-${quotient}/scripts/hostile-audit}
+          ''
+          + builtins.readFile ./quotient-hostile-audit.sh;
+      };
+
       # The real quotient in a jail (agents/quotient-in-jail.nix). Not in `jail`'s
       # defaults: two of the five jails do not take it.
       quotientServer = {
@@ -189,7 +203,7 @@
       # The jails, the unjailed agent CLIs (ahead of self-installed ones on
       # PATH, one pin with the jails) and the shorthands, with the project's env.
       devShells.default = pkgs.mkShell {
-        packages = tools ++ lib.attrValues jails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands;
+        packages = tools ++ lib.attrValues jails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
         inherit env;
       };
 
@@ -249,6 +263,11 @@
 
         dev-db = pkgs.runCommand "dev-db-check" {nativeBuildInputs = [devDb pkgs.postgresql_18];} ''
           bash ${./dev-db-test.sh}
+          touch $out
+        '';
+
+        quotient-hostile-audit = pkgs.runCommand "quotient-hostile-audit-check" {nativeBuildInputs = [hostileAudit pkgs.gnugrep pkgs.findutils];} ''
+          bash ${./quotient-hostile-audit-test.sh}
           touch $out
         '';
 

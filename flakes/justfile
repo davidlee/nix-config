@@ -83,6 +83,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-db" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-hostile-audit" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).project-pins" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-forms" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   bin/dev-checkouts-test
