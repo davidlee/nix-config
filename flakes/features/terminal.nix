@@ -38,6 +38,7 @@ in [
 
           tmux
           zmx # or this
+          zmx-new # a session named for the project; zsh starts harnesses through it
           zp # picker over zmx sessions
 
           # abduco # shell persist

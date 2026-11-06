@@ -156,19 +156,21 @@ active-projects() {
 }
 
 #
-# zx: pick an active project and attach a new session there, named as zp names
-# one: <project>.<n>, n one above the highest in use, dots in the project folded
-# to _. Labels and the scope are the zmx wrapper's.
+# zx: pick an active project and start a new session there. zmx-new names it.
 #
 zx() {
   local dir=$(active-projects | fzf)
   [[ -n $dir ]] || return 0
-  local project=${${dir:t}//./_} name highest=0
-  for name in ${(f)"$(zmx list --short 2>/dev/null)"}; do
-    [[ $name == $project.<-> ]] && (( ${name##*.} > highest )) && highest=${name##*.}
-  done
-  (builtin cd -- $dir && zmx attach $project.$(( highest + 1 )))
+  (builtin cd -- $dir && zmx-new)
 }
+
+#
+# Harnesses start in a session of their own, so there is nothing to remember.
+# zmx-new runs them directly where a session would not help; `command claude`
+# skips it. Functions, so scripts and delegates get the real binary.
+#
+claude() { zmx-new claude "$@" }
+codex() { zmx-new codex "$@" }
 
 #
 # FZF
