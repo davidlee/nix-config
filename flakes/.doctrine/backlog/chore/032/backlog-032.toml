@@ -3,7 +3,7 @@ version = 1
 
 id = 32
 slug = "give-the-rooms-that-track-doctrine-a-doctrine-where-the-runner-works-in-them"
-title = "Give the rooms that track .doctrine a Doctrine, where the runner works in them"
+title = "Move the remaining Doctrine repos in the fleet to capsule-tools"
 kind = "chore"
 status = "open"
 resolution = ""                 # seeded empty so `backlog edit` sets it in place

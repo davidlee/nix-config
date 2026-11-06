@@ -1,20 +1,34 @@
-# CHR-032: Give the rooms that track .doctrine a Doctrine, where the runner works in them
+# CHR-032: Move the remaining Doctrine repos in the fleet to capsule-tools
 
 <!-- Backlog item body — context, detail, links. The structured, queried fields
      live in the sister `backlog-NNN.toml`; this prose is free-form and is never
      structurally parsed (the storage rule). -->
 
-Eight fleet targets track `.doctrine/` with no Doctrine in the room: deck_of_dwarf,
-oubliette, quotient, resume, satan-attrd, screwtape, smut, www. malebolge's runner
-calls `doctrine prompt resolve` in such a clone, fails, and reports
-`context_degraded`; the job goes on without the boot. Audit: CHR-031.
+DEC-130: a fleet repo that uses Doctrine hands fleet `capsule-tools`, not `dev-tools`; the
+default is `capsule-tools = dev-tools ++ [doctrine-pkg]`. That replaces this chore's
+first scope, rooms the runner works in.
 
-1. Find which repos the runner is configured to take jobs in. That was not checked.
-2. For each, add `capsule-tools` and switch the target (DEC-128, DEC-112's order).
-   Have fleet follow its `doctrine`, as CHR-031 did.
+Targets at 2026-11-06, of 20:
 
-deck_of_dwarf and quotient have no `dev-tools`; their targets use `extraTools`.
-screwtape has `dev-tools` at HEAD, but fleet's lock predates it (db60994), so its
-target's `null` and "no packages.dev-tools output" hold only until the next re-lock.
+| state | targets | work |
+|---|---|---|
+| on `capsule-tools` | doctrine, satan, malebolge, panopticon, emacs-config | none |
+| `dev-tools`, no `capsule-tools` | nix-config, oubliette, resume, satan-attrd, smut, www | add it, switch the target |
+| `dev-tools` at HEAD, fleet's lock predates it (db60994) | screwtape | add it, switch the target and re-lock |
+| no `dev-tools`; target uses `extraTools` | deck_of_dwarf, quotient | a tool list first |
+| use no Doctrine | goad, goad-walk, notes, pi, retrograde, satan-corpus | none: they pass |
 
-Related: CHR-031, DEC-128.
+Per repo: add a `doctrine` input and `capsule-tools`, push, then set
+`toolsPackage = "capsule-tools"`, add `inputs.doctrine.follows = "doctrine"` in fleet and
+re-lock. A repo's `dev-tools` has no Doctrine to drop, so DEC-112's third step falls away.
+Fleet locks each repo's remote, so a repo must be pushed first.
+
+malebolge's runner calls `doctrine prompt resolve` in a clone with `.doctrine/`; without
+Doctrine it reports `context_degraded` and goes on. Audit: CHR-031. nix-config's
+`.doctrine/` is under `flakes/`, so the runner skips it; it is here for agents working
+in `flakes/`.
+
+SPEC-003 § Producer contract and README § Jailed Agents say "a room that needs Doctrine".
+They want a revision to DEC-130.
+
+Related: CHR-031, DEC-128, DEC-130.
