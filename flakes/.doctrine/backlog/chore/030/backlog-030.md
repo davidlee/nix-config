@@ -77,7 +77,9 @@ The five with `dev-tools` evaluate under dev-envs. That proves evaluation only.
 
 dev-envs has nowhere to put a `shellHook`, so goad and deck_of_dwarf may stay on their
 own flakes. emacs-config and satan-corpus may too: `devEnv` can't bind a path, and their jails do.
-notes and satan-corpus need a home for their `jpi` flags, which `shorthand` does not take. Read the hooks before deciding. Staying is an acceptable outcome.
+notes and satan-corpus bake flags into `jpi`. dev-envs fixes each shorthand's flags
+(`shorthands`, `dev-envs/flake.nix`) and a project cannot add its own, though a caller's
+arguments pass through. Read the hooks before deciding. Staying is an acceptable outcome.
 
 ### malebolge
 
