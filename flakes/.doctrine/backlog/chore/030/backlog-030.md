@@ -148,7 +148,7 @@ satan is not on this list: its remaining jails are product harnesses.
 | deck_of_dwarf | b470d611; ruff from nix, not a wheel |
 | resume | `.envrc` only, untracked |
 | spec-driver | skipped for now (operator, 2026-11-06): on DE-116 with delta work in progress |
-| emacs-config | to land (operator); needs a `devEnv` bind contract, design pending |
+| emacs-config | a229e58; no contract change, see below |
 | notes, satan-corpus | stay on their own flakes |
 
 Findings:
@@ -183,6 +183,17 @@ Landing goad and deck_of_dwarf:
 - `ZIG_GLOBAL_CACHE_DIR` under the project crashes zig-sdl3's `build.zig` (`openDirAbsolute` on a
   relative path), absolute or not. It is gone. A form now uses its throwaway home, untested.
 
-Left for the operator: `direnv allow` in each migrated repo, goad and deck_of_dwarf included;
-`quotient allow` in the nine relinked roots (deck_of_dwarf added). Fleet still locks the earlier
+Landing emacs-config (operator, 2026-11-06): its jails no longer mount the emacs server,
+satan-mcp or podman sockets, and `gitIdentity` goes, so `devEnv` needs no bind key. The operator
+expects breakage and will deal with it later. Forms lose read-only `~/dev/satan` and umbriel's
+source, so delegates lose whatever `just check` took from satan, unmeasured. `use_dev_envs` takes
+the lock's `emacs`, where `use agents_dev` overrode it from `~/flakes`: an edit to `emacs/` needs
+`nix flake update emacs` here. Gate: shell as the old shell (433 of 436, `l2-real-config` fails
+on both); jail as the old jail (416 of 428, 4 failures, 2 load errors).
+
+Sound moved to dev-envs: every jail, no form (`audioOptions`), because Claude's global `Stop` hook
+plays a file through `paplay`. The operator would put it in host config, strictly.
+
+Left for the operator: `direnv allow` in each migrated repo, goad, deck_of_dwarf and emacs-config
+included; `quotient allow` in the ten relinked roots (deck_of_dwarf and emacs-config added). Fleet still locks the earlier
 repos' revs, whose `capsule-tools` did not change; goad and deck_of_dwarf are re-locked.

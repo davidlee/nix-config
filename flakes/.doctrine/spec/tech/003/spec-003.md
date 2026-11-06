@@ -141,6 +141,7 @@ consumer is Linux only and holds no keys of its own.
 | host Doctrine on PATH | yes | yes | from the host PATH |
 | Nix Doctrine at `/run/doctrine-nix-bin`, off PATH | yes | yes | no |
 | own sccache socket `/tmp/sccache.sock` | yes | yes | no: the host's, from `dev.env` |
+| sound: host pulse at `/run/host-pulse`, the `Stop` hook's file | yes | no | the host's |
 | gateway key | yes, key `pi` | yes, key `pi` | no |
 
 `dev-db` (`dev-envs/dev-db.sh`) runs the Postgres in the project's `dev-tools`
