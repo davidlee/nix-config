@@ -1,6 +1,6 @@
 # CHR-030: Migrate the remaining project flakes to dev-envs
 
-Ten project flakes still build their own jails and devshell. Until they move, their
+Twelve project flakes still build their own jails and devshell. Until they move, their
 `jcl` and friends don't start in a session (zmux IMP-007: `shorthand` in
 `dev-envs/flake.nix` goes through `zmx-new`, so only `use_dev_envs` projects get it).
 
@@ -71,9 +71,13 @@ The five with `dev-tools` evaluate under dev-envs. That proves evaluation only.
 | spec-driver | no | agents_dev | workspace deps; own `commands` to read |
 | deck_of_dwarf | no | use flake | nix-ld env, `shellHook`, own forms |
 | emacs-config | yes | agents_dev | path binds (emacs server, podman socket, sound); `gitIdentity`; own forms; workspace deps; `d`, `sdr` |
+| notes | yes | agents_dev | `jpi` passes `-e .pi/extensions/satan.ts --skill <goad-backend>`; workspace deps |
+| satan-corpus | no | agents_dev | emacs server bind; `jailed-pi-emacs`; `jpi` passes the same extension; workspace deps |
+| resume | yes | use flake | `.envrc` only: its flake builds no jails |
 
 dev-envs has nowhere to put a `shellHook`, so goad and deck_of_dwarf may stay on their
-own flakes. emacs-config may too: `devEnv` can't bind a path, and its jails bind several. Read the hooks before deciding. Staying is an acceptable outcome.
+own flakes. emacs-config and satan-corpus may too: `devEnv` can't bind a path, and their jails do.
+notes and satan-corpus need a home for their `jpi` flags, which `shorthand` does not take. Read the hooks before deciding. Staying is an acceptable outcome.
 
 ### malebolge
 
@@ -90,9 +94,29 @@ own flakes. emacs-config may too: `devEnv` can't bind a path, and its jails bind
 Same template as retrograde, plus the docker socket lines. Check each for real Docker
 use. If one needs it, dev-envs needs a way to bind a path.
 
+## Joined, flake not cleaned
+
+These `.envrc`s already run `use_dev_envs`, so only step 5 and any step 6 remain. Their
+flakes keep what the old shell needed, now reached only by the `use flake .` fallback.
+
+| project | still in the flake |
+|---|---|
+| www | jails, shell's agent commands, `agents` |
+| smut | jails, forms, shell's agent commands, `agents`, `quotient` |
+| satan-attrd | jails, forms, shell's agent commands, `agents`, `quotient` |
+| org-incremental-writing | jails, forms, shell's agent commands, `agents`, `quotient` |
+| sediment | jails, forms, shell's agent commands, `agents`, `quotient` |
+| screwtape | forms only, with their own Doctrine; `agents`, `quotient` |
+
+Before deleting, check that each jail's env reached `devEnv` and its `workspaceDeps`
+reached `.envrc`. Not checked yet. org-incremental-writing sets `ORG_IW_DENOTE_DIR` and
+`DOCTRINE_RESERVATION_FALLBACK`; smut, org-incremental-writing and sediment have
+`workspaceDepsRw`. satan is not on this list: its remaining jails are product harnesses.
+
 ## Order
 
 1. Doctrine to `capsule-tools` where a project has it in `dev-tools`: done (CHR-031).
 2. oubliette, panopticon, malebolge.
 3. bough, vk, forgettable, spec-driver.
-4. goad, deck_of_dwarf, emacs-config, or decide they stay.
+4. goad, deck_of_dwarf, emacs-config, notes, satan-corpus, or decide they stay.
+5. resume, and the flakes under "Joined, flake not cleaned", at any point.
