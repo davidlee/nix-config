@@ -79,10 +79,7 @@
 
     panopticon = {
       url = "github:davidlee/panopticon";
-      inputs = {
-        nixpkgs.follows = "nixpkgs-home";
-        agents.follows = "agents";
-      };
+      inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
     # Follows agents' pin, like llm-agents, so the host and every jail share one
