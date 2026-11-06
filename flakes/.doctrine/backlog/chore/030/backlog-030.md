@@ -132,3 +132,40 @@ satan is not on this list: its remaining jails are product harnesses.
 3. bough, vk, forgettable, spec-driver.
 4. goad, deck_of_dwarf, emacs-config, notes, satan-corpus, or decide they stay.
 5. resume, and the flakes under "Joined, flake not cleaned", at any point.
+
+## Progress (2026-11-06)
+
+| project | state |
+|---|---|
+| www, smut, satan-attrd, screwtape | cleaned, pushed; `dev-tools` drvPath unchanged |
+| org-incremental-writing | cleaned, 37df731 not pushed (10 earlier commits waiting) |
+| sediment | cleaned, e294979; no remote |
+| oubliette | c1a926a; `.envrc` layers `use_dev_envs` over mkFleet's shell, which dev-envs cannot carry |
+| panopticon | ea89c19 |
+| malebolge | 948fc4e; `jailed-pi-bridge` and `agents` stay |
+| bough (vk is a symlink to it), forgettable | 9d64f201, c7904dc; not pushed (2 and 8 earlier commits waiting) |
+| resume | `.envrc` only, untracked |
+| spec-driver | not started: on DE-116 with delta work in progress |
+| goad, deck_of_dwarf, emacs-config, notes, satan-corpus | reviewed, decision pending |
+
+Findings:
+
+- **`dev-tools` and `capsule-tools` are separate lists.** dev-envs takes the first, a room the
+  second, so a tool the jails need and the room does not goes in `dev-tools` alone. malebolge's
+  `emacs-nox` and `util-linux`, and oubliette's `nix`, went that way, with no dev-envs change.
+- **malebolge CHR-009 stays open.** dev-envs' `jailed-pi` meets DEC-074's first three clauses
+  but not the read-only project mount (`readOnlyLaunchDir` unset).
+- **panopticon's niri bind is gone**, with its `NIRI_SOCKET` forward. The gate does not use it,
+  and it was a no-op under umbriel. Live niri capture in a jail would need it back.
+- panopticon's gate fails in `jailed-shell` with `PackageNotFoundError`, on the old flake too.
+- bough and forgettable: Docker only provided Postgres. Both gates need a database at
+  `127.0.0.1:54322`, which nothing serves here, and fail the same before and after: bough 2 lint
+  errors and 35 bough-db tests, forgettable 2 e2e tests. Moving to `dev-db` is as-needed.
+
+Review of the undecided five: emacs-config, notes and satan-corpus need path binds dev-envs
+lacks (emacs server, satan-mcp socket, satan-corpus's ten ro-binds). goad's jail needs its GUI
+tools, which `dev-tools` deliberately omits and its room takes. deck_of_dwarf's uv-installed
+ruff needs the `/lib64` loader bind.
+
+Left for the operator: `direnv allow` in each migrated repo, `quotient allow` in the eight
+relinked roots. Fleet still locks these repos' earlier revs; `capsule-tools` did not change.
