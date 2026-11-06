@@ -1,0 +1,6 @@
+# Copy to .envrc. Enters dev-envs#default around this checkout's dev-tools; off
+# Linux, or without ~/flakes, the project's own shell (helper: ~/flakes/envrc/dev-envs.sh).
+# export JAIL_WORKSPACE_DEPS="$HOME/dev/some-lib"     # sibling repos, read-only in jails
+# export JAIL_WORKSPACE_DEPS_RW="$HOME/notes"         # writable in jails
+source_env_if_exists ~/flakes/envrc/dev-envs.sh
+use_dev_envs || use flake .

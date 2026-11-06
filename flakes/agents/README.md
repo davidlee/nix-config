@@ -275,21 +275,20 @@ The pin lives in `agents/flake.lock`. Bump it once:
 cd ~/flakes/agents && nix flake update llm-agents
 ```
 
-Projects whose `.envrc` uses `use agents_dev` (template:
-`_templates/agents/_envrc`; helper: `envrc/agents.sh`, sourced by the
-`.envrc`) read this flake live via `--override-input`, so the bump lands on
-their next direnv reload — no per-project lock update. The helper evaluates
-impurely only when `JAIL_WORKSPACE_DEPS` or `JAIL_WORKSPACE_DEPS_RW` is set:
-those are read with `getEnv`, which a pure evaluation answers with "". The
-host picks it up on `nix flake update agents` + `just home-switch`.
-Plain `nix develop`, CI, and other machines use the project's committed lock;
-refresh that with `nix flake update agents`.
+Projects on dev-envs (`use_dev_envs`, template `_templates/dev-env`) read this
+flake live via `--override-input`, so the bump lands on their next direnv reload
+with no per-project lock update. So do the projects not yet migrated, on
+`use agents_dev` (`envrc/agents.sh`, CHR-030). Both helpers evaluate impurely
+only when `JAIL_WORKSPACE_DEPS` or `JAIL_WORKSPACE_DEPS_RW` is set: those are
+read with `getEnv`, which a pure evaluation answers with "". The host picks it
+up on `nix flake update agents` + `just home-switch`. A project that deploys
+production jails keeps `agents` as an input; refresh its lock with
+`nix flake update agents`.
 
 Then from the project directory:
 
 ```
-$ nix develop
-$ jailed-claude   # or jailed-codex, jailed-pi, jailed-pi-research
+$ jcl   # or jpi, jcx, jsh; jailed-claude and friends are the long names
 ```
 
 ### Environment variables

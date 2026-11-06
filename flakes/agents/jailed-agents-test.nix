@@ -26,6 +26,7 @@
         inherit pkgs jail-nix;
         llm-agents = fakeAgents;
         zmx = fakeAgent "zmx";
+        zmx-new = fakeAgent "zmx-new";
       }
       // extra
     );

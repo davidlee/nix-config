@@ -26,10 +26,10 @@ State per repo (flake still defines a family / `.envrc` on dev-envs):
 | smut | yes | yes | own |
 | screwtape | yes | yes | own |
 | org-incremental-writing | yes | yes | own |
-| satan | yes | yes | own |
+| satan | no | yes | dev-envs |
 | satan-attrd | yes | yes | own |
 | sediment | yes | yes | dev-envs |
-| zmux | yes | no | dev-envs |
+| zmux | no | yes | dev-envs |
 | www | no | yes | dev-envs |
 
 Per repo: re-link with `dev-envs-forms`, `quotient allow` (the operator's act),

@@ -5,7 +5,7 @@
 #   if has use_agents_dev; then use agents_dev; else use flake .; fi
 #
 # source_env also watches this file, so an edit here reloads every project
-# that sources it. Template: ~/flakes/_templates/agents/_envrc.
+# that sources it. Legacy: new projects use dev-envs.sh; this goes with CHR-030.
 
 # `use flake_local <input>[:<dir>]... [args]`: `use flake .`, but each named
 # input is read live from ~/flakes/<dir> (default: the input's name) rather

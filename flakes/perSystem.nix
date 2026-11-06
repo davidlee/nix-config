@@ -6,13 +6,14 @@
 }: let
   # A test file (lib -> lib.runTests failures) as a check: evaluating it is the
   # test; the build is a stub named for the file.
-  evalTests = file: let
+  evalTestsWith = args: file: let
     name = lib.removeSuffix ".nix" (baseNameOf file);
-    failures = import file lib;
+    failures = import file args;
   in
     if failures == []
     then pkgs.runCommand name {} "touch $out"
     else throw "${name}.nix failed:\n${lib.generators.toPretty {} failures}";
+  evalTests = evalTestsWith lib;
 in {
   treefmt.programs = import ./dev-tools/treefmt.nix;
   devShells.default = pkgs.mkShell {
@@ -25,6 +26,13 @@ in {
       features = evalTests ./features-test.nix;
       # hosts/<h>/meta.nix schema tests (host-meta.nix).
       host-meta = evalTests ./host-meta-test.nix;
+      # What the flake templates teach (_templates/).
+      templates =
+        evalTestsWith {
+          inherit (inputs) nixpkgs;
+          inherit pkgs;
+        }
+        ./templates-test.nix;
     }
     # The gateway is NixOS-only, so its check is Linux only.
     // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {

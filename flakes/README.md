@@ -885,8 +885,8 @@ Sleipnir) with `features/agents/gateway.nix` and `features/agents/gateway/`.
 A LiteLLM proxy holds the provider keys. A jail holds only its own gateway
 key: useful on this host alone, within its budget and its model list. Clients
 are the jailed `eca` (key `eca`) and the jails that take
-`gatewayClient "pi"` (shared key `pi`): the Emacs devshell, `~/dev/doctrine`
-and projects made from the agents template. The unjailed `eca` is unchanged.
+`gatewayClient "pi"` (shared key `pi`): the Emacs devshell and every jail
+dev-envs builds. The unjailed `eca` is unchanged.
 It serves DeepSeek, OpenRouter, Fireworks, TypeSafe (Jev) and OpenAI models,
 the last on the ChatGPT subscription.
 
@@ -1249,15 +1249,16 @@ CLIs. pi comes from the `agents.pi` feature; claude and codex come from their
 own installers (claude's native installer into `~/.local/bin`, codex as an npm
 global). Nothing here builds them (DEC-116).
 
-Without a consumer, the template is the self-contained option — bubblewrap-jailed
-agents, all pins in the project:
+**Starting a project.** `dev-env` is the producer: `dev-tools`, `passthru.devEnv`
+and a fallback shell, with its setup in its header. `minimal` is a plain shell
+with no jails, as a flake and a `shell.nix`. A room that needs Doctrine takes
+`capsule-tools`, never `dev-tools` (DEC-128).
 
 ```zsh
-nix flake init -t /home/david/flakes#agents                    # local
-nix flake init -t github:davidlee/nix-config?dir=flakes#agents # anywhere
+nix flake init -t /home/david/flakes#dev-env                    # local
+nix flake init -t github:davidlee/nix-config?dir=flakes#minimal # anywhere
 ```
 
-The template starts every jail in gateway mode: no provider key enters the jail,
-only a key for the local LLM gateway (opt out with `gateway = null`). See § LLM gateway and [agents/README.md](./agents/README.md).
+Off this host a `dev-env` project has its tools and no jails (DEC-129).
 
 See [README](./pub/README.md) 

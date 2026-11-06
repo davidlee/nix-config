@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 129
+slug = "templates-producer-and-minimal"
+title = "One producer template and one jail-free minimal template; no self-contained jail template"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-06"
+updated = "2026-11-06"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "_templates/agents taught per-repo jails, retired by SPEC-003. go, lua, python, rust, typescript and zig were unregistered and unreferenced, and none exported dev-tools."
+choice = "_templates/dev-env (the default template) is a producer: dev-tools, passthru.devEnv and a fallback devshell, with nixpkgs its only input. _templates/minimal is a jail-free shell, in flake and shell.nix form. The language templates, _templates/_envrc and the self-contained jail template go. Off this host a project from dev-env gets tools and no jails."
+alternatives = ["Rewrite each language template as a producer: seven copies of one boilerplate", "Keep a self-contained jail template: a second definition of the jail set"]
+rationale = "One definition of the jail set, in dev-envs. Less code."
+consequences = ["The gateway default for jails now lives in dev-envs alone", "Supersedes DEC-062: Doctrine's mkJail went with DEC-111 and the template's jails go here"]
+decided_by = 'user ("yes, less code is best code"; "yep yep", 2026-11-06)'
+decided_on = "2026-11-06"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = ["DEC-062"]   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)

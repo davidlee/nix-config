@@ -209,11 +209,15 @@
 
         flake = {
           templates = {
-            agents = {
-              path = ./_templates/agents;
-              description = "Dev shell with jailed LLM agents";
+            dev-env = {
+              path = ./_templates/dev-env;
+              description = "A project's tools, for dev-envs: its jails, forms and shell";
             };
-            default = self.templates.agents;
+            minimal = {
+              path = ./_templates/minimal;
+              description = "A plain dev shell, as a flake and a shell.nix";
+            };
+            default = self.templates.dev-env;
           };
         }; # flake
       }

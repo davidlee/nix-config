@@ -22,6 +22,7 @@
         inherit pkgs jail-nix;
         llm-agents = fakeAgents;
         zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
+        zmx-new = pkgs.writeShellScriptBin "zmx-new" "exit 0";
       }
       // extra);
   agents = mkAgents {};

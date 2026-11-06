@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 128
+slug = "doctrine-capsule-tools-only"
+title = "Doctrine reaches a room through capsule-tools; dev-tools carries none"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-06"
+updated = "2026-11-06"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "dev-envs builds its shell, jails and forms from dev-tools (dev-envs/flake.nix:107), and a jail's extraPkgs precede the host Doctrine on PATH (CHR-030, measured in malebolge). A room has no host binary, so it needs a Nix Doctrine from somewhere. DEC-112 made this split for Doctrine's own flake."
+choice = "A project's dev-tools carries no Doctrine, so the shell and jails show only the host install. A project whose room needs Doctrine exports capsule-tools = its tool list plus Doctrine, and its fleet target sets toolsPackage = capsule-tools. The project's own devshell carries no Doctrine."
+alternatives = ["Keep Doctrine in dev-tools as a supported form and reorder PATH so the host install wins: touches every jail and the dev-envs shell"]
+rationale = "Satisfies 'not in the devshell' in both shells with no jail-library change."
+consequences = ["CHR-030's prerequisite applies only to a repo still carrying Doctrine in dev-tools", "CHR-031 audits every project and its fleet target", "A repo must switch its fleet target before dropping Doctrine from dev-tools (DEC-112's order)"]
+decided_by = 'user ("A", 2026-11-06)'
+decided_on = "2026-11-06"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)

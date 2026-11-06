@@ -14,6 +14,7 @@
     # pi is compared against (piInJail), never built
     llm-agents.packages.${system}.pi = null;
     zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
+    zmx-new = pkgs.writeShellScriptBin "zmx-new" "exit 0";
   };
   launcher = args:
     agents.makeJailedZsh (
