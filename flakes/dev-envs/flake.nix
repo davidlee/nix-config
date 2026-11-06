@@ -205,6 +205,7 @@
       devShells.default = pkgs.mkShell {
         packages = tools ++ lib.attrValues jails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
         inherit env;
+        shellHook = devEnvLib.doctrineWarning devTools;
       };
 
       checks = {

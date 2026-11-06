@@ -29,6 +29,9 @@ Doctrine it reports `context_degraded` and goes on. Audit: CHR-031. nix-config's
 in `flakes/`.
 
 SPEC-003 § Producer contract and README § Jailed Agents say "a room that needs Doctrine".
-They want a revision to DEC-130.
+They want a revision to DEC-130. The revision should also add the dev-envs warning to
+SPEC-003 § Refusals: a shell whose `dev-tools` holds `bin/doctrine` warns at entry and
+still starts (`doctrineWarning`, `dev-envs/dev-env.nix`). A warning, not REV-017's
+out-of-scope refusal, by the operator's choice.
 
 Related: CHR-031, DEC-128, DEC-130.

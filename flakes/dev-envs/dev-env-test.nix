@@ -169,7 +169,25 @@
 in
   pkgs.runCommand "dev-env-test" {} (
     if failed == []
-    then "touch $out"
+    then ''
+      # The warning reads a built tree, so it runs here rather than among the cases.
+      mkdir -p clean/bin carrying/bin
+      touch carrying/bin/doctrine
+
+      (${devEnvLib.doctrineWarning "$PWD/clean"}) 2>clean.err
+      if [ -s clean.err ]; then
+        echo 'dev-env: FAIL warning on clean dev-tools' >&2
+        exit 1
+      fi
+
+      (${devEnvLib.doctrineWarning "$PWD/carrying"}) 2>carrying.err
+      if ! grep -qF 'flakes:DEC-128' carrying.err; then
+        echo 'dev-env: FAIL no warning on dev-tools carrying doctrine' >&2
+        exit 1
+      fi
+
+      touch $out
+    ''
     else ''
       ${lib.concatMapStringsSep "\n" (c: "echo 'dev-env: FAIL ${c.name}: ${lib.escape ["'"] c.detail}' >&2") failed}
       exit 1

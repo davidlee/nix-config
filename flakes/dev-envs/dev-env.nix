@@ -44,6 +44,22 @@ in rec {
     ++ map (n: "`${n}` is owned by the host's env list: do not restate it")
     (lib.filter (n: lib.elem n hostNames) names);
 
+  # Shell code, for a shell's entry: what dev-tools holds is known only once built.
+  # Warns and does not refuse, so a project mid-move keeps its shell (flakes:DEC-128).
+  doctrineWarning = devTools: ''
+    if [ -e ${devTools}/bin/doctrine ]; then
+      cat >&2 <<'WARNING'
+
+    !!! dev-envs: THIS PROJECT'S dev-tools CARRIES DOCTRINE !!!
+    It shadows the host install in every jail and form here, so agents run a
+    Doctrine pinned by this project's lock, not the one the host runs.
+    Move it to capsule-tools, point the fleet target there, then drop it from
+    dev-tools (flakes:DEC-128).
+
+    WARNING
+    fi
+  '';
+
   checkDevEnv = args: devEnv: let
     es = errors args devEnv;
   in
