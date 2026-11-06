@@ -187,6 +187,7 @@
       "1password/custom_allowed_browsers" = {
         text = ''
           firefox
+          librewolf
           floorp
           vivaldi-bin
           zen
