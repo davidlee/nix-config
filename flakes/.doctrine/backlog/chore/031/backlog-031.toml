@@ -5,8 +5,8 @@ id = 31
 slug = "audit-capsule-tools-across-project-flakes-and-update-the-fleet-targets"
 title = "Audit capsule-tools across project flakes and update the fleet targets"
 kind = "chore"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-11-06"
 updated = "2026-11-06"
 tags = ["agents", "dev-envs"]
@@ -20,3 +20,7 @@ tags = ["agents", "dev-envs"]
 needs    = []                   # item→item hard prerequisite
 after    = []                   # item→item soft sequence: { to, rank? }
 triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "related"
+target = "CHR-032"

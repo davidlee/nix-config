@@ -22,8 +22,11 @@ Measured in a jail built by dev-envs with malebolge as the project:
 ```
 
 `extraPkgs` lands ahead of `hostDoctrineOptions`' `add-path` (`agents/jailed-agents.nix`).
-DEC-128 removes the cause: move Doctrine to `capsule-tools`, in DEC-112's order (CHR-031).
-No jail-library change is needed.
+DEC-128 removes the cause: Doctrine moved to `capsule-tools`, in DEC-112's order (CHR-031,
+done). No jail-library change is needed.
+
+emacs-config is not in the table below: it has `dev-tools`, and `.envrc` still uses
+`agents_dev`.
 
 ## Steps per project
 
@@ -61,8 +64,8 @@ The five with `dev-tools` evaluate under dev-envs. That proves evaluation only.
 
 | project | `dev-tools` | `.envrc` | known work |
 |---|---|---|---|
-| malebolge | yes | agents_dev | doctrine to `capsule-tools`; forms; bridge; workspace deps |
-| oubliette | yes | use flake | check for doctrine in `dev-tools` |
+| malebolge | yes | agents_dev | forms; bridge; workspace deps |
+| oubliette | yes | use flake | |
 | panopticon | yes | agents_dev | `NIRI_SOCKET`; own forms |
 | goad | yes | agents_dev | GUI env, `shellHook`; `XDG_RUNTIME_DIR` and `CLAUDE_CODE_SHELL` may clash with host names |
 | bough | no | agents_dev | docker lines; workspace deps |
@@ -91,7 +94,7 @@ use. If one needs it, dev-envs needs a way to bind a path.
 
 ## Order
 
-1. Doctrine to `capsule-tools` where a project has it in `dev-tools` (CHR-031).
+1. Doctrine to `capsule-tools` where a project has it in `dev-tools`: done (CHR-031).
 2. oubliette, panopticon, malebolge.
 3. bough, vk, forgettable, spec-driver.
 4. goad, deck_of_dwarf, or decide they stay.

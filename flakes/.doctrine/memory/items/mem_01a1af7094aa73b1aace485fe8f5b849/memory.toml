@@ -1,0 +1,42 @@
+memory_uid = "mem_01a1af7094aa73b1aace485fe8f5b849"
+memory_key = "mem.fact.flakes.nix-fmt-writes-lock"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "nix fmt rewrites flake.lock here"
+summary = "nix fmt in ~/flakes has no --no-write-lock-file, so it can bump an input in flake.lock"
+created = "2026-11-06"
+updated = "2026-11-06"
+
+[scope]
+paths = ["flake.lock"]
+globs = []
+commands = ["nix fmt"]
+tags = ["nix", "lock"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "2345b13eb037949d46c1613825d2cd0e64bbd527"
+ref_name = "refs/heads/main"
+checkout_state_id = "e2144274453f3b6d884a192a233f96cb4bf440f3aa55217262c76d730739a2b3"
+base_commit = "1c5a2035c4eb628590ed19258d0d307caec1f5a3"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
