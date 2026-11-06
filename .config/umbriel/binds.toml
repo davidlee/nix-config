@@ -82,6 +82,10 @@
 "Mod+Shift+Home" = "column-move-to-first"
 "Mod+Shift+End" = "column-move-to-last"
 
+# TODO: SCROLL l/r on Mod+Alt
+"Mod+Alt+Left" = "layout-scroll-left"
+"Mod+Alt+Right" = "layout-scroll-right"
+
 # --- monitors ---------------------------------------------------------
 "Mod+Ctrl+Left" = "output-focus-left"
 "Mod+Ctrl+Down" = "output-focus-down"

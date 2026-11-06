@@ -42,6 +42,5 @@ def main():
     subprocess.run(["umbriel", "msg", action(windows, sys.argv[1])], check=True)
     return 0
 
-
 if __name__ == "__main__":
     sys.exit(main())

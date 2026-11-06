@@ -6,8 +6,6 @@
 [layout]
 mode = "scrolling"
 gap = 0
-# One preset list for both the primary (column width) and secondary (window
-# height) extent.
 extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8, 1]
 
 [layout.scrolling]
@@ -20,9 +18,6 @@ center_focused = "on_overflow"
 [workspaces]
 back_and_forth = true
 empty_above = false
-
-[[workspace]]
-name = "emacs"
 
 # --- overview ---------------------------------------------------------
 [overview]
