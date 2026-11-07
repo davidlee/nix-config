@@ -70,14 +70,14 @@ fmt: check-flake-root
 test:
   @jq -e '[.nodes[].locked // empty | select(.type == "path" or ((.url // "") | startswith("file:")))] == []' flake.lock >/dev/null || { echo "flake.lock locks a local source: re-lock it without --override-input (just update-local)"; exit 1; }
   @jq -e '[.nodes[].locked // empty | select(((.url // "") | startswith("file:")) or (.type == "path" and ((.path // "") | startswith("/"))))] == []' dev-envs/flake.lock >/dev/null || { echo "dev-envs/flake.lock locks an absolute path or a file: URL: the stub is a relative path node, so re-lock it without --override-input"; exit 1; }
-  nix build ".#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
-  nix build ".#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
-  nix build ".#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
-  nix build ".#checks.$(nix config show system).templates" {{local_override}} --no-link --no-write-lock-file
-  nix build ".#checks.$(nix config show system).workarounds" {{local_override}} --no-link --no-write-lock-file
-  if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).satan-room" {{local_override}} --no-link --no-write-lock-file; fi
-  if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).quotient-forms" {{local_override}} --no-link --no-write-lock-file; fi
+  nix build "{{flake}}#checks.$(nix config show system).features" {{local_override}} --no-link --no-write-lock-file
+  nix build "{{flake}}#checks.$(nix config show system).factories" {{local_override}} --no-link --no-write-lock-file
+  nix build "{{flake}}#checks.$(nix config show system).host-meta" {{local_override}} --no-link --no-write-lock-file
+  nix build "{{flake}}#checks.$(nix config show system).templates" {{local_override}} --no-link --no-write-lock-file
+  nix build "{{flake}}#checks.$(nix config show system).workarounds" {{local_override}} --no-link --no-write-lock-file
+  if [ "$(uname -s)" = Linux ]; then nix build "{{flake}}#checks.$(nix config show system).llm-gateway" {{local_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "{{flake}}#checks.$(nix config show system).satan-room" {{local_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "{{flake}}#checks.$(nix config show system).quotient-forms" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).quotient-relay" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).zmx-state-relay" --no-link --no-write-lock-file; fi
@@ -111,7 +111,7 @@ test:
 # read-only flake check (alejandra, statix, deadnix), then the tests.
 # --no-write-lock-file: a check never re-locks (CHR-008).
 gate: test
-  nix build ".#checks.$(nix config show system).treefmt" {{local_override}} --no-link --no-write-lock-file
+  nix build "{{flake}}#checks.$(nix config show system).treefmt" {{local_override}} --no-link --no-write-lock-file
 
 nixos-start-docker-daemon:
   systemctl --user start docker
