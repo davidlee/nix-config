@@ -76,6 +76,13 @@ keybind = ctrl+zero=reset_font_size
 keybind = shift+enter=text:\n
 # keybind = shift+enter=text:\x1b\r
 
+gtk-tabs-location = bottom
+window-show-tab-bar = always
+gtk-wide-tabs = true
+gtk-toolbar-style = flat
+shell-integration-features = no-title
+
+
 # more widespread support if we impersonate kitty
 # term = xterm-kitty
 
