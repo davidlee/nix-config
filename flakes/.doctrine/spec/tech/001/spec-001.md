@@ -201,9 +201,8 @@ The served-model list is plain data in `agents/gateway.nix` (`models`): name
 → LiteLLM `model`, `provider`, optional `params` merged into its LiteLLM
 params under the generated `model` and `api_key` (DEC-070), and an optional
 `pi` block the gateway ignores (DEC-063, DEC-066). OpenRouter models are
-explicit entries, no wildcard (DEC-065); each sets
-`allowed_openai_params = ["reasoning_effort"]` so LiteLLM does not refuse
-it on models it does not flag as reasoning.
+explicit entries, no wildcard (DEC-065). LiteLLM accepts `reasoning_effort`
+on every OpenRouter model, so they set no `allowed_openai_params`.
 
 Each model needs a cost source, checked at build (FR-007, DEC-064):
 
@@ -265,7 +264,8 @@ is always the invoking user's (DEC-091).
   cannot open a bypass.
 - **LiteLLM upgrades.** Hook signatures, fallback handling and cost
   reporting are LiteLLM internals (memory
-  `mem.fact.litellm.proxy-hook-behaviours`, verified on 1.102.1).
+  `mem.fact.litellm.proxy-hook-behaviours`, verified on 1.102.1, re-checked
+  in part on 1.108.0).
   `checks.<system>.llm-gateway` runs the real proxy offline with fake
   upstreams; it must pass on every bump.
 - **Secrets** (NF-001, NF-002, POL-001). Three places a key can be:

@@ -35,3 +35,7 @@ LiteLLM 1.106.2 bump (2026-10-28; this changes two claims above):
 - Cost depends on time of day: a price-map entry with `off_peak_pricing` is charged at that block's rates inside its UTC windows (`litellm_core_utils/llm_cost_calc/utils.py`, `_is_off_peak`). `deepseek/deepseek-flash` is half price on weekdays from 10:00 UTC to midnight, and all weekend. A test that restates the price from the map must apply the same rule (`gateway-test` `price_now`), or it fails at some times of day.
 - `read_request_body` parses by `Content-Type`: a form type via `request.form()`, protobuf types via a binary parser, anything else as JSON (`proxy/common_utils/http_parsing_utils.py:229-262`). The route gate therefore replays every admitted body with a canonical `content-type: application/json` (ISS-020).
 - Line references above (`:1346-1357`, …) are 1.102.1; CHR-024 tracks the stale ones in code.
+
+## Re-checked on 1.108.0 (2026-11-08, CHR-024)
+
+Hook modules still load outside `sys.modules` (`get_instance_fn`), `iter_request_fallback_targets` still exists, and the Router still reads per-request `fallbacks`. The line numbers above are 1.102.1 and have moved. `auth_exception_handler.py` no longer mentions prisma, so the HTTP 500 path above is unconfirmed; client `mock_response` handling has been reworked in `litellm_pre_call_utils.py` (`_CLIENT_MOCK_CONTROL_FIELDS`). Other claims were not re-checked.

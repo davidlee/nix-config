@@ -16,7 +16,7 @@ calls into `keystore` calls.
   ledger            callback, success: spent += response_cost
 
 LiteLLM loads each hook reference from this file afresh, without sys.modules
-(litellm/proxy/types_utils/utils.py:42-50, 1.102.1), so the hooks hold no
+(litellm/proxy/types_utils/utils.py get_instance_fn, 1.108.0), so the hooks hold no
 state: each call reads the key store at $STATE_DIRECTORY/keys.db.
 Messages name the alias, never the key or its hash (POL-001).
 """

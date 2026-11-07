@@ -148,8 +148,6 @@ in {
               "typesafe/jev-1.14.0" = proxy.defaults.models."typesafe/jev-1.14.0";
               # the subscription, priced in params: one mapped, one not
               inherit (proxy.defaults.models) "chatgpt/gpt-6.1-sol" "chatgpt/gpt-6.1-terra";
-              # its twin without allowed_openai_params
-              unallowed = removeAttrs reported ["params"];
               # never requested: its params try to replace its model and key
               override = {
                 model = "openrouter/local/override";

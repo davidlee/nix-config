@@ -20,13 +20,10 @@ rec {
   # pi's built-in entry for the upstream model, checked through the gateway;
   # LiteLLM's price map has no compat or thinking levels.
   models = let
-    # OpenRouter prices each request itself. reasoning_effort must be allowed
-    # explicitly: LiteLLM refuses it (400) for a model its map does not flag
-    # as reasoning, and most routes here are unmapped or aliases.
+    # OpenRouter prices each request itself.
     openrouter = id: {
       model = "openrouter/${id}";
       provider = "openrouter";
-      params.allowed_openai_params = ["reasoning_effort"];
     };
     # TypeSafe's Jev: a native LiteLLM provider on /v1/systemone, priced from
     # the packaged map (input tokens only). Not offered to pi: no chat.
@@ -125,8 +122,8 @@ rec {
           contextWindow = 1000000;
           maxTokens = 384000;
           # USD per million tokens. pi-ai 1.3.0's built-in deepseek-flash and
-          # LiteLLM 1.102.1's price map (deepseek/deepseek-flash, what the
-          # gateway bills against a key's budget) agree, 2026-10-19. The
+          # LiteLLM 1.108.0's price map (deepseek/deepseek-flash, what the
+          # gateway bills against a key's budget) agree, 2026-11-08. The
           # satan-runner's cost ceiling reads it (DEC-057): never under-count.
           cost = {
             input = 0.3;

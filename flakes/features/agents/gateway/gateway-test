@@ -61,7 +61,6 @@ PROVIDER_SECRET = "sk-test-not-a-secret"  # dummy (POL-001)
 PRICED = "deepseek-flash"  # -> deepseek/deepseek-flash, the production mapping
 UNPRICED = "unpriced"  # -> a model id the price map lacks
 REPORTED = "reported"  # an unmapped production OpenRouter model, on the fake
-UNALLOWED = "unallowed"  # the same without allowed_openai_params (CHR-025)
 # production ChatGPT subscription models, on the fake: one the price map
 # lists (at no price), one it lacks
 CHATGPT = ("chatgpt/gpt-6.1-sol", "chatgpt/gpt-6.1-terra")
@@ -1037,16 +1036,6 @@ class PriceMapTest(unittest.TestCase):
             [deployment(TEST_CONFIG, UNPRICED)["model"]],
         )
 
-    def test_every_openrouter_entry_allows_reasoning_effort(self):
-        entries = served_by(PRODUCTION_CONFIG, "OPENROUTER_API_KEY")
-        self.assertTrue(entries)
-        for entry in entries:
-            with self.subTest(model=entry["model_name"]):
-                self.assertEqual(
-                    entry["litellm_params"]["allowed_openai_params"],
-                    ["reasoning_effort"],
-                )
-
     def test_every_chatgpt_model_sets_both_prices(self):
         """The subscription bills nothing per request and the price map
         lists its models at no price, so each is charged at the API's rates
@@ -1669,17 +1658,6 @@ class PassThroughTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         [body] = gateway.upstream.bodies
         self.assertEqual(body["provider"], {"sort": "throughput"})
-        self.assertEqual(body["reasoning_effort"], "none")
-
-    def test_twin_without_allowed_openai_params_also_reaches_it(self):
-        """LiteLLM 1.106.2 supports reasoning_effort on every OpenRouter
-        model (llms/openrouter/chat/transformation.py:41-46), so
-        allowed_openai_params is now redundant (CHR-025)."""
-        gateway = fake()
-        key = issue("unallowed", models=[UNALLOWED])
-        response = chat(key, model=UNALLOWED, via=gateway.client, **self.BODY)
-        self.assertEqual(response.status_code, 200, response.text)
-        [body] = gateway.upstream.bodies
         self.assertEqual(body["reasoning_effort"], "none")
 
 
