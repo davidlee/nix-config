@@ -5,10 +5,10 @@ id = 27
 slug = "add-k3d3claude-desktop-linux-flake-as-a-flake-input-wire-into-a-new-agents-feature-for-sleipnir"
 title = "Add k3d3/claude-desktop-linux-flake as a flake input; wire into a new agents feature for Sleipnir"
 kind = "chore"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

@@ -5,10 +5,10 @@ id = 35
 slug = "add-the-openai-provider-to-the-llm-gateway-when-an-api-billed-model-is-wanted"
 title = "OpenAI subscription (Codex OAuth) behind the LLM gateway"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-10-17"
-updated = "2026-10-17"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
