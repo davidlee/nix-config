@@ -1,22 +1,71 @@
-# ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
+################################################################################
+#
+# Behaviour
+#
+################################################################################
 
-theme = noctalia
-background-opacity = 1.0
-background-blur = true
-
-gtk-single-instance = true
+gtk-single-instance = detect
+gtk-quick-terminal-layer = overlay
 macos-option-as-alt = true
 
-clipboard-read = allow
+clipboard-read = ask
 clipboard-write = allow
 copy-on-select = clipboard
+right-click-action = copy-or-paste
+
+confirm-close-surface = false
+app-notifications = no-clipboard-copy,no-config-reload
+notify-on-command-finish = unfocused
+link-previews = true
+bell-features = system
+
+shell-integration = zsh
+shell-integration-features = cursor,sudo,ssh-env,ssh-terminfo
+
+linux-cgroup = always
+linux-cgroup-memory-limit = 4294967296
+
+#
+# quick terminal
+#
+
+quick-terminal-keyboard-interactivity = exclusive
+quick-terminal-autohide = false
+quick-terminal-animation-duration = 0.5
+quick-terminal-size = 80%
+
+#
+# zmux - bottom bar
+#
+
+gtk-titlebar = false
+gtk-titlebar-style = native
+gtk-tabs-location = bottom
+gtk-wide-tabs = true
+gtk-toolbar-style = flat
+gtk-custom-css = ~/dev/zmux/ghostty.css
+gtk-titlebar-hide-when-maximized = true
+window-show-tab-bar = always
+# we set the title ourselves
+shell-integration-features = no-title
+
+################################################################################
+#
+# Presentation
+#
+################################################################################
+
+# theme = noctalia
+config-file = ?auto/theme.ghostty
 
 cursor-style = block
 cursor-style-blink = true
-scrollback-limit = 3023
 mouse-hide-while-typing = true
-confirm-close-surface = false
-app-notifications = no-clipboard-copy,no-config-reload
+
+background-opacity = 1.0
+background-blur = true
+
+faint-opacity = 0.2
 
 unfocused-split-opacity = 0.7
 unfocused-split-fill = #44464f
@@ -24,66 +73,40 @@ unfocused-split-fill = #44464f
 window-decoration = false
 window-padding-x = 5
 window-padding-y = 5
-window-title-font-family="Hack"
+window-title-font-family="Inconsolata"
 
-# keybind = control+m>t=toggle_quick_terminal
+#
+# Fonts
+#
 
-# keybind = global:control+grave_accent=toggle_quick_terminal
+font-family="Hasklug Nerd Font"
+font-size=14
+font-feature=+liga
 
-quick-terminal-keyboard-interactivity = exclusive
-quick-terminal-autohide = false
-quick-terminal-animation-duration = 0.15
-quick-terminal-size = 80%
-# quick-terminal-position = bottom
+# ghostty +list-fonts | rg -i '^[^\s].*nerd' | sed -e 's/ Nerd Font.*//'| uniq
 
-shell-integration = zsh
-shell-integration-features = cursor
-
-bell-features = system
-
-gtk-titlebar = false
-gtk-titlebar-style = native
-faint-opacity = 0.2
-
-linux-cgroup = always
+#
+# Shaders
+#
 
 custom-shader-animation = always
 custom-shader = ./ghostty-shaders/cursor_blaze.glsl
 custom-shader = ./ghostty-shaders/in-game-crt-cursor.glsl
 custom-shader = ./ghostty-cursor-shaders/cursor_tail.glsl
-# custom-shader = ./ghostty-cursor-shaders/ripple_cursor.glsl
-# custom-shader = ./ghostty-shaders/cubes.glsl
+# custom-shader = ~/.local/src/crt-shader-with-chromatic-aberration-glow-scanlines-dot-matrix/crt-shader-with-chromatic-aberration-glow-scanlines-dot-matrix.glsl
 
-# font-family="MonoLisa Nerd Font Mono"
-# font-family="SauceCodePro Nerd Font Mono"
-# font-family="VictorMono Nerd Font Mono"
-# font-family="Terminess Nerd Font Mono"
-# font-family="IMWritingDuo Nerd Font Mono"
-# font-family="MesloLGS Nerd Font Mono"
-# font-family="Inconsolata Nerd Font Propo"
-# font-family="LiterationMono Nerd Font"
-# font-family="IncolataGo Nerd Font"
-# font-family="Hurmit Nerd Font"
-
-font-family="Hasklug Nerd Font"
-font-size=14
-font-feature=-liga
+################################################################################
+#
+# Keybinds
+#
+################################################################################
 
 keybind = ctrl+shift+n=new_window
 keybind = ctrl+plus=increase_font_size:1
 keybind = ctrl+minus=decrease_font_size:1
 keybind = ctrl+zero=reset_font_size
 keybind = shift+enter=text:\n
-# keybind = shift+enter=text:\x1b\r
-
-gtk-tabs-location = bottom
-window-show-tab-bar = always
-gtk-wide-tabs = true
-gtk-toolbar-style = flat
-shell-integration-features = no-title
-
-
-# more widespread support if we impersonate kitty
-# term = xterm-kitty
-
-config-file = ?auto/theme.ghostty
+keybind = global:ctrl+shift+backquote=toggle_quick_terminal
+keybind = ctrl+shift+bracket_left=goto_split:previous
+keybind = ctrl+shift+bracket_right=goto_split:next
+keybind = ctrl+shift+space=toggle_command_palette
