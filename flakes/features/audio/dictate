@@ -16,7 +16,7 @@ Typing as you speak only works because the model's partial transcripts grow
 and are not rewritten: cache-aware streaming emits each token once. `edit`
 still handles a rewrite, with backspaces, but none has been seen.
 
-Environment (set by dictate.nix):
+Environment (set by features/audio/dictate.nix):
   DICTATE_MODEL    unpacked sherpa-onnx Nemotron model directory
   DICTATE_LANG     language hint: en, fr, ja, … or auto      (default en)
   DICTATE_THREADS  CPU threads for inference                 (default 1)

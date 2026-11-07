@@ -5,10 +5,10 @@ id = 13
 slug = "refresh-stale-dictatenix-references-in-the-dictate-script-and-umbriel-binds"
 title = "Refresh stale dictate.nix references in the dictate script and umbriel binds"
 kind = "chore"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "done"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

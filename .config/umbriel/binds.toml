@@ -20,7 +20,7 @@
 "Ctrl+Alt+Delete" = "spawn noctalia msg panel-open session"
 "Mod+Ctrl+P" = { action = "dpms-off", repeat = false } # any input wakes them
 "Mod+Ctrl+M" = "spawn noctalia msg mic-volume-set 100"
-# streaming dictation (flakes: dictate.nix). F13/F14 are push-to-talk: ZMK's
+# streaming dictation (flakes: features/audio/dictate.nix). F13/F14 are push-to-talk: ZMK's
 # `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
 # xkb names F13/F14 XF86Tools/XF86Launch5; binds match the keysym.
 "F9" = { action = "spawn ~/.local/bin/dictate toggle", repeat = false }
