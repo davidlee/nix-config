@@ -100,6 +100,22 @@ role() {
   zmx set . role="$@"
 }
 
+# zmx-title: put this session in the terminal's title, which Ghostty's tab bar shows.
+zmx-title() {
+  [[ -n $ZMX_SESSION ]] || return 0
+  local -A label
+  local pair
+  for pair in ${=$(zmx get $ZMX_SESSION 2>/dev/null)}; label[${pair%%=*}]=${pair#*=}
+  local name=${label[project]:+$label[project].$label[id]}
+  local -a fields=(${name:-$ZMX_SESSION} $label[role] ${(D)PWD})
+  # The same icons as dl-zmx--state-icons in Emacs.
+  local -A icons=(done ● working ◐ blocked 🔔 failed ⊘)
+  [[ -n $label[state] ]] && fields+=(${icons[$label[state]]:-'*'})
+  printf '\e]0;%s\a' ${(j: | :)fields}
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd zmx-title
+
 #
 # snooze-nag
 #

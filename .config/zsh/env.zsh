@@ -13,6 +13,10 @@ export PAGER=ov
 # export MANPAGER='nvim +Man!'
 export MANPAGER='most'
 
+# disable omz_termsupport_precmd - allow setting ghostty persistent footer with OSC
+export DISABLE_AUTO_TITLE=true
+
+
 if [[ "Darwin" != "$(uname -o)" ]]; then
   if [[ ! -z "${XDG_RUNTIME_DIR}" ]]; then
     export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
