@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "defaultProjectTrust": "always",
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
@@ -67,5 +67,13 @@
       }
     }
   },
-  "extensions": []
+  "extensions": [],
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.87.0",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.47.0",
+    "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3",
+    "{\"source\":\"npm:@tmustier/pi-usage-extension\",\"scope\":\"user\"}": "0.10.2",
+    "{\"source\":\"npm:@tmustier/pi-raw-paste\",\"scope\":\"user\"}": "0.1.3",
+    "{\"source\":\"npm:pi-interactive-shell\",\"scope\":\"user\"}": "0.18.0"
+  }
 }
