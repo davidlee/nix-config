@@ -150,4 +150,14 @@ git init -q "$work/home/dev/goad"
 out=$(env -u FLAKES_DEV HOME="$work/home" "$script" override)
 check 'default root: ~/dev' "--override-input goad git+file://$work/home/dev/goad" "$out"
 
+# repos: every input present, the fleet's inputs with a checkout, the emacs config
+mkdir -p "$work/fleet" "$work/reposhome/.config/emacs/.git"
+git init -q "$work/fleet"
+echo '{"nodes":{"root":{"inputs":{"goad":"goad_2","notes":"notes","oubliette":"oubliette"}}}}' >"$work/fleet/flake.lock"
+repos=$(root repos goad oubliette unrelated)
+out=$(HOME=$work/reposhome FLAKES_DEV=$repos "$script" repos)
+check 'repos: inputs and fleet inputs, once each; no unlisted checkout' \
+  "$work/fleet $repos/goad $repos/oubliette $work/reposhome/.config/emacs" "$out"
+rm -rf "$work/fleet"
+
 exit "$failed"

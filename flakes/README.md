@@ -156,9 +156,33 @@ oubliette's `mkFleet`), is the one exception: it lives at `$FLAKES_FLEET`.
 Overrides are `git+file`: only tracked files reach the store, as GitHub
 would give them.
 
+An override replaces an input's source, not the root lock's copy of its inputs:
+a change to `agents/flake.lock` reaches a build only once it is pushed and the
+root lock takes it.
+
 Lock-writing recipes never override. To move the lock to your local work,
 push, then `just update-local`, which warns about any checkout ahead of its
 upstream and re-locks every input under development from its remote.
+
+### Upgrade
+
+`just upgrade` brings everything to its remotes' heads and switches to it.
+`just upgrade-keep-nixpkgs` does the same but no lock moves its `nixpkgs`,
+`nixpkgs-home` or `stable`. Sleipnir only.
+
+```
+push  every repo in `bin/dev-checkouts repos`, and this one
+lock  agents, emacs ─> dev-envs ─> fleet     each committed alone and pushed
+lock  root                                   left uncommitted
+test  system-build, home-build, test         failure stops here: root lock unpublished
+      commit and push the root lock
+      system-switch, home-switch
+```
+
+Each lock can only take what the one before it published. It refuses to start
+if a `flake.nix` or `flake.lock` in that chain has uncommitted changes. It pushes
+whatever is committed, to public repos too. It leaves the room running, and ends
+by reminding you of `just update-room`.
 
 ### Features
 
@@ -421,7 +445,7 @@ still proves the removal. Exit 0: no candidate; 1: a candidate; 2: usage, or
 the probes failed to evaluate. Offline, every probe is `unknown`. It runs:
 
 - at the end of `just update-system` (pin `nixpkgs`) and `just update-home`
-  (pin `nixpkgs-home`), non-fatally, so `update` and `everything` go on;
+  (pin `nixpkgs-home`), non-fatally, so `update` goes on;
 - on demand, `just workarounds-check [pin]`, which fails on a candidate;
 - never in `just test` or the gate: it needs the network.
 

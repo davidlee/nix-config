@@ -53,8 +53,7 @@ noop:
   @echo ''
 
 choose:
- #@$(gum choose "noop" "system-switch" "home-switch" "flake-update-all" "everything") | xargs just
- @sel=$(gum choose "noop" "system-switch" "home-switch" "flake-update-all" "everything") && [ -n "$sel" ] && just "$sel"
+ @sel=$(gum choose "noop" "system-switch" "home-switch" "upgrade" "upgrade-keep-nixpkgs") && [ -n "$sel" ] && just "$sel"
 
 fmt: check-flake-root
   nix fmt --no-write-lock-file
@@ -94,6 +93,7 @@ test:
   bin/dev-envs-forms-test
   if [ "$(uname -s)" = Linux ]; then agents/outer-git-test; fi
   bin/room-bump-test
+  bin/upgrade-test
   bin/room-behind-test
   workarounds/check-test
   workarounds/last-good-test
@@ -217,7 +217,13 @@ darwin-build host=host:
 darwin-switch host=host: (darwin-build host)
   sudo -H ./result-darwin/sw/bin/darwin-rebuild switch --flake '{{flake}}#{{host}}' {{local_override}} --no-write-lock-file
 
-everything: fmt update-system update-home system-switch home-switch
+# push, re-lock everything in dependency order, verify, switch (bin/upgrade)
+upgrade:
+  bin/upgrade
+
+# upgrade, leaving every lock's nixpkgs and stable where they are
+upgrade-keep-nixpkgs:
+  bin/upgrade --keep-nixpkgs
 
 update: update-system update-home
 
@@ -225,7 +231,7 @@ update: update-system update-home
 ##
 
 # each update ends with the workaround check for its pin: its output is the
-# signal; `-` keeps a candidate (exit 1) from stopping `update` / `everything`
+# signal; `-` keeps a candidate (exit 1) from stopping `update`
 update-system:
   nix flake update nixpkgs
   -WORKAROUNDS_FLAKE='{{flake}}' workarounds/check nixpkgs
@@ -262,11 +268,6 @@ update-local:
   bin/dev-checkouts ahead
   nix flake update agents emacs $(bin/dev-checkouts names)
 
-push-local:
-  for x in satan satan-attrd panopticon doctrine goad oubliette malebolge; do cd "$HOME/dev/${x}"; git push; done
-
-  cd ~/flakes
-
 # bump agents/zerostack.nix to its github default-branch HEAD; commit+push to ship
 update-zerostack:
   #!/usr/bin/env bash
@@ -278,9 +279,6 @@ update-zerostack:
   date=$(echo "$json" | nix run nixpkgs#jq -- -r '.date[:10]')
   sed -i -E "s|-unstable-[0-9-]+\"|-unstable-${date}\"|; s|rev = \"[0-9a-f]+\"|rev = \"${rev}\"|; s|hash = \"sha256-[^\"]+\"|hash = \"${hash}\"|" "$f"
   echo "zerostack -> ${rev} (${date})  — commit so downstream agent flakes can re-lock agents"
-
-update-all:
-  nix flake update
 
 ##
 ##

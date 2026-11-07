@@ -8,6 +8,8 @@
 #   dev-checkouts stub       --override-input <i> path:<repo>/features/stub, per listed input
 #   dev-checkouts ahead      warn (stderr) per present checkout ahead of its upstream
 #   dev-checkouts names      the listed inputs
+#   dev-checkouts repos      every local repo a lock draws on: present inputs, the
+#                            fleet's inputs with a checkout, the emacs config
 #
 # The root is $FLAKES_DEV, default ~/dev; <root>/<i>/.git marks a checkout.
 # The fleet is the one exception: it is this host's declaration rather than a
@@ -32,7 +34,7 @@ warn() {
   fi
 }
 
-usage() { echo "usage: dev-checkouts override|stub|ahead|names" >&2; }
+usage() { echo "usage: dev-checkouts override|stub|ahead|names|repos" >&2; }
 
 # The flags travel as one space-separated string (justfile, gate-probe), so a
 # root with whitespace would split into wrong flags.
@@ -81,6 +83,19 @@ ahead)
   ;;
 names)
   flags=("${inputs[@]}")
+  ;;
+repos)
+  mapfile -t flags < <(
+    {
+      for i in "${inputs[@]}"; do present "$i" && checkout "$i"; done
+      if [[ -e $fleet/flake.lock ]]; then
+        for i in $(jq -r '.nodes.root.inputs | keys[]' "$fleet/flake.lock"); do
+          [[ -e $root/$i/.git ]] && echo "$root/$i"
+        done
+      fi
+      [[ -e $HOME/.config/emacs/.git ]] && echo "$HOME/.config/emacs"
+    } | LC_ALL=C sort -u
+  )
   ;;
 *)
   usage

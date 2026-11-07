@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# Bring the stack to its remotes' heads, verify it, and switch to it. Sleipnir
+# only: it needs the fleet and the dev checkouts.
+#
+#   upgrade [--keep-nixpkgs]     --keep-nixpkgs: no lock moves its nixpkgs or stable
+#
+# A lock can only take what is published, and the root lock's copy of agents'
+# inputs beats agents/flake.lock even under --override-input, so order matters:
+#
+#   push checkouts ─> agents, emacs ─> dev-envs ─> fleet ─> root ─> verify ─> switch
+#
+# Each lock but the root's is committed alone and pushed as it moves. The root's
+# is committed after verify passes, so a bad bump stays in the working tree and
+# off main. Refuses a flake.nix or flake.lock with uncommitted changes, which
+# would ride along. The room is left running: restarting it is the operator's call.
+set -euo pipefail
+
+repo=$(cd "$(dirname "$0")/.." && pwd)
+fleet=${FLAKES_FLEET:-/srv/fleet}
+
+keep=()
+case ${1:-} in
+'') ;;
+--keep-nixpkgs) keep=(nixpkgs nixpkgs-home stable) ;;
+*)
+  echo "usage: upgrade [--keep-nixpkgs]" >&2
+  exit 2
+  ;;
+esac
+
+say() { printf 'upgrade: %s\n' "$1" >&2; }
+
+# updatable <lock> — its root inputs, less follows and $keep
+updatable() {
+  jq -r '.nodes.root.inputs | to_entries[] | select(.value | type == "string")
+    | .key | select(IN($ARGS.positional[]) | not)' "$1" --args "${keep[@]}"
+}
+
+relock() { # <flake dir>
+  local inputs
+  mapfile -t inputs < <(updatable "$1/flake.lock")
+  (cd "$1" && nix flake update "${inputs[@]}")
+}
+
+publish_lock() { # <flake dir> <commit message>
+  git -C "$1" diff --quiet HEAD -- flake.lock && return
+  git -C "$1" commit -q -m "$2" -- flake.lock
+  git -C "$1" push -q
+}
+
+refused=0
+for dir in "$repo" "$repo/agents" "$repo/emacs" "$repo/dev-envs" "$fleet"; do
+  if ! git -C "$dir" diff --quiet HEAD -- flake.nix flake.lock; then
+    say "$dir has uncommitted flake.nix or flake.lock changes; commit or revert them first"
+    refused=1
+  fi
+done
+((refused == 0)) || exit 1
+
+read -ra repos <<<"$("$repo/bin/dev-checkouts" repos)"
+for r in "${repos[@]}" "$repo"; do
+  say "push $r"
+  git -C "$r" push -q
+done
+
+for sub in agents emacs dev-envs; do
+  relock "$repo/$sub"
+  publish_lock "$repo/$sub" "chore($sub): bump lock"
+done
+
+mapfile -t fleet_inputs < <(updatable "$fleet/flake.lock")
+"$repo/bin/room-bump" "${fleet_inputs[@]}"
+git -C "$fleet" push -q
+
+relock "$repo"
+cd "$repo"
+just system-build home-build test
+publish_lock "$repo" "chore: bump lock"
+just system-switch home-switch
+
+say "done; the room still runs its old tools: just update-room when it is idle"
