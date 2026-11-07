@@ -1,0 +1,91 @@
+{
+  "env": {},
+  "permissions": {
+    "allow": [],
+    "defaultMode": "default"
+  },
+  "model": "opus[1m]",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "paplay /mnt/500G/home/david/.local/share/Steam/friends/voice_hang_up.wav 2>/dev/null || true",
+            "async": true
+          },
+          {
+            "type": "command",
+            "command": "bash /home/david/.claude/record-turn-end.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/david/.claude/record-turn-end.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code' 'Claude Code needs your attention'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": []
+  },
+  "enableArtifact": false,
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/david/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "lua-lsp@claude-plugins-official": false,
+    "zig-lsp@cc-zig-lsp": false,
+    "pyright-lsp@claude-plugins-official": false,
+    "gopls-lsp@claude-plugins-official": false,
+    "typescript-lsp@claude-plugins-official": false,
+    "caveman@caveman": false,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "codex@openai-codex": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "davidlee/codex-plugin-cc"
+      }
+    }
+  },
+  "effortLevel": "high",
+  "promptSuggestionEnabled": false,
+  "awaySummaryEnabled": false,
+  "askUserQuestionTimeout": "never",
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "editorMode": "normal",
+  "verbose": true,
+  "autoCompactEnabled": true,
+  "switchModelsOnFlag": false,
+  "remoteControlAtStartup": false,
+  "inputNeededNotifEnabled": false,
+  "agentPushNotifEnabled": false,
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true
+}
