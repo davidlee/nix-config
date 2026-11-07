@@ -5,7 +5,7 @@
 ## Overview
 
 The LLM gateway is a LiteLLM proxy that holds the model providers' API keys,
-so that agents never need one. Each client gets its own gateway key instead:
+and the ChatGPT subscription's login, so that agents never need one. Each client gets its own gateway key instead:
 it works only on this host, only for the models on its list, and only until
 its budget is spent.
 
@@ -19,7 +19,7 @@ clients (jails: eca, pi, claude …; gptel, minuet; later satan, oubliette rooms
    ├─ route gate   route on the list? size ≤ 16 MiB? body decoded, fields on the route's list?
    ├─ auth         key known, live, under budget?             ┐
    ├─ model gate   model and fallbacks on the key's list?      ├─ keys.db (SQLite)
-   ├─ provider     LiteLLM adapter, key from systemd creds     │
+   ├─ provider     key from systemd creds, or the ChatGPT token│
    └─ ledger       spent += response_cost                     ┘
 ```
 
@@ -203,6 +203,10 @@ params under the generated `model` and `api_key` (DEC-070), and an optional
 `pi` block the gateway ignores (DEC-063, DEC-066). OpenRouter models are
 explicit entries, no wildcard (DEC-065). LiteLLM accepts `reasoning_effort`
 on every OpenRouter model, so they set no `allowed_openai_params`.
+`chatgpt/<id>` models are LiteLLM `chatgpt/responses/<id>`: the prefix sends a
+model the map does not list in responses mode to the Responses API, the
+backend's only route. They set both prices from their pi cost, as the map
+lists them at no price (DEC-094).
 
 Each model needs a cost source, checked at build (FR-007, DEC-064):
 
@@ -231,6 +235,15 @@ it with `LoadCredentialEncrypted` (DEC-048). A missing credential makes
 systemd refuse the unit. A new provider rolls out credentials first, from
 the new build's CLI, then switches (DEC-067).
 
+`chatgpt` is the exception: no key variable, reference or credential
+(DEC-094). Its token is `auth.json` in
+`CHATGPT_TOKEN_DIR=/var/lib/llm-gateway/chatgpt`, in the 0700 state directory,
+written 0600 by `llm-gateway chatgpt-login` (device code, as the service user,
+umask 077) and refreshed in place by LiteLLM. There is one directory per
+process, so one account. Started without a token, the unit runs but LiteLLM
+drops the `chatgpt/*` deployments until a restart (400 "no healthy
+deployments"); `chatgpt-login` restarts it after signing in.
+
 ### Perimeter
 
 ```
@@ -251,7 +264,8 @@ because it reaches the providers.
 
 `llm-gateway`, run as the service user via sudo on the store; no master key
 and no admin route (DEC-050). Verbs: `issue`, `list`, `revoke`, `budget`,
-`models` (replace a live key's list, DEC-071), `reset`, `credentials`. Keys
+`models` (replace a live key's list, DEC-071), `reset`, `credentials`,
+`chatgpt-login` (the subscription's device-code login, then a restart). Keys
 travel on stdin, never argv; `issue --out` writes a new 0600 file and revokes
 the key if the write fails. It refuses to run as root (exit 2), so that file
 is always the invoking user's (DEC-091).

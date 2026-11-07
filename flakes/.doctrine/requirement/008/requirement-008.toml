@@ -11,7 +11,7 @@ kind = "functional"
 # it as the statement line — the storage rule forbids deriving it from prose).
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
-description = "Keys are issued, listed, revoked, re-budgeted, re-scoped and reset by the llm-gateway CLI, run as the service user on the SQLite store. There is no master key and no admin route. A key is shown once and never re-keyed; a revoked alias is never reissued."
+description = "Keys are issued, listed, revoked, re-budgeted, re-scoped and reset by the llm-gateway CLI, run as the service user on the SQLite store. There is no master key and no admin route. A key is shown once and never re-keyed; a revoked alias is never reissued. chatgpt-login runs the subscription's device-code login as the service user, then restarts the gateway and waits for its socket."
 tags = ["gateway"]
 acceptance_criteria = [
   "LiteLLM starts and authenticates with custom_auth and no master_key",

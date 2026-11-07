@@ -11,9 +11,10 @@ kind = "quality"
 # it as the statement line — the storage rule forbids deriving it from prose).
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
-description = "No client, jail, log or generated config file holds a provider key. Provider keys are stored only as host- and TPM2-encrypted systemd credentials; in plaintext they exist only at run time, in the service's credentials directory and process environment, and while the CLI pipes them from op read to systemd-creds."
+description = "No client, jail, log or generated config file holds a provider key. Provider keys are stored only as host- and TPM2-encrypted systemd credentials; in plaintext they exist only at run time, in the service's credentials directory and process environment, and while the CLI pipes them from op read to systemd-creds. The ChatGPT subscription token, which the service refreshes and rewrites, is the one exception: it is stored only in the service's state directory (0700, the file 0600), readable by the service user alone."
 tags = ["gateway"]
 acceptance_criteria = [
   "The unit fails at credential setup when a provider's credential is absent",
   "Generated config names each key as os.environ/<VAR>, never its value",
+  "A chatgpt model's generated config has no api_key; the token is never in config, a log or a client's request",
 ]
