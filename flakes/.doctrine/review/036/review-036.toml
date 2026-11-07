@@ -8,6 +8,14 @@ title = "design review of SL-017"
 facet     = "design"     # scope|design|plan|phase-plan|implementation|code-review|reconciliation
 raiser    = "raiser"
 responder = "responder"
+rounds_base = 0
+contests_base = 0
+concluded = true
+
+[[review.turn]]
+act = "conclude"
+role = "raiser"
+note = "Empty ledger: no pass was run here. The SL-017 design review was conducted on RV-037, concluded with zero findings; this duplicate is closed without findings."
 
 [target]                   # the outbound `reviews` edge: RV-NNN ──reviews──▶ <ref>
 ref   = "SL-017"

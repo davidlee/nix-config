@@ -1,9 +1,9 @@
 id = 17
 slug = "daily-oubliette-postgresql-backups"
 title = "Daily host-side PostgreSQL backups for the Oubliette room"
-status = "reconcile"
+status = "done"
 created = "2026-10-24"
-updated = "2026-10-24"
+updated = "2026-11-07"
 tags = []
 
 [relationships]
