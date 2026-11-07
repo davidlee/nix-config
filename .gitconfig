@@ -28,7 +28,7 @@
   fza = "!git ls-files -m -o --exclude-standard | fzf --print0 -m | xargs -0 -t -o git add"
 [core]
   # editor = nvim
-  editor = /home/david/.nix-profile/bin/emacsclient
+  editor = emacsclient
   excludesFile = ~/.gitignore_global
   pager = delta
 	hooksPath = /home/david/.config/git/hooks
