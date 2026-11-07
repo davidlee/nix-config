@@ -7,12 +7,14 @@
 # A lock can only take what is published, and the root lock's copy of agents'
 # inputs beats agents/flake.lock even under --override-input, so order matters:
 #
-#   push checkouts ─> agents, emacs ─> dev-envs ─> fleet ─> root ─> verify ─> switch
+#   push checkouts ─> agents, emacs ─> dev-envs ─> fleet ─> root ─> verify ─> switch ─> sync room
 #
 # Each lock but the root's is committed alone and pushed as it moves. The root's
 # is committed after verify passes, so a bad bump stays in the working tree and
 # off main. Refuses a flake.nix or flake.lock with uncommitted changes, which
-# would ride along. The room is left running: restarting it is the operator's call.
+# would ride along. The room's checkouts are synced, which skips any with local
+# work and needs the room up, so a failure there only warns: by then everything
+# has landed. The room is not restarted: that is the operator's call.
 set -euo pipefail
 
 repo=$(cd "$(dirname "$0")/.." && pwd)
@@ -77,5 +79,6 @@ cd "$repo"
 just system-build home-build test
 publish_lock "$repo" "chore: bump lock"
 just system-switch home-switch
+just sync-room || say "sync-room failed (is the room up?); everything else landed"
 
 say "done; the room still runs its old tools: just update-room when it is idle"

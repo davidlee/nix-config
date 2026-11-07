@@ -177,11 +177,12 @@ lock  root                                   left uncommitted
 test  system-build, home-build, test         failure stops here: root lock unpublished
       commit and push the root lock
       system-switch, home-switch
+sync  just sync-room                         failure only warns: the room may be down
 ```
 
 Each lock can only take what the one before it published. It refuses to start
 if a `flake.nix` or `flake.lock` in that chain has uncommitted changes. It pushes
-whatever is committed, to public repos too. It leaves the room running, and ends
+whatever is committed, to public repos too. It does not restart the room: it ends
 by reminding you of `just update-room`.
 
 ### Features

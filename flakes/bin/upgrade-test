@@ -99,7 +99,8 @@ nix dev-envs 3: goad nixpkgs stable
 nix fleet 4: goad nixpkgs stable
 nix flakes 4: goad nixpkgs stable
 just system-build home-build test
-just system-switch home-switch' "$(<"$LOG")"
+just system-switch home-switch
+just sync-room' "$(<"$LOG")"
 check 'full: checkouts are pushed' 2 "$(upstream "$goad")"
 check 'full: every home lock is pushed' 5 "$(upstream "$home")"
 check 'full: the fleet lock is pushed' 2 "$(upstream "$fleet")"
@@ -137,6 +138,11 @@ check 'failed verify: fails' 1 "$rc"
 check 'failed verify: no switch' 0 "$(grep -c switch "$LOG" || true)"
 check 'failed verify: the root lock is not published' 4 "$(upstream "$home")"
 check 'failed verify: the root lock stays for inspection' 1 "$(git -C "$flakes" diff --name-only -- flake.lock | wc -l)"
+
+case_ roomdown
+FAKE_JUST_FAIL='sync-room' up
+check 'room down: still succeeds' 0 "$rc"
+check 'room down: says so' 1 "$(grep -c 'sync-room failed' <<<"$out" || true)"
 
 case_ current
 FAKE_NIX_NOOP=1 up

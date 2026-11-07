@@ -12,7 +12,8 @@ Agreed with the user 2026-11-08. It replaced `update-all`, `push-local` and
 
 Choices: refuses dirty flake.nix/flake.lock in the chain; pushes whatever is
 committed, public repos included; reminds of `just update-room`, never restarts
-the room. `bin/dev-checkouts repos` is the one repo list.
+the room; ends with `just sync-room`, whose failure only warns.
+`bin/dev-checkouts repos` is the one repo list.
 
 Not covered: an uncached codex at llm-agents HEAD builds from source (IMP-050).
 

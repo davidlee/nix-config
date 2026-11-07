@@ -24,3 +24,8 @@ Done when: an `llm-agents` bump builds `pkgs.llm-agents.chatgpt` on
 x86_64-linux, the override is removed and the test lists restored, and `just home-switch`
 succeeds. Alternative fix: add `tpm2-tss` to `chatgpt-unwrapped`'s
 `buildInputs` (here as an override, or upstream as a PR).
+
+Resolved 2026-11-08 by upstream PR numtide/llm-agents.nix#11102, which adds
+`tpm2-tss` and `openssl`. `just upgrade` (IMP-071) took `llm-agents` to `0d2034d`;
+the override is gone, the test lists are restored (the feature is now
+`ai.chatgpt`), and home generation 878 has chatgpt 26.1103.32239.

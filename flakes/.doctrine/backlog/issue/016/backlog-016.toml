@@ -5,10 +5,10 @@ id = 16
 slug = "chatgpt-26102122027-fails-to-build-libtss2-missing"
 title = "chatgpt 26.1021.22027 fails to build: libtss2 missing"
 kind = "issue"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "fixed"
 created = "2026-10-24"
-updated = "2026-10-24"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role
