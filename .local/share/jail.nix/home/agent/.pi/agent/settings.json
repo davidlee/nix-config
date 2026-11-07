@@ -28,7 +28,7 @@
     "npm:pi-terminal-theme",
     "https://github.com/cathrynlavery/diagram-design",
     "git:github.com/davidlee/pi-zmx@d6bae44153199131062f18069196a7596b30a677",
-    "git:github.com/davidlee/zmux@188fcfcc7c355554a7a54062eb1eff5736f21b07"
+    "git:github.com/davidlee/zmux@201e817ef9a520702fd4d8c4456a71ef0c32abfa"
   ],
   "enabledModels": [
     "llm-gateway/deepseek-flash",
