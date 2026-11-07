@@ -1184,6 +1184,10 @@ Every jail has sound: the host's pulse directory at `/run/host-pulse`, named by
 `PULSE_SERVER`, and the file Claude's `Stop` hook plays (`audioOptions`,
 `agents/jailed-agents.nix`). A form has none.
 
+A jail launched in a host zmx session can advertise `state` on it, through
+`zmx-state` and a socket bound into that jail alone (`agents/README.md` § zmx
+state relay). A form has none.
+
 `outerGitDir` is for a project whose repository sits above it. This repo states
 `passthru.devEnv.outerGitDir = ".cfg"` in `dev-tools/`, so a jail or form launched
 from `~/flakes` sees the home repository read-only (`agents/outer-git.nix`):

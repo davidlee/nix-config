@@ -60,3 +60,21 @@ launcher (ZMX_SESSION known here)
 observed.
 
 Related: IMP-068, IMP-066, RSK-001, SPEC-003, DEC-122.
+
+## Progress, 2026-11-07
+
+Done: the relay, `launch-relay.nix` shared with the quotient relay, README sections, REV-020
+(SPEC-003 row). `just gate` passes. Checked in a real jail in a scratch zmx session: `blocked` and
+`working` reach the host's labels, `done` is refused, the jail has no `ZMX_SESSION` or host socket
+directory, the socket's directory is read-only, and the listener's directory goes with the launch.
+
+Differs from the sketch: the relay runs the host's `zmx` from the launching PATH, not the jail's
+pinned wrapper, as the session's daemon is the host's. The move also fixed a bare `rm` in the
+listener's cleanup, which relied on the launching PATH.
+
+Remaining, after zmux releases `zmx-state` (`zmux:IMP-009`):
+
+- Bump the `zmux` input and pi's jail pin.
+- Add the hooks to the jail's Claude settings.
+- Ship host `zmx-state` so it can't shadow this one: `add-pkg-deps` order decides, and `commonPkgs`
+  carries the `zmx` package.

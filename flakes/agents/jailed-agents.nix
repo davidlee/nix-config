@@ -507,6 +507,12 @@
     inherit (jail) combinators;
   };
 
+  # zmx `state` from a jail to its host session (zmx-state-relay.nix).
+  zmxStateRelay = import ./zmx-state-relay.nix {
+    inherit pkgs;
+    inherit (jail) combinators;
+  };
+
   gatewayJailFor = import ./gateway-jail.nix {
     inherit lib pkgs setenvsByArgsFd piGatewayModelsFor;
     inherit (jail) combinators;
@@ -639,6 +645,7 @@
       ++ lib.optionals piInJail (piBridgeOptions jail.combinators)
       ++ lib.optionals quotient (quotientRelay.options {readOnly = readOnlyLaunchDir;})
       ++ lib.optionals (quotientServer != null) (quotientInJail.options ({inherit name;} // quotientServer))
+      ++ zmxStateRelay.options
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options

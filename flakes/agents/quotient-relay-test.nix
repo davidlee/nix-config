@@ -4,31 +4,7 @@
   pkgs,
   jail-nix,
 }: let
-  system = pkgs.stdenv.hostPlatform.system;
-
-  fakeAgent = name: pkgs.writeShellScriptBin name "exit 0";
-  fakeAgents.packages.${system} = {
-    pi = fakeAgent "pi";
-    claude-code = fakeAgent "claude";
-  };
-
-  # As jailed-agents-test.nix: a bwrap that records its argv, so a launch is
-  # observable without namespaces.
-  fakeBwrap = pkgs.writeShellScriptBin "bwrap" ''
-    printf '%s\n' "$@" > bwrap-argv
-  '';
-  mkAgents = extra:
-    import ./jailed-agents.nix ({
-        inherit pkgs jail-nix;
-        llm-agents = fakeAgents;
-        zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
-        zmx-new = pkgs.writeShellScriptBin "zmx-new" "exit 0";
-      }
-      // extra);
-  agents = mkAgents {};
-  fakeBwrapAgents = mkAgents {
-    pkgs = pkgs.extend (_: _: {bubblewrap = fakeBwrap;});
-  };
+  inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) agents fakeBwrapAgents;
 
   zsh = profile: args: agents.makeJailedZsh ({inherit profile;} // args);
   failsToEvaluate = value: !(builtins.tryEval value.drvPath).success;

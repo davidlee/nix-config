@@ -2,7 +2,7 @@
 #
 #   host                                         jail
 #   launcher ($PWD: the root)
-#    ├─ quotient-jail-listener DIR  (pdeathsig) ◄── DIR/socket, read-only ── /run/quotient/mcp.sock
+#    ├─ quotient-jail-listener DIR  (launch-relay.nix) ◄── DIR/socket, read-only ── /run/quotient/mcp.sock
 #    │    per connection: quotient-jail-server                                 ▲
 #    │      narrowed policy, cd root, exec quotient                            │
 #    │        └─ forms ─► pi delegates                     `quotient`: socat STDIO ─┘
@@ -69,8 +69,8 @@
   '';
 
   # One connection's quotient: JAIL_QUOTIENT_{BIN,ROOT,ACCESS} name the host
-  # quotient, the root and the access; POLICY_DIR (its one argument) is
-  # where its narrowed policy goes. No JAIL_QUOTIENT_* reaches quotient.
+  # quotient, the root and the access; POLICY_DIR (its one argument, the
+  # listener's private directory) is where its narrowed policy goes. No JAIL_QUOTIENT_* reaches quotient.
   server = pkgs.writeShellScript "quotient-jail-server" ''
     set -euo pipefail
     bin=$JAIL_QUOTIENT_BIN root=$JAIL_QUOTIENT_ROOT access=$JAIL_QUOTIENT_ACCESS
@@ -81,24 +81,11 @@
     QUOTIENT_POLICY=$policy exec "$bin"
   '';
 
-  # `quotient-jail-listener DIR`: serves DIR/socket/mcp.sock, one server per
-  # connection, until TERM; then removes DIR. DIR is the launcher's mktemp
-  # (0700); only DIR/socket is bound into the jail, so the narrowed policies
-  # beside it are not in the jail's view.
-  listener = pkgs.writeShellScript "quotient-jail-listener" ''
-    set -euo pipefail
-    dir=$1
-    ${pkgs.coreutils}/bin/mkdir -m 700 "$dir/socket" "$dir/policy"
-    # -d0: errors only, not the warning TERM brings at every jail exit.
-    # Store paths and DIR only: socat splits EXEC's command on spaces, so the
-    # root and the binary travel in the environment.
-    ${pkgs.socat}/bin/socat -d0 UNIX-LISTEN:"$dir/socket/${socket}",fork,umask=077 \
-      EXEC:"${server} $dir/policy" < /dev/null > /dev/null &
-    relay=$!
-    trap 'kill "$relay" 2>/dev/null || true; wait "$relay" 2>/dev/null || true; rm -rf -- "$dir"' EXIT
-    trap 'exit 0' TERM INT HUP
-    wait "$relay"
-  '';
+  relay = import ./launch-relay.nix {inherit pkgs;} {
+    name = "quotient";
+    inherit jailDir socket;
+    handler = server;
+  };
 
   # The jail's `quotient`: the host's name, so one MCP registration
   # (`command: quotient`) serves host and jail. Only that bare form is
@@ -121,11 +108,8 @@
     '';
   };
 
-  # The launcher's part: start the listener if there is a host quotient and
-  # the root is inside its policy, wait for the socket (about 2 s), bind its
-  # directory read-only. The listener dies with the launcher, whose pid
-  # bwrap keeps (exec), by pdeathsig. Runtime args, off the bwrap line
-  # (IMP-052).
+  # Start the listener if there is a host quotient and the root is inside its
+  # policy. Runtime args, off the bwrap line (IMP-052).
   options = {readOnly}: let
     access =
       if readOnly
@@ -137,18 +121,12 @@
         if quotient_bin=$(command -v quotient) &&
           quotient_root=$(pwd -P) &&
           ${narrowPolicy} "$quotient_root" ${access} > /dev/null; then
-          quotient_dir=$(mktemp -d "''${XDG_RUNTIME_DIR:-/tmp}/jail-quotient.XXXXXX")
-          JAIL_QUOTIENT_BIN=$quotient_bin JAIL_QUOTIENT_ROOT=$quotient_root JAIL_QUOTIENT_ACCESS=${access} \
-            ${pkgs.util-linux}/bin/setpriv --pdeathsig TERM ${listener} "$quotient_dir" < /dev/null > /dev/null &
-          for _ in {1..40}; do
-            [ -S "$quotient_dir/socket/${socket}" ] && break
-            sleep 0.05
-          done
-          RUNTIME_ARGS+=(--ro-bind "$quotient_dir/socket" ${jailDir})
+          ${relay.launch "JAIL_QUOTIENT_BIN=$quotient_bin JAIL_QUOTIENT_ROOT=$quotient_root JAIL_QUOTIENT_ACCESS=${access}"}
         fi
       '')
       (add-pkg-deps [shim])
     ];
 in {
-  inherit options narrowPolicy listener shim;
+  inherit options narrowPolicy shim;
+  inherit (relay) listener;
 }

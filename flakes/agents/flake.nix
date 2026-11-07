@@ -66,6 +66,9 @@
         quotient-relay = import ./quotient-relay-test.nix {
           inherit pkgs jail-nix;
         };
+        zmx-state-relay = import ./zmx-state-relay-test.nix {
+          inherit pkgs jail-nix;
+        };
         # pi-zmx loads in every jail, and only conforms through the wrapper.
         jail-zmx-is-wrapper = let
           base = pkgs.buildEnv {

@@ -80,6 +80,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then nix build ".#checks.$(nix config show system).quotient-forms" {{local_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).jailed-agents" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).quotient-relay" --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/agents#checks.$(nix config show system).zmx-state-relay" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi

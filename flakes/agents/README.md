@@ -570,6 +570,20 @@ launcher ($PWD: the root)
   to the root on the host. `artifacts.dir` names a host path that the jail
   cannot read.
 
+### zmx state relay (`zmx-state`)
+
+A jail launched inside a host zmx session can advertise `state` on that session
+(`zmx-state-relay.nix`, IMP-070). The jail has no `ZMX_SESSION` and no zmx socket:
+a session's socket is a whole client, and a jail holding it could `zmx send`. It
+gets `zmx-state VALUE` instead, which relays over a socket bound into that jail
+alone. `working` and `blocked` are written; anything else is ignored. The session
+is the launcher's, so the jail never names it. The reply is the session's labels.
+
+Every jail carries it; a form does not. With no `ZMX_SESSION` at launch, or no
+`zmx` on the launching PATH, no listener runs and `zmx-state` does nothing. The
+relay uses the host's `zmx`, since the session's daemon is the host's. Like the
+quotient relay, the listener comes from `launch-relay.nix`.
+
 ### In-jail quotient (`quotientServer`)
 
 `quotientServer = { package; forms; }` puts the real quotient in a jail
