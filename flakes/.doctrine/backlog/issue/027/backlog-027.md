@@ -55,3 +55,9 @@ Deployed 2026-11-05; the user tested it live and reports it works.
 
 Remove the hook once LiteLLM counts streamed tool calls. Still to do: report
 upstream, then resolve this item.
+
+## Reported upstream (2026-11-08)
+
+https://github.com/BerriAI/litellm/issues/50530. Reproduced on 1.108.0 against the stream
+iterator: the same streamed tool call ends `tool_calls` with `output` populated and `stop` with
+it empty. `main` has the same logic. Remove `ChatGPTToolCalls` once a LiteLLM release fixes it.

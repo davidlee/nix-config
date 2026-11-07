@@ -362,7 +362,8 @@ class ChatGPTToolCalls(CustomLogger):
     """Finishes a ChatGPT stream that carried a tool call as `tool_calls`
     (ISS-027): LiteLLM reads that from `response.completed`'s `output`, which
     arrives empty, and a client runs tools only on `tool_calls`. Per request,
-    by the model named. Remove once LiteLLM counts the streamed calls."""
+    by the model named. Remove once LiteLLM counts the streamed calls
+    (BerriAI/litellm#50530)."""
 
     async def async_post_call_streaming_iterator_hook(
         self, user_api_key_dict, response, request_data
