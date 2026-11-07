@@ -5,10 +5,10 @@ id = 24
 slug = "ccache-fails-to-evaluate-on-aarch64-darwin-elfutils-linux-only-in-its-build-inputs"
 title = "ccache fails to evaluate on aarch64-darwin: elfutils (Linux-only) in its build inputs"
 kind = "issue"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "fixed"
 created = "2026-11-03"
-updated = "2026-11-03"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

@@ -107,7 +107,7 @@ sudo ./result-darwin/activate
 #    colliding files moved aside to *.backup (home.backupFileExtension)
 ./result-home/activate
 
-# 4. in a new login shell: which emacs nvim zoxide (nu login too; atuin is off on darwin, ISS-007)
+# 4. in a new login shell: which emacs nvim zoxide (nu login too)
 # 5. from now on: just home-switch
 ```
 
@@ -278,8 +278,7 @@ gets a probe (§ Workarounds).
 **Coverage.** A feature no host selects is still evaluated, each half by a target in
 `flake.coverage`: `"Sleipnir+openrgb"`, `"Sleipnir+podman"`,
 `"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+sunshine"`.
-`"Sleipnir+speech"` predates Sleipnir selecting `audio.speech` and is now
-redundant. `base@aarch64-linux` and `home@aarch64-linux` evaluate the NixOS
+`base@aarch64-linux` and `home@aarch64-linux` evaluate the NixOS
 base and the home base alone, headless and off x86. A new off feature gets a
 target beside them in `hosts.nix`.
 
@@ -396,21 +395,17 @@ workarounds/check [pin]    GET cache.nixos.org/<hash>.narinfo, per probe
 
 ```nix
 {
-  attr = ["atuin"];            # path in the pin's package set
+  attr = ["killall"];          # path in the pin's package set
   pin = "nixpkgs-home";        # "nixpkgs" | "nixpkgs-home"
   system = "aarch64-darwin";   # one of the flake's systems
-  issue = "ISS-007";           # the backlog item tracking it: ISS|IMP|CHR|RSK|IDE-NNN
-  reason = "18.23.0 not cached for aarch64-darwin; local build fails";
-  sites = [                    # every file to revert, repo-relative
-    "modules/home/cli.nix"
-    "modules/home/darwin/default.nix"
-    "features/platform-skips.nix"
-  ];
+  issue = "CHR-016";           # the backlog item tracking it: ISS|IMP|CHR|RSK|IDE-NNN
+  reason = "skipped by choice while uncached (SL-008 PHASE-07 VH-1)";
+  sites = ["features/platform-skips.nix"];  # every file to revert, repo-relative
   # signal = "manual";         # never asked: a runtime bug, or an unfree package
 }
 ```
 
-ISS-007 tracks atuin, disabled on the Mac. `signal = "manual"` marks what
+`signal = "manual"` marks what
 the cache cannot answer: a runtime bug (a cached build says nothing about
 it) and an unfree package, which is never on cache.nixos.org (`yed` is one). An
 unfree probe without it is an evaluation error, as is an unknown or missing
@@ -435,7 +430,7 @@ reverting every site and deleting the probe.
 
 - *A skip, override or patch*, in the module that consumes the package:
   `lib.mkForce false`, `lib.optional isLinux`, a `features/platform-skips.nix`
-  entry (atuin uses all three; its probe lists the three sites), or an
+  entry, or an
   overlay set in a NixOS or home module's `nixpkgs.overlays`. A library
   other packages depend on is patched this way. The click-threading fix,
   removed once its unpatched build was cached (commit 28861d6c):
@@ -849,23 +844,6 @@ keep a package in both places.
 
 - **Variable names follow the nix version, not upstream HEAD.** A package's README may describe newer option names than the pinned version has. Check with `describe-variable` before copying settings.
 
-### crates.io fetch workaround (temporary)
-
-`modules/nixos/nix.nix` — sets `systemd.services.nix-daemon.environment.NIX_CURL_FLAGS = "-A nixpkgs-fetchurl"`.
-
-**Why:** crates.io rate-limits (1 req/sec) and `403`s the `curl/*` User-Agent on its `/api/v1/crates/.../download` endpoint. nixpkgs `importCargoLock` (used by any `cargoLock.lockFile` build, e.g. `pub/zerostack.nix`) fetches every crate from there, so `home-switch`/`system-switch` fail with `curl: (22) ... 403` once a rust dep enters the closure. A non-`curl` UA gets the `302` to `static.crates.io`, which `curl` then follows. `fetchurl` honours `NIX_CURL_FLAGS` via `impureEnvVars`, and the env is read from the **daemon**, not your shell — hence the systemd service env (a daemon restart, i.e. `system-switch`, is required before it takes effect).
-
-**Upstream fix:** [nixpkgs#524985](https://github.com/NixOS/nixpkgs/pull/524985) (commit `c0a89c3`, merged to master 2026-05-27) switches the `importCargoLock` registry to `static.crates.io` directly. `fetchurl` is content-addressed, so the workaround and the fix produce identical crate store paths — swapping is a no-op rebuild-wise.
-
-**Removal:** the merge date is *not* the trigger — the nixpkgs input tracks the unstable channel, which lags master by days. Check whether your pin actually contains the fix:
-
-```bash
-rev=$(nix flake metadata --json | jq -r '.locks.nodes.nixpkgs.locked.rev')
-gh api repos/NixOS/nixpkgs/compare/c0a89c3...$rev --jq '.status'
-```
-
-When it returns `ahead` (or `identical`), delete the `NIX_CURL_FLAGS` line and `system-switch`. Until then it is load-bearing.
-
 ### Prefer IPv4 (gai.conf)
 
 `hosts/Sleipnir/config.nix` — `environment.etc."gai.conf"` sets `precedence ::ffff:0:0/96 100`, flipping getaddrinfo to prefer IPv4 over the RFC 6724 default (which prefers v6).
@@ -1098,7 +1076,7 @@ is in LiteLLM's packaged price map.
    (merged into LiteLLM's params under that model and key, DEC-070) and optional
    `pi` (a model without it is not offered to pi; the block is described in
    `agents/README.md` § pi in gateway mode). An OpenRouter id is one more line
-   in `routed [ … ]`; its helper already allows `reasoning_effort`.
+   in `routed [ … ]`.
 2. `just system-switch` (restarts the gateway, ~25 s).
 3. `llm-gateway models ALIAS M,…` for each key that should get it.
 

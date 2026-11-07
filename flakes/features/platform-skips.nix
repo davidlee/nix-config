@@ -5,9 +5,6 @@
 #
 # aarch64-darwin:
 # - watchman pulls the folly/fbthrift C++ tower, which fails to build.
-# - atuin is not cached for aarch64-darwin (ISS-007). The base
-#   modules/home/cli.nix guard stays; no feature lists it today. Transient:
-#   probe `atuin` in workarounds/default.nix.
 # - gtt: depends on alsa-lib, not available on darwin.
 # - udiskie: depends on libappindicator-gtk3, not available on darwin.
 # - micro (listed as micro-with-wl-clipboard; getName gives pname): depends on wayland, not available on darwin.
@@ -18,11 +15,8 @@
 # - binutils (binutils-wrapper): its cctools tools (ar, nm, strip, strings, …)
 #   collide with gcc-wrapper's at equal priority, and gcc-wrapper already
 #   ships them on darwin.
-# - ccache: 4.14.2 takes Linux-only elfutils as a build input, so it fails to
-#   evaluate (ISS-024). Transient: probe `ccache` (manual) in
-#   workarounds/default.nix.
 # gtt, udiskie, micro and fsearch fail to evaluate; availableOn sees only a package's own
 # meta.platforms, not its dependencies (SL-008 PHASE-07, EX-1 extension).
 {
-  aarch64-darwin = ["watchman" "atuin" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd" "binutils-wrapper" "ccache"];
+  aarch64-darwin = ["watchman" "gtt" "udiskie" "micro" "fsearch" "shell_cmds" "yEd" "binutils-wrapper"];
 }

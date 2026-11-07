@@ -21,3 +21,9 @@ Done when: a nixpkgs bump makes atuin substitutable for aarch64-darwin
 (`nix path-info --store https://cache.nixos.org <outPath>`), the override is
 removed, and `just home-switch` on Draupnir succeeds. Avoid `stable.atuin`
 (24.11): it may not read a history database a newer atuin has migrated.
+
+## Workaround removed (2026-11-08)
+
+`just workarounds-check` reported atuin cached. The skip, the probe and both module
+overrides are gone; Draupnir's home evaluates. Still to do: `just home-switch` on Draupnir,
+then resolve this item.

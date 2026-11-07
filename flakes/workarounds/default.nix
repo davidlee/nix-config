@@ -18,18 +18,6 @@
 #            package, which is never cached), only listed for a check by hand
 [
   {
-    attr = ["atuin"];
-    pin = "nixpkgs-home";
-    system = "aarch64-darwin";
-    issue = "ISS-007";
-    reason = "18.23.0 not cached for aarch64-darwin; local build fails";
-    sites = [
-      "modules/home/cli.nix"
-      "modules/home/darwin/default.nix"
-      "features/platform-skips.nix"
-    ];
-  }
-  {
     attr = ["killall"]; # getName: shell_cmds
     pin = "nixpkgs-home";
     system = "aarch64-darwin";
@@ -54,16 +42,6 @@
     reason = "0.15.4 output carries depmod's index on kernel 7.3; the modules tree conflicts";
     sites = ["features/desktop/core/v4l2loopback.nix"];
     # cached either way: the package builds; the conflict is downstream
-    signal = "manual";
-  }
-  {
-    attr = ["ccache"];
-    pin = "nixpkgs-home";
-    system = "aarch64-darwin";
-    issue = "ISS-024";
-    reason = "4.14.2 takes Linux-only elfutils as a build input; fails to evaluate";
-    sites = ["features/platform-skips.nix"];
-    # no store path to ask about: check that ccache.drvPath evaluates
     signal = "manual";
   }
 ]

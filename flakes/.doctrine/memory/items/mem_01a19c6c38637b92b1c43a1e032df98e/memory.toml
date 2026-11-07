@@ -3,11 +3,11 @@ memory_key = "mem.fact.flakes.drv-gate-aborts-at-home"
 schema_version = 1
 lifespan = "semantic"
 memory_type = "fact"
-status = "active"
+status = "retracted"
 title = "`just drvs` aborts at homeConfigurations on aarch64-darwin elfutils"
 summary = "`just drvs` stops after nixosConfigurations: homeConfigurations fails on elfutils-0.195 for aarch64-darwin; take the other groups through the same `_drvs` sub-recipe instead."
 created = "2026-11-02"
-updated = "2026-11-02"
+updated = "2026-11-07"
 
 [scope]
 paths = ["justfile", "flake.lock"]
