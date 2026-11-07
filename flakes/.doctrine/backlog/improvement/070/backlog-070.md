@@ -92,7 +92,10 @@ Observed, in a scratch `ZMX_DIR`:
 Not observed: a jailed Codex or pi turn. Codex is 0.163.0 in the jail, and EVD-015 (in zmux) probed
 0.166.0, so `Interrupt` is unproven there.
 
-Remaining, the operator's:
+## Closed, 2026-11-07
 
-- `just home-switch`. Until then the host's hooks write nothing, and a new host pi nothing either.
-- `/hooks` in `jcx`, to trust the hooks, then one turn. Trust is a human's act, so it was left.
+The operator trusted the hooks in `jcx` (20:59 in the jail's `config.toml`) and reported "ok, it
+works". Still not separately observed: `Interrupt` on 0.163.0, and a jailed pi turn.
+
+At close the host had not switched: its home-manager generation lacks `zmx-state`, so the host's
+hooks write nothing until the next `just home-switch`, which delivers it from the committed config.
