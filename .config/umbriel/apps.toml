@@ -12,7 +12,7 @@
 # --- raise or run -----------------------------------------------------
 # scripts/raise-cycle-or-spawn <app-id> <command>: focus a window with that
 # app id, cycle on repeated presses, or launch the command.
-# emacsclient expects systemd to have started the server.
+# emacsclient expects sytemd to have started the server.
 "Ctrl+Alt+Shift+Grave" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
 "Mod+Apostrophe"   = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
 "Ctrl+Alt+Shift+K" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
