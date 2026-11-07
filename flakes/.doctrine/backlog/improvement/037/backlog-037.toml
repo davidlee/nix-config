@@ -5,10 +5,10 @@ id = 37
 slug = "gateway-hint-client-name"
 title = "Gateway launcher hint names the jail, not the gateway client"
 kind = "improvement"
-status = "open"
-resolution = ""                 # seeded empty so `backlog edit` sets it in place
+status = "resolved"
+resolution = "duplicate"
 created = "2026-10-17"
-updated = "2026-10-17"
+updated = "2026-11-07"
 tags = []
 
 # outbound-only. Cross-kind structural edges (e.g. references with a role

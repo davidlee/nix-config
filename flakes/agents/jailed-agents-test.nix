@@ -820,7 +820,8 @@ in
       export HOME="$TMPDIR/gw-home"
       key_file="$HOME/.config/llm-gateway/keys/pi"
       if "$gw_outer" 2> "$TMPDIR/gw-no-key"; then exit 1; fi
-      grep -Fq -- 'llm-gateway issue pi' "$TMPDIR/gw-no-key"
+      # ISS-014: the key file decides, and a revoked alias is never reissued.
+      grep -Fq -- 'llm-gateway issue <fresh-alias>' "$TMPDIR/gw-no-key"
       grep -Fq -- "$key_file" "$TMPDIR/gw-no-key"
       mkdir -p "$(dirname "$key_file")"
       printf 'sk-test-SENTINEL' > "$key_file"

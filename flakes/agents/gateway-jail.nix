@@ -75,7 +75,8 @@ in
         key_file="${checked.keyFile}"
         if [ ! -r "$key_file" ] || [ ! -s "$key_file" ]; then
           echo "jailed-${name}: gateway key $key_file is missing, empty or unreadable." >&2
-          echo "  Issue one: llm-gateway issue ${name} --models <a,b> --budget <usd> --out \"$key_file\"" >&2
+          echo "  Issue one: llm-gateway issue <fresh-alias> --models <a,b> --budget <usd> --out \"$key_file\"" >&2
+          echo "  (a revoked alias is never reissued: llm-gateway list shows those taken)" >&2
           exit 1
         fi
         if [ ! -d ${lib.escapeShellArg reachDirectory} ]; then
