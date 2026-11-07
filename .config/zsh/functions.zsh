@@ -89,8 +89,7 @@ czh() { local base; base=$(cz-base "$@") && cd-pick "$base" --hidden }
 # pick from favourite dirs
 ch() {
   local dir
-  dir=$(gum choose ~/dev/doctrine ~/.config/emacs ~/dev/notes ~/flakes ~/nushell \
-    ~/Downloads ~/.local/src ~/.local/bin) && cd "$dir"
+  dir=$(active-projects | fzf) && cd "$dir"
 }
 
 #
@@ -186,7 +185,14 @@ zx() {
 # skips it. Functions, so scripts and delegates get the real binary.
 #
 claude() { zmx-new claude "$@" }
-codex() { zmx-new codex "$@" }
+# --no-daemon: a shared daemon would run the hooks, with no session around them
+# (zmux IMP-006). Only for the TUI: a leading flag would hide a subcommand from zmx-new.
+codex() {
+  case ${1-} in
+    '' | -*) zmx-new codex --no-daemon "$@" ;;
+    *) zmx-new codex "$@" ;;
+  esac
+}
 
 #
 # FZF

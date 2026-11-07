@@ -89,3 +89,44 @@ the export overwrites them.
 
 Declined: `default_workspace = "emacs"` (new frames should open where you are).
 Every review item is now closed.
+
+## 2026-11-07: `Mod+Shift+N` toggles the focused window's own pad
+
+`window-toggle-scratchpad main` on a member of another pad moved the workspace
+window behind that pad to main: the action restores only when its argument is
+the focused window's pad. `scripts/toggle-window-scratchpad` now picks the
+argument: the window's current pad, else the pad its rule names, else the
+fallback pad passed by the bind (`main`, or `secondary` for `Mod+Shift+D`).
+
+- "Has a non-main scratchpad" is read as "a `default_scratchpad` rule matches
+  it". A pad the window merely visited earlier isn't remembered.
+- The script parses `apps.toml`, because IPC doesn't expose a window's
+  `default_scratchpad`. A pad rule outside that file, or one matching on
+  anything but `app_id` and `title`, needs the script changed.
+- `Mod+Ctrl+N` and `Mod+Ctrl+D` are redundant with the toggle for members of
+  their pads; both stay bound.
+- `secondary` (`Mod+D` set) is a second general-purpose pad, like `main`.
+
+## 2026-11-07: `Ctrl+Alt+Shift+U` (Meh-U) toggles the Emacs controller pad
+
+`apps.toml` gains an `umbriel` pad: `spawn_when_empty` opens an `emacsclient`
+frame named `umbriel-controller` running `my/umbriel`, 900x700, floating.
+
+- The Emacs server opens the frame, so the pad's launch token never reaches it.
+  Tested: a frame spawned with `secondary` open landed on the workspace. The
+  window rule places it, and `default_focused` summons it.
+- `my/umbriel` sometimes split the new frame (`*umbriel*` beside `*scratch*`),
+  so the command ends with `delete-other-windows`.
+- Tested over `umbriel msg`, not the physical key: hide, reshow, close and
+  respawn (3 rounds, one window each).
+
+### Loose threads (Emacs, not fixed; backlog ISS-018 in `~/.config/emacs`)
+
+- **`q` breaks the pad.** `quit-window` swaps the pad frame to another buffer,
+  and the next toggle shows that buffer. Proposal: in a frame that is a pad
+  member, `q` toggles that pad instead.
+- **Row actions leave the pad.** `dl-umbriel-buffer--focus-act-restore` restores
+  the focused workspace's `focused_window`, which is the workspace window behind
+  the pad, not the controller. Keyboard focus ends up there; the pad stays
+  visible. Read from the code and a live `focused_window` value; no row action
+  was run from the pad.
