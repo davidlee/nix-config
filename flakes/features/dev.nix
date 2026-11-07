@@ -25,7 +25,6 @@ in [
           tig
           debase # broken
           gh-dash
-          lazygit
           lazyjj
           jjui
         ]
@@ -35,6 +34,7 @@ in [
           gitui
           sublime-merge
         ];
+      programs.lazygit.enable = true;
     };
   }
 
@@ -60,7 +60,6 @@ in [
           lldb
           lld
           llvm
-          clangStdenv
           libclang
           binutils
         ];

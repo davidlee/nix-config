@@ -12,5 +12,5 @@ Pin the GPU targets on the llama-cpp input instead:
     }
 
 Check it took: the whisper-cpp drv's llama-cpp input names gfx1201.
-`coverage."Sleipnir+speech"` evaluates this path (speech is off on Sleipnir,
-so nothing else does). Found by RV-013 F-1, fixed in SL-006 PHASE-03.
+Sleipnir selects `audio.speech`, so its own evaluation covers this path.
+Found by RV-013 F-1, fixed in SL-006 PHASE-03.

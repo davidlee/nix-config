@@ -375,9 +375,7 @@ mode, so a darwin system that moves is proven by `nix-diff`.
 - **Coverage completeness is by hand.** Nothing checks that every half of
   every feature is forced by some host or target on a supported system
   (§ Coverage and isolation). `testOffFeatures` pins four of the five off
-  features (not `hardware.openrgb`). `Sleipnir+speech` is now redundant:
-  Sleipnir selects `audio.speech` (commit `53c79623`), so the host itself
-  covers it.
+  features (not `hardware.openrgb`).
 - **Coverage is evaluation only** (ADR-005 D5). An upstream build failure
   in an off feature stays hidden until it is built.
 

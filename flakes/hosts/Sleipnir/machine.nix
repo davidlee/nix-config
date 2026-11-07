@@ -69,8 +69,6 @@
     amdgpu = {
       opencl.enable = true;
     };
-
-    i2c.enable = true;
   };
 
   # the GPU is why the user needs `video`

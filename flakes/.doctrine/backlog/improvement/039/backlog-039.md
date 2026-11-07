@@ -21,3 +21,7 @@ some host or target whose factory builds that class, on a system its
 § Coverage and isolation, after the GPT review of 2026-10-18). Selected
 features count too: a darwin half of a feature only Sleipnir selects is
 uncovered. Then drop `Sleipnir+speech`.
+
+## Progress (2026-11-08)
+
+`Sleipnir+speech` is removed. The completeness check is still to do.

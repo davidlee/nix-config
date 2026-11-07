@@ -20,6 +20,5 @@
       flags = ["--disable-up-arrow"];
     };
     television.enable = true;
-    lazygit.enable = true;
   };
 }

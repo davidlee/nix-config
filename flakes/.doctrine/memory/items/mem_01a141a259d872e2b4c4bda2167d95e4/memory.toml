@@ -6,7 +6,7 @@ status = "active"
 title = "whisper-cpp takes its ggml backend from llama-cpp; pin ROCm targets on llama-cpp"
 summary = 'whisper-cpp.override no longer accepts rocmGpuTargets; override its llama-cpp input with rocmGpuTargets = ["gfx1201"]'
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-11-07"
 
 [scope]
 paths = ["overlays/whisper-rocm.nix"]
