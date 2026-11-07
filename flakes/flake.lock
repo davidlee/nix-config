@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794061188,
-        "narHash": "sha256-UWbelIJJ9pz8h72rAFxKpaWBI56/5Q/M6GgDMEO+RTw=",
+        "lastModified": 1794061371,
+        "narHash": "sha256-Nydtt/jg/Iu3SPZnXb24R9xrrszk8E526SkmUKYRW34=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "f604edffcff25d102cd58a58ae305338f757467e",
+        "rev": "01d54e2a8a16d6b90d979609f89d0c2b3b664517",
         "type": "github"
       },
       "original": {
@@ -1720,11 +1720,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1794061188,
-        "narHash": "sha256-UWbelIJJ9pz8h72rAFxKpaWBI56/5Q/M6GgDMEO+RTw=",
+        "lastModified": 1794061371,
+        "narHash": "sha256-Nydtt/jg/Iu3SPZnXb24R9xrrszk8E526SkmUKYRW34=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "f604edffcff25d102cd58a58ae305338f757467e",
+        "rev": "01d54e2a8a16d6b90d979609f89d0c2b3b664517",
         "type": "github"
       },
       "original": {
@@ -3046,11 +3046,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794061130,
-        "narHash": "sha256-jLi/KH67B5vCS3Q3DzhvJ5bbpM+VG/487OcmxSQSPBk=",
+        "lastModified": 1794061421,
+        "narHash": "sha256-McxuRAryibK8cFPhQJwXJZ4YdbFbF/PVNItr0gOs4ME=",
         "ref": "refs/heads/main",
-        "rev": "a3d29b0f77f9d3a0cd1d86fe69724c01999594f3",
-        "revCount": 48,
+        "rev": "090eb0733becf2fb47e55b729bf4a0ac57bc78b4",
+        "revCount": 49,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -3917,11 +3917,11 @@
       },
       "locked": {
         "dir": "flakes/dev-tools",
-        "lastModified": 1794061073,
-        "narHash": "sha256-l8z6f+jJ0eTFIaM9XWEugGq+jsa33KGT/idwHtN5LHk=",
+        "lastModified": 1794061371,
+        "narHash": "sha256-Nydtt/jg/Iu3SPZnXb24R9xrrszk8E526SkmUKYRW34=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "6567f0b11a48672cf1b18971cf37cf6837ff516c",
+        "rev": "01d54e2a8a16d6b90d979609f89d0c2b3b664517",
         "type": "github"
       },
       "original": {
@@ -7809,11 +7809,11 @@
         "xdg-desktop-portal-umbriel": "xdg-desktop-portal-umbriel"
       },
       "locked": {
-        "lastModified": 1794061018,
-        "narHash": "sha256-JE17hmW18MhBYcr5SCLZtl9VcWiajOOEy6mQbuGRGGw=",
+        "lastModified": 1794061439,
+        "narHash": "sha256-UZtda8jQaBHtF8hM9hMpW4355MwGTbghdOkF02r1WCU=",
         "ref": "refs/heads/main",
-        "rev": "6493e461f7712d7615a359e3df59517b27f99d9f",
-        "revCount": 1535,
+        "rev": "d171ccb31628da65b1beee3221b37a2758d553b3",
+        "revCount": 1536,
         "type": "git",
         "url": "https://github.com/noctalia-dev/umbriel"
       },
