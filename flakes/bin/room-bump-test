@@ -124,4 +124,13 @@ rb
 check 'no inputs: refused' 1 "$rc"
 check 'no inputs: prints usage' 1 "$(grep -c '^usage:' <<<"$err" || true)"
 
+# on a terminal the summary goes straight out: a pager would stop bin/upgrade
+if [ "$(uname -s)" = Linux ]; then
+  case_ terminal
+  pushed terminal goad
+  FLAKES_FLEET=$fleet FLAKES_DEV=$dev GIT_PAGER="touch $work/paged" \
+    script -qec "$script goad" /dev/null >/dev/null
+  check 'terminal: no pager' absent "$([ -e "$work/paged" ] && echo paged || echo absent)"
+fi
+
 exit "$failed"

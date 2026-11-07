@@ -46,4 +46,4 @@ if git -C "$fleet" diff --quiet HEAD -- flake.lock; then
   exit 0
 fi
 git -C "$fleet" commit -q -m "bump $*" -- flake.lock
-git -C "$fleet" log -1 --format='room-bump: %h %s' >&2
+git --no-pager -C "$fleet" log -1 --format='room-bump: %h %s' >&2
