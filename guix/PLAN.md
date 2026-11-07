@@ -108,6 +108,14 @@ pager. Home generation 14.
 
 ## Traps found during install
 
+- Home Shepherd is started by `~/.guix-home/on-first-login` from whichever
+  session logs in first, and inherits that session's stdout and stderr. If that
+  is a non-interactive `ssh guix '...'`, the command runs but `ssh` never
+  exits, because `sshd` waits on Shepherd's copies of the pipes. Killing the
+  session kills Shepherd and can orphan its `ssh-agent`. It doesn't happen
+  while an interactive login already has Shepherd running. Seen 2026-11-08;
+  no fix yet (candidates: start Shepherd with its output redirected, or keep
+  a login session open).
 - A shell opened before `guix home reconfigure` keeps the old `EMACSLOADPATH`,
   so Emacs started from it can't find Guix packages (`denote` was the first
   failure). Log in again after every reconfigure.
