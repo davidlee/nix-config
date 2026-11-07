@@ -470,6 +470,7 @@ in
         "compositor.sway#homeManager"
         "compositor.niri#homeManager"
         "agents.eca#homeManager" # through the personal-linux profile
+        "ai.chatgpt#homeManager" # through the personal-linux profile
       ];
     in {
       expr = sleipnirSelects (nixosOnly ++ bothHalves ++ homeOnly);
@@ -555,6 +556,7 @@ in
         "audio.alarm#homeManager"
         # SL-009 P4: personal-linux
         "agents.eca#homeManager"
+        "ai.chatgpt#homeManager"
       ];
     in {
       expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;
