@@ -1,0 +1,10 @@
+;;; ghostel-test.el --- download the prebuilt module, load it, open a terminal -*- lexical-binding: t; -*-
+(let* ((dir (expand-file-name "elpa/ghostel/" user-emacs-directory)))
+  (add-to-list 'load-path dir)
+  (add-to-list 'load-path (expand-file-name "lisp" dir))
+  (require 'ghostel-module-install)
+  (princ (format "url %s\n" (ghostel--module-download-url)))
+  (princ (format "download -> %S\n" (condition-case e (ghostel--download-module dir) (error e))))
+  (princ (format "files %S\n" (directory-files-recursively dir "\\.so\\'")))
+  (dolist (f (directory-files-recursively dir "ghostel.*\\.so\\'"))
+    (princ (format "load %s -> %S\n" f (condition-case e (module-load f) (error e))))))

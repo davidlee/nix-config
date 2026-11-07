@@ -1,0 +1,20 @@
+;;; sweep.el --- require every init.el module, recording all failures -*- lexical-binding: t; -*-
+(require 'cl-lib)
+(let* ((dir user-emacs-directory)
+       (mods (with-temp-buffer
+               (insert-file-contents (expand-file-name "init.el" dir))
+               (let (acc)
+                 (while (re-search-forward "^(require '\\(dl-[a-z0-9-]+\\))" nil t)
+                   (push (intern (match-string 1)) acc))
+                 (nreverse acc))))
+       (ok 0) failed)
+  (load (expand-file-name "early-init.el" dir) nil t)
+  (dolist (m mods)
+    (condition-case err
+        (progn (require m) (cl-incf ok))
+      (error (push (cons m err) failed))))
+  (princ (format "\n=== SWEEP modules=%d ok=%d failed=%d\n" (length mods) ok (length failed)))
+  (dolist (f (reverse failed))
+    (princ (format "FAIL %s: %S\n" (car f) (cdr f))))
+  (with-current-buffer (get-buffer-create "*Warnings*")
+    (princ (format "=== WARNINGS\n%s\n" (buffer-string)))))

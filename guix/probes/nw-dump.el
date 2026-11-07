@@ -1,0 +1,16 @@
+;;; nw-dump.el --- Report a -nw boot to a file, then exit -*- lexical-binding: t; -*-
+(defun nw-dump ()
+  (with-temp-file "/tmp/nw-probe/report.txt"
+    (insert (format "graphic=%S term=%S colors=%S\n" (display-graphic-p) (getenv "TERM") (display-color-cells)))
+    (insert (format "init-time=%s features=%d\n" (emacs-init-time) (length features)))
+    (insert (format "init-file-had-error=%S\n" init-file-had-error))
+    (insert (format "denote=%S meow-global=%S themes=%S\n" (featurep 'denote)
+                    (bound-and-true-p meow-global-mode) custom-enabled-themes))
+    (insert (format "satan=%S malebolge-mail=%S nushell-ts-mode=%S\n" (featurep 'satan)
+                    (featurep 'malebolge-mail) (featurep 'nushell-ts-mode)))
+    (dolist (b '("*Messages*" "*Warnings*" "*Backtrace*"))
+      (when (get-buffer b)
+        (insert (format "\n=== %s\n" b))
+        (insert (with-current-buffer b (buffer-string))))))
+  (kill-emacs 0))
+(add-hook 'emacs-startup-hook (lambda () (run-at-time 3 nil #'nw-dump)) 90)
