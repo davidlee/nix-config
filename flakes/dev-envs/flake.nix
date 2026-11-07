@@ -188,7 +188,7 @@
       shorthands = [
         (shorthand "jpi" "jailed-pi" "")
         (shorthand "jcl" "jailed-claude" "--dangerously-skip-permissions")
-        (shorthand "jcx" "jailed-codex" "")
+        (shorthand "jcx" "jailed-codex" "--no-daemon") # a shared daemon's hooks have no terminal
         (shorthand "jsh" "jailed-shell" "")
       ];
     in {

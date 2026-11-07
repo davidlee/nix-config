@@ -27,6 +27,7 @@
         llm-agents = fakeAgents;
         zmx = fakeAgent "zmx";
         zmx-new = fakeAgent "zmx-new";
+        inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) zmxHarness;
       }
       // extra
     );

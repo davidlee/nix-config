@@ -14,15 +14,25 @@
   fakeBwrap = pkgs.writeShellScriptBin "bwrap" ''
     printf '%s\n' "$@" > bwrap-argv
   '';
+  # zmux's harness/: a hook, and what it finds beside its parent directory.
+  zmxHarness = pkgs.runCommand "fake-zmx-harness" {} ''
+    mkdir -p "$out"/claude "$out"/codex
+    touch "$out"/advertise.sh
+    install -m755 /dev/null "$out"/claude/zmx-state.sh
+    install -m755 /dev/null "$out"/codex/zmx-state.sh
+  '';
+
   mkAgents = extra:
     import ./jailed-agents.nix ({
         inherit pkgs jail-nix;
         llm-agents = fakeAgents;
         zmx = fakeAgent "zmx";
         zmx-new = fakeAgent "zmx-new";
+        inherit zmxHarness;
       }
       // extra);
 in {
+  inherit zmxHarness;
   agents = mkAgents {};
   fakeBwrapAgents = mkAgents {
     pkgs = pkgs.extend (_: _: {bubblewrap = fakeBwrap;});

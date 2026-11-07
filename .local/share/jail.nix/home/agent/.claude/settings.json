@@ -1,5 +1,7 @@
 {
-  "env": {},
+  "env": {
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+  },
   "permissions": {
     "allow": [],
     "defaultMode": "default"
@@ -19,6 +21,15 @@
             "command": "bash /home/david/.claude/record-turn-end.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude blocked",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -27,6 +38,15 @@
           {
             "type": "command",
             "command": "bash /home/david/.claude/record-turn-end.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude working",
+            "timeout": 5
           }
         ]
       }
@@ -42,7 +62,51 @@
         ]
       }
     ],
-    "PreToolUse": []
+    "PreToolUse": [],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude working",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude working",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude blocked",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zmx-state-claude blocked",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   },
   "enableArtifact": false,
   "statusLine": {

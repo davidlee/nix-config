@@ -18,14 +18,19 @@
 # host's, and zmx's socket is an unstable ABI. So not the jail's pinned wrapper.
 # No session or no host zmx: the jail launches without the relay, and
 # `zmx-state` does nothing, as it does outside a session on the host.
+#
+# The hooks a jail's settings name: `harness` is zmux's harness/, which a jail has
+# no checkout of. On PATH, as a persisted home outlives any store path.
 {
   pkgs,
   combinators,
+  harness,
 }: let
   jailDir = "/run/zmx-state";
   socket = "state.sock";
   coreutils = "${pkgs.coreutils}/bin";
-  # Short enough that a hook's own limit is never what ends it.
+  # A hung session is bounded here. Codex's three-second hook limit can still end
+  # the hook first, which costs a title and leaves the listener to finish.
   zmxTimeout = "${coreutils}/timeout 3";
 
   # One connection, on stdin and stdout. `zmx` gets no stdin of the jail's, and
@@ -56,6 +61,15 @@
     '';
   };
 
+  # A link, so the hook's `readlink -f` finds advertise.sh beside its parent.
+  hooks = pkgs.runCommand "zmx-state-jail-hooks" {} ''
+    mkdir -p "$out/bin"
+    for name in claude codex; do
+      test -x ${harness}/$name/zmx-state.sh
+      ln -s ${harness}/$name/zmx-state.sh "$out/bin/zmx-state-$name"
+    done
+  '';
+
   # Runtime args, off the bwrap line (IMP-052). The listener inherits
   # ZMX_SESSION and PATH from the launcher.
   options = with combinators; [
@@ -64,9 +78,9 @@
         ${relay.launch ""}
       fi
     '')
-    (add-pkg-deps [client])
+    (add-pkg-deps [client hooks])
   ];
 in {
-  inherit options client jailDir;
+  inherit options client hooks jailDir;
   inherit (relay) listener;
 }

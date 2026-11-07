@@ -15,6 +15,7 @@
     llm-agents.packages.${system}.pi = null;
     zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
     zmx-new = pkgs.writeShellScriptBin "zmx-new" "exit 0";
+    inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) zmxHarness;
   };
   launcher = args:
     agents.makeJailedZsh (

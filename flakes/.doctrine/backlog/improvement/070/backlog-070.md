@@ -72,9 +72,27 @@ Differs from the sketch: the relay runs the host's `zmx` from the launching PATH
 pinned wrapper, as the session's daemon is the host's. The move also fixed a bare `rm` in the
 listener's cleanup, which relied on the launching PATH.
 
-Remaining, after zmux releases `zmx-state` (`zmux:IMP-009`):
+## Progress, 2026-11-07, after zmux v0.1.4
 
-- Bump the `zmux` input and pi's jail pin.
-- Add the hooks to the jail's Claude settings.
-- Ship host `zmx-state` so it can't shadow this one: `add-pkg-deps` order decides, and `commonPkgs`
-  carries the `zmx` package.
+Done: the `zmux` input and both pi pins at v0.1.4, host `zmx-state` (`features/terminal.nix`), and the jail's Claude and Codex hooks (operator widened this to
+Codex, 2026-11-07). `just gate` passes.
+
+Differs from the list: hooks come from `zmx-state-jail-hooks`, on PATH beside the client, linking
+into `${zmux}/harness`. A hook finds `advertise.sh` by `readlink -f`, and a jail has no checkout; a
+store path can't go in a persisted home's settings. `jcx` now passes `--no-daemon`.
+
+Observed, in a scratch `ZMX_DIR`:
+
+- Real jail, real hook commands: `zmx-state-claude blocked` wrote the host's label and printed the
+  title. A delegate, a piped Codex parent and `done` wrote nothing. `zmx-state` resolves to the
+  jail's client.
+- Real interactive `jailed-claude`, one turn on a pty: `blocked` reached the host, and two titles
+  reached the terminal. A 2s sampler did not catch `working`.
+
+Not observed: a jailed Codex or pi turn. Codex is 0.163.0 in the jail, and EVD-015 (in zmux) probed
+0.166.0, so `Interrupt` is unproven there.
+
+Remaining, the operator's:
+
+- `just home-switch`. Until then the host's hooks write nothing, and a new host pi nothing either.
+- `/hooks` in `jcx`, to trust the hooks, then one turn. Trust is a human's act, so it was left.

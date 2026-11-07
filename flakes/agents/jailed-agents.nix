@@ -30,6 +30,7 @@
   llm-agents,
   zmx,
   zmx-new,
+  zmxHarness,
   gitIdentity ? {
     authorName = "Jailed agent";
     authorEmail = "jailed-agent@localhost";
@@ -511,6 +512,7 @@
   zmxStateRelay = import ./zmx-state-relay.nix {
     inherit pkgs;
     inherit (jail) combinators;
+    harness = zmxHarness;
   };
 
   gatewayJailFor = import ./gateway-jail.nix {

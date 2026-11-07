@@ -39,6 +39,7 @@ in [
           tmux
           zmx # or this
           zmx-new # a session named for the project; zsh starts harnesses through it
+          zmx-state # what a harness writes `state` through; a jail has its own
           zp # picker over zmx sessions
 
           # abduco # shell persist

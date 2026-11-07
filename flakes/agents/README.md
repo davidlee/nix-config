@@ -584,6 +584,14 @@ Every jail carries it; a form does not. With no `ZMX_SESSION` at launch, or no
 relay uses the host's `zmx`, since the session's daemon is the host's. Like the
 quotient relay, the listener comes from `launch-relay.nix`.
 
+The harness hooks arrive the same way: `zmx-state-claude` and `zmx-state-codex` on
+PATH link into zmux's `harness/`, so a hook finds its `advertise.sh` without a
+checkout. The persisted home names them: `.claude/settings.json`, and for Codex
+`.codex/hooks.json` and `tui.terminal_title = []` in `config.toml`. Codex wants the
+hooks trusted through `/hooks` in the jail, again after any change to them, and
+`--no-daemon`, which `jcx` passes. Pi's comes from its pin in the home's
+`settings.json`.
+
 ### In-jail quotient (`quotientServer`)
 
 `quotientServer = { package; forms; }` puts the real quotient in a jail

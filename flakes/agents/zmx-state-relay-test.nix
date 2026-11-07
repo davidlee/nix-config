@@ -4,10 +4,11 @@
   pkgs,
   jail-nix,
 }: let
-  inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) agents fakeBwrapAgents;
+  inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) agents fakeBwrapAgents zmxHarness;
 
   relay = import ./zmx-state-relay.nix {
     inherit pkgs;
+    harness = zmxHarness;
     inherit (agents) combinators;
   };
   jail = agents.makeJailedZsh {};
@@ -60,6 +61,14 @@ in
     # Every jail carries the listener and the client.
     grep -Fq -- '-zmx-state-jail-listener' ${jail}/bin/jailed-zsh
     grep -q -- '/nix/store/[^ :]*-zmx-state-jail-client/bin' ${jail}/bin/jailed-zsh
+
+    # Each harness's hook is on the jail's PATH, and resolves to where it finds
+    # advertise.sh, since a jail has no checkout to link to.
+    grep -q -- '/nix/store/[^ :]*-zmx-state-jail-hooks/bin' ${jail}/bin/jailed-zsh
+    for hook in zmx-state-claude zmx-state-codex; do
+      [ -x ${relay.hooks}/bin/$hook ]
+      [ -f "$(dirname "$(readlink -f ${relay.hooks}/bin/$hook)")/../advertise.sh" ]
+    done
 
     # A harness's two values reach the launch's session, and the reply is its
     # labels. zmx's stderr stays off the harness's terminal.
