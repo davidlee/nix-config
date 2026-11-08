@@ -5,7 +5,7 @@
   ...
 }: {
   system.stateVersion = "24.11"; # the release this host was first installed with
-  services.displayManager.defaultSession = "niri"; # preselected at the greeter
+  services.displayManager.defaultSession = "umbriel"; # preselected at the greeter
 
   # Sleipnir-only package fixes.
   nixpkgs.overlays = with inputs.self.overlays; [

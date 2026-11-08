@@ -3,6 +3,8 @@
 #
 # Fixture trees are written inline. Tests on the real tree (./features) assert
 # membership, never equality, so adding a feature does not turn them red.
+# No test reads a host's or profile's selection: those are choices, and a test
+# that pins one breaks the choosing. Select what a test needs with `on`.
 lib: let
   resolve = import ./features.nix lib;
   real = import ./features {inherit lib;};
@@ -43,7 +45,8 @@ lib: let
   nixos = {nixos = {};};
   both = ["nixos" "homeManager"];
 
-  workstation = ./features/profiles/workstation.nix;
+  # A profile in miniature: one mkDefault selection.
+  profile = {feature.session.snooze.enable = lib.mkDefault true;};
   personal = ./features/profiles/personal.nix;
   personalLinux = ./features/profiles/personal-linux.nix;
 
@@ -59,23 +62,6 @@ lib: let
     (lib.elem "session.snooze#nixos" (tags r.modules.nixos))
     (lib.elem "session.snooze#homeManager" (tags r.modules.homeManager))
   ];
-
-  # Sleipnir's selection plus extra outer modules, real tree. Per
-  # "<area>.<name>#nixos" tag: [ projected into nixos, any half of that
-  # feature projected into home ].
-  sleipnirWith = extra: let
-    r = resolve {
-      system = "x86_64-linux";
-      tree = real;
-      classes = both;
-      modules = [./hosts/Sleipnir/features.nix] ++ extra;
-    };
-  in
-    map (tag: [
-      (lib.elem tag (tags r.modules.nixos))
-      (lib.any (lib.hasPrefix (lib.removeSuffix "nixos" tag)) (tags r.modules.homeManager))
-    ]);
-  sleipnirSelects = sleipnirWith [];
 
   prerequisite = selected:
     resolve {
@@ -293,7 +279,7 @@ in
           system = "x86_64-linux";
           tree = real;
           classes = both;
-          modules = [workstation ./hosts/Sleipnir/features.nix];
+          modules = map on ["session.snooze" "virt.capsule"];
         };
         namedAt = m: let
           at = builtins.match "(.*):([0-9]+) \\((.*)\\.(.*)#.*\\)" m._file;
@@ -306,13 +292,14 @@ in
       expected = [true true];
     };
 
-    testProfileSelectsSnooze = {
-      expr = snoozeIn [workstation];
+    # A profile's mkDefault selects; a host's plain definition overrides it.
+    testProfileSelects = {
+      expr = snoozeIn [profile];
       expected = [true true];
     };
 
     testHostOverrideWins = {
-      expr = snoozeIn [workstation {feature.session.snooze.enable = false;}];
+      expr = snoozeIn [profile {feature.session.snooze.enable = false;}];
       expected = [false false];
     };
 
@@ -325,26 +312,6 @@ in
         modules = [];
       });
       expected = ["modules"];
-    };
-
-    # Draupnir's real selection is personal-darwin, which adds nothing to
-    # personal yet: it resolves the same as personal alone. Classes are the
-    # host's own (meta has home = true). The second element keeps the first
-    # from passing on two empty sets.
-    testDraupnirSelection = let
-      args = {
-        inherit ((import ./hosts/Draupnir/meta.nix)) system;
-        tree = real;
-        classes = ["darwin" "homeManager"];
-      };
-      draupnir = (resolve (args // {modules = [./hosts/Draupnir/features.nix];})).modules;
-      personalOnly = (resolve (args // {modules = [personal];})).modules;
-    in {
-      expr = [
-        (lib.mapAttrs (_: tags) draupnir == lib.mapAttrs (_: tags) personalOnly)
-        (lib.elem "editor.emacs#homeManager" (tags draupnir.homeManager))
-      ];
-      expected = [true true];
     };
 
     # personal is portable: it resolves on a Mac and selects no record that
@@ -364,11 +331,10 @@ in
     in {
       expr = [
         ok
-        (ok && lib.elem "editor.emacs#homeManager" hmTags)
-        (ok && lib.elem "editor.neovim#homeManager" hmTags)
+        (ok && hmTags != []) # not vacuous
         (ok && !lib.any (t: (recordOf t) ? platforms) allTags)
       ];
-      expected = [true true true true];
+      expected = [true true true];
     };
 
     # satan.attrd needs its postgres; satan.harness needs emacsclient;
@@ -400,167 +366,6 @@ in
           inherit system;
         }) ["aarch64-darwin" "x86_64-linux"];
       expected = [false true];
-    };
-
-    # audio.alarm is bound to one machine's speakers, so a host selects it:
-    # personal-linux resolves without it.
-    testAlarmIsHostSelected = let
-      args = {
-        tree = real;
-        modules = [personalLinux];
-      };
-      ok = resolves args;
-    in {
-      expr = [
-        ok
-        (ok
-          && !(lib.elem "audio.alarm#homeManager" (tags
-            (resolve (args
-              // {
-                system = "x86_64-linux";
-                classes = both;
-              })).modules.homeManager)))
-      ];
-      expected = [true true];
-    };
-
-    # Sleipnir's own selection projects capsule's NixOS half, and no home half.
-    testSleipnirSelectsCapsule = {
-      expr = sleipnirSelects ["virt.capsule#nixos"];
-      expected = [[true false]];
-    };
-
-    # Features migrated from legacy flags (SL-005, SL-006), each with its
-    # [nixos, home] halves.
-    testSleipnirSelectsMigrated = let
-      nixosOnly = [
-        "virt.qemu#nixos"
-        "virt.docker#nixos"
-        "non-nix-packages.appimage#nixos"
-        "non-nix-packages.flatpak#nixos"
-        "games.steam#nixos"
-        "games.gamescope#nixos"
-        "audio.mpd#nixos"
-        "services.printing#nixos"
-        "services.webserver#nixos"
-        "compositor.cosmic#nixos"
-        "compositor.kde#nixos"
-        "compositor.mango#nixos"
-        "desktop.fonts#nixos" # through the workstation profile
-        "desktop.greeter#nixos"
-        "compositor.umbriel#nixos"
-        "desktop-shell.noctalia#nixos"
-        "audio.pipewire#nixos" # through the workstation profile
-        "hardware.bluetooth#nixos"
-        "hardware.qmk#nixos"
-        "hardware.tablet#nixos"
-        "hardware.logitech#nixos"
-        "services.postgresql#nixos"
-        "agents.registry#nixos" # through the personal-linux profile
-        "agents.gateway#nixos" # through the personal-linux profile
-      ];
-      bothHalves = [
-        "compositor.sway#nixos"
-        "compositor.niri#nixos"
-        "desktop.core#nixos" # through the workstation profile
-      ];
-      homeOnly = [
-        "games.mangohud#homeManager"
-        "audio.dictate#homeManager" # through the workstation profile
-        "compositor.sway#homeManager"
-        "compositor.niri#homeManager"
-        "agents.eca#homeManager" # through the personal-linux profile
-        "ai.chatgpt#homeManager" # through the personal-linux profile
-      ];
-    in {
-      expr = sleipnirSelects (nixosOnly ++ bothHalves ++ homeOnly);
-      expected =
-        map (_: [true false]) nixosOnly
-        ++ map (_: [true true]) bothHalves
-        ++ map (_: [false true]) homeOnly;
-    };
-
-    # P3–P5 home features Sleipnir selects, directly or through workstation,
-    # personal and personal-linux.
-    testSleipnirHomeSelection = let
-      r = resolve {
-        system = "x86_64-linux";
-        tree = real;
-        classes = both;
-        modules = [./hosts/Sleipnir/features.nix];
-      };
-      want = [
-        "desktop.core#homeManager"
-        "web.browsers#homeManager" # workstation
-        "terminal.emulators#homeManager" # workstation
-        "comms.chat#homeManager" # workstation
-        "comms.mail#homeManager" # workstation
-        "media.players#homeManager" # workstation
-        "media.spotify#homeManager"
-        "media.obs#homeManager"
-        "graphics.paint#homeManager"
-        "graphics.modelling#homeManager"
-        "graphics.cad#homeManager"
-        "editor.zed#homeManager"
-        "editor.lem#homeManager"
-        "notes.joplin#homeManager"
-        "ai.claude-desktop#homeManager"
-        "desktop-shell.walker#homeManager"
-        # P4: personal
-        "editor.emacs#homeManager"
-        "editor.neovim#homeManager"
-        "editor.kakoune#homeManager"
-        "editor.misc#homeManager"
-        "notes.terminal#homeManager"
-        "dev.scm#homeManager"
-        "dev.build#homeManager"
-        "dev.runtimes#homeManager"
-        "dev.runners#homeManager"
-        "dev.tools#homeManager"
-        "docs.diagrams#homeManager"
-        "docs.typeset#homeManager"
-        "docs.markdown#homeManager"
-        "docs.help#homeManager"
-        "data.structured#homeManager"
-        "data.hex#homeManager"
-        "files.manage#homeManager"
-        "files.disk#homeManager"
-        "files.archive#homeManager"
-        "files.search#homeManager"
-        "files.sync#homeManager"
-        "net.tools#homeManager"
-        "web.terminal#homeManager"
-        "system.monitor#homeManager"
-        "system.process#homeManager"
-        "text.tools#homeManager"
-        "text.pagers#homeManager"
-        "text.dictionary#homeManager"
-        "office.calc#homeManager"
-        "office.calendar#homeManager"
-        "security.credentials#homeManager"
-        "security.research#homeManager"
-        "media.view#homeManager"
-        "media.convert#homeManager"
-        "graphics.color#homeManager"
-        "comms.feeds#homeManager"
-        "fun.toys#homeManager"
-        "terminal.utils#homeManager"
-        # P5: personal-linux, host
-        "satan.harness#homeManager"
-        "satan.attrd#homeManager"
-        "satan.runner#homeManager"
-        "satan.malebolge#homeManager"
-        "attention.behaviour#homeManager"
-        "attention.nudge#homeManager"
-        "attention.goad#homeManager"
-        "audio.alarm#homeManager"
-        # SL-009 P4: personal-linux
-        "agents.eca#homeManager"
-        "ai.chatgpt#homeManager"
-      ];
-    in {
-      expr = map (tag: lib.elem tag (tags r.modules.homeManager)) want;
-      expected = map (_: true) want;
     };
 
     # gamescopeSession is a steam option: gamescope alone is refused. No host
@@ -616,19 +421,5 @@ in
           inherit system;
         }) ["aarch64-darwin" "x86_64-linux"];
       expected = [false true];
-    };
-
-    # Off features (ADR-005): Sleipnir leaves each unselected, and selecting it
-    # projects its NixOS half — the second element keeps the first from passing
-    # vacuously.
-    testOffFeatures = {
-      expr = map (tag:
-        sleipnirSelects [tag] ++ sleipnirWith [(on (lib.removeSuffix "#nixos" tag))] [tag]) [
-        "ai.llama-cpp#nixos"
-        "ai.rocm#nixos"
-        "virt.podman#nixos" # DEC-022: exclusive with docker, so no host selects it
-        "services.sunshine#nixos"
-      ];
-      expected = lib.replicate 4 [[false false] [true false]];
     };
   }
