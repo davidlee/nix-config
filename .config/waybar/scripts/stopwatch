@@ -1,4 +1,4 @@
-#!/run/current-system/sw/bin/env python
+#!/usr/bin/env python3
 # Copyright 2024 Raffaele Mancuso
 # SPDX-License-Identifier: MIT
 

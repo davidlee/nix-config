@@ -1,0 +1,30 @@
+# Guix's half of ~/.config/zsh/.zshrc: the shared files plus the wiring
+# home-manager generates on the Nix host (~/flakes/features/terminal/zsh.nix).
+source $HOME/.config/zsh/initEarly.zsh
+bindkey -e
+
+HISTSIZE=10000
+SAVEHIST=10000
+HISTORY_IGNORE='(rm *|pkill *|cp *|rmdir *)'
+HISTFILE=$HOME/.config/zsh/.zsh_history
+setopt HIST_FCNTL_LOCK EXTENDED_HISTORY HIST_IGNORE_ALL_DUPS \
+  HIST_IGNORE_DUPS HIST_IGNORE_SPACE SHARE_HISTORY
+
+[[ $options[zle] = on ]] && source <(fzf --zsh)
+
+source $HOME/.config/zsh/init.zsh
+
+[[ $options[zle] = on ]] && eval "$(atuin init zsh --disable-up-arrow)"
+
+# yazi, then cd to where it left off
+function y() {
+  local tmp="$(mktemp -t yazi-cwd.XXXXX)" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  if cwd="$(<$tmp)" && [[ -n $cwd && $cwd != $PWD ]]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
+alias la='eza -a' ll='eza -l' lla='eza -la' ls=eza lt='eza --tree'
+alias vimdiff='nvim -d'

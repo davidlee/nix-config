@@ -20,6 +20,7 @@ with "Next session" in `PLAN.md`.
 |---|---|
 | `~/guix/home.scm` | Guix Home config. On the VM: `guix home reconfigure ~/guix/home.scm` |
 | `~/guix/system.scm` | The VM's `/etc/config.scm` (installer-generated; disk UUIDs are this VM's). Copy back and `sudo guix system reconfigure` after editing |
+| `~/guix/zsh/zshrc` | Guix's `.zshrc` stub (via `home.scm`'s `zsh-stubs`); sources the shared `~/.config/zsh` files |
 | `~/guix/channels.scm` | Channels (Guix plus nonguix). The VM's `~/.config/guix/channels.scm` links here |
 | Host `~/.config/emacs` | Emacs config working copy; the source of truth. Run `just check` before committing |
 | Host `~/flakes/emacs/emacs.nix` | Nix package list for Emacs; the reference for what the config needs |
@@ -76,6 +77,7 @@ with "Next session" in `PLAN.md`.
 | `guix-pkgs.txt` | The Guix package names that resolved |
 | `located.txt` | Missing names marked `LOADABLE` or `absent` |
 | `host-closure.txt` | Emacs packages and versions on the host |
+| `packages.tsv` | Every Nix host package: its Guix or nonguix name, or `MISSING` with a gap class. See `PLAN.md` |
 
 ## Testing Emacs on the VM
 

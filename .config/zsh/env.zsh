@@ -17,11 +17,13 @@ export MANPAGER='most'
 export DISABLE_AUTO_TITLE=true
 
 
+# gcr's agent (socket-activated on NixOS). Elsewhere, e.g. Guix's Shepherd
+# ssh-agent, keep the agent the session already set.
 if [[ "Darwin" != "$(uname -o)" ]]; then
-  if [[ ! -z "${XDG_RUNTIME_DIR}" ]]; then
+  if [[ -z "${XDG_RUNTIME_DIR}" ]]; then
+    echo "XDG_RUNTIME_DIR not set, can't set SSH_AUTH_SOCK"
+  elif [[ -S $XDG_RUNTIME_DIR/gcr/ssh ]]; then
     export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gcr/ssh
-  else
-    echo "$XDG_RUNTIME_DIR not set, can't set SSH_AUTH_SOCK"
   fi
 fi
 

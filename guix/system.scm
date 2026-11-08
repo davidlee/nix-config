@@ -11,6 +11,7 @@
 ;; used in this configuration.
 (use-modules (gnu))
 (use-service-modules cups desktop networking ssh xorg) ; xorg
+(use-package-modules shells)
 
 (operating-system
   (locale "en_AU.utf8")
@@ -24,6 +25,8 @@
                   (comment "David")
                   (group "users")
                   (home-directory "/home/david")
+                  ;; Its rc files come from Guix Home (~/guix/home.scm).
+                  (shell (file-append zsh "/bin/zsh"))
                   (supplementary-groups '("wheel" "netdev" "audio" "video")))
                 %base-user-accounts))
 
@@ -52,7 +55,20 @@
 
            ;; This is the default list of services we
            ;; are appending to.
-           %desktop-services))
+           (modify-services %desktop-services
+             ;; Binaries for nonguix packages (firefox, signal-desktop...);
+             ;; without them, firefox builds from source.
+             (guix-service-type
+              config => (guix-configuration
+                         (inherit config)
+                         (substitute-urls
+                          (append (list "https://substitutes.nonguix.org")
+                                  %default-substitute-urls))
+                         (authorized-keys
+                          (append (list (plain-file "nonguix.pub" "\
+(public-key (ecc (curve Ed25519)
+  (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)))"))
+                                  %default-authorized-guix-keys)))))))
   (bootloader (bootloader-configuration
                 (bootloader grub-efi-bootloader)
                 (targets (list "/boot/efi"))

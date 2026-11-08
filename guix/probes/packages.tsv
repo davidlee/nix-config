@@ -1,0 +1,771 @@
+nix	scope	status	guix	version	channel	gap
+7zz	home	guix	7zip	26.04		
+antidote	home	git-checkout	mattmc3/antidote	ed83f88		
+aria2	home	guix	aria2	1.37.0		
+asak	home	MISSING				cli-long-tail
+asciinema	home	guix	asciinema	3.2.0		
+aspell	home	guix	aspell	0.60.8.2		
+ast-grep	home	guix	ast-grep	0.42.1		
+atuin	home	guix	atuin	18.16.1		
+autoconf	home	guix	autoconf	2.72		
+await	home	MISSING				cli-long-tail
+backintime-qt	home	MISSING				cli-long-tail
+bandwhich	home	MISSING				cli-long-tail
+bat	home	guix	bat	0.26.1		
+bc	home	guix	bc	1.08.2		
+beeper	home	MISSING				proprietary
+bfs	home	guix	bfs	4.1.4		
+bind	home	guix	bind	9.19.24		
+binutils-wrapper	home	guix	binutils	2.44		
+bison	home	guix	bison	3.8.2		
+blender	home	guix	blender	4.5.10		
+bottom	home	guix	bottom	0.12.3		
+broot	home	MISSING				cli-long-tail
+browsh	home	MISSING				cli-long-tail
+btop	home	guix	btop	1.4.8		
+calcure	home	MISSING				cli-long-tail
+carapace	home	MISSING				cli-long-tail
+ccache	home	guix	ccache	4.8.3		
+celluloid	home	guix	celluloid	0.30		
+cfm	home	guix	cfm	0.6.6		
+chafa	home	guix	chafa	1.18.0		
+chatgpt	home	MISSING				proprietary
+cheat	home	MISSING				cli-long-tail
+choose	home	MISSING				cli-long-tail
+chroma	home	false-friend				cli-long-tail
+cicero-tui	home	MISSING				cli-long-tail
+circumflex	home	MISSING				cli-long-tail
+clang	home	guix	clang-toolchain	23.1.1		
+claude-desktop	home	MISSING				proprietary
+claude-monitor	home	MISSING				cli-long-tail
+clock-rs	home	MISSING				cli-long-tail
+cmake	home	guix	cmake	4.1.3		
+cmatrix	home	guix	cmatrix	2.0		
+cmus	home	guix	cmus	2.12.0		
+coreutils	home	guix	coreutils	9.1		
+cpio	home	guix	cpio	2.15		
+csv-tui	home	MISSING				cli-long-tail
+curl	home	guix	curl	8.21.0		
+curlie	home	guix	curlie	1.8.2		
+d2	home	MISSING				cli-long-tail
+ddgr	home	MISSING				cli-long-tail
+debase	home	MISSING				cli-long-tail
+delta	home	guix	git-delta	0.19.2		
+diffedit3	home	MISSING				cli-long-tail
+diffnav	home	MISSING				cli-long-tail
+diffr	home	guix	diffr	0.1.5		
+diffstat	home	guix	diffstat	1.65		
+difftastic	home	guix	difftastic	0.69.0		
+direnv	home	guix	direnv	2.37.1		
+discord	home	MISSING				proprietary
+docfd	home	MISSING				cli-long-tail
+doggo	home	MISSING				cli-long-tail
+drawio	home	MISSING				proprietary
+drawpile	home	guix	drawpile	2.2.2-beta.5		
+du-dust	home	guix	du-dust	1.2.4		
+duf	home	MISSING				cli-long-tail
+dummy-xdg-mime-dirs1	home	MISSING				nix-machinery
+dummy-xdg-mime-dirs2	home	MISSING				nix-machinery
+eca	home	MISSING				cli-long-tail
+element-desktop	home	nonguix	element-desktop	1.12.24		
+elephant-with-providers	home	MISSING				other-desktop
+emacs-all-the-icons-fonts	home	MISSING				nix-machinery
+emacsclient-commands	home	guix	emacs-pgtk	31.1		
+emacsclient.desktop	home	guix	emacs-pgtk	31.1		
+emacs-unstable-pgtk-with-packages-31.1	home	guix	emacs-pgtk	31.1		
+entr	home	guix	entr	5.8		
+epiphany	home	guix	epiphany	49.2		
+eva	home	MISSING				cli-long-tail
+exercism	home	guix	exercism	3.5.8		
+eza	home	guix	eza	0.23.5		
+fastfetch	home	guix	fastfetch	2.70.0		
+fd	home	guix	fd	10.5.0		
+felix	home	MISSING				cli-long-tail
+ffmpeg-full	home	guix	ffmpeg	8.1.2		
+figlet	home	guix	figlet	2.2.5		
+file	home	guix	file	5.46		
+findutils	home	guix	findutils	4.10.0		
+firefox	home	nonguix	firefox	158.0.1		
+firefoxpwa	home	MISSING				proprietary
+fish	home	guix	fish	4.7.1		
+fltrdr	home	MISSING				cli-long-tail
+fontconfig	home	guix	fontconfig	2.17.1		
+foot	home	guix	foot	1.28.0		
+fortune-mod	home	guix	fortunes-jkirchartz	0.0.0-1.f3acb4e		
+fsearch	home	guix	fsearch	0.2.3		
+fswatch	home	guix	fswatch	1.22.0		
+fzf	home	guix	fzf	0.74.2		
+fzy	home	guix	fzy	1.1		
+gawk	home	guix	gawk	5.3.0		
+gcalcli	home	MISSING				cli-long-tail
+gcc-wrapper	home	guix	gcc-toolchain	9.5.0		
+gdu	home	guix	gdu	5.36.1		
+gh	home	guix	github-cli	2.83.2		
+gh-dash	home	MISSING				cli-long-tail
+ghostscript-with-X	home	guix	ghostscript	9.56.1		
+ghostty	home	MISSING				cli-long-tail
+gimp	home	guix	gimp	3.2.6		
+git	home	guix	git	2.55.0		
+git-crypt	home	guix	git-crypt	0.8.0		
+git-revise	home	MISSING				cli-long-tail
+gitui	home	guix	gitui	0.28.1		
+git-with-svn	home	guix	git	2.55.0		
+glances	home	guix	glances	4.5.8		
+glow	home	MISSING				cli-long-tail
+gnumake	home	guix	make	4.4.1		
+gnupg	home	guix	gnupg	2.5.21		
+gnused	home	guix	sed	4.9		
+gnutar	home	guix	tar	1.35		
+goad	home	MISSING				cli-long-tail
+gpgme	home	guix	gpgme	2.1.0		
+gpg-tui	home	MISSING				cli-long-tail
+graphviz	home	guix	graphviz	7.0.1		
+grex	home	MISSING				cli-long-tail
+gron	home	guix	gron	0.7.1		
+gtop	home	MISSING				cli-long-tail
+gtt	home	MISSING				cli-long-tail
+gum	home	MISSING				cli-long-tail
+hexyl	home	guix	hexyl	0.16.0		
+hm-session-vars.fish	home	MISSING				nix-machinery
+hm-session-vars.sh	home	MISSING				nix-machinery
+home-configuration-reference-manpage	home	MISSING				nix-machinery
+home-manager	home	MISSING				nix-machinery
+htop	home	guix	htop	3.5.3		
+httpie	home	MISSING				cli-long-tail
+hub	home	MISSING				cli-long-tail
+hyperfine	home	guix	hyperfine	1.20.0		
+ictree	home	MISSING				cli-long-tail
+iftop	home	guix	iftop	1.0pre4		
+index.theme	home	MISSING				nix-machinery
+inetutils	home	guix	inetutils	2.8		
+inkscape	home	guix	inkscape	1.4.4		
+jailed-eca	home	MISSING				own-tooling
+jailed-satan-gptel-harness	home	MISSING				own-tooling
+jc	home	guix	jc	1.26.0		
+jjui	home	MISSING				cli-long-tail
+jless	home	guix	jless	0.9.0		
+joplin-cli	home	MISSING				cli-long-tail
+jq	home	guix	jq	1.8.2		
+jqp	home	guix	go-jqp			
+jujutsu	home	guix	jujutsu	0.41.0		
+just	home	guix	just	1.59.0		
+kakoune-2026.05.21	home	guix	kakoune	2026.05.21		
+kakoune.cr	home	MISSING				cli-long-tail
+kakoune-lsp	home	guix	kak-lsp	22.0.0		
+kb	home	MISSING				cli-long-tail
+kitty	home	guix	kitty	0.48.2		
+krita	home	guix	krita	5.2.16		
+latex2html	home	guix	latex2html	2024		
+lazygit	home	MISSING				cli-long-tail
+lazyjj	home	MISSING				cli-long-tail
+leaf-markdown-viewer	home	MISSING				cli-long-tail
+lem-ncurses	home	guix	lem	2.3.0		
+less	home	guix	less	608		
+lf	home	guix	lf	41		
+libressl	home	guix	libressl	4.3.2		
+librewolf	home	guix	librewolf	159.0-1		
+lld	home	guix	lld	23.1.1		
+lldb	home	guix	lldb	23.1.1		
+llvm	home	guix	llvm	23.1.1		
+lsd	home	guix	lsd	1.2.0		
+lsof	home	guix	lsof	4.99.6		
+lynx	home	guix	lynx	2.9.2		
+man-db	home	guix	man-db	2.12.0		
+mangohud	home	guix	mangohud	0.8.4		
+markdown-oxide	home	MISSING				cli-long-tail
+marksman	home	MISSING				cli-long-tail
+mc	home	guix	mc	4.8.33		
+mediainfo	home	guix	mediainfo	25.04		
+mergiraf	home	guix	mergiraf	0.16.3		
+mermaid-cli	home	MISSING				cli-long-tail
+micro	home	guix	micro	2.0.14		
+mise	home	guix	mise	2026.4.4		
+mmtui	home	MISSING				cli-long-tail
+mold-unwrapped-wrapper	home	guix	mold	2.42.1		
+moor	home	MISSING				cli-long-tail
+moreutils	home	guix	moreutils	0.70		
+most	home	guix	most	5.2.0		
+mpris-timer	home	MISSING				sway-extra
+mprocs	home	MISSING				cli-long-tail
+mpv-with-scripts	home	guix	mpv	0.41.0		
+mypaint	home	guix	mypaint	2.0.1-0.35aa9d3		
+nb	home	MISSING				cli-long-tail
+ncdu	home	guix	ncdu	2.9.2		
+neovim	home	guix	neovim	0.12.1		
+nerd-font-patcher	home	MISSING				nix-machinery
+net-tools	home	guix	net-tools	1.60-0.479bb4a		
+ngrok	home	MISSING				proprietary
+ninja	home	guix	ninja	1.13.2		
+nirius	home	MISSING				other-desktop
+nix-output-monitor	home	MISSING				nix-machinery
+nix-search-cli	home	MISSING				nix-machinery
+nix-search-tv	home	MISSING				nix-machinery
+nmap	home	guix	nmap	7.991		
+nms	home	MISSING				cli-long-tail
+nnn	home	guix	nnn	5.3		
+nodejs	home	guix	node	26.12.1		
+nushell	home	guix	nushell	0.103.0		
+nvdtools	home	MISSING				cli-long-tail
+nvimpager	home	MISSING				cli-long-tail
+oath-toolkit	home	guix	oath-toolkit	2.6.11		
+oha	home	MISSING				cli-long-tail
+oh-my-posh	home	MISSING				cli-long-tail
+openscad	home	guix	openscad	2026.07.26-0.04834ad		
+openssl	home	guix	openssl	3.5.7		
+otree	home	MISSING				cli-long-tail
+ov	home	MISSING				cli-long-tail
+overmind	home	MISSING				cli-long-tail
+p7zip	home	guix	7zip	26.04		
+pandoc-cli	home	guix	pandoc	3.7.0.2		
+panopticon	home	MISSING				own-tooling
+pastel	home	guix	pastel	0.12.0		
+phinger-cursors	home	MISSING				other-desktop
+pi	home	MISSING				cli-long-tail
+pinfo	home	guix	pinfo	0.6.13-0.3d76eec		
+play	home	MISSING				cli-long-tail
+playerctl	home	guix	playerctl	2.4.1		
+pls	home	false-friend				cli-long-tail
+poppler-utils	home	guix	poppler	26.07.0		
+procps	home	guix	procps	4.0.3		
+procs	home	guix	procs	0.14.12		
+psmisc	home	guix	psmisc	23.7		
+pstree	home	guix	psmisc	23.7		
+pueue	home	guix	pueue	4.0.4		
+pydf	home	guix	pydf	16		
+python3	home	guix	python	3.12.12		
+python3-3.14.8-env	home	guix	python	3.12.12		
+qrencode	home	guix	qrencode	4.1.1		
+quotient	home	MISSING				own-tooling
+ranger	home	guix	ranger	1.9.4		
+resvg	home	guix	resvg	0.47.0		
+rich-cli	home	MISSING				cli-long-tail
+ripgrep	home	guix	ripgrep	15.2.0		
+ripgrep-all	home	guix	ripgrep-all	0.10.10		
+rssguard	home	MISSING				cli-long-tail
+russ	home	MISSING				cli-long-tail
+sad	home	MISSING				cli-long-tail
+satan-attrd	home	MISSING				own-tooling
+sccache	home	MISSING				cli-long-tail
+sc-im	home	guix	sc-im	0.8.3		
+screwtape	home	MISSING				own-tooling
+screwtape-provision	home	MISSING				own-tooling
+sd	home	guix	sd	1.0.0		
+sdcv	home	guix	sdcv	0.5.5		
+seclists	home	MISSING				cli-long-tail
+selene	home	false-friend				cli-long-tail
+shared-mime-info	home	guix	shared-mime-info	2.3		
+ShellCheck	home	guix	shellcheck	0.10.0		
+shfmt	home	guix	shfmt	3.14.0		
+signal-cli	home	nonguix	signal-cli	0.14.5		
+signal-desktop	home	nonguix	signal-desktop	8.30.0		
+skim	home	guix	skim	0.16.1		
+slides	home	MISSING				cli-long-tail
+sn0int	home	MISSING				cli-long-tail
+socat	home	guix	socat	1.7.4.4		
+spotify	home	MISSING				proprietary
+spotify-cli-linux	home	MISSING				cli-long-tail
+spotifyd	home	guix	spotifyd	0.4.2		
+spotify-player	home	MISSING				cli-long-tail
+spotify-tray	home	MISSING				sway-extra
+starship	home	guix	starship	1.26.0		
+stress-ng	home	guix	stress-ng	0.22.00		
+structurizr-cli	home	MISSING				cli-long-tail
+sublime-merge	home	MISSING				proprietary
+superfile	home	MISSING				cli-long-tail
+sway	home	guix	sway	1.12		
+swayosd	home	MISSING				sway-extra
+syncthing	home	guix	syncthing	2.1.2		
+tcpdump	home	guix	tcpdump	4.99.4		
+tdf	home	MISSING				cli-long-tail
+tealdeer	home	guix	tealdeer	1.9.0		
+television-wrapped-0.15.9	home	MISSING				cli-long-tail
+texlive	home	guix	texlive-scheme-basic	2026.1		
+thunderbird	home	guix	icedove	140.17.0		
+tig	home	guix	tig	2.6.1		
+tinyxxd	home	guix	xxd	9.2.0333		
+tmux	home	guix	tmux	3.8		
+tokei	home	guix	tokei	14.0.0		
+tpnote	home	MISSING				cli-long-tail
+trash-cli	home	guix	trash-cli	0.24.5.26		
+trashy	home	MISSING				cli-long-tail
+tray-tui	home	MISSING				sway-extra
+tre	home	false-friend				cli-long-tail
+tree-sitter	home	guix	tree-sitter	0.25.3		
+trippy	home	MISSING				cli-long-tail
+tui-journal	home	MISSING				cli-long-tail
+tuisky	home	MISSING				cli-long-tail
+tut	home	MISSING				cli-long-tail
+typst	home	guix	typst	0.15.1		
+udiskie	home	guix	udiskie	2.6.2		
+ueberzugpp	home	guix	ueberzugpp	2.9.10		
+unar	home	MISSING				cli-long-tail
+ungoogled-chromium	home	guix	ungoogled-chromium	156.0.8078.47-1		
+unrar	home	nonguix	unrar	7.0.9		
+unzip	home	guix	unzip	6.0		
+uv	home	guix	uv	0.10.12		
+vgrep	home	MISSING				cli-long-tail
+vicinae	home	MISSING				other-desktop
+viddy	home	MISSING				cli-long-tail
+vips	home	guix	vips	8.17.0		
+viu	home	MISSING				cli-long-tail
+vivaldi	home	MISSING				proprietary
+vlc	home	guix	vlc	3.0.23		
+w3m	home	guix	w3m	0.5.3+git20230121		
+walker	home	MISSING				other-desktop
+watcher	home	false-friend				cli-long-tail
+watchexec	home	guix	watchexec	2.5.1		
+watchman	home	MISSING				cli-long-tail
+waybar	home	guix	waybar	0.15.0		
+wget	home	guix	wget	1.25.0		
+wiki-tui	home	MISSING				cli-long-tail
+wordgrinder	home	MISSING				cli-long-tail
+wrapped-obs-studio-32.2.2	home	guix	obs	32.2.2		
+wtf	home	MISSING				cli-long-tail
+xh	home	MISSING				cli-long-tail
+xplr	home	MISSING				cli-long-tail
+xq	home	MISSING				cli-long-tail
+xwayland	home	guix	xorg-server-xwayland	24.1.14		
+xz	home	guix	xz	5.4.5		
+yazi	home	guix	yazi	26.5.6		
+yEd	home	MISSING				proprietary
+yq-go	home	guix	yq	4.53.3		
+yt-dlp	home	guix	yt-dlp	2026.10.21		
+zed-editor	home	guix	zed	0.225.10		
+zip	home	guix	zip	3.0		
+zmx-0.8.1	home	MISSING				own-tooling
+zmx-new	home	MISSING				own-tooling
+zmx-picker	home	MISSING				own-tooling
+zmx-state	home	MISSING				own-tooling
+zoxide	home	guix	zoxide	0.9.9		
+zsh	home	guix	zsh	5.9.2		
+zstd	home	guix	zstd	1.5.7		
+1password	system	MISSING				proprietary
+1password-cli	system	MISSING				proprietary
+accountsservice	system	guix	accountsservice	23.13.9		
+acl	system	guix	acl	2.3.1		
+adwaita-icon-theme	system	guix	adwaita-icon-theme	49.0		
+alacritty	system	guix	alacritty	0.17.0		
+alejandra	system	MISSING				nix-machinery
+alsa-utils	system	guix	alsa-utils	1.2.16		
+appimage-run	system	MISSING				nix-machinery
+atop	system	guix	atop	2.13.0		
+at-spi2-core	system	guix	at-spi2-core	2.60.0		
+attr	system	guix	attr	2.5.1		
+avahi	system	guix	avahi	0.8		
+awww	system	guix	awww	0.12.1		
+bash-interactive	system	guix	bash			
+bcache-tools	system	guix	bcache-tools	1.1-0.096d205		
+bibata-cursors	system	MISSING				other-desktop
+bluedevil	system	guix	bluedevil	6.5.5		
+blueman	system	guix	blueman	2.4.6		
+bluetui	system	MISSING				host-hardware
+bluetuith	system	MISSING				host-hardware
+bluez	system	guix	bluez	5.79		
+bluez-qt	system	guix	bluez-qt	6.24.0		
+bluez-tools	system	MISSING				host-hardware
+breeze	system	guix	breeze	6.5.5		
+breeze-gtk	system	guix	breeze-gtk	6.5.5		
+breeze-icons	system	guix	breeze-icons	6.24.0		
+breeze-plymouth	system	MISSING				other-desktop
+brightnessctl	system	guix	brightnessctl	0.5.1		
+bubblewrap	system	guix	bubblewrap	0.13.0		
+bzip2	system	guix	bzip2	1.0.8		
+cachix	system	MISSING				nix-machinery
+caddy	system	MISSING				cli-long-tail
+capsule	system	MISSING				own-tooling
+capsule-adopt	system	MISSING				own-tooling
+capsule-baseline	system	MISSING				own-tooling
+capsule-brief	system	MISSING				own-tooling
+capsule-collect	system	MISSING				own-tooling
+capsule-inject	system	MISSING				own-tooling
+capsule-profile-check	system	MISSING				own-tooling
+capsule-provision	system	MISSING				own-tooling
+capsule-refresh	system	MISSING				own-tooling
+capsule-room-git	system	MISSING				own-tooling
+cargo	system	guix	rust:cargo			
+cargo-update	system	MISSING				cli-long-tail
+cava	system	guix	cava	0.10.6		
+clinfo	system	guix	clinfo	3.0.25.02.14		
+cliphist	system	guix	cliphist	0.7.0		
+clipman	system	guix	clipman	1.6.4		
+clipse	system	MISSING				sway-extra
+clr	system	MISSING				host-hardware
+comma	system	MISSING				nix-machinery
+contour	system	MISSING				cli-long-tail
+CopyQ	system	guix	copyq	17.0.0		
+coreutils-full	system	guix	coreutils	9.1		
+cosmic-applets	system	MISSING				other-desktop
+cosmic-app-library	system	MISSING				other-desktop
+cosmic-bg	system	MISSING				other-desktop
+cosmic-comp	system	MISSING				other-desktop
+cosmic-edit	system	MISSING				other-desktop
+cosmic-files	system	MISSING				other-desktop
+cosmic-greeter	system	MISSING				other-desktop
+cosmic-icons	system	MISSING				other-desktop
+cosmic-idle	system	MISSING				other-desktop
+cosmic-initial-setup	system	MISSING				other-desktop
+cosmic-launcher	system	MISSING				other-desktop
+cosmic-monitor	system	MISSING				other-desktop
+cosmic-notifications	system	MISSING				other-desktop
+cosmic-osd	system	MISSING				other-desktop
+cosmic-osk	system	MISSING				other-desktop
+cosmic-panel	system	MISSING				other-desktop
+cosmic-player	system	MISSING				other-desktop
+cosmic-randr	system	MISSING				other-desktop
+cosmic-reader	system	MISSING				other-desktop
+cosmic-screenshot	system	MISSING				other-desktop
+cosmic-session	system	MISSING				other-desktop
+cosmic-settings	system	MISSING				other-desktop
+cosmic-settings-daemon	system	MISSING				other-desktop
+cosmic-sound-theme	system	MISSING				other-desktop
+cosmic-store	system	MISSING				other-desktop
+cosmic-term	system	MISSING				other-desktop
+cosmic-viewer	system	MISSING				other-desktop
+cosmic-wallpapers	system	MISSING				other-desktop
+cosmic-workspaces-epoch	system	MISSING				other-desktop
+cpuid	system	guix	cpuid	20260220		
+cpuinfo	system	guix	cpuinfo	0.0-8.84818a4		
+cups	system	guix	cups	2.4.14		
+cups-pk-helper	system	guix	cups-pk-helper	0.2.7		
+dbus	system	guix	dbus	1.16.2		
+dbus-broker	system	MISSING				nix-machinery
+dconf	system	guix	dconf	0.49.0		
+deadnix	system	MISSING				nix-machinery
+devenv	system	MISSING				nix-machinery
+dfu-util	system	guix	dfu-util	0.11		
+diffutils	system	guix	diffutils	3.12		
+directx-headers	system	MISSING				host-hardware
+distrobox	system	guix	distrobox	1.8.2.4		
+distrobox-tui	system	MISSING				cli-long-tail
+dmenu	system	guix	dmenu	5.4		
+dmidecode	system	guix	dmidecode	3.6		
+docker	system	guix	docker	20.10.27		
+docker-compose	system	guix	docker-compose	1.29.2		
+dolphin	system	guix	dolphin	26.04.1		
+dolphin-plugins	system	guix	dolphin-plugins	26.04.1		
+dosfstools	system	guix	dosfstools	4.2		
+drkonqi	system	MISSING				other-desktop
+dtc	system	guix	dtc	1.8.1		
+e2fsprogs	system	guix	e2fsprogs	1.47.2		
+espeak-ng	system	guix	espeak-ng	1.52.0-1.0d451f8		
+fail2ban	system	guix	fail2ban	1.1.0		
+fallback-cursor-theme	system	MISSING				nix-machinery
+ffmpeg	system	guix	ffmpeg	8.1.2		
+flameshot	system	guix	flameshot	13.3.0		
+flatpak	system	guix	flatpak	1.18.4		
+fuse	system	guix	fuse	3.18.1		
+fuzzel	system	guix	fuzzel	1.15.0		
+gamemode	system	guix	gamemode	1.8.2		
+gamescope	system	MISSING				games
+gammastep	system	guix	gammastep	2.0.11		
+geoclue	system	guix	geoclue	2.7.2		
+git-minimal	system	guix	git	2.55.0		
+glfw	system	guix	glfw	3.4		
+glib	system	guix	glib	2.86.5		
+glibc	system	guix	glibc	2.41		
+glibc-iconv-2.44	system	MISSING				nix-machinery
+glibc-locales	system	guix	glibc-locales	2.41		
+gnome-calendar	system	guix	gnome-calendar	49.1		
+gnome-disk-utility	system	guix	gnome-disk-utility	46.1		
+gnome-keyring	system	guix	gnome-keyring	48.0		
+gnome-system-monitor	system	guix	gnome-system-monitor	50.0		
+gnugrep	system	guix	grep	3.11		
+greetd	system	guix	greetd	0.10.3		
+grim	system	guix	grim	1.5.0		
+grimshot	system	guix	grimshot	1.9-contrib.0		
+gvfs	system	guix	gvfs	1.58.5		
+gzip	system	guix	gzip	1.14		
+hdparm	system	guix	hdparm	9.65		
+helix	system	guix	helix	25.07.1		
+hicolor-icon-theme	system	guix	hicolor-icon-theme	0.18		
+hostname-debian	system	guix	inetutils	2.8		
+hunspell-dict-en-au-large-wordlist	system	MISSING				cli-long-tail
+hunspell-dict-en-au-wordlist	system	guix	hunspell-dict-en-au	2018.04.16		
+hunspell-dict-en-gb-large-wordlist	system	guix	hunspell-dict-en-gb	2018.04.16		
+hunspell-dict-en-us-large-wordlist	system	MISSING				cli-long-tail
+hunspell-dict-en-us-wordlist	system	guix	hunspell-dict-en-us	2018.04.16		
+hyprpicker	system	guix	hyprpicker	0.4.7		
+iceauth	system	guix	iceauth	1.0.10		
+icu4c	system	guix	icu4c	78.3		
+imv	system	guix	imv	5.0.1		
+iotop	system	guix	iotop	1.31		
+iproute2	system	guix	iproute2	7.0.0		
+iptraf-ng	system	MISSING				cli-long-tail
+iputils	system	guix	iputils	20250605		
+isd	system	MISSING				cli-long-tail
+kaccounts-providers	system	guix	kaccounts-providers	26.04.1		
+kando	system	MISSING				other-desktop
+kanshi	system	guix	kanshi	1.9.0		
+kbd	system	guix	kbd	2.5.1		
+kde-cli-tools	system	guix	kde-cli-tools	6.5.5		
+kexec-tools	system	guix	kexec-tools	2.0.32		
+kiconthemes	system	guix	kiconthemes	6.24.0		
+kio	system	guix	kio	6.24.0		
+kmod	system	guix	kmod	29		
+kokoro	system	MISSING				host-hardware
+kpkpass	system	guix	kpkpass	26.04.1		
+ksshaskpass	system	guix	ksshaskpass	6.5.5		
+kwindowsystem	system	guix	kwindowsystem	6.24.0		
+lact	system	MISSING				host-hardware
+lazydocker	system	MISSING				cli-long-tail
+lazyjournal	system	MISSING				cli-long-tail
+ld-library-path	system	MISSING				nix-machinery
+leash	system	MISSING				own-tooling
+libcap	system	guix	libcap	2.64		
+libffi	system	guix	libffi	3.8.0		
+libglvnd	system	guix	libglvnd	1.7.0		
+libnotify	system	guix	libnotify	0.8.8		
+libvirt	system	guix	libvirt	11.5.0		
+libx11	system	guix	libx11	1.8.12		
+libxcursor	system	guix	libxcursor	1.2.3		
+libxi	system	guix	libxi	1.8.2		
+libxinerama	system	guix	libxinerama	1.1.5		
+libxkbcommon	system	guix	libxkbcommon	1.13.1		
+libxrandr	system	guix	libxrandr	1.5.4		
+libyaml	system	guix	libyaml	0.2.5		
+linux-pam	system	guix	linux-pam	1.7.2		
+lix	system	guix	nix	2.32.8		
+llm-gateway	system	MISSING				own-tooling
+lm-sensors	system	guix	lm-sensors	3.6.2		
+lshw	system	guix	lshw	B.02.19.2		
+ltunify	system	MISSING				host-hardware
+lvm2	system	guix	lvm2	2.03.22		
+mango	system	MISSING				other-desktop
+manix	system	MISSING				nix-machinery
+microvm	system	MISSING				nix-machinery
+mkpasswd	system	MISSING				cli-long-tail
+modemmanager	system	guix	modem-manager			
+mtm	system	guix	mtm	1.2.1		
+mtools	system	guix	mtools	4.0.49		
+nano	system	guix	nano	9.2		
+nautilus	system	guix	nautilus	50.0		
+nautilus-open-any-terminal	system	MISSING				other-desktop
+ncpamixer	system	MISSING				cli-long-tail
+ncurses	system	guix	ncurses	6.2.20210619		
+nemo	system	guix	nemo	6.6.4		
+nethogs	system	guix	nethogs	0.9.0		
+networkmanager	system	guix	network-manager			
+network-manager-applet	system	guix	network-manager-applet	1.36.0		
+nftables	system	guix	nftables	1.0.8		
+nh	system	MISSING				nix-machinery
+nil	system	MISSING				nix-machinery
+niri	system	guix	niri	26.04		
+nix-bash-completions	system	MISSING				nix-machinery
+nix-bisect	system	MISSING				nix-machinery
+nix-btm	system	MISSING				nix-machinery
+nixd	system	MISSING				nix-machinery
+nix-deploy	system	MISSING				nix-machinery
+nix-derivation	system	MISSING				nix-machinery
+nix-diff	system	MISSING				nix-machinery
+nix-direnv	system	MISSING				nix-machinery
+nix-du	system	MISSING				nix-machinery
+nixfmt	system	guix	nixfmt	1.1.0		
+nix-forecast	system	MISSING				nix-machinery
+nix-health	system	MISSING				nix-machinery
+nix-index	system	MISSING				nix-machinery
+nix-info	system	MISSING				nix-machinery
+nix-inspect	system	MISSING				nix-machinery
+nix-janitor	system	MISSING				nix-machinery
+nix-melt	system	MISSING				nix-machinery
+nixos-build-vms	system	MISSING				nix-machinery
+nixos-configuration-reference-manpage	system	MISSING				nix-machinery
+nixos-enter	system	MISSING				nix-machinery
+nixos-firewall-tool	system	MISSING				nix-machinery
+nixos-generate-config	system	MISSING				nix-machinery
+nixos-help	system	MISSING				nix-machinery
+nixos-icons	system	MISSING				nix-machinery
+nixos-install	system	MISSING				nix-machinery
+nixos-manual-html	system	MISSING				nix-machinery
+nixos-option	system	MISSING				nix-machinery
+nixos-rebuild-ng	system	MISSING				nix-machinery
+nixos-version	system	MISSING				nix-machinery
+nix-top	system	MISSING				nix-machinery
+nix-tree	system	MISSING				nix-machinery
+nix-zsh-completions	system	MISSING				nix-machinery
+nmon	system	guix	nmon	16p		
+noctalia	system	MISSING				other-desktop
+noctalia-greeter	system	MISSING				other-desktop
+npins	system	MISSING				nix-machinery
+nvd	system	MISSING				nix-machinery
+oklch-color-picker	system	MISSING				sway-extra
+openssh	system	guix	openssh	10.5p1		
+OpenTabletDriver	system	MISSING				host-hardware
+orca	system	guix	orca	48.9		
+patch	system	guix	patch	2.8		
+pavucontrol	system	guix	pavucontrol	6.2		
+pciutils	system	guix	pciutils	3.13.0		
+perl	system	guix	perl	5.36.0		
+piper	system	guix	piper	0.8		
+pipewire	system	guix	pipewire	1.6.8		
+pixman	system	guix	pixman	0.46.4		
+pkg-config-wrapper	system	guix	pkg-config	0.29.2		
+plasma-desktop	system	guix	plasma-desktop	6.5.5		
+plasma-integration	system	guix	plasma-integration	6.5.5		
+plasma-workspace	system	guix	plasma-workspace	6.5.5		
+plocate	system	guix	plocate	1.1.22		
+polkit	system	guix	polkit	121		
+pop-icon-theme	system	MISSING				other-desktop
+pop-launcher	system	MISSING				other-desktop
+postgresql-and-plugins	system	guix	postgresql	17.10		
+protontricks	system	MISSING				games
+protonup-qt	system	nonguix	protonup	0.1.5		
+pulseaudio	system	guix	pulseaudio	17.0		
+qemu-host-cpu-only	system	guix	qemu	10.2.1		
+qmk	system	guix	qmk	1.2.0		
+qmk-udev-rules	system	guix	qmk-udev-rules	0.1.23		
+qt6ct	system	guix	qt6ct	0.11		
+quickemu	system	MISSING				host-hardware
+radeon-profile	system	MISSING				host-hardware
+rio	system	MISSING				cli-long-tail
+rocminfo	system	guix	rocminfo	7.1.1		
+rofi	system	guix	rofi	2.0.0		
+rsync	system	guix	rsync	3.5.1		
+rtkit	system	guix	rtkit	0.14		
+rxvt-unicode	system	guix	rxvt-unicode	9.31		
+satty	system	MISSING				sway-extra
+sd-switch	system	MISSING				nix-machinery
+seahorse	system	guix	seahorse	47.0.1		
+setxkbmap	system	guix	setxkbmap	1.3.4		
+shadow	system	guix	shadow	4.19.0		
+shotman	system	MISSING				sway-extra
+showmethekey	system	guix	showmethekey	1.21.0		
+sirula	system	MISSING				other-desktop
+slurp	system	guix	slurp	1.5.0		
+smartmontools	system	guix	smartmontools	7.5		
+smem	system	guix	smem	1.5		
+sound-theme-freedesktop	system	guix	sound-theme-freedesktop	0.8		
+sov	system	guix	sov	0.94		
+speech-dispatcher	system	guix	speech-dispatcher	0.12.1		
+st	system	guix	st	0.9.3		
+static-web-server	system	MISSING				cli-long-tail
+statix	system	MISSING				nix-machinery
+steam	system	guix	steam	1.0.0.87		
+steamcmd	system	MISSING				games
+steam-gamescope	system	MISSING				games
+steam-run	system	MISSING				games
+steam-tui	system	MISSING				games
+strace	system	guix	strace	7.0		
+sudo	system	guix	sudo	1.9.17p1		
+swappy	system	guix	swappy	1.8.0		
+sway-audio-idle-inhibit	system	guix	sway-audio-idle-inhibit	0.2.0-1.f1e9246		
+swaybg	system	guix	swaybg	1.2.2		
+swaycons	system	MISSING				sway-extra
+swaycwd	system	MISSING				sway-extra
+sway-easyfocus	system	MISSING				sway-extra
+swayidle	system	guix	swayidle	1.9.0		
+swayimg	system	guix	swayimg	5.5		
+sway-launcher-desktop	system	MISSING				sway-extra
+swaylock	system	guix	swaylock	1.8.6		
+swaylock-fancy	system	guix	swaylock-effects	1.7.0.0		
+sway-new-workspace	system	MISSING				sway-extra
+SwayNotificationCenter	system	guix	swaynotificationcenter	0.12.6		
+sway-overfocus	system	MISSING				sway-extra
+swayr	system	guix	swayr	0.28.1		
+swayrbar	system	guix	swayrbar	0.4.2		
+sway-scratch	system	MISSING				sway-extra
+swaysettings	system	MISSING				sway-extra
+switcheroo-control	system	MISSING				nix-machinery
+sysprof	system	guix	sysprof	49.0		
+sysstat	system	guix	sysstat	12.7.5		
+system76-power	system	MISSING				other-desktop
+system76-scheduler	system	MISSING				other-desktop
+system-config-printer	system	guix	system-config-printer	1.5.16		
+systemctl-tui	system	MISSING				cli-long-tail
+systemd	system	MISSING				nix-machinery
+systemsettings	system	MISSING				other-desktop
+tailscale	system	MISSING				host-hardware
+texinfo-interactive	system	guix	texinfo	7.3		
+thunar	system	guix	thunar	4.20.10		
+thunar-with-plugins-4.20.10	system	guix	thunar	4.20.10		
+time	system	guix	time	1.10		
+tmux-terminfo	system	guix	tmux	3.8		
+tomlplusplus	system	guix	tomlplusplus	3.4.0		
+tuba	system	guix	tuba	0.11.0		
+tuigreet	system	guix	tuigreet	0.11.1		
+tumbler	system	guix	tumbler	4.20.2		
+udisks	system	guix	udisks	2.10.1		
+umbriel	system	MISSING				other-desktop
+upower	system	guix	upower	1.90.10		
+usbutils	system	guix	usbutils	018		
+util-linux	system	guix	util-linux	2.42.2		
+valgrind	system	guix	valgrind	3.27.0		
+virt-manager	system	guix	virt-manager	5.0.0		
+vnstat	system	guix	vnstat	2.13		
+vulkan-headers	system	guix	vulkan-headers	1.4.335.0		
+vulkan-loader	system	guix	vulkan-loader	1.4.335.0		
+vulkan-tools	system	guix	vulkan-tools	1.4.335.0		
+wayland-logout	system	MISSING				sway-extra
+wayland-pipewire-idle-inhibit	system	MISSING				sway-extra
+wayland-protocols	system	guix	wayland-protocols	1.47		
+wayland-utils	system	guix	wayland-utils	1.2.0		
+waypipe	system	guix	waypipe	0.11.0		
+wbg	system	guix	wbg	1.3.0		
+wev	system	guix	wev	1.1.0		
+wezterm-terminfo	system	MISSING				cli-long-tail
+wf-recorder	system	guix	wf-recorder	0.6.0		
+wgpu-utils	system	MISSING				host-hardware
+which	system	guix	which	2.21		
+wine	system	guix	wine	11.0		
+wine-staging	system	guix	wine-staging	11.0		
+winetricks	system	nonguix	winetricks	20250102		
+wireplumber	system	guix	wireplumber	0.5.17		
+wl-clicker	system	MISSING				sway-extra
+wl-clipboard-rs	system	guix	wl-clipboard	2.3.0		
+wl-clip-persist	system	MISSING				sway-extra
+wlclock	system	guix	wlclock	1.0.1		
+wl-color-picker	system	guix	wl-color-picker	1.4		
+wl-crosshair	system	MISSING				sway-extra
+wldash	system	MISSING				sway-extra
+wleave	system	MISSING				sway-extra
+wl-gammactl	system	MISSING				sway-extra
+wl-gammarelay-rs	system	MISSING				sway-extra
+wlinhibit	system	MISSING				sway-extra
+wl-kbptr	system	guix	wl-kbptr	0.4.1		
+wl-mirror	system	guix	wl-mirror	0.18.5		
+wlock	system	MISSING				sway-extra
+wlopm	system	guix	wlopm	1.0.0-0.6a197eb		
+wlprop	system	MISSING				sway-extra
+wl-restart	system	MISSING				sway-extra
+wlr-layout-ui	system	MISSING				sway-extra
+wlroots	system	guix	wlroots	0.20.2		
+wl-screenrec	system	MISSING				sway-extra
+wmenu	system	guix	wmenu	0.2.0		
+wofi	system	guix	wofi	1.5.3		
+wofi-emoji	system	MISSING				sway-extra
+wofi-power-menu	system	MISSING				sway-extra
+wpa_supplicant	system	guix	wpa-supplicant			
+wshowkeys-unstable	system	MISSING				sway-extra
+wttrbar	system	MISSING				sway-extra
+wtype	system	guix	wtype	0.4		
+X11-fonts	system	MISSING				nix-machinery
+x86info	system	MISSING				host-hardware
+xauth	system	guix	xauth	1.1.3		
+xdg-desktop-portal	system	guix	xdg-desktop-portal	1.22.1		
+xdg-desktop-portal-cosmic	system	MISSING				other-desktop
+xdg-desktop-portal-gnome	system	guix	xdg-desktop-portal-gnome	49.0		
+xdg-desktop-portal-gtk	system	guix	xdg-desktop-portal-gtk	1.15.3		
+xdg-desktop-portal-kde	system	guix	xdg-desktop-portal-kde	6.5.5		
+xdg-desktop-portal-umbriel	system	MISSING				other-desktop
+xdg-desktop-portal-wlr	system	guix	xdg-desktop-portal-wlr	0.8.4		
+xdg-user-dirs	system	guix	xdg-user-dirs	0.20		
+xdg-utils	system	guix	xdg-utils	1.2.1		
+xf86-input-evdev	system	guix	xf86-input-evdev	2.11.0		
+xf86-input-libinput	system	guix	xf86-input-libinput	1.5.0		
+xfconf	system	guix	xfconf	4.20.0		
+xinit	system	guix	xinit	1.4.4		
+xinput	system	guix	xinput	1.6.4		
+xlsclients	system	guix	xlsclients	1.1.5		
+xorg-server	system	guix	xorg-server	21.1.25		
+xprop	system	guix	xprop	1.2.8		
+xrandr	system	guix	xrandr	1.5.3		
+xrdb	system	guix	xrdb	1.2.2		
+xset	system	guix	xset	1.2.5		
+xsetroot	system	guix	xsetroot	1.1.3		
+xterm	system	guix	xterm	397		
+xwayland-satellite	system	guix	xwayland-satellite	0.8.2		
+yad	system	guix	yad	12.0		
+yaft	system	MISSING				sway-extra
+ydotool	system	guix	ydotool	1.0.4		
+zathura-with-plugins	system	guix	zathura	2026.03.27		
+zenity	system	guix	zenity	4.2.2		
+zlib	system	guix	zlib	1.3.1		

@@ -2,27 +2,63 @@
 
 ## Next session: start here
 
-Emacs runs (below). The next phase is the rest of the system: get as many of
-the user's packages as possible from Guix, nonguix or elsewhere, and set up
-the non-Emacs amenities. The open items are under "Shared home"; take them
-first.
+Emacs runs (below). The current phase is the rest of the system: packages and
+the non-Emacs amenities. Session of 2026-11-08 (second): inventory done,
+`home.scm` and `system.scm` extended, not yet applied. Apply in this order:
 
-- **Package inventory.** The Nix package set is in `~/flakes` (now on the VM
-  too): `modules/home/cli.nix`, `features/*.nix`, `features.nix`, `hosts/`.
-  Map each package to Guix, nonguix, or `MISSING`, as `probes/resolve.txt`
-  did for Emacs. Trim names from `guix package -A` (see Traps). Then decide
-  for each gap: skip, package it, or another source (Flatpak, binary, Nix).
-- **Where packages go.** `~/guix/home.scm`, tracked in the home repo. Edit it
-  on the host, push, then `git pull` on the VM and
-  `guix home reconfigure ~/guix/home.scm`. Keep separate lists by purpose, as
-  with `emacs-tools` and `dotfile-tools`. System-level services (sway session,
-  seat, audio) are in the VM's system config, not this file; not yet looked at.
+1. User (needs sudo): `sudo cp ~/guix/system.scm /etc/config.scm &&
+   sudo guix system reconfigure /etc/config.scm`. Adds nonguix substitutes
+   (else `firefox` builds from source) and makes zsh the login shell.
+2. Commit and push the home repo on the host; on the VM `git pull`, then
+   `guix home reconfigure ~/guix/home.scm`; log in again.
+3. Verify a login zsh: antidote plugins clone, p10k prompt, `SSH_AUTH_SOCK`
+   is the Shepherd agent (`$XDG_RUNTIME_DIR/ssh-agent/socket`), `y`, atuin ^R.
+
+Follow-ups the user asked for:
+
+- [ ] Grow the VM disk for headroom (it was grown once already). The VM must
+      be stopped: `~/vm/guix-1.5.0/` holds the image.
+- [ ] Then add `kitty` back to `desktop-tools` (skipped for disk, +290 MiB).
+
+- **Inventory.** `probes/packages.tsv`: each package of the Nix host
+  (`homeConfigurations."david@Sleipnir"` `home.packages`, and Sleipnir's
+  `environment.systemPackages` not already in it), its Guix or nonguix name
+  and version, or `MISSING` with a gap class. Regenerate by evaluating those
+  attributes with `nix eval --apply 'map (p: p.pname or p.name)'` and
+  matching against `guix package -A`. Counts, home / system:
+
+  | Status | Home | System |
+  |---|---|---|
+  | Guix or nonguix (antidote: pinned `git-checkout`) | 195 + 1 | 250 |
+  | `false-friend` (same name, other software: `pls tre chroma selene watcher`) | 5 | 0 |
+  | `MISSING`, by gap class: | | |
+  | `cli-long-tail` (mostly Go/Rust/Node CLIs: lazygit, gum, glow, ov, carapace, television, ghostty, xh...) | 96 | 16 |
+  | `nix-machinery` (Nix, NixOS, home-manager tools): skip | 12 | 52 |
+  | `own-tooling` (SATAN, screwtape, quotient, zmx, capsule...): wait on the Nix decision | 11 | 12 |
+  | `proprietary` (1password, spotify, discord, claude-desktop...): Flatpak or Nix | 11 | 2 |
+  | `other-desktop` (COSMIC, Plasma, noctalia...): skip, the VM runs sway | 5 | 46 |
+  | `sway-extra` (swayosd, sway-launcher-desktop, wl-* helpers) | 4 | 32 |
+  | `host-hardware`, `games`: skip on the VM | 0 | 20 |
+
+- **Inference, not tested:** the Nix decision settles most of the gaps.
+  With Nix on Guix (`nix profile` or standalone home-manager), the long tail,
+  own tooling and proprietary apps come from the existing flake. Without it,
+  packaging ~100 CLIs for Guix is days of work; a personal channel for the few
+  that matter (`ov`, `lazygit`, `carapace`, `television`, `ghostty`) is the
+  middle path.
+- **Installed by `home.scm` lists:** `dotfile-tools`, `cli-tools`,
+  `dev-tools`, `desktop-tools`. The user's rule for disk: cull GUI packages
+  first, and grow the disk rather than cut deep. Skipped packages are commented
+  in `home.scm` with their measured added size. `fastfetch` is skipped because
+  it builds ZFS from source. `pandoc` (about 4 GiB of Haskell closure;
+  `ripgrep-all` shares it) is kept and is the first cut if disk runs short.
+  Projected home closure: about 9 GiB without the nonguix apps (it is 5 GiB
+  now). A `guix gc` on 2026-11-08 freed 32 GiB after a build filled the disk.
 - **Open decision, the user's:** whether Nix goes on top of Guix, and at what
   level. Until then, SATAN, Malebolge, oubliette and direnv stay off.
 - **Useful mechanism:** the home checkout's sparse exclusions
   (`git sparse-checkout list`) can keep host-only files off Guix hosts. The user
   found this potentially useful beyond the SATAN hook.
-
 
 ## Goal
 
@@ -98,13 +134,31 @@ dotfiles. Guix owns `sway/config`, which includes the shared `sway.conf`.
 `.gitconfig` has a pathless `emacsclient`, and `git-delta` is installed for its
 pager. Home generation 14.
 
-- [ ] zsh stub in `guix/home.scm` sourcing `.config/zsh/{env,init}.zsh`; make
-      zsh the login shell. home-manager's `.zshrc` also wires fzf, carapace,
-      television, eza aliases and `y`/`lg`: supply or drop on Guix.
-- [ ] Missing tools for the dotfiles: fzf, eza, bat, atuin, tmux.
-- [ ] `sway.conf` on Guix: `systemctl` lines, autostarted apps, gnome-keyring's
-      ssh component versus the Shepherd `ssh-agent`.
-- [ ] Audit `.local/bin` and `waybar/scripts` shebangs (`/run/current-system/sw`).
+- [x] zsh stubs in `guix/home.scm` (`zsh-stubs`, with `guix/zsh/zshrc`)
+      source `.config/zsh/{env,profile,initEarly,init,login,logout}.zsh` in
+      home-manager's order. Supplied: fzf, atuin, eza aliases, `y`. Dropped
+      (not in Guix): carapace, television, `lg` (lazygit); direnv's hook (off
+      until the Nix decision). zoxide comes from `init.zsh`. `$PAGER` falls
+      back to `less` without `ov`. antidote is a pinned `git-checkout` linked
+      at `.config/zsh/.antidote`. zsh is the login shell in `system.scm`.
+      Not yet applied (see "Next session").
+- [x] `env.zsh` set `SSH_AUTH_SOCK` to gcr's socket unconditionally, hiding
+      the Shepherd agent. Now only when that socket exists (systemd creates
+      it at user-manager start on NixOS, so the host is unaffected).
+- [x] Tools for the dotfiles: fzf, eza, bat, atuin, tmux, zoxide, yazi, most.
+- [ ] `sway.conf` on Guix. Findings: every startup `exec` is NixOS-flavoured
+      (`dbus-update-activation-environment --systemd`, the
+      `systemctl --user daemon-reexec` line, `gnome-keyring-daemon
+      --components=ssh`, 1password, slack, ghostty bindings). On Guix they fail
+      silently; none blocks the session. `gnome-keyring`'s ssh component is
+      not installed, so the Shepherd agent stays in charge. Proposal (needs
+      the user, touches the Nix host): move the startup block out of
+      `sway.conf` into per-host includes, home-manager's `extraConfig` on Nix
+      and the `sway/config` stub in `home.scm` on Guix.
+- [x] Shebangs: all `.local/bin` and waybar/sway scripts use `/bin/sh` or
+      `/usr/bin/env`, which Guix has, except `waybar/scripts/stopwatch`
+      (`/run/current-system/sw/bin/env python`), now `/usr/bin/env python3`.
+      Four `.local/bin` scripts need `nu`; `nushell` is in `cli-tools`.
 
 ## Traps found during install
 
