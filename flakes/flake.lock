@@ -3046,11 +3046,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794143657,
-        "narHash": "sha256-XxNDgex0pqAFqjIIzVRosIl73aUAwWi7OFmPk4hp8f8=",
+        "lastModified": 1794143982,
+        "narHash": "sha256-QAaoo3SC3Af3esq/CsYgxQR6X0idTJlDnVHoRDNVALc=",
         "ref": "refs/heads/main",
-        "rev": "9ef22bdda87f03ca5e784fbea25c205e05d229fd",
-        "revCount": 54,
+        "rev": "00ea6cbd4b6f568a0f8a43f3d5bccba9d9dea6cc",
+        "revCount": 55,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
