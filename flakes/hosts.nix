@@ -278,49 +278,52 @@ in {
 
     inherit nixosConfigurations darwinConfigurations homeConfigurations;
 
-    coverage."Sleipnir+openrgb" =
-      mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.hardware.openrgb.enable = false;}]);
+    coverage = let
+      # Every feature Sleipnir leaves off, with its prerequisites, and not
+      # Sleipnir's own selection (ADR-005 D3): turning a feature off needs no
+      # edit here. A feature exclusive with another has its own target below
+      # and is left out, so no choice of Sleipnir's can make the two meet.
+      # rocm evaluates the rocmSupport closure; builds nothing (ADR-005 D5).
+      ownTarget = ["virt.podman"];
+      off = resolve {
+        inherit tree;
+        inherit (hosts.Sleipnir) system;
+        classes = classesOf hosts.Sleipnir;
+        modules =
+          map (p: lib.setAttrByPath (["feature"] ++ lib.splitString "." p ++ ["enable"]) true)
+          (lib.subtractLists ownTarget selections.Sleipnir.off);
+      };
+    in {
+      "Sleipnir+off" = mkNixos "Sleipnir" hosts.Sleipnir off;
+      "${username}@Sleipnir+off" = mkHome "Sleipnir" hosts.Sleipnir off;
 
-    coverage."Sleipnir+llama-cpp" =
-      mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.ai.llama-cpp.enable = false;}]);
-
-    # Evaluates the rocmSupport closure; builds nothing (ADR-005 D5).
-    coverage."Sleipnir+rocm" =
-      mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.ai.rocm.enable = true;}]);
-
-    coverage."Sleipnir+sunshine" =
-      mkNixos "Sleipnir" hosts.Sleipnir
-      (select "Sleipnir" hosts.Sleipnir [{feature.services.sunshine.enable = false;}]);
-
-    # docker off: the two are exclusive (DEC-022); a plain false beats the
-    # workstation profile's mkDefault.
-    coverage."Sleipnir+podman" = mkNixos "Sleipnir" hosts.Sleipnir (select "Sleipnir" hosts.Sleipnir [
-      {
-        feature.virt.podman.enable = true;
-        feature.virt.docker.enable = false;
-      }
-    ]);
-
-    # The NixOS base alone on aarch64-linux (DEC-027): proves it evaluates
-    # headless and off x86, with no host, feature or machine config. Builds nothing.
-    coverage."base@aarch64-linux" = lib.nixosSystem {
-      specialArgs = args "base";
-      modules = [
-        ./modules/nixos
-        (platformModule {system = "aarch64-linux";})
+      # docker off: the two are exclusive (DEC-022). mkForce, so no choice of
+      # Sleipnir's, plain or profile mkDefault, can break the target.
+      "Sleipnir+podman" = mkNixos "Sleipnir" hosts.Sleipnir (select "Sleipnir" hosts.Sleipnir [
         {
-          system.stateVersion = "24.11";
-          fileSystems."/" = {
-            device = "/dev/disk/by-label/nixos";
-            fsType = "ext4";
-          };
+          feature.virt.podman.enable = lib.mkForce true;
+          feature.virt.docker.enable = lib.mkForce false;
         }
-      ];
-    };
+      ]);
 
-    coverage."home@aarch64-linux" = homeBase;
+      # The NixOS base alone on aarch64-linux (DEC-027): proves it evaluates
+      # headless and off x86, with no host, feature or machine config. Builds nothing.
+      "base@aarch64-linux" = lib.nixosSystem {
+        specialArgs = args "base";
+        modules = [
+          ./modules/nixos
+          (platformModule {system = "aarch64-linux";})
+          {
+            system.stateVersion = "24.11";
+            fileSystems."/" = {
+              device = "/dev/disk/by-label/nixos";
+              fsType = "ext4";
+            };
+          }
+        ];
+      };
+
+      "home@aarch64-linux" = homeBase;
+    };
   };
 }

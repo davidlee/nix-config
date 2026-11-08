@@ -314,11 +314,17 @@ accepts it goes in `features/platform-skips.nix`; a transient skip also
 gets a probe (§ Workarounds).
 
 **Coverage.** A feature no host selects is still evaluated, each half by a target in
-`flake.coverage`: `"Sleipnir+openrgb"`, `"Sleipnir+podman"`,
-`"Sleipnir+llama-cpp"`, `"Sleipnir+rocm"`, `"Sleipnir+sunshine"`.
+`flake.coverage`. `"Sleipnir+off"` and `"david@Sleipnir+off"` select every
+feature Sleipnir leaves off, with its prerequisites, and nothing else: the
+resolver computes the list (its `off`), so turning a feature off needs no
+edit to stay covered (ADR-005 D3). A feature exclusive with another gets its
+own target and is left out of the computed one: `"Sleipnir+podman"`, since
+podman excludes docker.
 `base@aarch64-linux` and `home@aarch64-linux` evaluate the NixOS
-base and the home base alone, headless and off x86. A new off feature gets a
-target beside them in `hosts.nix`.
+base and the home base alone, headless and off x86.
+
+No test reads a host's or profile's selection (`features-test.nix`): those
+are choices, and a test pinning one would break the choosing.
 
 ```bash
 just coverage    # one drvPath per target, then just isolation

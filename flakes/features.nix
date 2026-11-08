@@ -3,12 +3,14 @@
 # nixpkgs, separate `switch`), so an option declared in one is invisible to
 # the others; hosts.nix resolves here and hands each evaluation its share.
 #
-#   lib -> { tree, classes, system, modules } -> { modules }   (or throws)
+#   lib -> { tree, classes, system, modules } -> { modules, off }   (or throws)
 #
 # The feature tree (./features) gives one `feature.<area>.<name>.enable`
 # option per feature, set by the host and the profiles it imports. Selected
 # features are projected into `modules.<class>` in tree order, for the
-# factories to append. No downstream module sees the selection.
+# factories to append. No downstream module sees the selection. `off` lists
+# the features this host could select but doesn't, with their prerequisites,
+# for hosts.nix's coverage targets (ADR-005 D3).
 #
 # tree     [ { name = area; value = [ feature … ]; } … ], i.e. `import ./features {inherit lib;}`
 # classes  this host's evaluations, e.g. [ "nixos" "homeManager" ]
@@ -38,6 +40,11 @@ lib: {
     })
     area.value)
   tree;
+
+  # What this host's evaluations can take: a module for one of its classes
+  # (ADR-005 D6), and its system among the record's platforms (DEC-030).
+  landsHere = r: lib.any (c: r.descriptor ? ${c}) classes;
+  supportsHere = r: lib.elem system (r.descriptor.platforms or [system]);
 
   options = {
     options.feature = lib.listToAttrs (map (area: {
@@ -73,11 +80,11 @@ lib: {
         }) (r.descriptor.requires or [])
         ++ [
           {
-            assertion = lib.any (c: r.descriptor ? ${c}) classes;
+            assertion = landsHere r;
             message = "feature.${r.path} is selected but has no module for this host's evaluations (${concatStringsSep ", " classes})";
           }
           {
-            assertion = lib.elem system (r.descriptor.platforms or [system]);
+            assertion = supportsHere r;
             message = "feature.${r.path} is selected but does not support ${system} (platforms: ${concatStringsSep ", " (r.descriptor.platforms or [])})";
           }
         ]
@@ -140,6 +147,20 @@ lib: {
   failed = filter (a: !a.assertion) config.assertions;
   selected = filter (r: config.feature.${r.area}.${r.name}.enable) records;
 
+  # Every feature this host could select but doesn't, closed over `requires`,
+  # in tree order: a selection that evaluates each one (ADR-005 D3).
+  requiresOf = lib.listToAttrs (map (r: lib.nameValuePair r.path (r.descriptor.requires or [])) records);
+  close = ps: let
+    next = lib.unique (ps ++ concatMap (p: requiresOf.${p}) ps);
+  in
+    if lib.length next == lib.length ps
+    then ps
+    else close next;
+  off = let
+    closed = close (map (r: r.path) (filter (r: landsHere r && supportsHere r && !lib.elem r selected) records));
+  in
+    filter (p: lib.elem p closed) paths;
+
   bullets = lib.concatMapStrings (m: "- ${m}\n");
 
   # Where a feature is written, as "<file>:<line>" relative to the flake, from
@@ -169,4 +190,5 @@ in
   then throw "feature selection failed:\n${bullets (map (a: a.message) failed)}"
   else {
     modules = lib.genAttrs ["nixos" "homeManager" "darwin"] project;
+    inherit off;
   }

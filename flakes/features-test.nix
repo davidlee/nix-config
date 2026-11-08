@@ -303,15 +303,51 @@ in
       expected = [false false];
     };
 
-    # The selection reaches no evaluation except as modules.
-    testResultIsModulesOnly = {
+    # The selection reaches no evaluation except as modules; `off` is for
+    # hosts.nix's coverage targets only.
+    testResultShape = {
       expr = builtins.attrNames (resolve {
         system = "x86_64-linux";
         tree = real;
         classes = both;
         modules = [];
       });
-      expected = ["modules"];
+      expected = ["modules" "off"];
+    };
+
+    # off: what this host could select but doesn't, closed over `requires`
+    # (transitively, selected or not), in tree order. Not offered: a feature
+    # for another platform, or with no module for this host's classes.
+    testOff = {
+      expr =
+        (resolve {
+          system = "x86_64-linux";
+          classes = ["homeManager"];
+          tree = [
+            (area "a" [
+              (feat "x" hm)
+              (feat "y" (hm // {requires = ["a.z"];}))
+              (feat "z" (hm // {requires = ["a.x"];}))
+              (feat "w" (hm // {platforms = ["aarch64-darwin"];}))
+              (feat "v" {darwin = {};})
+              (feat "u" hm)
+            ])
+          ];
+          modules = [(on "a.x") (on "a.z") (on "a.u")];
+        }).off;
+      expected = ["a.x" "a.y" "a.z"];
+    };
+
+    # Nothing off: an empty selection, not a throw.
+    testOffEmpty = {
+      expr =
+        (resolve {
+          system = "x86_64-linux";
+          classes = ["homeManager"];
+          tree = one hm;
+          modules = [(on "a.x")];
+        }).off;
+      expected = [];
     };
 
     # personal is portable: it resolves on a Mac and selects no record that
