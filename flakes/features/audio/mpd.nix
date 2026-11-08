@@ -1,3 +1,4 @@
+# services.mpd.musicDirectory' defined in `features/audio/mpd.nix:2 (audio.mpd#nixos)' has been renamed to `services.mpd.settings.music_directory
 {
   name = "mpd";
   nixos = {username, ...}: {
@@ -9,9 +10,9 @@
       mpd = {
         user = username;
         enable = true;
-        musicDirectory = "/media/music";
         # `extraConfig` was removed upstream in favour of RFC42-style settings.
         settings = {
+          music_directory = "/media/music";
           audio_output = [
             {
               type = "pipewire";
