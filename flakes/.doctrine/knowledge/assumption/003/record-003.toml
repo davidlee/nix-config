@@ -1,0 +1,34 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 3
+slug = "work-mac-permits-personal-vm"
+title = "The work Mac permits a personal NixOS VM"
+record_kind = "assumption"
+status = "held"
+created = "2026-11-07"
+updated = "2026-11-07"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+claim = "The new work Mac will allow a UTM VM running the personal NixOS config (personal-linux tooling, notes, keys)."
+confidence = "medium"
+basis = "operator-judgement"
+validation_plan = "Check the employer's device and VM policy when the laptop arrives, before copying the VM."
+validated_by    = ""
+validated_on    = ""
+invalidated_by  = ""
+invalidated_on  = ""
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "QUE-004"

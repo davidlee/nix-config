@@ -7,7 +7,7 @@ title = "What shape is the Mac-hosted NixOS VM?"
 record_kind = "question"
 status = "open"
 created = "2026-10-15"
-updated = "2026-10-15"
+updated = "2026-11-07"
 tags = []
 
 [facet]                         # every field typed; seeded empty (captured later)

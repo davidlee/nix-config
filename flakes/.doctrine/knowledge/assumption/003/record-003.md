@@ -1,0 +1,1 @@
+User's stated assumption, 2026-11-08; employer policy not checked. In tension with RFC-001 W8, which describes the work Mac as darwin with no personal tooling. Shapes QUE-004 (the VM must move to the work Mac).

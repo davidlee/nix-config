@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 5
+slug = "aarch64-desktop-eval-blockers"
+title = "Desktop selection on aarch64-linux: evaluation blockers (2026-11-08 probe)"
+record_kind = "evidence"
+status = "captured"
+created = "2026-11-07"
+updated = "2026-11-07"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+datum = "A throwaway nixosvm host (aarch64-linux; workstation + personal-linux + niri, umbriel, noctalia, walker) evaluated in a scratch copy: the system evaluates once satan.* is off and wl-clicker is dropped (broken). The home also needs attention.goad off (goad: x86_64-linux only), discord and spotify dropped (unavailable on aarch64-linux), then fails at agents/flake.nix:38: zmux has no aarch64-linux packages. satan and satan-attrd declare x86_64-linux and aarch64-darwin only. Further blockers may sit behind zmux. Evaluation only; nothing built."
+provenance = "experiment"
+confidence = "high"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "supports"
+target = "QUE-004"
