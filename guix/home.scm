@@ -68,15 +68,13 @@
 ;; The sway session (sway itself is a system package).
 (define desktop-tools
   '(
-    firefox foot fuzzel grim grimshot imv kanshi mpv signal-desktop slurp
-    swaybg swayidle swaylock-effects swaynotificationcenter swayr udiskie
-    waybar wev wl-clipboard wofi yad zathura))
-;; Skipped GUI apps, for disk (VM: 35 GB).  Added size in MiB on top of the
-;; rest, 2026-11-08.  sway.conf starts or binds the first three.
+    firefox foot fuzzel grim grimshot imv kanshi kitty mpv signal-desktop
+    slurp swaybg swayidle swaylock-effects swaynotificationcenter swayr
+    udiskie waybar wev wl-clipboard wofi yad zathura))
+;; Skipped GUI apps, for disk (VM: 54 GB).  Added size in MiB on top of the
+;; rest, 2026-11-08.  sway.conf autostarts both.
 ;; - copyq (+287, Qt): clipboard manager; sway.conf autostarts it.
 ;; - flameshot (+110, Qt): screenshots; grimshot covers $mod+z.
-;; - kitty (+290): sway.conf's emergency htop and kitty bindings; foot covers
-;;   a terminal.
 ;; - Not measured (inferred large): blender gimp inkscape krita mypaint drawpile
 ;;   openscad obs ungoogled-chromium librewolf epiphany icedove zed
 ;;   element-desktop vlc celluloid fsearch mangohud signal-cli spotifyd

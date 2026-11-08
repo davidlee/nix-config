@@ -3,22 +3,17 @@
 ## Next session: start here
 
 Emacs runs (below). The current phase is the rest of the system: packages and
-the non-Emacs amenities. Session of 2026-11-08 (second): inventory done,
-`home.scm` and `system.scm` extended, not yet applied. Apply in this order:
-
-1. User (needs sudo): `sudo cp ~/guix/system.scm /etc/config.scm &&
-   sudo guix system reconfigure /etc/config.scm`. Adds nonguix substitutes
-   (else `firefox` builds from source) and makes zsh the login shell.
-2. Commit and push the home repo on the host; on the VM `git pull`, then
-   `guix home reconfigure ~/guix/home.scm`; log in again.
-3. Verify a login zsh: antidote plugins clone, p10k prompt, `SSH_AUTH_SOCK`
-   is the Shepherd agent (`$XDG_RUNTIME_DIR/ssh-agent/socket`), `y`, atuin ^R.
+the non-Emacs amenities. Applied 2026-11-08: system generation 4 (nonguix
+substitutes, zsh login shell; needed `sudo herd restart guix-daemon`, see
+Traps), home generation 15. Verified in a login zsh with a pty: antidote
+cloned its plugins, p10k and gitstatusd (static binary) start cleanly,
+`SSH_AUTH_SOCK` is the Shepherd agent, `PAGER=less`, `y` defined, ^R is
+atuin. Not yet checked: interactive use, the sway session.
 
 Follow-ups the user asked for:
 
-- [ ] Grow the VM disk for headroom (it was grown once already). The VM must
-      be stopped: `~/vm/guix-1.5.0/` holds the image.
-- [ ] Then add `kitty` back to `desktop-tools` (skipped for disk, +290 MiB).
+- [x] Grow the VM disk for headroom: done by the user, 54 GB (2026-11-08).
+- [x] Add `kitty` back to `desktop-tools`. Not yet applied on the VM.
 
 - **Inventory.** `probes/packages.tsv`: each package of the Nix host
   (`homeConfigurations."david@Sleipnir"` `home.packages`, and Sleipnir's
@@ -162,6 +157,10 @@ pager. Home generation 14.
 
 ## Traps found during install
 
+- `guix system reconfigure` does not restart `guix-daemon`, so new
+  `substitute-urls` take effect only after `sudo herd restart guix-daemon`
+  (it kills running builds). Check with `ps -o args= -C guix-daemon`. Missed on
+  2026-11-08: firefox built from source, and failed in its Rust step.
 - Home Shepherd is started by `~/.guix-home/on-first-login` from whichever
   session logs in first, and inherits that session's stdout and stderr. If that
   is a non-interactive `ssh guix '...'`, the command runs but `ssh` never
