@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Swap the focused window with the other column of a master layout.
+
+Usage: swap-master
+
+On the master this swaps into the stack; on a stack window, with the master.
+With the master on either side, the other column is to the left exactly when
+any tiled window on the workspace lies wholly to the left of the focused one,
+so the master's side needs no detecting. Native window-swap-left/right pick the
+window in that column (from the master: the stack row nearest its middle).
+Assumes one master and position "left" or "right"; with "center" the master
+always swaps left.
+"""
+
+import json
+import subprocess
+import sys
+
+
+def action(windows):
+    """The `umbriel msg` action for one press, or None with nothing focused."""
+    focused = next((w for w in windows if w["active"]), None)
+    if focused is None:
+        return None
+    left = any(
+        w["workspace"] == focused["workspace"] and not w["floating"] and w["x"] + w["w"] <= focused["x"]
+        for w in windows
+    )
+    return "window-swap-left" if left else "window-swap-right"
+
+
+def main():
+    windows = json.loads(subprocess.check_output(["umbriel", "windows", "--json"]))
+    chosen = action(windows)
+    if chosen:
+        subprocess.run(["umbriel", "msg", chosen], check=True)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

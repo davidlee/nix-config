@@ -130,3 +130,28 @@ frame named `umbriel-controller` running `my/umbriel`, 900x700, floating.
   the pad, not the controller. Keyboard focus ends up there; the pad stays
   visible. Read from the code and a live `focused_window` value; no row action
   was run from the pad.
+
+## 2026-11-09: `Mod+Ctrl+Return` swaps with the master
+
+`scripts/swap-master` sends native `window-swap-left` when any tiled window on
+the workspace lies wholly left of the focused one, else `window-swap-right`.
+With one master on either side that is "swap toward the other column": master
+into the stack, stack window with the master. Tests:
+`scripts/test_swap_master.py` (7, red before green).
+
+- A bare `window-swap-left` bind (first attempt) only worked from the stack
+  with the master left. `umbriel msg` can't signal a failed swap (the action's
+  result is discarded, `actions.cpp:1434`) and binds can't chain a fallback,
+  hence the script.
+- From the master, native swaps pick the stack row nearest the master's
+  vertical centre (`layout.cpp` `directionalNeighbor`), not a chosen window,
+  so swapping back after a swap only works when that row is the one you came
+  from. Fixing that needs the upstream action (UPSTREAM.md).
+- Wrong with `position = "center"` (master always swaps left) or more than
+  one master.
+- `Mod+Return` is `spawn ghostty` (apps.toml).
+- Workspace `DP-3:2` looked like 4 masters and 1 stack window (four narrow
+  windows left, one wide right; the default `position = "left"` puts masters
+  left). Inferred from geometry: IPC doesn't expose the master count. Not
+  reset; `Mod+Shift+X` (`layout-master-count-decrease`) would.
+- Open: unbind or rebind `Mod+X` / `Mod+Shift+X` to keep one master.

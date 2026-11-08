@@ -207,6 +207,9 @@
 "Mod+Shift+W" = "workspace-set-layout scrolling"
 "Mod+S" = "column-toggle-tabbed"
 
+# Swap with the master, or from the master into the stack (its middle row:
+# native swaps target by geometry). Upstream proposal in UPSTREAM.md.
+"Mod+Ctrl+Return" = "spawn ~/.config/umbriel/scripts/swap-master"
 "Mod+X" = "layout-master-count-increase"
 "Mod+Shift+X" = "layout-master-count-decrease"
 

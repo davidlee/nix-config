@@ -10,6 +10,7 @@ user raises the PR or issue. Don't run a patched umbriel day to day.
 | [Scratchpad relaunch takes two presses](#scratchpad-relaunch-takes-two-presses) | fix ready on a branch, not pushed | press twice |
 | [Up/down focus skips tabs](#updown-focus-skips-tabs) | proposal, not started | `scripts/focus-vertical` |
 | [1Password in the tray crashes on launch hand-off](#1password-in-the-tray-crashes-on-launch-hand-off) | needs a reproduction | none |
+| [Swap with the master](#swap-with-the-master) | proposal, not started | `scripts/swap-master` |
 
 When an item lands in the pinned version (`umbriel` input in
 `~/flakes/flake.lock`), remove its workaround and its entry here.
@@ -78,3 +79,23 @@ opens. Likely affects any single-instance tray app (Signal, Spotify).
 **Next:** reproduce (empty the pad with 1Password in the tray, toggle, watch
 `journalctl --user -u umbriel.service`), then a harness check or an upstream
 issue.
+
+## Swap with the master
+
+No action swaps the focused window with the master (dwm's "zoom").
+`scripts/swap-master` stands in: it sends `window-swap-left/right` toward the
+other column. From the master, that picks the stack row nearest its vertical
+centre, not the window last swapped out. Delete the script and its tests once
+upstream has the action.
+
+**Proposal, part 1:** `window-swap-master`. From the stack, swap with the first
+master; from a master, swap with the stack window focused last. Needs the
+master layout to remember that window (it has no focus memory today; scrolling
+has `m_lastFocusedColumn`). Reuses `MasterStackLayout::swapViews`, which
+already swaps across areas.
+
+**Part 2:** show that remembered window while a master has focus, e.g. a
+`colors.border.swap_target` colour or a `match.is_swap_target` window-rule
+matcher. Touches border state and rendering, so open an issue before writing it.
+
+No upstream issue or PR found (searched 2026-11-09).
