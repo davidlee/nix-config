@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794097123,
-        "narHash": "sha256-WaCkLBKNP95pAoZujMBo/vcLdsI2dZ9sAb6LLO9TSAc=",
+        "lastModified": 1794143194,
+        "narHash": "sha256-93+AWH23vW9Byex30A5ORqP+VMZr8fsVP1CWgYJ+5vw=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "ddbbf1fd5b60eb98cab48433efba1ec3287f0a20",
+        "rev": "5dd68ffa19244ed98ff2912a21668536c0088b3b",
         "type": "github"
       },
       "original": {
@@ -1720,11 +1720,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1794097123,
-        "narHash": "sha256-WaCkLBKNP95pAoZujMBo/vcLdsI2dZ9sAb6LLO9TSAc=",
+        "lastModified": 1794143194,
+        "narHash": "sha256-93+AWH23vW9Byex30A5ORqP+VMZr8fsVP1CWgYJ+5vw=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "ddbbf1fd5b60eb98cab48433efba1ec3287f0a20",
+        "rev": "5dd68ffa19244ed98ff2912a21668536c0088b3b",
         "type": "github"
       },
       "original": {
@@ -3046,11 +3046,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794137094,
-        "narHash": "sha256-7FzLlici50q5F0lvzB32n3GvYHKNEfJ/5j2/C5tRry8=",
+        "lastModified": 1794143657,
+        "narHash": "sha256-XxNDgex0pqAFqjIIzVRosIl73aUAwWi7OFmPk4hp8f8=",
         "ref": "refs/heads/main",
-        "rev": "958f2ff492ef2a8bc9e42b690e8a18ac081863c2",
-        "revCount": 53,
+        "rev": "9ef22bdda87f03ca5e784fbea25c205e05d229fd",
+        "revCount": 54,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -6038,11 +6038,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1794122700,
-        "narHash": "sha256-sZkw+SsWEMH/PKYk9ABHrjCaHvpGZ+wKy0jJIIdmkwc=",
+        "lastModified": 1794141897,
+        "narHash": "sha256-GyBSgZtdy5t2lpjhe+FUzkBvZc62iz3kkwo5vScMduI=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "e49b1495045f06643a7cc4c93330fabc2ab37ce4",
+        "rev": "ccbb224c28a17abff4a8ef4f1828dc22cfa5bd04",
         "type": "github"
       },
       "original": {
