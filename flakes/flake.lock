@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794145608,
-        "narHash": "sha256-Lms8ZdxUWlj5COB5xDzPW+tbRVmh4ZnoiWVkKvY2bdc=",
+        "lastModified": 1794147131,
+        "narHash": "sha256-iE/HNbd16D+MjbRwpu72yHYaMwemi9W95wnGSJiJM5M=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "9abea6bbcbc14f8c3ebeba7106ade8ca2ff35333",
+        "rev": "aa34823e431fd5581d63beb98909d47bbdb84431",
         "type": "github"
       },
       "original": {
@@ -1720,11 +1720,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1794145608,
-        "narHash": "sha256-Lms8ZdxUWlj5COB5xDzPW+tbRVmh4ZnoiWVkKvY2bdc=",
+        "lastModified": 1794147131,
+        "narHash": "sha256-iE/HNbd16D+MjbRwpu72yHYaMwemi9W95wnGSJiJM5M=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "9abea6bbcbc14f8c3ebeba7106ade8ca2ff35333",
+        "rev": "aa34823e431fd5581d63beb98909d47bbdb84431",
         "type": "github"
       },
       "original": {
@@ -3046,11 +3046,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794144329,
-        "narHash": "sha256-uKcGc9xLi3oXTuQFriMG2ZPDoP2wuouXgSX4Agvioi8=",
+        "lastModified": 1794147186,
+        "narHash": "sha256-m/kF5R9NXbTOPOJGBlTJUJIwRhLbfBDAFTDV1MnV11E=",
         "ref": "refs/heads/main",
-        "rev": "b944abb55f3bb898529c2bbd81db5eaddc07b4f7",
-        "revCount": 57,
+        "rev": "92699bb706e7c194318888244575804ecbbd1f8c",
+        "revCount": 58,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -3917,11 +3917,11 @@
       },
       "locked": {
         "dir": "flakes/dev-tools",
-        "lastModified": 1794144279,
-        "narHash": "sha256-GCFO+tx63tEfnuhT09XyU5u+EP356Vs171l9lxBg84c=",
+        "lastModified": 1794147131,
+        "narHash": "sha256-iE/HNbd16D+MjbRwpu72yHYaMwemi9W95wnGSJiJM5M=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "b4d0d9705c99c21c5f87ca6092f5a11b0c7bfd0b",
+        "rev": "aa34823e431fd5581d63beb98909d47bbdb84431",
         "type": "github"
       },
       "original": {
@@ -5894,11 +5894,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794105036,
-        "narHash": "sha256-AYPkn9VI9HYd4iIFVhR4rPxqIVvERjhvWmZ7rR2xEpY=",
+        "lastModified": 1794145181,
+        "narHash": "sha256-+bAY3M61XOJVv7xg49cTUY2d0+nRVKUFGtrhe8EIyPg=",
         "owner": "noctalia-dev",
         "repo": "noctalia",
-        "rev": "76637f9d42fe55186f2251f53f2d31c924a55e38",
+        "rev": "22617f2186a1e0c5f27303efac1aa583e5d073c0",
         "type": "github"
       },
       "original": {
@@ -5921,11 +5921,11 @@
         "zig-overlay": "zig-overlay_3"
       },
       "locked": {
-        "lastModified": 1793433600,
-        "narHash": "sha256-oSzhn9mcyNzSP31/nyhYKjeJkFx5j/1oct8n5AvhK9U=",
+        "lastModified": 1794092400,
+        "narHash": "sha256-q3AG3cdMFIEcwrxODjzTRlzgThQIDJBoGB3KyJjme90=",
         "ref": "refs/heads/main",
-        "rev": "26df515cee202d27db218e5781cfd48a8cb0561c",
-        "revCount": 160,
+        "rev": "779e4aca157fece8002a28b839b59f1449faa509",
+        "revCount": 200,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/notes"
       },
@@ -5966,11 +5966,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794132568,
-        "narHash": "sha256-L2zi5SMa5ULubB56/oXOYO3FXwrvl5zXSs5OyfMFRK8=",
+        "lastModified": 1794145130,
+        "narHash": "sha256-gE3PBpk/upVstrE00ly7AIW8gO0EalennTet+rDDSVA=",
         "owner": "davidlee",
         "repo": "oubliette",
-        "rev": "10c80d96886b40bdb64ec9b12963b62108d19292",
+        "rev": "23ae677fc85c0824525a8126001b0de077bd1b03",
         "type": "github"
       },
       "original": {
@@ -6038,11 +6038,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1794141897,
-        "narHash": "sha256-GyBSgZtdy5t2lpjhe+FUzkBvZc62iz3kkwo5vScMduI=",
+        "lastModified": 1794145363,
+        "narHash": "sha256-Gb8IOwy3Fkn6UfH5OGdxlApj9mS3DjeemOwdtRIlBCM=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "ccbb224c28a17abff4a8ef4f1828dc22cfa5bd04",
+        "rev": "5ea81d2cd9bb997774b49e379aa5bc496fdfeb6c",
         "type": "github"
       },
       "original": {
@@ -6622,11 +6622,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793533249,
-        "narHash": "sha256-KcemmwQrnj76tS7N+F6TTCOGkOmZytm9p3jyOWuMH4U=",
+        "lastModified": 1794092400,
+        "narHash": "sha256-k8HEeNhf21jBXi1GCCpmWSl2zS5LWKdifrOIYG2E7mQ=",
         "ref": "refs/heads/main",
-        "rev": "b4d6d690166c83c8de245674aa8b41a9603f4ce2",
-        "revCount": 155,
+        "rev": "ec2e23cabfeda8c945d7db770b12688238826434",
+        "revCount": 183,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/satan-corpus"
       },
@@ -7809,11 +7809,11 @@
         "xdg-desktop-portal-umbriel": "xdg-desktop-portal-umbriel"
       },
       "locked": {
-        "lastModified": 1794106131,
-        "narHash": "sha256-WogY4RG+SxQB/rZTAEtR0v+s+2Jttq0Loq+z6yyIMdE=",
+        "lastModified": 1794146076,
+        "narHash": "sha256-qvCYclue8Ndto6GjH6LUbOQkcCOCwAEkWezNUY0XaUs=",
         "ref": "refs/heads/main",
-        "rev": "94ab5961dce31cd53e5cdca76d2723d73fc2e189",
-        "revCount": 1541,
+        "rev": "66abbb1f107d28f3b0bcdf96a0eb8dc0ec237292",
+        "revCount": 1544,
         "type": "git",
         "url": "https://github.com/noctalia-dev/umbriel"
       },
