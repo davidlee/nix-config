@@ -5,7 +5,46 @@
 {lib, ...}: {
   name = "core";
   platforms = lib.platforms.linux;
-  nixos = _: {
+  nixos = {pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+      xwayland-satellite
+      cosmic-edit
+      cosmic-wallpapers
+      nautilus
+      nautilus-open-any-terminal
+      (with pkgs.kdePackages; [
+        pkgs.qt6Packages.qt6ct
+        breeze
+        breeze-icons
+        breeze-gtk
+        breeze-plymouth
+
+        # ksshaskpass
+        # kpkpass
+        # kauth
+        # kwallet-pam
+        # kwalletmanager
+        # kiconthemes
+        # kscreenlocker
+        # kwindowsystem
+        # kaccounts-providers
+
+        bluedevil
+        bluez-qt
+
+        dolphin
+        dolphin-plugins
+        drkonqi
+      ])
+    ];
+    security.pam.services.swaylock = {};
+
+    services.gvfs.enable = true; # Enables Trash, network mounts, and storage detection
+    services.tumbler.enable = true; # Enables image/video thumbnails in file managers
+    programs.firefox.preferences = {
+      "widget.gtk.libadwaita-colors.enabled" = false;
+    };
+
     imports = [
       ./core/wayland.nix
       ./core/wayland_packages.nix
@@ -17,7 +56,17 @@
       ./core/v4l2loopback.nix # from kernel.nix
     ];
   };
-  homeManager = _: {
-    imports = [./core/home.nix];
+  homeManager = {
+    pkgs,
+    inputs,
+    ...
+  }: {
+    home.packages = with pkgs; [vicinae];
+
+    imports = [
+      inputs.vicinae.homeManagerModules.default
+      ./core/home.nix
+      # inputs.noctalia.homeModules.default
+    ];
   };
 }

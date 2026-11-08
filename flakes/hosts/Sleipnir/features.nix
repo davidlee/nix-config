@@ -72,7 +72,7 @@
     sway.enable = false;
     niri.enable = false;
     cosmic.enable = false;
-    kde.enable = true; # for apps
+    kde.enable = false;
     mango.enable = false;
     umbriel.enable = true;
   };

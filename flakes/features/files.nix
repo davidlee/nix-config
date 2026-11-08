@@ -42,28 +42,13 @@ in [
       programs.yazi = {
         enable = true;
         plugins = with pkgs.yaziPlugins; {
-          lazygit.package = lazygit;
           jjui.package = jjui;
+          lazygit.package = lazygit;
           glow.package = glow;
           wl-clipboard.package = wl-clipboard;
-          # Plugins that don't call setup() can be configured in one line
+          zoom.package = zoom;
           smart-enter.package = smart-enter;
-          chmod.package = chmod;
-
-          # Yatline-Catppuccin needs to be setup into a variable later
-          yatline-catppuccin.package = yatline-catppuccin;
-
-          yatline = {
-            package = yatline;
-            setup = true;
-            settings = {
-              tab_width = 20;
-              # Return as lua code
-              theme = lib.mkLuaInline ''
-                require("yatline-catppuccin"):setup("mocha")
-              '';
-            };
-          };
+          toggle-pane.package = toggle-pane;
         };
         shellWrapperName = "y";
       };

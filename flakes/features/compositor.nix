@@ -6,41 +6,16 @@ _: [
   {
     name = "niri";
     requires = ["desktop.core"];
-    nixos = {pkgs, ...}: {
+    nixos = _: {
       programs = {
         niri = {
           enable = true;
           useNautilus = true;
         };
       };
-
-      environment.systemPackages = with pkgs; [
-        xwayland-satellite
-        cosmic-edit
-        cosmic-wallpapers
-        nautilus
-        nautilus-open-any-terminal
-      ];
-      security.pam.services.swaylock = {};
-
-      services.gvfs.enable = true; # Enables Trash, network mounts, and storage detection
-      services.tumbler.enable = true; # Enables image/video thumbnails in file managers
-      programs.firefox.preferences = {
-        # disable libadwaita theming for Firefox
-        # "widget.gtk.libadwaita-colors.enabled" = false;
-      };
     };
-    homeManager = {
-      pkgs,
-      inputs,
-      ...
-    }: {
-      home.packages = with pkgs; [nirius vicinae];
-
-      imports = [
-        inputs.vicinae.homeManagerModules.default
-        # inputs.noctalia.homeModules.default
-      ];
+    homeManager = {pkgs, ...}: {
+      home.packages = with pkgs; [nirius];
     };
   }
 

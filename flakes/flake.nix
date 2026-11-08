@@ -144,9 +144,9 @@
     };
 
     noctalia = {
-      # url = "github:noctalia-dev/noctalia";
+      url = "github:noctalia-dev/noctalia";
       # track latest cached, not main
-      url = "github:noctalia-dev/noctalia/cachix";
+      # url = "github:noctalia-dev/noctalia/cachix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
