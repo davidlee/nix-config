@@ -12,7 +12,7 @@ script=$here/room-behind
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
-export CAPSULE_PROFILE_DIR=$work/profiles
+export CAPSULE_PROFILE_DIR=$work/profiles FLAKES_DEV=$work/dev FLAKES_FLEET=$work/fleet
 export ROOM_REPOS=$work/room-repos
 printf '# a comment\nsatan main\ngoad main\n\npi main\n' >"$ROOM_REPOS"
 mkdir -p "$CAPSULE_PROFILE_DIR"
@@ -54,11 +54,13 @@ pi_host=$(rev pi)
 unknown=0123456789012345678901234567890123456789
 
 out=$(printf 'satan %s\ngoad %s\npi %s\nghost %s\n' "$satan_room" "$goad_host" "$unknown" "$unknown" | "$script")
-expected=$(printf '%s\t' repo behind ahead branch room host | sed 's/\t$//'
+expected=$(
+  printf '%s\t' repo behind ahead branch room host | sed 's/\t$//'
   printf '\nsatan\t2\t0\tmain\t%s\t%s' "$satan_room" "$satan_host"
   printf '\ngoad\t0\t0\tmain\t%s\t%s' "$goad_host" "$goad_host"
   printf '\npi\t?\t?\tmain\t%s\t%s' "$unknown" "$pi_host"
-  printf '\nghost\t?\t?\t?\t%s\t?' "$unknown")
+  printf '\nghost\t?\t?\t?\t%s\t?' "$unknown"
+)
 check 'behind: per room repo; ? where the host lacks the room head or the repo' "$expected" "$out"
 
 # the listed branch, not whatever the host has checked out
@@ -76,5 +78,14 @@ git -C "$work/goad" switch -q main
 out=$(printf 'goad %s\n' "$goad_side" | "$script" | tail -1)
 check 'ahead: room commits the host branch lacks' \
   "$(printf 'goad\t0\t1\tmain\t%s\t%s' "$goad_side" "$goad_host")" "$out"
+
+# a repo without a profile is found where dev-checkouts places it: <root>/<repo>
+git init -q -b main "$FLAKES_DEV/pi"
+git -C "$FLAKES_DEV/pi" commit -q --allow-empty -m base
+dev_pi=$(git -C "$FLAKES_DEV/pi" rev-parse HEAD)
+rm "$CAPSULE_PROFILE_DIR/pi.json"
+out=$(printf 'pi %s\n' "$dev_pi" | "$script" | tail -1)
+check 'unprofiled: counted in its checkout under the root' \
+  "$(printf 'pi\t0\t0\tmain\t%s\t%s' "$dev_pi" "$dev_pi")" "$out"
 
 exit "$failed"

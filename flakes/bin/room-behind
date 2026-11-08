@@ -7,16 +7,13 @@
 #
 # behind: host commits the room lacks (room..branch); ahead: room commits the
 # host lacks (room..branch reversed), uncollected work. Counted in the host
-# checkout the room's capsule profile names (path), on the repo's branch in
-# $ROOM_REPOS (default <repo>/room-repos). ? where the repo is unlisted, the
-# host has no profile, checkout or branch, or lacks the room's commit.
-#
-# Profiles: $CAPSULE_PROFILE_DIR, default /var/lib/capsule-profiles, as
-# capsule-room-git reads them (rendered from /srv/fleet/targets).
+# checkout `dev-checkouts path` names (its capsule profile, else ~/dev), on the
+# repo's branch in $ROOM_REPOS (default <repo>/room-repos). ? where the repo is
+# unlisted, the host has no checkout or branch, or lacks the room's commit.
 set -euo pipefail
 
-profiles=${CAPSULE_PROFILE_DIR:-/var/lib/capsule-profiles}
-repos=${ROOM_REPOS:-$(cd "$(dirname "$0")/.." && pwd)/room-repos}
+here=$(cd "$(dirname "$0")" && pwd)
+repos=${ROOM_REPOS:-$here/../room-repos}
 
 declare -A branches
 while read -r repo branch; do
@@ -26,8 +23,8 @@ done <"$repos"
 printf 'repo\tbehind\tahead\tbranch\troom\thost\n'
 while read -r repo room; do
   behind='?' ahead='?' branch=${branches[$repo]:-?} host='?'
-  dir=$(jq -r '.path // empty' "$profiles/$repo.json" 2>/dev/null || true)
-  if [[ -n $dir && $branch != '?' ]] && host=$(git -C "$dir" rev-parse --verify -q "refs/heads/$branch^{commit}" 2>/dev/null); then
+  dir=$("$here/dev-checkouts" path "$repo")
+  if [[ $branch != '?' ]] && host=$(git -C "$dir" rev-parse --verify -q "refs/heads/$branch^{commit}" 2>/dev/null); then
     if git -C "$dir" cat-file -e "$room^{commit}" 2>/dev/null; then
       behind=$(git -C "$dir" rev-list --count "$room..$host")
       ahead=$(git -C "$dir" rev-list --count "$host..$room")

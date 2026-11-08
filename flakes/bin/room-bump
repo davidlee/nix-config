@@ -6,11 +6,11 @@
 #   room-bump <input>…
 #
 # The fleet is $FLAKES_FLEET, default /srv/fleet; an input's checkout is
-# $FLAKES_DEV/<input>, default ~/dev/<input>. An input with no checkout there
-# (notes lives at ~/notes) is bumped unchecked, and said so.
+# wherever `dev-checkouts path` places it (its capsule profile, else ~/dev). An
+# input with no checkout there is bumped unchecked, and said so.
 set -euo pipefail
 
-root=${FLAKES_DEV:-$HOME/dev}
+here=$(cd "$(dirname "$0")" && pwd)
 fleet=${FLAKES_FLEET:-/srv/fleet}
 
 warn() { printf 'room-bump: %s\n' "$1" >&2; }
@@ -20,11 +20,16 @@ if (($# == 0)); then
   exit 1
 fi
 
+names=("$@")
+paths=$("$here/dev-checkouts" path "$@")
+mapfile -t dirs <<<"$paths"
+
 refused=0
-for i in "$@"; do
-  if [[ ! -e $root/$i/.git ]]; then
-    warn "$i: no checkout at $root/$i; not checked for unpushed work"
-  elif ! n=$(git -C "$root/$i" rev-list --count '@{upstream}..HEAD' 2>/dev/null); then
+for k in "${!names[@]}"; do
+  i=${names[k]} dir=${dirs[k]}
+  if [[ ! -e $dir/.git ]]; then
+    warn "$i: no checkout at $dir; not checked for unpushed work"
+  elif ! n=$(git -C "$dir" rev-list --count '@{upstream}..HEAD' 2>/dev/null); then
     warn "$i has no upstream; push it first"
     refused=1
   elif ((n > 0)); then

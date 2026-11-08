@@ -8,12 +8,21 @@
 #   dev-checkouts stub       --override-input <i> path:<repo>/features/stub, per listed input
 #   dev-checkouts ahead      warn (stderr) per present checkout ahead of its upstream
 #   dev-checkouts names      the listed inputs
-#   dev-checkouts repos      every local repo a lock draws on: present inputs, the
-#                            fleet's inputs with a checkout, the emacs config
+#   dev-checkouts path <n>…  where each named repo is checked out on this host, one
+#                            per line, present or not (room-bump, room-behind)
+#   dev-checkouts repos      every local repo a lock draws on, for upgrade to push:
+#                            present inputs and the fleet's inputs with a checkout,
+#                            less any whose origin is not $owner's
 #
-# The root is $FLAKES_DEV, default ~/dev; <root>/<i>/.git marks a checkout.
-# The fleet is the one exception: it is this host's declaration rather than a
-# project, so it lives at $FLAKES_FLEET, default /srv/fleet (oubliette SL-004).
+# Where a repo is checked out, first match:
+#   fleet                  $FLAKES_FLEET, default /srv/fleet: this host's
+#                          declaration rather than a project (oubliette SL-004)
+#   a capsule profile      its .path: the fleet's targets declare each room repo's
+#                          checkout, rendered into $CAPSULE_PROFILE_DIR, default
+#                          /var/lib/capsule-profiles (~/notes, ~/.config/emacs, …)
+#   otherwise              $FLAKES_DEV/<name>, default ~/dev/<name>
+# <checkout>/.git marks one present. Simulating a machine without checkouts
+# takes both FLAKES_DEV and CAPSULE_PROFILE_DIR aimed at nothing.
 # git+file, not path:, so only tracked files reach the store, as a GitHub
 # fetch of the same revision gives a machine without the checkout.
 set -euo pipefail
@@ -21,6 +30,8 @@ set -euo pipefail
 inputs=(fleet goad malebolge panopticon quotient satan satan-attrd screwtape)
 root=${FLAKES_DEV:-$HOME/dev}
 fleet=${FLAKES_FLEET:-/srv/fleet}
+profiles=${CAPSULE_PROFILE_DIR:-/var/lib/capsule-profiles}
+owner=davidlee
 repo=$(cd "$(dirname "$0")/.." && pwd)
 
 # warn <message> — "dev-checkouts: <message>" on stderr; red on a terminal
@@ -34,7 +45,7 @@ warn() {
   fi
 }
 
-usage() { echo "usage: dev-checkouts override|stub|ahead|names|repos" >&2; }
+usage() { echo "usage: dev-checkouts override|stub|ahead|names|path <name>…|repos" >&2; }
 
 # The flags travel as one space-separated string (justfile, gate-probe), so a
 # root with whitespace would split into wrong flags.
@@ -47,8 +58,24 @@ if [[ $fleet =~ [[:space:]] ]]; then
   exit 1
 fi
 
-checkout() { if [[ $1 == fleet ]]; then echo "$fleet"; else echo "$root/$1"; fi; }
+checkout() {
+  local path=
+  if [[ $1 == fleet ]]; then
+    path=$fleet
+  elif [[ -e $profiles/$1.json ]]; then
+    path=$(jq -r '.path // empty' "$profiles/$1.json")
+  fi
+  echo "${path:-$root/$1}"
+}
 present() { [[ -e $(checkout "$1")/.git ]]; }
+
+# foreign <dir> — its origin is someone else's repository, so a push would fail.
+# No origin is not foreign: upgrade's push says so itself.
+foreign() {
+  local url
+  url=$(git -C "$1" remote get-url --push origin 2>/dev/null) || return 1
+  [[ $url != *[:/]$owner/* ]]
+}
 
 # git+file builds a dirty tree's tracked edits but not its untracked files, so
 # an edit that imports a not-yet-added file builds broken.
@@ -84,17 +111,21 @@ ahead)
 names)
   flags=("${inputs[@]}")
   ;;
+path)
+  shift
+  for i in "$@"; do flags+=("$(checkout "$i")"); done
+  ((${#flags[@]} == 0)) || printf '%s\n' "${flags[@]}"
+  exit 0
+  ;;
 repos)
+  names=("${inputs[@]}")
+  [[ ! -e $fleet/flake.lock ]] || mapfile -t -O "${#names[@]}" names < <(jq -r '.nodes.root.inputs | keys[]' "$fleet/flake.lock")
   mapfile -t flags < <(
-    {
-      for i in "${inputs[@]}"; do present "$i" && checkout "$i"; done
-      if [[ -e $fleet/flake.lock ]]; then
-        for i in $(jq -r '.nodes.root.inputs | keys[]' "$fleet/flake.lock"); do
-          [[ -e $root/$i/.git ]] && echo "$root/$i"
-        done
-      fi
-      [[ -e $HOME/.config/emacs/.git ]] && echo "$HOME/.config/emacs"
-    } | LC_ALL=C sort -u
+    for i in "${names[@]}"; do
+      present "$i" || continue
+      dir=$(checkout "$i")
+      foreign "$dir" || echo "$dir"
+    done | LC_ALL=C sort -u
   )
   ;;
 *)

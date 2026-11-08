@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Behaviour tests for dev-checkouts. Each case builds a throwaway checkout root
 # (FLAKES_DEV) holding some of the listed inputs, then asserts what each verb
-# prints. The fleet is the one input outside that root (FLAKES_FLEET), so every
-# case aims it into the throwaway tree too: this host's /srv/fleet must not
-# reach a case. No network: "ahead" clones a local bare repository.
+# prints. The fleet (FLAKES_FLEET) and the capsule profiles (CAPSULE_PROFILE_DIR)
+# name checkouts outside that root, so every case aims both into the throwaway
+# tree too: this host's /srv/fleet and profiles must not reach a case. No
+# network: "ahead" and "repos" clone local bare repositories.
 #
 #   ./dev-checkouts-test
 
@@ -17,6 +18,8 @@ stub=path:$repo/features/stub
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 export FLAKES_FLEET=$work/fleet
+export CAPSULE_PROFILE_DIR=$work/profiles
+mkdir -p "$CAPSULE_PROFILE_DIR"
 
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
@@ -43,12 +46,17 @@ root() {
   printf '%s' "$dir"
 }
 
-# dc <root> <verb> — run the script; leaves $out, $err and $rc
+# dc <root> <verb> [arg…] — run the script; leaves $out, $err and $rc
 dc() {
+  local dir=$1
+  shift
   rc=0
-  out=$(FLAKES_DEV=$1 "$script" "$2" 2>"$work/err") || rc=$?
+  out=$(FLAKES_DEV=$dir "$script" "$@" 2>"$work/err") || rc=$?
   err=$(<"$work/err")
 }
+
+# profile <name> <path> — a capsule profile placing <name>'s checkout at <path>
+profile() { printf '{"name": "%s", "path": "%s"}\n' "$1" "$2" >"$CAPSULE_PROFILE_DIR/$1.json"; }
 
 # ------------------------------------------------------------------ cases
 
@@ -150,14 +158,37 @@ git init -q "$work/home/dev/goad"
 out=$(env -u FLAKES_DEV HOME="$work/home" "$script" override)
 check 'default root: ~/dev' "--override-input goad git+file://$work/home/dev/goad" "$out"
 
-# repos: every input present, the fleet's inputs with a checkout, the emacs config
-mkdir -p "$work/fleet" "$work/reposhome/.config/emacs/.git"
-git init -q "$work/fleet"
-echo '{"nodes":{"root":{"inputs":{"goad":"goad_2","notes":"notes","oubliette":"oubliette"}}}}' >"$work/fleet/flake.lock"
+# path: where each name is checked out — the fleet at FLAKES_FLEET, else the
+# path its capsule profile names, else <root>/<name>; one line per name, present
+# or not
+profile notes "$work/elsewhere/notes"
+dc "$none" path goad notes fleet
+check 'path: root, then profile, then the fleet' \
+  "$none/goad"$'\n'"$work/elsewhere/notes"$'\n'"$FLAKES_FLEET" "$out"
+check 'path: is not an error' 0 "$rc"
+rm "$CAPSULE_PROFILE_DIR/notes.json"
+
+# override: a listed input whose profile places it outside the root
+git init -q "$work/elsewhere/goad"
+profile goad "$work/elsewhere/goad"
+dc "$some" override
+check 'override: a profiled input from its profile path' \
+  "--override-input goad git+file://$work/elsewhere/goad --override-input panopticon git+file://$some/panopticon" "$out"
+rm "$CAPSULE_PROFILE_DIR/goad.json"
+
+# repos: every input present and every fleet input with a checkout, wherever
+# its profile places it, once each; less a checkout that pushes to someone
+# else's repository, which upgrade could not push
 repos=$(root repos goad oubliette unrelated)
-out=$(HOME=$work/reposhome FLAKES_DEV=$repos "$script" repos)
-check 'repos: inputs and fleet inputs, once each; no unlisted checkout' \
-  "$work/fleet $repos/goad $repos/oubliette $work/reposhome/.config/emacs" "$out"
+for r in notes pi; do mkdir -p "$work/elsewhere/$r" && git init -q "$work/elsewhere/$r" && profile "$r" "$work/elsewhere/$r"; done
+git -C "$work/elsewhere/notes" remote add origin git@github.com:davidlee/notes.git
+git -C "$work/elsewhere/pi" remote add origin git@github.com:someone/pi.git
+mkdir -p "$work/fleet"
+git init -q "$work/fleet"
+echo '{"nodes":{"root":{"inputs":{"goad":"goad_2","notes":"notes","oubliette":"oubliette","pi":"pi","absent":"absent"}}}}' >"$work/fleet/flake.lock"
+dc "$repos" repos
+check 'repos: inputs and fleet inputs by profile, once each; no unlisted or foreign checkout' \
+  "$work/elsewhere/notes $work/fleet $repos/goad $repos/oubliette" "$out"
 rm -rf "$work/fleet"
 
 exit "$failed"

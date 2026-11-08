@@ -13,6 +13,9 @@ here=$(cd "$(dirname "$0")" && pwd)
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
+# this host's profiles would place checkouts at their real paths, and upgrade
+# pushes them
+export CAPSULE_PROFILE_DIR=$work/profiles
 
 export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
@@ -58,9 +61,10 @@ published() {
   git -C "$1" push -q -u origin HEAD
 }
 
-# case_ <name> — a fresh stack; sets $home, $flakes, $fleet, $goad and $LOG
+# case_ <name> — a fresh stack; sets $home, $flakes, $fleet, $goad and $LOG.
+# Under davidlee/, so dev-checkouts takes the upstreams for the owner's own.
 case_() {
-  local dir=$work/$1 sub
+  local dir=$work/davidlee/$1 sub
   home=$dir/home flakes=$dir/home/flakes fleet=$dir/fleet goad=$dir/dev/goad
   for sub in "$flakes" "$flakes/agents" "$flakes/emacs" "$flakes/dev-envs" "$fleet"; do
     mkdir -p "$sub"

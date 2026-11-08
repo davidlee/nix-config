@@ -28,5 +28,7 @@ concurrently (oubliette moved three times in one phase). Record each listed
 checkout's HEAD and `git status --porcelain -uno` with every snapshot, and
 attribute a diff to a recorded move instead of demanding equality. To compare
 before/after fairly, evaluate a `git archive` copy of the old tree and the new
-tree back to back against the same checkout state. `FLAKES_DEV=/nonexistent`
-evaluates against the lock alone.
+tree back to back against the same checkout state. To evaluate against the
+lock alone, set both `FLAKES_DEV=/nonexistent` and
+`CAPSULE_PROFILE_DIR=/nonexistent`: a capsule profile places a checkout
+independently of the root (bin/dev-checkouts `path`).

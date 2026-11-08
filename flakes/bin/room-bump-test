@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Behaviour tests for room-bump. Each case builds a throwaway fleet repo
-# (FLAKES_FLEET) and checkout root (FLAKES_DEV); a fake `nix` on PATH stands in
+# (FLAKES_FLEET), checkout root (FLAKES_DEV) and capsule profile directory
+# (CAPSULE_PROFILE_DIR), so this host's own never reach a case; a fake `nix` on PATH stands in
 # for `nix flake update`, appending each input it is given to flake.lock (or
 # nothing, with FAKE_NIX_NOOP). No network: upstreams are local bare repos.
 #
@@ -40,11 +41,11 @@ check() { # <what> <expected> <actual>
   fi
 }
 
-# case <name> — a fresh fleet (one commit holding flake.lock) and an empty
-# checkout root; sets $fleet and $dev
+# case <name> — a fresh fleet (one commit holding flake.lock), an empty
+# checkout root and no profiles; sets $fleet, $dev and $profiles
 case_() {
-  fleet=$work/$1/fleet dev=$work/$1/dev
-  mkdir -p "$dev"
+  fleet=$work/$1/fleet dev=$work/$1/dev profiles=$work/$1/profiles
+  mkdir -p "$dev" "$profiles"
   git init -q "$fleet"
   echo lock >"$fleet/flake.lock"
   git -C "$fleet" add flake.lock
@@ -62,7 +63,7 @@ pushed() {
 # rb <input>… — run the script; leaves $err and $rc (it prints only to stderr)
 rb() {
   rc=0
-  FLAKES_FLEET=$fleet FLAKES_DEV=$dev "$script" "$@" >/dev/null 2>"$work/err" || rc=$?
+  FLAKES_FLEET=$fleet FLAKES_DEV=$dev CAPSULE_PROFILE_DIR=$profiles "$script" "$@" >/dev/null 2>"$work/err" || rc=$?
   err=$(<"$work/err")
 }
 
@@ -98,6 +99,19 @@ rb goad
 check 'no upstream: refused' 1 "$rc"
 check 'no upstream: names it' 1 "$(grep -c 'goad has no upstream' <<<"$err" || true)"
 
+# a checkout outside the root, where its capsule profile places it, is checked
+case_ profiled
+pushed profiled notes
+mv "$dev/notes" "$work/profiled/notes"
+printf '{"path": "%s"}\n' "$work/profiled/notes" >"$profiles/notes.json"
+git -C "$work/profiled/notes" commit -q --allow-empty -m unpushed
+rb notes
+check 'profiled ahead: refused' 1 "$rc"
+check 'profiled ahead: names it' 1 "$(grep -c 'notes is 1 commit(s) ahead' <<<"$err" || true)"
+git -C "$work/profiled/notes" push -q 2>/dev/null
+rb notes
+check 'profiled pushed: bumped' 'bump notes' "$(git -C "$fleet" log -1 --format=%s)"
+
 case_ absent
 rb notes
 check 'no checkout: succeeds' 0 "$rc"
@@ -128,7 +142,7 @@ check 'no inputs: prints usage' 1 "$(grep -c '^usage:' <<<"$err" || true)"
 if [ "$(uname -s)" = Linux ]; then
   case_ terminal
   pushed terminal goad
-  FLAKES_FLEET=$fleet FLAKES_DEV=$dev GIT_PAGER="touch $work/paged" \
+  FLAKES_FLEET=$fleet FLAKES_DEV=$dev CAPSULE_PROFILE_DIR=$profiles GIT_PAGER="touch $work/paged" \
     script -qec "$script goad" /dev/null >/dev/null
   check 'terminal: no pager' absent "$([ -e "$work/paged" ] && echo paged || echo absent)"
 fi

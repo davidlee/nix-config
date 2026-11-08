@@ -149,12 +149,25 @@ dev_override    fleet goad malebolge panopticon       ~/dev/<input>, where check
 ```
 
 `bin/dev-checkouts` holds the list, and is the only place it is written.
-A checkout is present when `$FLAKES_DEV/<input>/.git` exists (default
-`~/dev`), so a machine without one, such as the Mac, uses the lock and needs
-nothing. `fleet`, this host's private capsule declarations (a consumer of
-oubliette's `mkFleet`), is the one exception: it lives at `$FLAKES_FLEET`.
-Overrides are `git+file`: only tracked files reach the store, as GitHub
-would give them.
+It also says where any repo is checked out on this host (`dev-checkouts path
+<name>…`), for every script that needs to know: room-bump, room-behind, and
+upgrade (through `repos`). The first match wins:
+
+```
+fleet               $FLAKES_FLEET (default /srv/fleet): this host's private capsule
+                    declarations, a consumer of oubliette's mkFleet
+capsule profile     its .path, from the fleet's targets/<name>.nix, rendered to
+                    $CAPSULE_PROFILE_DIR (default /var/lib/capsule-profiles):
+                    ~/notes, ~/.config/emacs, ~/.local/src/pi, …
+otherwise           $FLAKES_DEV/<name> (default ~/dev/<name>)
+```
+
+A checkout is present when `<checkout>/.git` exists, so a machine without one,
+such as the Mac, uses the lock and needs nothing. To simulate that machine here,
+set both `FLAKES_DEV` and `CAPSULE_PROFILE_DIR` to `/nonexistent`. `repos`
+leaves out a checkout whose `origin` is not under `davidlee/` (pi's is
+earendil-works), since upgrade could not push it. Overrides are `git+file`:
+only tracked files reach the store, as GitHub would give them.
 
 An override replaces an input's source, not the root lock's copy of its inputs:
 a change to `agents/flake.lock` reaches a build only once it is pushed and the
