@@ -15,6 +15,30 @@ Follow-ups the user asked for:
 - [x] Grow the VM disk for headroom: done by the user, 54 GB (2026-11-08).
 - [x] Add `kitty` back to `desktop-tools`. Not yet applied on the VM.
 
+Open on 2026-11-08 (see Traps):
+
+- [x] Repaired (2026-11-08; the profile is 5221 bytes again, the history has
+  no NULs, and a login shell starts cleanly). Home generation 16 was corrupt
+  after an unclean VM stop: its
+  `profile/etc/profile` is empty, so login shells lack the profile's `bin`.
+  `guix gc --verify=contents` lists 9 bad items (home `profile`, `kitty` x3,
+  `fonts-dir`, `gtk-icon-themes`, `gtk-im-modules`, `xdg-desktop-database`,
+  `texlive-font-maps`). Fix: `sudo guix gc --verify=contents,repair`. Then
+  strip the NULs from `~/.config/zsh/.zsh_history`.
+- [ ] Under sway, mouse clicks in firefox land ~70px off target (reported
+  2026-11-08, not investigated). Also open: tuigreet polish, and the `au`
+  layout under sway (it was set only by the removed `set-xorg-configuration`).
+- [x] Applied as system generation 5 (2026-11-08); it boots to tuigreet, and
+  logging in launches sway. The user called it functional, not polished.
+  `--remember` doesn't persist, because `/var/cache/tuigreet` doesn't exist.
+  The greeter: `system.scm` replaces GDM with greetd and `tuigreet` on VT 7,
+  which starts sway through Guix's `greetd-user-session`
+  (`XDG_SESSION_TYPE=wayland`, `XDG_RUNTIME_DIR`). `set-xorg-configuration`
+  is gone, because it extends `gdm-service-type`. Built as a user
+  (`guix system build`); the generated `config-7.toml` and greeter script
+  were checked. Not yet applied or booted. Untested: whether
+  `--remember` can write its cache as the `greeter` user.
+
 - **Inventory.** `probes/packages.tsv`: each package of the Nix host
   (`homeConfigurations."david@Sleipnir"` `home.packages`, and Sleipnir's
   `environment.systemPackages` not already in it), its Guix or nonguix name
@@ -183,6 +207,20 @@ pager. Home generation 14.
   release; `0.61.0` loaded alongside `0.62.0` Lisp.
 - `ghostel` installs `ghostel-module.so` in `elpa/ghostel/`, which a fresh
   `elpa/` loses.
+- An unclean VM stop right after a reconfigure leaves new store items with
+  empty or zeroed files, and the store database still marks them valid. A
+  roll-back and reconfigure then reuse the bad copies. Check with
+  `guix gc --verify=contents` (about 8 minutes, no root needed) and fix with
+  `sudo guix gc --verify=contents,repair`. Seen 2026-11-08 (home generation
+  16).
+- GDM's Shepherd service is named `xorg-server`, not `gdm`. After five fast
+  crashes Shepherd disables it, so re-enable it with `herd enable xorg-server`.
+- GDM 49 (from system generation 2, 2026-10-30) aborts unless
+  `org.gnome.system.locale` is on its greeter's `XDG_DATA_DIRS`. Those
+  directories are the system profile, `gnome-shell`, `adwaita-icon-theme` and
+  Cantarell. Without the GNOME desktop, adding `gsettings-desktop-schemas` to
+  the system packages puts the schema there (built, not booted). Replaced by
+  greetd instead. Logs: `/var/log/gdm/greeter.log*`.
 
 ## 1. Decisions (made 2026-11-08)
 

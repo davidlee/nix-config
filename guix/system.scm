@@ -11,7 +11,21 @@
 ;; used in this configuration.
 (use-modules (gnu))
 (use-service-modules cups desktop networking ssh xorg) ; xorg
-(use-package-modules shells)
+(use-package-modules admin shells window-management)
+
+;; Log-in: greetd runs tuigreet on VT 7, which starts sway.  It replaces GDM,
+;; whose 49.x greeter needs GNOME's schemas and a working GL stack.
+(define sway-session
+  (greetd-user-session
+   (command (file-append sway "/bin/sway"))
+   (command-args '())
+   (xdg-session-type "wayland")))
+
+(define tuigreet-greeter
+  (program-file
+   "tuigreet-greeter"
+   #~(execl #$(file-append tuigreet "/bin/tuigreet") "tuigreet"
+            "--time" "--remember" "--asterisks" "--cmd" #$sway-session)))
 
 (operating-system
   (locale "en_AU.utf8")
@@ -50,12 +64,18 @@
                  ;; To configure OpenSSH, pass an 'openssh-configuration'
                  ;; record as a second argument to 'service' below.
                  (service openssh-service-type)
-                 (set-xorg-configuration
-                  (xorg-configuration (keyboard-layout keyboard-layout))))
+                 (service greetd-service-type
+                  (greetd-configuration
+                   (terminals
+                    (list (greetd-terminal-configuration
+                           (terminal-vt "7")
+                           (terminal-switch #t)
+                           (default-session-command tuigreet-greeter)))))))
 
            ;; This is the default list of services we
            ;; are appending to.
            (modify-services %desktop-services
+             (delete gdm-service-type)
              ;; Binaries for nonguix packages (firefox, signal-desktop...);
              ;; without them, firefox builds from source.
              (guix-service-type
