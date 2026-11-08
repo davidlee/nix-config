@@ -1,0 +1,30 @@
+schema = "doctrine.backlog"
+version = 1
+
+id = 72
+slug = "nixosvm-graphical-guest"
+title = "W7 nixosvm: graphical aarch64 NixOS guest for the Mac"
+kind = "improvement"
+status = "open"
+resolution = ""                 # seeded empty so `backlog edit` sets it in place
+created = "2026-11-08"
+updated = "2026-11-08"
+tags = []
+
+# outbound-only. Cross-kind structural edges (e.g. references with a role
+# — `originates_from` for backlog→slice provenance — governed_by, related, drift) are
+# uniform `[[relation]]` rows — author them with
+# `doctrine link ITEM-NNN <label> <target>`; `doctrine inspect ITEM-NNN` renders
+# them. The dep/seq axes below stay typed (they carry per-edge payloads).
+[relationships]
+needs    = ["QUE-004"]                   # item→item hard prerequisite
+after    = []                   # item→item soft sequence: { to, rank? }
+triggers = []                   # watched source globs: { globs, note? }
+
+[[relation]]
+label = "drift"
+target = "RFC-001 W7 specifies a headless SSH-only guest; QUE-004 answers say graphical, lived-in"
+
+[[relation]]
+label = "related"
+target = "RFC-001"

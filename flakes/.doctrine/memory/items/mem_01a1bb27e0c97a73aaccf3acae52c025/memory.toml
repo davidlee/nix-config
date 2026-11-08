@@ -1,0 +1,46 @@
+memory_uid = "mem_01a1bb27e0c97a73aaccf3acae52c025"
+memory_key = "mem.fact.vm.utm-scripting"
+schema_version = 1
+memory_type = "fact"
+status = "active"
+title = "UTM on macOS: scripting reach and VM pitfalls"
+summary = "UTM 5 AppleScript creates and configures VMs; keystroke input is QEMU-only; window open crashes with the display asleep"
+created = "2026-11-08"
+updated = "2026-11-08"
+
+[scope]
+paths = []
+globs = []
+commands = []
+tags = ["vm", "utm", "darwin"]
+workspace = "default"
+repo = "github.com/davidlee/nix-config"
+repo_id_kind = "remote"
+repo_id_confidence = "high"
+
+[git]
+anchor_kind = "checkout_state"
+commit = ""
+tree = "686b97d3535535d5a9c6f3c418ea02f395a1d7bb"
+ref_name = "refs/heads/main"
+checkout_state_id = "a36dcf5add7086b7bd6c20bbaabd2d1f55fc1b16d75ee45b6938c537a0ef5b45"
+base_commit = "4ef051a278174dffe50a6876a8ed286668faf3a4"
+verified_sha = ""
+normalizer = "forget.checkout.v1"
+
+[review]
+verification_state = "unverified"
+reviewed = ""
+review_by = ""
+
+[trust]
+trust_level = "medium"
+
+[ranking]
+severity = "none"
+weight = 0
+
+[[source]]
+kind = "knowledge"
+ref = "EVD-006"
+

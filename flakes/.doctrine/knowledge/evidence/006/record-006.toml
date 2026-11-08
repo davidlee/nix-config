@@ -1,0 +1,29 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 6
+slug = "utm-qemu-backend-spike"
+title = "UTM QEMU backend on Draupnir: virgl-accelerated niri, 1:1 needs a fixed mode (2026-11-08 test)"
+record_kind = "evidence"
+status = "captured"
+created = "2026-11-08"
+updated = "2026-11-08"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+datum = "UTM 5.0.8 QEMU backend (virtio-gpu-gl-pci, HVF) on an M2 Pro gives a NixOS aarch64 guest virgl-accelerated GLES; niri renders on it. 1:1 Retina needs UTM native resolution plus a fixed niri mode (3024x1964, scale 2): dynamic resize does not work, as the session spice-vdagent does not run under niri."
+provenance = "experiment"
+confidence = "high"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "supports"
+target = "QUE-004"
