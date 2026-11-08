@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794061311,
-        "narHash": "sha256-S6ouIC4beb53vYr/RuFQePAHSJ9sFQJMKEQ34enlXRU=",
+        "lastModified": 1794096510,
+        "narHash": "sha256-bah3hR5t4ozDkwjLzgdyTlbDoMM3msmZnO54UKQoEW4=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "e651ccdb3e3859a6a787693addbfbe6580973244",
+        "rev": "af785b6ab46b5cdb444c00403dcad669e6deac6c",
         "type": "github"
       },
       "original": {
@@ -122,11 +122,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1793761539,
-        "narHash": "sha256-IdyC8ujQJmrorxDzjnqKwfNbV76/bfsL8uEPuTLBV+s=",
+        "lastModified": 1794094123,
+        "narHash": "sha256-ANlR/4byj749tgt3iu/pDlNbrJm6mkmCnQcCGURL+rU=",
         "owner": "davidlee",
         "repo": "doctrine",
-        "rev": "ed541ec583195f6c5e6de4b3383918143918131f",
+        "rev": "2cd12e112c9655eeccd0f9ef845cadbb98f043e2",
         "type": "github"
       },
       "original": {
@@ -251,11 +251,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1794058687,
-        "narHash": "sha256-WvlPLJ6DqvldVEvD2Pl+rRSOeUmb+jGSWUxGC01NNd4=",
+        "lastModified": 1794092552,
+        "narHash": "sha256-s5dOaCnDgsZEw2a5XfGRXw4LfEgqNTeRtcqDbv6bOtk=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "0d2034d5c9453db4247d90cabec3c7b8edd52668",
+        "rev": "9749aedff46456aa55451a7a01f103224af40451",
         "type": "github"
       },
       "original": {
