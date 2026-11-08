@@ -23,3 +23,22 @@
   The user is testing both on Draupnir with a stock installer.
 - **Bootstrap:** stock aarch64 NixOS installer, then build in the guest
   (proposed, not agreed).
+
+
+## Status: parked (2026-11-08)
+
+Parked until the user provisions an M5 (the work Mac). Resume there.
+
+- **QEMU backend: works.** virgl-accelerated niri; 1:1 Retina with UTM
+  native resolution and a fixed niri mode at scale 2 (EVD-006). No dynamic
+  resize; clipboard likely broken under Wayland.
+- **Apple backend: not tested.** Expected trade-off (inference, not
+  measured): lower overhead, virtiofs, Rosetta, and probably the only path
+  to nested virtualisation (capsule) on M3+; but reportedly no 3D for Linux
+  guests (llvmpipe). Test it on the same install: convert the qcow2 disk to
+  raw, attach it to an Apple-backend VM, repeat EVD-006's checks.
+- **Also open:** multiple displays (one UTM window per display, one niri
+  output each); clipboard bridging under Wayland; per-screen fixed modes.
+- **Flake work** (IMP-072): the aarch64 evaluation blockers in EVD-005.
+- **Drift:** RFC-001 W7 still specifies a headless, SSH-only guest with a
+  `headless` profile. Revise it when this settles.
