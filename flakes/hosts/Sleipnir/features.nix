@@ -69,11 +69,11 @@
 
   # Taste, toggled often (DEC-024): every compositor installed.
   feature.compositor = {
-    sway.enable = true;
-    niri.enable = true;
-    cosmic.enable = true;
-    kde.enable = true;
-    mango.enable = true;
+    sway.enable = false;
+    niri.enable = false;
+    cosmic.enable = false;
+    kde.enable = true; # for apps
+    mango.enable = false;
     umbriel.enable = true;
   };
 }
