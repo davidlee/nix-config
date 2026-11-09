@@ -8,7 +8,7 @@ gtk-single-instance = detect
 gtk-quick-terminal-layer = overlay
 macos-option-as-alt = true
 
-clipboard-read = ask
+clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
 right-click-action = copy-or-paste
