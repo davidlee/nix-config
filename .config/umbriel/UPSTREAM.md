@@ -5,58 +5,16 @@ Bugs and features this config works around, to be fixed in Umbriel itself
 with a harness check (`just check <name>`) on a branch, red before green; the
 user raises the PR or issue. Don't run a patched umbriel day to day.
 
-| item | status | workaround here |
-|---|---|---|
-| [Scratchpad relaunch takes two presses](#scratchpad-relaunch-takes-two-presses) | `hide_when_empty` (#586) pushed to fork, PR not opened | press twice |
-| [Up/down focus skips tabs](#updown-focus-skips-tabs) | proposal, not started | `scripts/focus-vertical` |
-| [1Password in the tray crashes on launch hand-off](#1password-in-the-tray-crashes-on-launch-hand-off) | needs a reproduction | none |
-| [Swap with the master](#swap-with-the-master) | proposal, not started | `scripts/swap-master` |
-| [IPC: a window's master-layout area](#ipc-a-windows-master-layout-area) | proposal, not started | none; geometry heuristics in `scripts/swap-master` |
+| item                                                                      | status                                                 | workaround here                                    |
+|---------------------------------------------------------------------------|--------------------------------------------------------|----------------------------------------------------|
+| [Scratchpad #751](#scratchpad-relaunch-takes-two-presses)                 | `hide_when_empty` (#586) pushed to fork, PR not opened | press twice                                        |
+| [Up/down focus skips tabs](#updown-focus-skips-tabs)                      | proposal, not started                                  | `scripts/focus-vertical`                           |
+| [1Password tray crash](#1password-in-the-tray-crashes-on-launch-hand-off) | needs a reproduction                                   | none                                               |
+| [Swap with the master](#swap-with-the-master)                             | proposal, not started                                  | `scripts/swap-master`                              |
+| [IPC: a window's master-layout area](#ipc-a-windows-master-layout-area)   | proposal, not started                                  | none; geometry heuristics in `scripts/swap-master` |
 
 When an item lands in the pinned version (`umbriel` input in
 `~/flakes/flake.lock`), remove its workaround and its entry here.
-
-## Scratchpad relaunch takes two presses
-
-Closing a pad's last window keeps the pad shown (by design: `empty_launch.sh`).
-`ScratchpadManager::toggle` hides a shown pad before it reaches the
-`spawn_when_empty` branch, so:
-
-```
-close the app (or it hides to tray)  ->  pad empty, still shown
-press 1  ->  hides the empty pad, launches nothing
-press 2  ->  shows the pad and launches  ->  window arrives visible
-```
-
-**Upstream route:** #586 ("Hide scratchpad when spawned application exits"),
-assigned to barrulus. Their spec: an opt-in `hide_when_empty = true` on a named
-scratchpad hides a shown pad when its last member closes or unmaps, so the next
-toggle shows it and launches in one press. Default stays off. Once it lands in
-the pinned version, set `hide_when_empty = true` on the affected pads and drop
-this entry.
-
-**Implementation:** branch `feat/scratchpad-hide-when-empty` in
-`~/.local/src/umbriel`, commit `dcb2c74a` on `main` (`d3bff0fb`), pushed to
-`fork`; no PR yet. Verified by hand in a nested session (2026-11-09).
-Hides in `ScratchpadManager::remove` (close, unmap and attachment all pass
-through it) and refocuses only if the departing member held keyboard focus.
-Check `scratchpad/hide_when_empty` (two outputs); unit test in
-`config_load.cpp`; docs in `docs/user/scratchpad.md` § Hiding an emptied
-scratchpad. Results: `just test` 151/151, `just check` 457/457,
-`check-stress` 32/32, lint and format clean. PR draft kept outside the repo.
-Before opening: comment on #586 so barrulus, who is assigned, knows.
-
-**Found on the way (not filed):** a focused scratchpad member that unmaps
-without being destroyed, while other members remain, leaves keyboard focus
-on no window (`View::handleUnmap` only picks a replacement for workspace
-windows; `Server::removeView` does it on destroy). Likely affects tray apps
-that unmap. Candidate issue.
-
-**Shelved:** branch `fix/scratchpad-toggle-empty-spawn` (`b803b12c`, on
-`a37ae93f`, not pushed) made a toggle of a shown, empty pad launch instead of
-hiding. Not submitted: it contradicts `docs/user/scratchpad.md` ("Closing the
-last member leaves the empty pad open. Toggle it to dismiss it.") and #586's
-"preserve the current empty-pad launch workflow". Delete it once #586 lands.
 
 ## Up/down focus skips tabs
 
@@ -80,18 +38,6 @@ decision 22 ms median, plus `umbriel msg` about 6 ms (native bind: about
 `Mod+Alt+Up/Down` step tabs directly. Once upstream has the option, delete the
 script and its tests and bind the native actions.
 
-## 1Password in the tray crashes on launch hand-off
-
-With its pad empty (app in tray, no window), the toggle runs `1password`; the
-new process hands off to the running instance and exits, then umbriel logs
-`error in client communication` for the running instance and it dies ("Fatal
-Wayland communication error"). Seen once, 2026-10-31 09:23:20. Cause unknown;
-possibly umbriel mishandling the launch token on a window another process
-opens. Likely affects any single-instance tray app (Signal, Spotify).
-
-**Next:** reproduce (empty the pad with 1Password in the tray, toggle, watch
-`journalctl --user -u umbriel.service`), then a harness check or an upstream
-issue.
 
 ## Swap with the master
 
@@ -161,3 +107,17 @@ list shows `master 0` / `stack 1` / `stack_right 0` in its placement cell.
 No upstream issue or PR found (searched 2026-11-09). Related: #704 (cap the
 master area at N windows, swap on drop), which also turns on master-area
 membership.
+
+
+## 1Password in the tray crashes on launch hand-off
+
+With its pad empty (app in tray, no window), the toggle runs `1password`; the
+new process hands off to the running instance and exits, then umbriel logs
+`error in client communication` for the running instance and it dies ("Fatal
+Wayland communication error"). Seen once, 2026-10-31 09:23:20. Cause unknown;
+possibly umbriel mishandling the launch token on a window another process
+opens. Likely affects any single-instance tray app (Signal, Spotify).
+
+**Next:** reproduce (empty the pad with 1Password in the tray, toggle, watch
+`journalctl --user -u umbriel.service`), then a harness check or an upstream
+issue.

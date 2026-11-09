@@ -17,8 +17,7 @@ files = [
 [effects]
 border = "pulse"
 cursor = "trail"
-#window = "scanlines"
-#screen = "vignette"
+
 
 [animation]
 enabled = true
