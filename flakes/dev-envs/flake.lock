@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794147039,
-        "narHash": "sha256-LH2dy0DY5HOI+ctvry/b/KvPzweIfhaxgfIU6sJyl8A=",
+        "lastModified": 1794230493,
+        "narHash": "sha256-fvikn65L/1p4ZZHL9y6/KMwT7bYaYZshPJf6GurT+xI=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "8937c48941665b41f2371d17b0c6eeb7b000878c",
+        "rev": "1670c7e1866ea87abf91d16b539fa27a24171532",
         "type": "github"
       },
       "original": {
@@ -251,11 +251,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1794136683,
-        "narHash": "sha256-cvhBTH6nsE6R6b6uNjoSeuCOH4iaurC5A+/prTxk8Rw=",
+        "lastModified": 1794229407,
+        "narHash": "sha256-4L7pYuOdzzV5VgDBwZGYA6L4qs+S7/QcVKeBS9fIPZA=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "b351c893c53850908a89bc30ea2cbf6437ada413",
+        "rev": "0538a7598ce7eb1f80619bb93f613ed664d33510",
         "type": "github"
       },
       "original": {
@@ -312,11 +312,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1793876309,
-        "narHash": "sha256-Wojg9lIH/hDH91iDVH2/EPw8oDSpxjxhXONbU1yf4Zg=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "f9a75f41be3a74eab55d3a7679d34ad6cc0da977",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -392,11 +392,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1793876309,
-        "narHash": "sha256-Wojg9lIH/hDH91iDVH2/EPw8oDSpxjxhXONbU1yf4Zg=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "f9a75f41be3a74eab55d3a7679d34ad6cc0da977",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -544,11 +544,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794043321,
-        "narHash": "sha256-VBYmMlM9WUI5ut91MOQhfe8sGT3LyToJ7+HYLPtT8Wg=",
+        "lastModified": 1794199585,
+        "narHash": "sha256-kqBHoHwuHkl9U0h43G8a1/JsNl+bF6bj/vHg62iQcj0=",
         "owner": "davidlee",
         "repo": "zmux",
-        "rev": "a3d1d34c76d5e7221174d118dba12d081c1b0310",
+        "rev": "b858716934f4ecd69be3a4b97cdeeccbf373120d",
         "type": "github"
       },
       "original": {
