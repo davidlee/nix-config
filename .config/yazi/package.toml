@@ -8,5 +8,15 @@ use = "abstrakct/yatline-symlink"
 rev = "eb81753"
 hash = "ba3599d8a7f3128569dfce9888c682c9"
 
+[[plugin.deps]]
+use = "imsi32/yatline-catppuccin"
+rev = "6c3f166"
+hash = "e1d5b1c34c53c4c4661d910eb3a6fd95"
+
+[[plugin.deps]]
+use = "ahkohd/eza-preview"
+rev = "e8fb6c8"
+hash = "c238595c801caa4f28553b9af8cf8804"
+
 [flavor]
 deps = []

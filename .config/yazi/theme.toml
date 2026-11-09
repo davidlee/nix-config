@@ -1,3 +1,8 @@
 [flavor]
-dark = "noctalia"
-light = "noctalia"
+dark = "kanagawa"
+light = "kanagawa"
+
+#dark = "noctalia"
+#light = "noctalia"
+#dark = "catppuccin"
+#light = "catppuccin"

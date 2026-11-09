@@ -3,6 +3,7 @@
 [mgr]
 show_hidden = true
 linemode = "size"
+ratio = [2,5,7]
 
 # Caps image previews in px; raised from 600x900 so zoom and
 # max-preview (T) have room to enlarge.
@@ -30,10 +31,10 @@ url = "*/"
 run = "git"
 group = "git"
 
-# piper.yazi: directory tree with eza
+# eza-tree.yazi (piper wrapper): directory tree with eza; E toggles flat list
 [[plugin.prepend_previewers]]
 url = "*/"
-run = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-first --no-quotes "$1"'
+run = 'eza-tree -- eza --color=always --icons=always --group-directories-first --no-quotes "$1"'
 
 # piper.yazi: render markdown with glow
 [[plugin.prepend_previewers]]
