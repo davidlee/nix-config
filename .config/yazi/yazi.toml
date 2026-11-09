@@ -10,6 +10,15 @@ linemode = "size"
 max_width = 2000
 max_height = 2000
 
+# Images open in swayimg (xdg-open picks chromium). Enter / o / S-Right
+# use the first opener; O lists the rest.
+[opener]
+view = [{ run = "swayimg %s", orphan = true, desc = "swayimg" }]
+
+[[open.prepend_rules]]
+mime = "image/*"
+use = ["view", "open", "reveal"]
+
 # git.yazi: status signs in the file list
 [[plugin.prepend_fetchers]]
 url = "*"
