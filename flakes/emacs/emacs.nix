@@ -21,6 +21,8 @@
     # emacs-overlay's mkGitEmacs forces withXwidgets = false, masking the
     # nixpkgs default that NixOS/nixpkgs#512124 re-enabled for Emacs != 30.
     # Drop the override once the overlay stops forcing it.
+    # Cost: the overridden derivation is not in the binary cache, so every
+    # emacs-overlay bump rebuilds Emacs from source (and adds webkitgtk).
     else pkgs.emacs-unstable-pgtk.override {withXwidgets = true;};
 
   emacsPackages = pkgs.emacsPackagesFor emacsPackage;
@@ -130,7 +132,6 @@ in
           doom-themes
           dumb-jump
           dwim-shell-command
-          eat
           editorconfig
           elfeed
           elisp-demos
