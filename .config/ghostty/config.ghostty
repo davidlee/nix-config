@@ -107,6 +107,8 @@ keybind = ctrl+minus=decrease_font_size:1
 keybind = ctrl+zero=reset_font_size
 keybind = shift+enter=text:\n
 keybind = global:ctrl+shift+backquote=toggle_quick_terminal
+keybind = global:ctrl+shift+grave_accent=toggle_quick_terminal
 keybind = ctrl+shift+bracket_left=goto_split:previous
 keybind = ctrl+shift+bracket_right=goto_split:next
 keybind = ctrl+shift+space=toggle_command_palette
+theme = noctalia

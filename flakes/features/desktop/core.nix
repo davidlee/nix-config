@@ -19,16 +19,6 @@
         breeze-gtk
         breeze-plymouth
 
-        # ksshaskpass
-        # kpkpass
-        # kauth
-        # kwallet-pam
-        # kwalletmanager
-        # kiconthemes
-        # kscreenlocker
-        # kwindowsystem
-        # kaccounts-providers
-
         bluedevil
         bluez-qt
 
