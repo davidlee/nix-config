@@ -8,19 +8,23 @@
 
 [include]
 files = [
+  # by documentation section:
+  "layout.toml",
   "input.toml",
   "outputs.toml",
-  "layout.toml",
-  "appearance.toml",
   "rules.toml",
+  "appearance.toml",
   "animation.toml",
+  # scratchpads + rules
+  # for app binds:
+  "app_support.toml",
+  # key bindings
   "keybinds/navigation.toml",
   "keybinds/system.toml",
   "keybinds/apps.toml",
   "keybinds/workspace.toml",
   "keybinds/media.toml",
   "keybinds/mouse.toml",
-  "app_support.toml"
 ]
 
 [include.optional]
