@@ -113,8 +113,10 @@ default_focused          = true
 [[window_rule]]
 match.app_id             = "^discord$"
 default_scratchpad       = "discord"
+default_floating         = true
 default_focused          = true
 default_pinned           = true
+
 
 # emacs / umbriel rule
 [[window_rule]]
