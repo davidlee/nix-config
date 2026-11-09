@@ -32,7 +32,8 @@
         emacs = import ./emacs.nix {inherit pkgs emskin;};
         default = emacs;
       }
-      // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+      # Linux-only, and absent when `just isolation` stubs the input.
+      // pkgs.lib.optionalAttrs (pkgs.stdenv.hostPlatform.isLinux && emskin ? packages) {
         emskin = emskin.packages.${pkgs.stdenv.hostPlatform.system}.default;
       });
   };

@@ -143,8 +143,9 @@ sources instead, so an edit lands without a push and a re-lock:
 
 ```
 tree_override   agents/, emacs/                       in this repo, always present
-dev_override    fleet goad malebolge panopticon       ~/dev/<input>, where checked out
-                quotient satan satan-attrd screwtape
+dev_override    emskin fleet goad malebolge           ~/dev/<input>, where checked out
+                panopticon quotient satan satan-attrd
+                screwtape
                 fleet: $FLAKES_FLEET (default /srv/fleet)
 ```
 

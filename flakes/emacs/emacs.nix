@@ -265,9 +265,6 @@ in
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
-          # Elisp client for emskin (the compositor binary comes from
-          # packages.emskin, same flake input). Loaded by apps/dl-emskin.el.
-          (emskin.lib.mkEmacsPackage epkgs)
           #eaf-with-reinput
           # Not on darwin: mac port 30.2.50's package--description-file (a C
           # primitive) mis-strips package names ending in a bare digit —
@@ -275,5 +272,10 @@ in
           # can't find the descriptor ("Wrong type argument: arrayp, nil").
           # Fixed by Emacs 31.1 (linux). Move up once macport passes it.
           comment-dwim-2
+        ]
+        # Elisp client for emskin (its binary is packages.emskin, same input).
+        # Loaded by apps/dl-emskin.el. Absent when `just isolation` stubs it.
+        ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin && emskin ? lib) [
+          (emskin.lib.mkEmacsPackage epkgs)
         ]
   )
