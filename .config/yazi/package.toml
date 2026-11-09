@@ -3,5 +3,10 @@ use = "imsi32/yatline"
 rev = "dc44b73"
 hash = "fa488655544e367e5439a9748d28519e"
 
+[[plugin.deps]]
+use = "abstrakct/yatline-symlink"
+rev = "eb81753"
+hash = "ba3599d8a7f3128569dfce9888c682c9"
+
 [flavor]
 deps = []
