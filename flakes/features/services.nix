@@ -77,6 +77,15 @@ _: [
 
       networking.firewall.allowedTCPPorts = [80 443];
 
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix). An overlay, because the
+      # module has no `package` option.
+      nixpkgs.overlays = [
+        (_: prev: {
+          static-web-server = prev.static-web-server.overrideAttrs {dontCargoUseSystemLibs = true;};
+        })
+      ];
+
       services = {
         static-web-server = {
           enable = true;
@@ -85,7 +94,7 @@ _: [
 
           configuration = {
             general = {
-              directory-listing = true;
+              directory-listing = false;
             };
           };
         };

@@ -99,7 +99,11 @@ in [
 
   {
     name = "runners";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      viddy = pkgs.viddy.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = with pkgs;
         [
           just

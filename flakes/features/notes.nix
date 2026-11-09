@@ -4,7 +4,11 @@
 in [
   {
     name = "terminal";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      tui-journal = pkgs.tui-journal.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = available pkgs (with pkgs; [
         kb
         nb

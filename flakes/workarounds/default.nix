@@ -44,4 +44,68 @@
     # cached either way: the package builds; the conflict is downstream
     signal = "manual";
   }
+  {
+    attr = ["static-web-server"];
+    pin = "nixpkgs";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "2.44.1 fails cargoSetupHook's system-lib mode (zstd, libgit2)";
+    sites = ["features/services.nix"];
+  }
+  {
+    attr = ["xq"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "0.5.0 fails cargoSetupHook's system-lib mode (oniguruma)";
+    sites = ["features/data.nix"];
+  }
+  {
+    attr = ["felix-fm"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "2.16.1's libgit2-sys 0.17 needs libgit2 < 1.9; nixpkgs has 1.9.7";
+    sites = ["features/files.nix"];
+  }
+  {
+    attr = ["oha"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "1.16.0 fails cargoSetupHook's system-lib mode (aws-lc-sys)";
+    sites = ["features/net.nix"];
+  }
+  {
+    attr = ["viddy"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "fails cargoSetupHook's system-lib mode (libsqlite3-sys)";
+    sites = ["features/dev.nix"];
+  }
+  {
+    attr = ["tui-journal"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "fails cargoSetupHook's system-lib mode (libsqlite3-sys)";
+    sites = ["features/notes.nix"];
+  }
+  {
+    attr = ["leaf-markdown-viewer"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "fails cargoSetupHook's system-lib mode (onig_sys)";
+    sites = ["features/docs.nix"];
+  }
+  {
+    attr = ["russ"];
+    pin = "nixpkgs-home";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "fails cargoSetupHook's system-lib mode (libsqlite3-sys)";
+    sites = ["features/comms.nix"];
+  }
 ]

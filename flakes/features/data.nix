@@ -4,7 +4,11 @@
 in [
   {
     name = "structured";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      xq = pkgs.xq.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = with pkgs;
         [
           ## CSV

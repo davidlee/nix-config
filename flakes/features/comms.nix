@@ -33,7 +33,11 @@ in [
 
   {
     name = "feeds";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      russ = pkgs.russ.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = available pkgs (with pkgs; [
         ## text readers
         circumflex

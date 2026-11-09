@@ -48,7 +48,7 @@ RANK = {OK: 0, WARN: 1, CRIT: 2}
 LEVELS = {"all": OK, "warn": WARN, "crit": CRIT}  # CLI level → minimum status shown
 
 # ── Configurable lists ────────────────────────────────────────────────────────
-DAEMONS_USER = ["spotifyd", "swayosd"]
+DAEMONS_USER = ["spotifyd"]
 DAEMONS_SYSTEM = ["cups"]
 
 HOME = Path.home()

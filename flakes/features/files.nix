@@ -8,7 +8,11 @@ in [
       pkgs,
       lib,
       ...
-    }: {
+    }: let
+      # Vendored libgit2: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      felix-fm = pkgs.felix-fm.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = with pkgs;
         [
           ## file managers

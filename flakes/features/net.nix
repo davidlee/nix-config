@@ -4,7 +4,11 @@
 in [
   {
     name = "tools";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored aws-lc: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      oha = pkgs.oha.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = with pkgs;
         [
           aria2

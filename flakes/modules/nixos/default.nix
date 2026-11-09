@@ -15,4 +15,6 @@
     ./user.nix
     ./cli.nix
   ];
+
+  services.displayManager.noctalia-greeter.passwordlessSyncUsers = ["david"];
 }

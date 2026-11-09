@@ -41,7 +41,11 @@ in [
 
   {
     name = "markdown";
-    homeManager = {pkgs, ...}: {
+    homeManager = {pkgs, ...}: let
+      # Vendored C deps: cargoSetupHook's system-lib mode fails this recipe
+      # (ISS-028, probe in workarounds/default.nix).
+      leaf-markdown-viewer = pkgs.leaf-markdown-viewer.overrideAttrs {dontCargoUseSystemLibs = true;};
+    in {
       home.packages = with pkgs; [
         # markdownlint-cli
         # markdownlint-cli2
