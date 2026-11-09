@@ -14,11 +14,14 @@ ohmyzsh/ohmyzsh path:plugins/colorize
 # belak/zsh-utils path:history
 # belak/zsh-utils path:utility
 
-# Aloxaf/fzf-tab
 
 mattmc3/zfunctions
 zsh-users/zsh-autosuggestions
-zdharma-continuum/fast-syntax-highlighting kind:defer
+# zdharma-continuum/fast-syntax-highlighting kind:defer
 zsh-users/zsh-history-substring-search
 
 # marlonrichert/zsh-autocomplete
+
+michel-kraemer/zsh-patina
+
+Aloxaf/fzf-tab

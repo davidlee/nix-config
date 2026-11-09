@@ -10,6 +10,9 @@
     zoxide
     skim # $ sk
 
+    ## zsh completion
+    zsh-patina
+
     ## fileutils
     coreutils
     xz

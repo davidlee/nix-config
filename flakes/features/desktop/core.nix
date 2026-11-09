@@ -6,13 +6,15 @@
   name = "core";
   platforms = lib.platforms.linux;
   nixos = {pkgs, ...}: {
-    environment.systemPackages = with pkgs; [
-      xwayland-satellite
-      cosmic-edit
-      cosmic-wallpapers
-      nautilus
-      nautilus-open-any-terminal
-      (with pkgs.kdePackages; [
+    environment.systemPackages = with pkgs;
+      [
+        xwayland-satellite
+        cosmic-edit
+        cosmic-wallpapers
+        nautilus
+        nautilus-open-any-terminal
+      ]
+      ++ (with pkgs.kdePackages; [
         pkgs.qt6Packages.qt6ct
         breeze
         breeze-icons
@@ -25,8 +27,8 @@
         dolphin
         dolphin-plugins
         drkonqi
-      ])
-    ];
+      ]);
+
     security.pam.services.swaylock = {};
 
     services.gvfs.enable = true; # Enables Trash, network mounts, and storage detection

@@ -5,7 +5,6 @@ autoload zmv
 typeset -U PATH path
 typeset -U fpath
 
-
 # WARNING: by decree, do not prepend paths
 # to system here, only append - doctrine, npm, cargo, etc
 # are set up in env.nix (pam) via flakes, so that they reach
@@ -28,6 +27,9 @@ export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 
 # Integrations (atuin, carapace, direnv, eza, fzf, television, yazi, lazygit)
 # are set up by home-manager in .zshrc, after this file.
+
+#fpath+=( "$HOME/.cache/antidote/michel-kraemer/zsh-patina" )
+#source "$HOME/.cache/antidote/michel-kraemer/zsh-patina/zsh-patina.plugin.zsh"
 
 ## Antidote
 zstyle ':antidote:bundle' use-friendly-names 'yes'
@@ -65,22 +67,50 @@ if [ -f /opt/homebrew/bin/brew ]; then
 fi
 
 #
+# ghostel (emacs terminal) shell integration
+#
+if [[ "${${INSIDE_EMACS-}%%,*}" = 'ghostel' ]]; then
+  source ~/.config/emacs/elpa/ghostel/etc/shell/ghostel.zsh
+fi
+
+#
 # carapace - https://carapace-sh.github.io/carapace-bin/setup.html
 #
 export CARAPACE_BRIDGES='zsh,fish,bash,inshellisense' # optional
 zstyle ':completion:*' format $'\e[2;37mCompleting %d\e[m'
+zstyle ':completion:*:git:*' group-order 'main commands' 'alias commands' 'external commands'
+source <(carapace _carapace)
 
 #
 # zoxide: cd is zoxide. Overrides home-manager's plain init (z, zi stay).
 #
 eval "$(zoxide init zsh --cmd cd --hook prompt)"
 
-#
-# ghostel (emacs terminal) shell integration
-#
-if [[ "${${INSIDE_EMACS-}%%,*}" = 'ghostel' ]]; then
-  source ~/.config/emacs/elpa/ghostel/etc/shell/ghostel.zsh
-fi
+
+
+# Better completion UX
+zstyle ':completion:*' menu select
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' verbose yes
+
+# Case-insensitive + partial matching
+zstyle ':completion:*' matcher-list \
+    'm:{a-z}={A-Za-z}' \
+    'r:|=*' \
+    'l:|=* r:|=*'
+
+# Group matches
+zstyle ':completion:*' group-name ''
+
+# Group descriptions
+zstyle ':completion:*:descriptions' format '%F{yellow}%d%f'
+
+# Colored completion menus
+zstyle ':completion:*' list-colors ''
+
+# Better process completion
+zstyle ':completion:*:*:*:*:processes' command \
+    'ps -u $USER -o pid,user,comm -w -w'
 
 # unseen satan motd; daily doctor problems
 motd
