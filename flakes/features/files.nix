@@ -23,6 +23,7 @@ in [
           lf
           superfile
           ouch # yazi ouch plugin backend
+          imagemagick # yazi zoom plugin backend
 
           ## ls is more
           eza

@@ -4,6 +4,12 @@
 show_hidden = true
 linemode = "size"
 
+# Caps image previews in px; raised from 600x900 so zoom and
+# max-preview (T) have room to enlarge.
+[preview]
+max_width = 2000
+max_height = 2000
+
 # git.yazi: status signs in the file list
 [[plugin.prepend_fetchers]]
 url = "*"
