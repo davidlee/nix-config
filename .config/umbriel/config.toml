@@ -4,7 +4,7 @@
 # Umbriel merges required includes in list order, then optional includes,
 # then this file; a later file wins. Rule arrays ([[window_rule]],
 # [[layer_rule]], [[workspace]], [[scratchpad]]) accumulate across files.
-# Which file owns what: AGENTS.md.
+
 
 [include]
 files = [
@@ -12,10 +12,15 @@ files = [
   "outputs.toml",
   "layout.toml",
   "appearance.toml",
-  "animation.toml",
-  "binds.toml",
   "rules.toml",
-  "apps.toml",
+  "animation.toml",
+  "keybinds/navigation.toml",
+  "keybinds/system.toml",
+  "keybinds/apps.toml",
+  "keybinds/workspace.toml",
+  "keybinds/media.toml",
+  "keybinds/mouse.toml",
+  "app_support.toml"
 ]
 
 [include.optional]
@@ -31,4 +36,11 @@ autostart = [
   "1password --silent",
   "signal-desktop",
 ]
-focus_on_activate = false
+
+show_cheatsheet = false
+xwayland_native_resolution = true
+# xwayland_primary_output = "DP-3"
+
+[environment]
+ELECTRON_OZONE_PLATFORM_HINT = "wayland"
+SDL_VIDEODRIVER = "wayland"

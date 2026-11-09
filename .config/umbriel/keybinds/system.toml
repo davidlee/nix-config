@@ -1,0 +1,39 @@
+# Keybinds - system
+
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/actions.md
+
+[keybinds]
+
+# --- cheatsheet, launcher, panels -------------------------------------
+"Mod+Shift+Slash" = "cheatsheet-toggle"
+"Alt+Mod+Space"   = "spawn noctalia msg panel-toggle launcher"
+"Mod+Space"       = "spawn vicinae toggle"
+"Mod+Z"           = "spawn noctalia msg panel-toggle clipboard"
+"Mod+Tab"         = "spawn noctalia msg window-switcher"
+"Mod+Shift+Tab"   = "spawn noctalia msg window-switcher" # the switcher reverses itself
+
+# --- system -----------------------------------------------------------
+"Mod+Alt+L"       = "spawn noctalia msg session lock"
+"Mod+Shift+E"     = "session-quit"
+"Ctrl+Alt+Delete" = "spawn noctalia msg panel-open session"
+"Mod+Ctrl+P"      = { action = "dpms-off", repeat = false } # any input wakes them
+"Mod+Ctrl+M"      = "spawn noctalia msg mic-volume-set 100"
+"Mod+B"           = "spawn noctalia msg bar-toggle"
+"Mod+Ctrl+Comma"  = "spawn noctalia msg settings-toggle"
+"Mod+Y"           = "spawn noctalia msg panel-toggle wallpaper"
+"Mod+U"           = "spawn noctalia msg panel-toggle control-center notifications"
+"Mod+L"           = "spawn noctalia msg panel-toggle control-center"
+"Mod+Shift+U"     = "spawn noctalia msg notification-dnd-toggle"
+
+# Rescue term runs in session.slice, which oom.nix protects from app.slice hogs.
+"Mod+Ctrl+Delete" = "spawn systemd-run --user --scope --slice=session.slice --quiet kitty --class emergency-htop -o initial_window_width=120c -o initial_window_height=40c -e htop"
+
+# Applications that inhibit shortcuts (remote desktop, software KVM) still
+# leave this one way out.
+"Mod+Escape"      = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
+
+# --- overview and window lifecycle ------------------------------------
+"Mod+O"           = { action = "overview-toggle" , repeat = false }
+"Mod+Q"           = { action = "window-close"    , repeat = false }
+

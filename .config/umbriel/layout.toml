@@ -1,4 +1,5 @@
 # Tiling, workspaces and the overview.
+
 # https://github.com/noctalia-dev/umbriel/tree/main/docs/user/layout.md
 # https://github.com/noctalia-dev/umbriel/tree/main/docs/user/workspaces.md
 # https://github.com/noctalia-dev/umbriel/tree/main/docs/user/workspaces-overview.md
@@ -16,6 +17,10 @@ center_focused = "on_overflow"
 position = "center"
 default_width_fraction = 0.6
 new_becomes_master = true
+
+[layout.dwindle]
+preserve_split = false
+#new_towards_cursor = false
 
 # --- workspaces -------------------------------------------------------
 # A named entry materializes a persistent workspace on every dynamic output.

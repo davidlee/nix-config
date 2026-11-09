@@ -1,0 +1,36 @@
+# Keybinds - media
+
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/actions.md
+
+[keybinds]
+
+# --- audio ------------------------------------------------------------
+"XF86AudioRaiseVolume" = { action = "spawn noctalia msg volume-up"         , allow_when_locked = true }
+"XF86AudioLowerVolume" = { action = "spawn noctalia msg volume-down"       , allow_when_locked = true }
+"XF86AudioMute"        = { action = "spawn noctalia msg volume-mute"       , allow_when_locked = true }
+"XF86AudioMicMute"     = { action = "spawn noctalia msg mic-mute"          , allow_when_locked = true }
+"XF86AudioPause"       = { action = "spawn noctalia msg media toggle"      , allow_when_locked = true }
+"XF86AudioPlay"        = { action = "spawn noctalia msg media toggle"      , allow_when_locked = true }
+"XF86AudioPrev"        = { action = "spawn noctalia msg media previous"    , allow_when_locked = true }
+"XF86AudioNext"        = { action = "spawn noctalia msg media next"        , allow_when_locked = true }
+"Mod+Backslash"        = { action = "spawn ~/.local/bin/toggle-audio-sink" , allow_when_locked = true }
+
+# streaming dictation (flakes: features/audio/dictate.nix). F13/F14 are push-to-talk: ZMK's
+# `ptt` macro taps F13 on key down and F14 on key up (zmk-config combos.dtsi).
+# xkb names F13/F14 XF86Tools/XF86Launch5; binds match the keysym.
+"F9" = { action = "spawn ~/.local/bin/dictate toggle", repeat = false }
+
+# --- brightness -------------------------------------------------------
+"XF86MonBrightnessUp"   = { action = "spawn noctalia msg brightness-up 5",   allow_when_locked = true }
+"XF86MonBrightnessDown" = { action = "spawn noctalia msg brightness-down 5", allow_when_locked = true }
+
+
+# --- SCREENSHOTS ------------------------------------------------------
+# Umbriel has no built-in screenshot; scripts/screenshot uses grim, slurp and satty.
+"Print"                    = "spawn ~/.config/umbriel/scripts/screenshot area"
+"Ctrl+Print"               = "spawn ~/.config/umbriel/scripts/screenshot screen"
+"Alt+Print"                = "spawn ~/.config/umbriel/scripts/screenshot window"
+"F10"                      = "spawn ~/.config/umbriel/scripts/screenshot area"
+"Ctrl+F10"                 = "spawn ~/.config/umbriel/scripts/screenshot screen"
+"Alt+F10"                  = "spawn ~/.config/umbriel/scripts/screenshot window"

@@ -1,0 +1,107 @@
+# Keybinds - navigation
+
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/actions.md
+
+[keybinds]
+
+# --- focus ------------------------------------------------------------
+"Mod+Left"                 = "window-focus-left"
+"Mod+Right"                = "window-focus-right"
+
+# window-focus-up/down, but stepping through tabs first: Umbriel skips them.
+# Back to the native actions if upstream gains this (NOTES.md). Mod+Page_Up/Down
+# change workspace.
+"Mod+Up"                   = "spawn ~/.config/umbriel/scripts/focus-vertical up"
+"Mod+Down"                 = "spawn ~/.config/umbriel/scripts/focus-vertical down"
+
+"Mod+Home"                 = "column-focus-first"
+"Mod+End"                  = "column-focus-last"
+
+# --- move -------------------------------------------------------------
+"Mod+Shift+Left"           = "column-move-left"
+"Mod+Shift+Down"           = "window-move-down"
+"Mod+Shift+Up"             = "window-move-up"
+"Mod+Shift+Right"          = "column-move-right"
+
+"Mod+Alt+Home"             = "column-move-to-first"
+"Mod+Alt+End"              = "column-move-to-last"
+
+# --- swap ---------------------------------------------------------
+
+"Ctrl+Alt+Shift+Left"      = "window-swap-left"
+"Ctrl+Alt+Shift+Down"      = "window-swap-down"
+"Ctrl+Alt+Shift+Up"        = "window-swap-up"
+"Ctrl+Alt+Shift+Right"     = "window-swap-right"
+
+"Mod+Alt+Left"             = "window-swap-left"
+"Mod+Alt+Down"             = "window-swap-down"
+"Mod+Alt+Up"               = "window-swap-up"
+"Mod+Alt+Right"            = "window-swap-right"
+
+# Swap with the master, or from the master into the stack (its middle row:
+# native swaps target by geometry). A center master has a stack each side:
+# Shift picks the right one. Upstream proposal in UPSTREAM.md.
+"Mod+Alt+Return"           = "spawn ~/.config/umbriel/scripts/swap-master"
+"Mod+Alt+Shift+Return"     = "spawn ~/.config/umbriel/scripts/swap-master right"
+
+"Mod+Ctrl+Return"          = "window-swap-previous"
+"Mod+Ctrl+Shift+Return"    = "window-swap-next"
+
+# --- monitors ---------------------------------------------------------
+"Mod+Ctrl+Left"            = "output-focus-left"
+"Mod+Ctrl+Down"            = "output-focus-down"
+"Mod+Ctrl+Up"              = "output-focus-up"
+"Mod+Ctrl+Right"           = "output-focus-right"
+
+"Mod+Alt+Ctrl+Shift+Left"  = "column-move-to-output-left"
+"Mod+Alt+Ctrl+Shift+Down"  = "column-move-to-output-down"
+"Mod+Alt+Ctrl+Shift+Up"    = "column-move-to-output-up"
+"Mod+Alt+Ctrl+Shift+Right" = "column-move-to-output-right"
+
+
+# --- window switching -------------------------------------------------
+# Layout order; Mod+Grave returns to the previously focused window.
+"Mod+Alt+Tab"              = "window-focus-next"
+"Mod+Alt+Shift+Tab"        = "window-focus-previous"
+"Mod+Grave"                = "window-focus-last"
+
+# --- columns and stacks -----------------------------------------------
+"Mod+BracketLeft"          = "window-consume-from-left" # pull the neighbour in
+"Mod+BracketRight"         = "window-consume-from-right"
+"Mod+Shift+BracketLeft"    = "window-consume-or-expel-left"
+"Mod+Shift+BracketRight"   = "window-consume-or-expel-right"
+"Mod+Comma"                = "window-consume-or-expel-left"
+"Mod+Period"               = "window-consume-or-expel-right"
+"Mod+Shift+Comma"          = "window-consume-left"
+"Mod+Shift+Period"         = "window-consume-right"
+
+# --- sizing -----------------------------------------------------------
+"Mod+R"                    = "window-cycle-primary-extent"
+"Mod+Shift+R"              = "window-cycle-primary-extent-back"
+"Mod+Ctrl+Shift+R"         = "window-cycle-secondary-extent"
+"Mod+Ctrl+R"               = "window-cycle-secondary-extent-back"
+
+"Mod+Minus"                = "window-modify-primary-extent -0.1"
+"Mod+Equal"                = "window-modify-primary-extent 0.1"
+"Mod+Shift+Minus"          = "window-modify-secondary-extent -0.1"
+"Mod+Shift+Equal"          = "window-modify-secondary-extent 0.1"
+
+"Mod+F"                    = "window-toggle-maximize"
+"Mod+Shift+F"              = "window-toggle-fullscreen"
+"Mod+M"                    = "window-toggle-maximize-to-edges"
+
+"Mod+C"                    = "column-center"
+"Mod+Shift+C"              = "window-center" # floating windows only
+
+# --- floating, tabs and layout mode -----------------------------------
+"Mod+V"                    = "window-toggle-floating"
+"Mod+Shift+V"              = "window-focus-switch-floating"
+"Mod+P"                    = "window-toggle-pinned"
+
+"Mod+W"                    = "workspace-set-layout toggle"
+"Mod+Shift+W"              = "workspace-set-layout scrolling"
+"Mod+S"                    = "column-toggle-tabbed"
+
+"Mod+X"                    = "layout-master-count-increase"
+"Mod+Shift+X"              = "layout-master-count-decrease"

@@ -11,13 +11,11 @@ files = [
   "/run/current-system/sw/share/umbriel/effects/window/scanlines/effect.toml",
   "/run/current-system/sw/share/umbriel/effects/screen/vignette/effect.toml",
   "/run/current-system/sw/share/umbriel/effects/cursor/trail/effect.toml"
-  #"/run/current-system/sw/share/umbriel/effects/cursor/trail-path/effect.toml"
-
 ]
+
 [effects]
 border = "pulse"
 cursor = "trail"
-
 
 [animation]
 enabled = true
@@ -39,7 +37,7 @@ effect = "reveal"
 style = "zoom"
 
 [animation.windows_move]
-duration_ms = 220
+duration_ms = 120
 curve = "easeinout"
 effect = "squash"
 
@@ -59,7 +57,6 @@ damping = 20
 coupling = 4
 pointer_response = 2.0
 
-# workspace_curve is the filmstrip scroll inside the overview.
 [animation.overview]
 enabled = true
 curve = "spring:0.95,300"
@@ -77,7 +74,7 @@ enabled = true
 curve = "spring:0.4,900"
 
 [animation.dim_unfocused]
-enabled = false # unfocused opacity !!!
+enabled = false
 dim = 0.1
 
 [animation.layers]

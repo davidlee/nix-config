@@ -1,0 +1,23 @@
+# Keybinds - mouse
+
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/keybinds.md
+# https://github.com/noctalia-dev/umbriel/tree/main/docs/user/actions.md
+
+[keybinds]
+
+# --- mouse wheel ------------------------------------------------------
+"Mod+WheelDown"            = { action = "workspace-next", cooldown_ms = 150 }
+"Mod+WheelUp"              = { action = "workspace-previous", cooldown_ms = 150 }
+"Mod+Ctrl+WheelDown"       = { action = "column-move-to-workspace-next", cooldown_ms = 150 }
+"Mod+Ctrl+WheelUp"         = { action = "column-move-to-workspace-previous", cooldown_ms = 150 }
+
+"Mod+WheelRight"           = "window-focus-right"
+"Mod+WheelLeft"            = "window-focus-left"
+"Mod+Ctrl+WheelRight"      = "column-move-right"
+"Mod+Ctrl+WheelLeft"       = "column-move-left"
+
+# Shift turns vertical wheel into horizontal, as applications do.
+"Mod+Shift+WheelDown"      = "window-focus-right"
+"Mod+Shift+WheelUp"        = "window-focus-left"
+"Mod+Ctrl+Shift+WheelDown" = "column-move-right"
+"Mod+Ctrl+Shift+WheelUp"   = "column-move-left"
