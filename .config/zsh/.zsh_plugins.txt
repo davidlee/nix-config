@@ -14,7 +14,6 @@ ohmyzsh/ohmyzsh path:plugins/colorize
 # belak/zsh-utils path:history
 # belak/zsh-utils path:utility
 
-
 mattmc3/zfunctions
 zsh-users/zsh-autosuggestions
 # zdharma-continuum/fast-syntax-highlighting kind:defer
