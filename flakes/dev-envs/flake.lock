@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794230512,
-        "narHash": "sha256-MyGq+LHjPK+uIa2gxCgdZDLEReUAfHh3BWYWjty5Vi0=",
+        "lastModified": 1794256867,
+        "narHash": "sha256-e/i+HiLY3iAnf+FXZOiyWBT4I9/UeInR5EDmeJlHH/U=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "3f30ae6378e246d11d6ad13393972498d3d18a6c",
+        "rev": "12e04fab6bbd2c2d3a0ce008e5b1fd7b3781f8d0",
         "type": "github"
       },
       "original": {
@@ -251,11 +251,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1794229407,
-        "narHash": "sha256-4L7pYuOdzzV5VgDBwZGYA6L4qs+S7/QcVKeBS9fIPZA=",
+        "lastModified": 1794236353,
+        "narHash": "sha256-rcmzzR+kdb4yKL+NPfF/M0I6oXA9YfzVazBzWDlG2Xg=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "0538a7598ce7eb1f80619bb93f613ed664d33510",
+        "rev": "4c6c37495fc45a46cb6f86cc6b0865e363fb77f2",
         "type": "github"
       },
       "original": {
