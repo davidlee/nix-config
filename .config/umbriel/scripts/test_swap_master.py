@@ -32,9 +32,18 @@ def master_right(focus):
     ]
 
 
-def press(windows):
+def master_center(focus):
+    """A stack each side of a center master; `focus` is "left", "master", "right" or None."""
+    return [
+        tile(0, STACK, active=focus == "left"),
+        tile(STACK, MASTER, active=focus == "master"),
+        tile(STACK + MASTER, STACK, active=focus == "right"),
+    ]
+
+
+def press(windows, *args):
     """The `umbriel msg` arguments sent for one press."""
-    calls = fake_umbriel.run(_path, windows)
+    calls = fake_umbriel.run(_path, windows, *args)
     assert all(call[:2] == ["umbriel", "msg"] for call in calls), calls
     return [call[2:] for call in calls]
 
@@ -51,6 +60,21 @@ class SwapMaster(unittest.TestCase):
 
     def test_stack_beside_a_right_master_swaps_right(self):
         self.assertEqual(press(master_right("stack")), [["window-swap-right"]])
+
+    def test_center_master_swaps_left_by_default(self):
+        self.assertEqual(press(master_center("master")), [["window-swap-left"]])
+
+    def test_center_master_swaps_toward_the_named_side(self):
+        self.assertEqual(press(master_center("master"), "right"), [["window-swap-right"]])
+        self.assertEqual(press(master_center("master"), "left"), [["window-swap-left"]])
+
+    def test_center_stacks_swap_with_the_master_whatever_the_side(self):
+        for side in ((), ("left",), ("right",)):
+            self.assertEqual(press(master_center("left"), *side), [["window-swap-right"]])
+            self.assertEqual(press(master_center("right"), *side), [["window-swap-left"]])
+
+    def test_a_side_still_swaps_toward_the_only_other_column(self):
+        self.assertEqual(press(master_left("master"), "left"), [["window-swap-right"]])
 
     def test_a_floating_window_to_the_left_is_not_the_other_column(self):
         windows = [tile(0, 100, floating=True), *[{**w, "x": w["x"] + 100} for w in master_left("master")]]

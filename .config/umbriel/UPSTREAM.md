@@ -7,10 +7,11 @@ user raises the PR or issue. Don't run a patched umbriel day to day.
 
 | item | status | workaround here |
 |---|---|---|
-| [Scratchpad relaunch takes two presses](#scratchpad-relaunch-takes-two-presses) | fix ready on a branch, not pushed | press twice |
+| [Scratchpad relaunch takes two presses](#scratchpad-relaunch-takes-two-presses) | `hide_when_empty` (#586) pushed to fork, PR not opened | press twice |
 | [Up/down focus skips tabs](#updown-focus-skips-tabs) | proposal, not started | `scripts/focus-vertical` |
 | [1Password in the tray crashes on launch hand-off](#1password-in-the-tray-crashes-on-launch-hand-off) | needs a reproduction | none |
 | [Swap with the master](#swap-with-the-master) | proposal, not started | `scripts/swap-master` |
+| [IPC: a window's master-layout area](#ipc-a-windows-master-layout-area) | proposal, not started | none; geometry heuristics in `scripts/swap-master` |
 
 When an item lands in the pinned version (`umbriel` input in
 `~/flakes/flake.lock`), remove its workaround and its entry here.
@@ -27,23 +28,35 @@ press 1  ->  hides the empty pad, launches nothing
 press 2  ->  shows the pad and launches  ->  window arrives visible
 ```
 
-**Proposed PR**
+**Upstream route:** #586 ("Hide scratchpad when spawned application exits"),
+assigned to barrulus. Their spec: an opt-in `hide_when_empty = true` on a named
+scratchpad hides a shown pad when its last member closes or unmaps, so the next
+toggle shows it and launches in one press. Default stays off. Once it lands in
+the pinned version, set `hide_when_empty = true` on the affected pads and drop
+this entry.
 
-- Branch `fix/scratchpad-toggle-empty-spawn` in `~/.local/src/umbriel`,
-  commit `b803b12c`, on top of `a37ae93f`. Not pushed.
-- Title: `fix(scratchpad): relaunch spawn_when_empty when toggling a pad left shown and empty`
-- Change: new `ScratchpadManager::spawnDue(name, pad)` returns the
-  `spawn_when_empty` command when the pad is empty and no launch is pending.
-  `toggle` hides a shown pad only when nothing is due; otherwise it summons and
-  launches. Unchanged: a second toggle during a pending launch still hides; an
-  empty pad without `spawn_when_empty` still toggles its backdrop; `showStep`
-  inherits the fix (it delegates empty pads to `toggle`).
-- Test: `tests/harness/checks/scratchpad/default_rule.sh` closes the last
-  window, toggles, expects a shown replacement. Red before, green after.
-- Results: `just check scratchpad/` 19/19; `just test` 149/149; `just lint`,
-  clang-format, shellcheck clean. Full `just check`: 425/426, the failure is
-  `layout/tab_group_min_height`, which also fails on unmodified `main`
-  (`a37ae93f`); worth mentioning in the PR.
+**Implementation:** branch `feat/scratchpad-hide-when-empty` in
+`~/.local/src/umbriel`, commit `dcb2c74a` on `main` (`d3bff0fb`), pushed to
+`fork`; no PR yet. Verified by hand in a nested session (2026-11-09).
+Hides in `ScratchpadManager::remove` (close, unmap and attachment all pass
+through it) and refocuses only if the departing member held keyboard focus.
+Check `scratchpad/hide_when_empty` (two outputs); unit test in
+`config_load.cpp`; docs in `docs/user/scratchpad.md` § Hiding an emptied
+scratchpad. Results: `just test` 151/151, `just check` 457/457,
+`check-stress` 32/32, lint and format clean. PR draft kept outside the repo.
+Before opening: comment on #586 so barrulus, who is assigned, knows.
+
+**Found on the way (not filed):** a focused scratchpad member that unmaps
+without being destroyed, while other members remain, leaves keyboard focus
+on no window (`View::handleUnmap` only picks a replacement for workspace
+windows; `Server::removeView` does it on destroy). Likely affects tray apps
+that unmap. Candidate issue.
+
+**Shelved:** branch `fix/scratchpad-toggle-empty-spawn` (`b803b12c`, on
+`a37ae93f`, not pushed) made a toggle of a shown, empty pad launch instead of
+hiding. Not submitted: it contradicts `docs/user/scratchpad.md` ("Closing the
+last member leaves the empty pad open. Toggle it to dismiss it.") and #586's
+"preserve the current empty-pad launch workflow". Delete it once #586 lands.
 
 ## Up/down focus skips tabs
 
@@ -99,3 +112,52 @@ already swaps across areas.
 matcher. Touches border state and rendering, so open an issue before writing it.
 
 No upstream issue or PR found (searched 2026-11-09).
+
+## IPC: a window's master-layout area
+
+`umbriel windows --json` can't say whether a window is a master or in the
+stack. `column` and `row` are `-1` outside the scrolling layout
+(`src/server/ipc_commands.cpp`, around line 662: "Only the scrolling strip has
+an order of columns and rows that holds still for clients"), and no workspace
+field gives the master count. Clients infer it from geometry, which depends on
+`position` and the current master fraction:
+
+- `scripts/swap-master` guesses the swap direction from which sides have
+  tiles.
+- The Emacs window list (`apps/dl-umbriel-model.el` in `~/.config/emacs`,
+  `dl-umbriel-model--placement`) shows a bare `tile` for every master-layout
+  window.
+
+Internally the layout knows (`src/layout/master.h`): `MasterStackLayout` holds
+`m_master`, `m_stack` and, in center mode only, `m_secondStack` (the right
+stack). Its `columns()` view orders the non-empty areas by screen position
+(`orderedAreas()`), so a column index doesn't identify the master either.
+Area membership, unlike a column index, changes only on a swap, promote or
+demote, so it does hold still.
+
+**Proposal:** a window field `area`:
+
+| value | meaning |
+|---|---|
+| `"master"` | in `m_master` |
+| `"stack"` | in `m_stack` (in center mode, the left stack) |
+| `"stack_right"` | in `m_secondStack` (center mode only) |
+| `null` | floating, or another layout |
+
+Plus `area_row`, the window's place within its area from 0 (`-1` with a null
+`area`), and a workspace field `master_count` (`m_master.views.size()`, `0`
+outside master). The `windows` and `workspaces` events carry them; a change of
+area already moves the window, so the `windows` event fires anyway.
+
+Implementation: next to `column`/`row` in `ipc_commands.cpp`, through
+`Workspace::masterLayout()` (needs a const overload) and a
+`MasterStackLayout::areaOf(const View*)` that returns the area and row. Docs:
+the window field table in `docs/user/ipc.md`. Test: an IPC harness check that
+promotes, demotes and swaps across areas with `position = "center"`.
+
+Then: `scripts/swap-master` reads `area` instead of geometry, and the Emacs
+list shows `master 0` / `stack 1` / `stack_right 0` in its placement cell.
+
+No upstream issue or PR found (searched 2026-11-09). Related: #704 (cap the
+master area at N windows, swap on drop), which also turns on master-area
+membership.

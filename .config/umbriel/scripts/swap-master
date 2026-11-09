@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Swap the focused window with the other column of a master layout.
 
-Usage: swap-master
+Usage: swap-master [left|right]
 
 On the master this swaps into the stack; on a stack window, with the master.
-With the master on either side, the other column is to the left exactly when
-any tiled window on the workspace lies wholly to the left of the focused one,
-so the master's side needs no detecting. Native window-swap-left/right pick the
-window in that column (from the master: the stack row nearest its middle).
-Assumes one master and position "left" or "right"; with "center" the master
-always swaps left.
+The swap goes toward the side that has tiled windows on this workspace, so the
+master's position needs no detecting. Only a center master has windows on both
+sides; it swaps toward the named side (default left). Native
+window-swap-left/right pick the window in that column (from the master: the
+stack row nearest its middle). Assumes one master.
 """
 
 import json
@@ -17,21 +16,25 @@ import subprocess
 import sys
 
 
-def action(windows):
+def action(windows, side="left"):
     """The `umbriel msg` action for one press, or None with nothing focused."""
     focused = next((w for w in windows if w["active"]), None)
     if focused is None:
         return None
-    left = any(
-        w["workspace"] == focused["workspace"] and not w["floating"] and w["x"] + w["w"] <= focused["x"]
-        for w in windows
-    )
+    tiles = [w for w in windows if w["workspace"] == focused["workspace"] and not w["floating"]]
+    left = any(w["x"] + w["w"] <= focused["x"] for w in tiles)
+    right = any(w["x"] >= focused["x"] + focused["w"] for w in tiles)
+    if left and right:
+        return f"window-swap-{side}"
     return "window-swap-left" if left else "window-swap-right"
 
 
 def main():
+    side = sys.argv[1] if len(sys.argv) > 1 else "left"
+    if side not in ("left", "right"):
+        sys.exit(f"usage: swap-master [left|right], not {side!r}")
     windows = json.loads(subprocess.check_output(["umbriel", "windows", "--json"]))
-    chosen = action(windows)
+    chosen = action(windows, side)
     if chosen:
         subprocess.run(["umbriel", "msg", chosen], check=True)
     return 0

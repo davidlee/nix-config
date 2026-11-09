@@ -12,6 +12,11 @@ extent_presets = [0.2, 0.25, 0.33333, 0.4, 0.66667, 0.8, 1]
 default_extent_fraction = 0.2
 center_focused = "on_overflow"
 
+[layout.master]
+position = "center"
+default_width_fraction = 0.6
+new_becomes_master = true
+
 # --- workspaces -------------------------------------------------------
 # A named entry materializes a persistent workspace on every dynamic output.
 # More are generated into workspaces.toml by scripts/named-workspace.

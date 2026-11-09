@@ -131,7 +131,7 @@ frame named `umbriel-controller` running `my/umbriel`, 900x700, floating.
   visible. Read from the code and a live `focused_window` value; no row action
   was run from the pad.
 
-## 2026-11-09: `Mod+Ctrl+Return` swaps with the master
+## 2026-11-09: `Mod+Alt+Return` swaps with the master
 
 `scripts/swap-master` sends native `window-swap-left` when any tiled window on
 the workspace lies wholly left of the focused one, else `window-swap-right`.
@@ -147,8 +147,11 @@ into the stack, stack window with the master. Tests:
   vertical centre (`layout.cpp` `directionalNeighbor`), not a chosen window,
   so swapping back after a swap only works when that row is the one you came
   from. Fixing that needs the upstream action (UPSTREAM.md).
-- Wrong with `position = "center"` (master always swaps left) or more than
-  one master.
+- Wrong with more than one master.
+- Center mode (`position = "center"`): a stack window has tiles on one side
+  only and swaps toward the master. The master has tiles on both sides, so it
+  swaps toward a named side: `swap-master [left|right]`, default left.
+  `Mod+Alt+Return` swaps left, `Mod+Alt+Shift+Return` right. Tests: 11.
 - `Mod+Return` is `spawn ghostty` (apps.toml).
 - Workspace `DP-3:2` looked like 4 masters and 1 stack window (four narrow
   windows left, one wide right; the default `position = "left"` puts masters

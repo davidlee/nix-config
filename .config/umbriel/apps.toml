@@ -6,6 +6,8 @@
 
 [keybinds]
 "Mod+Return" = "spawn ghostty"
+"Ctrl+Shift+grave" = "spawn ghostty +toggle-quick-terminal"
+
 "Mod+Shift+Return" = "spawn firefox"
 "Ctrl+Alt+Shift+L" = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c "#ff7700"'
 
