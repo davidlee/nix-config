@@ -1,0 +1,7 @@
+[[plugin.deps]]
+use = "imsi32/yatline"
+rev = "dc44b73"
+hash = "fa488655544e367e5439a9748d28519e"
+
+[flavor]
+deps = []

@@ -1,4 +1,62 @@
-[mgr]
-append_keymap = [
-	{on = ["e"], run = "nvim %e"}
-]
+# Additions to the default keymap; `~` (F1) lists every binding.
+# Defaults: https://github.com/sxyazi/yazi/blob/main/yazi-config/preset/keymap-default.toml
+
+[[mgr.prepend_keymap]]
+on = "e"
+run = 'shell --block -- ${EDITOR:-nvim} %s'
+desc = "Edit selected files"
+
+[[mgr.prepend_keymap]]
+on = "l"
+run = "plugin smart-enter"
+desc = "Enter directory or open file"
+
+[[mgr.prepend_keymap]]
+on = "F"
+run = "plugin smart-filter"
+desc = "Smart filter"
+
+[[mgr.prepend_keymap]]
+on = "T"
+run = "plugin toggle-pane max-preview"
+desc = "Maximise / restore preview"
+
+[[mgr.prepend_keymap]]
+on = "+"
+run = "plugin zoom 1"
+desc = "Zoom in image"
+
+[[mgr.prepend_keymap]]
+on = "="
+run = "plugin zoom -1"
+desc = "Zoom out image"
+
+[[mgr.prepend_keymap]]
+on = "<C-y>"
+run = "plugin wl-clipboard"
+desc = "Copy selected files to clipboard"
+
+[[mgr.prepend_keymap]]
+on = "C"
+run = "plugin ouch"
+desc = "Compress (format from extension, default zip)"
+
+[[mgr.prepend_keymap]]
+on = ["c", "m"]
+run = "plugin chmod"
+desc = "Chmod selected files"
+
+[[mgr.prepend_keymap]]
+on = "u"
+run = "plugin restore"
+desc = "Restore last trashed files"
+
+[[mgr.prepend_keymap]]
+on = ["g", "i"]
+run = "plugin lazygit"
+desc = "lazygit"
+
+[[mgr.prepend_keymap]]
+on = ["g", "j"]
+run = "plugin jjui"
+desc = "jjui"

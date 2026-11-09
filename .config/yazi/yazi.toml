@@ -1,0 +1,26 @@
+# Overrides only; defaults: https://github.com/sxyazi/yazi/blob/main/yazi-config/preset/yazi-default.toml
+
+[mgr]
+show_hidden = true
+linemode = "size"
+
+# git.yazi: status signs in the file list
+[[plugin.prepend_fetchers]]
+url = "*"
+run = "git"
+group = "git"
+
+[[plugin.prepend_fetchers]]
+url = "*/"
+run = "git"
+group = "git"
+
+# piper.yazi: directory tree with eza
+[[plugin.prepend_previewers]]
+url = "*/"
+run = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-first --no-quotes "$1"'
+
+# piper.yazi: render markdown with glow
+[[plugin.prepend_previewers]]
+url = "*.md"
+run = 'piper -- CLICOLOR_FORCE=1 glow -w=$w -s=dark "$1"'

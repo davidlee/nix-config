@@ -22,6 +22,7 @@ in [
           xplr
           lf
           superfile
+          ouch # yazi ouch plugin backend
 
           ## ls is more
           eza
@@ -39,16 +40,27 @@ in [
         ];
 
       # From the home base (DEC-042).
+      # Nix supplies plugin code only. Config (yazi.toml, keymap.toml,
+      # init.lua) lives as plain files in the ~ dotfiles repo; plugins
+      # missing or broken in nixpkgs (yatline) come from `ya pkg`.
       programs.yazi = {
         enable = true;
         plugins = with pkgs.yaziPlugins; {
-          jjui.package = jjui;
-          lazygit.package = lazygit;
-          glow.package = glow;
-          wl-clipboard.package = wl-clipboard;
-          zoom.package = zoom;
-          smart-enter.package = smart-enter;
-          toggle-pane.package = toggle-pane;
+          inherit
+            chmod
+            full-border
+            git
+            jjui
+            lazygit
+            ouch
+            piper
+            restore
+            smart-enter
+            smart-filter
+            toggle-pane
+            wl-clipboard
+            zoom
+            ;
         };
         shellWrapperName = "y";
       };
