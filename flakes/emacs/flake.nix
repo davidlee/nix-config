@@ -7,11 +7,15 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     emacs-overlay.url = "github:nix-community/emacs-overlay";
+    # Nested Wayland compositor for Emacs: its elisp joins the package list
+    # and its binary is re-exported, both from this one pin so they match.
+    emskin.url = "github:davidlee/emskin";
   };
 
   outputs = {
     nixpkgs,
     emacs-overlay,
+    emskin,
     ...
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -23,9 +27,13 @@
           overlays = [emacs-overlay.overlays.default];
         }));
   in {
-    packages = forAll (pkgs: rec {
-      emacs = import ./emacs.nix {inherit pkgs;};
-      default = emacs;
-    });
+    packages = forAll (pkgs:
+      rec {
+        emacs = import ./emacs.nix {inherit pkgs emskin;};
+        default = emacs;
+      }
+      // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+        emskin = emskin.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      });
   };
 }

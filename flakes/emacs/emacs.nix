@@ -1,4 +1,7 @@
-{pkgs}: let
+{
+  pkgs,
+  emskin,
+}: let
   emacsPackage =
     if pkgs.stdenv.hostPlatform.isDarwin
     then
@@ -15,7 +18,10 @@
           ln -s "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" "$iconDir/Emacs.icns"
         '';
       })
-    else pkgs.emacs-unstable-pgtk;
+    # emacs-overlay's mkGitEmacs forces withXwidgets = false, masking the
+    # nixpkgs default that NixOS/nixpkgs#512124 re-enabled for Emacs != 30.
+    # Drop the override once the overlay stops forcing it.
+    else pkgs.emacs-unstable-pgtk.override {withXwidgets = true;};
 
   emacsPackages = pkgs.emacsPackagesFor emacsPackage;
 in
@@ -182,6 +188,7 @@ in
           org-alert
           org-notify
           outline-indent
+
           package-lint
           package-lint-flymake
           persp-mode
@@ -257,6 +264,9 @@ in
           # nushell-ts-babel
         ]
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin) [
+          # Elisp client for emskin (the compositor binary comes from
+          # packages.emskin, same flake input). Loaded by apps/dl-emskin.el.
+          (emskin.lib.mkEmacsPackage epkgs)
           #eaf-with-reinput
           # Not on darwin: mac port 30.2.50's package--description-file (a C
           # primitive) mis-strips package names ending in a bare digit —

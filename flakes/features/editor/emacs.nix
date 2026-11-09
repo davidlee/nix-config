@@ -11,13 +11,16 @@
   }: let
     # From flakes/emacs, not built against this host's pkgs: the same
     # derivation the ~/.config/emacs devshell runs.
-    emacs = inputs.emacs.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    emacsOutputs = inputs.emacs.packages.${pkgs.stdenv.hostPlatform.system};
+    emacs = emacsOutputs.default;
     available = import ../available.nix lib;
   in {
     home.packages =
       [
         emacs
       ]
+      # Nested compositor for Emacs; its elisp is already in `emacs`.
+      ++ lib.optional (emacsOutputs ? emskin) emacsOutputs.emskin
       ++ (with pkgs; [
         emacsclient-commands
         zmx # session restore (IMP-001)
