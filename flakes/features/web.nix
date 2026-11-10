@@ -13,13 +13,30 @@
       # globalExtensions installs by addonId, which foxmacs' packages lack.
       withAddonId = addonId: pkg:
         pkg.overrideAttrs (old: {passthru = (old.passthru or {}) // {inherit addonId;};});
+      # Dev Edition answers to `firefox` and firefox.desktop (the launcher
+      # name, and what mimeapps.list hands links to); its own entry is hidden.
+      devedition = config.programs.firefox.finalPackage;
+      deveditionDesktop = "${devedition}/share/applications/firefox-devedition.desktop";
+      editDesktop = name: script:
+        pkgs.runCommand name {} "sed ${pkgs.lib.escapeShellArg script} ${deveditionDesktop} > $out";
     in {
+      xdg.dataFile = {
+        "applications/firefox.desktop".source =
+          editDesktop "firefox.desktop" "s/^Name=Firefox Developer Edition$/Name=Firefox/";
+        "applications/firefox-devedition.desktop".source =
+          editDesktop "firefox-devedition.desktop" "/^\\[Desktop Entry\\]$/a NoDisplay=true";
+      };
+
       home.packages = with pkgs; [
         # (callPackage ../../../packages/helium.nix {})
         # ladybird
         vivaldi
         ungoogled-chromium
         epiphany
+        (runCommand "firefox-command" {} ''
+          mkdir -p $out/bin
+          ln -s ${devedition}/bin/firefox-devedition $out/bin/firefox
+        '')
       ];
 
       programs = {
