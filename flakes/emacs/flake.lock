@@ -58,6 +58,26 @@
         "url": "https://codeberg.org/ezemtsov/ewm"
       }
     },
+    "foxmacs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793835091,
+        "narHash": "sha256-DQY2ZWcUqKiNamKNItWwoZRoXk80Es8bQ1rmYXjRudo=",
+        "owner": "adisbladis",
+        "repo": "foxmacs",
+        "rev": "aca5229cc90ab4b0d55b49b2a776a63f7cfb8423",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adisbladis",
+        "repo": "foxmacs",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1794042290,
@@ -127,6 +147,7 @@
         "emacs-overlay": "emacs-overlay",
         "emskin": "emskin",
         "ewm": "ewm",
+        "foxmacs": "foxmacs",
         "nixpkgs": "nixpkgs_3"
       }
     },

@@ -52,6 +52,8 @@
         emskin.follows = "emskin";
         # Root-level so the module and the elisp share one pin.
         ewm.follows = "ewm";
+        # Root-level so the elisp, extension and host share one pin.
+        foxmacs.follows = "foxmacs";
       };
     };
 
@@ -64,6 +66,13 @@
     # in the emacs package list (through the emacs input).
     ewm = {
       url = "git+https://codeberg.org/ezemtsov/ewm";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Firefox control from Emacs under EWM. One pin for its elisp (through the
+    # emacs input) and its extension + native messaging host (features/web.nix).
+    foxmacs = {
+      url = "github:adisbladis/foxmacs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

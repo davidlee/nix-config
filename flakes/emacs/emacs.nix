@@ -2,6 +2,7 @@
   pkgs,
   emskin,
   ewm,
+  foxmacs,
 }: let
   emacsPackage =
     if pkgs.stdenv.hostPlatform.isDarwin
@@ -284,6 +285,11 @@ in
         # requires and starts ewm itself. Absent when `just isolation` stubs it.
         ++ pkgs.lib.optionals (pkgs.stdenv.hostPlatform.isLinux && ewm ? overlays) [
           ((ewm.overlays.default pkgs pkgs).ewm.override {inherit emacsPackage;})
+        ]
+        # foxmacs: Firefox control from Emacs, usable only under EWM. Loaded
+        # by apps/dl-foxmacs.el; its extension and host come from features/web.nix.
+        ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+          (foxmacs.lib.emacsOverlay epkgs epkgs).foxmacs
         ]
         ++ (with pkgs; [ditaa])
   )

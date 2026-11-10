@@ -187,6 +187,7 @@
       "1password/custom_allowed_browsers" = {
         text = ''
           firefox
+          firefox-devedition
           librewolf
           floorp
           vivaldi-bin

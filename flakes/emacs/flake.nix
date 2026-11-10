@@ -16,6 +16,13 @@
       url = "git+https://codeberg.org/ezemtsov/ewm";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Firefox control under EWM: its elisp joins the package list here; its
+    # extension and native messaging host reach Firefox through the root
+    # flake's input of the same name (features/web.nix).
+    foxmacs = {
+      url = "github:adisbladis/foxmacs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -23,6 +30,7 @@
     emacs-overlay,
     emskin,
     ewm,
+    foxmacs,
     ...
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -36,7 +44,7 @@
   in {
     packages = forAll (pkgs:
       rec {
-        emacs = import ./emacs.nix {inherit pkgs emskin ewm;};
+        emacs = import ./emacs.nix {inherit pkgs emskin ewm foxmacs;};
         default = emacs;
       }
       # Linux-only, and absent when `just isolation` stubs the input.
