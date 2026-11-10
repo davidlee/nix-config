@@ -1,0 +1,34 @@
+{
+  "version": 3,
+  "skills": {
+    "ste80-humanizer": {
+      "source": "Dodaios/ste80-humanizer",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/Dodaios/ste80-humanizer.git",
+      "skillPath": "SKILL.md",
+      "skillFolderHash": "edcc92ef2654af63aadf57f377ac9a6b1ce7acd8",
+      "pluginName": "ste80-humanizer",
+      "installedAt": "2026-11-10T03:50:54.570Z",
+      "updatedAt": "2026-11-10T03:50:54.570Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "cline",
+    "codex",
+    "cursor",
+    "droid",
+    "fx",
+    "gemini-cli",
+    "github-copilot",
+    "kilo",
+    "kimi-code-cli",
+    "opencode",
+    "pi",
+    "warp",
+    "zed"
+  ]
+}
