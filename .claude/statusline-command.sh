@@ -135,9 +135,16 @@ if [ -n "$cw" ] || [ -n "$cr" ]; then
   cache_stats=$(printf ' \302\267 \342\232\241 %dk/%dk %b%d%%\033[0m' "$cr_k" "$cw_k" "$rc" "$ratio")
 fi
 
-# Order: ctx · cache · model git · cwd.
+# zmx session pill: green = inside a zmx session; red "zmx" = not inside one.
+if [ -n "$ZMX_SESSION" ]; then
+  zmx_pill=$(printf '\033[30;48;5;22m %s \033[0m' "$ZMX_SESSION") # black on dark green
+else
+  zmx_pill=$(printf '\033[97;41m zmx \033[0m') # white on red
+fi
+
+# Order: ctx · cache · model git · cwd · zmx.
 # %b only for model_display — it still holds literal \033 escapes to expand.
-# ctx_display/cache_stats/git_count are already printf-expanded (raw ESC bytes) → %s.
-# cache_stats and git_count carry their own leading ' \302\267 ' dot; only model and cwd
-# need an explicit separator, so no dot precedes the self-prefixed segments (no doubling).
-printf '%s%s \302\267 %b%s \302\267 %s' "$ctx_display" "$cache_stats" "$model_display" "$git_count" "${cwd:-$(pwd)}"
+# ctx_display/cache_stats/git_count/zmx_pill are already printf-expanded (raw ESC bytes) → %s.
+# cache_stats and git_count carry their own leading ' \302\267 ' dot; only model, cwd
+# and zmx need an explicit separator, so no dot precedes the self-prefixed segments (no doubling).
+printf '%s%s \302\267 %b%s \302\267 %s \302\267 %s' "$ctx_display" "$cache_stats" "$model_display" "$git_count" "${cwd:-$(pwd)}" "$zmx_pill"

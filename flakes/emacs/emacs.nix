@@ -3,6 +3,7 @@
   emskin,
   ewm,
   foxmacs,
+  excali-mode,
 }: let
   emacsPackage =
     if pkgs.stdenv.hostPlatform.isDarwin
@@ -20,12 +21,13 @@
           ln -s "$out/Applications/Emacs.app/Contents/Resources/Emacs.icns" "$iconDir/Emacs.icns"
         '';
       })
+    # Emacs master (32.0.50): excali-mode needs its canvas image type.
     # emacs-overlay's mkGitEmacs forces withXwidgets = false, masking the
     # nixpkgs default that NixOS/nixpkgs#512124 re-enabled for Emacs != 30.
     # Drop the override once the overlay stops forcing it.
     # Cost: the overridden derivation is not in the binary cache, so every
     # emacs-overlay bump rebuilds Emacs from source (and adds webkitgtk).
-    else pkgs.emacs-unstable-pgtk.override {withXwidgets = true;};
+    else pkgs.emacs-git-pgtk.override {withXwidgets = true;};
 
   emacsPackages = pkgs.emacsPackagesFor emacsPackage;
 in
@@ -290,6 +292,11 @@ in
         # by apps/dl-foxmacs.el; its extension and host come from features/web.nix.
         ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           (foxmacs.lib.emacsOverlay epkgs epkgs).foxmacs
+        ]
+        # excali-mode: Excalidraw drawings on Emacs Canvas (Emacs 32 only, so
+        # not the darwin macport). Loaded by apps/dl-excali.el.
+        ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin && excali-mode ? lib) [
+          (excali-mode.lib.mkEmacsPackage epkgs)
         ]
         ++ (with pkgs; [ditaa])
   )

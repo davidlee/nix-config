@@ -23,6 +23,9 @@
       url = "github:adisbladis/foxmacs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Excalidraw on Emacs Canvas: elisp plus a Cairo/Pango module built
+    # against this Emacs. Needs Emacs 32 (the canvas image type).
+    excali-mode.url = "github:davidlee/excali-mode/nix-flake";
   };
 
   outputs = {
@@ -31,6 +34,7 @@
     emskin,
     ewm,
     foxmacs,
+    excali-mode,
     ...
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -44,7 +48,7 @@
   in {
     packages = forAll (pkgs:
       rec {
-        emacs = import ./emacs.nix {inherit pkgs emskin ewm foxmacs;};
+        emacs = import ./emacs.nix {inherit pkgs emskin ewm foxmacs excali-mode;};
         default = emacs;
       }
       # Linux-only, and absent when `just isolation` stubs the input.
