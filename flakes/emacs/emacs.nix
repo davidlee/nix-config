@@ -285,4 +285,5 @@ in
         ++ pkgs.lib.optionals (pkgs.stdenv.hostPlatform.isLinux && ewm ? overlays) [
           ((ewm.overlays.default pkgs pkgs).ewm.override {inherit emacsPackage;})
         ]
+        ++ (with pkgs; [ditaa])
   )
