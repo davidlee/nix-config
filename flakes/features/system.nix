@@ -40,4 +40,15 @@ in [
       ]);
     };
   }
+
+  # Boot and shutdown progress (codeberg.org/wvhulle/bootvine). Shows the
+  # initrd stage too, since the initrd runs systemd (the default since NixOS
+  # 26.05).
+  {
+    name = "bootvine";
+    nixos = {inputs, ...}: {
+      imports = [inputs.bootvine.nixosModules.default];
+      services.bootvine.enable = true;
+    };
+  }
 ]

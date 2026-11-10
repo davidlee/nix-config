@@ -58,6 +58,7 @@
     zed.enable = true;
     lem.enable = true;
   };
+  feature.system.bootvine.enable = true;
   feature.notes.joplin.enable = true;
   feature.ai.claude-desktop.enable = true;
 

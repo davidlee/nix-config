@@ -275,7 +275,7 @@ features/
   files.nix           [ manage disk archive search sync locate ]
   net.nix             [ tools tailscale ]             tailscale: linux only
   web.nix             [ browsers terminal ]
-  system.nix          [ monitor process ]
+  system.nix          [ monitor process bootvine ]  bootvine: nixos only
   text.nix            [ tools pagers dictionary ]
   office.nix          [ calc calendar ]
   security.nix        [ credentials research ]

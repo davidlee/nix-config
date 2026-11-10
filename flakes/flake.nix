@@ -109,6 +109,11 @@
       inputs.nixpkgs.follows = "nixpkgs-home";
     };
 
+    bootvine = {
+      url = "git+https://codeberg.org/wvhulle/bootvine";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Follows agents' pin, like llm-agents, so the host and every jail share one
     # zmux: bump it in agents (`nix flake update zmux`), then
     # `nix flake update agents` here. Not a dev checkout: every home takes its
