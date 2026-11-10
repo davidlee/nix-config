@@ -117,8 +117,12 @@ default_floating         = true
 default_focused          = true
 default_pinned           = true
 
+# emacs
+[[window_rule]]
+match.app_id             = "^emacs$"
+default_fullscreen       = true
 
-# emacs / umbriel rule
+# umbriel-controller
 [[window_rule]]
 match.app_id             = "^emacs$"
 match.title              = "^umbriel-controller$"
@@ -127,3 +131,4 @@ default_floating         = true
 default_focused          = true
 default_fullscreen       = false
 default_floating_size_px = { width = 900, height = 700 }
+

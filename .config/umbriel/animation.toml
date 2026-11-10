@@ -39,11 +39,15 @@ style = "zoom"
 [animation.windows_move]
 duration_ms = 120
 curve = "easeinout"
-effect = "squash"
+# effect = "reveal"
 
 [animation.windows_resize]
-wait_for_redraw = true
-enabled = false
+enabled = true
+duration_ms = 120
+curve = "easeinout"
+
+#wait_for_redraw = true
+#enabled = false
 
 [animation.workspaces]
 curve = "spring:0.9,800"

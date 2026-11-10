@@ -19,25 +19,33 @@
 "Mod+End"                  = "column-focus-last"
 
 # --- move -------------------------------------------------------------
-"Mod+Shift+Left"           = "column-move-left"
+"Mod+Shift+Left"           = "window-move-left"
 "Mod+Shift+Down"           = "window-move-down"
 "Mod+Shift+Up"             = "window-move-up"
-"Mod+Shift+Right"          = "column-move-right"
+"Mod+Shift+Right"          = "window-move-right"
+
+
+# --- column move --------------------------------------------------
+
+"Mod+Control+Left"   = "column-move-left"
+# "Mod+Control+Shift+Down"   = "column-move-down"
+# "Mod+Control+Shift+Up"     = "column-move-up"
+"Mod+Control+Right"  = "column-move-right"
 
 "Mod+Alt+Home"             = "column-move-to-first"
 "Mod+Alt+End"              = "column-move-to-last"
 
 # --- swap ---------------------------------------------------------
 
-"Ctrl+Alt+Shift+Left"      = "window-swap-left"
-"Ctrl+Alt+Shift+Down"      = "window-swap-down"
-"Ctrl+Alt+Shift+Up"        = "window-swap-up"
-"Ctrl+Alt+Shift+Right"     = "window-swap-right"
-
 "Mod+Alt+Left"             = "window-swap-left"
 "Mod+Alt+Down"             = "window-swap-down"
 "Mod+Alt+Up"               = "window-swap-up"
 "Mod+Alt+Right"            = "window-swap-right"
+
+"Ctrl+Alt+Shift+Left"      = "window-swap-left"
+"Ctrl+Alt+Shift+Down"      = "window-swap-down"
+"Ctrl+Alt+Shift+Up"        = "window-swap-up"
+"Ctrl+Alt+Shift+Right"     = "window-swap-right"
 
 # Swap with the master, or from the master into the stack (its middle row:
 # native swaps target by geometry). A center master has a stack each side:
@@ -49,10 +57,10 @@
 "Mod+Ctrl+Shift+Return"    = "window-swap-next"
 
 # --- monitors ---------------------------------------------------------
-"Mod+Ctrl+Left"            = "output-focus-left"
-"Mod+Ctrl+Down"            = "output-focus-down"
-"Mod+Ctrl+Up"              = "output-focus-up"
-"Mod+Ctrl+Right"           = "output-focus-right"
+"Mod+Ctrl+Shift+Left"            = "output-focus-left"
+"Mod+Ctrl+Shift+Down"            = "output-focus-down"
+"Mod+Ctrl+Shift+Up"              = "output-focus-up"
+"Mod+Ctrl+Shift+Right"           = "output-focus-right"
 
 "Mod+Alt+Ctrl+Shift+Left"  = "column-move-to-output-left"
 "Mod+Alt+Ctrl+Shift+Down"  = "column-move-to-output-down"
