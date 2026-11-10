@@ -58,6 +58,22 @@
         "url": "https://codeberg.org/ezemtsov/ewm"
       }
     },
+    "excali-mode": {
+      "locked": {
+        "lastModified": 1794287144,
+        "narHash": "sha256-n26UhNP+EXWciJKMjOiy3cdS9e4BM56tzQ3AUf0iupY=",
+        "owner": "davidlee",
+        "repo": "excali-mode",
+        "rev": "97e7ab1d758521ca5cb2dc0d83d6e7003f64f006",
+        "type": "github"
+      },
+      "original": {
+        "owner": "davidlee",
+        "ref": "nix-flake",
+        "repo": "excali-mode",
+        "type": "github"
+      }
+    },
     "foxmacs": {
       "inputs": {
         "nixpkgs": [
@@ -147,6 +163,7 @@
         "emacs-overlay": "emacs-overlay",
         "emskin": "emskin",
         "ewm": "ewm",
+        "excali-mode": "excali-mode",
         "foxmacs": "foxmacs",
         "nixpkgs": "nixpkgs_3"
       }

@@ -18,8 +18,8 @@ position = "center"
 default_width_fraction = 0.6
 new_becomes_master = true
 
-[layout.dwindle]
-preserve_split = false
+#[layout.dwindle]
+#preserve_split = false
 #new_towards_cursor = false
 
 # --- workspaces -------------------------------------------------------
