@@ -44,12 +44,18 @@
       VISUAL = "emacsclient -c";
     };
 
+    # The daemon lives and dies with the graphical session: PGTK Emacs exits
+    # when its compositor goes, so it starts (and restarts) only once the
+    # compositor has imported WAYLAND_DISPLAY / UMBRIEL_SOCKET into systemd.
+    # Requisite stops Restart=on-failure reviving it while the session is down.
     services = {
       emacs = {
         client.enable = true;
         enable = true;
         package = emacs;
+        startWithUserSession = "graphical";
       };
     };
+    systemd.user.services.emacs.Unit.Requisite = ["graphical-session.target"];
   };
 }
