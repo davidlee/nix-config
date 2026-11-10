@@ -39,6 +39,14 @@ source $HOME/.config/zsh/functions.zsh
 source $HOME/.config/zsh/functions/fzf.zsh
 source $HOME/.config/zsh/aliases.zsh
 
+# ~/.zshrc
+
+if [[ $WAYLAND_DISPLAY == *ewm* ]]; then
+    # include script
+    # source /path/to/ewm/etc/emacs-ewm.zsh
+fi
+
+
 #
 # fix word-style
 #
