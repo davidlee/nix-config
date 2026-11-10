@@ -262,7 +262,7 @@ features/
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file
   desktop/core/       wayland.nix  xdg.nix  gui.nix …  home.nix   modules the core record imports; home.nix its home half
-  compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ]   each requires desktop.core
+  compositor.nix      [ (import ./compositor/sway.nix) niri cosmic kde mango umbriel ewm ]   each requires desktop.core
   compositor/         sway.nix
   desktop-shell.nix   [ noctalia walker ]
   editor.nix          [ (import ./editor/emacs.nix) neovim kakoune misc zed lem ]

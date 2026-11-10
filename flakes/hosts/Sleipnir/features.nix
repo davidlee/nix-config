@@ -75,5 +75,6 @@
     kde.enable = false;
     mango.enable = false;
     umbriel.enable = true;
+    ewm.enable = true;
   };
 }

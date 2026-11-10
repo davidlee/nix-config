@@ -38,6 +38,26 @@
         "type": "github"
       }
     },
+    "ewm": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794072362,
+        "narHash": "sha256-cnPBlgeGPbiCSnsR52ZS0Q6XFP4AYKu7zqZjDJ7Ikew=",
+        "ref": "refs/heads/master",
+        "rev": "9c5325e0fa3977b9577bad2b51acacae59a6ddc7",
+        "revCount": 1254,
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1794042290,
@@ -106,6 +126,7 @@
       "inputs": {
         "emacs-overlay": "emacs-overlay",
         "emskin": "emskin",
+        "ewm": "ewm",
         "nixpkgs": "nixpkgs_3"
       }
     },

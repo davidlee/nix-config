@@ -45,15 +45,27 @@
     # an emacs.nix edit lands without a push.
     emacs = {
       url = "github:davidlee/nix-config?dir=flakes/emacs";
-      # Override the upstream flake's moving tarball with a revision-locked fetch.
-      inputs.emacs-overlay.url = "github:nix-community/emacs-overlay";
-      # Root-level so dev-checkouts can override it with ~/dev/emskin.
-      inputs.emskin.follows = "emskin";
+      inputs = {
+        # Override the upstream flake's moving tarball with a revision-locked fetch.
+        emacs-overlay.url = "github:nix-community/emacs-overlay";
+        # Root-level so dev-checkouts can override it with ~/dev/emskin.
+        emskin.follows = "emskin";
+        # Root-level so the module and the elisp share one pin.
+        ewm.follows = "ewm";
+      };
     };
 
     # Nested Wayland compositor for Emacs: its elisp and binary reach homes
     # through the emacs input. Own pins, like emacs: not following nixpkgs.
     emskin.url = "github:davidlee/emskin";
+
+    # Emacs Wayland Manager: Emacs as the compositor. One pin for both halves:
+    # its NixOS module here (features/compositor.nix) and its elisp + module
+    # in the emacs package list (through the emacs input).
+    ewm = {
+      url = "git+https://codeberg.org/ezemtsov/ewm";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # PrismML llama.cpp fork, for Bonsai's ternary formats. To bump: change the
     # release tag, `nix flake update llama-cpp-prism-src`, then re-derive

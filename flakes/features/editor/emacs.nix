@@ -56,6 +56,13 @@
         startWithUserSession = "graphical";
       };
     };
-    systemd.user.services.emacs.Unit.Requisite = ["graphical-session.target"];
+    # In an EWM session Emacs is the compositor (ewm.service) and holds the
+    # default server socket, so this daemon is skipped there. Not Conflicts=:
+    # that is symmetric, and the session target starting this unit would stop
+    # ewm. ewm-session imports XDG_CURRENT_DESKTOP=ewm before the target.
+    systemd.user.services.emacs.Unit = {
+      Requisite = ["graphical-session.target"];
+      ConditionEnvironment = "!XDG_CURRENT_DESKTOP=ewm";
+    };
   };
 }

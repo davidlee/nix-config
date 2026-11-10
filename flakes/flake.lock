@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794266269,
-        "narHash": "sha256-tA2PAcyuuLnHW0BTaTMKd73eq3k+0Qmexukz34Zc7sI=",
+        "lastModified": 1794266419,
+        "narHash": "sha256-d+JqfROpvaDst/Hjxh4l8FeupuYh1YgJzyUPt/H2cRE=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "e006479aabfce092de10470a51ba385956caada4",
+        "rev": "89b2337418533af87cc23dd41a5bfada08e432f1",
         "type": "github"
       },
       "original": {
@@ -1723,11 +1723,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1794266269,
-        "narHash": "sha256-tA2PAcyuuLnHW0BTaTMKd73eq3k+0Qmexukz34Zc7sI=",
+        "lastModified": 1794266419,
+        "narHash": "sha256-d+JqfROpvaDst/Hjxh4l8FeupuYh1YgJzyUPt/H2cRE=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "e006479aabfce092de10470a51ba385956caada4",
+        "rev": "89b2337418533af87cc23dd41a5bfada08e432f1",
         "type": "github"
       },
       "original": {
@@ -1936,6 +1936,26 @@
         "owner": "davidlee",
         "repo": "emskin",
         "type": "github"
+      }
+    },
+    "ewm": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794072362,
+        "narHash": "sha256-cnPBlgeGPbiCSnsR52ZS0Q6XFP4AYKu7zqZjDJ7Ikew=",
+        "ref": "refs/heads/master",
+        "rev": "9c5325e0fa3977b9577bad2b51acacae59a6ddc7",
+        "revCount": 1254,
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://codeberg.org/ezemtsov/ewm"
       }
     },
     "flake-compat": {
@@ -3068,11 +3088,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794256939,
-        "narHash": "sha256-HmL/7YzHBLPYZ1txCYabxFOpNdd/BLZ27Jn/bJic5d4=",
+        "lastModified": 1794266476,
+        "narHash": "sha256-jCbyopNOGlGBpUHC0V9F6HRldgqweRcKtSxPMT6neOo=",
         "ref": "refs/heads/main",
-        "rev": "40aac7d2defafcbabfe778e99574487323ce20fe",
-        "revCount": 61,
+        "rev": "28a7586e43cd4bf2f83053ebffc36b2c64f8e3de",
+        "revCount": 62,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -3213,11 +3233,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794252721,
-        "narHash": "sha256-sD1rhEjMghSyWSUG2xEOw+FOVd2wnoWwi/809w8fRkI=",
+        "lastModified": 1794260194,
+        "narHash": "sha256-jmaqtyhtPFNgK52WZo33PRvNPPs8AjOWBeCc07nTAM8=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "f1db7c474bb49babfe9d8def532939e0c7404327",
+        "rev": "a9752a621164e9f84eb2a15858f1d54fd3cedab8",
         "type": "github"
       },
       "original": {
@@ -3939,11 +3959,11 @@
       },
       "locked": {
         "dir": "flakes/dev-tools",
-        "lastModified": 1794256882,
-        "narHash": "sha256-+eMDzoFRilJLYmpV13fF5nbweE6Rkdli7omoul23i3I=",
+        "lastModified": 1794266419,
+        "narHash": "sha256-d+JqfROpvaDst/Hjxh4l8FeupuYh1YgJzyUPt/H2cRE=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "5939019a722da330241e82f2359c75f48ed7f2c7",
+        "rev": "89b2337418533af87cc23dd41a5bfada08e432f1",
         "type": "github"
       },
       "original": {
@@ -5958,11 +5978,11 @@
         "zig-overlay": "zig-overlay_3"
       },
       "locked": {
-        "lastModified": 1794222001,
-        "narHash": "sha256-NOCP7pQuPpQqRYfIESJ5hcJrXC+g3x8mSjVmh9UQseo=",
+        "lastModified": 1794265202,
+        "narHash": "sha256-JjwuCKUmw07+8/wGdyYozhoi96UgSKGkxoyvdlEhI4M=",
         "ref": "refs/heads/main",
-        "rev": "43dad5736df1e3a4ee395c80312256eccfe0308b",
-        "revCount": 207,
+        "rev": "76cfd97c2351294c106c9ebc106a3139e7f38886",
+        "revCount": 209,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/notes"
       },
@@ -6075,11 +6095,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1794255645,
-        "narHash": "sha256-KsnNrMPZfZLd49lHYYF3tTkGP3jBj7BYZGPdwJvSQY4=",
+        "lastModified": 1794266168,
+        "narHash": "sha256-MBiGB8pZ8tR7kN1zvPcFRxwGoU0OXllXRM7S2pjA0QY=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "c9dd2c530160a2c698959771955a682b2b0c5161",
+        "rev": "4ea8837927564c592b1d184c956ab7d28c88119b",
         "type": "github"
       },
       "original": {
@@ -6261,6 +6281,7 @@
         "elephant": "elephant",
         "emacs": "emacs",
         "emskin": "emskin",
+        "ewm": "ewm",
         "flake-parts": "flake-parts_4",
         "fleet": "fleet",
         "goad": "goad_4",
@@ -6681,11 +6702,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794175200,
-        "narHash": "sha256-ZRyh9+6pBUdU5oMHC0HjminDT+vpkC2kBwu2IeSL1KE=",
+        "lastModified": 1794265202,
+        "narHash": "sha256-Hywcso10LIjmVZtDwD+xZ8ceUZMPRu9PhA2N9tSe890=",
         "ref": "refs/heads/main",
-        "rev": "c3e1c6dd95061b648fb91b12096af50f01108e09",
-        "revCount": 184,
+        "rev": "64eb0c226cf38ff9e488e79060c1bd8d328f5235",
+        "revCount": 186,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/satan-corpus"
       },
@@ -6813,11 +6834,11 @@
         "rust-overlay": "rust-overlay_8"
       },
       "locked": {
-        "lastModified": 1793953916,
-        "narHash": "sha256-7DFArYZpeYphMCRVUv1VPfY+pXxWaGDtWEapgugr8hA=",
+        "lastModified": 1794266090,
+        "narHash": "sha256-JrRxL6M9c0LawxIAx1pQjcLIeoFem5+C9b1R/a8UT1k=",
         "ref": "refs/heads/main",
-        "rev": "bbf17471deb31a3fc57c7e880255dbcd7421ced8",
-        "revCount": 428,
+        "rev": "7b08c9b09755d60fa61805e4deb40e735e8d5868",
+        "revCount": 429,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/smut"
       },
@@ -7889,11 +7910,11 @@
         "systems": "systems_35"
       },
       "locked": {
-        "lastModified": 1794248017,
-        "narHash": "sha256-jATqNEtnaqkrcvzatu2PCI40CJV/NKL2So+tJPwD8yY=",
+        "lastModified": 1794258691,
+        "narHash": "sha256-zsy+JCdWCufXeuBFsRY5atKg3dMB9G7m9QwN7aWTlvw=",
         "owner": "vicinaehq",
         "repo": "vicinae",
-        "rev": "f7c4b5279a84030f69c8be2f1d62337f41bfac96",
+        "rev": "06e99d0dc49d7a80eccaaec6fa7771ce120b321f",
         "type": "github"
       },
       "original": {

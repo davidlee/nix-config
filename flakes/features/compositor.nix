@@ -122,4 +122,24 @@ _: [
       # there's also a HM module
     };
   }
+
+  # Emacs as the compositor: a second greeter session beside umbriel. It runs
+  # the same Emacs as editor.emacs (flakes/emacs, which carries EWM), not the
+  # module's bare emacs-pgtk, so the config finds its packages. That daemon
+  # owns the default server socket; editor.emacs's unit skips this session.
+  {
+    name = "ewm";
+    requires = ["desktop.core"];
+    nixos = {
+      inputs,
+      pkgs,
+      ...
+    }: {
+      imports = [inputs.ewm.nixosModules.default];
+      programs.ewm = {
+        enable = true;
+        emacsPackage = inputs.emacs.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      };
+    };
+  }
 ]

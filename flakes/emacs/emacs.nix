@@ -1,6 +1,7 @@
 {
   pkgs,
   emskin,
+  ewm,
 }: let
   emacsPackage =
     if pkgs.stdenv.hostPlatform.isDarwin
@@ -277,5 +278,11 @@ in
         # Loaded by apps/dl-emskin.el. Absent when `just isolation` stubs it.
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin && emskin ? lib) [
           (emskin.lib.mkEmacsPackage epkgs)
+        ]
+        # EWM's elisp and compositor module (ewm-core.so), built against this
+        # Emacs. Its NixOS session runs this same derivation, and its launcher
+        # requires and starts ewm itself. Absent when `just isolation` stubs it.
+        ++ pkgs.lib.optionals (pkgs.stdenv.hostPlatform.isLinux && ewm ? overlays) [
+          ((ewm.overlays.default pkgs pkgs).ewm.override {inherit emacsPackage;})
         ]
   )

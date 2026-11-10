@@ -10,12 +10,19 @@
     # Nested Wayland compositor for Emacs: its elisp joins the package list
     # and its binary is re-exported, both from this one pin so they match.
     emskin.url = "github:davidlee/emskin";
+    # Emacs Wayland Manager: its elisp and compositor module, built for this
+    # Emacs (a dynamic module must match the Emacs that loads it).
+    ewm = {
+      url = "git+https://codeberg.org/ezemtsov/ewm";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     nixpkgs,
     emacs-overlay,
     emskin,
+    ewm,
     ...
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -29,7 +36,7 @@
   in {
     packages = forAll (pkgs:
       rec {
-        emacs = import ./emacs.nix {inherit pkgs emskin;};
+        emacs = import ./emacs.nix {inherit pkgs emskin ewm;};
         default = emacs;
       }
       # Linux-only, and absent when `just isolation` stubs the input.
