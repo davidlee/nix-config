@@ -60,11 +60,11 @@
     },
     "excali-mode": {
       "locked": {
-        "lastModified": 1794287144,
-        "narHash": "sha256-n26UhNP+EXWciJKMjOiy3cdS9e4BM56tzQ3AUf0iupY=",
+        "lastModified": 1794287602,
+        "narHash": "sha256-hf4A3+FpOS8Zlnmjyo6ZsuvRpSGCZc1gjvjJ3+Cz45g=",
         "owner": "davidlee",
         "repo": "excali-mode",
-        "rev": "97e7ab1d758521ca5cb2dc0d83d6e7003f64f006",
+        "rev": "a38847af95d20c16d1d01898c6014895d5b75863",
         "type": "github"
       },
       "original": {
