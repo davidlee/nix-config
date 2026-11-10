@@ -10,11 +10,11 @@
       },
       "locked": {
         "dir": "flakes/agents",
-        "lastModified": 1794293243,
-        "narHash": "sha256-XvilelzuNkUWNcf3ZiZRWxcnIZdoXGTSWNQ0xtWYaGA=",
+        "lastModified": 1794318403,
+        "narHash": "sha256-HH9tIQCzDV3BURX0N8Ici9F9iKucbYzmN1R5i/YvrOU=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "75fca31b2ccc181d3df33bb3004984c95ae72fdd",
+        "rev": "8b32fbce9c60b4fdfef1ad08f01db99a77df7e93",
         "type": "github"
       },
       "original": {
@@ -1130,11 +1130,11 @@
         "zls-overlay": "zls-overlay"
       },
       "locked": {
-        "lastModified": 1794290816,
-        "narHash": "sha256-L25kGrKHJO6QfjW2mJUYW/qyc2JKVilye0JQlyu6428=",
+        "lastModified": 1794300117,
+        "narHash": "sha256-5AtfAQeBzXXJZF84L4uiLVnAlheEusDXjo1s5YL29vg=",
         "ref": "refs/heads/main",
-        "rev": "4f4311a289b13add7e6353f2ee8c72bb03768fd3",
-        "revCount": 2427,
+        "rev": "38cdfd4a5d6b2143518bd0bb4c8fb21f458019be",
+        "revCount": 2434,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/deck_of_dwarf"
       },
@@ -1731,11 +1731,11 @@
       },
       "locked": {
         "dir": "flakes/emacs",
-        "lastModified": 1794293243,
-        "narHash": "sha256-XvilelzuNkUWNcf3ZiZRWxcnIZdoXGTSWNQ0xtWYaGA=",
+        "lastModified": 1794318403,
+        "narHash": "sha256-HH9tIQCzDV3BURX0N8Ici9F9iKucbYzmN1R5i/YvrOU=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "75fca31b2ccc181d3df33bb3004984c95ae72fdd",
+        "rev": "8b32fbce9c60b4fdfef1ad08f01db99a77df7e93",
         "type": "github"
       },
       "original": {
@@ -1759,11 +1759,11 @@
         "zig-overlay": "zig-overlay_2"
       },
       "locked": {
-        "lastModified": 1794287636,
-        "narHash": "sha256-h7++GxvX6/NOPLRfKQNuCPGwDDETUt3/dESk3qFdm3k=",
+        "lastModified": 1794318264,
+        "narHash": "sha256-MmYRlVF4/YVoVP08g1T8OQl9cJcm/txphNMVWYxxKVE=",
         "owner": "davidlee",
         "repo": "emacs-config",
-        "rev": "b62baa70fbed67e0a5552b122b7c4cba6f875314",
+        "rev": "b18f182f0d36aa76db07961c5f807a6a0d1c6e39",
         "type": "github"
       },
       "original": {
@@ -3128,11 +3128,11 @@
         "www": "www"
       },
       "locked": {
-        "lastModified": 1794293301,
-        "narHash": "sha256-ySqOSWZpcs9wo6Yk9GMacXuO+DRaUeJ7dI1DdNyyx5U=",
+        "lastModified": 1794318466,
+        "narHash": "sha256-nj0uZRJrH5xbKIv+otFf+GwzH3mv98kji9N+sua/JKg=",
         "ref": "refs/heads/main",
-        "rev": "7bfaf29f06030c294fdf68f189784033f5f5569c",
-        "revCount": 63,
+        "rev": "757e16e5b888d9f7a058112eea4049d87bcf7e7b",
+        "revCount": 64,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/oubliette-fleet"
       },
@@ -3560,11 +3560,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1794290751,
-        "narHash": "sha256-HfJ2mDEZhkNm03m6JKo4LvoCvcYV73eKT3g3Rx6Rib4=",
+        "lastModified": 1794317113,
+        "narHash": "sha256-0YxNCB01/Shk1S1EumNva5CcT2XCrvpGm24/mTwQRBw=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "a506e7effde18e10a9c10a658502327051c89b73",
+        "rev": "87add0847ae4744de25a41a9c77a9ef257bea01b",
         "type": "github"
       },
       "original": {
@@ -4043,11 +4043,11 @@
       },
       "locked": {
         "dir": "flakes/dev-tools",
-        "lastModified": 1794293243,
-        "narHash": "sha256-XvilelzuNkUWNcf3ZiZRWxcnIZdoXGTSWNQ0xtWYaGA=",
+        "lastModified": 1794318403,
+        "narHash": "sha256-HH9tIQCzDV3BURX0N8Ici9F9iKucbYzmN1R5i/YvrOU=",
         "owner": "davidlee",
         "repo": "nix-config",
-        "rev": "75fca31b2ccc181d3df33bb3004984c95ae72fdd",
+        "rev": "8b32fbce9c60b4fdfef1ad08f01db99a77df7e93",
         "type": "github"
       },
       "original": {
@@ -4102,11 +4102,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1793826729,
-        "narHash": "sha256-D5H7H+qMoTGI/jJtxKP4u7BdjkFnUyhOovTrf3pTOr0=",
+        "lastModified": 1793977579,
+        "narHash": "sha256-WrSODdZFVIs/Hh2NzC0bY+ROByi0bATg8WfePX8dPj8=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "6dadaf4375be35033e1c84395adbd53ff5fded96",
+        "rev": "4fe25e12eb9f4c744966dd3de5a05246cf098601",
         "type": "github"
       },
       "original": {
@@ -6062,11 +6062,11 @@
         "zig-overlay": "zig-overlay_3"
       },
       "locked": {
-        "lastModified": 1794272403,
-        "narHash": "sha256-QJK5fkEaH86+dZiEKIejc/qKsIP+DmEuWREbp+RQ34Y=",
+        "lastModified": 1794308400,
+        "narHash": "sha256-E3Jw9MeYTRzJ5o0M9jqPn1ZJiKr6bgdB8x5nJBl0Gwk=",
         "ref": "refs/heads/main",
-        "rev": "f9f221cdce27e001927b6976f31dcce6b1b6f210",
-        "revCount": 211,
+        "rev": "1e1c46e3ce22345a160edfc5bab728c786c6b896",
+        "revCount": 213,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/notes"
       },
@@ -6179,11 +6179,11 @@
         "nixpkgs-darwin-x64": "nixpkgs-darwin-x64"
       },
       "locked": {
-        "lastModified": 1794285812,
-        "narHash": "sha256-3pFYk/WFPqAjOQjuz7/6lWKZkyyA12g0vK3jFHAsIJg=",
+        "lastModified": 1794313026,
+        "narHash": "sha256-Vv8+4qDXvRKrnBA42jSMh3LyiPxz3SSn8de/9txjCtw=",
         "owner": "earendil-works",
         "repo": "pi",
-        "rev": "b2aabe02966a6b4528c7498a3bb406c14396932d",
+        "rev": "6273031b012ab3c017cdbf593a62b7e6792186a8",
         "type": "github"
       },
       "original": {
@@ -6812,11 +6812,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794265202,
-        "narHash": "sha256-Hywcso10LIjmVZtDwD+xZ8ceUZMPRu9PhA2N9tSe890=",
+        "lastModified": 1794301227,
+        "narHash": "sha256-Jim0mHWjNjgrBQDF/hKJY/vSl5zxsw3Bp3RxQNfbY9c=",
         "ref": "refs/heads/main",
-        "rev": "64eb0c226cf38ff9e488e79060c1bd8d328f5235",
-        "revCount": 186,
+        "rev": "8392ce2b46c70f37b5039c9cedd08f7daf38ff45",
+        "revCount": 188,
         "type": "git",
         "url": "ssh://git@github.com/davidlee/satan-corpus"
       },

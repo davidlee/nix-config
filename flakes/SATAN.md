@@ -14,7 +14,7 @@ relying on a line number.
 
 | Part | Path | Flake input here | Deployed by |
 |---|---|---|---|
-| broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.config/emacs/apps/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`features/satan/harness.nix`) |
+| broker (elisp) + harness | `~/dev/satan` | `satan = github:davidlee/satan` (`path:` commented out, `flake.nix:81`) | elisp: `~/.config/emacs/ai/dl-satan.el` loads the **live tree**; harness: `home.packages` from the **pin** (`features/satan/harness.nix`) |
 | corpus | `~/satan-corpus` | — | own repo; `just commit` there |
 | editor config | `~/.config/emacs` | — (the Emacs package comes from `github:davidlee/nix-config?dir=flakes/emacs`) | HM `services.emacs` (`features/editor/emacs.nix`) |
 | satan-attrd | `~/dev/satan-attrd` | `path:` (`flake.nix:93-98`) | `features/satan/attrd.nix` |

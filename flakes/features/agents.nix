@@ -26,7 +26,7 @@
   {
     name = "eca";
     # ECA (editor-code-assistant) server, jailed — spawned by eca-emacs via
-    # `eca-custom-command` in ~/.config/emacs/apps/dl-eca.el.
+    # `eca-custom-command` in ~/.config/emacs/ai/dl-eca.el.
     #
     # On home.packages (not the ~/.config/emacs devshell) so Emacs finds it from any
     # buffer, independent of direnv. Emacs launches it with cwd = the workspace

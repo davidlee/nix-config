@@ -278,7 +278,7 @@ in
           comment-dwim-2
         ]
         # Elisp client for emskin (its binary is packages.emskin, same input).
-        # Loaded by apps/dl-emskin.el. Absent when `just isolation` stubs it.
+        # Loaded by desktop/dl-emskin.el. Absent when `just isolation` stubs it.
         ++ pkgs.lib.optionals (!pkgs.stdenv.hostPlatform.isDarwin && emskin ? lib) [
           (emskin.lib.mkEmacsPackage epkgs)
         ]
@@ -289,7 +289,7 @@ in
           ((ewm.overlays.default pkgs pkgs).ewm.override {inherit emacsPackage;})
         ]
         # foxmacs: Firefox control from Emacs, usable only under EWM. Loaded
-        # by apps/dl-foxmacs.el; its extension and host come from features/web.nix.
+        # by desktop/dl-foxmacs.el; its extension and host come from features/web.nix.
         ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
           (foxmacs.lib.emacsOverlay epkgs epkgs).foxmacs
         ]
