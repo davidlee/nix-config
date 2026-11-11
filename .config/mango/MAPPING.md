@@ -97,7 +97,7 @@ scripts in `scripts/` stand in. They talk to the compositor over `mmsg`.
 | built-in `screenshot`, `screenshot-screen`, `screenshot-window` | `scripts/screenshot area\|screen\|window` (grim/slurp/satty) |
 | `power-off-monitors` | `scripts/sleep-monitors` (`sleep_monitor` takes one output at a time) |
 
-`~/.local/bin/toggle-audio-sink` is compositor-agnostic and is used as-is.
+`~/.config/umbriel/scripts/toggle-audio-sink` is compositor-agnostic and is used as-is.
 
 ## Not available
 

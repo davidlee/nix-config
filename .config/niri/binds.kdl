@@ -101,9 +101,8 @@ binds {
 
     Mod+Q repeat=false { close-window; }
 
-    // bindsym $mod+a exec ~/.config/sway/scripts/toggle-audio-sink
     Mod+Backslash allow-when-locked=true {
-        spawn-sh "~/.local/bin/toggle-audio-sink"
+        spawn-sh "~/.config/umbriel/scripts/toggle-audio-sink"
     }
 
     // === Window Management ===
