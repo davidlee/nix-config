@@ -108,4 +108,12 @@
     reason = "fails cargoSetupHook's system-lib mode (libsqlite3-sys)";
     sites = ["features/comms.nix"];
   }
+  {
+    attr = ["rustdesk-flutter"];
+    pin = "nixpkgs";
+    system = "x86_64-linux";
+    issue = "ISS-028";
+    reason = "1.5.0 fails cargoSetupHook's system-lib mode (libsodium-sys)";
+    sites = ["modules/nixos/rustdesk.nix"];
+  }
 ]

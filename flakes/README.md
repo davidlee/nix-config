@@ -256,8 +256,9 @@ features/
   agents.nix          [ registry (import ./agents/gateway.nix) (import ./agents/quotient.nix {inherit lib;}) eca pi ]  agent tools and shared infrastructure; registry: nixos only; gateway: nixos only, requires nothing; quotient, eca: linux only, require gateway; pi: bare, every platform (personal)
   agents/             gateway.nix  gateway/           the gateway record; its Python, tests and constants
                       quotient.nix  quotient/         the quotient server on PATH; the machine-default forms (family.nix)
-  audio.nix           [ pipewire mpd speech dictate alarm ] alarm requires media.spotify
+  audio.nix           [ pipewire mpd speech dictate alarm ] ++ daw.nix   alarm requires media.spotify
   audio/              dictate  dictate-test  say  say-test  alarm/   assets, beside their feature
+                      daw.nix   [ daw ardour bitwig reaper ]  each DAW requires daw; low-latency notes in its header
   services.nix        [ avahi printing postgresql webserver ssh sunshine ]  printing requires avahi; sunshine: coverage target
   desktop.nix         [ (import ./desktop/core.nix {inherit lib;}) greeter (import ./desktop/fonts.nix) ]
   desktop/            core.nix  fonts.nix             features big enough for their own file

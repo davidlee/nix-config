@@ -48,6 +48,7 @@ the inputs approach; both verified building with the opt-out instead.)
 | tui-journal | nixpkgs-home | libsqlite3-sys | `features/notes.nix` |
 | leaf-markdown-viewer | nixpkgs-home | onig_sys | `features/docs.nix` |
 | russ | nixpkgs-home | libsqlite3-sys | `features/comms.nix` |
+| rustdesk-flutter 1.5.0 | nixpkgs | libsodium-sys | `modules/nixos/rustdesk.nix` |
 
 Each has its own probe in `workarounds/default.nix`. Done when every probe is
 a removal candidate and every site is reverted.

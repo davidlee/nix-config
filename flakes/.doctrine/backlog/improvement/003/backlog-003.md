@@ -6,3 +6,7 @@ SL-005: docker and libvirtd removed from user.nix; `virt.qemu` adds libvirtd, an
 
 SL-006: gamemode (now added by `games.gamescope`) and caddy left `user.nix`.
 Remaining: jackaudio.
+
+IMP-073 (2026-11-11): jackaudio dropped from `features/audio/pipewire.nix`,
+not moved — no such group, and PipeWire's JACK needs none. No group left
+(`grep -rn extraGroups modules/nixos/user.nix` to confirm before closing).

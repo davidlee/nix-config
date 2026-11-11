@@ -8,26 +8,14 @@
     environment.systemPackages = with pkgs; [
       ## audio / music
       pavucontrol
+      pulseaudio # client tools only (pactl, paplay); daemon stays off, pipewire-pulse serves
       alsa-utils
-      pipewire
-      wireplumber
       ncpamixer
     ];
-    security = {
-      # rtkit (optional, recommended) allows Pipewire to use the realtime scheduler for increased performance.
-      rtkit.enable = true;
-      pam.loginLimits = [
-        # allow any user prog to request realtime priority
-        {
-          domain = "@users";
-          item = "rtprio";
-          type = "-";
-          value = 1;
-        }
-      ];
-    };
-    boot.kernelModules = ["snd-seq" "snd-rawmidi" "snd-aloop"];
-    users.users.${username}.extraGroups = ["jackaudio" "audio"];
+    # rtkit (optional, recommended) allows Pipewire to use the realtime scheduler for increased performance.
+    security.rtkit.enable = true;
+    boot.kernelModules = ["snd-aloop"];
+    users.users.${username}.extraGroups = ["audio"];
     services = {
       pipewire = {
         enable = true; # if not already enabled
@@ -70,22 +58,7 @@
             ];
           };
         };
-        #jack.enable = true;
-      };
-
-      pulseaudio = {
-        support32Bit = true;
-        package = pkgs.pulseaudioFull;
-        extraConfig = "load-module module-combine-sink";
-        configFile = pkgs.writeText "default.pa" ''
-          load-module module-bluetooth-policy
-          load-module module-bluetooth-discover
-          ## module fails to load with
-          ##   module-bluez5-device.c: Failed to get device path from module arguments
-          ##   module.c: Failed to load module "module-bluez5-device" (argument: ""): initialization failed.
-          # load-module module-bluez5-device
-          # load-module module-bluez5-discover
-        '';
+        # JACK: the audio.daw feature (pw-jack per process), not jack.enable.
       };
     }; # services
   };

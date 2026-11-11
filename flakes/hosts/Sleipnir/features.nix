@@ -33,6 +33,8 @@
     # This machine's speakers and Spotify Connect name (ALARM.md).
     alarm.enable = true;
     speech.enable = true;
+    # PipeWire JACK, realtime limits, MIDI modules; the DAWs themselves off.
+    daw.enable = true;
   };
   # printers: site-bound (IMP-017)
   feature.services = {

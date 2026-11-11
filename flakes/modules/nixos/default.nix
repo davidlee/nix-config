@@ -14,6 +14,7 @@
     ./security.nix
     ./user.nix
     ./cli.nix
+    ./rustdesk.nix
   ];
 
   services.displayManager.noctalia-greeter.passwordlessSyncUsers = ["david"];

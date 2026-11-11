@@ -415,6 +415,17 @@ in
       expected = [false true];
     };
 
+    # Each DAW is launched against audio.daw's PipeWire JACK; no host file.
+    testDawsRequireDaw = {
+      expr = lib.concatMap (d:
+        map (sel:
+          resolves {
+            tree = real;
+            modules = map on sel;
+          }) [["audio.${d}"] ["audio.${d}" "audio.daw"]]) ["reaper" "ardour" "bitwig"];
+      expected = lib.concatLists (lib.replicate 3 [false true]);
+    };
+
     # Compositors run on the shared stack; no host file.
     testCompositorRequiresCore = {
       expr = map (sel:

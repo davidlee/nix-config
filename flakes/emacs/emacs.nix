@@ -255,8 +255,13 @@ in
           molokai-theme
           nushell-ts-mode
           markdown-preview-eww
-          # Nu config files are edited outside language-specific devshells.
-          (treesit-grammars.with-grammars (grammars: [grammars.tree-sitter-nu]))
+          # Grammars for modes that error or warn without them.  Nu config
+          # files are edited outside language-specific devshells; Janet's
+          # toolchain comes from project devshells, its grammar from here.
+          (treesit-grammars.with-grammars (grammars: [
+            grammars.tree-sitter-nu
+            grammars.tree-sitter-janet-simple
+          ]))
           popterm
           org-mcp
           emcp

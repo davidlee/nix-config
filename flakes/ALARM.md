@@ -16,7 +16,7 @@ systemctl --user enable --now spotify-alarm.timer
 systemctl --user enable --now spotify-alarm-weekend.timer
 ```
 
-**Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/sway/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default. Both scripts find the speakers with `speakers-sink`, which matches the USB device's serial, not its sink name (PipeWire appends `.2` when the device re-enumerates). If the speakers are absent the alarm plays on the current default sink.
+**Audio routing:** `Super+a` toggles default sink between speakers and headphones (script: `~/.config/umbriel/scripts/toggle-audio-sink`). The alarm always forces speakers regardless of current default. Both scripts find the speakers with `speakers-sink`, which matches the USB device's serial, not its sink name (PipeWire appends `.2` when the device re-enumerates). If the speakers are absent the alarm plays on the current default sink.
 
 **Connect name:** spotifyd registers as `Sleipnir-alarm` (`spotifyd.conf`, which `spotify-alarm` reads back). It is not the hostname: the Spotify desktop app registers under the hostname, and the alarm used to pick it up by mistake.
 
