@@ -216,6 +216,8 @@
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
     };
+
+    strata.url = "github:lgse/strata";
   };
 
   outputs = inputs @ {self, ...}:

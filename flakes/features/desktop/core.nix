@@ -5,7 +5,11 @@
 {lib, ...}: {
   name = "core";
   platforms = lib.platforms.linux;
-  nixos = {pkgs, ...}: {
+  nixos = {
+    pkgs,
+    inputs,
+    ...
+  }: {
     environment.systemPackages = with pkgs;
       [
         xwayland-satellite
@@ -13,6 +17,7 @@
         cosmic-wallpapers
         nautilus
         nautilus-open-any-terminal
+        inputs.strata.packages.${pkgs.stdenv.hostPlatform.system}.default
       ]
       ++ (with pkgs.kdePackages; [
         pkgs.qt6Packages.qt6ct

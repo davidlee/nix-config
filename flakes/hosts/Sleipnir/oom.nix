@@ -72,11 +72,19 @@
   ];
 
   # zram: compressed swap in RAM (fast). This is the primary swap tier.
-  zramSwap = {
+  # zramSwap = {
+  #   enable = true;
+  #   memoryPercent = 50;
+  #   priority = 100;
+  #   algorithm = "zstd";
+  # };
+
+  # yeah but maybe try zswap instead
+  boot.zswap = {
     enable = true;
-    memoryPercent = 50;
-    priority = 100;
-    algorithm = "zstd";
+    maxPoolPercent = 30;
+    compressor = "zstd";
+    acceptThresholdPercent = 90;
   };
 
   # NOTE: zswap is intentionally NOT enabled. zswap compresses pages then
@@ -84,6 +92,6 @@
   # double-compress. With zram as the swap tier, zswap is redundant.
   # High swappiness so the kernel prefers cheap zram over disk swap.
   boot.kernel.sysctl = {
-    "vm.swappiness" = 150;
+    "vm.swappiness" = 100;
   };
 }
