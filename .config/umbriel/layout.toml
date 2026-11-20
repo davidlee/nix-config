@@ -31,7 +31,13 @@ empty_above = false
 
 # --- overview ---------------------------------------------------------
 [overview]
-zoom = 0.4
+zoom = 0.3
 background_blur = true
+
 workspace_wallpaper = true
 shortcuts = true
+
+# shortcut_keys = "1234567890"
+[colors.overview]
+background_tint = "#11223330"
+workspace_background = "#00000044"

@@ -61,9 +61,9 @@ separate billing. Use (judiciously) for design reviews, etc. Delegate via the `c
 
 Model tiers (the only place model names live; update when models change):
 - default: omit `--model` (Codex config default) - general delegation
-- strong: gpt-6.1-sol - best day to day architect / reviewer; complex delegation
+- strong: gpt-6.2-sol - best day to day architect / reviewer; complex delegation
 - diligent: gpt-6.1-terra - capable, much cheaper and faster where less complex reasoning is required
-- strongest: gpt-6-astra - very complex reviews only; confirm with user first.
+- strongest: gpt-6.2-astra - very complex reviews only; confirm with user first.
 
 Before the first Codex delegation in a session, list the current models:
 `codex debug models | jq -r '.models[] | select(.visibility=="list") | "\(.slug)\t\(.description)"'`

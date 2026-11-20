@@ -79,6 +79,7 @@ gtk-titlebar-hide-when-maximized = true
 window-show-tab-bar = always
 # we set the title ourselves
 shell-integration-features = no-title
+shell-integration = zsh
 
 #
 # Fonts

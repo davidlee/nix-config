@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.2",
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
   "theme": "adwaita-dark",
@@ -44,5 +44,13 @@
     "git:github.com/davidlee/zmux@201e817ef9a520702fd4d8c4456a71ef0c32abfa",
     "npm:pi-claude-bridge",
     "npm:@rochecompaan/pi-context-paging@0.3.11"
-  ]
+  ],
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.79.1",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.42.0",
+    "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3",
+    "{\"source\":\"npm:@tmustier/pi-usage-extension\",\"scope\":\"user\"}": "0.9.5",
+    "{\"source\":\"npm:@tmustier/pi-raw-paste\",\"scope\":\"user\"}": "0.1.3",
+    "{\"source\":\"npm:pi-interactive-shell\",\"scope\":\"user\"}": "0.17.1"
+  }
 }

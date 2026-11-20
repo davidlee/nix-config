@@ -1,10 +1,10 @@
 {
-  "lastChangelogVersion": "1.5.0",
+  "lastChangelogVersion": "1.5.2",
   "defaultProjectTrust": "always",
   "defaultProvider": "llm-gateway",
   "defaultModel": "deepseek-flash",
   "defaultThinkingLevel": "high",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": false
   },
@@ -29,7 +29,6 @@
     "https://github.com/cathrynlavery/diagram-design",
     "git:github.com/davidlee/pi-zmx@d6bae44153199131062f18069196a7596b30a677",
     "git:github.com/davidlee/zmux@201e817ef9a520702fd4d8c4456a71ef0c32abfa",
-    "git:github.com/rochecompaan/pi-context-paging@v0.3.11",
     "npm:pi-claude-bridge",
     "npm:@rochecompaan/pi-context-paging@0.3.11"
   ],
@@ -72,8 +71,8 @@
   },
   "extensions": [],
   "extensionChangelogVersions": {
-    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.87.0",
-    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.47.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.89.1",
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.48.0",
     "{\"source\":\"npm:pi-prompt-template-model\",\"scope\":\"user\"}": "0.12.3",
     "{\"source\":\"npm:@tmustier/pi-usage-extension\",\"scope\":\"user\"}": "0.10.2",
     "{\"source\":\"npm:@tmustier/pi-raw-paste\",\"scope\":\"user\"}": "0.1.3",

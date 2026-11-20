@@ -56,14 +56,14 @@ effect = "workspace_wipe"
 
 [animation.windows_drag]
 physics = true
-stiffness = 200
-damping = 20
-coupling = 4
-pointer_response = 2.0
+stiffness = 10
+damping = 18
+coupling = 200
+pointer_response = 0.5
 
 [animation.overview]
 enabled = true
-curve = "spring:0.95,300"
+curve = "spring:0.85,660"
 workspace_curve = "spring:1,1000"
 
 [animation.scratchpad]

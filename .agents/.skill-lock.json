@@ -5,11 +5,12 @@
       "source": "Dodaios/ste80-humanizer",
       "sourceType": "github",
       "sourceUrl": "https://github.com/Dodaios/ste80-humanizer.git",
+      "commit": "ace4484da2d81dda97861e004c37c0a2e93896d1",
       "skillPath": "SKILL.md",
-      "skillFolderHash": "edcc92ef2654af63aadf57f377ac9a6b1ce7acd8",
+      "skillFolderHash": "ace4484da2d81dda97861e004c37c0a2e93896d1",
       "pluginName": "ste80-humanizer",
       "installedAt": "2026-11-10T03:50:54.570Z",
-      "updatedAt": "2026-11-10T03:50:54.570Z"
+      "updatedAt": "2026-11-19T01:31:39.884Z"
     }
   },
   "dismissed": {

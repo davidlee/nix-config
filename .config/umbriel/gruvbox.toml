@@ -22,9 +22,9 @@ outer = "#282828FF"
 #outer = "#1D2021FF"           # bg0_h
 
 [colors.overview]
-badge = "#83A598FF"
-workspace_background = "#00000044"
-background_tint = "#00000000"
+badge = "#FE8019FF"
+# workspace_background = "#FFFFFFFF"
+background_tint = "#00000099"
 
 # --- window state, shown on the outer ring (width: appearance.toml) ---
 # Later rules win, so floating and pinned override plain focused.
