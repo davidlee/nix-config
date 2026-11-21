@@ -33,7 +33,7 @@ zx > /dev/null
 check "the caller stays where it was" $here $PWD
 
 check "claude starts through zmx-new" "$PWD: claude --resume x" "$(claude --resume x)"
-check "codex starts through zmx-new" "$PWD: codex" "$(codex)"
+check "codex starts through zmx-new" "$PWD: codex --no-daemon" "$(codex)"
 
 rm -rf $tmp
 exit $(( fails > 0 ))

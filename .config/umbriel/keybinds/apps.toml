@@ -14,11 +14,13 @@
 "Ctrl+Alt+Shift+L"     = 'spawn ghostty --title=CLOCK -e clock-rs --fmt "%d %b" -c "#ff7700"'
 
 # --- raise or run -----------------------------------------------------
-"Mod+Apostrophe"       = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
-"Mod+Semicolon"        = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
 "Ctrl+Alt+Shift+Grave" = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn emacs emacsclient -n -c"
-"Ctrl+Alt+Shift+E"     = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn org.kde.dolphin dolphin"
+"Mod+Apostrophe"       = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn com.mitchellh.ghostty ghostty"
 "Ctrl+Alt+Shift+B"     = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn firefox-devedition firefox"
+"Mod+Semicolon"        = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn kitty kitty"
+"Ctrl+Alt+Shift+E"     = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn org.kde.dolphin dolphin"
+"Mod+E"                = "spawn ~/.config/umbriel/scripts/raise-cycle-or-spawn io.github.lgse.Strata strata"
+
 
 # --- scratchpads (definitions and rules below) ----------------------
 # User-serviceable pads:

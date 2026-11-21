@@ -1,3 +1,4 @@
+
 # manage dotfiles with bare repo:
 #
 # gc() { git --work-tree=$HOME --git-dir=$HOME/.cfg $* }

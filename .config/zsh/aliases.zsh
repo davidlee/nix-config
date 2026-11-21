@@ -11,7 +11,6 @@ alias s=z
 alias si=zi
 
 alias zn=zmx-new
-
 alias et="emacsclient --tty";
 alias er="emacsclient --reuse-frame";
 alias ec="emacsclient --create-frame";
@@ -47,7 +46,7 @@ alias fl="cd ~/flakes";
 alias notes="cd ~/notes";
 
 # editors
-alias vi=nvim;
+alias vi=et;
 alias vim=nvim;
 alias zed=zeditor;
 
