@@ -1,0 +1,20 @@
+schema = "doctrine.requirement"
+version = 1
+
+id = 31
+slug = "a-declared-jail-holds-only-what-it-declares"
+title = "A declared jail holds only what it declares"
+status = "active"
+kind = "quality"
+
+
+description = "A jail declared in passthru.devEnv.jails has no network but the gateway and its forwards, no launch directory and a home discarded on exit. Beyond the gateway, the project's tools and env and the host env list, it holds only its declared mounts and forwards: no host integrations, Doctrine, quotient, subagents or git identity. Its agent has only the tools of its MCP servers."
+
+# description — the requirement statement (structured, queryable; `show` renders
+# it as the statement line — the storage rule forbids deriving it from prose).
+# Rationale and extended discussion stay in the sister `.md`. Add as:
+#   description = "…"
+tags = ["dev-env", "jail"]
+acceptance_criteria = [
+  "The stub's jailed-probe launcher carries --unshare-net, the gateway socket bind, each declared bind, pi's --no-builtin-tools and two forwarders, and none of the refuted markers (dev-envs checks.declared-jail). Read from the launcher, not run",
+]

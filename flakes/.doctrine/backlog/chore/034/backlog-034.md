@@ -34,3 +34,17 @@ own as `passthru.devEnv.jails`, and dev-envs builds each one as
 Out of scope: the agents-library options (`ephemeralHome`, `hostIntegrations`,
 `forwarderEntry`). They belong to CHR-020's future spec. `agents/README.md`
 already documents them.
+
+## Outcome (2026-11-21)
+
+Done by REV-023, with the spec edit in the same commit. The open choice went to
+a local decision (user): DEC-131 adopts nemesis:DEC-235/236/237 and amends
+DEC-108, DEC-114 and DEC-122, which had kept jail vocabulary out of project
+data. REQ-026's statement covers `jails`; NF-003 (REQ-031), "A declared jail
+holds only what it declares", is active on `checks.declared-jail`. Every drift
+item above is taken.
+
+Left for later: `jailed-<name>-check`, the `-check` name refusal and the
+launch-time `runDirectory` in the `gateway` argument (nemesis:SL-026 PHASE-02
+EX-5, nemesis C-93). DEC-131 records them. SPEC-003 takes them once the code
+lands here, by a small REV of its own.

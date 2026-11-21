@@ -6,8 +6,9 @@
 
 How a project on this host gets its development environment: a shell, jailed
 agents and quotient forms, built around the project's own tools. The project
-states what it needs and knows nothing about agents. The personal layer decides
-how to work and knows nothing about the project.
+states what it needs and knows nothing about agents, beyond the harness of a jail
+it declares for itself (DEC-131). The personal layer decides how to work and
+knows nothing about the project.
 
 Four layers. Each fact has one owner (DEC-108), and each arrow points from a
 reader to what it reads.
@@ -31,7 +32,7 @@ flowchart LR
 | host facts | Doctrine's directories, the env list, the gateway's address | true of this host, whatever the project |
 | jail library | posture, makers, combinators; applies host facts | true of every jail anyone builds here |
 | consumer | the jail set, unjailed CLIs, shorthands, forms, pinned builds | a preference for working on any project |
-| project | its tools and what they need | true of the project, whoever works on it |
+| project | its tools, what they need, and any jail of its own | true of the project, whoever works on it |
 
 This spec is the contract between the layers. The jail library's internals are
 out of scope (CHR-020); `agents/README.md` is their reference.
@@ -48,6 +49,7 @@ packages.<system>.dev-tools = pkgs.buildEnv {
     env.NAME = "value";              # set as given
     hostEnv = ["OTHER"];             # forwarded from the launch environment when set
     outerGitDir = ".cfg";            # a repository above the project, read-only
+    jails.<name> = {…};              # a jail of the project's own (§ Declared jails)
   };
 };
 ```
@@ -80,8 +82,10 @@ The project may rely on:
   tracked path outside the project reads as deleted. Remotes and branch tracking
   are absent. A launch from a subdirectory finds no repository.
 
-The project owes nothing else. It names no jail, agent, form or gateway.
-`_templates/dev-env` is the contract as a working flake.
+The project owes nothing else. It names none of dev-envs' jails, agents, forms
+or gateway. It may declare jails of its own, in a closed vocabulary that
+dev-envs interprets (§ Declared jails). `_templates/dev-env` is the contract as a
+working flake.
 
 ### `devEnv` schema and refusals
 
@@ -90,17 +94,29 @@ The project owes nothing else. It names no jail, agent, form or gateway.
 
 | input | result |
 |---|---|
-| no `devEnv` | `{env = {}; hostEnv = [];}` |
+| no `devEnv` | `{env = {}; hostEnv = []; jails = {};}` |
 | not an attrset | refused |
-| a key other than `env`, `hostEnv`, `outerGitDir` | refused |
+| a key other than `env`, `hostEnv`, `outerGitDir`, `jails` | refused |
 | `env` not an attrset, or a value not a string | refused |
 | `hostEnv` not a list of strings | refused |
 | `outerGitDir` not a bare directory name | refused |
 | a name that is not a valid POSIX name | refused |
 | a name in `env` or `hostEnv` also in the host's env list | refused: one owner per fact |
+| `jails` not an attrset | refused |
+| a jail name not matching `[A-Za-z0-9][A-Za-z0-9._-]*`, or a built-in jail's (`pi`, `pi-research`, `claude`, `codex`, `shell`) | refused: it would shadow `jailed-<name>` |
+| a declaration, mount or forward not an attrset, or with a key outside its vocabulary | refused |
+| `agent` absent or not a harness dev-envs maps (`pi`) | refused |
+| `network` absent or not `"offline"` | refused |
+| `mounts` or `forwards` not a list | refused |
+| a mount's `from` empty, absolute, climbing (`..`), or `$…` not `$VAR` / `$VAR/path` | refused |
+| a mount's `to` not absolute, `~` or `~/path`, or climbing | refused |
+| a mount's `mode` not `ro` or `rw` | refused |
+| a forward's `port` not an integer in 1–65535, or its `socket` not an absolute, non-climbing path | refused |
 
 The host's env list here means `hostDevEnv.env` and `hostOnlyEnv`: `hostNames`
-(`dev-envs/dev-env.nix`) takes both.
+(`dev-envs/dev-env.nix`) takes both. Each jail refusal names its field
+(`jails.<name>.mounts[i].from`); `jailErrors` holds them. `mounts` and
+`forwards` default to `[]`.
 
 ## Host facts
 
@@ -145,6 +161,9 @@ consumer is Linux only and holds no keys of its own.
 | zmx `state` on the launching host session: `zmx-state`, relayed over `/run/zmx-state`, no zmx socket | yes | no | the host's |
 | gateway key | yes, key `pi` | yes, key `pi` | no |
 
+The jail column is the five built-in jails. A declared jail differs as
+§ Declared jails says.
+
 `dev-db` (`dev-envs/dev-db.sh`) runs the Postgres in the project's `dev-tools`
 on a unix socket under `/tmp/$DEV_DB_NAME/db`. The consumer carries the command
 and the project carries the server, so `dev-db` works for a project whose tools
@@ -163,7 +182,8 @@ is the host's, and the cluster outlives the session.
 | `jailed-codex` | codex | `specDev` | claude, pi, codex | `jcx` |
 | `jailed-shell` | zsh | `specDev` | pi, claude | `jsh` |
 
-The set is the same for every project. Profiles are defined in
+These five are the same for every project; a project may add its own
+(§ Declared jails). Profiles are defined in
 `agents/README.md` § Profiles. A jail's home is a persisted directory bound over
 the host's `$HOME` path, so `~` is the same string on both sides and different
 files. The project is bound read-write at `/workspace/<name>`.
@@ -184,6 +204,46 @@ bound read-only (DEC-126). Its protection binds delegates, not the agent.
 No jail in the set carries the quotient relay (DEC-122). The relay is a
 capability for a jail declared for cross-repo delegation (IDE-010), and it is
 not a `passthru.devEnv` key.
+
+### Declared jails
+
+A project declares a jail as data, and dev-envs builds it as `jailed-<name>` on
+the shell's PATH and as a flake package (DEC-131, after nemesis:DEC-235). The
+vocabulary is closed; `dev-envs/dev-env.nix` validates and interprets it:
+
+```nix
+jails.<name> = {
+  agent = "pi";                                  # a harness dev-envs maps to a maker
+  network = "offline";                           # the only one: the gateway and the forwards
+  mounts = [ { from; to; mode; } ];              # binds into an otherwise empty jail
+  forwards = [ { port; socket; } ];              # in-jail 127.0.0.1:port -> a jail socket
+};
+```
+
+A declared jail starts empty, unlike the five:
+
+- No launch directory: the project is not at `/workspace`, and `outerGitDir`
+  does not apply. What it sees of the project is what it mounts.
+- An ephemeral home (`ephemeralHome`): `~` is a tmpfs, discarded on exit.
+- None of the host's integrations (`hostIntegrations = false`,
+  nemesis:DEC-237): no `JAIL_WORKSPACE_DEPS` binds, Malebolge bridge, host git
+  excludes or zmx state relay. dev-envs gives it no sound either.
+- No Doctrine, quotient, subagents or git identity.
+- pi runs as `pi --no-builtin-tools`, so its tools are its MCP servers'
+  alone (nemesis:DEC-236).
+
+It holds the gateway in socket mode (key `pi`), the project's tools and env, the
+host env list, its mounts and one in-jail forwarder per forward.
+
+A mount's `from` is relative to the launch directory, or `$VAR` / `$VAR/path`,
+expanded when the jail starts; `to` is an absolute jail path, `~` being the
+jail's home. `mountArgs` quotes every literal part, so each side stays one shell
+word. A forward is the agents library's `forwarderEntry`: a socat inside the
+jail listening on `port`, relaying to `socket`, which a mount must provide.
+
+The agents library's options (`ephemeralHome`, `hostIntegrations`,
+`forwarderEntry`) are its own contract (CHR-020); `agents/README.md` documents
+them.
 
 ### Doctrine on both sides
 
@@ -207,8 +267,8 @@ source_env_if_exists ~/flakes/envrc/dev-envs.sh
 use_dev_envs || use flake .
 ```
 
-It carries the five jails, the unjailed `pi`, `claude` and `codex`, the
-shorthands, the tools and the env. Doctrine's pin in dev-envs' lock is
+It carries the five jails and any declared ones, the unjailed `pi`, `claude`
+and `codex`, the shorthands, the tools and the env. Doctrine's pin in dev-envs' lock is
 deliberately not overridden.
 
 ### Forms
@@ -236,7 +296,8 @@ An absent layer gives less. A broken layer fails loudly, naming the site (DEC-10
 | no installed Doctrine | no `doctrine` in the jail | runtime `-try` bind |
 | no `dev-tools` | evaluation error naming the producer contract | `dev-envs/flake.nix` |
 | `dev-tools` holds `bin/doctrine` | the shell starts, with a warning naming DEC-128 | `checks.dev-env` |
-| malformed `devEnv` | evaluation error listing each problem | `checks.dev-env` |
+| malformed `devEnv`, a `jails` declaration included | evaluation error listing each problem, naming its field | `checks.dev-env` |
+| a declared mount's `$VAR` unset at launch | the jail refuses to start: `VAR: unbound variable` | observed once (IMP-074, nemesis:ASM-005), not tested |
 | a form's line cannot be resolved without running it | build failure | `checks.quotient-forms` |
 | the pinned `doctrine` input fails to build | every jail and form fails to build | at the lock bump; roll the pin back |
 
@@ -246,6 +307,7 @@ An absent layer gives less. A broken layer fails loudly, naming the site (DEC-10
 - Define what a project exports to join
 - Validate a project's stated env before anything is built
 - Give every jail, form and shell the same tools and env
+- Build a project's declared jails with nothing it did not declare
 - Keep one Doctrine path valid on host and in a jail
 - Keep the host's sccache server out of reach of jails
 
@@ -257,7 +319,8 @@ project checkout
                     flake-compat ─> dev-tools ─> devEnv ─> checkDevEnv
                     agents.lib.mkJailedAgents ─> hostDevEnv, makers, posture
                     env = hostDevEnv.env // devEnv.env
-                        ├─ jails ─> devShells.default
+                        ├─ jails ─────────────────────────┬─> devShells.default, packages
+                        ├─ devEnv.jails ─> declaredJail ──┘   (jailed-<name>)
                         └─ quotientFormFamily ─> quotient-{read,write}
 ```
 
@@ -270,10 +333,18 @@ stand-in for `project`; its lock pins a nixpkgs that dev-envs does not.
 What the checks can detect:
 
 - `checks.dev-env` runs each refusal against the real `hostDevEnv`, so a name the
-  host layers own is refused from the list that sets it.
+  host layers own is refused from the list that sets it. Each jail refusal is run
+  and must name its field. Mount words are `eval`'d as a launcher would, and must
+  give exactly three words, a `$VAR` value with a space included.
 - `checks.stub` finds, in each jail's launcher or the one launcher it execs, the
-  bundle's path, a project `env` name and a `hostEnv` forwarding test. It does not
-  run a launcher, and it does not cover forms.
+  bundle's path, a project `env` name and a `hostEnv` forwarding test. It covers
+  the stub's declared jail too. It does not run a launcher, and it does not cover
+  forms.
+- `checks.declared-jail` reads the stub's `jailed-probe` launcher: no network,
+  the gateway socket's bind, each declared bind, pi's `--no-builtin-tools`, and
+  two forwarders in its entry chain (the gateway, and the declared forward). It
+  refutes `/workspace`, a persisted home, Malebolge, git excludes, the zmx relay,
+  Doctrine, quotient, a git identity and Postgres. It does not run the launcher.
 - `checks.project-pins` compares the stub's `passthru.nixpkgsRev` with the stub's
   lock, so it shows the consumer keeps a project's lock for one input. `just test`
   runs it against the stub only: no other project carries that attribute, so the
@@ -287,6 +358,10 @@ Behaviour was verified live once, at SL-023 PHASE-07 (`.doctrine/slice/023/notes
 § PHASE-07 VA-1): a gate run in a jail, sccache hits in a jail and a form, and
 codex reaching Doctrine's MCP server on both sides. The operator confirmed pi and
 codex on both sides (PHASE-07 VH-1). No test repeats any of this.
+
+A declared jail was run live once, at IMP-074: the real `jailed-probe --version`,
+with its mounts present, bound every mount, and both forwarders reached
+readiness. No test repeats it.
 
 ## Concerns
 
@@ -307,9 +382,10 @@ codex on both sides (PHASE-07 VH-1). No test repeats any of this.
 
 ## Hypotheses
 
-- The jail set is the same for every project. A project needing a different set
-  would need a new contract surface; none has so far. A project-local capability
-  jail (IDE-010) would be the first.
+- The five built-in jails are the same for every project, and what a project
+  needs beyond them fits the declared-jail vocabulary (DEC-131). nemesis's probe
+  is the one declared jail so far. A need outside it, such as a network or
+  another harness, would be a contract change needing a decision here.
 - A project's tools can be described by one `buildEnv` and a flat env. Smut and
   Doctrine are the two producers tested.
 
@@ -326,6 +402,7 @@ The decisions this spec composes. Read one with `doctrine show DEC-NNN`.
 | the Mac | DEC-116 |
 | sccache | DEC-121 |
 | delegation from a jail | DEC-122, DEC-123, DEC-124, DEC-125, DEC-126, DEC-127 |
+| declared jails | DEC-131 (adopts nemesis:DEC-235, DEC-236, DEC-237) |
 
 ## Open questions
 

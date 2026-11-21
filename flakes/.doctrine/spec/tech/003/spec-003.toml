@@ -12,6 +12,7 @@ responsibilities = [
   "Define what a project exports to join",
   "Validate a project's stated env before anything is built",
   "Give every jail, form and shell the same tools and env",
+  "Build a project's declared jails with nothing it did not declare",
   "Keep one Doctrine path valid on host and in a jail",
   "Keep the host's sccache server out of reach of jails",
 ]

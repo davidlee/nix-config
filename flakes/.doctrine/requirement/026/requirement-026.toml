@@ -12,7 +12,7 @@ kind = "functional"
 # Rationale and extended discussion stay in the sister `.md`. Add as:
 #   description = "…"
 
-description = "passthru.devEnv is optional; absent gives nothing. Any other key, a non-string env value, an invalid POSIX name, or a name in the host's env list or hostOnlyEnv refuses at evaluation, listing each error."
+description = "passthru.devEnv is optional; absent gives nothing. Any other key, a non-string env value, an invalid POSIX name, a name in the host's env list or hostOnlyEnv, or a jails declaration outside its vocabulary refuses at evaluation, listing each error."
 tags = ["dev-env"]
 acceptance_criteria = [
   "Each refusal row and the absent case hold (dev-envs checks.dev-env)",

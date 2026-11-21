@@ -1,0 +1,37 @@
+schema = "doctrine.knowledge"
+version = 1
+
+id = 131
+slug = "declared-jails-as-project-data"
+title = "A project may declare jails of its own as data in passthru.devEnv.jails; dev-envs builds them"
+record_kind = "decision"
+status = "accepted"
+created = "2026-11-21"
+updated = "2026-11-21"
+tags = []
+
+[facet]                         # every field typed; seeded empty (captured later)
+context = "nemesis:SL-026 needs a confined probe jail: offline, no launch directory, only the mounts and socket forwards it states. nemesis:DEC-235 has the project declare it as data and dev-envs build it; nemesis:DEC-236 runs pi with --no-builtin-tools; nemesis:DEC-237 turns the host integrations off by one library switch. Here, DEC-108 says project data has no agent concepts, DEC-114 rejected forwardEnv as jail vocabulary in project data, and DEC-122 rejected a passthru.devEnv key for a project-local jail. IMP-074 landed the code (6081428b) before this repo recorded the change."
+choice = 'passthru.devEnv gains `jails.<name> = { agent; network; mounts; forwards; }`, a closed vocabulary that dev-env.nix validates and interprets: agent is one dev-envs maps to a maker (pi), network is "offline" only, mounts bind a launch-relative or $VAR path ro/rw, forwards relay an in-jail 127.0.0.1 port to a jail socket. dev-envs builds each as jailed-<name> on the shell PATH from the agents library: offline profile, no launch directory, ephemeral home, hostIntegrations = false, the gateway, the project tools and env, no Doctrine, quotient or subagents; pi runs with --no-builtin-tools. A name must not shadow a built-in jail. The agents library gains ephemeralHome and hostIntegrations; the cross-repo contract also gains a launch-expanded runDirectory in the existing gateway argument, used only by jailed-<name>-check variants (nemesis:SL-026 PHASE-02 EX-5), so a name ending in -check is refused.'
+alternatives = ["Cite the nemesis decisions in SPEC-003 only: the local decisions that forbid jail vocabulary in project data would stay unamended and contradict the spec", "A probe-specific jail in dev-envs (nemesis:DEC-235 alt A): the consumer would know one project", "nemesis takes agents as a flake input (alt B): reverses the project/host split and pins personal config in its lock"]
+rationale = "A project that needs a confined jail of its own is the case DEC-122 and SPEC-003 Hypotheses anticipated (IDE-010). The vocabulary describes confinement, not agents or preferences: it names what the jail may see and reach, and dev-envs alone maps it to a maker and posture. Closed keys, each refused by name, keep the layer test of DEC-108 checkable. Recording it here keeps this repo authority for its own layers; nemesis owns why the probe needs it."
+consequences = ["Amends DEC-108: project data may carry a declared jail in this closed vocabulary and nothing else about agents", "Amends DEC-114 and DEC-122: passthru.devEnv gains the jails key; REQ-026 changes with it", "SPEC-003 Hypothesis that the jail set is the same for every project now holds for the five built-in jails only", "A new key or network value is a contract change between the two repositories and needs a decision here", "jailed-<name>-check and the launch-time runDirectory land with nemesis:SL-026 PHASE-02 EX-5; SPEC-003 takes them when the code does"]
+decided_by = "user, 2026-11-21 (CHR-034: local DEC over citing nemesis only; nemesis C-93 accepted)"
+decided_on = "2026-11-21"
+
+[evidence]                      # free-text citations (supports / contradicts / notes)
+supports    = []
+contradicts = []
+notes       = []
+
+[relationships]                 # verb-written edges (set by doctrine supersede)
+supersedes    = []   # record ids this one replaces (set by doctrine supersede)
+superseded_by = []   # set on superseded predecessor (verb-written)
+
+[[relation]]
+label = "shapes"
+target = "CHR-034"
+
+[[relation]]
+label = "shapes"
+target = "IMP-074"
