@@ -326,6 +326,24 @@ assistant-push:
 room-behind:
   @capsule assistant ssh agent -- 'for d in /work/*/; do h=$(git -C "$d" rev-parse HEAD 2>/dev/null) && echo "$(basename "$d") $h"; done' | bin/room-behind
 
+
+[script]
+probe-llm-agents:
+  system=$(nix eval --impure --raw --expr builtins.currentSystem)
+
+  curl -fsSL 'https://api.github.com/repos/numtide/llm-agents.nix/commits?per_page=100' |
+  jq -r '.[].sha' |
+  while read -r rev; do
+    pkg="github:numtide/llm-agents.nix/$rev#packages.$system.codex"
+    out=$(nix eval --raw "$pkg.outPath" 2>/dev/null) || continue
+
+    if nix path-info --store https://cache.numtide.com "$out" &>/dev/null; then
+      version=$(nix eval --raw "$pkg.version")
+      printf 'Codex %s\nRevision: %s\n' "$version" "$rev"
+      break
+   fi
+  done
+  
 [script]
 sync-room: assistant-push
   {

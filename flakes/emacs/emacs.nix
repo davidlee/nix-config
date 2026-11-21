@@ -246,6 +246,7 @@ in
           wgrep
           ws-butler
           yaml-mode
+          just-mode
           zoom-window
           gptel-agent
           gptel-inline
