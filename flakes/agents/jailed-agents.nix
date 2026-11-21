@@ -157,6 +157,13 @@
   # `gateway`, which makeJailedAgent takes as an argument.
   gatewayData = import ./gateway.nix;
 
+  # The in-jail half of a socket forward, alone (socket-forwarder.nix):
+  # forwarderEntry { socket; port; }. The caller binds the socket's directory.
+  forwarderEntry = import ./socket-forwarder.nix {
+    inherit pkgs;
+    inherit (jail) combinators;
+  };
+
   # Socket mode (DEC-076, DEC-077): a jail without network reaches the
   # gateway through the relay's client socket and an in-jail forwarder on the
   # gateway's own port, so its URL is unchanged.
@@ -314,10 +321,10 @@
     };
   };
 
-  # A profile's jail options: the persisted home `home`, then `network` iff
-  # the flag is set.
+  # A profile's jail options: the persisted home `home` (null: none, so the
+  # home is jail.nix's tmpfs), then `network` iff the flag is set.
   profileOptions = p: home:
-    [(jail.combinators.persist-home home)]
+    lib.optional (home != null) (jail.combinators.persist-home home)
     ++ lib.optional profiles.${p}.network jail.combinators.network;
 
   # Sandbox-originated commits are visually distinct
@@ -483,11 +490,12 @@
     nixDoctrine ? null,
     blockSshGitPush ? true,
     guardGit ? true,
+    hostGitExcludes ? true,
   }: c:
     baseJailOptions c
     ++ lib.optionals hostDoctrine (hostDoctrineOptions c)
     ++ lib.optional (nixDoctrine != null) (nixDoctrineOption c nixDoctrine)
-    ++ hostGitExcludesOptions c
+    ++ lib.optionals hostGitExcludes (hostGitExcludesOptions c)
     ++ envOptions c
     ++ lib.optionals blockSshGitPush (sshGitPushBlockOptions c)
     ++ lib.optionals sandboxGitIdentity (gitIdentityOptions c)
@@ -537,6 +545,15 @@
     workspaceDepsRw ? [], # as workspaceDeps, bound read-write; env var JAIL_WORKSPACE_DEPS_RW
     workspaceDepsFromEnv ? true, # false: ignore both env vars (satan:SL-027 RV-035 F-1)
     persistedHome ? null, # name of the persisted home; null: the profile's (satan:SL-027 RV-035 F-6)
+    # The home is jail.nix's tmpfs, discarded with the jail: nothing persists
+    # from one run to the next, and only the binds named into it exist there
+    # (nemesis:SL-026). Exclusive with persistedHome.
+    ephemeralHome ? false,
+    # The host's facilities no jail declares: workspace deps from the env vars
+    # (workspaceDepsFromEnv), the malebolge bridge, the host git excludes and
+    # the zmx state relay. false drops all four, so a jail holds only what it
+    # declares (nemesis:DEC-237).
+    hostIntegrations ? true,
     # Sibling agents to expose inside the jail as depth-guarded
     # `jailed-<name>` wrappers. Either a list of names from `agentsByName`
     # (e.g. [ "pi" "codex" ]) or the string "all". A nested agent runs
@@ -634,20 +651,28 @@
       inherit name;
       ro = workspaceDeps;
       rw = workspaceDepsRw;
-      fromEnv = workspaceDepsFromEnv;
+      fromEnv = hostIntegrations && workspaceDepsFromEnv;
     };
 
     inner = jail "jailed-${name}" agent (
-      posture {inherit sandboxGitIdentity hostDoctrine nixDoctrine blockSshGitPush guardGit;} jail.combinators
+      posture {
+        inherit sandboxGitIdentity hostDoctrine nixDoctrine blockSshGitPush guardGit;
+        hostGitExcludes = hostIntegrations;
+      }
+      jail.combinators
       ++ workspaceBinds
       # After the deps: bwrap mounts in argv order, so the project wins
       # /workspace/<project> over a dep that shares its basename (DEC-082).
       ++ launchDirOptions mountLaunchDir readOnlyLaunchDir
-      ++ profileOptions profile homeName
-      ++ lib.optionals piInJail (piBridgeOptions jail.combinators)
+      ++ profileOptions profile (
+        if ephemeralHome
+        then null
+        else homeName
+      )
+      ++ lib.optionals (hostIntegrations && piInJail) (piBridgeOptions jail.combinators)
       ++ lib.optionals quotient (quotientRelay.options {readOnly = readOnlyLaunchDir;})
       ++ lib.optionals (quotientServer != null) (quotientInJail.options ({inherit name;} // quotientServer))
-      ++ zmxStateRelay.options
+      ++ lib.optionals hostIntegrations zmxStateRelay.options
       ++ terminalOptions
       ++ lib.optionals exposePostgres postgresOptions
       ++ gatewayJail.options
@@ -671,6 +696,7 @@
     assert !(lib.hasPrefix "jailed-" name) || throw "jailed-${name}: the maker adds the jailed- prefix; pass name = \"${lib.removePrefix "jailed-" name}\"";
     assert (builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" homeName != null)
     || throw "persistedHome for jailed-${name} must match [A-Za-z0-9][A-Za-z0-9._-]*: ${homeName}";
+    assert !(ephemeralHome && persistedHome != null) || throw "jailed-${name}: ephemeralHome and persistedHome are exclusive";
     assert (subagentNames == []) || (maxSubagentDepth > 0) || throw "maxSubagentDepth must be > 0 when subagents are exposed";
     assert !quotient || mountLaunchDir || throw "jailed-${name}: quotient needs mountLaunchDir, the one root it may grant";
     assert quotientServer == null || !quotient || throw "jailed-${name}: quotientServer and the quotient relay are exclusive";
@@ -723,6 +749,9 @@ in
     # Socket mode for a jail without `gateway` (e.g. a key-file client), via
     # `extraOptions`; refused at evaluation in a jail sharing the host netns.
     inherit gatewaySocketOptions;
+    # The forwarder alone, for a socket the caller binds in itself:
+    # forwarderEntry { socket; port; } (socket-forwarder.nix).
+    inherit forwarderEntry;
     # A satan-mcp client's bind and env, via `extraOptions`.
     inherit satanMcpOptions;
     # Sound, for a jail's `extraOptions`; a function of its combinators.

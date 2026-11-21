@@ -11,22 +11,26 @@
   system = pkgs.stdenv.hostPlatform.system;
   agents = import ./jailed-agents.nix {
     inherit pkgs jail-nix;
-    # pi is compared against (piInJail), never built
-    llm-agents.packages.${system}.pi = null;
+    # A stand-in pi: makeJailedPi builds it into a launcher, never runs it.
+    llm-agents.packages.${system}.pi = pkgs.writeShellScriptBin "pi" "exit 0";
     zmx = pkgs.writeShellScriptBin "zmx" "exit 0";
     zmx-new = pkgs.writeShellScriptBin "zmx-new" "exit 0";
     inherit (import ./test-fixtures.nix {inherit pkgs jail-nix;}) zmxHarness;
   };
-  launcher = args:
-    agents.makeJailedZsh (
+  launcherOf = maker: args:
+    maker (
       {
         workspaceDeps = ["/nonexistent/static-dep"];
         workspaceDepsRw = ["/nonexistent/static-rw-dep"];
       }
       // args
     );
+  launcher = launcherOf agents.makeJailedZsh;
   envOn = launcher {};
   envOff = launcher {workspaceDepsFromEnv = false;};
+  # pi, so the malebolge bridge is attached by default (nemesis:DEC-237).
+  integrationsOn = launcherOf agents.makeJailedPi {};
+  integrationsOff = launcherOf agents.makeJailedPi {hostIntegrations = false;};
 in
   assert envDeps
   != ""
@@ -59,6 +63,20 @@ in
       grep -Fq -- '--bind /nonexistent/static-rw-dep /workspace/static-rw-dep' "$off"
       refute grep -Fq -- '/workspace/env-dep' "$off"
       refute grep -Fq -- '/workspace/env-rw-dep' "$off"
+
+      # hostIntegrations = false (nemesis:DEC-237) drops all four host
+      # integrations, which the default carries: the env vars' deps, the
+      # malebolge bridge, the host git excludes and the zmx state relay. The
+      # declared deps stay.
+      pi_on=${integrationsOn}/bin/jailed-pi
+      pi_off=${integrationsOff}/bin/jailed-pi
+      for marker in /workspace/env-dep /workspace/env-rw-dep malebolge \
+        -host-git-excludes-file ZMX_SESSION; do
+        grep -Fq -- "$marker" "$pi_on"
+        refute grep -Fq -- "$marker" "$pi_off"
+      done
+      grep -Fq -- '--ro-bind /nonexistent/static-dep /workspace/static-dep' "$pi_off"
+      grep -Fq -- '--bind /nonexistent/static-rw-dep /workspace/static-rw-dep' "$pi_off"
 
       touch "$out"
     ''

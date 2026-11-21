@@ -8,8 +8,43 @@
 }: let
   inherit (pkgs) lib;
   hostNames = devEnvLib.hostNames hostDevEnv;
-  errors = devEnvLib.errors {inherit lib hostNames;};
-  checkDevEnv = devEnvLib.checkDevEnv {inherit lib hostNames;};
+  # As dev-envs passes them: the agents a declared jail may run, and the names
+  # of the jails it builds itself.
+  args = {
+    inherit lib hostNames;
+    jailAgents = ["pi"];
+    reservedJails = ["pi" "shell"];
+  };
+  errors = devEnvLib.errors args;
+  checkDevEnv = devEnvLib.checkDevEnv args;
+
+  # A declared jail (nemesis:SL-026), valid; each jail refusal breaks one field.
+  probeJail = {
+    agent = "pi";
+    network = "offline";
+    mounts = [
+      {
+        from = "tools/probe";
+        to = "/probe";
+        mode = "ro";
+      }
+      {
+        from = "$PROBE_SESSION_DIR";
+        to = "/session";
+        mode = "rw";
+      }
+    ];
+    forwards = [
+      {
+        port = 7000;
+        socket = "/run/probe/duel.sock";
+      }
+    ];
+  };
+  withJail = decl: {jails.probe = decl;};
+  withMount = m: withJail (probeJail // {mounts = [m];});
+  goodMount = lib.head probeJail.mounts;
+  withForward = f: withJail (probeJail // {forwards = [f];});
 
   # name, input, and the text every error message must contain.
   refusals = [
@@ -66,7 +101,7 @@
     {
       name = "devEnv not an attrset";
       devEnv = ["A"];
-      needle = "must be an attrset { env; hostEnv; outerGitDir; }";
+      needle = "must be an attrset { env; hostEnv; outerGitDir; jails; }";
     }
     {
       name = "outerGitDir not a string";
@@ -87,6 +122,107 @@
       name = "outerGitDir with a shell word";
       devEnv = {outerGitDir = "$HOME";};
       needle = "`outerGitDir` must be a bare directory name";
+    }
+    {
+      name = "jails not an attrset";
+      devEnv = {jails = [];};
+      needle = "`jails` must be an attrset";
+    }
+    {
+      name = "jail name not a bare name";
+      devEnv = {jails."a/b" = probeJail;};
+      needle = "`jails.a/b`";
+    }
+    {
+      name = "jail name shadows a host jail";
+      devEnv = {jails.pi = probeJail;};
+      needle = "jailed-pi";
+    }
+    {
+      name = "jail not an attrset";
+      devEnv = withJail "pi";
+      needle = "`jails.probe` must be an attrset";
+    }
+    {
+      name = "jail unknown key";
+      devEnv = withJail (probeJail // {netwrok = "offline";});
+      needle = "`jails.probe.netwrok`";
+    }
+    {
+      name = "jail agent not in the map";
+      devEnv = withJail (probeJail // {agent = "claude";});
+      needle = "`jails.probe.agent`";
+    }
+    {
+      name = "jail agent absent";
+      devEnv = withJail (builtins.removeAttrs probeJail ["agent"]);
+      needle = "`jails.probe.agent`";
+    }
+    {
+      name = "jail network not offline";
+      devEnv = withJail (probeJail // {network = "research";});
+      needle = "`jails.probe.network`";
+    }
+    {
+      name = "mounts not a list";
+      devEnv = withJail (probeJail // {mounts = goodMount;});
+      needle = "`jails.probe.mounts` must be a list";
+    }
+    {
+      name = "mount unknown key";
+      devEnv = withMount (goodMount // {options = "x";});
+      needle = "`jails.probe.mounts[0].options`";
+    }
+    {
+      name = "mount without from";
+      devEnv = withMount (builtins.removeAttrs goodMount ["from"]);
+      needle = "`jails.probe.mounts[0].from`";
+    }
+    {
+      name = "mount from an absolute host path";
+      devEnv = withMount (goodMount // {from = "/etc";});
+      needle = "`jails.probe.mounts[0].from`";
+    }
+    {
+      name = "mount from climbing out";
+      devEnv = withMount (goodMount // {from = "tools/../..";});
+      needle = "`jails.probe.mounts[0].from`";
+    }
+    {
+      name = "mount from a malformed variable";
+      devEnv = withMount (goodMount // {from = "$1/x";});
+      needle = "`jails.probe.mounts[0].from`";
+    }
+    {
+      name = "mount to a relative path";
+      devEnv = withMount (goodMount // {to = "probe";});
+      needle = "`jails.probe.mounts[0].to`";
+    }
+    {
+      name = "mount mode not ro or rw";
+      devEnv = withMount (goodMount // {mode = "rx";});
+      needle = "`jails.probe.mounts[0].mode`";
+    }
+    {
+      name = "forward port not an integer";
+      devEnv = withForward {
+        port = "7000";
+        socket = "/run/probe/duel.sock";
+      };
+      needle = "`jails.probe.forwards[0].port`";
+    }
+    {
+      name = "forward socket not absolute";
+      devEnv = withForward {
+        port = 7000;
+        socket = "duel.sock";
+      };
+      needle = "`jails.probe.forwards[0].socket`";
+    }
+    {
+      name = "forward unknown key";
+      devEnv = withForward (lib.head probeJail.forwards // {host = "x";});
+      needle = "`jails.probe.forwards[0].host`";
     }
   ];
 
@@ -113,6 +249,7 @@
           == {
             env = {};
             hostEnv = [];
+            jails = {};
           };
         detail = "";
       }
@@ -123,7 +260,7 @@
       }
       {
         name = "valid passes through";
-        ok = checkDevEnv valid == valid;
+        ok = checkDevEnv valid == valid // {jails = {};};
         detail = "";
       }
       {
@@ -133,6 +270,7 @@
           == {
             env.A = "1";
             hostEnv = [];
+            jails = {};
           };
         detail = "";
       }
@@ -143,6 +281,7 @@
           == {
             env = {};
             hostEnv = ["B"];
+            jails = {};
           };
         detail = "";
       }
@@ -157,6 +296,26 @@
         detail = "";
       }
       {
+        name = "a declared jail is admitted";
+        ok = errors (withJail probeJail) == [];
+        detail = "errors: ${builtins.toJSON (errors (withJail probeJail))}";
+      }
+      {
+        name = "a declared jail passes through";
+        ok = (checkDevEnv (withJail probeJail)).jails.probe == probeJail;
+        detail = "";
+      }
+      {
+        name = "a jail without mounts or forwards is admitted";
+        ok =
+          errors (withJail {
+            agent = "pi";
+            network = "offline";
+          })
+          == [];
+        detail = "";
+      }
+      {
         name = "check throws on a refusal";
         ok = let
           r = builtins.tryEval (builtins.deepSeq (checkDevEnv {envv = {};}) true);
@@ -166,6 +325,46 @@
       }
     ];
   failed = lib.filter (c: !c.ok) cases;
+
+  # mount -> the three words bwrap gets, @launch@ the launch directory.
+  mountCases = [
+    {
+      mount = goodMount;
+      expect = ["--ro-bind" "@launch@/tools/probe" "/probe"];
+    }
+    {
+      mount = {
+        from = "$PROBE_SESSION_DIR";
+        to = "/session";
+        mode = "rw";
+      };
+      expect = ["--bind" "/var/probe/a session" "/session"];
+    }
+    {
+      mount = {
+        from = "$XDG_RUNTIME_DIR/nemesis-probe";
+        to = "/run/probe";
+        mode = "ro";
+      };
+      expect = ["--ro-bind" "/run/user/1/nemesis-probe" "/run/probe"];
+    }
+    {
+      mount = {
+        from = "tools/probe/pi-mcp.json";
+        to = "~/.pi/agent/mcp.json";
+        mode = "ro";
+      };
+      expect = ["--ro-bind" "@launch@/tools/probe/pi-mcp.json" "/home/someone/.pi/agent/mcp.json"];
+    }
+    {
+      mount = {
+        from = "a dir/it's $NOT";
+        to = "~";
+        mode = "rw";
+      };
+      expect = ["--bind" "@launch@/a dir/it's $NOT" "/home/someone"];
+    }
+  ];
 in
   pkgs.runCommand "dev-env-test" {} (
     if failed == []
@@ -185,6 +384,27 @@ in
         echo 'dev-env: FAIL no warning on dev-tools carrying doctrine' >&2
         exit 1
       fi
+
+      # A declared mount's bind words, expanded as the launcher expands them
+      # (nemesis:ASM-005): `from` under the launch directory or its variable,
+      # `~` as the jail's home, one word each whatever they hold.
+      expands() { # expands EXPECTED-FLAG EXPECTED-FROM EXPECTED-TO WORDS
+        local -a got
+        set -- "$1" "''${2//@launch@/$launch}" "$3" "$4"
+        eval "got=($4)"
+        if [ "''${#got[@]}" != 3 ] || [ "''${got[0]}" != "$1" ] || [ "''${got[1]}" != "$2" ] || [ "''${got[2]}" != "$3" ]; then
+          echo "dev-env: FAIL mount words '$4' gave: ''${got[*]}" >&2
+          exit 1
+        fi
+      }
+      (
+        cd "$(mktemp -d)"
+        launch=$PWD
+        HOME=/home/someone
+        PROBE_SESSION_DIR='/var/probe/a session'
+        XDG_RUNTIME_DIR=/run/user/1
+        ${lib.concatMapStringsSep "\n" (c: "expands ${lib.escapeShellArgs c.expect} ${lib.escapeShellArg (devEnvLib.mountArgs lib c.mount)}") mountCases}
+      )
 
       touch $out
     ''

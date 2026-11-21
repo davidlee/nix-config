@@ -426,7 +426,7 @@
       "flake": false,
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-m8os6qbHK/aDV39qpyPAE5Xmovd5UnmNZ6CC4Ct5DJQ=",
+        "narHash": "sha256-9OM1ooaJUUUpVJs3DkePGZ1BjXdp1c6yDufZmZkKX0Y=",
         "path": "./stub-project",
         "type": "path"
       },

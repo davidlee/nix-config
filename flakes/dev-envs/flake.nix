@@ -84,6 +84,8 @@
       devEnv = devEnvLib.checkDevEnv {
         inherit lib;
         hostNames = devEnvLib.hostNames hostDevEnv;
+        jailAgents = lib.attrNames jailAgents;
+        reservedJails = map (lib.removePrefix "jailed-") (lib.attrNames jails);
       } (devTools.devEnv or {}); # passthru attributes sit on the derivation itself
       env = hostDevEnv.env // devEnv.env;
       envOptions = c:
@@ -170,6 +172,43 @@
         };
       };
 
+      # The jails a project declares (devEnv.jails; dev-env.nix holds the
+      # vocabulary, nemesis:DEC-235). Each `jailed-<name>` starts empty: no launch
+      # directory, a home discarded on exit, none of the host's integrations
+      # (nemesis:DEC-237), no doctrine, quotient, subagents, git identity or
+      # Postgres. It holds the gateway, the project's tools and env, and what it
+      # declares: its mounts, and a forwarder per forward on its own port
+      # (the agents library's forwarderEntry: the readiness logic lives there).
+      jailAgents.pi = {
+        maker = jailLib.makeJailedPi;
+        # Its tools are its MCP servers' alone (nemesis:DEC-236).
+        flags = ["--no-builtin-tools"];
+      };
+      mountOptions = c: map (m: c.unsafe-add-raw-args (devEnvLib.mountArgs lib m));
+      forwardOptions = lib.concatMap jailLib.forwarderEntry;
+      declaredJail = name: decl: let
+        agent = jailAgents.${decl.agent};
+        c = jailLib.combinators;
+      in
+        agent.maker {
+          inherit name;
+          profile = "offline"; # the one `network` the vocabulary admits
+          mountLaunchDir = false;
+          ephemeralHome = true;
+          hostIntegrations = false;
+          gateway = jailLib.gatewayClient decl.agent;
+          hostDoctrine = false;
+          nixDoctrine = null;
+          extraPkgs = tools;
+          extraOptions =
+            envOptions c
+            ++ mountOptions c (decl.mounts or [])
+            ++ forwardOptions (decl.forwards or [])
+            ++ [(c.set-argv (agent.flags ++ [(c.noescape "\"$@\"")]))];
+        };
+      declaredJails = lib.mapAttrs' (n: d: lib.nameValuePair "jailed-${n}" (declaredJail n d)) devEnv.jails;
+      allJails = jails // declaredJails;
+
       # A form is a delegate's world, so it carries the same tools and env as the jails.
       forms = jailLib.quotientFormFamily {
         inherit quotient;
@@ -191,9 +230,27 @@
         (shorthand "jcx" "jailed-codex" "--no-daemon") # a shared daemon's hooks have no terminal
         (shorthand "jsh" "jailed-shell" "")
       ];
+
+      # A jail's launcher is the gateway wrapper (agents/gateway-jail.nix
+      # `wrap`), which checks the gateway and `exec`s the real launcher. This
+      # follows exactly one `exec`: no loop, so a deeper chain fails at a check
+      # rather than being chased. "" when there is none.
+      #
+      # Resolved through `builtins.readFile` because a store *reference* of the
+      # wrapper is not a build input: reading it carries the reference in the
+      # string's context, which is what puts the file in the sandbox.
+      launcherOf = name: jail: "${lib.getBin jail}/bin/${name}";
+      innerOf = launcher: let
+        execTargets =
+          lib.filter (l: lib.hasPrefix "exec ${builtins.storeDir}/" l)
+          (lib.splitString "\n" (builtins.readFile launcher));
+      in
+        if execTargets == []
+        then ""
+        else lib.elemAt (lib.splitString " " (lib.head execTargets)) 1;
     in {
       packages =
-        jails
+        allJails
         // {
           inherit devTools;
           quotient-read = forms.read;
@@ -203,41 +260,25 @@
       # The jails, the unjailed agent CLIs (ahead of self-installed ones on
       # PATH, one pin with the jails) and the shorthands, with the project's env.
       devShells.default = pkgs.mkShell {
-        packages = tools ++ lib.attrValues jails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
+        packages = tools ++ lib.attrValues allJails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
         inherit env;
         shellHook = devEnvLib.doctrineWarning devTools;
       };
 
       checks = {
-        # The contract, executable, for every launcher. A jail's launcher is
-        # the gateway wrapper (agents/gateway-jail.nix `wrap`), which checks the
-        # gateway and `exec`s the real launcher, so the bundle sits one
-        # indirection down. Follow exactly one `exec` per launcher: no loop, so
-        # a deeper chain fails at the check rather than being chased.
-        #
-        # The inner launcher is resolved through `builtins.readFile` because a
-        # store *reference* of the wrapper is not a build input: reading it
-        # carries the reference in the string's context, which is what puts the
-        # file in the sandbox.
-        #
-        # Needles, each found in the wrapper or the inner launcher: the
-        # bundle's own path (nothing flattens it into member paths), the
-        # project's env name (set as given) and its hostEnv name (in the
-        # runtime forwarding code).
+        # The contract, executable, for every launcher, declared jails
+        # included: the bundle's own path (nothing flattens it into member
+        # paths), the project's env name (set as given) and its hostEnv name
+        # (in the runtime forwarding code), each found in the gateway wrapper
+        # or the inner launcher.
         stub = let
           # `${NAME+x}` appears only in tryFwdEnv's runtime test, so a build-time
           # `--setenv STUB_HOST_ENV` would not satisfy it.
           needles = ["${devTools}" "--setenv STUB_DEV_ENV stub" "\${STUB_HOST_ENV+x}"];
           grep = "${pkgs.gnugrep}/bin/grep";
           launcherCheck = name: jail: let
-            launcher = "${lib.getBin jail}/bin/${name}";
-            execTargets =
-              lib.filter (l: lib.hasPrefix "exec ${builtins.storeDir}/" l)
-              (lib.splitString "\n" (builtins.readFile launcher));
-            inner =
-              if execTargets == []
-              then ""
-              else lib.elemAt (lib.splitString " " (lib.head execTargets)) 1;
+            launcher = launcherOf name jail;
+            inner = innerOf launcher;
           in ''
             files=('${launcher}')
             if [[ -n '${inner}' && -f '${inner}' ]]; then files+=('${inner}'); fi
@@ -255,9 +296,56 @@
         in
           pkgs.runCommand "dev-envs-stub-check" {} ''
             failed=
-            ${lib.concatStringsSep "\n" (lib.mapAttrsToList launcherCheck jails)}
+            ${lib.concatStringsSep "\n" (lib.mapAttrsToList launcherCheck allJails)}
             if [[ -n $failed ]]; then exit 1; fi
             touch $out
+          '';
+
+        # The stub's jails.probe, built (nemesis:SL-026): socket mode to the
+        # gateway, the declared mounts and forward, pi without its built-in
+        # tools, and nothing undeclared. The forwarders sit in the entry's
+        # wrap-entry chain, followed from the inner launcher.
+        declared-jail = let
+          outer = launcherOf "jailed-probe" declaredJails.jailed-probe;
+          inner = innerOf outer;
+          inherit (jailLib.gatewayFacts) clientSocket relayPort;
+        in
+          pkgs.runCommand "dev-envs-declared-jail-check" {nativeBuildInputs = [pkgs.gnugrep];} ''
+            refute() {
+              if "$@"; then
+                echo "refute: holds, expected not to: $*" >&2
+                exit 1
+              fi
+            }
+            inner='${inner}'
+            test -f "$inner"
+
+            grep -Fq -- '--unshare-net' "$inner"
+            grep -Fq -- '--ro-bind ${dirOf clientSocket} ${dirOf clientSocket}' "$inner"
+            grep -Fq -- '--ro-bind "$PWD"/tools/probe /probe' "$inner"
+            grep -Fq -- '--ro-bind "$PWD"/tools/probe/pi-mcp.json "$HOME"/.pi/agent/mcp.json' "$inner"
+            grep -Fq -- '--bind "$PROBE_SESSION_DIR" /session' "$inner"
+            grep -Fq -- '--ro-bind "$XDG_RUNTIME_DIR"/nemesis-probe /run/probe' "$inner"
+            grep -Fq -- '--no-builtin-tools "$@"' "$inner"
+            # No launch directory, no persisted home, no host integrations.
+            for absent in /workspace jail.nix/home malebolge -host-git-excludes-file \
+              ZMX_SESSION doctrine quotient GIT_AUTHOR_NAME postgresql; do
+              refute grep -Fq -- "$absent" "$inner"
+            done
+
+            # Every wrapper in the entry's chain, outermost first.
+            wrappers=()
+            next="$(grep -o -- '-- /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$inner" | cut -c4-)"
+            while [ -n "$next" ]; do
+              wrappers+=("$next")
+              next="$(grep -o -- '^exec /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$next" | cut -c6- || true)"
+            done
+            test "''${#wrappers[@]}" = 2
+            grep -Fq -- 'TCP-LISTEN:${toString relayPort},bind=127.0.0.1' "''${wrappers[@]}"
+            grep -Fq -- 'UNIX-CONNECT:${clientSocket}' "''${wrappers[@]}"
+            grep -Fq -- 'TCP-LISTEN:7000,bind=127.0.0.1' "''${wrappers[@]}"
+            grep -Fq -- 'UNIX-CONNECT:/run/probe/duel.sock' "''${wrappers[@]}"
+            touch "$out"
           '';
 
         dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib hostDevEnv;};

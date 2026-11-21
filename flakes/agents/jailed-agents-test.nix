@@ -265,6 +265,28 @@
   gatewaySocketOptionsNetworkedFails = failsToEvaluate (inner "specDev" {
     extraOptions = agents.gatewaySocketOptions;
   });
+  # forwarderEntry alone (nemesis:SL-026): the in-jail half of socket mode,
+  # with no bind of the socket's directory; the caller brings that.
+  declaredForwardArgs = {
+    socket = "/run/probe/duel.sock";
+    port = 7000;
+  };
+  declaredForward = inner "offline" {extraOptions = agents.forwarderEntry declaredForwardArgs;};
+  declaredForwardNetworkedFails = failsToEvaluate (inner "specDev" {
+    extraOptions = agents.forwarderEntry declaredForwardArgs;
+  });
+  # ephemeralHome (nemesis:SL-026): its twin is `offline`, and a pi jail keeps
+  # the binds named into its home.
+  ephemeral = inner "offline" {ephemeralHome = true;};
+  ephemeralPi = agents.makeJailedPi {
+    profile = "offline";
+    ephemeralHome = true;
+    gateway = gw;
+  };
+  ephemeralNamedHomeFails = failsToEvaluate (inner "offline" {
+    ephemeralHome = true;
+    persistedHome = "probe-home";
+  });
   # A satan-mcp client (DEC-088): the socket's directory, read-only.
   satanMcp = inner "specDev" {extraOptions = agents.satanMcpOptions;};
   audio = inner "specDev" {extraOptions = agents.audioOptions agents.combinators;};
@@ -510,6 +532,8 @@ in
   assert offlineSocketOptions.drvPath != "";
   assert socketModeNetworkFails;
   assert gatewaySocketOptionsNetworkedFails;
+  assert declaredForwardNetworkedFails;
+  assert ephemeralNamedHomeFails;
   assert satanMcp.drvPath != "";
   assert qsClaude.drvPath != "" && relayAlone.drvPath != "" && offlineGatewayClaude.drvPath != "";
   assert qsWithRelayFails;
@@ -859,6 +883,24 @@ in
       so=${offlineSocketOptions}/bin/jailed-zsh
       grep -Fq -- '--ro-bind /run/llm-gateway-client /run/llm-gateway-client' "$so"
       grep -q -- '-- /nix/store/[^ ]*-jailed-zsh-jail-wrapper/bin/jailed-zsh-jail-wrapper' "$so"
+      # forwarderEntry alone (declaredForward): the forwarder on the declared
+      # port and socket, and no bind of the socket's directory.
+      df=${declaredForward}/bin/jailed-zsh
+      refute grep -Fq -- '/run/probe /run/probe' "$df"
+      df_wrapper="$(grep -o -- '-- /nix/store/[^ ]*-jailed-zsh-jail-wrapper/bin/jailed-zsh-jail-wrapper' "$df" | cut -c4-)"
+      test -n "$df_wrapper"
+      grep -Fq -- 'TCP-LISTEN:7000,bind=127.0.0.1' "$df_wrapper"
+      grep -Fq -- 'UNIX-CONNECT:/run/probe/duel.sock' "$df_wrapper"
+      # ephemeralHome: the home is jail.nix's tmpfs alone, with no persisted
+      # home made or bound; pi's models.json is still bound into it.
+      eph=${ephemeral}/bin/jailed-zsh
+      grep -Fq -- '--tmpfs ~' "$eph"
+      refute grep -Fq -- 'jail.nix/home' "$eph"
+      grep -Fq -- 'jail.nix/home/agent-offline' "$offline"
+      eph_pi="$(gateway_inner_of ${ephemeralPi}/bin/jailed-pi pi)"
+      test -n "$eph_pi"
+      grep -Fq -- '~/.pi/agent/models.json' "$eph_pi"
+      refute grep -Fq -- 'jail.nix/home' "$eph_pi"
       # satanMcpOptions: the directory read-only, never the socket file (it
       # pins the inode satan-mcp-start replaces, ISS-042) and never writable
       # (the jail could replace the socket and impersonate satan-mcp).

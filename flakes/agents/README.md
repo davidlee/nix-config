@@ -19,6 +19,9 @@ Sandboxed LLM coding agents using [jail.nix](https://alexdav.id/projects/jail-ni
 - `gatewayClient`, `gatewaySocketOptions` — a jail's `gateway` value for this
   repo's gateway, and its socket-mode options for `extraOptions` (see
   [Gateway mode](#gateway-mode-gateway))
+- `forwarderEntry` — `forwarderEntry { socket; port; }`: socket mode's in-jail
+  half alone (`socket-forwarder.nix`), for a socket the caller binds in itself.
+  dev-envs uses it for a declared jail's forwards (nemesis:SL-026)
 - `quotientFormFamily` — quotient's per-call forms for a gateway client (see
   [quotient forms](#quotient-forms))
 - `posture` — the confinement every jail and every form gets, as a function of
@@ -398,9 +401,14 @@ Failures:
 
 | message | meaning |
 |---|---|
-| `gateway forwarder exited before listening on 127.0.0.1:4000` | `socat` died at start; its own error precedes it (for example address in use) |
-| `gateway forwarder not listening on 127.0.0.1:4000 after 2 s` | `socat` is running but never listened |
-| `gateway socket mode needs a jail without network (DEC-076)` | an evaluation error: the jail shares the host network namespace, where the forwarder would collide with the relay's own listener |
+| `socket forwarder exited before listening on 127.0.0.1:4000` | `socat` died at start; its own error precedes it (for example address in use) |
+| `socket forwarder not listening on 127.0.0.1:4000 after 2 s` | `socat` is running but never listened |
+| `a socket forwarder on 127.0.0.1:4000 needs a jail without network (DEC-076)` | an evaluation error: the jail shares the host network namespace, where the forwarder would listen on the host's loopback and collide with the relay's own listener |
+
+The forwarder is `gateway-forwarder.nix`: the socket directory's bind, then
+`socket-forwarder.nix`'s `forwarderEntry`, which holds the readiness logic.
+`forwarderEntry` alone serves any socket a jail binds in itself, on any port,
+with the same messages and guard.
 
 A jail without `gateway` can take the same path, for a client that holds its
 own key file: put `agents.gatewaySocketOptions` in `extraOptions`. There is no
@@ -702,6 +710,8 @@ as the paths they produce.
 | `workspaceDepsFromEnv` | `true` | Merge `JAIL_WORKSPACE_DEPS` into `workspaceDeps` and `JAIL_WORKSPACE_DEPS_RW` into `workspaceDepsRw` (impure evaluation). `false`: ignore both |
 | `mountLaunchDir` | `true` | Bind the host cwd at `/workspace/<project>` and start there. `false`: bind nothing, start in `$HOME` |
 | `persistedHome` | `null` | Name of the persisted home (`[A-Za-z0-9][A-Za-z0-9._-]*`). `null`: the profile's |
+| `ephemeralHome` | `false` | No persisted home: `~` is jail.nix's tmpfs, discarded on exit, holding only the binds named into it (pi's `models.json`, a caller's mounts). Excludes `persistedHome` |
+| `hostIntegrations` | `true` | `false` drops the host facilities no jail declares: `JAIL_WORKSPACE_DEPS{,_RW}` (as `workspaceDepsFromEnv = false`), the malebolge bridge, the host git excludes and the zmx state relay (nemesis:DEC-237) |
 | `subagents` | `[]` | Sibling agents to expose as depth-guarded `jailed-<name>` wrappers inside the jail. List of names from `agentsByName` (`[ "pi" "dirge" ]`) or the string `"all"`. Nested agents inherit the jail (not re-jailed). |
 | `allowSelfAsSubagent` | `false` | Sugar: fold the agent's own `name` into `subagents` (bounded self-recursion) |
 | `maxSubagentDepth` | `1` | Maximum nested `jailed-<name>` depth (shared counter across all agents) before the wrapper refuses to recurse |

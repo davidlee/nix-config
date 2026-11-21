@@ -1196,6 +1196,27 @@ name is forwarded from the launch environment when set. The host's own
 [`agents/dev-env.nix`](./agents/dev-env.nix) list applies too, and a project may
 not restate one of its names.
 
+`devEnv.jails.<name>` declares a jail of the project's own, built as
+`jailed-<name>` on the shell's PATH (nemesis:SL-026):
+
+```nix
+jails.probe = {
+  agent = "pi";                      # pi, run as `pi --no-builtin-tools`
+  network = "offline";               # the only one: the gateway and the forwards
+  mounts = [                         # from: relative to the launch dir, or $VAR[/path]
+    { from = "tools/probe"; to = "/probe"; mode = "ro"; }
+    { from = "$PROBE_SESSION_DIR"; to = "/session"; mode = "rw"; }
+  ];
+  forwards = [ { port = 7000; socket = "/run/probe/duel.sock"; } ];
+};
+```
+
+It starts empty: no launch directory, an ephemeral home, no host integrations,
+doctrine, quotient, subagents or git identity. It holds the gateway, the
+project's tools and env, its mounts (`$VAR` expanded at launch; `~` in `to` is
+the jail's home) and one in-jail forwarder per forward. `checkDevEnv` refuses a
+declaration with an unknown key or a bad field, naming it (`dev-envs/dev-env.nix`).
+
 `dev-db` gives a project a throwaway Postgres on a unix socket under `/tmp`, from
 the `postgresql` in its own `dev-tools`. Its justfile sets `DEV_DB_NAME`; `dev-db
 help` lists the commands. Tests need no host database: each jail has its own.

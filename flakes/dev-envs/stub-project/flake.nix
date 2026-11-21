@@ -15,6 +15,40 @@
           devEnv = {
             env.STUB_DEV_ENV = "stub";
             hostEnv = ["STUB_HOST_ENV"];
+            # A declared jail, shaped as nemesis:SL-026's probe: dev-envs
+            # builds it as jailed-probe (checks.declared-jail).
+            jails.probe = {
+              agent = "pi";
+              network = "offline";
+              mounts = [
+                {
+                  from = "tools/probe";
+                  to = "/probe";
+                  mode = "ro";
+                }
+                {
+                  from = "tools/probe/pi-mcp.json";
+                  to = "~/.pi/agent/mcp.json";
+                  mode = "ro";
+                }
+                {
+                  from = "$PROBE_SESSION_DIR";
+                  to = "/session";
+                  mode = "rw";
+                }
+                {
+                  from = "$XDG_RUNTIME_DIR/nemesis-probe";
+                  to = "/run/probe";
+                  mode = "ro";
+                }
+              ];
+              forwards = [
+                {
+                  port = 7000;
+                  socket = "/run/probe/duel.sock";
+                }
+              ];
+            };
           };
           # Which nixpkgs built these tools: checks.project-pins compares it
           # with this flake's own lock.
