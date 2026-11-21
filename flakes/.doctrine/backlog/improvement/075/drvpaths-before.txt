@@ -1,0 +1,6 @@
+jailed-pi /nix/store/3zqiw1pfrkw2dpqfrdqj249b8kyi2gg8-jailed-pi.drv
+jailed-pi-research /nix/store/j9kzl4c7f68g712rpwlldrrxbp6kaplq-jailed-pi-research.drv
+jailed-claude /nix/store/vndc91wbnmg8mh8pjn8mcqaj3akjyx7p-jailed-claude.drv
+jailed-codex /nix/store/0d84f354zn461ddqafxqbh4zxbfm49nz-jailed-codex.drv
+jailed-shell /nix/store/s6nxhaz9qa1bfqz00yx7q3j2hk7v4nzb-jailed-shell.drv
+jailed-probe /nix/store/px15nz9d785d82bra0nz5fljs04pbfr1-jailed-probe.drv

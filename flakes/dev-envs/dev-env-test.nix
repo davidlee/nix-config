@@ -139,6 +139,17 @@
       needle = "jailed-pi";
     }
     {
+      # Its check variant would be jailed-probe-check (RV-107 F-14).
+      name = "jail name ends in -check";
+      devEnv = {
+        jails = {
+          probe = probeJail;
+          probe-check = probeJail;
+        };
+      };
+      needle = "`jails.probe-check`: a jail's name must not end in -check";
+    }
+    {
       name = "jail not an attrset";
       devEnv = withJail "pi";
       needle = "`jails.probe` must be an attrset";

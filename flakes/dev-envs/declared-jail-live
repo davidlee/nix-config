@@ -1,0 +1,217 @@
+#!/usr/bin/env bash
+# The live test of a declared jail's check variant (nemesis:SL-026 PHASE-02
+# EX-5, IMP-075), on this host: `checks` cannot run bwrap. It runs the stub
+# project's jailed-probe-check against fixtures only: a fixture gateway socket
+# (a stub model endpoint that records each request), a dummy key, and a duel
+# listener behind the declared forward. The real gateway is never reached.
+#
+#   ./declared-jail-live <jailed-probe-check> <python3> <socat>
+#
+# Proves, from inside the jail (probe-entry) and outside it:
+#   - each declared mount at its jail path and mode: a relative directory, a
+#     relative file into ~ (the ephemeral home), `$VAR` and `$VAR/<suffix>`;
+#   - the client socket's directory is the fixture's, and no mount comes from
+#     the real gateway's directories;
+#   - both forwards reach their fixture listeners, then pi runs, and the stub
+#     model endpoint records pi's first request, with the dummy key;
+#   - ASM-005's two-run witness: two runs with distinct values for both
+#     `$VAR` forms, one containing a space, each run's witnesses only in its
+#     own directories;
+#   - refusals before bwrap: a mount source unset, one gateway variable
+#     alone, a missing fixture directory.
+
+set -euo pipefail
+
+check_jail=$1 python3=$2 socat=$3
+here=$(cd "$(dirname "$0")" && pwd)
+
+tmp=$(mktemp -d)
+pids=()
+# shellcheck disable=SC2329 # invoked by the trap
+cleanup() {
+  for p in "${pids[@]}"; do kill "$p" 2>/dev/null || true; done
+  rm -rf "$tmp"
+}
+trap cleanup EXIT
+
+failed=0
+ok() { printf 'ok   %s\n' "$1"; }
+bad() {
+  printf 'FAIL %s\n' "$1"
+  failed=1
+}
+expect() { # <what> <command…>: the command succeeds
+  local what=$1
+  shift
+  if "$@"; then ok "$what"; else bad "$what"; fi
+}
+
+# ---------------------------------------------------------------- fixtures
+
+# The launch directory: the stub's mounts are relative to it.
+launch="$tmp/launch"
+mkdir -p "$launch/tools/probe"
+printf '{"mcpServers":{}}\n' > "$launch/tools/probe/pi-mcp.json"
+cp "$here/declared-jail-live-entry" "$launch/tools/probe/probe-entry"
+chmod +x "$launch/tools/probe/probe-entry"
+
+# The fixture gateway: the client socket's directory, marked, and a stub model
+# endpoint on its socket. It logs each request as one JSON line.
+gateway="$tmp/fixture gateway"
+mkdir -p "$gateway"
+touch "$gateway/FIXTURE"
+requests="$tmp/requests.jsonl"
+"$python3" - "$gateway/api.sock" "$requests" <<'PY' &
+import http.server, json, socketserver, sys
+
+sock, log = sys.argv[1], sys.argv[2]
+
+class Handler(http.server.BaseHTTPRequestHandler):
+    def log_message(self, *args):
+        pass
+
+    def record(self, body):
+        with open(log, "a") as f:
+            f.write(json.dumps({
+                "method": self.command,
+                "path": self.path,
+                "authorization": self.headers.get("Authorization", ""),
+                "body": body,
+            }) + "\n")
+
+    def do_GET(self):
+        self.record("")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"fixture-gateway\n")
+
+    def do_POST(self):
+        body = self.rfile.read(int(self.headers.get("Content-Length", 0))).decode()
+        self.record(body)
+        chunk = {
+            "id": "fixture", "object": "chat.completion.chunk", "created": 0,
+            "model": "fixture",
+            "choices": [{"index": 0, "delta": {"role": "assistant", "content": "fixture-ok"},
+                         "finish_reason": "stop"}],
+        }
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.end_headers()
+        self.wfile.write(b"data: " + json.dumps(chunk).encode() + b"\n\ndata: [DONE]\n\n")
+
+class Server(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
+    daemon_threads = True
+
+    def get_request(self):
+        conn, _ = self.socket.accept()
+        return conn, ("fixture", 0)
+
+Server(sock, Handler).serve_forever()
+PY
+pids+=($!)
+
+key="$tmp/dummy-key"
+printf 'sk-fixture-dummy' > "$key"
+
+# One run's $VAR sources: the session directory (`$PROBE_SESSION_DIR`) and the
+# runtime directory (`$XDG_RUNTIME_DIR/nemesis-probe`), its marker naming the
+# run, and the duel listener behind the declared forward.
+run_dirs() { # <run> <session> <xdg>
+  mkdir -p "$2" "$3/nemesis-probe"
+  printf '%s\n' "$1" > "$3/nemesis-probe/RUN"
+  "$socat" "UNIX-LISTEN:$3/nemesis-probe/duel.sock,fork" SYSTEM:"echo duel-$1" &
+  pids+=($!)
+}
+
+for _ in $(seq 50); do
+  [ -S "$gateway/api.sock" ] && break
+  sleep 0.1
+done
+[ -S "$gateway/api.sock" ] || {
+  echo "the fixture gateway never listened" >&2
+  exit 1
+}
+
+# A run of the check variant from the launch directory, with the fixture
+# gateway unless the caller overrides the variables.
+probe() { # <session> <xdg> [args…]
+  local session=$1 xdg=$2
+  shift 2
+  (cd "$launch" && PROBE_SESSION_DIR="$session" XDG_RUNTIME_DIR="$xdg" \
+    JAIL_CHECK_GATEWAY_DIR="${JAIL_CHECK_GATEWAY_DIR-$gateway}" \
+    JAIL_CHECK_GATEWAY_KEY="${JAIL_CHECK_GATEWAY_KEY-$key}" \
+    timeout 120 "$check_jail" /probe/probe-entry "$@")
+}
+
+# ---------------------------------------------------------------- the two runs
+
+session_a="$tmp/session a" xdg_a="$tmp/xdg-a"
+session_b="$tmp/session-b" xdg_b="$tmp/xdg b"
+run_dirs a "$session_a" "$xdg_a"
+run_dirs b "$session_b" "$xdg_b"
+
+for run in a b; do
+  session_var="session_$run" xdg_var="xdg_$run"
+  if probe "${!session_var}" "${!xdg_var}" "$run" > "$tmp/out-$run" 2> "$tmp/err-$run"; then
+    ok "run $run: the entry passed and pi exited 0"
+  else
+    bad "run $run: exit $? ($(tail -3 "$tmp/err-$run" | tr '\n' ' '))"
+  fi
+  sed "s/^/  [$run] /" "$tmp/out-$run"
+done
+
+for run in a b; do
+  other=$([ "$run" = a ] && echo b || echo a)
+  session_var="session_$run" other_var="session_$other"
+  expect "run $run: its witness names its own runtime directory" \
+    grep -qx "run=$run runtime=$run" "${!session_var}/witness-$run"
+  expect "run $run: no witness from run $other in its session" \
+    test ! -e "${!session_var}/witness-$other"
+  expect "run $run: its own witness not in run $other's session" \
+    test ! -e "${!other_var}/witness-$run"
+done
+for xdg in "$xdg_a" "$xdg_b"; do
+  expect "nothing written into the read-only runtime mount ($xdg)" \
+    test "$(find "$xdg/nemesis-probe" -mindepth 1 -printf '%f\n' | LC_ALL=C sort | tr '\n' ' ')" = "RUN duel.sock "
+done
+
+# pi's first model request reached the stub endpoint, with the dummy key.
+first_post=$(grep -m1 '"method": "POST"' "$requests" || true)
+expect "the stub model endpoint recorded pi's first request" test -n "$first_post"
+expect "pi's first request carried the dummy key" \
+  grep -Fq '"authorization": "Bearer sk-fixture-dummy"' <<< "$first_post"
+printf '  first request: %s\n' "$(cut -c1-200 <<< "$first_post")"
+
+# ---------------------------------------------------------------- refusals
+
+refused() { # <what> <needle> <session> <xdg>: refused before bwrap, naming it
+  local what=$1 needle=$2
+  if probe "$3" "$4" a > /dev/null 2> "$tmp/refusal"; then
+    bad "$what: it ran"
+  elif grep -Fq -- "$needle" "$tmp/refusal" && ! grep -q bwrap "$tmp/refusal"; then
+    ok "$what: refused, naming $needle"
+  else
+    bad "$what: $(tr '\n' ' ' < "$tmp/refusal")"
+  fi
+}
+(
+  unset PROBE_SESSION_DIR
+  cd "$launch"
+  if XDG_RUNTIME_DIR="$xdg_a" JAIL_CHECK_GATEWAY_DIR="$gateway" JAIL_CHECK_GATEWAY_KEY="$key" \
+    "$check_jail" /probe/probe-entry a > /dev/null 2> "$tmp/unset"; then
+    echo "FAIL a mount source unset: it ran"
+    exit 1
+  elif grep -Fq PROBE_SESSION_DIR "$tmp/unset"; then
+    echo "ok   a mount source unset: refused, naming PROBE_SESSION_DIR"
+  else
+    echo "FAIL a mount source unset: $(tr '\n' ' ' < "$tmp/unset")"
+    exit 1
+  fi
+) || failed=1
+JAIL_CHECK_GATEWAY_KEY='' refused "the gateway directory alone" JAIL_CHECK_GATEWAY_KEY "$session_a" "$xdg_a"
+JAIL_CHECK_GATEWAY_DIR='' refused "the gateway key alone" JAIL_CHECK_GATEWAY_DIR "$session_a" "$xdg_a"
+JAIL_CHECK_GATEWAY_DIR="$tmp/no gateway" refused "a missing gateway directory" "$tmp/no gateway" "$session_a" "$xdg_a"
+
+if [ "$failed" = 0 ]; then echo "declared-jail-live: all passed"; else echo "declared-jail-live: FAILED"; fi
+exit "$failed"

@@ -167,14 +167,18 @@
   # Socket mode (DEC-076, DEC-077): a jail without network reaches the
   # gateway through the relay's client socket and an in-jail forwarder on the
   # gateway's own port, so its URL is unchanged.
-  gatewaySocketOptions =
+  # `source`: the host side of the bind, null for the real directory
+  # (gateway.clientDirectory).
+  gatewaySocketForwarder = source:
     import ./gateway-forwarder.nix {
       inherit pkgs;
       inherit (jail) combinators;
     } {
       socket = gatewayData.clientSocket;
       port = gatewayData.relayPort;
+      inherit source;
     };
+  gatewaySocketOptions = with gatewaySocketForwarder null; bind ++ entry;
 
   # A satan-mcp client: the socket's directory, read-only. A file bind pins
   # the inode satan-mcp-start replaces (ISS-042); a writable directory lets
@@ -527,7 +531,7 @@
     inherit lib pkgs setenvsByArgsFd piGatewayModelsFor;
     inherit (jail) combinators;
     inherit (gatewayData) clientSocket;
-    socketOptions = gatewaySocketOptions;
+    socketForwarder = gatewaySocketForwarder;
   };
 
   makeJailedAgent = {
@@ -582,11 +586,16 @@
     # reaches the gateway over TCP with the jail's key.
     quotientServer ? null,
     # Opt-in: reach models through an LLM gateway instead of provider keys.
-    # `{ keyFile; url; runDirectory; }`, all strings, exactly those:
-    #   keyFile       the gateway key's path, a shell word expanded inside
-    #                 double quotes at run time (so it may carry `$HOME`);
-    #   url           the gateway's OpenAI-compatible base URL, not secret;
-    #   runDirectory  present while the gateway runs (its RuntimeDirectory).
+    # `{ keyFile; url; runDirectory; clientDirectory?; }`, all strings:
+    #   keyFile          the gateway key's path, a shell word expanded inside
+    #                    double quotes at run time (so it may carry `$HOME`);
+    #   url              the gateway's OpenAI-compatible base URL, not secret;
+    #   runDirectory     present while the gateway runs (its RuntimeDirectory);
+    #   clientDirectory  optional, socket mode only: the host directory bound
+    #                    at the client socket's, and pre-flighted, in place of
+    #                    the real one; a shell word as keyFile is. Absent in
+    #                    production; dev-envs' jailed-<name>-check sets it
+    #                    (DEC-131).
     # The jail gets LLM_GATEWAY_KEY (over `--args FD`) and LLM_GATEWAY_URL,
     # and no provider key.
     # With pi in the jail, also a read-only models.json (gateway-jail.nix).
@@ -690,6 +699,9 @@
         ))
       ]
       ++ extraOptions
+      # Last, so the gateway forwarder is the outermost wrap: a caller's
+      # wrap-entry runs once the gateway is reachable (IMP-075).
+      ++ gatewayJail.entryOptions
     );
   in
     assert builtins.hasAttr profile profiles || throw "Unknown jailed agent profile: ${profile}";

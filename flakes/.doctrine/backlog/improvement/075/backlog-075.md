@@ -29,13 +29,14 @@ RV-107 F-1, F-7 and F-14.
 - The check variant differs from production in two places only:
   1. Its entry runs the argv given at launch (a path in the jail), after every
      forwarder is ready, with pi's real entry appended as the last argument.
-  2. Its gateway source can be chosen at launch. Both of
+  2. Its gateway source can be chosen at launch, through the optional
+     `gateway.clientDirectory` (§ Settled). Both of
      `JAIL_CHECK_GATEWAY_DIR` and `JAIL_CHECK_GATEWAY_KEY` set: use them.
      Neither set: the real gateway. One set, or a missing directory: refuse
      before bwrap, naming it. Only the host side of the offline profile changes
      (the preflight directory, and the source of the one bind to
      `/run/llm-gateway-client`). The in-jail destination, the forwarder's dial
-     path and every other caller's literal `runDirectory` are unchanged.
+     path and `runDirectory`'s meaning are unchanged.
 - No production launcher contains a `JAIL_CHECK_GATEWAY_*` name; a check greps
   for them. With both variables set, production still binds the real directory.
 - The five built-in jails' `drvPath`s are compared before and after (as
@@ -54,7 +55,7 @@ RV-107 F-1, F-7 and F-14.
 - Afterwards: a small REV takes the `-check` refusal and the new checks into
   SPEC-003 (CHR-034's outcome, DEC-131's last consequence).
 
-## Open: one field, two meanings (consult before building)
+## Settled: one field, two meanings (was § Open)
 
 Evidence:
 - `agents/gateway-jail.nix:38-43`: in socket mode (offline profile) the
@@ -84,5 +85,115 @@ Options:
 - C. Offline, `runDirectory` always means the host's client directory. This
   needs `gatewayClient` to vary by profile, and it changes production drvPaths.
 
-Not decided. Settle it with the user (and nemesis, since it is the C-93
-wording) before writing the library change.
+Outcome (2026-11-21): **B**, as `clientDirectory`, no rename. The user chose
+it over A ("seems pretty janky"); nemesis accepted it as worded, with a new C-93
+variance and EX-5's gateway clause rewritten (nemesis ad5b33d3). DEC-131's
+choice, alternatives and consequences are amended to match.
+
+- `gateway = { keyFile; url; runDirectory; clientDirectory?; }`;
+  `clientDirectory` is absent in production.
+- It is the host path of the relay's client-socket directory, a shell word
+  expanded at launch as `keyFile` is: the one source of the offline preflight
+  and of the source side of the bind to `/run/llm-gateway-client`.
+- The library refuses it on a profile with network.
+- `runDirectory` keeps its one meaning and is still not read offline.
+- Only `jailed-<name>-check` sets it, from `JAIL_CHECK_GATEWAY_DIR`.
+
+Correction to C above (inference, unverified): the strings reaching the scripts
+would likely be the same, so drvPaths might not change; it was rejected on
+meaning, not on drvPaths.
+
+## Settled: entry order (consult, 2026-11-21)
+
+Evidence: jail.nix's `wrap-entry` makes each later wrap enclose the earlier
+ones. `makeJailedAgent` adds `gatewayJail.options` (and the offline gateway
+forwarder's wrap-entry with it) before `extraOptions`. A check wrap that
+dev-envs adds through `extraOptions` would therefore run before the gateway
+forwarder is ready, which breaks EX-5's "after every forwarder is ready".
+
+Outcome: **X**, chosen by the user over a new library entry hook (Y, which
+contradicts C-93's "no new makeJailedAgent option") and over letting the check
+argv run before the gateway forwarder (Z, which breaks EX-5). This is internal
+to the library: the gateway forwarder's wrap-entry is applied after
+`extraOptions`, so it is the outermost wrap. The socket-directory bind and every
+bwrap argument keep their place. The five built-in jails are on a networked
+profile, so they carry no forwarder, and their drvPaths are expected to stay the
+same. `jailed-probe` and the offline test launchers change their wrapper order:
+the gateway forwarder is now ready before the declared forwards.
+
+## Delivered
+
+- `dev-envs/dev-env.nix`: `jailErrors` refuses a name ending in `-check`.
+  `dev-env-test.nix` declares `probe` and `probe-check` and expects the refusal.
+- `agents/gateway-forwarder.nix` now returns `{ bind; entry; }`, and takes an
+  optional `source` for the host side of the bind. `gatewaySocketOptions` is
+  `bind ++ entry`, unchanged for its callers.
+- `agents/gateway-jail.nix` takes `clientDirectory`, which is optional and
+  allowed in socket mode only. With network it is an evaluation error. It is
+  the preflight directory (tested inside double quotes, as `keyFile` is) and
+  the bind source. It returns `entryOptions`, which `makeJailedAgent` applies
+  after `extraOptions` (§ Settled: entry order).
+- `dev-envs/flake.nix`:
+  - `declaredJail {check}` builds both variants from one declaration.
+  - The check variant adds `checkEntry`, the innermost wrap. It runs the launch
+    argv with a script appended last; that script holds pi's real entry and
+    its flags.
+  - The check variant sets `checkGateway`: `keyFile` and `clientDirectory`
+    become `${JAIL_CHECK_GATEWAY_KEY:-<real>}` and
+    `${JAIL_CHECK_GATEWAY_DIR:-/run/llm-gateway-client}`, and nothing else
+    changes.
+  - `checkJail` puts a guard in front of it: both variables or neither.
+  - `checkJails` are flake packages only. `shellPackages`, now hoisted into the
+    `let`, leaves them out, and an `assert` in `checks.check-variant` holds
+    that.
+- `justfile`: `test` gains `check-variant`. A new recipe,
+  `declared-jail-live`, runs `dev-envs/declared-jail-live` with its in-jail
+  entry `declared-jail-live-entry`.
+- `agents/README.md`, and the `gateway` doc in `jailed-agents.nix`: they
+  describe `clientDirectory` and the wrap order.
+
+## Verification
+
+- Red, then green:
+  - the `-check` refusal (`checks.dev-env`: "FAIL jail name ends in -check",
+    then green);
+  - the library cases (`checks.jailed-agents`: the shape refusal, then green;
+    `clientDirGateway`, `clientDirNetworkedFails`, `offlineGatewayForward`);
+  - `checks.check-variant` (an evaluation error with no `checkJails`, then
+    green).
+- The offline regression (`offlineGateway`, a literal `runDirectory` the
+  offline profile ignores) passes unchanged in `checks.jailed-agents`.
+- The production grep: `checks.stub` refuses `JAIL_CHECK_GATEWAY_` in every
+  production launcher and its inner launcher, the declared `jailed-probe`
+  included. The production bind is the literal
+  `--ro-bind /run/llm-gateway-client /run/llm-gateway-client`
+  (`checks.declared-jail`). Because production text names no
+  `JAIL_CHECK_GATEWAY_*` variable, setting both cannot change its mount table.
+  That is inferred from the text; I did not run it live.
+- drvPaths (`drvpaths-before.txt` and `drvpaths-after.txt` here):
+  - The five built-in jails are identical.
+  - `jailed-probe` changed from `px15nz9d…` to `3m1j6bky…`. Justification:
+    the gateway forwarder's wrap now comes after the declared forward's (§
+    Settled: entry order). The value already appeared after the library edit
+    alone, and the dev-envs edit left it unchanged.
+- Live (`just declared-jail-live`, Sleipnir, 2026-11-21): all checks passed.
+  The output is in `declared-jail-live.txt` here.
+- `just test` passed (exit 0). Among its checks:
+  - agents: `jailed-agents`, `quotient-relay`, `zmx-state-relay`, and the
+    impure `jailed-agents-env`;
+  - dev-envs: `stub`, `declared-jail`, `check-variant` (new), `dev-env`,
+    `dev-db`, `quotient-hostile-audit`, `project-pins`, `quotient-forms`;
+  - root: `features`, `factories`, `host-meta`, `templates`, `workarounds`,
+    `llm-gateway`, `satan-room`, `quotient-forms`, and the script tests.
+- `treefmt` (statix, deadnix) and `shellcheck` on both new scripts are clean.
+  `doctrine validate` is clean.
+- A fix from before this work: `templates-test.nix` still called
+  `devEnv.errors` without the `jailAgents` and `reservedJails` that IMP-074
+  added, so `checks.templates` failed at evaluation. It now passes them,
+  empty, because the template declares no jails.
+
+## Follow-ups
+
+- SPEC-003 REV: the `-check` refusal, the check variants as flake packages,
+  `checks.check-variant` and `just declared-jail-live` (DEC-131's last
+  consequence; precedent REV-023).

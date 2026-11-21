@@ -83,6 +83,7 @@ test:
   if [ "$(uname -s)" = Linux ]; then JAIL_WORKSPACE_DEPS=/nonexistent/env-dep JAIL_WORKSPACE_DEPS_RW=/nonexistent/env-rw-dep nix build --impure "path:{{justfile_directory()}}/agents#impureChecks.$(nix config show system).jailed-agents-env" --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).stub" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).declared-jail" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
+  if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).check-variant" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-env" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).dev-db" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
   if [ "$(uname -s)" = Linux ]; then nix build "path:{{justfile_directory()}}/dev-envs#checks.$(nix config show system).quotient-hostile-audit" {{dev_envs_check_override}} --no-link --no-write-lock-file; fi
@@ -111,6 +112,20 @@ test:
 # what `doctrine check gate` runs: `nix fmt`'s treefmt programs as a
 # read-only flake check (alejandra, statix, deadnix), then the tests.
 # --no-write-lock-file: a check never re-locks (CHR-008).
+# The live test of a declared jail's check variant (nemesis:SL-026 PHASE-02
+# EX-5): stub-project's jailed-probe-check, run on this host against a fixture
+# gateway, key and listeners. Linux only; not in `test`, whose checks cannot run
+# bwrap.
+declared-jail-live:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  sys=$(nix config show system)
+  jail=$(nix build "path:{{justfile_directory()}}/dev-envs#packages.$sys.jailed-probe-check" {{dev_envs_check_override}} --no-link --no-write-lock-file --print-out-paths)
+  tools=$(nix build --inputs-from "path:{{justfile_directory()}}/dev-envs" nixpkgs#python3 nixpkgs#socat --no-link --print-out-paths)
+  python=$(grep python3 <<< "$tools")
+  socat=$(grep socat <<< "$tools")
+  dev-envs/declared-jail-live "$jail/bin/jailed-probe-check" "$python/bin/python3" "$socat/bin/socat"
+
 gate: test
   nix build "{{flake}}#checks.$(nix config show system).treefmt" {{local_override}} --no-link --no-write-lock-file
 

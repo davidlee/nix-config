@@ -338,7 +338,8 @@ signs in on its own (claude, codex). Provider keys resolved by 1Password
 ### Gateway mode (`gateway`)
 
 A jail can hold one key for a local LLM gateway. The
-argument is exactly three strings; `gatewayClient` builds it for this repo's
+argument is three strings, plus an optional fourth in socket mode
+(`clientDirectory`, below); `gatewayClient` builds the three for this repo's
 gateway:
 
 ```nix
@@ -394,6 +395,14 @@ jail (no network)                                          host
   keeps the wrapper's PID, signals and exit status.
 - The wrapper's pre-flight checks `/run/llm-gateway-client` rather than
   `runDirectory`. `/run/llm-gateway` is not bound.
+- The forwarder is the jail's outermost entry wrap: a `wrap-entry` in
+  `extraOptions` (a declared forward, a check's entry) runs once it listens.
+- `clientDirectory` (optional, socket mode only) replaces the host side of
+  that one bind and of the pre-flight: a shell word expanded at run time, as
+  `keyFile` is. The jail side, `/run/llm-gateway-client`, and the forwarder's
+  dial path stay. It exists for dev-envs' `jailed-<name>-check`, which points
+  it at a fixture gateway (DEC-131); production jails never set it. With
+  network it is an evaluation error. `runDirectory` keeps its one meaning.
 - The socket is owned by the user (mode `0600`), so any process of that user
   can open it; the gateway still wants the key (`LLM_GATEWAY_KEY`).
 
@@ -405,8 +414,9 @@ Failures:
 | `socket forwarder not listening on 127.0.0.1:4000 after 2 s` | `socat` is running but never listened |
 | `a socket forwarder on 127.0.0.1:4000 needs a jail without network (DEC-076)` | an evaluation error: the jail shares the host network namespace, where the forwarder would listen on the host's loopback and collide with the relay's own listener |
 
-The forwarder is `gateway-forwarder.nix`: the socket directory's bind, then
-`socket-forwarder.nix`'s `forwarderEntry`, which holds the readiness logic.
+The forwarder is `gateway-forwarder.nix`: two parts, the socket directory's
+bind and `socket-forwarder.nix`'s `forwarderEntry`, which holds the readiness
+logic.
 `forwarderEntry` alone serves any socket a jail binds in itself, on any port,
 with the same messages and guard.
 
@@ -722,7 +732,7 @@ as the paths they produce.
 | `nixDoctrine` | `null` | A doctrine package whose `bin/` is bound read-only, with its closure, at `/run/doctrine-nix-bin` and never put on `PATH`: a reference build only a caller naming `/run/doctrine-nix-bin/doctrine` runs. Forms take it as `postureFlags.nixDoctrine` |
 | `quotient` | `false` | The host's quotient as `quotient`, an MCP relay narrowed to the launch dir (see [quotient relay](#quotient-relay-quotient)) |
 | `quotientServer` | `null` | `{ package; forms; }`: the real quotient in the jail, its delegates nested. Excludes `quotient`; needs `gateway` and network (see [In-jail quotient](#in-jail-quotient-quotientserver)) |
-| `gateway` | `null` | `{ keyFile; url; runDirectory; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
+| `gateway` | `null` | `{ keyFile; url; runDirectory; clientDirectory?; }`: run against an LLM gateway, the only model access (see [Gateway mode](#gateway-mode-gateway)). `gatewayClient "<client>"` builds it; with pi in the jail, binds the generated `models.json`. A profile without network uses [socket mode](#socket-mode) |
 
 ## helium
 

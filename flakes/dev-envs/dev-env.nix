@@ -14,7 +14,8 @@
 # A mount's `from` is relative to the launch directory, or `$VAR` / `$VAR/path`,
 # expanded when the jail starts (nemesis:ASM-005); `to` is an absolute jail
 # path, `~` being the jail's home; `mode` is ro or rw. This file interprets the
-# vocabulary; flake.nix builds `jailed-<name>` from it.
+# vocabulary; flake.nix builds `jailed-<name>` from it, and its check variant
+# `jailed-<name>-check` (so no name may end in -check).
 let
   allowedKeys = ["env" "hostEnv" "outerGitDir" "jails"];
   jailKeys = ["agent" "network" "mounts" "forwards"];
@@ -85,6 +86,8 @@ in rec {
     in
       lib.optional (builtins.match "[A-Za-z0-9][A-Za-z0-9._-]*" name == null) "`${where}`: a jail's name must match [A-Za-z0-9][A-Za-z0-9._-]*"
       ++ lib.optional (lib.elem name reservedJails) "`${where}` would shadow dev-envs' own jailed-${name}"
+      # Every declaration also yields jailed-<name>-check (nemesis:SL-026, RV-107 F-14).
+      ++ lib.optional (lib.hasSuffix "-check" name) "`${where}`: a jail's name must not end in -check (dev-envs builds jailed-<name>-check from each declaration)"
       ++ (
         if !lib.isAttrs d
         then ["`${where}` must be an attrset { agent; network; mounts; forwards; }"]

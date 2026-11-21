@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2088 # the messages name jail paths, ~ included
+# The check entry declared-jail-live runs inside jailed-probe-check, after
+# every forwarder listens:
+#
+#   probe-entry <run> <pi's real entry>
+#
+# It checks what the jail holds, writes this run's witness into the session
+# mount, then execs pi to send one prompt to the stub model endpoint.
+
+set -euo pipefail
+
+run=$1
+pi_entry=${!#}
+fail() {
+  echo "probe-entry: $*" >&2
+  exit 1
+}
+say() { echo "probe-entry: $*"; }
+writable() { touch "$1" 2>/dev/null; }
+
+# Each mount form, at its jail path and mode.
+[ -x /probe/probe-entry ] || fail "/probe (a relative directory) is not mounted"
+! writable /probe/.w || fail "/probe is writable"
+grep -q mcpServers ~/.pi/agent/mcp.json || fail "~/.pi/agent/mcp.json (a relative file into ~) is not mounted"
+! writable ~/.pi/agent/mcp.json || fail "~/.pi/agent/mcp.json is writable"
+writable /session/.w || fail "/session (\$PROBE_SESSION_DIR) is not writable"
+rm /session/.w
+runtime=$(cat /run/probe/RUN) || fail "/run/probe (\$XDG_RUNTIME_DIR/nemesis-probe) is not mounted"
+! writable /run/probe/.w || fail "/run/probe is writable"
+say "mounts: /probe ro, ~/.pi/agent/mcp.json ro, /session rw, /run/probe ro"
+
+# ASM-005's witness: this run's session gets this run's runtime marker.
+printf 'run=%s runtime=%s\n' "$run" "$runtime" > "/session/witness-$run"
+
+# The client socket's directory is the fixture's, and nothing is mounted from
+# the real gateway's directories (a mount's root, field 4 of mountinfo, is its
+# path in the source filesystem).
+[ -e /run/llm-gateway-client/FIXTURE ] || fail "/run/llm-gateway-client is not the fixture gateway"
+while read -r _ _ _ root mountpoint _; do
+  case "$root" in
+    /llm-gateway-client | /llm-gateway) fail "a mount from the real gateway: $root at $mountpoint" ;;
+  esac
+done < /proc/self/mountinfo
+say "gateway: the fixture's directory, no mount from the real one"
+
+# Both forwards reach their fixture listeners.
+read -r duel < /dev/tcp/127.0.0.1/7000 || fail "the declared forward (7000) did not answer"
+[ "$duel" = "duel-$runtime" ] || fail "the declared forward answered '$duel'"
+gw=$(curl -fsS http://127.0.0.1:4000/fixture) || fail "the gateway forward (4000) did not answer"
+[ "$gw" = fixture-gateway ] || fail "the gateway forward answered '$gw'"
+say "forwards: 7000 -> $duel, 4000 -> $gw"
+
+# stdin closed: pi -p reads a piped stdin as part of its prompt, and would
+# wait on the caller's.
+say "exec pi: $pi_entry"
+exec "$pi_entry" -p "Reply with the single word ok." < /dev/null

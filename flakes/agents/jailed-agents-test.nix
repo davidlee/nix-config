@@ -187,10 +187,11 @@
   };
   forwarderProbe = port:
     passJail "forwarder-probe-${toString port}" forwarderClient
-    (gatewayForwarder {
-      socket = forwarderSocket;
-      inherit port;
-    });
+    (with gatewayForwarder {
+        socket = forwarderSocket;
+        inherit port;
+      };
+        bind ++ entry);
   forwarderUpstream = pkgs.writeShellScript "forwarder-upstream" ''
     echo accepted >> "$FORWARDER_LOG"
     read -r line
@@ -252,6 +253,23 @@
   offlineGateway = agents.makeJailedPi {
     profile = "offline";
     gateway = gw;
+  };
+  # gateway.clientDirectory (nemesis:SL-026 PHASE-02 EX-5, DEC-131): the
+  # host source of the client socket's directory, a word the launcher expands.
+  # Twin of offlineGateway, differing only in that key.
+  gwClient = gw // {clientDirectory = "$CLIENT_DIR_UNDER_TEST";};
+  clientDirGateway = agents.makeJailedPi {
+    profile = "offline";
+    gateway = gwClient;
+  };
+  # It has no meaning with network: no socket mode, nothing it could source.
+  clientDirNetworkedFails = failsToEvaluate (agents.makeJailedPi {gateway = gwClient;});
+  # The gateway forwarder is the outermost wrap (IMP-075): a caller's
+  # wrap-entry (here a declared forward) runs once the gateway is reachable.
+  offlineGatewayForward = agents.makeJailedPi {
+    profile = "offline";
+    gateway = gw;
+    extraOptions = agents.forwarderEntry declaredForwardArgs;
   };
   # gatewaySocketOptions without `gateway` (key-file clients, e.g. jailed-malebolge).
   offlineSocketOptions = inner "offline" {extraOptions = agents.gatewaySocketOptions;};
@@ -530,6 +548,8 @@ in
   assert gatewayUnknownAttrFails;
   assert offlineGateway.drvPath != "";
   assert offlineSocketOptions.drvPath != "";
+  assert clientDirGateway.drvPath != "";
+  assert clientDirNetworkedFails;
   assert socketModeNetworkFails;
   assert gatewaySocketOptionsNetworkedFails;
   assert declaredForwardNetworkedFails;
@@ -878,6 +898,26 @@ in
       grep -Fq -- 'just system-switch' "$TMPDIR/og-no-gateway"
       grep -Fq -- 'systemctl status llm-gateway' "$TMPDIR/og-no-gateway"
       grep -Fq -- 'just gateway-credentials' "$TMPDIR/og-no-gateway"
+      # gateway.clientDirectory (clientDirGateway): the one host source of the
+      # pre-flight and the bind, expanded at launch; the jail side and the
+      # forwarder's dial path are offlineGateway's.
+      cd_outer=${clientDirGateway}/bin/jailed-pi
+      cd_inner="$(gateway_inner_of "$cd_outer" pi)"
+      gateway_probes "$cd_outer" "$cd_inner"
+      grep -Fq -- '--ro-bind "$CLIENT_DIR_UNDER_TEST" /run/llm-gateway-client' "$cd_inner"
+      refute grep -Fq -- '--ro-bind /run/llm-gateway-client /run/llm-gateway-client' "$cd_inner"
+      cd_wrapper="$(grep -o -- '-- /nix/store/[^ ]*-jailed-pi-jail-wrapper/bin/jailed-pi-jail-wrapper' "$cd_inner" | cut -c4-)"
+      grep -Fq -- 'UNIX-CONNECT:/run/llm-gateway-client/api.sock' "$cd_wrapper"
+      refute grep -Fq -- '/run/llm-gateway-client' "$cd_outer"
+      if CLIENT_DIR_UNDER_TEST="$TMPDIR/no such dir" "$cd_outer" 2> "$TMPDIR/cd-no-dir"; then exit 1; fi
+      grep -Fq -- "(no $TMPDIR/no such dir)" "$TMPDIR/cd-no-dir"
+      # The wrap order (offlineGatewayForward): the gateway forwarder
+      # outermost, the declared forward inside it.
+      gf_inner="$(gateway_inner_of ${offlineGatewayForward}/bin/jailed-pi pi)"
+      gf_outer_wrap="$(grep -o -- '-- /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$gf_inner" | cut -c4-)"
+      grep -Fq -- 'TCP-LISTEN:${toString gatewayData.relayPort},bind=127.0.0.1' "$gf_outer_wrap"
+      gf_next="$(grep -o -- '^exec /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$gf_outer_wrap" | cut -c6-)"
+      grep -Fq -- 'TCP-LISTEN:7000,bind=127.0.0.1' "$gf_next"
       # gatewaySocketOptions alone (offlineSocketOptions): the inner launcher
       # itself, so the bind and the forwarder entry, and no pre-flight.
       so=${offlineSocketOptions}/bin/jailed-zsh

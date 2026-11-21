@@ -186,27 +186,87 @@
       };
       mountOptions = c: map (m: c.unsafe-add-raw-args (devEnvLib.mountArgs lib m));
       forwardOptions = lib.concatMap jailLib.forwarderEntry;
-      declaredJail = name: decl: let
+
+      # A declaration's check variant, jailed-<name>-check (nemesis:SL-026
+      # PHASE-02 EX-5), differs in two places only:
+      #   - its entry runs the argv given at launch, a path inside the jail,
+      #     with pi's real entry (its flags included) appended last. It is the
+      #     innermost wrap, and the gateway forwarder the outermost, so it runs
+      #     once every forwarder listens;
+      #   - its gateway's host side, the key file and the client socket's
+      #     directory, comes from JAIL_CHECK_GATEWAY_KEY and _DIR when set
+      #     (gateway.clientDirectory, DEC-131), else the real ones.
+      # Production names neither variable, so none can redirect a real jail.
+      checkGateway = real:
+        real
+        // {
+          keyFile = "\${JAIL_CHECK_GATEWAY_KEY:-${real.keyFile}}";
+          clientDirectory = "\${JAIL_CHECK_GATEWAY_DIR:-${dirOf jailLib.gatewayFacts.clientSocket}}";
+        };
+      checkEntry = c: name: agent:
+        c.wrap-entry (entry: let
+          real = pkgs.writeShellScript "jailed-${name}-check-entry" ''
+            set -- ${lib.escapeShellArgs agent.flags} "$@"
+            exec ${entry}
+          '';
+        in ''
+          if [ "$#" = 0 ]; then
+            echo "jailed-${name}-check: no argv: give the check's entry, a path inside the jail" >&2
+            exit 2
+          fi
+          exec "$@" ${real}
+        '');
+
+      # One declaration, as production or as its check: the same jail else.
+      declaredJail = {check}: name: decl: let
         agent = jailAgents.${decl.agent};
         c = jailLib.combinators;
+        gateway = jailLib.gatewayClient decl.agent;
       in
         agent.maker {
-          inherit name;
+          name =
+            if check
+            then "${name}-check"
+            else name;
           profile = "offline"; # the one `network` the vocabulary admits
           mountLaunchDir = false;
           ephemeralHome = true;
           hostIntegrations = false;
-          gateway = jailLib.gatewayClient decl.agent;
+          gateway =
+            if check
+            then checkGateway gateway
+            else gateway;
           hostDoctrine = false;
           nixDoctrine = null;
           extraPkgs = tools;
           extraOptions =
             envOptions c
+            # First, so every forwarder's wrap encloses it.
+            ++ lib.optional check (checkEntry c name agent)
             ++ mountOptions c (decl.mounts or [])
             ++ forwardOptions (decl.forwards or [])
-            ++ [(c.set-argv (agent.flags ++ [(c.noescape "\"$@\"")]))];
+            ++ lib.optional (!check) (c.set-argv (agent.flags ++ [(c.noescape "\"$@\"")]));
         };
-      declaredJails = lib.mapAttrs' (n: d: lib.nameValuePair "jailed-${n}" (declaredJail n d)) devEnv.jails;
+      declaredJails = lib.mapAttrs' (n: d: lib.nameValuePair "jailed-${n}" (declaredJail {check = false;} n d)) devEnv.jails;
+
+      # The check variant behind its one launch-time guard: both gateway
+      # variables or neither, so a half-set fixture never meets a real key or
+      # directory. Flake packages only, never on the shell's PATH.
+      checkJail = name: decl: let
+        jail = declaredJail {check = true;} name decl;
+        refuse = set: unset: ''
+          if [ -n "''${${set}:-}" ] && [ -z "''${${unset}:-}" ]; then
+            echo "jailed-${name}-check: ${set} is set but ${unset} is not: set both (a fixture gateway) or neither (the real one)" >&2
+            exit 2
+          fi
+        '';
+      in
+        pkgs.writeShellScriptBin "jailed-${name}-check" ''
+          ${refuse "JAIL_CHECK_GATEWAY_DIR" "JAIL_CHECK_GATEWAY_KEY"}
+          ${refuse "JAIL_CHECK_GATEWAY_KEY" "JAIL_CHECK_GATEWAY_DIR"}
+          exec ${jail}/bin/jailed-${name}-check "$@"
+        '';
+      checkJails = lib.mapAttrs' (n: d: lib.nameValuePair "jailed-${n}-check" (checkJail n d)) devEnv.jails;
       allJails = jails // declaredJails;
 
       # A form is a delegate's world, so it carries the same tools and env as the jails.
@@ -248,19 +308,31 @@
         if execTargets == []
         then ""
         else lib.elemAt (lib.splitString " " (lib.head execTargets)) 1;
+
+      # The jails, the unjailed agent CLIs (ahead of self-installed ones on
+      # PATH, one pin with the jails) and the shorthands. No check variant.
+      shellPackages = tools ++ lib.attrValues allJails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
+
+      # The stub probe's declared mounts, as both its variants bind them.
+      probeMountGreps = ''
+        grep -Fq -- '--ro-bind "$PWD"/tools/probe /probe' "$inner"
+        grep -Fq -- '--ro-bind "$PWD"/tools/probe/pi-mcp.json "$HOME"/.pi/agent/mcp.json' "$inner"
+        grep -Fq -- '--bind "$PROBE_SESSION_DIR" /session' "$inner"
+        grep -Fq -- '--ro-bind "$XDG_RUNTIME_DIR"/nemesis-probe /run/probe' "$inner"
+      '';
     in {
       packages =
         allJails
+        // checkJails
         // {
           inherit devTools;
           quotient-read = forms.read;
           quotient-write = forms.write;
         };
 
-      # The jails, the unjailed agent CLIs (ahead of self-installed ones on
-      # PATH, one pin with the jails) and the shorthands, with the project's env.
+      # The shell: shellPackages, with the project's env.
       devShells.default = pkgs.mkShell {
-        packages = tools ++ lib.attrValues allJails ++ (with jailLib.unjailed; [pi claude codex]) ++ shorthands ++ [hostileAudit];
+        packages = shellPackages;
         inherit env;
         shellHook = devEnvLib.doctrineWarning devTools;
       };
@@ -275,6 +347,9 @@
           # `${NAME+x}` appears only in tryFwdEnv's runtime test, so a build-time
           # `--setenv STUB_HOST_ENV` would not satisfy it.
           needles = ["${devTools}" "--setenv STUB_DEV_ENV stub" "\${STUB_HOST_ENV+x}"];
+          # Only a check variant may read these (nemesis:SL-026 PHASE-02 EX-5):
+          # an inherited variable cannot redirect a real jail.
+          absent = ["JAIL_CHECK_GATEWAY_"];
           grep = "${pkgs.gnugrep}/bin/grep";
           launcherCheck = name: jail: let
             launcher = launcherOf name jail;
@@ -291,6 +366,14 @@
                 echo "dev-envs: ${name} lacks '$needle'" >&2
                 failed=1
               fi
+            done
+            for needle in ${lib.concatMapStringsSep " " (n: "'${n}'") absent}; do
+              for f in "''${files[@]}"; do
+                if ${grep} -qF -- "$needle" "$f"; then
+                  echo "dev-envs: ${name} holds '$needle' ($f)" >&2
+                  failed=1
+                fi
+              done
             done
           '';
         in
@@ -322,10 +405,7 @@
 
             grep -Fq -- '--unshare-net' "$inner"
             grep -Fq -- '--ro-bind ${dirOf clientSocket} ${dirOf clientSocket}' "$inner"
-            grep -Fq -- '--ro-bind "$PWD"/tools/probe /probe' "$inner"
-            grep -Fq -- '--ro-bind "$PWD"/tools/probe/pi-mcp.json "$HOME"/.pi/agent/mcp.json' "$inner"
-            grep -Fq -- '--bind "$PROBE_SESSION_DIR" /session' "$inner"
-            grep -Fq -- '--ro-bind "$XDG_RUNTIME_DIR"/nemesis-probe /run/probe' "$inner"
+            ${probeMountGreps}
             grep -Fq -- '--no-builtin-tools "$@"' "$inner"
             # No launch directory, no persisted home, no host integrations.
             for absent in /workspace jail.nix/home malebolge -host-git-excludes-file \
@@ -347,6 +427,64 @@
             grep -Fq -- 'UNIX-CONNECT:/run/probe/duel.sock' "''${wrappers[@]}"
             touch "$out"
           '';
+
+        # jailed-probe-check (nemesis:SL-026 PHASE-02 EX-5): production's
+        # mounts and forwards; the entry inside every forwarder, gateway
+        # outermost, running the launch argv with pi's real entry last; the
+        # gateway's host side from JAIL_CHECK_GATEWAY_*; and each refusal
+        # before bwrap. Run live by `just declared-jail-live`.
+        check-variant = let
+          outer = launcherOf "jailed-probe-check" checkJails.jailed-probe-check;
+          # The guard execs the gateway wrapper; innerOf follows that exec.
+          gatewayOuter = innerOf outer;
+          inherit (jailLib.gatewayFacts) clientSocket relayPort;
+        in
+          assert !(lib.elem checkJails.jailed-probe-check shellPackages);
+            pkgs.runCommand "dev-envs-check-variant-check" {nativeBuildInputs = [pkgs.gnugrep];} ''
+              refute() {
+                if "$@"; then
+                  echo "refute: holds, expected not to: $*" >&2
+                  exit 1
+                fi
+              }
+              # The gateway wrapper's own exec, followed here: innerOf's result
+              # carries no store context, so it cannot be read again at eval.
+              inner="$(grep -o -- '^exec /nix/store/[^ ]*' '${gatewayOuter}' | cut -c6-)"
+              test -f "$inner"
+              ${probeMountGreps}
+              grep -Fq -- '--ro-bind "''${JAIL_CHECK_GATEWAY_DIR:-${dirOf clientSocket}}" ${dirOf clientSocket}' "$inner"
+              refute grep -Fq -- '--ro-bind ${dirOf clientSocket} ${dirOf clientSocket}' "$inner"
+              refute grep -Fq -- '--no-builtin-tools' "$inner"
+
+              # The entry chain: gateway forwarder, declared forward, check entry.
+              wrappers=()
+              next="$(grep -o -- '-- /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$inner" | cut -c4-)"
+              while [ -n "$next" ]; do
+                wrappers+=("$next")
+                next="$(grep -o -- '^exec /nix/store/[^ ]*-jail-wrapper/bin/[^ ]*' "$next" | cut -c6- || true)"
+              done
+              test "''${#wrappers[@]}" = 3
+              grep -Fq -- 'TCP-LISTEN:${toString relayPort},bind=127.0.0.1' "''${wrappers[0]}"
+              grep -Fq -- 'UNIX-CONNECT:${clientSocket}' "''${wrappers[0]}"
+              grep -Fq -- 'TCP-LISTEN:7000,bind=127.0.0.1' "''${wrappers[1]}"
+              real="$(grep -o -- 'exec "$@" /nix/store/[^ ]*-jailed-probe-check-entry' "''${wrappers[2]}" | cut -c11-)"
+              test -n "$real"
+              grep -Fq -- '--no-builtin-tools' "$real"
+
+              # Refusals, before bwrap: one variable alone, a missing directory.
+              export HOME="$TMPDIR"
+              key="$TMPDIR/key"
+              printf 'sk-dummy' > "$key"
+              if JAIL_CHECK_GATEWAY_DIR="$TMPDIR" ${outer} 2> "$TMPDIR/err"; then exit 1; fi
+              grep -Fq -- 'JAIL_CHECK_GATEWAY_KEY' "$TMPDIR/err"
+              if JAIL_CHECK_GATEWAY_KEY="$key" ${outer} 2> "$TMPDIR/err"; then exit 1; fi
+              grep -Fq -- 'JAIL_CHECK_GATEWAY_DIR' "$TMPDIR/err"
+              if JAIL_CHECK_GATEWAY_DIR="$TMPDIR/no gateway" JAIL_CHECK_GATEWAY_KEY="$key" ${outer} 2> "$TMPDIR/err"; then exit 1; fi
+              grep -Fq -- "(no $TMPDIR/no gateway)" "$TMPDIR/err"
+              if JAIL_CHECK_GATEWAY_DIR="$TMPDIR" JAIL_CHECK_GATEWAY_KEY="$TMPDIR/no key" ${outer} 2> "$TMPDIR/err"; then exit 1; fi
+              grep -Fq -- "$TMPDIR/no key" "$TMPDIR/err"
+              touch "$out"
+            '';
 
         dev-env = import ./dev-env-test.nix {inherit pkgs devEnvLib hostDevEnv;};
 

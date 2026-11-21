@@ -1,0 +1,28 @@
+ok   run a: the entry passed and pi exited 0
+  [a] probe-entry: mounts: /probe ro, ~/.pi/agent/mcp.json ro, /session rw, /run/probe ro
+  [a] probe-entry: gateway: the fixture's directory, no mount from the real one
+  [a] probe-entry: forwards: 7000 -> duel-a, 4000 -> fixture-gateway
+  [a] probe-entry: exec pi: /nix/store/s4ri8h4alhah2wacwr35nsddh47byb5l-jailed-probe-check-entry
+  [a] fixture-ok
+ok   run b: the entry passed and pi exited 0
+  [b] probe-entry: mounts: /probe ro, ~/.pi/agent/mcp.json ro, /session rw, /run/probe ro
+  [b] probe-entry: gateway: the fixture's directory, no mount from the real one
+  [b] probe-entry: forwards: 7000 -> duel-b, 4000 -> fixture-gateway
+  [b] probe-entry: exec pi: /nix/store/s4ri8h4alhah2wacwr35nsddh47byb5l-jailed-probe-check-entry
+  [b] fixture-ok
+ok   run a: its witness names its own runtime directory
+ok   run a: no witness from run b in its session
+ok   run a: its own witness not in run b's session
+ok   run b: its witness names its own runtime directory
+ok   run b: no witness from run a in its session
+ok   run b: its own witness not in run a's session
+ok   nothing written into the read-only runtime mount ($tmp/xdg-a)
+ok   nothing written into the read-only runtime mount ($tmp/xdg b)
+ok   the stub model endpoint recorded pi's first request
+ok   pi's first request carried the dummy key
+  first request: {"method": "POST", "path": "/v1/chat/completions", "authorization": "Bearer sk-fixture-dummy", "body": "{\"model\":\"chatgpt/gpt-6-astra\",\"messages\":[{\"role\":\"developer\",\"content\":\"You are a
+ok   a mount source unset: refused, naming PROBE_SESSION_DIR
+ok   the gateway directory alone: refused, naming JAIL_CHECK_GATEWAY_KEY
+ok   the gateway key alone: refused, naming JAIL_CHECK_GATEWAY_DIR
+ok   a missing gateway directory: refused, naming $tmp/no gateway
+declared-jail-live: all passed

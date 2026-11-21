@@ -22,6 +22,9 @@ in
         devEnv.errors {
           inherit lib;
           hostNames = devEnv.hostNames ((import ./agents/dev-env.nix).for pkgs);
+          # The template declares no jails, so there is no agent or name to check.
+          jailAgents = [];
+          reservedJails = [];
         }
         devTools.devEnv;
       expected = [];
