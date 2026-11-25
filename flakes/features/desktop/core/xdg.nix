@@ -1,4 +1,5 @@
 {
+  inputs,
   pkgs,
   lib,
   ...
@@ -44,6 +45,7 @@ in {
     xdgOpenUsePortal = true;
 
     extraPortals = with pkgs; [
+      inputs.luciole.packages.${pkgs.stdenv.hostPlatform.system}.default
       xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
       xdg-desktop-portal-gnome
@@ -58,6 +60,7 @@ in {
           "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
           "org.freedesktop.impl.portal.ScreenCast" = "wlr";
           "org.freedesktop.impl.portal.Screenshot" = "wlr";
+          "org.freedesktop.impl.portal.FileChooser" = ["luciole" "gtk"];
         };
         kde = {
           "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
@@ -65,7 +68,7 @@ in {
         sway = {
           default = ["gtk"];
           # wlr interfaces
-          # Source: https://gitlab.archlinux.org/archlinux/packaging/packages/sway/-/commit/87acbcfcc8ea6a75e69ba7b0c976108d8e54855b
+          # firefox use wayland idle-inhibit
           "org.freedesktop.impl.portal.Inhibit" = "none";
         };
       }
