@@ -22,6 +22,10 @@
   kdeFileChooser =
     lib.genAttrs desktops
     (_: {"org.freedesktop.impl.portal.FileChooser" = ["kde"];});
+
+  lucioleFileChooser =
+    lib.genAttrs desktops
+    (_: {"org.freedesktop.impl.portal.FileChooser" = ["luciole" "gtk" "kde"];});
 in {
   xdg.portal = {
     enable = true;
@@ -53,14 +57,14 @@ in {
     ];
 
     config = lib.mkMerge [
-      kdeFileChooser
+      # kdeFileChooser
+      lucioleFileChooser
       {
         common = {
           default = ["wlr" "gtk" "gnome" "kde"];
           "org.freedesktop.impl.portal.Secret" = ["gnome-keyring"];
           "org.freedesktop.impl.portal.ScreenCast" = "wlr";
           "org.freedesktop.impl.portal.Screenshot" = "wlr";
-          "org.freedesktop.impl.portal.FileChooser" = ["luciole" "gtk"];
         };
         kde = {
           "org.freedesktop.impl.portal.Secret" = ["kwalletd6"];
