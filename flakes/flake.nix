@@ -217,6 +217,12 @@
       inputs.elephant.follows = "elephant";
     };
 
+    antigravity = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    luciole.url = "github:noctalia-dev/luciole";
     strata.url = "github:lgse/strata";
   };
 

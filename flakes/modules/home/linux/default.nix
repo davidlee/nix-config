@@ -4,6 +4,7 @@
 {config, ...}: {
   imports = [
     ../.
+    ./luciole.nix
   ];
 
   # GUI apps launched by the compositor never source a shell profile

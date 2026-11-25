@@ -62,7 +62,10 @@
   };
   feature.system.bootvine.enable = true;
   feature.notes.joplin.enable = true;
-  feature.ai.claude-desktop.enable = true;
+  feature.ai = {
+    claude-desktop.enable = true;
+    antigravity.enable = true;
+  };
 
   feature.desktop.greeter.enable = true; # the login screen; default session in config.nix
   feature.desktop-shell = {

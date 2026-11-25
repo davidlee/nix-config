@@ -78,7 +78,6 @@
     homeManager = {pkgs, ...}: {
       home.packages = [
         pkgs.claude-desktop
-        #inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
       ];
     };
   }
@@ -87,6 +86,22 @@
     # pkgs.llm-agents.chatgpt builds on aarch64-darwin too: no platforms.
     homeManager = {pkgs, ...}: {
       home.packages = [pkgs.llm-agents.chatgpt];
+    };
+  }
+  {
+    name = "antigravity";
+    # Google's agentic IDE and CLI, from the jacopone/antigravity-nix flake.
+    platforms = ["x86_64-linux"];
+    homeManager = {
+      inputs,
+      pkgs,
+      ...
+    }: {
+      home.packages = with inputs.antigravity.packages.${pkgs.stdenv.hostPlatform.system}; [
+        default
+        google-antigravity-ide
+        google-antigravity-cli
+      ];
     };
   }
 ]
