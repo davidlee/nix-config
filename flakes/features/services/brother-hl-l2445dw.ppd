@@ -1,0 +1,231 @@
+*PPD-Adobe: "4.3"
+*cupsMandatory: attributes-charset attributes-natural-language printer-uri
+*FormatVersion: "4.3"
+*FileVersion: "2.4"
+*LanguageVersion: English
+*LanguageEncoding: ISOLatin1
+*PSVersion: "(3010.000) 0"
+*LanguageLevel: "3"
+*FileSystem: False
+*PCFileName: "ippeve.ppd"
+*Manufacturer: "Brother"
+*ModelName: "Printer"
+*Product: "(Printer)"
+*NickName: "Printer - IPP Everywhere"
+*ShortNickName: "Printer - IPP Everywhere"
+*ColorDevice: False
+*cupsVersion: 2.4
+*cupsSNMPSupplies: False
+*cupsLanguages: "en_AU en fr de nl es it nb pt da sv fi cs pl hu ru ro sk tr hr"
+*APSupplies: "http://BRWC8A3E8DADA55.local./net/net/airprint.html"
+*cupsStringsURI: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/en.txt"
+*cupsStringsURI en: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/en.txt"
+*cupsStringsURI fr: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/fr.txt"
+*cupsStringsURI de: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/de.txt"
+*cupsStringsURI nl: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/nl.txt"
+*cupsStringsURI es: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/es.txt"
+*cupsStringsURI it: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/it.txt"
+*cupsStringsURI nb: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/nb.txt"
+*cupsStringsURI pt: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/pt.txt"
+*cupsStringsURI da: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/da.txt"
+*cupsStringsURI sv: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/sv.txt"
+*cupsStringsURI fi: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/fi.txt"
+*cupsStringsURI cs: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/cs.txt"
+*cupsStringsURI pl: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/pl.txt"
+*cupsStringsURI hu: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/hu.txt"
+*cupsStringsURI ru: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/ru.txt"
+*cupsStringsURI ro: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/ro.txt"
+*cupsStringsURI sk: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/sk.txt"
+*cupsStringsURI tr: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/tr.txt"
+*cupsStringsURI hr: "http://BRWC8A3E8DADA55.local./ipp/strings/dict/hr.txt"
+*cupsManualCopies: True
+*cupsFilter2: "image/urf image/urf 100 -"
+*cupsUrfSupported: "W8,CP1,IS4-1,MT1-3-4-5-8,OB10,PQ3-4-5,RS300-600-1200,V1.5,DM1"
+*OpenUI *PageSize: PickOne
+*OrderDependency: 10 AnySetup *PageSize
+*DefaultPageSize: A4
+*PageSize 195x270mm: "<</PageSize[552.755905511811 765.354330708661]>>setpagedevice"
+*PageSize 210x270mm: "<</PageSize[595.275590551181 765.354330708661]>>setpagedevice"
+*PageSize 215x345mm: "<</PageSize[609.448818897638 977.952755905512]>>setpagedevice"
+*PageSize 3x5: "<</PageSize[216 360]>>setpagedevice"
+*PageSize A4: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageSize A5: "<</PageSize[419.527559055118 595.275590551181]>>setpagedevice"
+*PageSize A6: "<</PageSize[297.637795275591 419.527559055118]>>setpagedevice"
+*PageSize B5: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageSize B6: "<</PageSize[362.834645669291 515.905511811024]>>setpagedevice"
+*PageSize Env10: "<</PageSize[296.985826771654 684]>>setpagedevice"
+*PageSize EnvC5: "<</PageSize[459.212598425197 649.133858267717]>>setpagedevice"
+*PageSize EnvDL: "<</PageSize[311.811023622047 623.622047244094]>>setpagedevice"
+*PageSize EnvMonarch: "<</PageSize[278.985826771654 540]>>setpagedevice"
+*PageSize Executive: "<</PageSize[522 756]>>setpagedevice"
+*PageSize FanFoldGermanLegal: "<</PageSize[612 936]>>setpagedevice"
+*PageSize ISOB5: "<</PageSize[498.897637795276 708.661417322835]>>setpagedevice"
+*PageSize Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageSize Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageSize Oficio: "<</PageSize[612 964.8]>>setpagedevice"
+*CloseUI: *PageSize
+*OpenUI *PageRegion: PickOne
+*OrderDependency: 10 AnySetup *PageRegion
+*DefaultPageRegion: A4
+*PageRegion 195x270mm: "<</PageSize[552.755905511811 765.354330708661]>>setpagedevice"
+*PageRegion 210x270mm: "<</PageSize[595.275590551181 765.354330708661]>>setpagedevice"
+*PageRegion 215x345mm: "<</PageSize[609.448818897638 977.952755905512]>>setpagedevice"
+*PageRegion 3x5: "<</PageSize[216 360]>>setpagedevice"
+*PageRegion A4: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageRegion A5: "<</PageSize[419.527559055118 595.275590551181]>>setpagedevice"
+*PageRegion A6: "<</PageSize[297.637795275591 419.527559055118]>>setpagedevice"
+*PageRegion B5: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageRegion B6: "<</PageSize[362.834645669291 515.905511811024]>>setpagedevice"
+*PageRegion Env10: "<</PageSize[296.985826771654 684]>>setpagedevice"
+*PageRegion EnvC5: "<</PageSize[459.212598425197 649.133858267717]>>setpagedevice"
+*PageRegion EnvDL: "<</PageSize[311.811023622047 623.622047244094]>>setpagedevice"
+*PageRegion EnvMonarch: "<</PageSize[278.985826771654 540]>>setpagedevice"
+*PageRegion Executive: "<</PageSize[522 756]>>setpagedevice"
+*PageRegion FanFoldGermanLegal: "<</PageSize[612 936]>>setpagedevice"
+*PageRegion ISOB5: "<</PageSize[498.897637795276 708.661417322835]>>setpagedevice"
+*PageRegion Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageRegion Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageRegion Oficio: "<</PageSize[612 964.8]>>setpagedevice"
+*CloseUI: *PageRegion
+*DefaultImageableArea: A4
+*DefaultPaperDimension: A4
+*ImageableArea 195x270mm: "11.990551181102 11.990551181102 540.765354330709 753.363779527559"
+*PaperDimension 195x270mm: "552.755905511811 765.354330708661"
+*ImageableArea 210x270mm: "11.990551181102 11.990551181102 583.285039370079 753.363779527559"
+*PaperDimension 210x270mm: "595.275590551181 765.354330708661"
+*ImageableArea 215x345mm: "11.990551181102 11.990551181102 597.458267716535 965.96220472441"
+*PaperDimension 215x345mm: "609.448818897638 977.952755905512"
+*ImageableArea 3x5: "11.990551181102 11.990551181102 204.009448818898 348.009448818898"
+*PaperDimension 3x5: "216 360"
+*ImageableArea A4: "11.990551181102 11.990551181102 583.285039370079 829.899212598425"
+*PaperDimension A4: "595.275590551181 841.889763779528"
+*ImageableArea A5: "11.990551181102 11.990551181102 407.537007874016 583.285039370079"
+*PaperDimension A5: "419.527559055118 595.275590551181"
+*ImageableArea A6: "11.990551181102 11.990551181102 285.647244094488 407.537007874016"
+*PaperDimension A6: "297.637795275591 419.527559055118"
+*ImageableArea B5: "11.990551181102 11.990551181102 503.914960629921 716.513385826772"
+*PaperDimension B5: "515.905511811024 728.503937007874"
+*ImageableArea B6: "11.990551181102 11.990551181102 350.844094488189 503.914960629921"
+*PaperDimension B6: "362.834645669291 515.905511811024"
+*ImageableArea Env10: "11.990551181102 11.990551181102 284.995275590551 672.009448818898"
+*PaperDimension Env10: "296.985826771654 684"
+*ImageableArea EnvC5: "11.990551181102 11.990551181102 447.222047244094 637.143307086614"
+*PaperDimension EnvC5: "459.212598425197 649.133858267717"
+*ImageableArea EnvDL: "11.990551181102 11.990551181102 299.820472440945 611.631496062992"
+*PaperDimension EnvDL: "311.811023622047 623.622047244094"
+*ImageableArea EnvMonarch: "11.990551181102 11.990551181102 266.995275590551 528.009448818898"
+*PaperDimension EnvMonarch: "278.985826771654 540"
+*ImageableArea Executive: "11.990551181102 11.990551181102 510.009448818898 744.009448818898"
+*PaperDimension Executive: "522 756"
+*ImageableArea FanFoldGermanLegal: "11.990551181102 11.990551181102 600.009448818898 924.009448818898"
+*PaperDimension FanFoldGermanLegal: "612 936"
+*ImageableArea ISOB5: "11.990551181102 11.990551181102 486.907086614173 696.670866141732"
+*PaperDimension ISOB5: "498.897637795276 708.661417322835"
+*ImageableArea Legal: "11.990551181102 11.990551181102 600.009448818898 996.009448818898"
+*PaperDimension Legal: "612 1008"
+*ImageableArea Letter: "11.990551181102 11.990551181102 600.009448818898 780.009448818898"
+*PaperDimension Letter: "612 792"
+*ImageableArea Oficio: "11.990551181102 11.990551181102 600.009448818898 952.809448818898"
+*PaperDimension Oficio: "612 964.8"
+*HWMargins: "11.990551181102 11.990551181102 11.990551181102 11.990551181102"
+*ParamCustomPageSize Width: 1 points 216 612
+*ParamCustomPageSize Height: 2 points 360 1008
+*ParamCustomPageSize WidthOffset: 3 points 0 0
+*ParamCustomPageSize HeightOffset: 4 points 0 0
+*ParamCustomPageSize Orientation: 5 int 0 3
+*CustomPageSize True: "pop pop pop <</PageSize[5 -2 roll]/ImagingBBox null>>setpagedevice"
+*OpenUI *InputSlot: PickOne
+*OrderDependency: 10 AnySetup *InputSlot
+*DefaultInputSlot: Auto
+*InputSlot Auto: "<</MediaPosition 0>>setpagedevice"
+*en_AU.InputSlot Auto/Automatic: ""
+*InputSlot Manual: "<</MediaPosition 4>>setpagedevice"
+*en_AU.InputSlot Manual/Manual: ""
+*InputSlot Main: "<</MediaPosition 1>>setpagedevice"
+*en_AU.InputSlot Main/Main: ""
+*CloseUI: *InputSlot
+*OpenUI *MediaType: PickOne
+*OrderDependency: 10 AnySetup *MediaType
+*DefaultMediaType: Stationery
+*MediaType Stationery: "<</MediaType(Stationery)>>setpagedevice"
+*en_AU.MediaType Stationery/Stationery: ""
+*MediaType StationeryLightweight: "<</MediaType(StationeryLightweight)>>setpagedevice"
+*en_AU.MediaType StationeryLightweight/Lightweight Paper: ""
+*MediaType StationeryHeavyweight: "<</MediaType(StationeryHeavyweight)>>setpagedevice"
+*en_AU.MediaType StationeryHeavyweight/Heavyweight Paper: ""
+*MediaType Envelope: "<</MediaType(Envelope)>>setpagedevice"
+*en_AU.MediaType Envelope/Envelope: ""
+*MediaType EnvelopeHeavyweight: "<</MediaType(EnvelopeHeavyweight)>>setpagedevice"
+*en_AU.MediaType EnvelopeHeavyweight/Heavyweight Envelope: ""
+*MediaType EnvelopeLightweight: "<</MediaType(EnvelopeLightweight)>>setpagedevice"
+*en_AU.MediaType EnvelopeLightweight/Lightweight Envelope: ""
+*MediaType Labels: "<</MediaType(Labels)>>setpagedevice"
+*en_AU.MediaType Labels/Labels: ""
+*MediaType StationeryBond: "<</MediaType(StationeryBond)>>setpagedevice"
+*MediaType Com.brotherThicker: "<</MediaType(Com.brotherThicker)>>setpagedevice"
+*en_AU.MediaType Com.brotherThicker/Thicker Paper: ""
+*MediaType Com.brotherRecycled: "<</MediaType(Com.brotherRecycled)>>setpagedevice"
+*en_AU.MediaType Com.brotherRecycled/Recycled Paper: ""
+*CloseUI: *MediaType
+*DefaultResolution: 300dpi
+*OpenUI *cupsPrintQuality: PickOne
+*OrderDependency: 10 AnySetup *cupsPrintQuality
+*en_AU.Translation cupsPrintQuality/Print Quality: ""
+*DefaultcupsPrintQuality: Normal
+*cupsPrintQuality Draft: "<</HWResolution[300 150]>>setpagedevice"
+*en_AU.cupsPrintQuality Draft/Draft: ""
+*cupsPrintQuality Normal: "<</HWResolution[300 300]>>setpagedevice"
+*en_AU.cupsPrintQuality Normal/Normal: ""
+*cupsPrintQuality High: "<</HWResolution[1200 1200]>>setpagedevice"
+*en_AU.cupsPrintQuality High/High: ""
+*CloseUI: *cupsPrintQuality
+*% ColorModel from urf-supported
+*OpenUI *ColorModel: PickOne
+*OrderDependency: 10 AnySetup *ColorModel
+*en_AU.Translation ColorModel/Color Mode: ""
+*ColorModel Gray: "<</cupsColorSpace 18/cupsBitsPerColor 8/cupsColorOrder 0/cupsCompression 0>>setpagedevice"
+*en_AU.ColorModel Gray/Grayscale: ""
+*DefaultColorModel: Gray
+*CloseUI: *ColorModel
+*APPrinterPreset Gray_with_Paper_Auto-Detect_-_Draft/Draft B&W: "
+  *cupsPrintQuality Draft *ColorModel Gray
+  com.apple.print.preset.graphicsType General
+  com.apple.print.preset.quality low
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode monochrome"
+*End
+*APPrinterPreset Gray_with_Paper_Auto-Detect/Black and White: "
+  *cupsPrintQuality Normal *ColorModel Gray
+  com.apple.print.preset.graphicsType General
+  com.apple.print.preset.quality mid
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode monochrome"
+*End
+*APPrinterPreset Photo_with_Paper_Auto-Detect/Photo: "
+  *cupsPrintQuality High *ColorModel Gray
+  com.apple.print.preset.graphicsType Photo
+  com.apple.print.preset.quality high
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode color"
+*End
+*OpenUI *Duplex: PickOne
+*OrderDependency: 10 AnySetup *Duplex
+*en_AU.Translation Duplex/2-Sided Printing: ""
+*DefaultDuplex: None
+*Duplex None: "<</Duplex false>>setpagedevice"
+*en_AU.Duplex None/Off (1-Sided): ""
+*Duplex DuplexNoTumble: "<</Duplex true/Tumble false>>setpagedevice"
+*en_AU.Duplex DuplexNoTumble/Long-Edge (Portrait): ""
+*Duplex DuplexTumble: "<</Duplex true/Tumble true>>setpagedevice"
+*en_AU.Duplex DuplexTumble/Short-Edge (Landscape): ""
+*CloseUI: *Duplex
+*cupsBackSide: Normal
+*OpenUI *OutputBin: PickOne
+*OrderDependency: 10 AnySetup *OutputBin
+*DefaultOutputBin: FaceDown
+*DefaultOutputOrder: Normal
+*OutputBin FaceDown: ""
+*en_AU.OutputBin FaceDown/Face Down: ""
+*PageStackOrder FaceDown: Normal
+*CloseUI: *OutputBin
+*cupsSingleFile: true

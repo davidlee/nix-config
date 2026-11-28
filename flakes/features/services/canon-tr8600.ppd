@@ -1,0 +1,329 @@
+*PPD-Adobe: "4.3"
+*FormatVersion: "4.3"
+*FileVersion: "2.4"
+*LanguageVersion: English
+*LanguageEncoding: ISOLatin1
+*PSVersion: "(3010.000) 0"
+*LanguageLevel: "3"
+*FileSystem: False
+*PCFileName: "ippeve.ppd"
+*Manufacturer: "Canon"
+*ModelName: "TR8600 series"
+*Product: "(TR8600 series)"
+*NickName: "TR8600 series - IPP Everywhere"
+*ShortNickName: "TR8600 series - IPP Everywhere"
+*ColorDevice: True
+*cupsVersion: 2.4
+*cupsSNMPSupplies: False
+*cupsLanguages: "en_AU ja-jp en-us fr de it es pt-br nl da no sv fi pl cs ru ar tr ar zh-cn zh-tw ko th id"
+*APSupplies: "http://192.168.0.4/index.html?page=PAGE_AAP"
+*cupsStringsURI: "http://192.168.0.4/strings/en.txt"
+*cupsStringsURI ja-jp: "http://192.168.0.4/strings/ja.txt"
+*cupsStringsURI en-us: "http://192.168.0.4/strings/en.txt"
+*cupsStringsURI fr: "http://192.168.0.4/strings/fr.txt"
+*cupsStringsURI de: "http://192.168.0.4/strings/de.txt"
+*cupsStringsURI it: "http://192.168.0.4/strings/it.txt"
+*cupsStringsURI es: "http://192.168.0.4/strings/es.txt"
+*cupsStringsURI pt-br: "http://192.168.0.4/strings/pt-br.txt"
+*cupsStringsURI nl: "http://192.168.0.4/strings/nl.txt"
+*cupsStringsURI da: "http://192.168.0.4/strings/da.txt"
+*cupsStringsURI no: "http://192.168.0.4/strings/no.txt"
+*cupsStringsURI sv: "http://192.168.0.4/strings/sv.txt"
+*cupsStringsURI fi: "http://192.168.0.4/strings/fi.txt"
+*cupsStringsURI pl: "http://192.168.0.4/strings/pl.txt"
+*cupsStringsURI cs: "http://192.168.0.4/strings/cs.txt"
+*cupsStringsURI ru: "http://192.168.0.4/strings/ru.txt"
+*cupsStringsURI ar: "http://192.168.0.4/strings/ar.txt"
+*cupsStringsURI tr: "http://192.168.0.4/strings/tr.txt"
+*cupsStringsURI ar: "http://192.168.0.4/strings/ar.txt"
+*cupsStringsURI zh-cn: "http://192.168.0.4/strings/zh-cn.txt"
+*cupsStringsURI zh-tw: "http://192.168.0.4/strings/zh-tw.txt"
+*cupsStringsURI ko: "http://192.168.0.4/strings/ko.txt"
+*cupsStringsURI th: "http://192.168.0.4/strings/th.txt"
+*cupsStringsURI id: "http://192.168.0.4/strings/id.txt"
+*cupsFilter2: "image/jpeg image/jpeg 0 -"
+*cupsManualCopies: True
+*cupsFilter2: "image/urf image/urf 100 -"
+*cupsUrfSupported: "V1.4,CP1,PQ3-5,RS600,SRGB24,W8,OB9,OFU0,DM3,IS1-18"
+*OpenUI *PageSize: PickOne
+*OrderDependency: 10 AnySetup *PageSize
+*DefaultPageSize: A4
+*PageSize 3.5x5: "<</PageSize[252 360]>>setpagedevice"
+*PageSize 3.5x5.Borderless: "<</PageSize[252 360]>>setpagedevice"
+*PageSize 4x6: "<</PageSize[288 432]>>setpagedevice"
+*PageSize 4x6.Borderless: "<</PageSize[288 432]>>setpagedevice"
+*PageSize 55x91mm: "<</PageSize[155.905511811024 257.952755905512]>>setpagedevice"
+*PageSize 55x91mm.Borderless: "<</PageSize[155.905511811024 257.952755905512]>>setpagedevice"
+*PageSize 5x5: "<</PageSize[360 360]>>setpagedevice"
+*PageSize 5x5.Borderless: "<</PageSize[360 360]>>setpagedevice"
+*PageSize 5x7: "<</PageSize[360 504]>>setpagedevice"
+*PageSize 5x7.Borderless: "<</PageSize[360 504]>>setpagedevice"
+*PageSize 7x10: "<</PageSize[504 720]>>setpagedevice"
+*PageSize 7x10.Borderless: "<</PageSize[504 720]>>setpagedevice"
+*PageSize 89x89mm: "<</PageSize[252.283464566929 252.283464566929]>>setpagedevice"
+*PageSize 89x89mm.Borderless: "<</PageSize[252.283464566929 252.283464566929]>>setpagedevice"
+*PageSize 8x10: "<</PageSize[576 720]>>setpagedevice"
+*PageSize 8x10.Borderless: "<</PageSize[576 720]>>setpagedevice"
+*PageSize A4: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageSize A4.Borderless: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageSize A5: "<</PageSize[419.527559055118 595.275590551181]>>setpagedevice"
+*PageSize B5: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageSize B5.Borderless: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageSize Env10: "<</PageSize[296.985826771654 684]>>setpagedevice"
+*PageSize EnvChou3: "<</PageSize[340.157480314961 666.141732283465]>>setpagedevice"
+*PageSize EnvChou4: "<</PageSize[255.11811023622 581.102362204724]>>setpagedevice"
+*PageSize EnvDL: "<</PageSize[311.811023622047 623.622047244094]>>setpagedevice"
+*PageSize EnvYou4: "<</PageSize[297.637795275591 666.141732283465]>>setpagedevice"
+*PageSize EnvYou6: "<</PageSize[277.795275590551 538.582677165354]>>setpagedevice"
+*PageSize Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageSize Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageSize Letter.Borderless: "<</PageSize[612 792]>>setpagedevice"
+*PageSize Postcard: "<</PageSize[283.464566929134 419.527559055118]>>setpagedevice"
+*PageSize Postcard.Borderless: "<</PageSize[283.464566929134 419.527559055118]>>setpagedevice"
+*CloseUI: *PageSize
+*OpenUI *PageRegion: PickOne
+*OrderDependency: 10 AnySetup *PageRegion
+*DefaultPageRegion: A4
+*PageRegion 3.5x5: "<</PageSize[252 360]>>setpagedevice"
+*PageRegion 3.5x5.Borderless: "<</PageSize[252 360]>>setpagedevice"
+*PageRegion 4x6: "<</PageSize[288 432]>>setpagedevice"
+*PageRegion 4x6.Borderless: "<</PageSize[288 432]>>setpagedevice"
+*PageRegion 55x91mm: "<</PageSize[155.905511811024 257.952755905512]>>setpagedevice"
+*PageRegion 55x91mm.Borderless: "<</PageSize[155.905511811024 257.952755905512]>>setpagedevice"
+*PageRegion 5x5: "<</PageSize[360 360]>>setpagedevice"
+*PageRegion 5x5.Borderless: "<</PageSize[360 360]>>setpagedevice"
+*PageRegion 5x7: "<</PageSize[360 504]>>setpagedevice"
+*PageRegion 5x7.Borderless: "<</PageSize[360 504]>>setpagedevice"
+*PageRegion 7x10: "<</PageSize[504 720]>>setpagedevice"
+*PageRegion 7x10.Borderless: "<</PageSize[504 720]>>setpagedevice"
+*PageRegion 89x89mm: "<</PageSize[252.283464566929 252.283464566929]>>setpagedevice"
+*PageRegion 89x89mm.Borderless: "<</PageSize[252.283464566929 252.283464566929]>>setpagedevice"
+*PageRegion 8x10: "<</PageSize[576 720]>>setpagedevice"
+*PageRegion 8x10.Borderless: "<</PageSize[576 720]>>setpagedevice"
+*PageRegion A4: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageRegion A4.Borderless: "<</PageSize[595.275590551181 841.889763779528]>>setpagedevice"
+*PageRegion A5: "<</PageSize[419.527559055118 595.275590551181]>>setpagedevice"
+*PageRegion B5: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageRegion B5.Borderless: "<</PageSize[515.905511811024 728.503937007874]>>setpagedevice"
+*PageRegion Env10: "<</PageSize[296.985826771654 684]>>setpagedevice"
+*PageRegion EnvChou3: "<</PageSize[340.157480314961 666.141732283465]>>setpagedevice"
+*PageRegion EnvChou4: "<</PageSize[255.11811023622 581.102362204724]>>setpagedevice"
+*PageRegion EnvDL: "<</PageSize[311.811023622047 623.622047244094]>>setpagedevice"
+*PageRegion EnvYou4: "<</PageSize[297.637795275591 666.141732283465]>>setpagedevice"
+*PageRegion EnvYou6: "<</PageSize[277.795275590551 538.582677165354]>>setpagedevice"
+*PageRegion Legal: "<</PageSize[612 1008]>>setpagedevice"
+*PageRegion Letter: "<</PageSize[612 792]>>setpagedevice"
+*PageRegion Letter.Borderless: "<</PageSize[612 792]>>setpagedevice"
+*PageRegion Postcard: "<</PageSize[283.464566929134 419.527559055118]>>setpagedevice"
+*PageRegion Postcard.Borderless: "<</PageSize[283.464566929134 419.527559055118]>>setpagedevice"
+*CloseUI: *PageRegion
+*DefaultImageableArea: A4
+*DefaultPaperDimension: A4
+*ImageableArea 3.5x5: "9.637795275591 14.173228346457 242.362204724409 345.826771653543"
+*PaperDimension 3.5x5: "252 360"
+*ImageableArea 3.5x5.Borderless: "0 0 252 360"
+*PaperDimension 3.5x5.Borderless: "252 360"
+*ImageableArea 4x6: "9.637795275591 14.173228346457 278.362204724409 417.826771653543"
+*PaperDimension 4x6: "288 432"
+*ImageableArea 4x6.Borderless: "0 0 288 432"
+*PaperDimension 4x6.Borderless: "288 432"
+*ImageableArea 55x91mm: "9.637795275591 14.173228346457 146.267716535433 243.779527559055"
+*PaperDimension 55x91mm: "155.905511811024 257.952755905512"
+*ImageableArea 55x91mm.Borderless: "0 0 155.905511811024 257.952755905512"
+*PaperDimension 55x91mm.Borderless: "155.905511811024 257.952755905512"
+*ImageableArea 5x5: "17.007874015748 17.007874015748 342.992125984252 342.992125984252"
+*PaperDimension 5x5: "360 360"
+*ImageableArea 5x5.Borderless: "0 0 360 360"
+*PaperDimension 5x5.Borderless: "360 360"
+*ImageableArea 5x7: "9.637795275591 14.173228346457 350.362204724409 489.826771653543"
+*PaperDimension 5x7: "360 504"
+*ImageableArea 5x7.Borderless: "0 0 360 504"
+*PaperDimension 5x7.Borderless: "360 504"
+*ImageableArea 7x10: "9.637795275591 14.173228346457 494.362204724409 705.826771653543"
+*PaperDimension 7x10: "504 720"
+*ImageableArea 7x10.Borderless: "0 0 504 720"
+*PaperDimension 7x10.Borderless: "504 720"
+*ImageableArea 89x89mm: "9.637795275591 14.173228346457 242.645669291339 243.779527559055"
+*PaperDimension 89x89mm: "252.283464566929 252.283464566929"
+*ImageableArea 89x89mm.Borderless: "0 0 252.283464566929 252.283464566929"
+*PaperDimension 89x89mm.Borderless: "252.283464566929 252.283464566929"
+*ImageableArea 8x10: "9.637795275591 14.173228346457 566.362204724409 705.826771653543"
+*PaperDimension 8x10: "576 720"
+*ImageableArea 8x10.Borderless: "0 0 576 720"
+*PaperDimension 8x10.Borderless: "576 720"
+*ImageableArea A4: "9.637795275591 14.173228346457 585.637795275591 827.716535433071"
+*PaperDimension A4: "595.275590551181 841.889763779528"
+*ImageableArea A4.Borderless: "0 0 595.275590551181 841.889763779528"
+*PaperDimension A4.Borderless: "595.275590551181 841.889763779528"
+*ImageableArea A5: "9.637795275591 14.173228346457 409.889763779528 581.102362204724"
+*PaperDimension A5: "419.527559055118 595.275590551181"
+*ImageableArea B5: "9.637795275591 14.173228346457 506.267716535433 714.330708661417"
+*PaperDimension B5: "515.905511811024 728.503937007874"
+*ImageableArea B5.Borderless: "0 0 515.905511811024 728.503937007874"
+*PaperDimension B5.Borderless: "515.905511811024 728.503937007874"
+*ImageableArea Env10: "15.874015748031 36 281.111811023622 661.322834645669"
+*PaperDimension Env10: "296.985826771654 684"
+*ImageableArea EnvChou3: "15.874015748031 14.173228346457 324.283464566929 643.464566929134"
+*PaperDimension EnvChou3: "340.157480314961 666.141732283465"
+*ImageableArea EnvChou4: "15.874015748031 14.173228346457 239.244094488189 558.425196850394"
+*PaperDimension EnvChou4: "255.11811023622 581.102362204724"
+*ImageableArea EnvDL: "15.874015748031 36 295.937007874016 600.944881889764"
+*PaperDimension EnvDL: "311.811023622047 623.622047244094"
+*ImageableArea EnvYou4: "15.874015748031 36 281.763779527559 643.464566929134"
+*PaperDimension EnvYou4: "297.637795275591 666.141732283465"
+*ImageableArea EnvYou6: "15.874015748031 36 261.92125984252 515.905511811024"
+*PaperDimension EnvYou6: "277.795275590551 538.582677165354"
+*ImageableArea Legal: "18.141732283465 14.173228346457 594.141732283465 993.826771653543"
+*PaperDimension Legal: "612 1008"
+*ImageableArea Letter: "18.141732283465 14.173228346457 594.141732283465 777.826771653543"
+*PaperDimension Letter: "612 792"
+*ImageableArea Letter.Borderless: "0 0 612 792"
+*PaperDimension Letter.Borderless: "612 792"
+*ImageableArea Postcard: "9.637795275591 14.173228346457 273.826771653543 405.354330708661"
+*PaperDimension Postcard: "283.464566929134 419.527559055118"
+*ImageableArea Postcard.Borderless: "0 0 283.464566929134 419.527559055118"
+*PaperDimension Postcard.Borderless: "283.464566929134 419.527559055118"
+*HWMargins: "18.141732283465 36 17.858267716535 22.677165354331"
+*ParamCustomPageSize Width: 1 points 155.905511811024 612
+*ParamCustomPageSize Height: 2 points 252.283464566929 1916.220472440945
+*ParamCustomPageSize WidthOffset: 3 points 0 0
+*ParamCustomPageSize HeightOffset: 4 points 0 0
+*ParamCustomPageSize Orientation: 5 int 0 3
+*CustomPageSize True: "pop pop pop <</PageSize[5 -2 roll]/ImagingBBox null>>setpagedevice"
+*OpenUI *InputSlot: PickOne
+*OrderDependency: 10 AnySetup *InputSlot
+*DefaultInputSlot: Main
+*InputSlot Auto: "<</MediaPosition 0>>setpagedevice"
+*en_AU.InputSlot Auto/Automatic: ""
+*InputSlot Main: "<</MediaPosition 1>>setpagedevice"
+*en_AU.InputSlot Main/Main: ""
+*InputSlot Rear: "<</MediaPosition 18>>setpagedevice"
+*en_AU.InputSlot Rear/Rear: ""
+*CloseUI: *InputSlot
+*OpenUI *MediaType: PickOne
+*OrderDependency: 10 AnySetup *MediaType
+*DefaultMediaType: Stationery
+*MediaType Com.canon.mtplatinum: "<</MediaType(Com.canon.mtplatinum)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtplatinum/Photo Paper Pro Platinum: ""
+*MediaType Com.canon.mtcrystal: "<</MediaType(Com.canon.mtcrystal)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtcrystal/Photo Paper Pro Crystal Grade: ""
+*MediaType Com.canon.mtluster: "<</MediaType(Com.canon.mtluster)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtluster/Photo Paper Pro Luster: ""
+*MediaType Com.canon.mtgr: "<</MediaType(Com.canon.mtgr)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtgr/Photo Paper Plus Glossy II: ""
+*MediaType Com.canon.mtmat: "<</MediaType(Com.canon.mtmat)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtmat/Matte Photo Paper: ""
+*MediaType Com.canon.mtglossy: "<</MediaType(Com.canon.mtglossy)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtglossy/Glossy Photo Paper: ""
+*MediaType Com.canon.mthires: "<</MediaType(Com.canon.mthires)>>setpagedevice"
+*en_AU.MediaType Com.canon.mthires/High Resolution Paper: ""
+*MediaType Com.canon.mthagakiglossy: "<</MediaType(Com.canon.mthagakiglossy)>>setpagedevice"
+*en_AU.MediaType Com.canon.mthagakiglossy/Hagaki K: ""
+*MediaType Com.canon.mttshirt: "<</MediaType(Com.canon.mttshirt)>>setpagedevice"
+*en_AU.MediaType Com.canon.mttshirt/T-Shirt Transfers: ""
+*MediaType Com.canon.mtsemisuper: "<</MediaType(Com.canon.mtsemisuper)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtsemisuper/Photo Paper Plus Semi-gloss: ""
+*MediaType Com.canon.mtgreeting: "<</MediaType(Com.canon.mtgreeting)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtgreeting/Inkjet Greeting Card: ""
+*MediaType Com.canon.mtcardstock: "<</MediaType(Com.canon.mtcardstock)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtcardstock/Card Stock: ""
+*MediaType Com.canon.0780: "<</MediaType(Com.canon.0780)>>setpagedevice"
+*en_AU.MediaType Com.canon.0780/Light Fabric Iron-on Transfers: ""
+*MediaType Com.canon.0781: "<</MediaType(Com.canon.0781)>>setpagedevice"
+*en_AU.MediaType Com.canon.0781/Dark Fabric Iron-on Transfers: ""
+*MediaType Com.canon.0782: "<</MediaType(Com.canon.0782)>>setpagedevice"
+*en_AU.MediaType Com.canon.0782/Double sided Matte Paper: ""
+*MediaType Com.canon.0765: "<</MediaType(Com.canon.0765)>>setpagedevice"
+*en_AU.MediaType Com.canon.0765/Premium Fine Art Rough: ""
+*MediaType Com.canon.0791: "<</MediaType(Com.canon.0791)>>setpagedevice"
+*en_AU.MediaType Com.canon.0791/Washi: ""
+*MediaType Com.canon.mtinkjet: "<</MediaType(Com.canon.mtinkjet)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtinkjet/Ink Jet Hagaki: ""
+*MediaType Com.canon.mtinkjeta: "<</MediaType(Com.canon.mtinkjeta)>>setpagedevice"
+*en_AU.MediaType Com.canon.mtinkjeta/Ink Jet Hagaki (A): ""
+*MediaType Com.canon.mthagakiglossya: "<</MediaType(Com.canon.mthagakiglossya)>>setpagedevice"
+*en_AU.MediaType Com.canon.mthagakiglossya/Hagaki K (A): ""
+*MediaType Com.canon.mthagaki: "<</MediaType(Com.canon.mthagaki)>>setpagedevice"
+*en_AU.MediaType Com.canon.mthagaki/Hagaki: ""
+*MediaType Com.canon.mthagakia: "<</MediaType(Com.canon.mthagakia)>>setpagedevice"
+*en_AU.MediaType Com.canon.mthagakia/Hagaki (A): ""
+*MediaType Envelope: "<</MediaType(Envelope)>>setpagedevice"
+*en_AU.MediaType Envelope/Envelope: ""
+*MediaType Stationery: "<</MediaType(Stationery)>>setpagedevice"
+*en_AU.MediaType Stationery/Stationery: ""
+*MediaType Photographic: "<</MediaType(Photographic)>>setpagedevice"
+*en_AU.MediaType Photographic/Photo Paper: ""
+*MediaType Auto: "<</MediaType(Auto)>>setpagedevice"
+*en_AU.MediaType Auto/Automatic: ""
+*CloseUI: *MediaType
+*DefaultResolution: 600dpi
+*OpenUI *cupsPrintQuality: PickOne
+*OrderDependency: 10 AnySetup *cupsPrintQuality
+*en_AU.Translation cupsPrintQuality/Print Quality: ""
+*DefaultcupsPrintQuality: Normal
+*cupsPrintQuality Draft: "<</HWResolution[600 300]>>setpagedevice"
+*en_AU.cupsPrintQuality Draft/Draft: ""
+*cupsPrintQuality Normal: "<</HWResolution[600 600]>>setpagedevice"
+*en_AU.cupsPrintQuality Normal/Normal: ""
+*cupsPrintQuality High: "<</HWResolution[600 600]>>setpagedevice"
+*en_AU.cupsPrintQuality High/High: ""
+*CloseUI: *cupsPrintQuality
+*% ColorModel from urf-supported
+*OpenUI *ColorModel: PickOne
+*OrderDependency: 10 AnySetup *ColorModel
+*en_AU.Translation ColorModel/Color Mode: ""
+*ColorModel RGB: "<</cupsColorSpace 19/cupsBitsPerColor 8/cupsColorOrder 0/cupsCompression 0>>setpagedevice"
+*en_AU.ColorModel RGB/Color: ""
+*ColorModel Gray: "<</cupsColorSpace 18/cupsBitsPerColor 8/cupsColorOrder 0/cupsCompression 0>>setpagedevice"
+*en_AU.ColorModel Gray/Grayscale: ""
+*DefaultColorModel: RGB
+*CloseUI: *ColorModel
+*APPrinterPreset Gray_with_Paper_Auto-Detect_-_Draft/Draft B&W: "
+  *cupsPrintQuality Draft *ColorModel Gray
+  com.apple.print.preset.graphicsType General
+  com.apple.print.preset.quality low
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode monochrome"
+*End
+*APPrinterPreset Gray_with_Paper_Auto-Detect/Black and White: "
+  *cupsPrintQuality Normal *ColorModel Gray
+  com.apple.print.preset.graphicsType General
+  com.apple.print.preset.quality mid
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode monochrome"
+*End
+*APPrinterPreset Color_with_Paper_Auto-Detect/Color: "
+  *cupsPrintQuality Normal *ColorModel RGB
+  com.apple.print.preset.graphicsType General
+  com.apple.print.preset.quality mid
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode color"
+*End
+*APPrinterPreset Photo_with_Paper_Auto-Detect/Photo: "
+  *cupsPrintQuality High *ColorModel RGB
+  com.apple.print.preset.graphicsType Photo
+  com.apple.print.preset.quality high
+  com.apple.print.preset.media-front-coating autodetect
+  com.apple.print.preset.output-mode color"
+*End
+*OpenUI *Duplex: PickOne
+*OrderDependency: 10 AnySetup *Duplex
+*en_AU.Translation Duplex/2-Sided Printing: ""
+*DefaultDuplex: None
+*Duplex None: "<</Duplex false>>setpagedevice"
+*en_AU.Duplex None/Off (1-Sided): ""
+*Duplex DuplexNoTumble: "<</Duplex true/Tumble false>>setpagedevice"
+*en_AU.Duplex DuplexNoTumble/Long-Edge (Portrait): ""
+*Duplex DuplexTumble: "<</Duplex true/Tumble true>>setpagedevice"
+*en_AU.Duplex DuplexTumble/Short-Edge (Landscape): ""
+*CloseUI: *Duplex
+*cupsBackSide: Rotated
+*OpenUI *OutputBin: PickOne
+*OrderDependency: 10 AnySetup *OutputBin
+*DefaultOutputBin: FaceUp
+*DefaultOutputOrder: Reverse
+*OutputBin FaceUp: ""
+*en_AU.OutputBin FaceUp/Face Up: ""
+*PageStackOrder FaceUp: Reverse
+*CloseUI: *OutputBin
+*cupsSingleFile: true

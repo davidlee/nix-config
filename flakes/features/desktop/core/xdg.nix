@@ -19,9 +19,6 @@
   # Plasma's file dialog (KIO/KFileWidget), not Dolphin — but it reads
   # ~/.local/share/user-places.xbel, so Dolphin's places and bookmarks carry
   # over. GTK apps get the Qt dialog too; that is the intent.
-  kdeFileChooser =
-    lib.genAttrs desktops
-    (_: {"org.freedesktop.impl.portal.FileChooser" = ["kde"];});
 
   lucioleFileChooser =
     lib.genAttrs desktops
